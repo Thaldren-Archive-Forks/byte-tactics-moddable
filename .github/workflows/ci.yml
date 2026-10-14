@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No game data or Microsoft software
+        run: |
+          found=$(git ls-files | grep -iE '\.(hpi|ufo|ccx|gp3|gaf|3do|tnt|cob|fbi|tdf|pcx|wav|exe|dll|lib|obj|ico|cur)$|^toolchain/|^orig/' | grep -v '^orig/[^/]*\.sha256$' || true)
+          if [ -n "$found" ]; then
+            echo "These files must not be committed:"
+            echo "$found"
+            exit 1
+          fi
