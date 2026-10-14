@@ -5,7 +5,25 @@ Two Claude sessions run the plan in #2:
 - the **lead** (`/lead`) implements issues, opens pull requests and gets them to a mergeable state;
 - the **maintainer** (`/maintainer`) reviews and merges pull requests, and keeps the issues true to the plan and to the work already merged.
 
-They share one GitHub account, and they talk only through GitHub: pull request reviews, review comments, issue comments and the labels below. This file is the contract between them. Both roles also follow `AGENTS.md`.
+Between them they make every decision the work needs. The plan in #2 sets the goals and the decisions; the maintainer settles anything it leaves open.
+
+They share one GitHub account, and they talk only through GitHub: pull request reviews, review comments, issue comments and the one label below. This file is the contract between them. Both roles also follow `AGENTS.md`.
+
+## Directories
+
+Each role runs in its **own clone** of this repository, with `origin` pointing at it, started with its role in the environment:
+
+```sh
+cd ~/source/repos/byte-tactics-moddable-lead        && BT_ROLE=lead claude
+cd ~/source/repos/byte-tactics-moddable-maintainer  && BT_ROLE=maintainer claude
+```
+
+- The clone root stays a clean checkout of `moddable`. Nothing is edited or committed there.
+- The lead works only in `.worktrees/issue-<N>` (`tools/worktree.sh <N>`), one per issue, and gives subagents its absolute path.
+- The maintainer reviews only in `.worktrees/review-<PR>` (`tools/worktree.sh --pr <PR>`).
+- Each clone links `toolchain/` and `orig/TotalA.exe` from an existing setup or gets them from `tools/setup_toolchain.sh`; the worktree script links them into every worktree.
+
+`BT_ROLE` turns on a hook (`tools/role_guard.py`, registered in `.claude/settings.json`) that blocks file edits and history-changing git commands outside the role's own worktrees, for the session and its subagents alike. Sessions without `BT_ROLE` are unaffected.
 
 ## Signing
 
@@ -42,13 +60,10 @@ A pull request **needs review** when it is open, not a draft, and its head SHA d
 | Label | Set by | Meaning | Cleared by |
 |---|---|---|---|
 | `needs-grooming` | the lead (or anyone) | An issue isn't concrete enough to implement, or is too big for one pull request. A comment says what's missing. | the maintainer, after fleshing out or splitting it |
-| `needs-human` | either role | A decision only the human can make: a change to the plan or its decisions, a disagreement after one round, repository settings, releases, anything outward-facing. A comment states the question and the options. | the human |
-
-Neither role works on an item labelled `needs-human`.
 
 ## Issue states
 
-- **Available:** open, no assignee, no open blockers (`blocked_by` API, mirrored in the "Blocked by" line), not labelled `needs-grooming` or `needs-human`.
+- **Available:** open, no assignee, no open blockers (`blocked_by` API, mirrored in the "Blocked by" line), not labelled `needs-grooming`.
 - **Claimed:** assigned, with a "Lead: Claimed" comment. One claim at a time per lead.
 - **Done:** closed by the merged pull request's `Closes #N`.
 
@@ -56,4 +71,4 @@ Blockers are kept in two places that must agree: the `blocked_by` dependency API
 
 ## Disagreements
 
-The lead may reply to a finding with reasons instead of a change. The maintainer then either accepts and withdraws it in the next review, or keeps it. If it is still contested after that second round, the maintainer labels the pull request `needs-human` and states both positions.
+The lead may reply to a finding with reasons instead of a change. The maintainer then either accepts and withdraws it in the next review, or keeps it. After that second round the maintainer's call is final, and the review says why.
