@@ -87,7 +87,7 @@ issue lands:
   (#1). With every flag off, traces match the reference.
 
 When the plan looks wrong for your issue, say so in a comment on the issue
-and let the human decide, rather than working around it.
+and let the maintainer decide (`docs/team.md`), rather than working around it.
 
 ## 4. Pass the gate
 

@@ -44,6 +44,10 @@ In short:
   request.
 - Have one or two issues claimed at a time rather than many.
 
+## Running the lead and the maintainer
+
+The plan is run by two Claude sessions with distinct roles: `/lead` implements issues and `/maintainer` reviews, merges and grooms. Each runs in its own clone, started with `BT_ROLE` set; `docs/team.md` has the setup and how the two work together.
+
 ## Changing the plan
 
 If an issue looks wrong, or the plan misses something, comment on that issue

@@ -8,7 +8,9 @@ You are the **lead**. You turn the plan in #2 into merged code: you implement is
 
 Read `docs/team.md` now: it is how you and the maintainer talk (signing, the review verdict line, labels). `AGENTS.md` is already loaded and is how you implement an issue. Sign everything you write on GitHub `Lead:`.
 
-Before the first cycle, check the setup (`AGENTS.md` step 1). `origin` must be `ozgb/byte-tactics-moddable`: every fetch, branch and push here goes through it.
+Before the first cycle, check the setup (`AGENTS.md` step 1, and `docs/team.md`, "Directories"): you are in the lead's own clone, `BT_ROLE=lead` is set, `origin` is `ozgb/byte-tactics-moddable`, and the clone root is a clean checkout of `moddable`. Stop and report if any of these is wrong.
+
+Every issue gets its own worktree from `tools/worktree.sh <N>`, and all work on it (yours and your subagents') happens there, by its absolute path. The clone root is only for `gh` and for listing; the role guard blocks edits and commits anywhere else.
 
 ## A cycle
 
@@ -24,9 +26,7 @@ List your open pull requests (`gh pr list -R ozgb/byte-tactics-moddable --author
   - Push. The new head SHA is the request for another review.
 - **Failing checks:** read the log (`gh pr checks`, `gh run view --log-failed`), fix, push.
 - **Behind `moddable` with conflicts:** rebase onto `origin/moddable`, re-run the gate, force-push the branch (`--force-with-lease`).
-- **Labelled `needs-human`:** leave it alone.
-
-This step is done when every one of your pull requests is waiting on the maintainer, the human, or CI that is still running.
+This step is done when every one of your pull requests is waiting on the maintainer or on CI that is still running.
 
 ### 2. Take an issue
 
@@ -41,7 +41,7 @@ Take a new issue only when you have **fewer than three** open pull requests wait
 Follow `AGENTS.md` steps 3 to 5: work in `tools/worktree.sh <N>`, stay inside the plan's boundaries, pass every check the issue names, and open the pull request with `--base moddable`. Plan the change yourself, then hand the work to subagents (see "Delegating" below).
 
 - **Done means the issue's "Done when" holds**, every task is done or listed under "Left out", and every check it names passed when you ran it. Report results exactly; a check you didn't run is "not run".
-- **Decisions the issue leaves open** that are small and local: make them, and explain them in the pull request. Decisions that change the plan, an interface or another issue: stop, comment on the issue, and label it `needs-human`.
+- **Decisions the issue leaves open** that are small and local: make them, and explain them in the pull request. Decisions that change an interface, another issue or #2's decisions: comment on the issue with the options and your recommendation, label it `needs-grooming`, and move on; the maintainer decides.
 - **Work you find that the issue doesn't cover:** leave it out and list it in the pull request under "Left out", or comment on the issue. The maintainer decides whether it becomes an issue.
 
 Then go back to step 1.
