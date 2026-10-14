@@ -19,3 +19,5 @@ src/**/*.asm
 
 # /Gi incremental state, if a build ever writes it in the root
 vc50.idb
+
+TotalA.exe
