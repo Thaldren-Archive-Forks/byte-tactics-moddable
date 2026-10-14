@@ -21,7 +21,7 @@ uv run tools/check.py 0x401070  # must print MATCH
 ```
 
 Clone this repository, not upstream Byte Tactics: the scripts branch from
-`origin/main`.
+`origin/moddable`.
 
 ## Running an agent
 

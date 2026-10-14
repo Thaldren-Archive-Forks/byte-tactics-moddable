@@ -31,9 +31,9 @@ hooks) that the plan builds on.
 ## 1. Check the setup
 
 Work in a clone of `ozgb/byte-tactics-moddable`, with `origin` pointing at it
-(`git remote get-url origin`). `tools/worktree.sh` branches from
-`origin/main`, so a clone whose `origin` is upstream Byte Tactics branches
-from the wrong tree.
+(`git remote get-url origin`). The base branch is `moddable`:
+`tools/worktree.sh` branches from `origin/moddable`, and pull requests target
+it. Upstream Byte Tactics has no `moddable` branch.
 
 ```sh
 gh auth status
@@ -112,10 +112,10 @@ bit-exact maths in #4), the matching rules apply to it: read
 ## 5. Open a pull request
 
 ```sh
-git fetch origin main && git rebase origin/main
+git fetch origin moddable && git rebase origin/moddable
 # re-run the gate
 git push -u origin issue-<N>
-gh pr create --repo ozgb/byte-tactics-moddable --title "<Type>: <Subject>" --body-file <file>
+gh pr create --repo ozgb/byte-tactics-moddable --base moddable --title "<Type>: <Subject>" --body-file <file>
 ```
 
 The body:

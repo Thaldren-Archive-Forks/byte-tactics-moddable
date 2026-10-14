@@ -14,8 +14,8 @@ N="${N#\#}"
 DIR="$ROOT/.worktrees/issue-$N"
 
 if [ ! -d "$DIR" ]; then
-    git -C "$ROOT" fetch -q origin main
-    git -C "$ROOT" worktree add -q -b "issue-$N" "$DIR" origin/main
+    git -C "$ROOT" fetch -q origin moddable
+    git -C "$ROOT" worktree add -q -b "issue-$N" "$DIR" origin/moddable
 fi
 ln -sfn "$ROOT/toolchain" "$DIR/toolchain"
 mkdir -p "$DIR/orig" "$DIR/build"
