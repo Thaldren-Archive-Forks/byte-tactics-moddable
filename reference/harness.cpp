@@ -13,6 +13,7 @@ static unsigned s_fpuControlWord = 0x9001F;
 static void Fail(const char* text)
 {
     DWORD written;
+    OutputDebugStringA(text);
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), text, (DWORD)strlen(text), &written, NULL);
     ExitProcess(2);
 }
@@ -26,7 +27,9 @@ static void ReadScenario(const char* path)
         sprintf(msg, "testmode: cannot read scenario file %s\n", path);
         Fail(msg);
     }
+    int lineNo = 0;
     while (fgets(line, sizeof line, f) != NULL) {
+        lineNo++;
         char* key = line;
         while (*key == ' ' || *key == '\t')
             key++;
@@ -35,17 +38,28 @@ static void ReadScenario(const char* path)
         char* end = key;
         while (*end != '\0' && !isspace((unsigned char)*end))
             end++;
-        if (*end == '\0')
+        if (*end != '\0')
+            *end++ = '\0';
+        if (strcmp(key, "game_seed") != 0 && strcmp(key, "crt_seed") != 0 && strcmp(key, "fpu_control_word") != 0)
             continue;
-        *end++ = '\0';
         while (*end == ' ' || *end == '\t')
             end++;
-        unsigned value = strtoul(end, NULL, 0);
+        char* number = end;
+        unsigned value = strtoul(number, &end, 0);
+        while (*end == ' ' || *end == '\t' || *end == '\r' || *end == '\n')
+            end++;
+        if (end == number || *end != '\0') {
+            char msg[700];
+            char* nl = number + strcspn(number, "\r\n");
+            *nl = '\0';
+            sprintf(msg, "testmode: scenario line %d: %s needs a number, got \"%s\"\n", lineNo, key, number);
+            Fail(msg);
+        }
         if (strcmp(key, "game_seed") == 0)
             s_gameSeed = value;
         else if (strcmp(key, "crt_seed") == 0)
             s_crtSeed = value;
-        else if (strcmp(key, "fpu_control_word") == 0)
+        else
             s_fpuControlWord = value;
     }
     fclose(f);

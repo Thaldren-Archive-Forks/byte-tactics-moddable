@@ -36,15 +36,30 @@ def fail(message: str) -> None:
 
 def resolve(ref: str) -> str:
     """The commit a ref names, trying origin/<ref> when there is no local one."""
+    found = []
     for name in (ref, f"origin/{ref}"):
         proc = git("rev-parse", "--verify", "-q", f"{name}^{{commit}}", check=False, capture=True)
-        if proc.returncode == 0:
-            return proc.stdout.strip()
+        found.append(proc.stdout.strip() if proc.returncode == 0 else None)
+    local, remote = found
+    if local and remote and local != remote and not ref.startswith("origin/"):
+        print(f"reference: warning: {ref} is {local[:12]} but origin/{ref} is {remote[:12]}; building {ref}",
+              file=sys.stderr)
+    if local or remote:
+        return local or remote
     fail(f"{ref} names no commit")
 
 
+def registered_worktrees() -> set[Path]:
+    out = git("worktree", "list", "--porcelain", capture=True).stdout
+    return {Path(line[len("worktree "):]).resolve() for line in out.splitlines() if line.startswith("worktree ")}
+
+
 def prepare_worktree(directory: Path, sha: str) -> None:
-    git("worktree", "prune")
+    if directory.resolve() in registered_worktrees() and not (directory / ".git").exists():
+        removed = git("worktree", "remove", "--force", str(directory), check=False, capture=True)
+        if removed.returncode and directory.resolve() in registered_worktrees():
+            sys.stderr.write(removed.stderr)
+            fail(f"cannot repair the stale worktree registration for {directory}")
     if (directory / ".git").exists():
         git("checkout", "-q", "-f", "--detach", sha, cwd=directory)
         git("clean", "-fdq", cwd=directory)
@@ -108,8 +123,7 @@ def checkall(directory: Path) -> dict[int, str]:
     with open(directory / "data/progress.csv", newline="") as f:
         addresses = [row["address"] for row in csv.DictReader(f)]
     results = run_checkall(directory, addresses)
-    # The parallel compile under Wine intermittently fails a few functions that
-    # match when checked again, so only a failure that repeats counts.
+    # TODO(#59): drop this retry once checkall's parallel compile is fixed.
     retry = [f"{a:#x}" for a, line in results.items() if not is_match(line)]
     if retry:
         results.update(run_checkall(directory, retry))
