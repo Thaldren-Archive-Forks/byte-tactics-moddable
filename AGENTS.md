@@ -1,206 +1,172 @@
 # Instructions for coding agents
 
-This is TA: Byte Tactics, a matching decompilation of Total Annihilation (1997):
-C++ that compiles, with the original Visual C++ 5.0 compiler, to byte-identical
-machine code. Every function matches, and `tools/place.py` rebuilds the shipped
-exe byte for byte. What is left is cleanup: making the source read like source
-(one file per translation unit, real names, shared types) without changing a
-single byte. Work is handed out as GitHub issues labelled `cleanup`; you claim
-one, do it on your own branch, and open a pull request. A human-run
-orchestrator re-checks it and merges it.
+This is the moddable fork of TA: Byte Tactics. Byte Tactics is a matching
+decompilation of Total Annihilation 3.1c: source that compiles, with the
+original Visual C++ 5.0, to the shipped exe byte for byte. This fork turns that
+source into a moddable engine. Every game-logic subsystem becomes a WASM
+module, the 3.1c code compiled to WASM is the default module for each, and the
+whole game runs as WASM on thin native and browser hosts.
 
-Read this file, then `docs/cleanup-roadmap.md` (the plan and what limits it)
-and `docs/tidy-up.md` (folders, names and how a merge or rename is done).
-`docs/agent-guide.md` is the reference for when a function stops matching.
+The one rule above all others is **conformity**: with no mods loaded, the game
+logic behaves exactly like 3.1c, bit for bit, tick for tick. The fork drops
+byte-matching and network compatibility with 3.1c clients; it never drops
+conformity.
+
+The plan, its decisions and its order are in issue #2 and its sub-issues. Read
+#2 before your first issue. #1 is the mod-support design (quirk flags, Lua
+hooks) that the plan builds on.
+
+## Words used here
+
+- **Reference:** the matching build (this source compiled with Visual C++ 5.0)
+  plus the test harness from #3. It is 3.1c's game logic, and it is what
+  conformity is measured against.
+- **Traces:** per-tick, per-phase hashes of the game state from a test-mode run
+  (#3). Two builds conform when their traces are identical.
+- **Gate:** the checks a change must pass before it merges. The issue says
+  which; conformity is always one of them.
+- **Seam:** the function table a subsystem is called through (#8). Subsystems
+  reach each other only through seams.
 
 ## 1. Check the setup
 
-Run these from the root of your clone of the repository (the "main
-checkout"). A contributor setting up for the first time follows
-`CONTRIBUTING.md` first.
+Work in a clone of `ozgb/byte-tactics-moddable`, with `origin` pointing at it
+(`git remote get-url origin`). `tools/worktree.sh` branches from
+`origin/main`, so a clone whose `origin` is upstream Byte Tactics branches
+from the wrong tree.
 
 ```sh
-gh auth status                      # must be logged in to github.com
+gh auth status
 ls toolchain/msvc5-sp3/BIN/CL.EXE orig/TotalA.exe
 uv run tools/check.py 0x401070      # must print MATCH
 ```
 
-If any of these fail, stop and tell the human; do not try to install things.
+A first-time setup follows `CONTRIBUTING.md`. If any check fails, stop and
+tell the human.
 
-## 2. Pick and claim an issue
+## 2. Pick an issue
 
-**Take only `cleanup` issues labelled `ready`.** An issue labelled `blocked`
-waits on others (listed under "Blocked by" on the issue) and becomes `ready`
-by itself when they close; never relabel one by hand.
-
-```sh
-gh issue list --label cleanup --label ready --state open --search "no:assignee" --limit 20
-```
-
-The work goes in this order, and the labels enforce it:
-
-1. **Gather** (`Clean-up: gather <module> ...`): every one is ready now.
-2. **Join** (`Clean-up: join the <module> parts ...`): after all of that
-   module's gather parts are merged.
-3. **Name** (`Clean-up: name the placeholders in <module>`): after that
-   module's gather or join is merged, since both rewrite the same files.
-4. **Shared names** (`Clean-up: name the placeholders shared across modules`):
-   last, one group per claim.
-
-Work on one module at a time, and do not take a second issue on a module
-someone else has claimed. GitHub search lags a minute or more behind claims
-and label changes, so the list can show issues that are already taken. Before
-claiming, check the issue itself:
+Take an open sub-issue of #2 with no open blockers and no assignee:
 
 ```sh
-gh issue view <N> --json assignees,labels,comments \
-  --jq '{assignees: [.assignees[].login], labels: [.labels[].name], claim: ([.comments[].body | select(startswith("Claimed by") or startswith("Released")) | split("\n")[0]] | last)}'
+gh api --paginate repos/ozgb/byte-tactics-moddable/issues/2/sub_issues \
+  --jq '.[] | select(.state=="open" and (.assignees | length) == 0) | .number'
+gh api repos/ozgb/byte-tactics-moddable/issues/<N>/dependencies/blocked_by \
+  --jq '[.[] | select(.state=="open") | .number]'      # must print []
 ```
 
-`claim` is the most recent claim or release comment. Skip the issue if it has
-an assignee or if `claim` starts with "Claimed by". An issue whose `claim`
-starts with "Released" (the orchestrator frees stale claims that way) or is
-null is free. Then claim it:
+Claim it, then work in your own copy:
 
 ```sh
 gh issue edit <N> --add-assignee @me
-gh issue comment <N> --body "Claimed by <tool> / <model> on $(hostname) at $(date -u +%H:%MZ). Branch issue-<N>."
-gh issue view <N> --comments
+gh issue comment <N> --body "Claimed by <tool> / <model>. Branch issue-<N>."
+cd "$(tools/worktree.sh <N>)"
 ```
 
-If `gh issue edit --add-assignee` fails because you are not a collaborator on
-the repository (outside contributors can't assign themselves), the "Claimed by"
-comment alone is your claim; the orchestrator will assign you. Several agents
-can share one GitHub account, so the assignee only says "taken"; the comment
-says by whom. If `gh issue view` shows a "Claimed by" comment from a
-different agent after the last "Released" comment and before yours, you lost
-the race: comment "Lost the claim race, the earlier claim stands" (never start
-it with "Released", which would free the issue), do not unassign, and go back
-to the list for another issue. If you stop before finishing, comment
-`Released` (as the first word) so someone else can take it.
+Keep scratch files in `build/scratch/<N>/`. If you stop before finishing,
+comment `Released` on the issue and unassign yourself.
 
-## 3. Work in your own copy
+## 3. Do the issue
+
+Each issue's tasks, CI checks and "Done when" are the specification. Do what
+it asks, and finish every task or list it under "Left out" in the pull
+request.
+
+While you work, keep to the plan's boundaries. CI enforces each one as its
+issue lands:
+
+- Game logic is deterministic. It reads time only as ticks and draws random
+  numbers only from the game-logic streams (#3).
+- Game state lives in the shared state block (#7). A module keeps nothing
+  between ticks outside it.
+- Subsystems call each other through seams (#8).
+- Presentation (rendering, UI, sound, UI modules) reads the player view and
+  changes the game only by sending orders (#22).
+- Platform calls go through the host interface (#24).
+- A change in behaviour is either a bug or a quirk flag that is off by default
+  (#1). With every flag off, traces match the reference.
+
+When the plan looks wrong for your issue, say so in a comment on the issue
+and let the human decide, rather than working around it.
+
+## 4. Pass the gate
+
+Run every check the issue names. Until #3 lands there are no traces yet, and
+the gate for the game logic is the matching build:
 
 ```sh
-cd "$(tools/worktree.sh <N>)"       # creates .worktrees/issue-<N> on branch issue-<N>
+uv run tools/checkall.py <every address in the files you touched>   # all MATCH
 ```
 
-Several agents run at once, so never edit files in the main checkout. Do all
-work, compiling and checking inside that folder. Keep scratch files in
-`build/scratch/<N>/`.
+Once #3 lands, the gate is identical traces for the scenario suite, and the
+issue gives the command.
 
-## 4. Do the issue, and keep every function matching
+**When traces diverge**, the divergence report names the first tick, phase and
+field that differ. Find the smallest part of your change that causes it, and
+fix that part. Only report a check as passing when you ran it and it passed.
 
-Each issue's body says exactly what to change and which checks to run; follow
-it. A cleanup changes only how the source reads, never what it compiles to, so
-every function you touch must still print MATCH and the exe must keep its MD5:
-
-```sh
-uv run tools/checkall.py <every address in the files you touched>
-uv run tools/place.py               # must end with MD5 8e74a1dffa1f5988624c52048f5b20cd
-uv run tools/modules.py --check
-```
-
-`place.py` compiles every changed file, so run it once at the end, not after
-each edit. `tools/rename.py` runs its own checks; the issue says which flags.
-
-**Why harmless-looking edits break matches.** MSVC 5's register allocation
-depends on a symbol counter that grows with every declaration before a
-function (`docs/c2-regalloc.md`): a type costs 7 ids, a member function 1 plus
-1 per parameter, a forward declaration 1, and including a header costs all of
-its declarations. Data members cost nothing. So merging files, adding a header
-or removing a cast can move a later function's registers even though nothing
-in that function changed. Some casts, declaration orders and unused locals are
-load-bearing for the same reason; a one-line comment above such a construct
-says so, and it stays.
-
-**When a function stops matching:**
-
-1. Find the smallest part of your change that causes it (undo pieces until it
-   matches again).
-2. Fix it if the fix reads as plausible source: the patterns are in
-   `docs/agent-guide.md`, and `uv run tools/check.py <addr>` shows the
-   difference.
-3. Otherwise leave that part out: a function that only matches in a file of
-   its own stays in one, with a one-line comment at its declaration saying
-   why. Say so in the pull request.
-
-Rules:
-
-- Change only what the issue asks for. Change `data/` only through the tools
-  the issue names (`rename.py` updates `data/symbols.csv`); do not edit
-  `README.md`, `docs/` or `tools/`. Tell the orchestrator in the pull request
-  if you think one of them is wrong.
-- Never use inline assembly, `#pragma optimize`, hard-coded addresses or
-  `volatile` tricks to keep a match (`#pragma auto_inline` has one allowed
-  use, in a class's file: `docs/agent-guide.md`).
-- When files are gathered into one, keep every model's credit from their first
-  lines in the new file's first line, and every `// FUNCTION:`, `// GLOBAL:`
-  and `// FLAGS:` line.
-- A name needs evidence (strings, callers, Thaldren's names in
-  `data/thaldren/`). A name with no evidence stays a placeholder.
-- Only report MATCH for functions where the checker printed MATCH.
+**When a change touches the reference build** (the harness in #3, the
+bit-exact maths in #4), the matching rules apply to it: read
+`docs/agent-guide.md` and `docs/c2-regalloc.md` first.
 
 ## 5. Open a pull request
 
-First bring in what was merged while you worked, and re-check, because a
-rename or a merge elsewhere may touch your files:
-
 ```sh
-git add -A
-git commit -m "Refactor: <what the issue did>"
-git pull --rebase origin main
-uv run tools/checkall.py <your addresses>
+git fetch origin main && git rebase origin/main
+# re-run the gate
 git push -u origin issue-<N>
-gh pr create --title "<Type>: <what the issue did>" --body-file <file>
+gh pr create --repo ozgb/byte-tactics-moddable --title "<Type>: <Subject>" --body-file <file>
 ```
 
-If a rename's rebase conflicts, start a fresh branch from main
-(`git fetch origin main && git switch -c issue-<N>-2 origin/main`) and run
-`tools/rename.py` again with the same pairs, rather than merging by hand. Never
-use `git reset --hard`: it throws work away, and agent sandboxes refuse it.
-
-If you can't push to the repository (an outside contributor), push to your
-fork instead: `gh repo fork --remote --remote-name fork` once, then
-`git push -u fork issue-<N>` and
-`gh pr create --repo HectorBailey/byte-tactics --head <your-login>:issue-<N> ...`.
-CI cannot build a fork's pull request until a maintainer approves the run, so
-put your own check results in the body.
-
-The pull request body must contain:
+The body:
 
 ```
 Closes #<N>
 
 Model: <tool> / <model>
 
-Checks: checkall <matched> of <total> MATCH; place.py MD5 8e74a1dffa1f5988624c52048f5b20cd; modules.py --check passes
+Checks:
+- <each check the issue names>: <result>
 
 Left out:
 - what the issue asked for that you did not do, and why (or "none")
-
-Suspected original bugs:
-- 0x... : what looks wrong in Cavedog's code, and the evidence (or "none")
 ```
 
-`Closes #<N>` matters: closing the issue is what frees the issues waiting on
-it. Open one pull request per issue. The orchestrator merges pull requests as
-soon as they check out, so anything pushed to the branch after that is lost;
-open a new pull request for more work on the same issue.
+`Closes #<N>` is what unblocks the issues waiting on yours. Open one pull
+request per issue.
+
+## Comments in code
+
+The code is its own documentation: names, types and tests carry what it does,
+and the commit message and pull request carry why it changed. A comment takes
+one of three forms:
+
+1. `// TODO(#123): what is left to do`, where #123 is an open issue.
+2. A one-line doc comment on each function and type of a published interface:
+   the subsystem interface headers (#8) and the host interface (#24). Modders
+   read these without reading the engine.
+3. `// FUNCTION: 0x4b6c30` address markers, which tie a function to the
+   reference so a trace divergence can be looked up there.
+
+Code that looks wrong but is deliberate, such as a 3.1c quirk, is documented by
+a quirk flag whose name says what it does (#1), or by a `TODO(#n)` pointing at
+the issue that will add one.
+
+Files from the decompilation still carry its matching notes. Leave them in
+files your issue doesn't otherwise change; #35 removes them all in one
+pass.
 
 ## Writing style
 
-These apply to everything you write in this repository: code comments,
-commit messages, pull requests and issue comments.
+These apply to commit messages, pull requests, issue comments and the
+published interface docs.
 
-- Never use em dashes. Use a comma, colon or parentheses instead.
+- Use commas, colons or parentheses where an em dash might go.
 - Commit messages are `<Type>: <Subject>`, where Type is one of Add, Fix,
   Update, Bump, Remove, Optimize, Merge, Refactor, Reformat or Docs. The
-  subject is imperative, capitalised, at most 50 characters, with no full stop.
-- Do not add "Co-Authored-By" lines, "Generated with ..." lines or any other
-  attribution to commits or pull requests.
-- Comments in the source say what the code does. Where a construct must stay
-  as it is for the match (a declaration order, an unused local, a cast), one
-  short line above it says so. Scores, attempts and how a match was found go
-  in the pull request, not the file; the matching notes files used to carry
-  were removed in one commit and are in git history.
+  subject is imperative, capitalised, at most 50 characters, with no full
+  stop.
+- End every commit message with `Assisted-by: <agent>:<model>` (for example
+  `Assisted-by: Claude:claude-opus-5-5`). This is the only attribution line;
+  commits and pull requests carry no Co-Authored-By or "Generated with" lines.
+- Run Python through `uv run`, never `python` directly.
