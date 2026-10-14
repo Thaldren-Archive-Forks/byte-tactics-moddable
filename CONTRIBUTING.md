@@ -1,55 +1,57 @@
 # Contributing
 
-Help is welcome, mostly in the form of running a coding agent (Codex,
-OpenCode, Claude Code) on the issues. Every function already matches; the
-issues now are cleanup, making the source read like source without changing a
-byte. Every pull request is re-checked by the maintainers before it is merged,
-so a wrong answer costs you some tokens but can't break anything.
+Help is welcome, as code, as a coding agent (Claude Code, Codex, OpenCode)
+working through issues, or as discussion on the plan. The plan is
+[issue #2](https://github.com/ozgb/byte-tactics-moddable/issues/2): every
+step of it is a sub-issue, and the issues record which steps wait on which.
 
 ## Setting up
 
 You need Linux (or WSL) with `wine`, `7z`, `cabextract`, `curl`, `git`, the
-GitHub CLI (`gh`, logged in) and [uv](https://docs.astral.sh/uv/). `gdb` is
-optional; `tools/c2prio.py`, which reads the compiler's register priorities,
-needs it. You also need your own copy of Total Annihilation: the Steam version
-is the one the project matches.
+GitHub CLI (`gh`, logged in) and [uv](https://docs.astral.sh/uv/). You also
+need your own copy of Total Annihilation: the Steam version is the one the
+reference build matches.
 
 ```sh
-git clone https://github.com/HectorBailey/byte-tactics
-cd byte-tactics
-tools/setup_toolchain.sh        # Visual C++ 5.0 + SP3, Ghidra and zlib into toolchain/;
+git clone https://github.com/ozgb/byte-tactics-moddable
+cd byte-tactics-moddable
+tools/setup_toolchain.sh        # Visual C++ 5.0 + SP3 into toolchain/;
                                 # copies TotalA.exe from Steam (set STEAM_TA if needed)
-tools/ghidra.sh                 # optional but helpful: Ghidra pseudo-C for every function
-                                # (needs Java 21; takes a while the first time)
 uv run tools/check.py 0x401070  # must print MATCH
 ```
 
+Clone this repository, not upstream Byte Tactics: the scripts branch from
+`origin/moddable`.
+
 ## Running an agent
 
-Start your agent in the repository folder. Codex and OpenCode both read
-`AGENTS.md` automatically, and that file tells the agent everything: how to
-claim an issue, work in its own copy, and open a pull request from your fork.
-Give it this prompt:
+Start your agent in the repository folder. Claude Code reads `CLAUDE.md`,
+which loads `AGENTS.md`; Codex and OpenCode read `AGENTS.md` directly. It tells
+the agent how to pick and claim an issue, work in its own copy, pass the gate
+and open a pull request. Give it this prompt:
 
-> Follow AGENTS.md: pick up a `cleanup` issue labelled `ready`, do it and
-> open a pull request. Then pick up the next one, until none are left.
+> Follow AGENTS.md: pick up an open sub-issue of #2 with no open blockers, do
+> it and open a pull request.
 
 In short:
 
-- Take only issues labelled `ready`; the others wait on work that has not
-  merged yet, and become `ready` by themselves.
-- Every function has to keep matching and the build has to keep the shipped
-  MD5. `tools/place.py` checks the whole exe; it compiles every changed file,
-  so a run takes a while.
-- Please have one or two issues claimed at a time rather than many.
+- Take only issues whose blockers are all closed.
+- Every change keeps the game behaving exactly like 3.1c. Until the
+  conformance harness (#3) lands, that means every game-logic function still
+  matches (`tools/checkall.py`); after it, identical traces.
+- Code comments are limited to three forms (see "Comments in code" in
+  `AGENTS.md`); the reasons for a change go in its commit message and pull
+  request.
+- Have one or two issues claimed at a time rather than many.
+
+## Changing the plan
+
+If an issue looks wrong, or the plan misses something, comment on that issue
+or on #2. A pull request that works around the plan is harder to review than
+a comment that questions it.
 
 ## What happens to your pull request
 
-A maintainer re-checks it (every function with `tools/check.py`, and the
-exe's MD5) and merges it. CI cannot build a pull request from a fork until a
-maintainer approves the run, so it may show as waiting for a while. The
-decompile round's credits stay in the `// Decompiled by ...` lines and the git
-history.
-
-The reconstructed game code is not licensed (see the README); the tools are
-MIT. Please don't commit any game files or Microsoft software.
+A maintainer re-runs the checks the issue names and merges it. Please don't
+commit any game files or Microsoft software. The reconstructed game code is
+not licensed (see the README); the tools are MIT.
