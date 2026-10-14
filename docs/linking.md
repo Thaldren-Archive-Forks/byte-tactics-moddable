@@ -13,7 +13,6 @@ uv run tools/linkcheck.py --verbose    # also every symbol behind each count
 uv run tools/linkcheck.py --json build/linkcheck.json   # the counts as JSON
 uv run tools/globals.py                # rebuild data/globals.csv, link/globals.h, link/data.cpp
 uv run tools/globals.py --check        # also compile link/data.cpp and compare it with the exe
-uv run tools/stateprobe.py HEADER --rename   # how many matches a shared header would break
 uv run tools/place.py                  # link at the original's addresses: build/place/TotalA.exe
 uv run tools/place.py --no-orig        # the same from data/layout.csv, without reading orig/TotalA.exe
 uv run tools/place.py --write-layout   # rewrite data/layout.csv after a change moves a piece
@@ -30,8 +29,6 @@ uv run tools/playtest.py --exe orig,carve --scenario full   # play both under Wi
 `build/progress`, so only files changed since the last `progress.py` run are
 compiled, and each runs in a few seconds once the cache is warm. `globals.py`
 writes only `data/globals.csv` and the two files under `link/`.
-`stateprobe.py` recompiles every file with a matched function into
-`build/probe/` (about a minute) and touches nothing else.
 
 ## What tools/linkcheck.py measures
 
@@ -222,11 +219,6 @@ declare another type and so have another mangled name.
 
 Neither file is included by anything under `src/`; both builds link
 `data.cpp` (see below).
-
-`tools/ctx.py` prints, under `-- globals --`, the type and size
-`data/globals.csv` gives each global a function refers to, so a decompiling
-agent sees the type most of the tree already uses. Without `globals.csv` it
-prints what it did before.
 
 ## The data as source: the data files
 
@@ -1123,97 +1115,3 @@ while g_game's stays small (its notes have the measurements).
 | 0x4e16b0 | 74 | inline `cpuid` | matches |
 | 0x4e1e50 | 761 | inline `rdpmc`: a profiling timer's report and restart | matches |
 | 0x4e35b0 | 349 | inline `cpuid`: opens the GDPERF counter driver | matches |
-
-## Next steps
-
-### The risk in consolidating: compiler state
-
-MSVC 5's register allocation and operand order depend on the compiler's
-state, not only on the function's source: `docs/agent-guide.md` records
-functions that match only after a particular header set, or only after a
-particular number of unrelated declarations (0x4b6c30, 0x417f60). Any shared
-header that phases 2 to 4 add changes that state for every file that includes
-it. `tools/stateprobe.py` measures this: it compiles every file holding a
-matched function with a header force-included in front (`/FI`) and compares
-each of the 3,038 matched functions again.
-
-| Header in front (`tools/stateprobe.py ...`) | Matched functions that no longer match |
-| --- | ---: |
-| an empty file (`--empty`) | 33 (1.1%) |
-| 700 unused `extern int` declarations (`--externs 700`) | 141 (4.6%) |
-| `link/globals.h` itself, its names prefixed so nothing clashes (`link/globals.h --rename`) | 126 (4.1%) |
-
-An empty header already changes 33 functions: merely opening one more file
-moves them (0x401320 swaps the operands of two `fld`s). The three sets overlap
-only in part (172 functions fail under at least one), so there is no fixed
-list of fragile functions to route around: which ones move depends on the
-exact header. A real consolidation also changes struct names, member order
-and the inline budget, so expect more than these numbers.
-
-### Phase 2: consolidate types and units
-
-- **Re-check everything after every step.** Run `uv run tools/progress.py`
-  after each merge and compare `data/progress.csv` with the version before:
-  any function that drops from `matched` to `partial` is a regression to fix
-  or revert. Keep each step small enough that a regression has one cause.
-- **One address area at a time.** Work through one 64 KB window (the area
-  table in the README) or one unit from `tools/unitmap.py` at a time, so a
-  regression is local and revertible. Start with the 59 units whose
-  declarations agree (`uv run tools/unitmap.py --list`), and generate each one
-  with `tools/unitgen.py`.
-- **Do not include `link/globals.h` wholesale.** Bring each global's
-  canonical declaration into the files of the area being merged, re-check, and
-  keep or revert per file. Before a new shared header goes into an area, run
-  `uv run tools/stateprobe.py <header> --rename --area 0x<window>` to see which
-  of its matches it would move. Where a function only matches in a particular
-  compiler state (its file needs a header set from `tools/headers.py`, or the
-  probe flags it), note it in `docs/consolidation.md` and keep it in a file of
-  its own until its real neighbours are known.
-- **Type names first, layouts second.** 1,044 undefined function names and
-  21 globals differ only in struct names: renaming placeholder structs to one
-  name per real type (starting with `g_game`'s `Game`, which 1,031 files
-  touch) removes those without changing any layout. The 2,027 real signature
-  differences and the 85 shape conflicts need a decision each, recorded where
-  `docs/consolidation.md` already lists the known ones.
-- **Settle the duplicates while merging.** The 29 functions defined in
-  several files become one definition (or `inline` in a shared header) when
-  their unit is merged; `tools/linkcheck.py --verbose` lists them.
-
-### Phase 3: one name and one prototype per function
-
-Make `data/symbols.csv` the only source of names and generate one prototype
-per function from it, so every caller spells a callee as its definition does.
-`tools/linkcheck.py`'s *defined under another name* and *same name, other
-signature* lists are the work queue.
-
-A spelling the source cannot yet express can be bridged at link time without
-touching `src/`. LINK 5.10 has `/FORCE` (link despite unresolved or multiply
-defined symbols) and, judging by the strings in LINK.EXE, no
-`/ALTERNATENAME`, but it does resolve COFF weak externals with an alias:
-OLDNAMES.LIB consists of nothing else (its member for `_fcloseall` is a weak
-external `__imp__fcloseall` that falls back to `__imp___fcloseall`). A
-generated object of such records, one per caller spelling, pointing at the
-spelling that is defined, resolves the 3,220 function spellings and every
-spelling of a global (all 800 of `g_game`'s) to one definition. It makes the
-link succeed, not the types agree, so it is a bridge for phase 4 while phases
-2 and 3 proceed, not a substitute for them.
-
-### Phase 4: link and iterate
-
-- Add `tools/link.py` (`tools/wlink` already runs LINK.EXE under Wine): link
-  every object with `link/data.cpp`, LIBCMT, LIBCPMT and the import libraries
-  above, and parse LINK's errors back into the categories here.
-- Build import libraries for `smackw32.dll` and DPLAYX's ordinals from `.def`
-  files with LIB.EXE.
-- Give the 75 FPO-less entry points source: decompile the 29 gap regions
-  (under way, see "The gap regions as source").
-- Replace the initial values of `data.cpp` that hold addresses as plain
-  bytes (`pointers` in `data/globals.csv`) with symbolic initialisers; as
-  plain bytes they would point into the old layout.
-- Link with the weak-external aliases described under phase 3 until the
-  spellings agree, and settle the 32 real duplicates (keep the annotated
-  definition, make the copies `static` or `inline`) and the 3 names that
-  clash with LIBCMT and LIBCPMT (`operator new` and `operator delete` in
-  0x4b4f10, a `ctype` id in 0x41ce90).
-- Pick one version of each of the 53 differing COMDAT folds explicitly
-  rather than leaving it to the linker.

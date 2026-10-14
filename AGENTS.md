@@ -106,8 +106,10 @@ field that differ. Find the smallest part of your change that causes it, and
 fix that part. Only report a check as passing when you ran it and it passed.
 
 **When a change touches the reference build** (the harness in #3, the
-bit-exact maths in #4), the matching rules apply to it: read
-`docs/agent-guide.md` and `docs/c2-regalloc.md` first.
+bit-exact maths in #4), the matching rules apply to it. The reference is built
+from `main`, which mirrors upstream Byte Tactics with all its matching tools
+and guides: work in a worktree of `main` and read its `docs/agent-guide.md`
+and `docs/c2-regalloc.md` first.
 
 ## 5. Open a pull request
 
