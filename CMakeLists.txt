@@ -22,7 +22,10 @@ if(NOT HEADERS_RESULT EQUAL 0)
 endif()
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
-list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/util/math_4b70a0.cpp")
+option(BITEXACT_ROUTE "Route the game logic's CRT calls to lib/bitexact" ON)
+if(BITEXACT_ROUTE)
+  list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/util/math_4b70a0.cpp")
+endif()
 
 find_program(UV uv REQUIRED)
 set(BITEXACT_DIR "${CMAKE_SOURCE_DIR}/lib/bitexact")
@@ -36,8 +39,10 @@ add_custom_command(
   VERBATIM)
 add_library(bitexact STATIC
   "${BITEXACT_DIR}/trig.c" "${BITEXACT_DIR}/math.c" "${BITEXACT_DIR}/rand.c" "${BITEXACT_DIR}/qsort.c"
-  "${BITEXACT_TABLES}"
-  "${BITEXACT_SHIM_DIR}/trig.c" "${BITEXACT_SHIM_DIR}/game_rand.c")
+  "${BITEXACT_TABLES}" "${BITEXACT_SHIM_DIR}/game_rand.c")
+if(BITEXACT_ROUTE)
+  target_sources(bitexact PRIVATE "${BITEXACT_SHIM_DIR}/trig.c")
+endif()
 target_include_directories(bitexact PRIVATE "${BITEXACT_DIR}")
 target_include_directories(bitexact SYSTEM PRIVATE "${MSVC5_INCLUDE}")
 target_compile_options(bitexact PRIVATE
@@ -78,6 +83,9 @@ foreach(row IN LISTS CRT_CALL_ROWS)
   endif()
 endforeach()
 list(REMOVE_DUPLICATES ROUTED_SOURCES)
+if(NOT BITEXACT_ROUTE)
+  set(ROUTED_SOURCES "")
+endif()
 foreach(source IN LISTS ROUTED_SOURCES)
   if(NOT source IN_LIST SOURCES)
     message(FATAL_ERROR "data/crt_calls.csv names ${source}, which is not a source of the build")
