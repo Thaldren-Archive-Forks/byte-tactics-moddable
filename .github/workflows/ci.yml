@@ -34,3 +34,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_REF: ${{ github.base_ref }}
         run: python3 tools/commentlint.py "origin/$BASE_REF...HEAD"
+
+      - name: Determinism lint
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: python3 tools/determinismlint.py "origin/$BASE_REF...HEAD"

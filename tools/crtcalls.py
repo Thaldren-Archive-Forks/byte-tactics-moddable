@@ -2,6 +2,12 @@
 
     uv run tools/crtcalls.py            # writes data/crt_calls.csv, prints totals
     uv run tools/crtcalls.py --quiet    # only write the file
+    uv run tools/crtcalls.py --check    # fail if data/game_logic.csv is out of date
+
+Also writes data/game_logic.csv (address,function,file, sorted by address):
+every function classed `game` below, which tools/determinismlint.py reads in
+CI, where there is no toolchain. --check regenerates it in memory, writes
+nothing and exits 1 when the committed file differs.
 
 Reads the matching build's objects (every game and gap source under src/,
 compiled and cached the way tools/progress.py does), not the source text, so
@@ -47,6 +53,7 @@ import argparse
 import bisect
 import collections
 import csv
+import io
 import re
 import struct
 import sys
@@ -62,6 +69,7 @@ from progress import compile_cached
 from sources import ROOT, annotations, is_gap_source, sources
 
 OUT = ROOT / "data/crt_calls.csv"
+GAME_LOGIC = ROOT / "data/game_logic.csv"
 FUNCTIONS = ROOT / "data/functions.csv"
 PHASES = ("HandleNetPackets", "UpdateAllUnits", "UpdateProjectiles", "UpdateExplosions",
           "UpdatePlayers", "UpdateFeatures", "UpdateWind", "UpdateMeteors")
@@ -333,14 +341,35 @@ def analyze() -> SimpleNamespace:
                            unresolved=unresolved, from_original=from_original, uncovered=uncovered)
 
 
+def game_logic_csv(g: SimpleNamespace) -> str:
+    """The text of data/game_logic.csv for an analysis."""
+    out = io.StringIO()
+    w = csv.writer(out, lineterminator="\n")
+    w.writerow(["address", "function", "file"])
+    for address in sorted(g.game_reach):
+        info = g.infos[address]
+        w.writerow([f"{address:#x}", g.by_addr.get(address) or base_name(info["name"]), info["file"]])
+    return out.getvalue()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--quiet", action="store_true", help="only write the file")
+    ap.add_argument("--check", action="store_true",
+                    help="write nothing; exit 1 if data/game_logic.csv is out of date")
     ap.add_argument("--why", action="append", default=[], metavar="ADDR",
                     help="print the shortest chain from a game-logic root to a function")
     args = ap.parse_args()
 
     g = analyze()
+    if args.check:
+        fresh = game_logic_csv(g)
+        if not GAME_LOGIC.exists() or GAME_LOGIC.read_text() != fresh:
+            print(f"{GAME_LOGIC.relative_to(ROOT)} is out of date: run uv run tools/crtcalls.py")
+            sys.exit(1)
+        print(f"{GAME_LOGIC.relative_to(ROOT)} is up to date")
+        return
+    GAME_LOGIC.write_text(game_logic_csv(g), newline="")
     infos, rows, parent, game_reach, core = g.infos, g.rows, g.parent, g.game_reach, g.core
     by_addr, unresolved, from_original, uncovered = g.by_addr, g.unresolved, g.from_original, g.uncovered
     for want in args.why:

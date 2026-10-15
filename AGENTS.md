@@ -77,6 +77,7 @@ issue lands:
 
 - Game logic is deterministic. It reads time only as ticks and draws random
   numbers only from the game-logic streams (#3).
+  `tools/determinismlint.py` checks this on the lines a change adds, in CI.
 - Game state lives in the shared state block (#7). A module keeps nothing
   between ticks outside it.
 - Subsystems call each other through seams (#8).
