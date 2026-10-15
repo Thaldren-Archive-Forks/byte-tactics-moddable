@@ -26,20 +26,34 @@ Clone this repository, not upstream Byte Tactics: the scripts branch from
 ## Modern build
 
 The modern build compiles every file under `src/` with clang-cl for
-`i686-pc-windows-msvc`, against MSVC 5's own headers. It only compiles: it
-writes objects under `build/modern/` and does not link (#92). LLVM is pinned
-to **22.1.8**, and `cmake/clang-cl-i686.cmake` fails on any other version.
+`i686-pc-windows-msvc`, against MSVC 5's own headers and C runtime, and links
+`build/modern/TotalA.exe` with `lld-link`. LLVM is pinned to **22.1.8**, and
+`cmake/clang-cl-i686.cmake` fails on any other version.
 
 ```sh
-sudo dnf install clang lld cmake ninja-build      # Fedora
+sudo dnf install clang lld llvm cmake ninja-build      # Fedora
 cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake
 cmake --build build/modern
+WINEARCH=win64 uv run tools/playtest.py --exe build/modern/TotalA.exe \
+    --testmode reference/scenarios/skirmish2.txt --game-dir ~/.ta
 ```
 
 Configuring runs `tools/modern_headers.py`, which writes patched copies of the
 nine STL headers clang-cl cannot parse, and a case-insensitive overlay for
 MSVC 5's upper-case `INCLUDE`, under `build/modern/`. The toolchain itself is
-never edited.
+never edited. Building then runs `tools/aliases.py`, the generator that bridges
+the many spellings of each function and global to the one definition at its
+address (`tools/link.py` uses it too), and links the result with the import
+libraries made from `link/*.def`, MSVC 5's `LIBCMT.LIB` and its system
+libraries, zlib from `toolchain/thirdparty` and the resources (`llvm-rc`). It
+needs `uv`, `orig/TotalA.exe` (the icon, the cursor and the initial value of
+some globals) and `llvm-dlltool`, `llvm-rc` and `lld-link`.
+
+The link refuses unresolved names: there are no stubs. `tools/aliases.py` also
+lays the game's data out in 3.1c's order (each global in a section named for
+its address, with the original's bytes between them), because the decompiled
+code reaches past an array's end into the global that follows it, and leaves
+out the code no live function reaches.
 
 There is no CI job for it: the build needs `toolchain/msvc5-sp3/INCLUDE`, which
 must never be committed, so it can only run where the toolchain is installed
