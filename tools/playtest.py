@@ -24,7 +24,7 @@ Each run has its own:
 - X server: an invisible Xvfb display, so nothing opens on the desktop and
   its pointer and keyboard belong to nobody else (`--window` makes it a
   nested Xephyr window instead, to watch the game);
-- Wine prefix: a copy of a template made once with wineboot
+- Wine prefix: a hardlinked copy of a template made once with wineboot
   (build/playtest/prefix);
 - game directory: the game's small files copied from the Steam (or GOG)
   install, its large archives linked;
@@ -78,6 +78,7 @@ LINK_SIZE = 4_000_000
 REGKEY = r"HKEY_CURRENT_USER\Software\Cavedog Entertainment\Total Annihilation"
 POLL = 1.0          # seconds between checks of the watched screens while waiting
 SOUND_LEVEL = 200   # RMS (16-bit samples) above which a second counts as sound
+PREFIX_WRITTEN = ("system.reg", "user.reg", "userdef.reg", ".update-timestamp")
 TEMPLATE_REVISION = 2   # bump to remake the template prefixes
 
 _live: list["Instance"] = []
@@ -315,6 +316,22 @@ def directplay_prefix() -> Path:
     return path
 
 
+def link_prefix(template: Path, dst: Path) -> None:
+    """Make dst a hardlinked copy of the template prefix, with real copies of the files Wine writes.
+
+    Directories are new, so files Wine creates stay out of the template. The registry files
+    are rewritten by Wine (found by diffing a run's prefix against the template: only
+    system.reg and user.reg change, and drive_c/TotalA_log.txt is created), and
+    userdef.reg and .update-timestamp are written when Wine updates a prefix. They are
+    copied for real, so that nothing a run does reaches the template.
+    """
+    subprocess.run(["cp", "-al", str(template), str(dst)], check=True)
+    for name in PREFIX_WRITTEN:
+        if (template / name).is_file():
+            (dst / name).unlink()
+            shutil.copy2(template / name, dst / name)
+
+
 def copy_game(src: Path, dst: Path) -> None:
     for d, dirs, files in os.walk(src):
         rel = Path(d).relative_to(src)
@@ -368,7 +385,7 @@ class Instance:
 
     def prepare(self, template: Path, game_src: Path, reg: list[str], files: dict[str, str]) -> None:
         self.base.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["cp", "-a", str(template), str(self.prefix)], check=True)
+        link_prefix(template, self.prefix)
         copy_game(game_src, self.game)
         for stale in ("trace.txt", "dump.txt"):
             (self.game / stale).unlink(missing_ok=True)
@@ -1354,7 +1371,8 @@ def main() -> None:
             t = threading.Thread(target=work, args=(pending.pop(0),))
             t.start()
             active.append(t)
-            time.sleep(2)
+            if pending:
+                time.sleep(2)
         time.sleep(1)
 
     shots = compare_shots(runs, session)

@@ -13,8 +13,8 @@ function and reports which ones no longer MATCH, against the allowlist in the
 commit's own reference/changed.txt. Exits 1 if the build fails or a function
 outside the allowlist does not MATCH.
 
-`--traces` then plays every scenario in reference/scenarios/ (two at a time,
-under Wine through tools/playtest.py) and writes reference/traces/<scenario>.txt:
+`--traces` then plays every scenario in reference/scenarios/ (`--parallel N` at a
+time, default half the CPUs and at most 6, under Wine through tools/playtest.py) and writes reference/traces/<scenario>.txt:
 the header of the run's trace.txt and one digest per tick (tools/tracedigest.py).
 `--check` plays the same scenarios and compares the digests with the stored ones.
 On the first difference it builds the reference from the commit the trace
@@ -30,11 +30,11 @@ import os
 import shutil
 import subprocess
 import sys
-import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import playtest
 import tracediff
 import tracedigest
 
@@ -42,7 +42,7 @@ ROOT = Path(__file__).resolve().parent.parent
 OUTPUTS = ("TotalA.exe", "SMACKW32.DLL", "commit.txt")
 SCENARIOS = ROOT / "reference/scenarios"
 TRACES = ROOT / "reference/traces"
-PARALLEL = 2
+MAX_PARALLEL = 6
 RUN_SECONDS_BASE = 120
 RUN_TICKS_PER_SECOND = 40
 RUN_ATTEMPTS = 2
@@ -152,14 +152,26 @@ def scenario_files() -> dict[str, Path]:
     return {p.stem: p for p in sorted(SCENARIOS.glob("*.txt"))}
 
 
-_launch = threading.Lock()
+def default_parallel() -> int:
+    """Half the CPUs, at least 1 and at most MAX_PARALLEL."""
+    return max(1, min(MAX_PARALLEL, (os.cpu_count() or 2) // 2))
+
+
+def scenario_ticks(scenario: Path) -> int:
+    """The scenario's `ticks` value, or a tracediff.Error if it has none that parses."""
+    for line in scenario.read_text().splitlines():
+        words = line.split()
+        if words and words[0] == "ticks":
+            try:
+                return int(words[1], 0)
+            except (IndexError, ValueError):
+                break
+    raise tracediff.Error(f"{scenario}: the scenario has no valid ticks line")
 
 
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict[str, str], list[tuple[int, str]], float]:
     """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken."""
-    with _launch:
-        time.sleep(2.5)
-    ticks = next(int(line.split()[1], 0) for line in scenario.read_text().splitlines() if line.startswith("ticks "))
+    ticks = scenario_ticks(scenario)
     timeout = RUN_SECONDS_BASE + ticks / RUN_TICKS_PER_SECOND
     t0 = time.time()
     for attempt in range(RUN_ATTEMPTS):
@@ -169,7 +181,7 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict
         except tracediff.Error as e:
             if attempt == RUN_ATTEMPTS - 1:
                 raise
-            print(f"{scenario.stem}: run failed, trying again: {str(e).splitlines()[-1][:200]}", flush=True)
+            print(f"{scenario.stem}: run failed, trying again: {last_lines(e)}", flush=True)
     elapsed = time.time() - t0
     try:
         header, rows = tracediff.parse_trace(tracediff.need(run, "trace.txt"))
@@ -181,8 +193,20 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict
     return header, tracedigest.digests(rows), elapsed
 
 
-def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None) -> dict[str, tuple]:
-    """Every scenario's play_scenario result, PARALLEL at a time; exits 1 if one fails to run."""
+def last_lines(error: Exception, count: int = 1) -> str:
+    """The last `count` non-empty lines of an error's message, each cut to 200 characters."""
+    lines = [line[:200] for line in str(error).splitlines() if line.strip()]
+    return "\n    ".join(lines[-count:]) or type(error).__name__
+
+
+def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int) -> dict[str, tuple]:
+    """Every scenario's play_scenario result, `parallel` at a time and longest first; exits 1 if one fails to run.
+
+    Each run has its own session directory, Wine prefix, game directory, X display and audio sink
+    (tools/playtest.py names them by its pid), so runs share nothing but the template prefix,
+    which they only hardlink.
+    """
+    playtest.template_prefix()
     results: dict[str, tuple] = {}
     failures: list[str] = []
 
@@ -190,27 +214,38 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None) -> dic
         try:
             results[name] = play_scenario(exe, scenarios[name], game_dir)
         except (tracediff.Error, OSError) as e:
-            failures.append(f"{name}: {e}")
+            failures.append(f"{name}: failed to run, playtest.py ended with:\n    {last_lines(e, 5)}")
 
-    with ThreadPoolExecutor(PARALLEL) as pool:
-        list(pool.map(one, scenarios))
+    def longest_first(name: str) -> int:
+        try:
+            return -scenario_ticks(scenarios[name])
+        except tracediff.Error:
+            return 0
+
+    with ThreadPoolExecutor(parallel) as pool:
+        list(pool.map(one, sorted(scenarios, key=longest_first)))
     if failures:
         fail("scenarios failed to run:\n" + "\n".join(failures))
     return results
 
 
-def write_traces(sha: str, exe: Path, game_dir: str | None) -> None:
+def write_traces(sha: str, exe: Path, game_dir: str | None, parallel: int) -> None:
     scenarios = scenario_files()
     if not scenarios:
         fail(f"no scenarios in {SCENARIOS.relative_to(ROOT)}")
     t0 = time.time()
-    results = play_all(exe, scenarios, game_dir)
+    results = play_all(exe, scenarios, game_dir, parallel)
+    rendered = {}
+    for name, (header, digests, elapsed) in results.items():
+        if not digests or any(k not in header for k in ("game_seed", "crt_seed", "view_seed")):
+            fail(f"{name}: the run produced no complete trace; the stored traces are untouched")
+        header = {**header, "commit": sha, "scenario": str(scenarios[name].relative_to(ROOT))}
+        rendered[name] = tracedigest.render(header, digests)
     TRACES.mkdir(parents=True, exist_ok=True)
     for old in TRACES.glob("*.txt"):
         old.unlink()
     for name, (header, digests, elapsed) in results.items():
-        header = {**header, "commit": sha, "scenario": str(scenarios[name].relative_to(ROOT))}
-        (TRACES / f"{name}.txt").write_text(tracedigest.render(header, digests))
+        (TRACES / f"{name}.txt").write_text(rendered[name])
         print(f"wrote {(TRACES / f'{name}.txt').relative_to(ROOT)}: {len(digests)} ticks, {clock(elapsed)}")
     print(f"{len(results)} traces, commit {sha}, total {clock(time.time() - t0)}")
 
@@ -226,7 +261,7 @@ def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) 
     return None
 
 
-def check_traces(exe: Path, game_dir: str | None) -> None:
+def check_traces(exe: Path, game_dir: str | None, parallel: int) -> None:
     scenarios = scenario_files()
     stored = {p.stem: p for p in sorted(TRACES.glob("*.txt"))} if TRACES.is_dir() else {}
     problems = [f"scenario {n} has no trace in {TRACES.relative_to(ROOT)}" for n in scenarios if n not in stored]
@@ -241,7 +276,7 @@ def check_traces(exe: Path, game_dir: str | None) -> None:
             fail(str(e))
 
     t0 = time.time()
-    results = play_all(exe, scenarios, game_dir)
+    results = play_all(exe, scenarios, game_dir, parallel)
     wall = time.time() - t0
     bad: list[str] = []
     for name in scenarios:
@@ -296,7 +331,11 @@ def main() -> None:
     ap.add_argument("--check", action="store_true", help="play every scenario and compare with reference/traces/")
     ap.add_argument("--exe", metavar="PATH", help="--check: check this exe instead of building the ref")
     ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
+    ap.add_argument("--parallel", type=int, default=default_parallel(), metavar="N",
+                    help="--traces, --check: scenarios played at once (default: half the CPUs, at most 6)")
     args = ap.parse_args()
+    if args.parallel < 1:
+        ap.error("--parallel takes 1 or more")
     ref = args.ref
     if args.traces == args.check and (args.traces or args.exe):
         ap.error("give one of --traces and --check")
@@ -307,7 +346,7 @@ def main() -> None:
     if not args.exe and not ref:
         ap.error("give a ref to build")
     if args.exe:
-        check_traces(Path(args.exe).resolve(), args.game_dir)
+        check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel)
         return
 
     sha = resolve(ref)
@@ -336,9 +375,9 @@ def main() -> None:
         sys.exit(1)
     print("  not allowlisted, changed: none")
     if args.traces:
-        write_traces(sha, directory / "TotalA.exe", args.game_dir)
+        write_traces(sha, directory / "TotalA.exe", args.game_dir, args.parallel)
     elif args.check:
-        check_traces(directory / "TotalA.exe", args.game_dir)
+        check_traces(directory / "TotalA.exe", args.game_dir, args.parallel)
 
 
 if __name__ == "__main__":
