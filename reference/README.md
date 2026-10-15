@@ -52,3 +52,78 @@ Defaults are the ones in `LoadSettings`, never the registry.
 `player<N>.*` keys take N from 0 to 9. A slot exists when any key names it,
 slots no key names are open, and at least 2 slots must exist. The game's player
 count is the highest named slot plus one.
+
+## Traces
+
+In test mode the exe writes `trace.txt` in its working directory: a hash of the
+game state after each phase of each tick, flushed every tick. LF line endings.
+
+```
+bt-trace 1
+commit <40-hex sha from commit.txt beside the exe, or unknown>
+scenario <path as given to -testmode>
+game_seed <n>
+crt_seed <n>
+view_seed <n>
+fpu_control_word 0x<hex>
+<tick> <phase> <16 hex digits>
+```
+
+The phases run in this order each tick: `net` (only on ticks that handle
+network packets), `units`, `projectiles`, `explosions`, `players`, `features`,
+`wind`, `meteors`. Each covers the state its subsystem owns. The hash is 64-bit
+FNV-1a over a canonical serialisation of that state. Two builds conform when
+their traces are identical.
+
+`tools/playtest.py --testmode` copies `trace.txt` (and `dump.txt`) into the
+run's directory under `build/playtest/`, and copies `commit.txt` from the exe's
+directory into the game directory for the header.
+
+## Dumps
+
+`-testdump <tick>` (`--testdump <tick>` for playtest.py, with `-testmode`) also
+writes `dump.txt`: every hashed field after each phase of that tick. It is
+ignored without `-testmode`; a value that does not parse exits with status 2.
+
+```
+bt-dump 1
+<tick> <phase> <path> <value>
+```
+
+Paths are `gameTick`, `rng.parkMiller`, `rng.crtHoldrand`, `units[i].<field>`,
+`projectiles[i].<field>`, `explodedPieces[slot].<field>` (and `.rec`),
+`debris[i].<field>`, `pieces[i].<field>` (with `.vertices` and `.faces[k]`),
+`players[i].<field>`, `features[i].<field>` (with `.list`), `wind.<field>` and
+`meteors.<field>`. Every phase dumps all of them, not only its own subsystem's.
+
+A field that differs between two builds is the same `<tick> <phase> <path>`
+with another `<value>`. Scalars are `0x` and the field's bytes as one hex
+number; byte arrays and unnamed gaps (`+0x<offset>`) are `hex:` and the bytes.
+
+## Pointer IDs
+
+A pointer is dumped as an ID, never an address: `null`, `<array>:<index>`
+(`unit:12`, `player:3`, `unitdef:41`, `weapondef:7`, `projectile:5`,
+`feature:9`, `piece:20`), or `heap` for a non-null pointer into no array that
+has stable indexes. Indexes are the stable ones: unit pool index, projectile
+array index, and so on.
+
+## Comparing two builds
+
+```sh
+WINEARCH=win64 uv run tools/tracediff.py A/TotalA.exe B/TotalA.exe \
+  --scenario reference/scenarios/skirmish2.txt
+```
+
+It runs both exes, reports the first tick and phase whose hashes differ, then
+reruns both with `--testdump` at that tick and lists the fields that differ:
+
+```
+first divergence: tick 900, phase units
+  units[12].health: a=0x0064 b=0x0063
+```
+
+Traces with different scenario or seeds are refused (exit 2).
+Exit status is 0 for identical traces, 1 for a divergence and 2 for an error.
+`--traces A B` compares existing `trace.txt` files without running, and
+`--dumps A B --at <tick> <phase>` diffs two `dump.txt` files.

@@ -1255,6 +1255,7 @@ void UpdateFramePacing()
 }
 
 void HarnessAfterStep();
+void HarnessPhase(int phase);
 
 // Runs one game update per pending time step (g_game->simStepsPending), profiling each
 // phase into g_game->profileTimingBars.acc[]; the profile object also lives at +0x38d85 with
@@ -1270,21 +1271,29 @@ void __stdcall RunGameSteps(int showStats)
 
         if (showStats) {
             HandleNetPackets();
+            HarnessPhase(0);
             g_game->profileTimingBars.AccumulateProfileTime(0);
         }
         UpdateAllUnits();
+        HarnessPhase(1);
         g_game->profileTimingBars.AccumulateProfileTime(1);
         UpdateProjectiles();
+        HarnessPhase(2);
         g_game->profileTimingBars.AccumulateProfileTime(7);
         UpdateExplosions();
+        HarnessPhase(3);
         g_game->profileTimingBars.AccumulateProfileTime(8);
         UpdatePlayers();
+        HarnessPhase(4);
         g_game->profileTimingBars.AccumulateProfileTime(2);
 
         UpdateFeatures();
+        HarnessPhase(5);
         StepAllGafSequences();
         UpdateWind();
+        HarnessPhase(6);
         UpdateMeteors();
+        HarnessPhase(7);
         UpdateCameraFollow();
         g_game->profileTimingBars.AccumulateProfileTime(8);
 
