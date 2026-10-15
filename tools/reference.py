@@ -200,7 +200,7 @@ def last_lines(error: Exception, count: int = 1) -> str:
 
 
 def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int) -> dict[str, tuple]:
-    """Every scenario's play_scenario result, `parallel` at a time; exits 1 if one fails to run.
+    """Every scenario's play_scenario result, `parallel` at a time and longest first; exits 1 if one fails to run.
 
     Each run has its own session directory, Wine prefix, game directory, X display and audio sink
     (tools/playtest.py names them by its pid), so runs share nothing but the template prefix,
@@ -216,8 +216,14 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
         except (tracediff.Error, OSError) as e:
             failures.append(f"{name}: failed to run, playtest.py ended with:\n    {last_lines(e, 5)}")
 
+    def longest_first(name: str) -> int:
+        try:
+            return -scenario_ticks(scenarios[name])
+        except tracediff.Error:
+            return 0
+
     with ThreadPoolExecutor(parallel) as pool:
-        list(pool.map(one, scenarios))
+        list(pool.map(one, sorted(scenarios, key=longest_first)))
     if failures:
         fail("scenarios failed to run:\n" + "\n".join(failures))
     return results
