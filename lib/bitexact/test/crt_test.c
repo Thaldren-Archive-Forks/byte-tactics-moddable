@@ -3,8 +3,24 @@
 #include <string.h>
 
 #include "../bitexact.h"
+#include "vectors.h"
 
+#ifdef BX_REPLAY
+#define ORACLE_INT(call) ((int)vec_get())
+#define ORACLE_ULONG(call) ((unsigned long)vec_get())
+#define ORACLE_BYTES(call, data, size) vec_get_bytes(data, size)
+#define ORACLE_ONLY(call)
+#else
 void __cdecl orig_random_shuffle_int(int *first, int *last);
+#define ORACLE_INT(call) ((int)vec_put((bx_u32)(call)))
+#define ORACLE_ULONG(call) ((unsigned long)vec_put((bx_u32)(call)))
+#define ORACLE_BYTES(call, data, size) \
+    do { \
+        call; \
+        vec_put_bytes(data, size); \
+    } while (0)
+#define ORACLE_ONLY(call) call
+#endif
 
 typedef struct {
     const char *name;
@@ -52,11 +68,11 @@ static void test_rand(void)
     for (i = 0; i < 1500; i++) {
         unsigned int seed = seed_at(i);
         bx_rand_state s;
-        srand(seed);
+        ORACLE_ONLY(srand(seed));
         bx_srand(&s, seed);
         st_rand.cases++;
         for (j = 0; j < 10000; j++) {
-            int want = rand();
+            int want = ORACLE_INT(rand());
             int got = bx_rand(&s);
             if (want != got) {
                 fail(&st_rand, "seed 0x%lx draw %lu want %lu", seed, j, want);
@@ -71,7 +87,7 @@ static int same_state(const bx_rand_state *s)
     bx_rand_state t = *s;
     int k;
     for (k = 0; k < 4; k++)
-        if (rand() != bx_rand(&t))
+        if (ORACLE_INT(rand()) != bx_rand(&t))
             return 0;
     return 1;
 }
@@ -82,9 +98,9 @@ static int check_shuffle(int n, unsigned int seed, int *a, int *b)
     int i;
     for (i = 0; i < n; i++)
         a[i] = b[i] = i * 3 + 1;
-    srand(seed);
+    ORACLE_ONLY(srand(seed));
     bx_srand(&s, seed);
-    orig_random_shuffle_int(a, a + n);
+    ORACLE_BYTES(orig_random_shuffle_int(a, a + n), a, n * sizeof(int));
     bx_random_shuffle_int(&s, b, b + n);
     if (n > 0 && memcmp(a, b, n * sizeof(int)) != 0)
         return 0;
@@ -115,6 +131,7 @@ static void test_shuffle(void)
     free(b);
 }
 
+#ifndef BX_REPLAY
 static void orig_explosion_draws(void)
 {
     static const int sizes[] = {
@@ -127,6 +144,7 @@ static void orig_explosion_draws(void)
             for (x = 0; x < sizes[i]; x++)
                 rand();
 }
+#endif
 
 static void test_load(void)
 {
@@ -138,9 +156,9 @@ static void test_load(void)
             bx_rand_state s;
             for (k = 0; k < 10; k++)
                 a[k] = b[k] = k;
-            srand(seed);
-            orig_explosion_draws();
-            orig_random_shuffle_int(a, a + n);
+            ORACLE_ONLY(srand(seed));
+            ORACLE_ONLY(orig_explosion_draws());
+            ORACLE_BYTES(orig_random_shuffle_int(a, a + n), a, sizeof(a));
             bx_srand(&s, seed);
             bx_init_explosions_rand(&s);
             bx_random_shuffle_int(&s, b, b + n);
@@ -191,9 +209,9 @@ static void check_qsort(int num, int width, int range, int shape, int mode)
     cmp_calls = 0;
     cmp_hash = 2166136261u;
     cmp_base = a;
-    qsort(a, num, width, cmp_element);
-    calls_a = cmp_calls;
-    hash_a = cmp_hash;
+    ORACLE_BYTES(qsort(a, num, width, cmp_element), a, (size_t)num * width);
+    calls_a = ORACLE_ULONG(cmp_calls);
+    hash_a = ORACLE_ULONG(cmp_hash);
     cmp_calls = 0;
     cmp_hash = 2166136261u;
     cmp_base = b;
@@ -222,13 +240,17 @@ static void test_qsort(void)
         check_qsort(500, i, 3, 0, 0);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     int i, bad = 0;
+    if (argc > 1 && !vec_open(argv[1]))
+        return 2;
     test_rand();
     test_shuffle();
     test_load();
     test_qsort();
+    if (argc > 1)
+        bad |= vec_close();
     printf("info: InitExplosions draws %lu times\n", (unsigned long)bx_init_explosions_draws());
     for (i = 0; i < (int)(sizeof(all_stats) / sizeof(all_stats[0])); i++) {
         printf("%s: %lu cases, %lu mismatches\n", all_stats[i]->name, all_stats[i]->cases, all_stats[i]->mismatches);
