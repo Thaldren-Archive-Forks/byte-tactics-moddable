@@ -166,7 +166,7 @@ Exit status is 0 for identical traces, 1 for a divergence and 2 for an error.
 
 ## The suite
 
-`reference/scenarios/` holds the scenario suite: AI-versus-AI games that vary the
+`reference/scenarios/` holds the scenario suite: AI-versus-AI games (and the three `orders-` scenarios, which script a human slot) that vary the
 map, the player count (2, 3, 4, 6, 8 and 10), the sides, ally teams, fixed and
 random start positions, the options (difficulty, line of sight, mapping,
 starting resources) and the length, up to 27000 ticks (15 minutes). The two `long-` scenarios are
@@ -186,6 +186,9 @@ seeds) and runs deterministically: two runs give identical traces.
 | eight-pincushion-teams | Pincushion | 8 | 12600 | Eight players on Pincushion in four allied pairs, seven minutes |
 | long-great-divide-2p | Great Divide | 2 | 27000 | Two players on Great Divide for 27000 ticks (fifteen minutes), a long run |
 | long-greenhaven-8p | Greenhaven | 8 | 27000 | Eight players on Greenhaven in two allied teams of four for 27000 ticks (fifteen minutes), a long run |
+| orders-build-patrol | The Pass | 2 | 600 | Human Arm commander builds a solar collector, then patrols (`build`, `patrol`) |
+| orders-guard-reclaim | The Pass | 2 | 600 | Human Arm commander builds a solar collector, guards it, then reclaims it (`build`, `guard`, `reclaim`) |
+| orders-move-attack | The Pass | 2 | 600 | Human Arm commander moves, attacks the Core commander, then the whole slot moves (`move`, `attack`, `<slot>:all`) |
 | quad-fox-holes | Fox Holes | 4 | 7200 | Four players on Fox Holes, alternating sides, four minutes |
 | quad-king-of-the-hill | King of the Hill | 4 | 9000 | Four players on King of the Hill in two allied teams of two, five minutes |
 | quad-lava-highground | Lava Highground | 4 | 5400 | Four Arm players on Lava Highground, random start positions, three minutes |
