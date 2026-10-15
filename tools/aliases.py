@@ -1034,9 +1034,9 @@ IMAGE_SYM_CLASS_STATIC = 3
 class Section:
     name: str
     chars: int
-    data: bytes                      # empty for uninitialised data
+    data: bytes
     size: int
-    relocs: list = field(default_factory=list)   # [offset, symbol index, type]
+    relocs: list = field(default_factory=list)
 
 
 @dataclass
@@ -1046,7 +1046,7 @@ class Symbol:
     section: int
     type: int
     sclass: int
-    aux: list = field(default_factory=list)      # raw 18-byte auxiliary records
+    aux: list = field(default_factory=list)
 
 
 def read(data: bytes) -> tuple[int, list[Section], list[Symbol]]:
@@ -1089,7 +1089,6 @@ def write(chars: int, secs: list[Section], syms: list[Symbol], out: Path) -> Non
         strings.extend(name.encode("latin-1") + b"\0")
         return off
 
-    # Symbol indices: each symbol takes 1 + its auxiliary records.
     index, n = [], 0
     for s in syms:
         index.append(n)
