@@ -7,7 +7,8 @@ them to <output dir>/include, applies the syntactic patches in PATCHES (each
 must match exactly `count` times, or the script fails), and writes
 <output dir>/overlay.json, a case-insensitive Clang VFS overlay that serves
 the toolchain's upper-case INCLUDE tree with the patched copies in place.
-The toolchain itself is never edited.
+The toolchain itself is never edited. Each PATCHES row is (header, search
+text, replacement, expected matches, reason).
 """
 
 import json
@@ -19,7 +20,6 @@ from pathlib import Path
 DEFAULTED = "template<class _E, class _Tr = char_traits<_E> >"
 UNDEFAULTED = "template<class _E, class _Tr>"
 
-# (header, search text, replacement, expected matches, reason)
 PATCHES = [
     ("UTILITY", DEFAULTED, UNDEFAULTED, 2,
      "IOSFWD already gave the default argument; clang rejects a second one"),

@@ -117,7 +117,7 @@ struct UnitDef {
         unsigned char flags245;        // +0x245, AttackUTypeOrder's byte test
         unsigned int flags245u;        // +0x245, the handlers that test a dword
         struct {
-            unsigned int low245 : 20;     // +0x245, SelfDestructOrder's countdown
+            unsigned int low245 : 20;
             unsigned int countdown : 3;
             unsigned int high245 : 9;
         };
@@ -1029,14 +1029,13 @@ struct Pos;
 
 #pragma pack(push, 1)
 struct UnitOrderType {
-    const char* status;                                         // +0x00 shown while the order runs
-    int (__stdcall* run)(Unit* unit, Order* order, int flags);  // +0x04 (0x43bad0 calls it)
-    // +0x08 marks the order's target on screen.
+    const char* status;
+    int (__stdcall* run)(Unit* unit, Order* order, int flags);
     void (__stdcall* draw)(void* surface, View* view, Order* order, Pos* out, int flag);
-    int target;                                                 // +0x0c
-    unsigned int flags;                                         // +0x10
-    unsigned char internal;                                     // +0x14
-    const char* name;                                           // +0x15 the key the table is sorted by
+    int target;
+    unsigned int flags;
+    unsigned char internal;
+    const char* name;
 };
 #pragma pack(pop)
 #endif
