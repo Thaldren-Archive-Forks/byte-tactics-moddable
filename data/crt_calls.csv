@@ -377,9 +377,9 @@ address,function,callee,kind,file,class,notes
 0x453d40,HandleNetPackets,_strcmpi,call,src/network/net_game_453d40.cpp,game,sites=1
 0x453d40,HandleNetPackets,sprintf,call,src/network/net_game_453d40.cpp,game,sites=2
 0x453d40,HandleNetPackets,strncpy,call,src/network/net_game_453d40.cpp,game,sites=2
-0x4568c0,AssignStartPositions,_alldiv,call,src/network/net_game.cpp,presentation,sites=1
-0x4568c0,AssignStartPositions,_allmul,call,src/network/net_game.cpp,presentation,sites=1
-0x4568c0,AssignStartPositions,rand,call,src/network/net_game.cpp,presentation,"sites=2; conflict: #52 keeps it in game logic, but only presentation reaches it"
+0x4568c0,AssignStartPositions,_alldiv,call,src/network/net_game.cpp,game,sites=1
+0x4568c0,AssignStartPositions,_allmul,call,src/network/net_game.cpp,game,sites=1
+0x4568c0,AssignStartPositions,rand,call,src/network/net_game.cpp,game,sites=2
 0x457710,InitLobbiedConnection,localtime,call,src/network/net_game.cpp,presentation,sites=1
 0x457710,InitLobbiedConnection,sprintf,call,src/network/net_game.cpp,presentation,sites=1
 0x457710,InitLobbiedConnection,strncat,call,src/network/net_game.cpp,presentation,sites=2

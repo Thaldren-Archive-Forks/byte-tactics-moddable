@@ -80,13 +80,14 @@ full list, per function, is `data/crt_calls.csv` (`uv run tools/crtcalls.py`
 rewrites it). A game-logic function is one reachable from the eight phase calls
 of `RunGameSteps` (HandleNetPackets, UpdateAllUnits, UpdateProjectiles,
 UpdateExplosions, UpdatePlayers, UpdateFeatures, UpdateWind, UpdateMeteors) or
-from `LoadMatch`; everything else is presentation. Counts are game-logic
+from `LoadMatch`, or `AssignStartPositions` (0x4568c0), a root by explicit listing
+(`EXTRA_ROOTS` in the tool) because only frame handlers call it; everything else is presentation. Counts are game-logic
 functions, then call or instruction sites. `sqrt` never appears as a call:
 the compiler emits `fsqrt` inline.
 
-- `fistp (FixedSine)`: 1 function, 3 sites: the #70 port in lib/bitexact (math_4b70a0.cpp trig)
-- `fpatan (FixedSine)`: 1 function, 1 site: the #70 port in lib/bitexact (math_4b70a0.cpp trig)
-- `fsincos (FixedSine)`: 1 function, 1 site: the #70 port in lib/bitexact (math_4b70a0.cpp trig)
+- `fistp (FixedSine)`: 1 function, 3 sites: the merged port in lib/bitexact (trig.c)
+- `fpatan (FixedSine)`: 1 function, 1 site: the merged port in lib/bitexact (trig.c)
+- `fsincos (FixedSine)`: 1 function, 1 site: the merged port in lib/bitexact (trig.c)
 - `_CIacos`: 1 function, 2 sites: #73
 - `_ftol`: 62 functions, 151 sites: #73
 - `_hypot`: 14 functions, 18 sites: #73 (the sqrt family, not named in #73, to confirm there)
@@ -124,8 +125,8 @@ the compiler emits `fsqrt` inline.
 - `fseek`: 6 functions, 11 sites: already exact: file system access, no arithmetic (host interface, #24)
 - `ftell`: 5 functions, 8 sites: already exact: file system access, no arithmetic (host interface, #24)
 - `fwrite`: 4 functions, 15 sites: already exact: file system access, no arithmetic (host interface, #24)
-- `_alldiv`: 28 functions, 51 sites: already exact: integer 64-bit helpers
-- `_allmul`: 34 functions, 92 sites: already exact: integer 64-bit helpers
+- `_alldiv`: 29 functions, 52 sites: already exact: integer 64-bit helpers
+- `_allmul`: 35 functions, 93 sites: already exact: integer 64-bit helpers
 - `_allshl`: 10 functions, 15 sites: already exact: integer 64-bit helpers
 - `_allshr`: 28 functions, 82 sites: already exact: integer 64-bit helpers
 - `_itoa`: 3 functions, 3 sites: already exact: integer and byte string logic
@@ -167,7 +168,7 @@ the compiler emits `fsqrt` inline.
 - `sscanf`: 4 functions, 21 sites: already exact: text formatting, integer and string formats (format strings not inspected, see limits)
 - `_purecall`: 18 functions, 56 sites: already exact: vtable filler, never called
 - `time`: 2 functions, 2 sites: the #72 port (LoadMatch's seed input: the host supplies the seed; the other site is the crash report text)
-- `rand`: 8 functions, 20 sites: the #72 port (the LoadMatch seeding and std::random_shuffle also draw through rand)
+- `rand`: 9 functions, 22 sites: the #72 port (the LoadMatch seeding and std::random_shuffle also draw through rand)
 - `srand`: 1 function, 1 site: the #72 port (the LoadMatch seeding and std::random_shuffle also draw through rand)
 
 `qsort` is not used by game logic (its one call is in the lobby UI). Float to
@@ -213,18 +214,19 @@ operation, not at each C expression. Values spilled to memory as `float` or
   rows may be missing from the game-logic list.
 - Tables over-approximate: a function referencing a table reaches every
   entry. `LoadMatch` reaches `InitCommands`, which registers the console and
-  cheat command tables, so 302 of the 1612 game-logic functions are reached
-  only that way (marked `via console commands only` in the notes); 578 of the
-  719 game-logic rows remain without them.
+  cheat command tables, so 302 of the 1613 game-logic functions are reached
+  only that way (marked `via console commands only` in the notes); 581 of the
+  722 game-logic rows remain without them.
   Debug and crash-report code reached through the out-of-memory handler is
   likewise counted as game logic.
 - Format strings of `sprintf`, `sscanf`, `printf` and `fprintf` are not
   inspected, so a `%f` or `%g` use (which would need #73) is not ruled out.
-- `rand` against #52: the sites agree with its tables except two, marked
-  `conflict:` in the CSV. `AssignStartPositions` (0x4568c0) is called only from
-  `MainLoopTick` and `LoadingScreenFrame`, which nothing in game logic reaches,
-  so it is presentation by the rule. `BuildExplosionFrame` (0x420d20) is
-  presentation in #52, but `LoadMatch` reaches it through `InitExplosions`.
+- `rand` against #52: the sites agree with its tables except one, marked
+  `conflict:` in the CSV. `BuildExplosionFrame` (0x420d20) is presentation in
+  #52, but `LoadMatch` reaches it through `InitExplosions`; the maintainer
+  decided on #52 and #72 that it is game logic. `AssignStartPositions`
+  (0x4568c0) is called only from `MainLoopTick` and `LoadingScreenFrame`, which
+  nothing in game logic reaches, so it is a game root by explicit listing.
   `DrawProjectiles` (0x49be60) and `StartMeteorShower` (0x438070) match #52 only
   through the console commands (`CmdMakePoster`, `CmdMeteor`). The `Rand` that
   #52 lists at 0x423c50 is inlined into `UpdateFeatures` (0x424050). Twelve

@@ -20,7 +20,8 @@ Code is decoded by recursive descent from the entry, following jumps and
 switch tables, so data placed in the code section is not read as code.
 
 Each caller is classed `game` when it is reachable from the eight game-logic
-phase calls of RunGameSteps or from LoadMatch, and `presentation` otherwise.
+phase calls of RunGameSteps, from LoadMatch, or from a function in
+EXTRA_ROOTS (game-logic functions that only frame handlers call), and `presentation` otherwise.
 Edges are the direct calls and jumps, every function whose address a function
 takes, and for a data symbol that a function references (a vtable, an order
 handler table), every function pointer in the data up to the next symbol, read
@@ -37,7 +38,7 @@ sorted by address, then callee. The notes column holds the number of sites
 library function whose address is taken, `via console commands only`, and a
 `conflict:` note where the class of a `rand` site disagrees with the call-site
 tables of #52 (BuildExplosionFrame, which #52 keeps on rand although it is
-presentation, is listed as one). Callers of HarnessViewRand that game logic
+presentation, is listed as one; the maintainer ruled it game logic). Callers of HarnessViewRand that game logic
 reaches are only printed.
 """
 
@@ -61,10 +62,12 @@ from sources import ROOT, annotations, is_gap_source, sources
 
 OUT = ROOT / "data/crt_calls.csv"
 FUNCTIONS = ROOT / "data/functions.csv"
-RUN_GAME_STEPS = "RunGameSteps"
 PHASES = ("HandleNetPackets", "UpdateAllUnits", "UpdateProjectiles", "UpdateExplosions",
           "UpdatePlayers", "UpdateFeatures", "UpdateWind", "UpdateMeteors")
-EXTRA_ROOTS = ("LoadMatch",)
+LOAD_ROOT = "LoadMatch"
+EXTRA_ROOTS: dict[int, str] = {
+    0x4568c0: "sets start positions; called from MainLoopTick and LoadingScreenFrame, which aren't roots",
+}
 COMPILER_HELPERS = {"__chkstk"}
 STACK_PROBE = "_chkstk"
 WIN32_STUB = re.compile(r"^_\w+@\d+$")
@@ -286,7 +289,7 @@ def main() -> None:
             if addr not in table_cache:
                 i = bisect.bisect_right(sym_addrs, addr)
                 nxt = sym_addrs[i] if i < len(sym_addrs) else addr + 4096
-                table_cache[addr] = [t for t in table_targets(orig, addr, nxt, funcs)]
+                table_cache[addr] = table_targets(orig, addr, nxt, funcs)
             for t in table_cache[addr]:
                 if t in infos:
                     edges[address].add(t)
@@ -298,11 +301,13 @@ def main() -> None:
     by_name = collections.defaultdict(list)
     for a, info in infos.items():
         by_name[info["qual"]].append(a)
-    roots = []
-    for n in PHASES + EXTRA_ROOTS + (RUN_GAME_STEPS,):
+    for n in PHASES + (LOAD_ROOT, "InitCommands"):
         if len(by_name[n]) != 1:
             sys.exit(f"cannot find exactly one function named {n}: {by_name[n]}")
-    roots = [by_name[n][0] for n in PHASES + EXTRA_ROOTS]
+    for a in EXTRA_ROOTS:
+        if a not in infos:
+            sys.exit(f"extra root {a:#x} is not a decoded game function")
+    roots = [by_name[n][0] for n in PHASES + (LOAD_ROOT,)] + sorted(EXTRA_ROOTS)
     parent: dict[int, int | None] = {a: None for a in roots}
     queue = collections.deque(roots)
     while queue:
