@@ -64,6 +64,13 @@ struct TdfField {
     void* AssignPair(int* param_1);
 };
 
+#ifdef __clang__
+__attribute__((optnone)) void __stdcall EmitTdfFieldDestructor(TdfField* field)
+{
+    field->~TdfField();
+}
+#endif
+
 // The vector's destroy loop calls the pair's destructor directly.
 namespace std {
 inline void _Destroy(TdfField* p)

@@ -1692,10 +1692,24 @@ extern "C" __declspec(naked) int __cdecl IsLineVisible(void* surface, int x0, in
         neg esi
     L004cc815:
         push esi
+#ifdef __clang__
+        push eax
+        lea eax, L004cc880
+        mov dword ptr [ebp - 0xc], eax
+        pop eax
+#else
         mov dword ptr [ebp - 0xc], offset L004cc880
+#endif
         cmp ebx, ecx
         jle L004cc82a
+#ifdef __clang__
+        push eax
+        lea eax, L004cc8ac
+        mov dword ptr [ebp - 0xc], eax
+        pop eax
+#else
         mov dword ptr [ebp - 0xc], offset L004cc8ac
+#endif
         xchg ebx, ecx
     L004cc82a:
         shl ebx, 1
@@ -1830,10 +1844,24 @@ extern "C" __declspec(naked) int __cdecl IsLineVisible(void* surface, int x0, in
         neg esi
     L004cc91e:
         push esi
+#ifdef __clang__
+        push eax
+        lea eax, L004cc9b0
+        mov dword ptr [ebp - 0xc], eax
+        pop eax
+#else
         mov dword ptr [ebp - 0xc], offset L004cc9b0
+#endif
         cmp ebx, ecx
         jle L004cc933
+#ifdef __clang__
+        push eax
+        lea eax, L004cc9ee
+        mov dword ptr [ebp - 0xc], eax
+        pop eax
+#else
         mov dword ptr [ebp - 0xc], offset L004cc9ee
+#endif
         xchg ebx, ecx
     L004cc933:
         shl ebx, 1
@@ -2009,10 +2037,24 @@ extern "C" __declspec(naked) int __cdecl IsLineVisible(void* surface, int x0, in
         neg esi
     L004cca94:
         push esi
+#ifdef __clang__
+        push eax
+        lea eax, L004ccb02
+        mov dword ptr [ebp - 0xc], eax
+        pop eax
+#else
         mov dword ptr [ebp - 0xc], offset L004ccb02
+#endif
         cmp ebx, ecx
         jle L004ccaa9
+#ifdef __clang__
+        push eax
+        lea eax, L004ccb30
+        mov dword ptr [ebp - 0xc], eax
+        pop eax
+#else
         mov dword ptr [ebp - 0xc], offset L004ccb30
+#endif
         xchg ebx, ecx
     L004ccaa9:
         shl ebx, 1

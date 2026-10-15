@@ -1255,6 +1255,7 @@ void UpdateFramePacing()
 }
 
 void HarnessAfterStep();
+void HarnessBeforeStep();
 void HarnessPhase(int phase);
 
 // Runs one game update per pending time step (g_game->simStepsPending), profiling each
@@ -1268,6 +1269,7 @@ void __stdcall RunGameSteps(int showStats)
 
     while (n--) {
         g_game->gameTick++;
+        HarnessBeforeStep();
 
         if (showStats) {
             HandleNetPackets();
