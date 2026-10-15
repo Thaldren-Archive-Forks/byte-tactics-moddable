@@ -11,3 +11,8 @@ void __cdecl bx_game_srand(unsigned int seed)
 {
     bx_srand(&game_stream, seed);
 }
+
+unsigned __cdecl bx_game_holdrand(void)
+{
+    return game_stream.holdrand;
+}
