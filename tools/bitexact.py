@@ -1,6 +1,6 @@
 """Build and run the bit-exact library's tests.
 
-    uv run tools/bitexact.py
+    uv run tools/bitexact.py [--compiler {both,msvc,clang}]
 
 Generates the tables (tools/bitexact_tables.py) into build/bitexact/bx_tables.c
 and checks the sine table and the angle doubles against the bytes of
@@ -12,12 +12,18 @@ both over every 16-bit angle, a sweep of scales and fixed-seed random inputs,
 and prints `name: N cases, M mismatches` for each entry point. A second exe
 (test/crt_test.c, test/stl_shuffle.cpp) links LIBCMT's own rand, srand and
 qsort and MSVC 5's std::random_shuffle beside the rand and qsort ports and
-compares them. The exit status is non-zero on any mismatch. Everything is built
-under build/bitexact/.
+compares them. While the MSVC 5 exes run they also write what the originals
+returned (build/bitexact/vectors/*.bin). Then the same tests are built with
+clang-cl for i686 (-DBX_REPLAY, the library compiled by clang, no original
+linked in) and run under Wine against those vectors, so the port is compared
+with MSVC 5's results under both compilers; --compiler clang reruns only that
+half on the vectors of the last MSVC run. The exit status is non-zero on any
+mismatch. Everything is built under build/bitexact/.
 """
 
 import argparse
 import os
+import shutil
 import struct
 import subprocess
 import sys
@@ -34,8 +40,12 @@ ORIG_DATA = BUILD / "orig_data.c"
 PORT_SOURCES = [LIB / "trig.c", LIB / "math.c", TABLES, ORIG_DATA]
 MATH_TEST = LIB / "test/math_test.c"
 TEST = LIB / "test/bitexact_test.c"
+VECTORS_SOURCE = LIB / "test/vectors.c"
+VECTORS = BUILD / "vectors"
+MSVC5 = (ROOT / "toolchain/msvc5-sp3").resolve()
+CLANG_BUILD = BUILD / "clang"
 CRT_PORT_SOURCES = [LIB / "rand.c", LIB / "qsort.c"]
-CRT_TESTS = [LIB / "test/crt_test.c", LIB / "test/stl_shuffle.cpp"]
+CRT_TESTS = [LIB / "test/crt_test.c", LIB / "test/stl_shuffle.cpp", VECTORS_SOURCE]
 CFLAGS = ["/nologo", "/c", "/O2", "/Op", "/MT", "/W3", "/TC", "/Zm1000"]
 LIBS = ["LIBCMT.LIB", "KERNEL32.LIB"]
 
@@ -98,7 +108,7 @@ def build() -> Path | None:
     if original is None:
         print(log, file=sys.stderr)
         return None
-    return link("bitexact_test.exe", [original], [*PORT_SOURCES, TEST, MATH_TEST])
+    return link("bitexact_test.exe", [original], [*PORT_SOURCES, TEST, MATH_TEST, VECTORS_SOURCE])
 
 
 def build_crt() -> Path | None:
@@ -127,23 +137,110 @@ def link(name: str, objects: list[Path], sources: list[Path]) -> Path | None:
     return exe
 
 
-def run(exe: Path) -> int:
-    script = '. "$ROOT/tools/wineenv.sh"; exec wine "$1"'
+def run(exe: Path, *args: Path) -> int:
+    script = '. "$ROOT/tools/wineenv.sh"; exec wine "$@"'
     env = dict(os.environ, ROOT=str(ROOT))
-    return subprocess.run(["bash", "-c", script, "wine", winpath(exe)], env=env, cwd=ROOT).returncode
+    return subprocess.run(["bash", "-c", script, "wine", winpath(exe), *(winpath(a) for a in args)], env=env,
+                          cwd=ROOT).returncode
+
+
+def clang_tools() -> dict[str, str] | None:
+    tools = {name: shutil.which(name) for name in ("clang-cl", "lld-link", "llvm-dlltool")}
+    missing = [name for name, path in tools.items() if path is None]
+    if missing:
+        print(f"bitexact: --compiler clang needs {', '.join(missing)} (see CONTRIBUTING.md, Modern build)", file=sys.stderr)
+        return None
+    return tools
+
+
+def clang_setup(tools: dict[str, str]) -> list[str] | None:
+    """The patched headers' overlay and the KERNEL32 import library, made as the modern build does; the
+    clang-cl arguments that compile against MSVC 5's headers."""
+    CLANG_BUILD.mkdir(parents=True, exist_ok=True)
+    if subprocess.run([sys.executable, str(ROOT / "tools/modern_headers.py"), str(MSVC5 / "INCLUDE"),
+                       str(CLANG_BUILD)]).returncode != 0:
+        return None
+    kernel32_def = CLANG_BUILD / "KERNEL32.def"
+    for cmd in (["uv", "run", "--project", str(ROOT), str(ROOT / "tools/aliases.py"), "--import-def",
+                 str(MSVC5 / "LIB/KERNEL32.LIB"), "--out", str(kernel32_def)],
+                [tools["llvm-dlltool"], "-m", "i386", "-k", "-d", str(kernel32_def), "-l",
+                 str(CLANG_BUILD / "KERNEL32.lib")]):
+        if subprocess.run(cmd, stdout=subprocess.DEVNULL).returncode != 0:
+            return None
+    return ["--target=i686-pc-windows-msvc", "-fms-compatibility", "-fms-extensions", "-fms-compatibility-version=11.00",
+            "/clang:-ffp-contract=off", "-fno-strict-aliasing", "-fwrapv", "/O2", "/GS-", "-w",
+            "-vfsoverlay", str(CLANG_BUILD / "overlay.json"), "-imsvc", str(MSVC5 / "INCLUDE"),
+            "-DBX_REPLAY", f"-I{LIB}"]
+
+
+def clang_link(tools: dict[str, str], flags: list[str], name: str, sources: list[Path]) -> Path | None:
+    objects = []
+    for src in sources:
+        obj = CLANG_BUILD / (src.stem + ".obj")
+        fpu = ["-msse2", "-mfpmath=sse"] if src.parent != LIB / "test" else ["-mno-sse"]
+        proc = subprocess.run([tools["clang-cl"], *flags, *fpu, "/c", f"/Fo{obj}", str(src)], capture_output=True,
+                              text=True)
+        if proc.returncode != 0:
+            print(proc.stdout + proc.stderr, file=sys.stderr)
+            return None
+        objects.append(obj)
+    exe = CLANG_BUILD / name
+    cmd = [tools["lld-link"], "/nologo", "/machine:x86", "/subsystem:console", "/entry:mainCRTStartup", "/fixed:no",
+           "/safeseh:no", "/incremental:no", "/nodefaultlib", "/force:multiple", f"/out:{exe}", *map(str, objects),
+           str(MSVC5 / "LIB/LIBCMT.LIB"), str(MSVC5 / "LIB/OLDNAMES.LIB"), str(CLANG_BUILD / "KERNEL32.lib")]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0 or not exe.exists():
+        print(proc.stdout + proc.stderr, file=sys.stderr)
+        return None
+    return exe
+
+
+def run_clang() -> int:
+    """The tests built with clang-cl for i686 against the vectors the MSVC 5 exes wrote; 2 if they cannot be built."""
+    vectors = {name: VECTORS / f"{name}.bin" for name in ("bitexact", "crt")}
+    for path in vectors.values():
+        if not path.exists():
+            print(f"bitexact: {path} is missing, run the MSVC 5 half first", file=sys.stderr)
+            return 2
+    tools = clang_tools()
+    flags = clang_setup(tools) if tools else None
+    if tools is None or flags is None:
+        return 2
+    exes = [(clang_link(tools, flags, "bitexact_test.exe",
+                        [*PORT_SOURCES, TEST, MATH_TEST, VECTORS_SOURCE]), vectors["bitexact"]),
+            (clang_link(tools, flags, "crt_test.exe", [*CRT_PORT_SOURCES, CRT_TESTS[0], VECTORS_SOURCE]),
+             vectors["crt"])]
+    code = 0
+    for exe, vec in exes:
+        if exe is None:
+            return 2
+        print(f"clang: {exe.name}")
+        sys.stdout.flush()
+        code = run(exe, vec) or code
+    return code
 
 
 def main() -> int:
-    argparse.ArgumentParser(description=__doc__.split("\n")[0]).parse_args()
-    exe = build()
-    if exe is None:
-        return 2
-    code = run(exe)
-    crt = build_crt()
-    if crt is None:
-        return 2
-    code = run(crt) or code
-    print("bitexact: " + ("OK" if code == 0 else f"FAILED (exit {code})"))
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("--compiler", choices=("both", "msvc", "clang"), default="both",
+                        help="MSVC 5 builds and writes the vectors, clang replays them (default: both)")
+    args = parser.parse_args()
+    code = 0
+    if args.compiler != "clang":
+        VECTORS.mkdir(parents=True, exist_ok=True)
+        exe = build()
+        if exe is None:
+            return 2
+        code = run(exe, VECTORS / "bitexact.bin")
+        crt = build_crt()
+        if crt is None:
+            return 2
+        code = run(crt, VECTORS / "crt.bin") or code
+        print("bitexact (MSVC 5): " + ("OK" if code == 0 else f"FAILED (exit {code})"))
+    if args.compiler != "msvc":
+        clang = run_clang()
+        print("bitexact (clang): " + ("OK" if clang == 0 else f"FAILED (exit {clang})"))
+        code = clang or code
     return code
 
 
