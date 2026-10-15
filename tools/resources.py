@@ -280,7 +280,12 @@ def main() -> None:
     ap.add_argument("--art", type=Path, help=f"the directory with {' and '.join(ART)} (default: BT_ART_DIR, "
                                              "or extracted from orig/TotalA.exe)")
     ap.add_argument("--extract", action="store_true", help="rewrite src/res/TotalA.rc from orig/TotalA.exe")
+    ap.add_argument("--print-art", action="store_true",
+                    help="print the directory holding the icon and cursor, and stop (the modern build's llvm-rc)")
     args = ap.parse_args()
+    if args.print_art:
+        print(art_dir(args.art))
+        return
     if args.extract:
         extract(EXE)
     obj = build(args.art)
