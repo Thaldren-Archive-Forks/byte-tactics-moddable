@@ -718,7 +718,11 @@ Surface* __stdcall DrawLitRectangle(Surface* surface, int* rect,
 // FUNCTION: 0x4bf8c0
 int __stdcall DrawRectangle(Surface* surface, Rect* r, int color)
 {
+#ifdef __clang__
+    int result = 0;
+#else
     int result;
+#endif
     if (surface == 0) {
         Surface screen;
         result = LockScreen(&screen);
@@ -909,7 +913,11 @@ int __stdcall GrayRectangle(Surface* surface, Rect* rect)
     if ((g->flags & 1) == 0)
         return 0;
     int result;
+#ifdef __clang__
+    int status = 0;
+#else
     int status;
+#endif
     if (surface == 0) {
         result = LockScreen(&screen);
         if (result != 0) {
