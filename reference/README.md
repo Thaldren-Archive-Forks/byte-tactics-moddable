@@ -75,6 +75,8 @@ network packets), `units`, `projectiles`, `explosions`, `players`, `features`,
 FNV-1a over a canonical serialisation of that state. Two builds conform when
 their traces are identical.
 
+The stored form of a trace keeps one digest per tick (see The suite).
+
 `tools/playtest.py --testmode` copies `trace.txt` (and `dump.txt`) into the
 run's directory under `build/playtest/`, and copies `commit.txt` from the exe's
 directory into the game directory for the header.
@@ -127,3 +129,96 @@ Traces with different scenario or seeds are refused (exit 2).
 Exit status is 0 for identical traces, 1 for a divergence and 2 for an error.
 `--traces A B` compares existing `trace.txt` files without running, and
 `--dumps A B --at <tick> <phase>` diffs two `dump.txt` files.
+
+## The suite
+
+`reference/scenarios/` holds the scenario suite: AI-versus-AI games that vary the
+map, the player count (2, 3, 4, 6, 8 and 10), the sides, ally teams, fixed and
+random start positions, the options (difficulty, line of sight, mapping,
+starting resources) and the length, up to 27000 ticks (15 minutes). The two `long-` scenarios are
+capped at 27000 ticks by #90: runs past that length are not yet deterministic,
+and they return to 54000 ticks (30 minutes) when #90 lands. Each has its
+own game, C runtime and view seeds (the first three predate the suite and share
+seeds) and runs deterministically: two runs give identical traces.
+
+| Name | Map | Players | Ticks | Covers |
+| --- | --- | ---: | ---: | --- |
+| duel-coast-to-coast | Coast To Coast | 2 | 5400 | Two Core players on Coast To Coast, three minutes, difficulty 2 |
+| duel-great-divide | Great Divide | 2 | 3600 | Two Arm players on Great Divide, random start positions, two minutes |
+| duel-pass-dark | The Pass | 2 | 2700 | Two players on The Pass with the map unmapped and line of sight off, ninety seconds |
+| duel-shore-to-shore | Shore to Shore | 2 | 2700 | Arm against Core on Shore to Shore with 5000 metal and energy, no commander death, difficulty 0 |
+| eight-full-moon | Full Moon | 8 | 9000 | Eight players on Full Moon, alternating sides, five minutes |
+| eight-greenhaven | Greenhaven | 8 | 5400 | Eight Arm players on Greenhaven, random start positions, three minutes |
+| eight-pincushion-teams | Pincushion | 8 | 12600 | Eight players on Pincushion in four allied pairs, seven minutes |
+| long-great-divide-2p | Great Divide | 2 | 27000 | Two players on Great Divide for 27000 ticks (fifteen minutes), a long run |
+| long-greenhaven-8p | Greenhaven | 8 | 27000 | Eight players on Greenhaven in two allied teams of four for 27000 ticks (fifteen minutes), a long run |
+| quad-fox-holes | Fox Holes | 4 | 7200 | Four players on Fox Holes, alternating sides, four minutes |
+| quad-king-of-the-hill | King of the Hill | 4 | 9000 | Four players on King of the Hill in two allied teams of two, five minutes |
+| quad-lava-highground | Lava Highground | 4 | 5400 | Four Arm players on Lava Highground, random start positions, three minutes |
+| quad-two-continents | Two Continents | 4 | 6000 | Four players on Two Continents in teams of players 0 and 3 against 1 and 2, random start positions, 100 metal and energy |
+| six-hundred-isles | Hundred Isles | 6 | 9000 | Six players on Hundred Isles, alternating sides, five minutes |
+| six-painted-desert | Painted Desert | 6 | 12600 | Six Core players on Painted Desert, random start positions, seven minutes |
+| six-yerrot-mountains | Yerrot Mountains | 6 | 7200 | Six players on Yerrot Mountains in two allied teams of three, four minutes |
+| skirmish2 | The Pass | 2 | 1800 | Two computer players on a small map, one minute of game time |
+| skirmish4-long | Metal Heck | 4 | 27000 | Same as skirmish4 for 27000 ticks: reaches past tick 25786, where a hover unit's ground bob once read the wall clock |
+| skirmish4 | Metal Heck | 4 | 9000 | Four computer players, one team each, five minutes of game time |
+| ten-lava-run | Lava Run | 10 | 5400 | Ten players on Lava Run, alternating sides, three minutes |
+| ten-ring-atoll | Ring Atoll | 10 | 9000 | Ten players on Ring Atoll, random start positions, five minutes, difficulty 2 |
+| trio-anteer-strait | Anteer Strait | 3 | 5400 | Three players on Anteer Strait, players 0 and 1 allied, three minutes, line of sight type 0 |
+| trio-dark-side | Dark Side | 3 | 9000 | Three players on Dark Side, fixed start positions, five minutes |
+| trio-etorrep-glacier | Etorrep Glacier | 3 | 3600 | Three Core players on Etorrep Glacier, random start positions, two minutes |
+
+## Stored traces and digests
+
+`reference/traces/<scenario>.txt` holds one digest per tick, not the phase
+hashes. The digest of a tick is the 64-bit FNV-1a hash of that tick's phase
+hashes in trace order, each as 8 little-endian bytes. In test mode there are 7
+phases per tick (`units` to `meteors`), since `net` does not run. The file:
+
+```
+bt-digest 1
+trace_format bt-trace 1
+commit <sha of the build that produced it>
+scenario reference/scenarios/<name>.txt
+game_seed <n>
+crt_seed <n>
+view_seed <n>
+fpu_control_word 0x<hex>
+<tick> <digest, 16 lowercase hex digits>
+```
+
+`tools/tracedigest.py trace.txt` converts a `trace.txt` to this form.
+
+## Gate
+
+```sh
+export WINEARCH=win64
+uv run tools/reference.py <ref> --traces     # build <ref>, play the suite, write reference/traces/
+uv run tools/reference.py HEAD --check       # the gate: build HEAD, play the suite, compare
+```
+
+`uv run tools/reference.py HEAD --check` is the gate command later issues name.
+Add `--game-dir <dir>` when the game is not in a Steam directory.
+
+The gate applies when a pull request changes `src/`, `include/`,
+`lib/bitexact/`, `reference/`, or the tools that build or run the exe
+(`tools/link.py`, `tools/reference.py`, `tools/playtest.py` and the like). Other
+changes do not need it.
+
+`--traces` writes every trace with the built sha as `commit`. `--check` plays
+every scenario (two at a time), prints one line per scenario with its run time
+and a total, and exits 0 when every digest equals the stored one. It exits 1
+when a trace has no scenario or a scenario has no trace, and on a difference:
+it builds the reference from the commit the trace records (cached in
+`build/reference/<sha>`), prints the `tools/tracediff.py` report for the first
+differing scenario and exits 1. `--check --exe <path>` checks a given exe instead
+of building HEAD.
+
+`tools/tracediff.py --ignore-view-seed` accepts traces whose headers differ only
+in `view_seed`; with `--scenario` given twice, run mode runs A on the first file
+and B on the second.
+
+Run time of the suite, measured on a 20-core machine with Wine, two scenarios at
+a time, and other jobs running: `--check` took 7:35 and 6:34 (the second on a
+fresh Wine prefix), and `--traces` 7:07, not counting the build. The longest
+scenarios, `long-greenhaven-8p` and `skirmish4-long`, take about 2 minutes each.

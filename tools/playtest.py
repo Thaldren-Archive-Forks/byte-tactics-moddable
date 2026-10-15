@@ -1283,12 +1283,15 @@ def main() -> None:
         check_scenario(sc, screens)
     game_src = find_game_dir(args.game_dir)
 
-    session = OUT / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    session = OUT / (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{os.getpid()}")
     session.mkdir(parents=True, exist_ok=True)
     latest = OUT / "latest"
-    if latest.is_symlink() or latest.exists():
-        latest.unlink()
-    latest.symlink_to(session.name)
+    try:
+        if latest.is_symlink() or latest.exists():
+            latest.unlink()
+        latest.symlink_to(session.name)
+    except OSError:
+        pass
     if args.trap_stubs:
         copies: dict[Path, tuple[str, Path]] = {}
         for parts in exes:

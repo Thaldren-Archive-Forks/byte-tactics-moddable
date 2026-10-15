@@ -1,0 +1,10 @@
+# Three players on Dark Side, fixed start positions, five minutes.
+game_seed 135
+crt_seed 1135
+view_seed 2135
+map Dark Side
+start_positions fixed
+ticks 9000
+player0.side Arm
+player1.side Core
+player2.side Arm
