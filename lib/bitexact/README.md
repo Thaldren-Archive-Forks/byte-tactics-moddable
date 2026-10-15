@@ -22,6 +22,30 @@ prefixed `bx_`. Little-endian only (x86, wasm).
 | `bx_apply_rotation_matrix` | 0x4b72e2, matrix as a parameter |
 | `bx_FUN_004b7381` | `FUN_004b7381` |
 | `bx_sqrt` | x87 `fsqrt` at 53 bits (`sqrt`), in integer code |
+| `bx_rand_state`, `bx_srand`, `bx_rand` | LIBCMT `srand` 0x4e4860, `rand` 0x4e4870 |
+| `bx_random_shuffle_int` | `std::random_shuffle`, MSVC 5's STL template (inlined, no address) |
+| `bx_explosion_frame_draws`, `bx_init_explosions_draws`, `bx_init_explosions_rand` | the rand calls of `BuildExplosionFrame` 0x420d20 and `InitExplosions` 0x420620 |
+| `bx_qsort` | LIBCMT `qsort` 0x4e5ed0 |
+
+## rand, random_shuffle, qsort
+
+`rand.c` and `qsort.c`, plain C89 like the trig port.
+
+- **Explicit state.** LIBCMT keeps the `rand` seed per thread (`_getptd()+0x14`). The port takes a `bx_rand_state` so a caller names the stream it means. `seed = seed * 214013 + 2531011`, the value is `(seed >> 16) & 0x7fff`, and `bx_srand` stores the seed as it is. The game logic stream is the load thread's. The presentation stream (`HarnessViewRand`, `src/harness/harness.cpp`) uses the same algorithm with its own state, so it is a second `bx_rand_state`, never the logic one.
+- **random_shuffle.** The STL header (`toolchain/msvc5-sp3/INCLUDE/ALGORITHM`, `_Random_shuffle`) draws once per element after the first: `rand() & 0x7fff`, and for a position `d` above 0x7fff widens that by or-ing in 0x7fff words (no extra draws), then swaps the element with `first[rn % d]`. A range of n elements draws n - 1 times; an empty range draws none. The two game calls (`LoadMatch`, 0x4568c0) shuffle int arrays, which is what the port covers.
+- **qsort.** LIBCMT's qsort of this toolchain is the older recursive one with a cutoff: ranges of 8 or fewer elements go to a selection-style short sort (largest to the end, repeated); larger ones swap the middle element to the front as pivot, partition with `<= 0` from the left and `>= 0` from the right, swap the pivot into place, push the larger side on an explicit stack and loop on the smaller. It is not stable, and the port keeps the comparison and swap order, so a comparator sees the same calls and equal elements end in the same order. It was read from the disassembly of 0x4e5ed0, 0x4e6080 (short sort) and 0x4e60e0 (swap).
+
+### The load thread's draws
+
+`LoadMatch` seeds the load thread with `srand` (`game_load.cpp`, the host supplies the seed), and `LoadBattleAssets` then reaches `InitExplosions`, whose `BuildExplosionFrame` draws one `rand` per pixel, `size * size` per frame, with no test on the circle (the pixel is written transparent outside it, but the draw is made first). `InitExplosions` builds three explosions with fixed sizes, each frame stepping the radius by `(end - start) / count` (truncated toward zero):
+
+| Explosion | Frames | Radii | Draws |
+| --- | --- | --- | --- |
+| 0 | 12 | 64 down to 20 in steps of 4 | sum of size squared |
+| 1 | 15 | 128 down to 30 in steps of 7 | sum of size squared |
+| 2 | 15 | 200 down to 46 in steps of 11 | sum of size squared |
+
+Together 391606 draws, `bx_init_explosions_draws()`; `bx_init_explosions_rand` advances a state by that many. Nothing else draws between the seed and the start-position shuffle: `UpdateWind`, which `LoadBattleAssets` calls earlier and which draws from `rand`, does so only when `windCounter < gameTick`, and both are 0 there. So the shuffle of `LoadMatch` depends on this count: the sequence is `bx_srand`, `bx_init_explosions_rand`, then (only when n is 2 or less) the one draw of the `n > 2 || rand() ...` test, then `bx_random_shuffle_int`. The counts follow from the source, which the matching build confirms; none depends on a data file.
 
 ## Data
 
@@ -62,7 +86,9 @@ non-zero on any mismatch.
 
 The math functions (`test/math_test.c`, see "x87 intermediates") add `name: N cases, M mismatches` lines for `bx_sqrt`, which must be 0, and `info:` lines for the candidates that do not match, which do not fail the run.
 
-Inputs: every 16-bit angle, crossed with scales 0, +-1, powers of two,
+The second exe (`test/crt_test.c`, `test/stl_shuffle.cpp` for the STL) links LIBCMT's own `rand`, `srand` and `qsort` and MSVC 5's `std::random_shuffle` beside the ports: 1500 seeds (0, 1, 0xffffffff and random ones) of 10000 draws; shuffles of sizes 0 to 64 and 1000, 32767 to 32769, 40000 and 100000 over many seeds, comparing the order and the next four draws; the load thread sequence (seed, the explosion draws, a shuffle of 3 to 10 positions); and qsort over random, ascending and descending arrays of 0 to 2000 elements of 1 to 0x62 bytes with 1 to 256 distinct keys, comparing the full output (equal keys carry a payload the comparator ignores) and the comparator's call sequence as a hash of the offsets it was given.
+
+Inputs of the trig exe: every 16-bit angle, crossed with scales 0, +-1, powers of two,
 INT_MIN and INT_MAX, and 10^6 or more random cases per function from a fixed
 xorshift seed.
 
