@@ -1,0 +1,14 @@
+# Human Arm commander on The Pass builds a solar collector, guards it, then reclaims it; twenty seconds.
+game_seed 203
+crt_seed 1203
+view_seed 2203
+map The Pass
+start_positions fixed
+ticks 600
+player0.controller human
+player0.side Arm
+player1.controller ai
+player1.side Core
+order 5 0:ARMCOM:1 build ARMSOLAR 640 260
+order 150 0:ARMCOM:1 guard 0:ARMSOLAR:1
+order 250 0:ARMCOM:1 reclaim 0:ARMSOLAR:1

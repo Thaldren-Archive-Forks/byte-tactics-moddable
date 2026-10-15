@@ -1,0 +1,13 @@
+# Human Arm commander on The Pass builds a solar collector, then patrols; twenty seconds.
+game_seed 202
+crt_seed 1202
+view_seed 2202
+map The Pass
+start_positions fixed
+ticks 600
+player0.controller human
+player0.side Arm
+player1.controller ai
+player1.side Core
+order 5 0:ARMCOM:1 build ARMSOLAR 640 260
+order 150 0:ARMCOM:1 patrol 700 300
