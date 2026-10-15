@@ -206,7 +206,7 @@ The gate applies when a pull request changes `src/`, `include/`,
 changes do not need it.
 
 `--traces` writes every trace with the built sha as `commit`. `--check` plays
-every scenario (two at a time), prints one line per scenario with its run time
+every scenario (`--parallel N` at a time, default half the CPUs and at most 6), prints one line per scenario with its run time
 and a total, and exits 0 when every digest equals the stored one. It exits 1
 when a trace has no scenario or a scenario has no trace, and on a difference:
 it builds the reference from the commit the trace records (cached in
@@ -218,7 +218,11 @@ of building HEAD.
 in `view_seed`; with `--scenario` given twice, run mode runs A on the first file
 and B on the second.
 
-Run time of the suite, measured on a 20-core machine with Wine, two scenarios at
-a time, and other jobs running: `--check` took 7:35 and 6:34 (the second on a
-fresh Wine prefix), and `--traces` 7:07, not counting the build. The longest
-scenarios, `long-greenhaven-8p` and `skirmish4-long`, take about 2 minutes each.
+Run time of the suite, measured on a 20-core machine with Wine, not counting the
+build. Each run hardlinks its Wine prefix from the template and copies only the
+registry files, so starting a run is cheap and runs share nothing else. `--check`
+with the default 6 scenarios at a time took 5:18 on a quiet machine and 6:51 while
+other jobs loaded it (load average 40); with `--parallel 1` it took 18:09 and with the
+old 2-way copied prefixes 13:36, both under load. The longest scenarios,
+`long-greenhaven-8p` and `skirmish4-long`, take 2 to 4 minutes each and set the floor.
+Digests are identical between `--parallel 1` and the default.
