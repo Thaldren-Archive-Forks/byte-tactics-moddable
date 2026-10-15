@@ -4,10 +4,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <float.h>
+#include <time.h>
 
 static int s_testMode = 0;
 static unsigned s_gameSeed = 1;
 static unsigned s_crtSeed = 1;
+static unsigned s_viewSeed = 1;
+static unsigned s_viewState = 1;
 static unsigned s_fpuControlWord = 0x9001F;
 
 static void Fail(const char* text)
@@ -40,7 +43,7 @@ static void ReadScenario(const char* path)
             end++;
         if (*end != '\0')
             *end++ = '\0';
-        if (strcmp(key, "game_seed") != 0 && strcmp(key, "crt_seed") != 0 && strcmp(key, "fpu_control_word") != 0)
+        if (strcmp(key, "game_seed") != 0 && strcmp(key, "crt_seed") != 0 && strcmp(key, "view_seed") != 0 && strcmp(key, "fpu_control_word") != 0)
             continue;
         while (*end == ' ' || *end == '\t')
             end++;
@@ -59,6 +62,8 @@ static void ReadScenario(const char* path)
             s_gameSeed = value;
         else if (strcmp(key, "crt_seed") == 0)
             s_crtSeed = value;
+        else if (strcmp(key, "view_seed") == 0)
+            s_viewSeed = value;
         else
             s_fpuControlWord = value;
     }
@@ -77,8 +82,10 @@ void HarnessInit(char* cmdLine)
         }
         p++;
     }
-    if (flag == NULL)
+    if (flag == NULL) {
+        s_viewState = (unsigned)time(0);
         return;
+    }
 
     char* q = flag + 9;
     while (*q == ' ' || *q == '\t')
@@ -107,6 +114,7 @@ void HarnessInit(char* cmdLine)
 
     s_testMode = 1;
     ReadScenario(path);
+    s_viewState = s_viewSeed;
 
     unsigned cw = _control87(0, 0);
     if (cw != s_fpuControlWord) {
@@ -130,4 +138,10 @@ unsigned HarnessGameSeed(unsigned live)
 unsigned HarnessCrtSeed(unsigned live)
 {
     return s_testMode ? s_crtSeed : live;
+}
+
+int HarnessViewRand()
+{
+    s_viewState = s_viewState * 214013 + 2531011;
+    return (s_viewState >> 16) & 0x7fff;
 }
