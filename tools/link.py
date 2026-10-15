@@ -62,9 +62,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from check import COMPILE_SCHEME, DEFAULT_FLAGS, ROOT, source_key, winpath
-from linkcheck import (CRT_LIBS, IMPORT_LIBS, Demangle, MEMBER_STATIC, address_of,
-                       archive_symbols, base_name, data_symbol, library_symbols,
-                       load_known, read_object, type_size)
+from aliases import (GLOBAL_HI, GLOBAL_LO, IMAGE_SCN_LNK_REMOVE, build_aliases, defined_addresses, global_rows,
+                     original_initialisers, unresolved_names, write_extra_data, write_init_object,
+                     write_stub_object)
+from linkcheck import (CRT_LIBS, IMPORT_LIBS, address_of, archive_symbols, library_symbols,
+                       load_known)
 from sources import relative
 from sources import sources as files_of_kind
 
@@ -73,12 +75,7 @@ BUILD = ROOT / "build/link"
 GLOBALS = ROOT / "data/globals.csv"
 DATA_CPP = ROOT / "link/data.cpp"
 
-# (address, size, section, init-hex) for every global the source refers to.
-GLOBAL_LO, GLOBAL_HI = 0x4FC000, 0x52D000
-
 IMAGE_SYM_CLASS_EXTERNAL = 2
-IMAGE_SYM_CLASS_WEAK_EXTERNAL = 105
-IMAGE_WEAK_EXTERN_SEARCH_ALIAS = 3
 
 LIBS = ("LIBCMT.LIB", "LIBCPMT.LIB", "OLDNAMES.LIB", "KERNEL32.LIB", "USER32.LIB", "GDI32.LIB",
         "ADVAPI32.LIB", "DDRAW.LIB", "DSOUND.LIB", "DPLAY.LIB", "SHELL32.LIB", "WINMM.LIB")
@@ -137,22 +134,6 @@ def compile_all(jobs: int) -> tuple[list[Path], list[tuple[Path, str]]]:
 
 # --- the generated global data --------------------------------------------------
 
-def global_rows() -> dict[int, tuple[str, int, str, str]]:
-    """address -> (name, size, section, init-hex) for every globals.csv row
-    that link/ has to define: not one a data file or a tree file defines, nor
-    one inside another global, nor the runtime library's (_tls_index)."""
-    out = {}
-    if not GLOBALS.exists():
-        return out
-    with GLOBALS.open() as fh:
-        for r in csv.DictReader(fh):
-            if r.get("defined") or r.get("kind") == "library":
-                continue
-            out[int(r["address"], 16)] = (f"DAT_{int(r['address'], 16):08x}", int(r["size"]),
-                                          r["section"], r["init"])
-    return out
-
-
 def build_data(symbols: dict[str, int]) -> tuple[list[Path], dict[int, str]]:
     """Compile link/data.cpp, emit the globals it and the data files omit, and
     return the two objects with address -> the symbol each defines (and each
@@ -198,30 +179,8 @@ def build_data(symbols: dict[str, int]) -> tuple[list[Path], dict[int, str]]:
     have |= {a for a in rows if inside(extents, a)}
     extra = {a: r for a, r in rows.items() if a not in have}
     if extra:
-        exe = None
-        lines = ['extern "C" {']
-        for addr in sorted(extra):
-            _, size, section, init = extra[addr]
-            name = f"DAT_{addr:08x}"
-            # The whole initial value: globals.csv's, which holds the first 64
-            # bytes, or the original's for a longer one.
-            if section == ".bss":
-                bytes_ = b""
-            elif len(init) >= 2 * size:
-                bytes_ = bytes.fromhex(init)[:size].rstrip(b"\0")
-            else:
-                if exe is None:
-                    from check import Original
-                    exe = Original()
-                bytes_ = exe.read(addr, size).rstrip(b"\0")
-            if section == ".bss" or not bytes_:
-                lines.append(f"unsigned char {name}[{max(size, 1)}];")
-            else:
-                body = ", ".join(f"0x{b:02x}" for b in bytes_)
-                lines.append(f"unsigned char {name}[{max(size, 1)}] = {{ {body}{', 0' if size > len(bytes_) else ''} }};")
-        lines.append("}")
         cpp = BUILD / "extra_data.cpp"
-        cpp.write_text("\n".join(lines) + "\n")
+        write_extra_data(extra, cpp)
         out = BUILD / "extra_data.obj"
         if not compile_one(cpp, out):
             raise SystemExit("the generated global data did not compile")
@@ -261,112 +220,6 @@ def inside(extents: list[tuple[int, int, str, str]], addr: int) -> tuple[int, in
         if e[0] <= addr < e[0] + max(e[1], 1):
             return e
     return None
-
-
-def defined_addresses(obj: Path, symbols: dict[str, int]) -> dict[int, str]:
-    """address -> the data symbol an object defines there (its exact COFF name)."""
-    info = read_object(str(obj), obj.read_bytes())
-    out: dict[int, str] = {}
-    for name, d in info.defs.items():
-        if d.code:
-            continue
-        addr = address_of(name, symbols)
-        if addr is not None and GLOBAL_LO <= addr < GLOBAL_HI:
-            out[addr] = name
-    return out
-
-
-# --- the weak-external aliases --------------------------------------------------
-
-def leaf_address(name: str, symbols: dict[str, int]) -> int | None:
-    """The address of a namespaced global whose leaf name is in symbols.csv:
-    `?g_game@Build@@3PAUGame@1@A` -> symbols['g_game']. The type differs, so
-    the mangled spelling is not in symbols.csv, but the address is the same
-    global and the weak external only cares about the name."""
-    if not name.startswith("?"):
-        return None
-    return symbols.get(name[1:].split("@", 1)[0])
-
-
-def build_aliases(objects: list[Path], symbols: dict[str, int], data_addr: dict[int, str],
-                  libs: dict[str, str], out: Path, extra: dict[str, str] | None = None,
-                  winmain_addr: int | None = None, data_fallback: bool = False) -> dict[str, str]:
-    """Write the COFF object that maps caller spellings to definitions."""
-    infos = [read_object(str(o), o.read_bytes()) for o in objects]
-    defined = {n for info in infos for n in info.defs}
-    funcs_at: dict[int, list[str]] = defaultdict(list)
-    for info in infos:
-        for name, d in info.defs.items():
-            if d.code:
-                a = address_of(name, symbols)
-                if a is not None:
-                    funcs_at[a].append(name)
-
-    # A C name in a library for a caller that spelled it as C++ (tolower -> _tolower).
-    lib_by_base: dict[str, str] = {}
-    for n in libs:
-        if not n.startswith("?"):
-            lib_by_base.setdefault(base_name(n), n)
-
-    aliases: dict[str, str] = dict(extra or {})
-    if winmain_addr is not None and funcs_at.get(winmain_addr) and "_WinMain@16" not in defined:
-        aliases.setdefault("_WinMain@16", prefer(funcs_at[winmain_addr]))
-    for info in infos:
-        for name, is_func in info.refs.items():
-            if name in defined or name in aliases or name in libs:
-                continue
-            addr = address_of(name, symbols)
-            if is_func:
-                targets = funcs_at.get(addr) if addr is not None else None
-                if targets:
-                    aliases[name] = prefer(targets)
-                elif base_name(name) in lib_by_base and lib_by_base[base_name(name)] != name:
-                    # A caller that spelled a C runtime function as C++ (?tolower@@ -> _tolower).
-                    aliases[name] = lib_by_base[base_name(name)]
-            else:
-                if addr is None and data_fallback:
-                    addr = leaf_address(name, symbols)
-                if addr is not None and addr in data_addr and data_addr[addr] != name:
-                    aliases[name] = data_addr[addr]
-    write_object(aliases, out)
-    return aliases
-
-
-def prefer(names: list[str]) -> str:
-    """A real symbols.csv name over a FUN_/DAT_ placeholder."""
-    real = [n for n in names if not re.match(r"^(FUN|DAT|PTR|LAB)_[0-9a-f]{8}$", base_name(n))]
-    return sorted(real or names)[0]
-
-
-def write_object(aliases: dict[str, str], out: Path) -> None:
-    strings = bytearray()
-    str_index: dict[str, int] = {}
-
-    def name_field(name: str) -> bytes:
-        raw = name.encode("latin-1")
-        if len(raw) <= 8:
-            return raw + b"\0" * (8 - len(raw))
-        if name not in str_index:
-            str_index[name] = 4 + len(strings)
-            strings.extend(raw + b"\0")
-        return b"\0\0\0\0" + struct.pack("<I", str_index[name])
-
-    syms = bytearray()
-    index = 0
-    for alias, target in aliases.items():
-        syms += name_field(target) + struct.pack("<IhHBB", 0, 0, 0x20, IMAGE_SYM_CLASS_EXTERNAL, 0)
-        index += 1
-        syms += name_field(alias) + struct.pack("<IhHBB", 0, 0, 0x20, IMAGE_SYM_CLASS_WEAK_EXTERNAL, 1)
-        index += 1
-        syms += struct.pack("<II", index - 2, IMAGE_WEAK_EXTERN_SEARCH_ALIAS) + b"\0" * 10
-        index += 1
-
-    strtab = struct.pack("<I", 4 + len(strings)) + bytes(strings)
-    nsects, symptr, nsyms = 1, 20 + 40, index
-    header = struct.pack("<HHIIIHH", 0x14C, nsects, 0, symptr, nsyms, 0, 0)
-    section = b"aliases\0" + struct.pack("<IIIIIIHHI", 0, 0, 0, 0, 0, 0, 0, 0, 0x40000040)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(header + section + bytes(syms) + strtab)
 
 
 # --- the missing import libraries -----------------------------------------------
@@ -444,30 +297,9 @@ def build_stub_dll(directory: Path) -> Path:
 
 # --- the C++ static initialisers ---------------------------------------------------
 
-IMAGE_SCN_LNK_REMOVE = 0x800
 EXE = ROOT / "orig/TotalA.exe"
 PROGRESS = ROOT / "data/progress.csv"
 FUNCTIONS = ROOT / "data/functions.csv"
-
-
-def original_initialisers() -> list[int]:
-    """The functions the original's C runtime calls before WinMain to construct
-    its global objects: the entries of its __xc_a..__xc_z table, which the
-    runtime's _cinit passes to _initterm (the second pair of pushes)."""
-    import pefile
-    pe = pefile.PE(str(EXE))
-    base = pe.OPTIONAL_HEADER.ImageBase
-    with FUNCTIONS.open() as fh:
-        cinit = next(int(r["address"], 16) for r in csv.DictReader(fh) if r["name"] == "__cinit")
-    code = pe.get_data(cinit - base, 64)
-    pushes = [struct.unpack_from("<I", code, i + 1)[0] for i in range(len(code) - 5) if code[i] == 0x68]
-    xc_a, xc_z = pushes[3], pushes[2]
-    out = []
-    for at in range(xc_a, xc_z, 4):
-        (fn,) = struct.unpack("<I", pe.get_data(at - base, 4))
-        if fn:
-            out.append(fn)
-    return out
 
 
 def fix_initialisers(objects: list[Path]) -> list[Path]:
@@ -541,174 +373,6 @@ def fix_initialisers(objects: list[Path]) -> list[Path]:
     print(f"static initialisers: {kept + added} as in the original ({kept} from the objects, {added} added), "
           f"{removed} dropped", file=sys.stderr)
     return result
-
-
-def write_init_object(symbol: str, out: Path) -> None:
-    """A COFF object whose .CRT$XCU section holds one pointer to symbol."""
-    strings = bytearray()
-
-    def name_field(name: str) -> bytes:
-        raw = name.encode("latin-1")
-        if len(raw) <= 8:
-            return raw + b"\0" * (8 - len(raw))
-        off = 4 + len(strings)
-        strings.extend(raw + b"\0")
-        return b"\0\0\0\0" + struct.pack("<I", off)
-
-    raw_off = 20 + 40
-    reloc_off = raw_off + 4
-    sym_off = reloc_off + 10
-    header = struct.pack("<HHIIIHH", 0x14C, 1, 0, sym_off, 2, 0, 0)
-    section = b".CRT$XCU" + struct.pack("<IIIIIIHHI", 0, 0, 4, raw_off, reloc_off, 0, 1, 0, 0xC0300040)
-    reloc = struct.pack("<IIH", 0, 1, 0x06)       # DIR32 against symbol 1
-    syms = name_field(".CRT$XCU") + struct.pack("<IhHBB", 0, 1, 0, 3, 0)
-    syms += name_field(symbol) + struct.pack("<IhHBB", 0, 0, 0x20, IMAGE_SYM_CLASS_EXTERNAL, 0)
-    strtab = struct.pack("<I", 4 + len(strings)) + bytes(strings)
-    out.write_bytes(header + section + b"\0\0\0\0" + reloc + syms + strtab)
-
-
-# --- the stubs ------------------------------------------------------------------
-
-def stub_cleanup_bytes(name: str) -> int | None:
-    """The bytes a __stdcall/__thiscall stub must pop, 0 for __cdecl and
-    __fastcall, or None when the argument size cannot be read from the name."""
-    m = re.search(r"@(\d+)$", name)
-    if m:
-        return int(m.group(1))
-    if not name.startswith("?"):
-        return 0
-    try:
-        d = Demangle(name[1:])
-        if d.s.startswith("?"):
-            d.i = 1
-            code = d.take()
-            if code == "_":
-                code += d.take()
-            if code == "$":
-                return None
-            if d.s[d.i] != "@":
-                d.qualified()
-            if d.s[d.i] == "@":
-                d.i += 1
-        else:
-            d.qualified()
-        access = d.take()
-        if access in "YZ":
-            kind = "global"
-        elif access in MEMBER_STATIC:
-            kind = "static"
-        else:
-            kind = "member"
-            d.take()  # the this-pointer's cv
-        cc = d.take()
-        if d.s[d.i] == "@":
-            d.i += 1
-        else:
-            if d.s.startswith("?A", d.i):
-                d.i += 2
-            d.type()
-        args = []
-        while d.i < len(d.s) and d.s[d.i] not in "@Z":
-            if d.s[d.i] == "X" and not args:
-                d.i += 1
-                break
-            args.append(d.arg())
-        sizes = [type_size(a) for a in args]
-        if any(s is None for s in sizes):
-            return None
-        # Every stack argument occupies at least a dword on x86.
-        total = sum((s + 3) & ~3 for s in sizes)
-        if kind == "member" and cc == "G":
-            # A __stdcall member takes `this` on the stack; __thiscall passes it
-            # in ecx, so a stub that popped it too would unbalance the caller.
-            total += 4
-        if cc in ("G", "E"):
-            return total
-        return 0
-    except (ValueError, IndexError, KeyError):
-        return None
-
-
-def stub_bytes(name: str) -> bytes:
-    """`xor eax, eax` then a return, cleaning the stack for callee-cleans."""
-    cleanup = stub_cleanup_bytes(name)
-    if cleanup:
-        return b"\x31\xc0\xc2" + struct.pack("<H", cleanup)
-    return b"\x31\xc0\xc3"
-
-
-def stub_data_size(name: str) -> int:
-    _, t = data_symbol(name)
-    size = type_size(t)
-    return size if size and size > 0 else 4
-
-
-def write_stub_object(funcs: list[str], data: list[str], out: Path) -> None:
-    """A COFF object defining each name: a ret stub in .text, a zero array in
-    .data. Written by hand so any mangled spelling can be defined."""
-    strings = bytearray()
-    str_index: dict[str, int] = {}
-
-    def name_field(name: str) -> bytes:
-        raw = name.encode("latin-1")
-        if len(raw) <= 8:
-            return raw + b"\0" * (8 - len(raw))
-        if name not in str_index:
-            str_index[name] = 4 + len(strings)
-            strings.extend(raw + b"\0")
-        return b"\0\0\0\0" + struct.pack("<I", str_index[name])
-
-    text = bytearray()
-    text_defs: list[tuple[str, int]] = []
-    for name in sorted(funcs):
-        text_defs.append((name, len(text)))
-        text.extend(stub_bytes(name))
-    dat = bytearray()
-    data_defs: list[tuple[str, int]] = []
-    for name in sorted(data):
-        data_defs.append((name, len(dat)))
-        dat.extend(b"\0" * stub_data_size(name))
-
-    sections = []
-    if text_defs:
-        sections.append((b".text\0\0\0", bytes(text), 0x60500020, text_defs, 0x20))
-    if data_defs:
-        sections.append((b".data\0\0\0", bytes(dat), 0xC0000040, data_defs, 0x00))
-
-    hdr_size = 20 + 40 * len(sections)
-    raw_off = hdr_size
-    section_headers = bytearray()
-    raws = bytearray()
-    for sname, raw, chars, _, _ in sections:
-        section_headers += sname + struct.pack("<IIIIIIHHI", 0, 0, len(raw), raw_off, 0, 0, 0, 0, chars)
-        raws += raw
-        raw_off += len(raw)
-    nsyms = sum(len(defs) for *_, defs, _ in sections)
-    symptr = raw_off
-
-    symtab = bytearray()
-    for sec_index, (_, _, _, defs, symtype) in enumerate(sections, start=1):
-        for name, value in defs:
-            symtab += name_field(name) + struct.pack("<IhHBB", value, sec_index, symtype,
-                                                     IMAGE_SYM_CLASS_EXTERNAL, 0)
-    strtab = struct.pack("<I", 4 + len(strings)) + bytes(strings)
-    header = struct.pack("<HHIIIHH", 0x14C, len(sections), 0, symptr, nsyms, 0, 0)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(header + bytes(section_headers) + bytes(raws) + bytes(symtab) + strtab)
-
-
-def unresolved_names(objects: list[Path], alias_keys: set[str], libs: dict[str, str]) -> dict[str, bool]:
-    """The names LINK would still report LNK2001 for: referenced by some
-    object, defined by none, not aliased and not in a library."""
-    defined: set[str] = set()
-    refs: dict[str, bool] = {}
-    for obj in objects:
-        info = read_object(str(obj), obj.read_bytes())
-        defined |= set(info.defs)
-        for name, is_func in info.refs.items():
-            refs[name] = refs.get(name, False) or is_func
-    return {n: f for n, f in refs.items()
-            if n not in defined and n not in alias_keys and n not in libs}
 
 
 # --- /ORDER: the original's function order --------------------------------------

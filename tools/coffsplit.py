@@ -14,106 +14,10 @@ original had there, not whatever the compiler's order put next.
 """
 
 import struct
-from dataclasses import dataclass, field
 from pathlib import Path
 
-IMAGE_SCN_CNT_CODE = 0x20
-IMAGE_SCN_CNT_UNINIT = 0x80
-IMAGE_SCN_LNK_COMDAT = 0x1000
-IMAGE_SCN_MEM_WRITE = 0x80000000
-REL_DIR32, REL_DIR32NB, REL_REL32 = 0x06, 0x07, 0x14
-IMAGE_SYM_CLASS_STATIC = 3
-
-
-@dataclass
-class Section:
-    name: str
-    chars: int
-    data: bytes                      # empty for uninitialised data
-    size: int
-    relocs: list = field(default_factory=list)   # [offset, symbol index, type]
-
-
-@dataclass
-class Symbol:
-    name: str
-    value: int
-    section: int
-    type: int
-    sclass: int
-    aux: list = field(default_factory=list)      # raw 18-byte auxiliary records
-
-
-def read(data: bytes) -> tuple[int, list[Section], list[Symbol]]:
-    machine, nsects, stamp, symptr, nsyms, opthdr, chars = struct.unpack_from("<HHIIIHH", data, 0)
-    strtab = data[symptr + nsyms * 18:]
-
-    def long_name(raw: bytes) -> str:
-        if raw[:4] == b"\0\0\0\0":
-            off = struct.unpack_from("<I", raw, 4)[0]
-            return strtab[off:strtab.index(b"\0", off)].decode("latin-1")
-        return raw[:8].split(b"\0", 1)[0].decode("latin-1")
-
-    secs = []
-    for s in range(nsects):
-        hdr = data[20 + opthdr + s * 40: 60 + opthdr + s * 40]
-        name = hdr[:8].split(b"\0", 1)[0].decode("latin-1")
-        if name.startswith("/"):
-            off = int(name[1:])
-            name = strtab[off:strtab.index(b"\0", off)].decode("latin-1")
-        size, rawptr, relptr, _, nrel, _, schars = struct.unpack_from("<IIIIHHI", hdr, 16)
-        body = data[rawptr:rawptr + size] if rawptr else b""
-        relocs = [list(struct.unpack_from("<IIH", data, relptr + r * 10)) for r in range(nrel)]
-        secs.append(Section(name, schars, body, size, relocs))
-    syms: list[Symbol] = []
-    i = 0
-    while i < nsyms:
-        raw = data[symptr + i * 18: symptr + i * 18 + 18]
-        value, secnum, typ, sclass, naux = struct.unpack_from("<IhHBB", raw, 8)
-        aux = [data[symptr + (i + 1 + k) * 18: symptr + (i + 2 + k) * 18] for k in range(naux)]
-        syms.append(Symbol(long_name(raw), value, secnum, typ, sclass, aux))
-        i += 1 + naux
-    return chars, secs, syms
-
-
-def write(chars: int, secs: list[Section], syms: list[Symbol], out: Path) -> None:
-    strings = bytearray()
-
-    def string(name: str) -> int:
-        off = 4 + len(strings)
-        strings.extend(name.encode("latin-1") + b"\0")
-        return off
-
-    # Symbol indices: each symbol takes 1 + its auxiliary records.
-    index, n = [], 0
-    for s in syms:
-        index.append(n)
-        n += 1 + len(s.aux)
-    pos = 20 + 40 * len(secs)
-    headers, bodies = bytearray(), bytearray()
-    for sec in secs:
-        raw = sec.name.encode("latin-1")
-        name_field = raw.ljust(8, b"\0") if len(raw) <= 8 else f"/{string(sec.name)}".encode().ljust(8, b"\0")
-        relocs = b"".join(struct.pack("<IIH", off, index[symidx], rtype) for off, symidx, rtype in sec.relocs)
-        rawptr = pos if sec.data else 0
-        bodies += sec.data
-        pos += len(sec.data)
-        relptr = pos if relocs else 0
-        bodies += relocs
-        pos += len(relocs)
-        headers += name_field + struct.pack("<IIIIIIHHI", 0, 0, sec.size, rawptr, relptr, 0,
-                                            len(sec.relocs), 0, sec.chars)
-    symtab = bytearray()
-    for s in syms:
-        raw = s.name.encode("latin-1")
-        name_field = raw.ljust(8, b"\0") if len(raw) <= 8 else b"\0\0\0\0" + struct.pack("<I", string(s.name))
-        symtab += name_field + struct.pack("<IhHBB", s.value, s.section, s.type, s.sclass, len(s.aux))
-        for a in s.aux:
-            symtab += a
-    head = struct.pack("<HHIIIHH", 0x14C, len(secs), 0, pos, n, 0, chars)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(head + bytes(headers) + bytes(bodies) + bytes(symtab)
-                    + struct.pack("<I", 4 + len(strings)) + bytes(strings))
+from aliases import (IMAGE_SCN_CNT_CODE, IMAGE_SCN_CNT_UNINIT, IMAGE_SCN_LNK_COMDAT, IMAGE_SCN_MEM_WRITE,
+                     IMAGE_SYM_CLASS_STATIC, REL_DIR32, REL_DIR32NB, Section, Symbol, read, write)
 
 
 def kind(sec: Section) -> str:
