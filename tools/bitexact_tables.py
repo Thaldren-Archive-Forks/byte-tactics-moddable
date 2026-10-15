@@ -1,11 +1,14 @@
-"""Generate lib/bitexact/bx_tables.c from orig/TotalA.exe.
+"""Generate the bit-exact library's tables as C source, without orig/TotalA.exe.
 
-    uv run tools/bitexact_tables.py
+    uv run tools/bitexact_tables.py [output.c]
 
-The tables the hand-written trig in src/util/math_4b70a0.cpp reads are data in
-the exe: the sine table (0x509f00, with the cosine table a quarter turn on at
-0x50a000, up to the rotation matrix at 0x50a400) and the two doubles at
-0x509ef0 and 0x509ef8. They are copied byte for byte.
+The default output is build/bitexact/bx_tables.c. The tables are computed:
+the sine table the hand-written trig in src/util/math_4b70a0.cpp reads
+(0x509f00, 640 entries, the cosine a quarter turn on) is
+round(sin(i * 2 * pi / 512) * 0x2000), and the doubles at 0x509ef0 and
+0x509ef8 are the decimal constants 10430.37835047 and 9.587379924285e-05
+(not 0x8000 / pi and pi / 0x8000, which differ in the low bits). tools/bitexact.py checks them
+against the exe's bytes.
 
 The exe's x87 code takes sin and cos from fsincos, whose 64-bit results the
 port cannot compute with C doubles. Only 65536 angles reach it, so their
@@ -18,14 +21,15 @@ the port's atan2.
 
 import math
 import struct
+import sys
 from fractions import Fraction
 from pathlib import Path
 
-from check import ROOT, Original
+from check import ROOT
 
-OUT = ROOT / "lib/bitexact/bx_tables.c"
+OUT = ROOT / "build/bitexact/bx_tables.c"
 SIN_TABLE = 0x509F00
-SIN_TABLE_BYTES = 0x500
+SIN_TABLE_LEN = 640
 RAD_TO_ANGLE16 = 0x509EF0
 ANGLE16_TO_RAD = 0x509EF8
 
@@ -93,24 +97,28 @@ def double_double(v: int) -> tuple[tuple[int, int], tuple[int, int]]:
     return double_bits(hi), double_bits(lo)
 
 
+def sin_table() -> list[int]:
+    return [round(math.sin(i * 2 * math.pi / 512) * 0x2000) for i in range(SIN_TABLE_LEN)]
+
+
+def angle_doubles() -> tuple[float, float]:
+    return 10430.37835047, 9.587379924285e-05
+
+
 def rows(values: list[str], per_line: int) -> str:
     return "".join(
         "    " + ", ".join(values[i:i + per_line]) + (",\n" if i + per_line < len(values) else "\n")
         for i in range(0, len(values), per_line))
 
 
-def main() -> None:
-    orig = Original()
-    sin = struct.unpack(f"<{SIN_TABLE_BYTES // 2}h", orig.read(SIN_TABLE, SIN_TABLE_BYTES))
-    rad_to_angle16 = orig.read(RAD_TO_ANGLE16, 8)
-    angle16_to_rad_bytes = orig.read(ANGLE16_TO_RAD, 8)
-    angle16_to_rad = struct.unpack("<d", angle16_to_rad_bytes)[0]
-    lo_hi = lambda b: struct.unpack("<II", b)[::-1]
+def generate(out_path: Path) -> None:
+    sin = sin_table()
+    rad_to_angle16, angle16_to_rad = angle_doubles()
 
     out = ['#include "bx_tables.h"\n\n']
     out.append(f"const bx_i16 bx_sin_table[{len(sin)}] = {{\n{rows([str(v) for v in sin], 16)}}};\n\n")
-    for name, b in (("bx_rad_to_angle16_bits", rad_to_angle16), ("bx_angle16_to_rad_bits", angle16_to_rad_bytes)):
-        hi, lo = lo_hi(b)
+    for name, d in (("bx_rad_to_angle16_bits", rad_to_angle16), ("bx_angle16_to_rad_bits", angle16_to_rad)):
+        hi, lo = double_bits(d)
         out.append(f"const bx_u32 {name}[2] = {{0x{hi:08x}u, 0x{lo:08x}u}};\n")
     out.append("\n")
 
@@ -141,8 +149,13 @@ def main() -> None:
         ch, cl, ce = to_x87(c)
         vals += [f"0x{sh:08x}u", f"0x{sl:08x}u", f"0x{ch:08x}u", f"0x{cl:08x}u", f"0x{se:04x}{ce:04x}u"]
     out.append("const bx_u32 bx_sincos_table[65536 * 5] = {\n" + rows(vals, 5) + "};\n")
-    OUT.write_text("".join(out))
-    print(f"wrote {OUT.relative_to(ROOT)} ({OUT.stat().st_size:,} bytes)")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("".join(out))
+    print(f"wrote {out_path.relative_to(ROOT) if out_path.is_relative_to(ROOT) else out_path} ({out_path.stat().st_size:,} bytes)")
+
+
+def main() -> None:
+    generate(Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else OUT)
 
 
 if __name__ == "__main__":

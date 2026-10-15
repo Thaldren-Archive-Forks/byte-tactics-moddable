@@ -11,10 +11,7 @@
 #define INT_MAX_ 2147483647
 #define RANDOM_CASES 1000000
 
-short g_sinTable[BX_SIN_TABLE_LEN];
-short g_cosTable[512];
-double g_radToAngle16;
-double g_angle16ToRad;
+extern double g_angle16ToRad;
 int g_rotationMatrix[9];
 
 extern int __cdecl FixedSine(unsigned short angle);
@@ -434,18 +431,7 @@ int main(void)
     cw = _control87(0, 0);
     printf("fpu control word (_control87): 0x%05X\n", cw);
 
-    memcpy(g_sinTable, bx_sin_table, sizeof(g_sinTable));
-    memcpy(g_cosTable, bx_sin_table + 128, sizeof(g_cosTable));
-    {
-        bx_u32 w[2];
-        w[0] = bx_rad_to_angle16_bits[1];
-        w[1] = bx_rad_to_angle16_bits[0];
-        memcpy(&g_radToAngle16, w, 8);
-        w[0] = bx_angle16_to_rad_bits[1];
-        w[1] = bx_angle16_to_rad_bits[0];
-        memcpy(&g_angle16ToRad, w, 8);
-    }
-    printf("g_radToAngle16 %.17g, g_angle16ToRad %.17g\n", g_radToAngle16, g_angle16ToRad);
+    printf("g_angle16ToRad %.17g\n", g_angle16ToRad);
 
     orig_cos = (fn_angle)entry(0x20, prologue);
     orig_mul_hi = (fn_mul_hi)entry(0x40, prologue);
