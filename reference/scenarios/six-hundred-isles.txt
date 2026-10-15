@@ -1,0 +1,13 @@
+# Six players on Hundred Isles, alternating sides, five minutes.
+game_seed 184
+crt_seed 1184
+view_seed 2184
+map Hundred Isles
+start_positions fixed
+ticks 9000
+player0.side Arm
+player1.side Core
+player2.side Arm
+player3.side Core
+player4.side Arm
+player5.side Core

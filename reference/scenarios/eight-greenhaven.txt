@@ -1,0 +1,15 @@
+# Eight Arm players on Greenhaven, random start positions, three minutes.
+game_seed 212
+crt_seed 1212
+view_seed 2212
+map Greenhaven
+start_positions random
+ticks 5400
+player0.side Arm
+player1.side Arm
+player2.side Arm
+player3.side Arm
+player4.side Arm
+player5.side Arm
+player6.side Arm
+player7.side Arm

@@ -1,0 +1,14 @@
+# Three players on Anteer Strait, players 0 and 1 allied, three minutes, line of sight type 0.
+game_seed 149
+crt_seed 1149
+view_seed 2149
+map Anteer Strait
+start_positions fixed
+ticks 5400
+los_type 0
+player0.side Arm
+player0.team 0
+player1.side Arm
+player1.team 0
+player2.side Core
+player2.team 5

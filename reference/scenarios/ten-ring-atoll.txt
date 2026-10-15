@@ -1,0 +1,18 @@
+# Ten players on Ring Atoll, random start positions, five minutes, difficulty 2.
+game_seed 233
+crt_seed 1233
+view_seed 2233
+map Ring Atoll
+start_positions random
+ticks 9000
+difficulty 2
+player0.side Core
+player1.side Arm
+player2.side Core
+player3.side Arm
+player4.side Core
+player5.side Arm
+player6.side Core
+player7.side Arm
+player8.side Core
+player9.side Arm

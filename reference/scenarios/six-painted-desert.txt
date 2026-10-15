@@ -1,0 +1,13 @@
+# Six Core players on Painted Desert, random start positions, seven minutes.
+game_seed 191
+crt_seed 1191
+view_seed 2191
+map Painted Desert
+start_positions random
+ticks 12600
+player0.side Core
+player1.side Core
+player2.side Core
+player3.side Core
+player4.side Core
+player5.side Core

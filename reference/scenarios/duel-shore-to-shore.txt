@@ -1,0 +1,15 @@
+# Arm against Core on Shore to Shore with 5000 metal and energy, no commander death, difficulty 0.
+game_seed 121
+crt_seed 1121
+view_seed 2121
+map Shore to Shore
+start_positions fixed
+ticks 2700
+difficulty 0
+commander_death 0
+player0.metal 5000
+player0.energy 5000
+player1.metal 5000
+player1.energy 5000
+player0.side Arm
+player1.side Core

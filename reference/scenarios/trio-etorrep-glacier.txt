@@ -1,0 +1,10 @@
+# Three Core players on Etorrep Glacier, random start positions, two minutes.
+game_seed 142
+crt_seed 1142
+view_seed 2142
+map Etorrep Glacier
+start_positions random
+ticks 3600
+player0.side Core
+player1.side Core
+player2.side Core
