@@ -255,11 +255,11 @@ of building HEAD.
 in `view_seed`; with `--scenario` given twice, run mode runs A on the first file
 and B on the second.
 
-Run time of the suite, measured on a 20-core machine with Wine, not counting the
-build. Each run hardlinks its Wine prefix from the template and copies only the
-registry files, so starting a run is cheap and runs share nothing else. `--check`
-with the default 6 scenarios at a time took 5:18 on a quiet machine and 6:51 while
-other jobs loaded it (load average 40); with `--parallel 1` it took 18:09 and with the
-old 2-way copied prefixes 13:36, both under load. The longest scenarios,
-`long-greenhaven-8p` and `skirmish4-long`, take 2 to 4 minutes each and set the floor.
-Digests are identical between `--parallel 1` and the default.
+Run time of the suite (27 scenarios), measured on a 20-core machine with Wine and
+other jobs running, not counting the build. Each run hardlinks its Wine prefix from
+the template and copies only the registry files, so runs share nothing else, and the
+longest scenarios start first. `--check` with the default 6 scenarios at a time took
+5:39 and 6:16 (load average 30 and 50), and 7:57 with `--parallel 2`. The code before
+this change took 9:59 and 9:19 on the same machine. `long-greenhaven-8p` alone takes
+about 4:30 and sets the floor. Digests are identical between `--parallel 1` and the
+default.
