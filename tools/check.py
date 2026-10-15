@@ -19,6 +19,7 @@ reference the linker fills in points at the right thing:
 import argparse
 import csv
 import difflib
+import functools
 import hashlib
 import re
 import struct
@@ -52,6 +53,71 @@ PADDING = (0x90, 0xCC)
 SYMBOLS = ROOT / "data/symbols.csv"
 FORBIDDEN = re.compile(r"\b(__asm|_asm|_emit|__emit)\b|#\s*pragma\s+(optimize|code_seg)")
 GAP_FORBIDDEN = re.compile(r"#\s*pragma\s+(optimize|code_seg)")
+
+
+QUOTED_INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*"([^"\n]+)"', re.M)
+COMMENTS = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
+
+
+@functools.lru_cache(maxsize=None)
+def include_dir_hash(root: Path = ROOT) -> str:
+    """A hash of every file under include/, once per run."""
+    inc = root / "include"
+    return hashlib.sha256(b"".join(
+        p.read_bytes() for p in sorted(inc.rglob("*")) if p.is_file())).hexdigest() if inc.exists() else ""
+
+
+@functools.lru_cache(maxsize=None)
+def _include_names(path: Path) -> tuple[str, ...]:
+    """The names of a file's quoted includes, comments ignored."""
+    text = COMMENTS.sub(lambda m: "\n" * m.group(0).count("\n"), path.read_text(errors="replace"))
+    return tuple(name.replace("\\", "/") for name in QUOTED_INCLUDE.findall(text))
+
+
+def include_closure(src: Path, includes: tuple[Path, ...] = (), root: Path = ROOT) -> tuple[list[Path], list[str]]:
+    """Every file src reaches through quoted includes, sorted, and the include
+    names that resolve to nothing. Search order is the compiler's: the including
+    file's directory, then the directory of each file further up the include
+    chain (most recent first), then includes, then include/."""
+    dirs = (*includes, root / "include")
+    seen: set[Path] = set()
+    missing: set[str] = set()
+    visited: set[tuple[Path, tuple[Path, ...]]] = set()
+    start = src.resolve()
+    todo = [(start, (start.parent,))]
+    while todo:
+        cur, chain = todo.pop()
+        if (cur, chain) in visited:
+            continue
+        visited.add((cur, chain))
+        for name in _include_names(cur):
+            for d in (*chain, *dirs):
+                if (d / name).is_file():
+                    f = (d / name).resolve()
+                    seen.add(f)
+                    todo.append((f, tuple(dict.fromkeys((f.parent, *chain)))))
+                    break
+            else:
+                missing.add(name)
+    seen.discard(start)
+    return sorted(seen), sorted(missing)
+
+
+def source_key(src: Path, flags: str, includes: tuple[Path, ...] = (), root: Path = ROOT) -> str:
+    """The cache key of src's object: its bytes, its flags, include/ as a whole,
+    and the path and bytes of each file in its quoted-include closure (plus the
+    literal name of each include that resolves to nothing, so creating it later
+    changes the key)."""
+    h = hashlib.sha256()
+    h.update(src.read_bytes())
+    h.update(b"\0" + flags.encode() + b"\0" + include_dir_hash(root).encode())
+    files, missing = include_closure(src, includes, root)
+    for f in files:
+        rel = f.relative_to(root.resolve()) if f.is_relative_to(root.resolve()) else f
+        h.update(b"\0" + str(rel).encode() + b"\0" + f.read_bytes())
+    for name in missing:
+        h.update(b"\0?" + name.encode())
+    return h.hexdigest()[:16]
 
 
 # --- the original exe -------------------------------------------------------

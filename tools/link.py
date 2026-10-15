@@ -53,7 +53,6 @@ This needs a LINK.EXE and LIB.EXE that can start; see tools/setup_toolchain.sh.
 
 import argparse
 import csv
-import hashlib
 import re
 import struct
 import subprocess
@@ -62,9 +61,9 @@ from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from check import COMPILE_SCHEME, DEFAULT_FLAGS, ROOT, winpath
+from check import COMPILE_SCHEME, DEFAULT_FLAGS, ROOT, source_key, winpath
 from linkcheck import (CRT_LIBS, IMPORT_LIBS, Demangle, MEMBER_STATIC, address_of,
-                       archive_symbols, base_name, data_symbol, include_hash, library_symbols,
+                       archive_symbols, base_name, data_symbol, library_symbols,
                        load_known, read_object, type_size)
 from sources import relative
 from sources import sources as files_of_kind
@@ -115,10 +114,9 @@ def compile_all(jobs: int) -> tuple[list[Path], list[tuple[Path, str]]]:
 
     # In link order: data, library code, then game code (tools/sources.py).
     sources = files_of_kind("data", "library", "game")
-    ihash = include_hash()
 
     def cached(src: Path) -> bool:
-        key = hashlib.sha256(src.read_bytes() + ihash.encode() + (DEFAULT_FLAGS + COMPILE_SCHEME).encode()).hexdigest()[:16]
+        key = source_key(src, DEFAULT_FLAGS + COMPILE_SCHEME)
         stamp = ROOT / "build/progress" / src.relative_to(SRC).with_suffix(".key")
         return stamp.exists() and stamp.read_text() == key and stamp.with_suffix(".obj").exists()
 
@@ -126,7 +124,7 @@ def compile_all(jobs: int) -> tuple[list[Path], list[tuple[Path, str]]]:
     if stale:
         print(f"compiling {len(stale)} file(s) not in build/progress ...", file=sys.stderr)
     with ThreadPoolExecutor(max_workers=jobs) as pool:
-        results = dict(zip(sources, pool.map(lambda s: compile_cached(s, ihash), sources)))
+        results = dict(zip(sources, pool.map(compile_cached, sources)))
     objects, failed = [], []
     for src in sources:
         obj, log = results[src]

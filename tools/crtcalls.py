@@ -47,7 +47,6 @@ import argparse
 import bisect
 import collections
 import csv
-import hashlib
 import re
 import struct
 import sys
@@ -183,13 +182,11 @@ def analyze() -> SimpleNamespace:
         by_addr.setdefault(a, name)
     sym_addrs = sorted(set(symbols.values()))
     orig = Original()
-    include_hash = hashlib.sha256(b"".join(
-        p.read_bytes() for p in sorted((ROOT / "include").rglob("*")) if p.is_file())).hexdigest()
 
     infos: dict[int, dict] = {}
     defined: dict[str, int] = {}
     for src in sources("game", "gap"):
-        obj_path, log = compile_cached(src, include_hash)
+        obj_path, log = compile_cached(src)
         if not obj_path:
             sys.exit(f"{src}: does not compile\n{log}")
         obj = parse_object(obj_path.read_bytes(), obj_path.name)
