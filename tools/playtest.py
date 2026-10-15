@@ -16,7 +16,8 @@ a copy of an ordinary link whose stubs fault when reached (see stub_traps).
 
 `--testmode <file>` instead runs each exe with `-testmode <file>` (a scenario of
 reference/README.md) and passes when it exits with status 0 within
-`--testmode-timeout` seconds.
+`--testmode-timeout` seconds. The trace the exe writes (trace.txt, and dump.txt
+with `--testdump <tick>`) is copied to the run's directory.
 
 Each run has its own:
 
@@ -369,9 +370,14 @@ class Instance:
         self.base.mkdir(parents=True, exist_ok=True)
         subprocess.run(["cp", "-a", str(template), str(self.prefix)], check=True)
         copy_game(game_src, self.game)
+        for stale in ("trace.txt", "dump.txt"):
+            (self.game / stale).unlink(missing_ok=True)
         shutil.copy2(self.run.exes[min(self.index, len(self.run.exes)) - 1], self.game / "TotalA.exe")
         if self.run.testmode:
             shutil.copyfile(self.run.testmode, self.game / "testmode.txt")
+            commit = self.run.exes[min(self.index, len(self.run.exes)) - 1].parent / "commit.txt"
+            if commit.is_file():
+                shutil.copyfile(commit, self.game / "commit.txt")
         for name, text in files.items():
             (self.game / name).write_text(text.replace("\\n", "\r\n"))
         if reg:
@@ -433,6 +439,8 @@ class Instance:
         env["WINEDEBUG"] = debug
         exe = "Z:" + str(self.game / "TotalA.exe").replace("/", "\\")
         args = ["-testmode", "testmode.txt"] if self.run.testmode else []
+        if self.run.testmode and self.run.testdump is not None:
+            args += ["-testdump", str(self.run.testdump)]
         self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
                                      stdout=(self.run.out / f"wine{self.suffix}.log").open("w"),
                                      stderr=subprocess.STDOUT)
@@ -595,6 +603,14 @@ class Instance:
             if self in _live:
                 _live.remove(self)
 
+    def collect_traces(self) -> None:
+        if not self.run.testmode:
+            return
+        for name in ("trace.txt", "dump.txt"):
+            if (self.game / name).is_file():
+                shutil.copyfile(self.game / name, self.run.out / name)
+                self.run.notes.append(f"{name}: {self.run.out / name}")
+
     def clean(self) -> None:
         shutil.rmtree(self.base, ignore_errors=True)
 
@@ -742,7 +758,8 @@ class GotoLabel(Exception):
 
 class Run:
     def __init__(self, number: int, name: str, scenario: Scenario, exes: list[Path], exe_tag: str, session: Path,
-                 screens: dict[str, Screen], debug: str, window: bool = False, testmode: Path | None = None):
+                 screens: dict[str, Screen], debug: str, window: bool = False, testmode: Path | None = None,
+                 testdump: int | None = None):
         self.number = number
         self.name = name
         self.scenario = scenario
@@ -754,6 +771,7 @@ class Run:
         self.debug = debug
         self.window = window         # a visible Xephyr window instead of an invisible Xvfb display
         self.testmode = testmode     # a reference/ scenario file to run the exe on
+        self.testdump = testdump     # the tick to dump the state of, with testmode
         self.instances = [Instance(self, i + 1) for i in range(scenario.instances)]
         self.t0 = time.time()
         self.log = None
@@ -1027,6 +1045,7 @@ class Run:
             for inst in self.instances:
                 inst.alive()
                 inst.stop()
+                inst.collect_traces()
             self.check_wine_logs()
             self.note(f"result: {self.result} {self.reason}")
             self.log.close()
@@ -1214,6 +1233,8 @@ def main() -> None:
                     help="run each --exe with -testmode FILE (a reference/ scenario) and wait for it to exit")
     ap.add_argument("--testmode-timeout", type=float, default=900, metavar="SECONDS",
                     help="--testmode: fail when the game runs longer (default 900)")
+    ap.add_argument("--testdump", type=int, metavar="TICK",
+                    help="--testmode: also run with -testdump TICK, which writes dump.txt")
     ap.add_argument("--list", action="store_true", help="list the scenarios")
     ap.add_argument("--signature", nargs="+", metavar="NAME GEOMETRY IMAGE",
                     help="print a screens.txt line for an area of screenshots of one screen")
@@ -1242,6 +1263,10 @@ def main() -> None:
         return
     if not args.exe or not (args.scenario or args.testmode):
         ap.error("--exe and --scenario (or --testmode) are required")
+    if args.testdump is not None and not args.testmode:
+        ap.error("--testdump needs --testmode")
+    if args.testdump is not None and args.testdump < 0:
+        ap.error("--testdump takes a tick of 0 or more")
     if args.testmode and not Path(args.testmode).is_file():
         ap.error(f"{args.testmode} is not a file")
     for tool in ("Xephyr" if args.window else "Xvfb", "xdotool", "import", "wine", "pactl", "parec"):
@@ -1284,7 +1309,8 @@ def main() -> None:
                 name = f"{sc.name}-{tag}" + (f"-{k + 1}" if args.repeat > 1 else "")
                 runs.append(Run(len(runs) + 1, name, sc, [p for _, p in parts], tag, session, screens,
                                 args.debug, args.window,
-                                Path(args.testmode).resolve() if sc is testmode else None))
+                                Path(args.testmode).resolve() if sc is testmode else None,
+                                args.testdump if sc is testmode else None))
     parallel = args.parallel or min(3, len(runs))
     template = template_prefix()
     dplay = directplay_prefix() if any(sc.directplay for sc in scenarios) else None
