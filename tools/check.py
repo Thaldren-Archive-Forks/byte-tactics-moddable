@@ -19,6 +19,7 @@ reference the linker fills in points at the right thing:
 import argparse
 import csv
 import difflib
+import functools
 import hashlib
 import re
 import struct
@@ -52,6 +53,74 @@ PADDING = (0x90, 0xCC)
 SYMBOLS = ROOT / "data/symbols.csv"
 FORBIDDEN = re.compile(r"\b(__asm|_asm|_emit|__emit)\b|#\s*pragma\s+(optimize|code_seg)")
 GAP_FORBIDDEN = re.compile(r"#\s*pragma\s+(optimize|code_seg)")
+
+
+# --- cache keys ---------------------------------------------------------------
+
+QUOTED_INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*"([^"\n]+)"', re.M)
+COMMENTS = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
+
+
+@functools.lru_cache(maxsize=None)
+def include_dir_hash(root: Path = ROOT) -> str:
+    """A hash of every file under include/, once per run."""
+    inc = root / "include"
+    return hashlib.sha256(b"".join(
+        p.read_bytes() for p in sorted(inc.rglob("*")) if p.is_file())).hexdigest() if inc.exists() else ""
+
+
+@functools.lru_cache(maxsize=None)
+def _direct_includes(path: Path, dirs: tuple[Path, ...]) -> tuple[tuple[Path, ...], tuple[str, ...]]:
+    """The files a file's quoted includes resolve to (its own directory first,
+    then dirs), and the names that resolve to nothing."""
+    text = COMMENTS.sub(lambda m: "\n" * m.group(0).count("\n"), path.read_text(errors="replace"))
+    found, missing = [], []
+    for name in QUOTED_INCLUDE.findall(text):
+        name = name.replace("\\", "/")
+        for d in (path.parent, *dirs):
+            if (d / name).is_file():
+                found.append((d / name).resolve())
+                break
+        else:
+            missing.append(name)
+    return tuple(found), tuple(missing)
+
+
+def include_closure(src: Path, includes: tuple[Path, ...] = (), root: Path = ROOT) -> tuple[list[Path], list[str]]:
+    """Every file src reaches through quoted includes, sorted, and the include
+    names that resolve to nothing. Search order is the compiler's: the including
+    file's directory, then includes, then include/."""
+    dirs = (*includes, root / "include")
+    seen: set[Path] = set()
+    missing: set[str] = set()
+    todo = [src.resolve()]
+    while todo:
+        cur = todo.pop()
+        found, absent = _direct_includes(cur, dirs)
+        missing.update(absent)
+        for f in found:
+            if f not in seen:
+                seen.add(f)
+                todo.append(f)
+    seen.discard(src.resolve())
+    return sorted(seen), sorted(missing)
+
+
+def source_key(src: Path, flags: str, includes: tuple[Path, ...] = (), root: Path = ROOT) -> str:
+    """The cache key of src's object: its bytes, its flags, include/ as a whole,
+    and the path and bytes of each file in its quoted-include closure (plus the
+    literal name of each include that resolves to nothing, so creating it later
+    changes the key)."""
+    h = hashlib.sha256()
+    h.update(src.read_bytes())
+    h.update(b"\0" + flags.encode() + b"\0" + include_dir_hash(root).encode())
+    files, missing = include_closure(src, includes, root)
+    for f in files:
+        rel = f.relative_to(root.resolve()) if f.is_relative_to(root.resolve()) else f
+        h.update(b"\0" + str(rel).encode() + b"\0" + f.read_bytes())
+    for name in missing:
+        h.update(b"\0?" + name.encode())
+    return h.hexdigest()[:16]
 
 
 # --- the original exe -------------------------------------------------------

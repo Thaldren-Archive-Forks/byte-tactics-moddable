@@ -41,7 +41,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from check import COMPILE_SCHEME, DEFAULT_FLAGS, ROOT, base_name, load_symbols
+from check import COMPILE_SCHEME, DEFAULT_FLAGS, ROOT, base_name, load_symbols, source_key
 from sources import link_order, source_files
 
 SRC = ROOT / "src"
@@ -175,12 +175,6 @@ def read_object(src: str, data: bytes) -> ObjectInfo:
     return info
 
 
-def include_hash() -> str:
-    """The same hash tools/progress.py folds into its cache keys."""
-    return hashlib.sha256(b"".join(
-        p.read_bytes() for p in sorted((ROOT / "include").rglob("*")) if p.is_file())).hexdigest()
-
-
 def load_objects(quiet: bool = False) -> tuple[list[ObjectInfo], list[str]]:
     """Every source file's object, compiled through tools/progress.py's cache.
     Returns the objects and the files that failed to compile."""
@@ -189,10 +183,9 @@ def load_objects(quiet: bool = False) -> tuple[list[ObjectInfo], list[str]]:
     # In link order (tools/sources.py): the counts and the type each global
     # gets do not depend on where the files live.
     sources = link_order(source_files())
-    ihash = include_hash()
 
     def cached(src: Path) -> bool:
-        key = hashlib.sha256(src.read_bytes() + ihash.encode() + (DEFAULT_FLAGS + COMPILE_SCHEME).encode()).hexdigest()[:16]
+        key = source_key(src, DEFAULT_FLAGS + COMPILE_SCHEME)
         stamp = CACHE / src.relative_to(SRC).with_suffix(".key")
         return stamp.exists() and stamp.read_text() == key and stamp.with_suffix(".obj").exists()
 
@@ -200,7 +193,7 @@ def load_objects(quiet: bool = False) -> tuple[list[ObjectInfo], list[str]]:
     if stale and not quiet:
         print(f"compiling {len(stale)} file(s) not in build/progress ...", file=sys.stderr)
     with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
-        compiled = dict(zip(sources, pool.map(lambda s: compile_cached(s, ihash), sources)))
+        compiled = dict(zip(sources, pool.map(compile_cached, sources)))
     objects, failed = [], []
     for src in sources:
         obj, _ = compiled[src]

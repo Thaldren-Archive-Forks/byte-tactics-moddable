@@ -64,13 +64,12 @@ of #5 to reproduce, `n/a` for a safe site.
 
 import argparse
 import csv
-import hashlib
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from check import DEFAULT_FLAGS, ROOT, base_name, compile_source, select_function
+from check import DEFAULT_FLAGS, ROOT, base_name, compile_source, select_function, source_key
 from coff import parse_object
 from crtcalls import analyze, decode_function
 from sources import is_gap_source
@@ -395,8 +394,8 @@ def fixed_bytes(sec, lo: int, hi: int) -> bytes:
     return bytes(b if m else 0 for b, m in zip(sec.data[lo:hi], sec.mask()[lo:hi]))
 
 
-def compile_lines(src: Path, include_hash: str) -> tuple[Path | None, str]:
-    key = hashlib.sha256(src.read_bytes() + include_hash.encode() + FLAGS.encode()).hexdigest()[:16]
+def compile_lines(src: Path) -> tuple[Path | None, str]:
+    key = source_key(src, FLAGS)
     stamp = BUILD / src.relative_to(ROOT / "src").with_suffix(".key")
     obj = stamp.with_suffix(".obj")
     stamp.parent.mkdir(parents=True, exist_ok=True)
@@ -446,14 +445,12 @@ def main() -> None:
     args = ap.parse_args()
 
     g = analyze()
-    include_hash = hashlib.sha256(b"".join(
-        p.read_bytes() for p in sorted((ROOT / "include").rglob("*")) if p.is_file())).hexdigest()
     by_file: dict[str, list[int]] = {}
     for a in sorted(g.game_reach):
         by_file.setdefault(g.infos[a]["file"], []).append(a)
     files = sorted(by_file)
     with ThreadPoolExecutor(max_workers=4) as pool:
-        compiled = dict(zip(files, pool.map(lambda f: compile_lines(ROOT / f, include_hash), files)))
+        compiled = dict(zip(files, pool.map(lambda f: compile_lines(ROOT / f), files)))
 
     rows = []
     fmt_rows = []

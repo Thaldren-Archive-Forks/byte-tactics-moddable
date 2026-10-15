@@ -34,7 +34,6 @@ without matching source are still copied or carved.
 
 import argparse
 import csv
-import hashlib
 import re
 import struct
 import sys
@@ -116,9 +115,8 @@ class RegionResult:
 
 def compile_gap(src: Path) -> tuple[Path | None, str]:
     """The region's object, through tools/progress.py's cache (build/progress/gap/)."""
-    from linkcheck import include_hash
     from progress import compile_cached
-    return compile_cached(src, include_hash())
+    return compile_cached(src)
 
 
 def symbol_value(obj: CoffObject, name: str) -> tuple[int, int] | None:
