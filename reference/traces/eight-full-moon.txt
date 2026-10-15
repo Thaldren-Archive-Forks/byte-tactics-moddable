@@ -1,6 +1,6 @@
 bt-digest 1
 trace_format bt-trace 1
-commit 2e29679015f968034e94a2a39f7f8ee0ae328726
+commit 6b84716c94c690c535070df822d55d92844b24d6
 scenario reference/scenarios/eight-full-moon.txt
 game_seed 205
 crt_seed 1205
