@@ -259,3 +259,5 @@ Run time of the suite, measured on a 20-core machine with Wine, two scenarios at
 a time, and other jobs running: `--check` took 7:35 and 6:34 (the second on a
 fresh Wine prefix), and `--traces` 7:07, not counting the build. The longest
 scenarios, `long-greenhaven-8p` and `skirmish4-long`, take about 2 minutes each.
+With the three `orders-` scenarios (27 in all), `--traces` took 10:15 and `--check` 15:46,
+the latter with other jobs running on the machine.
