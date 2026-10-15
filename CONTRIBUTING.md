@@ -49,6 +49,12 @@ libraries, zlib from `toolchain/thirdparty` and the resources (`llvm-rc`). It
 needs `uv`, `orig/TotalA.exe` (the icon, the cursor and the initial value of
 some globals) and `llvm-dlltool`, `llvm-rc` and `lld-link`.
 
+The link refuses unresolved names: there are no stubs. `tools/aliases.py` also
+lays the game's data out in 3.1c's order (each global in a section named for
+its address, with the original's bytes between them), because the decompiled
+code reaches past an array's end into the global that follows it, and leaves
+out the code no live function reaches.
+
 There is no CI job for it: the build needs `toolchain/msvc5-sp3/INCLUDE`, which
 must never be committed, so it can only run where the toolchain is installed
 (see "Setting up").

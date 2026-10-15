@@ -76,3 +76,5 @@ StringRef::StringRef,0x4c91a0,"the copy constructor, the same class as 0x4c9180;
 StringRef::StringRef,0x4c91b0,"the constructor from text, the same class as 0x4c9180; the overloads share one name in data/symbols.csv, so callers of this one resolve here"
 StringRef::StringRef,0x4c9230,"the constructor from text and a length, the same class as 0x4c9180; the overloads share one name in data/symbols.csv, so callers of this one resolve here"
 Class_004c9390::ReleaseRef,0x4c9390,"the string handle's release under the view class src/map/features.cpp keeps (its /Gi symbol ids depend on the name's length); the handle is StringRef elsewhere"
+LoadedImage::~LoadedImage,0x4de0f0,"the static imageTable's destructor under its class name: the original registers CloseLoadedImage with atexit for it, and the source keeps the destructor undefined"
+??4StringRef@@QAEAAV0@ABV0@@Z,0x4c93b0,"the assignment operator under its class name: the original calls StringRef::Assign (0x4c93b0) from the element assignments of std::vector<Entry_00432cf0>::insert"

@@ -26,7 +26,7 @@ add_library(data OBJECT link/data.cpp)
 set(GAME_COMPILE_OPTIONS
   -fms-compatibility -fms-extensions -fms-compatibility-version=11.00
   -fno-strict-aliasing -fwrapv -fno-delete-null-pointer-checks -Xclang -fno-assume-sane-operator-new -mno-sse
-  /Gz /GR- /GS- -Wno-nonportable-include-path -Wno-c++11-narrowing -Wno-writable-strings -Wno-microsoft -Wno-c++20-extensions
+  /Gz /GR- /GS- /Gw -ftrivial-auto-var-init=zero -Wno-nonportable-include-path -Wno-c++11-narrowing -Wno-writable-strings -Wno-microsoft -Wno-c++20-extensions
   -vfsoverlay "${CMAKE_BINARY_DIR}/overlay.json")
 foreach(target game data)
   target_include_directories(${target} PRIVATE "${CMAKE_SOURCE_DIR}/include")
@@ -109,9 +109,9 @@ target_include_directories(extra SYSTEM PRIVATE "${MSVC5_INCLUDE}")
 file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/alias_objects.rsp"
   CONTENT "$<JOIN:$<TARGET_OBJECTS:game>;$<TARGET_OBJECTS:data>;$<TARGET_OBJECTS:extra>,\n>\n")
 add_custom_command(
-  OUTPUT "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/stubs.obj" "${CMAKE_BINARY_DIR}/objs/objects.rsp"
+  OUTPUT "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/objs/objects.rsp"
   COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/aliases.py"
-          --objects "@${CMAKE_BINARY_DIR}/alias_objects.rsp" --libs ${SYSTEM_LIBS} ${IMPORT_LIBS} ${ZLIB_OBJECTS} --stubs "${CMAKE_BINARY_DIR}/stubs.obj"
+          --objects "@${CMAKE_BINARY_DIR}/alias_objects.rsp" --libs ${SYSTEM_LIBS} ${IMPORT_LIBS} ${ZLIB_OBJECTS}
           --winmain 0x49e830 --patch-dir "${CMAKE_BINARY_DIR}/objs" --out "${CMAKE_BINARY_DIR}/aliases.obj"
   DEPENDS game data extra $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> ${IMPORT_LIBS}
           "${CMAKE_SOURCE_DIR}/tools/aliases.py")
@@ -119,9 +119,9 @@ add_custom_command(
 add_custom_command(
   OUTPUT "${CMAKE_BINARY_DIR}/TotalA.exe"
   COMMAND "${LLD_LINK}" /nologo /machine:x86 /subsystem:windows,4.0 /base:0x400000 /fixed /dynamicbase:no /largeaddressaware:no /errorlimit:0 /entry:WinMainCRTStartup /include:_WinMainCRTStartup /out:${CMAKE_BINARY_DIR}/TotalA.exe
-          /libpath:${CMAKE_BINARY_DIR}/lib /opt:noref /incremental:no /safeseh:no /force:multiple /map:${CMAKE_BINARY_DIR}/TotalA.map
-          "@${CMAKE_BINARY_DIR}/objs/objects.rsp" "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/stubs.obj" "${CMAKE_BINARY_DIR}/TotalA.res"
+          /libpath:${CMAKE_BINARY_DIR}/lib /opt:ref,noicf /incremental:no /safeseh:no /force:multiple /map:${CMAKE_BINARY_DIR}/TotalA.map
+          "@${CMAKE_BINARY_DIR}/objs/objects.rsp" "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/TotalA.res"
           ${ZLIB_OBJECTS} ${IMPORT_LIBS} ${SYSTEM_LIBS}
-  DEPENDS game data extra $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/stubs.obj" "${CMAKE_BINARY_DIR}/TotalA.res" ${IMPORT_LIBS}
+  DEPENDS game data extra $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/TotalA.res" ${IMPORT_LIBS}
   VERBATIM)
 add_custom_target(TotalA ALL DEPENDS "${CMAKE_BINARY_DIR}/TotalA.exe")

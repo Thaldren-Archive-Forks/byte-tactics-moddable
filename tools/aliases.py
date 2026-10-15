@@ -17,11 +17,13 @@ import re
 import struct
 import sys
 from collections import defaultdict
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from check import ROOT, base_name
-from linkcheck import (Demangle, MEMBER_STATIC, address_of, archive_symbols, data_symbol, load_known,
-                       read_object, type_size)
+from linkcheck import (Demangle, MEMBER_STATIC, archive_symbols, data_symbol, load_known, read_object,
+                       type_size)
+from linkcheck import address_of as matching_address_of
 
 GLOBALS = ROOT / "data/globals.csv"
 CLANG_RUNTIME = {"___CxxFrameHandler3": "___CxxFrameHandler"}
@@ -34,6 +36,15 @@ IMAGE_SYM_CLASS_WEAK_EXTERNAL = 105
 IMAGE_WEAK_EXTERN_SEARCH_ALIAS = 3
 
 GLOBAL_LO, GLOBAL_HI = 0x4FC000, 0x52D000
+
+
+def address_of(sym: str, symbols: dict[str, int]) -> int | None:
+    """The address a symbol names (tools/linkcheck.py's), where a std::pair of
+    a const key is the pair data/symbols.csv names without the const (`$$CB`)."""
+    found = matching_address_of(sym, symbols)
+    if found is None and "$$CB" in sym:
+        found = matching_address_of(sym.replace("$$CB", ""), symbols)
+    return found
 
 
 def leaf_address(name: str, symbols: dict[str, int]) -> int | None:
@@ -50,11 +61,13 @@ def build_aliases(objects: list[Path], symbols: dict[str, int], data_addr: dict[
                   libs: dict[str, str], out: Path, extra: dict[str, str] | None = None,
                   winmain_addr: int | None = None, data_fallback: bool = False,
                   strip_underscore: bool = False, thunks: dict[int, str] | None = None,
-                  placeholder_methods: bool = False) -> dict[str, str]:
+                  placeholder_methods: bool = False,
+                  annotated: dict[int, tuple[str, str]] | None = None,
+                  overloads: dict[str, set[int]] | None = None) -> dict[str, str]:
     """Write the COFF object that maps caller spellings to definitions."""
     infos = [read_object(str(o), o.read_bytes()) for o in objects]
     defined = {n for info in infos for n in info.defs}
-    funcs_at = functions_at(infos, symbols)
+    funcs_at = functions_at(infos, symbols, annotated)
     for addr, name in (thunks or {}).items():
         funcs_at.setdefault(addr, []).append(name)
 
@@ -69,6 +82,7 @@ def build_aliases(objects: list[Path], symbols: dict[str, int], data_addr: dict[
         if parts:
             by_member[(parts[0], parts[2])].append(name)
 
+    absolute: dict[str, int] = {}
     aliases: dict[str, str] = dict(extra or {})
     if winmain_addr is not None and funcs_at.get(winmain_addr) and "_WinMain@16" not in defined:
         aliases.setdefault("_WinMain@16", prefer(funcs_at[winmain_addr]))
@@ -81,6 +95,8 @@ def build_aliases(objects: list[Path], symbols: dict[str, int], data_addr: dict[
                 is_func = untyped_function(name, addr, funcs_at, data_addr)
             if is_func:
                 targets = funcs_at.get(addr) if addr is not None else None
+                if overloads is not None and (chosen := overload_target(name, overloads, funcs_at)):
+                    targets = [chosen]
                 if targets:
                     aliases[name] = prefer(targets)
                 elif placeholder_methods and (target := placeholder_method(name, funcs_at, by_member)):
@@ -92,9 +108,11 @@ def build_aliases(objects: list[Path], symbols: dict[str, int], data_addr: dict[
             else:
                 if addr is None and data_fallback:
                     addr = leaf_address(name, symbols)
-                if addr is not None and addr in data_addr and data_addr[addr] != name:
+                if addr == 0 and name not in data_addr.values():
+                    absolute[name] = 0
+                elif addr is not None and addr in data_addr and data_addr[addr] != name:
                     aliases[name] = data_addr[addr]
-    write_object(aliases, out)
+    write_object(aliases, out, absolute)
     return aliases
 
 
@@ -251,16 +269,57 @@ def import_thunks(libs: dict[str, str]) -> dict[int, str]:
     return out
 
 
-def functions_at(infos, symbols: dict[str, int]) -> dict[int, list[str]]:
-    """address -> the code symbols the objects define there."""
+def functions_at(infos, symbols: dict[str, int],
+                 annotated: dict[int, tuple[str, str]] | None = None) -> dict[int, list[str]]:
+    """address -> the code symbols the objects define there: where
+    data/progress.csv gives a definition's address (one of several overloads
+    that share a name in data/symbols.csv), that one; else the name's."""
+    at_address = {name: addr for addr, (_, name) in (annotated or {}).items()}
     funcs_at: dict[int, list[str]] = defaultdict(list)
     for info in infos:
         for name, d in info.defs.items():
             if d.code:
-                a = address_of(name, symbols)
-                if a is not None:
+                a = at_address.get(name)
+                if a is None:
+                    a = address_of(name, symbols)
+                if a is not None and name not in funcs_at[a]:
                     funcs_at[a].append(name)
     return funcs_at
+
+
+def overload_target(name: str, overloads: dict[str, set[int]], funcs_at: dict[int, list[str]]) -> str | None:
+    """The definition a call to an overloaded name reaches, when the overloads
+    (data/aliases.csv lists each one's address) take different numbers of
+    argument bytes and exactly one takes the caller's."""
+    if "::" not in (base := base_name(name)) and not name.startswith("??0"):
+        return None
+    candidates = overloads.get(base)
+    if not candidates or len(candidates) < 2:
+        return None
+    wanted = stub_cleanup_bytes(name)
+    matching = [d for a in sorted(candidates) for d in funcs_at.get(a, ())
+                if stub_cleanup_bytes(d) == wanted and split_member(d) and split_member(name)
+                and split_member(d)[0] == split_member(name)[0]]
+    return matching[0] if len(matching) == 1 else None
+
+
+def overloaded_names(symbols: dict[str, int]) -> dict[str, set[int]]:
+    """name -> every address data/symbols.csv and data/aliases.csv give it."""
+    from check import load_aliases
+    out = {name: set(addrs) for name, addrs in load_aliases().items()}
+    for name, addrs in out.items():
+        if name in symbols:
+            addrs.add(symbols[name])
+    return out
+
+
+def alias_names(symbols: dict[str, int]) -> None:
+    """Add the names data/aliases.csv gives one address each (a view name for
+    a definition, a duplicate copy) to symbols."""
+    from check import load_aliases
+    for name, addrs in load_aliases().items():
+        if len(addrs) == 1 and name not in symbols:
+            symbols[name] = next(iter(addrs))
 
 
 def untyped_function(name: str, addr: int | None, funcs_at: dict[int, list[str]],
@@ -491,6 +550,134 @@ def add_entry_symbols(data: bytes, entries: list[tuple[int, str]], symbols: dict
     return bytes(buf[:symptr + nsyms * 18]) + bytes(new) + bytes(strtab)
 
 
+def data_kind(sec: Section) -> str:
+    """The output section a piece of data belongs to."""
+    if sec.chars & IMAGE_SCN_CNT_UNINIT:
+        return ".bss"
+    return ".data" if sec.chars & IMAGE_SCN_MEM_WRITE else ".rdata"
+
+
+FILLER_CHARS = {".data": 0xC0100040, ".rdata": 0x40100040, ".bss": 0xC0100080}
+
+
+@dataclass
+class DataPiece:
+    """A global that sits alone in a section of its object."""
+    symbol: int
+    name: str
+    address: int
+    size: int
+    kind: str
+
+
+def data_pieces_of(data: bytes, symbols: dict[str, int]) -> list[DataPiece]:
+    """The globals of an object that have an address in the original and sit
+    in a section of their own (clang-cl /Gw)."""
+    _, secs, syms = read(data)
+    owners: dict[int, int] = defaultdict(int)
+    for sym in syms:
+        if sym.section > 0 and not (sym.sclass == IMAGE_SYM_CLASS_STATIC and sym.name.startswith(".")):
+            owners[sym.section] += 1
+    out = []
+    for index, sym in enumerate(syms):
+        if sym.section <= 0 or sym.sclass != 2 or sym.value or owners[sym.section] != 1:
+            continue
+        sec = secs[sym.section - 1]
+        if sec.chars & IMAGE_SCN_CNT_CODE or sec.name not in (".data", ".rdata", ".bss"):
+            continue
+        addr = address_of(sym.name, symbols)
+        if addr is not None and GLOBAL_LO <= addr < GLOBAL_HI:
+            out.append(DataPiece(index, sym.name, addr, sec.size, data_kind(sec)))
+    return out
+
+
+def piece_priority(piece: DataPiece, from_source: bool) -> int:
+    """Which of several definitions at one address is the global: the
+    compiler's own vtable, then the tree's source, then the generated data."""
+    if piece.name.startswith("??_7"):
+        return 3
+    return 2 if from_source else 1
+
+
+def name_data_sections(data: bytes, keep: set[int], drop: set[int],
+                       pieces: dict[str, dict[int, int]]) -> bytes:
+    """The object with the pieces in keep in sections named `<kind>$<address>`
+    (LINK sorts the parts of a grouped section by the name after the `$`,
+    which lays the game's data out in the original's order), and the pieces
+    in drop, other definitions of an address, made undefined so that the
+    bridge points their callers at the one definition. pieces[kind][address]
+    collects the sizes."""
+    chars, secs, syms = read(data)
+    for index, sym in enumerate(syms):
+        if index not in keep and index not in drop:
+            continue
+        sec = secs[sym.section - 1]
+        if index in drop:
+            sec.chars |= IMAGE_SCN_LNK_REMOVE
+            sec.chars &= ~IMAGE_SCN_LNK_COMDAT
+            sym.section, sym.value = 0, 0
+            continue
+        addr = address_of(sym.name, SYMBOLS_FOR_NAMING)
+        kind = data_kind(sec)
+        pieces.setdefault(kind, {})[addr] = max(pieces.get(kind, {}).get(addr, 0), sec.size)
+        align = 1 << (((sec.chars >> 20) & 0xF) - 1) if (sec.chars >> 20) & 0xF else 16
+        while addr % align:
+            align //= 2
+        sec.chars = sec.chars & ~0x00F00000 | (align.bit_length() << 20)
+        sec.name = f"{kind}${addr:08x}"
+    position, raw = {}, 0
+    for pos, sym in enumerate(syms):
+        position[raw] = pos
+        raw += 1 + len(sym.aux)
+    for sec in secs:
+        for reloc in sec.relocs:
+            reloc[1] = position[reloc[1]]
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        write(chars, secs, syms, Path(tmp) / "o.obj")
+        return (Path(tmp) / "o.obj").read_bytes()
+
+
+SYMBOLS_FOR_NAMING: dict[str, int] = {}
+
+
+def layout_filler(pieces: dict[str, dict[int, int]], out: Path) -> int:
+    """An object of the bytes between the pieces, so that every piece is as
+    far from its neighbours as in the original: the original's bytes in
+    .data and .rdata, zeros in .bss. Each kind starts at the page its first
+    piece is on, so alignments hold. Returns the number of pieces that
+    overlap the next one (their neighbour is not where the original has it)."""
+    import pefile
+    pe = pefile.PE(str(EXE))
+    base = pe.OPTIONAL_HEADER.ImageBase
+
+    def original(addr: int, size: int) -> bytes:
+        try:
+            return pe.get_data(addr - base, size)
+        except Exception:
+            return bytes(size)
+
+    secs: list[Section] = []
+    overlaps = 0
+    for kind, found in pieces.items():
+        end = min(found) & ~0xFFF
+        first = True
+        for addr in sorted(found):
+            gap = addr - end
+            if gap < 0:
+                overlaps += 1
+            elif 0 < gap <= 0x10000 or first and gap < 0x1000:
+                body = b"" if kind == ".bss" else original(end, gap)
+                chars = FILLER_CHARS[kind]
+                if first:
+                    chars = chars & ~0x00F00000 | (13 << 20)
+                secs.append(Section(f"{kind}${end:08x}", chars, body, gap))
+            first = False
+            end = max(end, addr + found[addr])
+    write(0, secs, [], out)
+    return overlaps
+
+
 def wanted_initialisers() -> dict[str, list[str]]:
     """source file -> the symbols of its functions the original's C runtime
     runs before WinMain (`_$E<n>` initialisers, and ordinary functions the
@@ -548,6 +735,11 @@ def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
     patched = 0
     wanted = wanted_initialisers() if source_of else {}
     kept = dropped = 0
+    candidates: dict[int, list[tuple[int, int, int]]] = defaultdict(list)
+    targets: dict[int, Path] = {}
+    pieces: dict[str, dict[int, int]] = {}
+    SYMBOLS_FOR_NAMING.clear()
+    SYMBOLS_FOR_NAMING.update(symbols)
     for n, (path, stage) in enumerate(zip(originals, objects)):
         data = stage.read_bytes()
         new = patch_object(data, interior)
@@ -570,8 +762,25 @@ def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
                     write_init_object(symbol, entry)
                     result.append(entry)
         target = out_dir / f"{n:04d}_{path.name}"
-        target.write_bytes(new if new is not None else data)
+        final = new if new is not None else data
+        target.write_bytes(final)
+        found = data_pieces_of(final, symbols)
+        for piece in found:
+            candidates[piece.address].append((piece_priority(piece, source is not None), n, piece.symbol))
         result.append(target)
+        targets[n] = target
+    chosen = {addr: max(options, key=lambda o: (o[0], -o[1])) for addr, options in candidates.items()}
+    for n, target in targets.items():
+        keep = {sym for choice in chosen.values() for _, who, sym in [choice] if who == n}
+        drop = {sym for addr, options in candidates.items() for option in options
+                for _, who, sym in [option] if who == n and option != chosen[addr]}
+        if keep or drop:
+            target.write_bytes(name_data_sections(target.read_bytes(), keep, drop, pieces))
+    overlaps = layout_filler(pieces, out_dir / "layout.obj")
+    result.append(out_dir / "layout.obj")
+    ordered = sum(len(found) for found in pieces.values())
+    print(f"aliases: {ordered:,} globals ordered as in the original, {overlaps} larger than the space "
+          f"the original left", file=sys.stderr)
     print(f"aliases: {len(interior)} interior globals pointed at their containers in {patched} objects; "
           f"initialisers kept in {kept} files, dropped from {dropped}", file=sys.stderr)
     return result
@@ -583,7 +792,7 @@ def prefer(names: list[str]) -> str:
     return sorted(real or names)[0]
 
 
-def write_object(aliases: dict[str, str], out: Path) -> None:
+def write_object(aliases: dict[str, str], out: Path, absolute: dict[str, int] | None = None) -> None:
     strings = bytearray()
     str_index: dict[str, int] = {}
 
@@ -604,6 +813,10 @@ def write_object(aliases: dict[str, str], out: Path) -> None:
         syms += name_field(alias) + struct.pack("<IhHBB", 0, 0, 0x20, IMAGE_SYM_CLASS_WEAK_EXTERNAL, 1)
         index += 1
         syms += struct.pack("<II", index - 2, IMAGE_WEAK_EXTERN_SEARCH_ALIAS) + b"\0" * 10
+        index += 1
+
+    for name, value in (absolute or {}).items():
+        syms += name_field(name) + struct.pack("<IhHBB", value, -1, 0, IMAGE_SYM_CLASS_EXTERNAL, 0)
         index += 1
 
     strtab = struct.pack("<I", 4 + len(strings)) + bytes(strings)
@@ -809,6 +1022,239 @@ def write_init_object(symbol: str, out: Path) -> None:
     out.write_bytes(header + section + b"\0\0\0\0" + reloc + syms + strtab)
 
 
+IMAGE_SCN_CNT_CODE = 0x20
+IMAGE_SCN_CNT_UNINIT = 0x80
+IMAGE_SCN_LNK_COMDAT = 0x1000
+IMAGE_SCN_MEM_WRITE = 0x80000000
+REL_DIR32, REL_DIR32NB = 0x06, 0x07
+IMAGE_SYM_CLASS_STATIC = 3
+
+
+@dataclass
+class Section:
+    name: str
+    chars: int
+    data: bytes                      # empty for uninitialised data
+    size: int
+    relocs: list = field(default_factory=list)   # [offset, symbol index, type]
+
+
+@dataclass
+class Symbol:
+    name: str
+    value: int
+    section: int
+    type: int
+    sclass: int
+    aux: list = field(default_factory=list)      # raw 18-byte auxiliary records
+
+
+def read(data: bytes) -> tuple[int, list[Section], list[Symbol]]:
+    machine, nsects, stamp, symptr, nsyms, opthdr, chars = struct.unpack_from("<HHIIIHH", data, 0)
+    strtab = data[symptr + nsyms * 18:]
+
+    def long_name(raw: bytes) -> str:
+        if raw[:4] == b"\0\0\0\0":
+            off = struct.unpack_from("<I", raw, 4)[0]
+            return strtab[off:strtab.index(b"\0", off)].decode("latin-1")
+        return raw[:8].split(b"\0", 1)[0].decode("latin-1")
+
+    secs = []
+    for s in range(nsects):
+        hdr = data[20 + opthdr + s * 40: 60 + opthdr + s * 40]
+        name = hdr[:8].split(b"\0", 1)[0].decode("latin-1")
+        if name.startswith("/"):
+            off = int(name[1:])
+            name = strtab[off:strtab.index(b"\0", off)].decode("latin-1")
+        size, rawptr, relptr, _, nrel, _, schars = struct.unpack_from("<IIIIHHI", hdr, 16)
+        body = data[rawptr:rawptr + size] if rawptr else b""
+        relocs = [list(struct.unpack_from("<IIH", data, relptr + r * 10)) for r in range(nrel)]
+        secs.append(Section(name, schars, body, size, relocs))
+    syms: list[Symbol] = []
+    i = 0
+    while i < nsyms:
+        raw = data[symptr + i * 18: symptr + i * 18 + 18]
+        value, secnum, typ, sclass, naux = struct.unpack_from("<IhHBB", raw, 8)
+        aux = [data[symptr + (i + 1 + k) * 18: symptr + (i + 2 + k) * 18] for k in range(naux)]
+        syms.append(Symbol(long_name(raw), value, secnum, typ, sclass, aux))
+        i += 1 + naux
+    return chars, secs, syms
+
+
+def write(chars: int, secs: list[Section], syms: list[Symbol], out: Path) -> None:
+    strings = bytearray()
+
+    def string(name: str) -> int:
+        off = 4 + len(strings)
+        strings.extend(name.encode("latin-1") + b"\0")
+        return off
+
+    # Symbol indices: each symbol takes 1 + its auxiliary records.
+    index, n = [], 0
+    for s in syms:
+        index.append(n)
+        n += 1 + len(s.aux)
+    pos = 20 + 40 * len(secs)
+    headers, bodies = bytearray(), bytearray()
+    for sec in secs:
+        raw = sec.name.encode("latin-1")
+        name_field = raw.ljust(8, b"\0") if len(raw) <= 8 else f"/{string(sec.name)}".encode().ljust(8, b"\0")
+        relocs = b"".join(struct.pack("<IIH", off, index[symidx], rtype) for off, symidx, rtype in sec.relocs)
+        rawptr = pos if sec.data else 0
+        bodies += sec.data
+        pos += len(sec.data)
+        relptr = pos if relocs else 0
+        bodies += relocs
+        pos += len(relocs)
+        headers += name_field + struct.pack("<IIIIIIHHI", 0, 0, sec.size, rawptr, relptr, 0,
+                                            len(sec.relocs), 0, sec.chars)
+    symtab = bytearray()
+    for s in syms:
+        raw = s.name.encode("latin-1")
+        name_field = raw.ljust(8, b"\0") if len(raw) <= 8 else b"\0\0\0\0" + struct.pack("<I", string(s.name))
+        symtab += name_field + struct.pack("<IhHBB", s.value, s.section, s.type, s.sclass, len(s.aux))
+        for a in s.aux:
+            symtab += a
+    head = struct.pack("<HHIIIHH", 0x14C, len(secs), 0, pos, n, 0, chars)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(head + bytes(headers) + bytes(bodies) + bytes(symtab)
+                    + struct.pack("<I", 4 + len(strings)) + bytes(strings))
+
+
+def drop_unreferenced_undefined(secs: list[Section], syms: list[Symbol]) -> list[Symbol]:
+    """The symbols with the undefined externals no relocation (and no weak
+    external) names removed: LINK counts an undefined name in an object's
+    symbol table as a reference to it. The relocations in secs are
+    renumbered for the new table, in list positions as write() takes them."""
+    raw_of, index = [], 0
+    for sym in syms:
+        raw_of.append(index)
+        index += 1 + len(sym.aux)
+    position = {raw: pos for pos, raw in enumerate(raw_of)}
+    used = {reloc[1] for sec in secs for reloc in sec.relocs}
+    for sym in syms:
+        if sym.sclass == IMAGE_SYM_CLASS_WEAK_EXTERNAL and sym.aux:
+            used.add(struct.unpack_from("<I", sym.aux[0], 0)[0])
+    kept = [sym for raw, sym in zip(raw_of, syms)
+            if not (sym.section == 0 and sym.sclass == 2 and raw not in used)]
+    new_raw, index = {}, 0
+    for raw, sym in zip(raw_of, syms):
+        if not (sym.section == 0 and sym.sclass == 2 and raw not in used):
+            new_raw[raw] = index
+            index += 1 + len(sym.aux)
+    new_position = {}
+    pos = 0
+    for raw, sym in zip(raw_of, syms):
+        if raw in new_raw:
+            new_position[raw] = pos
+            pos += 1
+    for sec in secs:
+        for reloc in sec.relocs:
+            reloc[1] = new_position[reloc[1]]
+    for sym in kept:
+        if sym.sclass == IMAGE_SYM_CLASS_WEAK_EXTERNAL and sym.aux:
+            aux = bytearray(sym.aux[0])
+            struct.pack_into("<I", aux, 0, new_raw[struct.unpack_from("<I", aux, 0)[0]])
+            sym.aux[0] = bytes(aux)
+    return kept
+
+
+def prune_dead(paths: list[Path], aliases: dict[str, str], roots: tuple[str, ...]) -> int:
+    """Mark every COMDAT section no live section reaches as removed from the
+    link, so the references it holds (explicit instantiations of every member
+    of a class, the dynamic initialiser of a global whose initialiser the
+    original does not run) are not reported as unresolved: LINK reports an
+    undefined name even when only dead code uses it. Roots are the sections
+    that are not COMDAT and the names in roots (what the C runtime calls).
+    Returns the number of sections removed."""
+    objs = [read(p.read_bytes()) for p in paths]
+    raws = []
+    for _, _, syms in objs:
+        raw, index = {}, 0
+        for sym in syms:
+            raw[index] = sym
+            index += 1 + len(sym.aux)
+        raws.append(raw)
+    definitions: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    names_in: dict[tuple[int, int], list[str]] = defaultdict(list)
+    follows: dict[tuple[int, int], list[tuple[int, int]]] = defaultdict(list)
+    for oi, (_, secs, syms) in enumerate(objs):
+        for sym in syms:
+            if sym.section > 0 and sym.sclass == 2:
+                definitions[sym.name].append((oi, sym.section))
+                names_in[(oi, sym.section)].append(sym.name)
+            if sym.sclass == IMAGE_SYM_CLASS_STATIC and sym.value == 0 and sym.section > 0 and sym.aux \
+                    and sym.name.startswith("."):
+                number, selection = struct.unpack_from("<HB", sym.aux[0], 12)
+                if selection == 5 and number:
+                    follows[(oi, number)].append((oi, sym.section))
+    live: set[tuple[int, int]] = set()
+    work: list[tuple[int, int]] = []
+
+    def reach(key):
+        if key not in live:
+            live.add(key)
+            work.append(key)
+
+    def reach_name(name: str) -> None:
+        seen = set()
+        while name in aliases and name not in seen:
+            seen.add(name)
+            name = aliases[name]
+        for key in definitions.get(name, ()):
+            reach(key)
+
+    for oi, (_, secs, _) in enumerate(objs):
+        for si, sec in enumerate(secs, start=1):
+            if sec.chars & IMAGE_SCN_LNK_REMOVE or sec.name == ".llvm_addrsig":
+                continue
+            if not sec.chars & IMAGE_SCN_LNK_COMDAT or sec.name.startswith((".CRT$", ".tls")):
+                reach((oi, si))
+    for name in roots:
+        reach_name(name)
+    while work:
+        oi, si = work.pop()
+        for key in follows.get((oi, si), ()):
+            reach(key)
+        for name in names_in.get((oi, si), ()):
+            for key in definitions[name]:
+                reach(key)
+        for _, symidx, _ in objs[oi][1][si - 1].relocs:
+            sym = raws[oi].get(symidx)
+            if sym is None:
+                continue
+            if sym.section > 0:
+                reach((oi, sym.section))
+            elif sym.section == 0:
+                reach_name(sym.name)
+    removed = 0
+    for oi, path in enumerate(paths):
+        chars, secs, syms = objs[oi]
+        dead = {si for si, sec in enumerate(secs, start=1)
+                if (oi, si) not in live and sec.chars & IMAGE_SCN_LNK_COMDAT
+                and not sec.chars & IMAGE_SCN_LNK_REMOVE}
+        for sec in secs:
+            if sec.name == ".llvm_addrsig":
+                sec.chars |= IMAGE_SCN_LNK_REMOVE
+        dead |= set()
+        for si in dead:
+            sec = secs[si - 1]
+            sec.data, sec.size, sec.relocs = b"", 0, []
+        for sym in syms:
+            if sym.section in dead and sym.aux and sym.sclass == IMAGE_SYM_CLASS_STATIC:
+                aux = bytearray(sym.aux[0])
+                struct.pack_into("<IHH", aux, 0, 0, 0, 0)
+                sym.aux[0] = bytes(aux)
+        for sec in secs:
+            if sec.name == ".llvm_addrsig":
+                sec.chars |= IMAGE_SCN_LNK_REMOVE
+                sec.data, sec.size, sec.relocs = b"", 0, []
+        syms = drop_unreferenced_undefined(secs, syms)
+        write(chars, secs, syms, path)
+        removed += len(dead)
+    return removed
+
+
 def response(arg: str) -> list[Path]:
     """The paths in @file (one per line), or the single path arg."""
     if arg.startswith("@"):
@@ -826,9 +1272,6 @@ def main() -> None:
     ap.add_argument("--patch-dir", type=Path, default=None,
                     help="first copy the objects here with interior globals pointed at their containers, "
                          "and write the copies' paths to DIR/objects.rsp")
-    ap.add_argument("--stubs", type=Path, default=None,
-                    help="also write an object defining what is still unresolved (tools/link.py's stub mode): "
-                         "a return stub for a function, a zero array for data")
     ap.add_argument("--import-def", type=Path, default=None, metavar="LIB",
                     help="instead write the module-definition file of an old-style import library (its "
                          "__imp_ names), for llvm-dlltool -k; --objects is ignored")
@@ -843,7 +1286,8 @@ def main() -> None:
         print(f"aliases: {len(names)} imports of {args.import_def.name} in {args.out}", file=sys.stderr)
         return
     objects = [p for a in args.objects for p in response(a)]
-    symbols, _, _ = load_known()
+    symbols, _, annotated = load_known()
+    alias_names(symbols)
     if args.extra_data:
         extra = extra_globals(objects, symbols)
         write_extra_data(extra, args.out)
@@ -871,19 +1315,12 @@ def main() -> None:
     extra = {new: old for new, old in {**CLANG_RUNTIME, **IMPORT_SPELLINGS}.items() if old in libs}
     aliases = build_aliases(objects, symbols, data_addr, libs, args.out, extra=extra,
                             winmain_addr=args.winmain, data_fallback=True, strip_underscore=True,
-                            thunks=import_thunks(libs), placeholder_methods=True)
+                            thunks=import_thunks(libs), placeholder_methods=True, annotated=annotated,
+                            overloads=overloaded_names(symbols))
     print(f"aliases: {len(aliases):,} aliases for {len(objects):,} objects", file=sys.stderr)
-    if args.stubs is not None:
-        infos = [read_object(str(o), o.read_bytes()) for o in objects]
-        funcs_at = functions_at(infos, symbols)
-        missing = unresolved_names(
-            objects, set(aliases), libs,
-            lambda n: untyped_function(n, address_of(n, symbols), funcs_at, data_addr))
-        funcs = sorted(n for n, is_func in missing.items() if is_func)
-        data = sorted(n for n, is_func in missing.items() if not is_func)
-        write_stub_object(funcs, data, args.stubs)
-        print(f"aliases: {len(funcs):,} function stubs and {len(data):,} data stubs in {args.stubs}",
-              file=sys.stderr)
+    if args.patch_dir is not None:
+        removed = prune_dead([p for p in objects if p.name != "layout.obj"], aliases, ("_WinMain@16",))
+        print(f"aliases: {removed:,} sections no live section reaches left out of the link", file=sys.stderr)
 
 
 if __name__ == "__main__":
