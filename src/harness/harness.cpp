@@ -141,6 +141,174 @@ static void ReadPlayerKey(int lineNo, const char* key, const char* value)
     }
 }
 
+
+enum { MAX_ORDERS = 256, ORDER_LINE_TEXT = 128 };
+
+enum OrderKind { ORDER_MOVE, ORDER_ATTACK, ORDER_BUILD, ORDER_PATROL, ORDER_GUARD, ORDER_RECLAIM, ORDER_KINDS };
+
+struct OrderMode {
+    const char* name;
+    unsigned char mode;
+};
+
+static const OrderMode s_orderModes[ORDER_KINDS] = {
+    { "move", 2 }, { "attack", 3 }, { "build", 0xe }, { "patrol", 9 }, { "guard", 7 }, { "reclaim", 0xc }
+};
+
+struct UnitSelector {
+    int slot;
+    int all;
+    int count;
+    char type[40];
+};
+
+struct ScriptedOrder {
+    int lineNo;
+    unsigned tick;
+    UnitSelector who;
+    int kind;
+    int hasUnitTarget;
+    UnitSelector targetUnit;
+    int x;
+    int z;
+    char buildType[40];
+};
+
+static ScriptedOrder s_orders[MAX_ORDERS];
+static int s_orderCount = 0;
+
+static char* NextToken(char** cursor)
+{
+    char* s = *cursor;
+    while (*s == ' ' || *s == '\t')
+        s++;
+    if (*s == '\0')
+        return NULL;
+    char* start = s;
+    while (*s != '\0' && *s != ' ' && *s != '\t')
+        s++;
+    if (*s != '\0')
+        *s++ = '\0';
+    *cursor = s;
+    return start;
+}
+
+static void ParseSelector(int lineNo, const char* text, UnitSelector* out)
+{
+    char detail[200];
+    const char* colon = strchr(text, ':');
+    memset(out, 0, sizeof *out);
+    if (colon == NULL || colon != text + 1 || !isdigit((unsigned char)text[0])) {
+        sprintf(detail, ", \"%.60s\" is not <slot>:all or <slot>:<unit type>:<n>", text);
+        FailLine(lineNo, "has a bad unit selector", "order", detail);
+    }
+    out->slot = text[0] - '0';
+    const char* rest = colon + 1;
+    if (strcmp(rest, "all") == 0) {
+        out->all = 1;
+        return;
+    }
+    const char* second = strchr(rest, ':');
+    if (second == NULL || second == rest || (size_t)(second - rest) >= sizeof out->type) {
+        sprintf(detail, ", \"%.60s\" is not <slot>:all or <slot>:<unit type>:<n>", text);
+        FailLine(lineNo, "has a bad unit selector", "order", detail);
+    }
+    memcpy(out->type, rest, second - rest);
+    out->type[second - rest] = '\0';
+    char* end;
+    long n = strtol(second + 1, &end, 10);
+    if (second[1] == '\0' || *end != '\0' || n < 1 || n > 4000) {
+        sprintf(detail, ", \"%.60s\" needs a count of 1 or more after the unit type", text);
+        FailLine(lineNo, "has a bad unit selector", "order", detail);
+    }
+    out->count = (int)n;
+}
+
+static int ParseCoordinate(int lineNo, const char* text)
+{
+    char* end;
+    long v = strtol(text, &end, 10);
+    if (*text == '\0' || *end != '\0' || v < 0 || v > 65535) {
+        char detail[100];
+        sprintf(detail, ", \"%.40s\" is not a world coordinate", text);
+        FailLine(lineNo, "has a bad position", "order", detail);
+    }
+    return (int)v;
+}
+
+static void ReadOrder(int lineNo, char* value)
+{
+    char* cursor = value;
+    char* tickText = NextToken(&cursor);
+    char* whoText = NextToken(&cursor);
+    char* kindText = NextToken(&cursor);
+    if (kindText == NULL)
+        FailLine(lineNo, "needs <tick> <unit selector> <kind> <target>", "order", "");
+    if (s_orderCount >= MAX_ORDERS)
+        FailLine(lineNo, "is past the limit of 256 order lines", "order", "");
+    ScriptedOrder* o = &s_orders[s_orderCount++];
+    memset(o, 0, sizeof *o);
+    o->lineNo = lineNo;
+    o->tick = ParseNumber(lineNo, "order", tickText);
+    if (o->tick == 0)
+        FailLine(lineNo, "needs a tick of at least 1", "order", "");
+    ParseSelector(lineNo, whoText, &o->who);
+    o->kind = -1;
+    for (int i = 0; i < ORDER_KINDS; i++) {
+        if (strcmp(kindText, s_orderModes[i].name) == 0)
+            o->kind = i;
+    }
+    if (o->kind < 0) {
+        char detail[100];
+        sprintf(detail, ", \"%.40s\" is not move, attack, build, patrol, guard or reclaim", kindText);
+        FailLine(lineNo, "has an unknown kind", "order", detail);
+    }
+    if (o->kind == ORDER_BUILD) {
+        char* type = NextToken(&cursor);
+        if (type == NULL || strlen(type) >= sizeof o->buildType)
+            FailLine(lineNo, "needs a unit type to build", "order", "");
+        strcpy(o->buildType, type);
+    }
+    char* first = NextToken(&cursor);
+    if (first == NULL)
+        FailLine(lineNo, "needs a target", "order", "");
+    if (strchr(first, ':') != NULL && o->kind != ORDER_BUILD) {
+        o->hasUnitTarget = 1;
+        ParseSelector(lineNo, first, &o->targetUnit);
+        if (o->targetUnit.all)
+            FailLine(lineNo, "needs a target selector of the form <slot>:<unit type>:<n>", "order", "");
+    } else {
+        char* second = NextToken(&cursor);
+        if (second == NULL)
+            FailLine(lineNo, "needs a target of x z or a unit selector", "order", "");
+        o->x = ParseCoordinate(lineNo, first);
+        o->z = ParseCoordinate(lineNo, second);
+    }
+    if (NextToken(&cursor) != NULL)
+        FailLine(lineNo, "has extra words after the target", "order", "");
+}
+
+static void CheckOrders()
+{
+    for (int i = 0; i < s_orderCount; i++) {
+        ScriptedOrder* o = &s_orders[i];
+        char detail[160];
+        const UnitSelector* sels[2] = { &o->who, o->hasUnitTarget ? &o->targetUnit : NULL };
+        for (int k = 0; k < 2; k++) {
+            if (sels[k] != NULL && !s_players[sels[k]->slot].named) {
+                sprintf(detail, ", slot %d is not a player the scenario names", sels[k]->slot);
+                FailLine(o->lineNo, "names a bad slot", "order", detail);
+            }
+        }
+        if (!s_players[o->who.slot].human) {
+            sprintf(detail, ", slot %d is not controller human", o->who.slot);
+            FailLine(o->lineNo, "orders a slot that is not human", "order", detail);
+        }
+        if (o->tick > s_ticks)
+            FailLine(o->lineNo, "has a tick after the last tick", "order", "");
+    }
+}
+
 static void ReadKey(int lineNo, const char* key, char* value)
 {
     if (strcmp(key, "game_seed") == 0)
@@ -182,7 +350,9 @@ static void ReadKey(int lineNo, const char* key, char* value)
         s_ticks = ParseNumber(lineNo, key, value);
         if (s_ticks == 0)
             FailLine(lineNo, "must be at least 1", key, "");
-    } else if (strncmp(key, "player", 6) == 0 && isdigit((unsigned char)key[6]) && key[7] == '.')
+    } else if (strcmp(key, "order") == 0)
+        ReadOrder(lineNo, value);
+    else if (strncmp(key, "player", 6) == 0 && isdigit((unsigned char)key[6]) && key[7] == '.')
         ReadPlayerKey(lineNo, key, value);
     else
         FailLine(lineNo, "is not a known key", key, "");
@@ -199,6 +369,7 @@ static void CheckScenario()
         Fail("testmode: scenario needs a ticks line\n");
     if (s_map[0] == '\0')
         Fail("testmode: scenario needs a map line\n");
+    CheckOrders();
     if (s_localPlayer >= 0 && !s_players[s_localPlayer].named) {
         char msg[128];
         sprintf(msg, "testmode: scenario line %d: local_player %d is not a player the scenario names\n",
@@ -900,6 +1071,167 @@ static void VisitMeteors()
         }
     }
     EndSection();
+}
+
+enum {
+    GAME_LOCAL_PLAYER = 0x2a42,
+    GAME_PLAYER_INDEX = 0x2a43,
+    GAME_ORDER_MODE = 0x2cc3,
+    GAME_BUILD_TYPE = 0x2cc4,
+    GAME_HOVER_UNIT = 0x2cba,
+    GAME_POS = 0x2caa,
+    UNIT_PLAYER = 0x96,
+    UNIT_TYPE = 0xa6,
+    UNIT_FLAGS = 0x110,
+    UNITDEF_NAME = 0x20,
+    UNIT_SELECTED = 0x10
+};
+
+void __stdcall IssueOrderToSelection(void* mouse, int mode, int kind, int* pos, int typeId, int amount);
+void __stdcall IssueMobileBuildOrders(void* mouse);
+int UpdatePlacementGhostValidity(void);
+int __stdcall GetGroundHeight(int* pos);
+
+static unsigned char* PoolUnit(unsigned index)
+{
+    return (unsigned char*)GameU32(GAME_UNITS) + index * UNIT_STRIDE;
+}
+
+static int FindDefIndex(const ScriptedOrder* o, const char* name)
+{
+    unsigned char* defs = (unsigned char*)GameU32(GAME_DEFS);
+    unsigned count = GameU32(GAME_DEF_COUNT);
+    for (unsigned i = 1; i < count; i++) {
+        if (_stricmp((const char*)defs + i * UNITDEF_STRIDE + UNITDEF_NAME, name) == 0)
+            return (int)i;
+    }
+    char detail[100];
+    sprintf(detail, ", the game has no unit type \"%.40s\"", name);
+    FailLine(o->lineNo, "names an unknown unit type", "order", detail);
+    return 0;
+}
+
+static int UnitIsSlot(const unsigned char* u, int slot)
+{
+    return *(unsigned*)(u + UNIT_PLAYER) == (unsigned)(GameAt(GAME_PLAYERS) + slot * PLAYER_STRIDE);
+}
+
+static int SelectorMatches(const unsigned char* u, const UnitSelector* sel, int defIndex)
+{
+    if (*(unsigned short*)(u + UNIT_TYPE) == 0 || !UnitIsSlot(u, sel->slot))
+        return 0;
+    return sel->all || *(unsigned short*)(u + UNIT_TYPE) == defIndex;
+}
+
+static int FindNth(const ScriptedOrder* o, const UnitSelector* sel)
+{
+    int defIndex = sel->all ? 0 : FindDefIndex(o, sel->type);
+    unsigned count = *(unsigned short*)GameAt(GAME_POOL_COUNT);
+    int seen = 0;
+    for (unsigned i = 0; i < count; i++) {
+        if (SelectorMatches(PoolUnit(i), sel, defIndex) && ++seen == sel->count)
+            return (int)i;
+    }
+    char detail[160];
+    sprintf(detail, ", only %d live of that selector at tick %u", seen, GameU32(GAME_TICK));
+    FailLine(o->lineNo, "names a unit that does not exist", "order", detail);
+    return 0;
+}
+
+static void IssueScriptedOrder(const ScriptedOrder* o)
+{
+    unsigned count = *(unsigned short*)GameAt(GAME_POOL_COUNT);
+    unsigned i;
+    int defIndex = o->who.all ? 0 : FindDefIndex(o, o->who.type);
+    int buildType = o->kind == ORDER_BUILD ? FindDefIndex(o, o->buildType) : 0;
+    int target = 0;
+    int pos[3];
+
+    unsigned char* selected = (unsigned char*)malloc(count + 1);
+    int chosen = 0;
+    int seen = 0;
+    for (i = 0; i < count; i++) {
+        unsigned char* u = PoolUnit(i);
+        selected[i] = 0;
+        if (*(unsigned short*)(u + UNIT_TYPE) == 0 || !UnitIsSlot(u, o->who.slot))
+            continue;
+        selected[i] = (u[UNIT_FLAGS] & UNIT_SELECTED) ? 1 : 2;
+        u[UNIT_FLAGS] &= ~UNIT_SELECTED;
+        if (SelectorMatches(u, &o->who, defIndex) && (o->who.all || ++seen == o->who.count)) {
+            u[UNIT_FLAGS] |= UNIT_SELECTED;
+            chosen++;
+        }
+    }
+    if (chosen == 0) {
+        char detail[160];
+        sprintf(detail, ", only %d live of that selector at tick %u", seen, GameU32(GAME_TICK));
+        FailLine(o->lineNo, "names a unit that does not exist", "order", detail);
+    }
+
+    int x = o->x;
+    int z = o->z;
+    if (o->hasUnitTarget) {
+        target = FindNth(o, &o->targetUnit);
+        unsigned char* t = PoolUnit(target);
+        x = *(int*)(t + 0x6a) >> 16;
+        z = *(int*)(t + 0x72) >> 16;
+    }
+    if (x >= (int)GameU32(0x1422b) || z >= (int)GameU32(0x1422f)) {
+        FailLine(o->lineNo, "has a position outside the map", "order", "");
+    }
+    pos[0] = x << 16;
+    pos[2] = z << 16;
+    pos[1] = GetGroundHeight(pos);
+    if (pos[1] < *GameAt(0x1427f))
+        pos[1] = *GameAt(0x1427f);
+    pos[1] <<= 16;
+
+    unsigned char savedLocal = *GameAt(GAME_LOCAL_PLAYER);
+    unsigned char savedIndex = *GameAt(GAME_PLAYER_INDEX);
+    unsigned short savedHover = *(unsigned short*)GameAt(GAME_HOVER_UNIT);
+    unsigned char mouse[32];
+    memset(mouse, 0, sizeof mouse);
+    *GameAt(GAME_LOCAL_PLAYER) = (unsigned char)o->who.slot;
+    *GameAt(GAME_PLAYER_INDEX) = (unsigned char)o->who.slot;
+    *(unsigned short*)GameAt(GAME_HOVER_UNIT) = (unsigned short)target;
+    memcpy(GameAt(GAME_POS), pos, sizeof pos);
+    *GameAt(GAME_ORDER_MODE) = s_orderModes[o->kind].mode;
+    if (o->kind == ORDER_BUILD) {
+        *(unsigned short*)GameAt(GAME_BUILD_TYPE) = (unsigned short)buildType;
+        if (!UpdatePlacementGhostValidity()) {
+            char detail[100];
+            sprintf(detail, ", %.40s cannot be built at %d %d", o->buildType, x, z);
+            FailLine(o->lineNo, "gives a bad build site", "order", detail);
+        }
+        IssueMobileBuildOrders(mouse);
+    } else {
+        IssueOrderToSelection(GameAt(0x2c76), s_orderModes[o->kind].mode, 0, (int*)GameAt(GAME_POS), 0, 0);
+    }
+    *GameAt(GAME_ORDER_MODE) = 1;
+    *(unsigned short*)GameAt(GAME_HOVER_UNIT) = savedHover;
+    *GameAt(GAME_LOCAL_PLAYER) = savedLocal;
+    *GameAt(GAME_PLAYER_INDEX) = savedIndex;
+
+    for (i = 0; i < count; i++) {
+        unsigned char* u = PoolUnit(i);
+        if (selected[i] == 0)
+            continue;
+        u[UNIT_FLAGS] &= ~UNIT_SELECTED;
+        if (selected[i] == 1)
+            u[UNIT_FLAGS] |= UNIT_SELECTED;
+    }
+    free(selected);
+}
+
+void HarnessBeforeStep()
+{
+    if (!s_testMode)
+        return;
+    unsigned tick = GameU32(GAME_TICK);
+    for (int i = 0; i < s_orderCount; i++) {
+        if (s_orders[i].tick == tick)
+            IssueScriptedOrder(&s_orders[i]);
+    }
 }
 
 void HarnessPhase(int phase)

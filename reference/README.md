@@ -53,6 +53,40 @@ Defaults are the ones in `LoadSettings`, never the registry.
 slots no key names are open, and at least 2 slots must exist. The game's player
 count is the highest named slot plus one.
 
+## Scripted orders
+
+A scenario can order the units of a `controller human` slot (a human otherwise
+does nothing). One `order` line per order; lines may repeat and accumulate.
+
+```
+order <tick> <unit selector> <kind> <target>
+order 5 0:ARMCOM:1 move 700 300
+order 5 0:ARMCOM:1 build ARMSOLAR 640 260
+order 150 0:ARMCOM:1 reclaim 0:ARMSOLAR:1
+```
+
+- `<tick>` is a game tick from 1 to `ticks`. The order is issued at the start of
+  that tick, before the first phase, so the trace sees its effect in the same
+  tick. Orders on one tick are issued in file order.
+- A unit selector is `<slot>:<unit type>:<n>`, the n-th live unit of that type
+  owned by that slot in pool-index order (the unit type name is the unit's name
+  in the game data, any case), or `<slot>:all`, all of that slot's live units.
+- A target is `x z` in world units, or a unit selector that names one unit
+  (`<slot>:all` is not allowed there). With a unit selector the order is
+  issued as if the cursor were over that unit.
+- Kinds: `move`, `attack`, `patrol`, `guard` and `reclaim` take a target.
+  `build <unit type> x z` takes the unit type before the position.
+
+Each order is issued as a mouse click does: the harness selects the named
+units, sets the order mode and cursor position, and calls the game's
+`IssueOrderToSelection` (`build` calls `IssueMobileBuildOrders`, as a click on a
+build site does). The selection is put back afterwards.
+
+A bad selector, kind or position, a slot that is not `human`, a tick after the
+last tick, an unknown unit type, a build site the game rejects, or a selector
+that names no live unit at its tick exits with status 2 and a message that
+names the line.
+
 ## Traces
 
 In test mode the exe writes `trace.txt` in its working directory: a hash of the
