@@ -28,7 +28,8 @@ BUILD = ROOT / "build/bitexact"
 ORIGINAL = ROOT / "src/util/math_4b70a0.cpp"
 TABLES = BUILD / "bx_tables.c"
 ORIG_DATA = BUILD / "orig_data.c"
-PORT_SOURCES = [LIB / "trig.c", TABLES, ORIG_DATA]
+PORT_SOURCES = [LIB / "trig.c", LIB / "math.c", TABLES, ORIG_DATA]
+MATH_TEST = LIB / "test/math_test.c"
 TEST = LIB / "test/bitexact_test.c"
 CFLAGS = ["/nologo", "/c", "/O2", "/Op", "/MT", "/W3", "/TC", "/Zm1000"]
 LIBS = ["LIBCMT.LIB", "KERNEL32.LIB"]
@@ -92,7 +93,7 @@ def build() -> Path | None:
         print(log, file=sys.stderr)
         return None
     objects = [original]
-    for src in [*PORT_SOURCES, TEST]:
+    for src in [*PORT_SOURCES, TEST, MATH_TEST]:
         obj = compile_c(src)
         if obj is None:
             return None

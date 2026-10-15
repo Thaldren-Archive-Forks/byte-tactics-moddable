@@ -28,6 +28,7 @@ class Section:
     characteristics: int
     data: bytes
     relocs: list[Reloc] = field(default_factory=list)
+    lines: list[tuple[int, int]] = field(default_factory=list)  # (offset or symbol index, line); line 0 marks a function
 
     @property
     def is_code(self) -> bool:
@@ -56,6 +57,7 @@ class CoffObject:
     name: str
     sections: list[Section]
     symbols: list[Symbol]
+    first_lines: dict[int, int] = field(default_factory=dict)  # function symbol index to the line of its `.bf`
 
     def symbols_in(self, section: Section) -> list[Symbol]:
         return [s for s in self.symbols if s.section == section.index and s.storage_class in (2, 3) and not s.name.startswith((".", "$"))]
@@ -81,12 +83,19 @@ def parse_object(data: bytes, name: str = "") -> CoffObject | None:
 
     symbols: list[Symbol] = []
     by_index: dict[int, str] = {}
+    first_lines: dict[int, int] = {}
+    last_function = -1
     i = 0
     while i < nsyms:
         raw = data[symptr + i * 18: symptr + i * 18 + 18]
-        value, secnum, _, sclass, naux = struct.unpack_from("<IhHBB", raw, 8)
+        value, secnum, typ, sclass, naux = struct.unpack_from("<IhHBB", raw, 8)
         sym = Symbol(long_name(raw[:8]), value, secnum, sclass)
         by_index[i] = sym.name
+        if typ == 0x20 and naux:
+            last_function = i
+        elif sym.name == ".bf" and naux and last_function >= 0:
+            (first_lines[last_function],) = struct.unpack_from("<H", data, symptr + (i + 1) * 18 + 4)
+            last_function = -1
         symbols.append(sym)
         i += 1 + naux
 
@@ -103,8 +112,11 @@ def parse_object(data: bytes, name: str = "") -> CoffObject | None:
         for r in range(nrel):
             off, symidx, rtype = struct.unpack_from("<IIH", data, relptr + r * 10)
             relocs.append(Reloc(off, by_index.get(symidx, f"#{symidx}"), rtype))
-        sections.append(Section(s + 1, sname, chars, body, relocs))
-    return CoffObject(name, sections, symbols)
+        (lineptr,) = struct.unpack_from("<I", hdr, 28)
+        (nline,) = struct.unpack_from("<H", hdr, 34)
+        lines = [struct.unpack_from("<IH", data, lineptr + i * 6) for i in range(nline)] if lineptr else []
+        sections.append(Section(s + 1, sname, chars, body, relocs, lines))
+    return CoffObject(name, sections, symbols, first_lines)
 
 
 def read_archive(path: Path) -> list[CoffObject]:

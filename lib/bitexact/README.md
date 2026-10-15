@@ -21,6 +21,7 @@ prefixed `bx_`. Little-endian only (x86, wasm).
 | `bx_build_rotation_matrix` | 0x4b71a7, into a caller-owned `bx_i32[9]` |
 | `bx_apply_rotation_matrix` | 0x4b72e2, matrix as a parameter |
 | `bx_FUN_004b7381` | `FUN_004b7381` |
+| `bx_sqrt` | x87 `fsqrt` at 53 bits (`sqrt`), in integer code |
 
 ## Data
 
@@ -58,6 +59,8 @@ it under Wine and prints `name: N cases, M mismatches` per entry point. The
 exe calls the original's entry points by their offsets from `FixedSine`, and
 gets the original's tables (`g_sinTable`, `g_cosTable` and the two doubles) from the bytes of `orig/TotalA.exe`, while the port uses the generated ones. The exit status is
 non-zero on any mismatch.
+
+The math functions (`test/math_test.c`, see "x87 intermediates") add `name: N cases, M mismatches` lines for `bx_sqrt`, which must be 0, and `info:` lines for the candidates that do not match, which do not fail the run.
 
 Inputs: every 16-bit angle, crossed with scales 0, +-1, powers of two,
 INT_MIN and INT_MAX, and 10^6 or more random cases per function from a fixed
@@ -234,3 +237,58 @@ operation, not at each C expression. Values spilled to memory as `float` or
   `HarnessViewRand` callers (particles, speech, packet drop, console) are
   reachable from game logic: presentation code that game logic triggers, which
   draws from the separate stream, so they are not conflicts.
+
+## x87 intermediates
+
+`tools/x87scan.py` (#73, phase 1) finds the places where MSVC 5's x87 code keeps
+a float value at double precision (53 bits, with the extended exponent range)
+across several operations. The source says `float` there, MSVC rounds to 32
+bits only at a store, and a compiler that does float arithmetic in float (SSE,
+wasm f32) rounds after every operation, so the bits can differ. `uv run
+tools/x87scan.py` writes `data/x87_sites.csv` (`address,function,file,line,offset,chain,result,class`)
+and prints the totals; `--formats` also prints the printf and scanf family calls
+of game logic with their format strings.
+
+### Scan method
+
+- Functions: the 1,613 game-logic functions of `tools/crtcalls.py` (its `analyze`), read from the matching build's objects. Each source is compiled again with `/Zd` (line numbers only) into `build/x87scan/`, and the function bytes are checked against the cached objects of `tools/progress.py`: all identical.
+- Walk: each function is decoded by recursive descent as crtcalls does, and the x87 stack is followed in address order. Every slot holds the expression that produced it; `fld dword` is a float leaf, `fld qword` a double leaf, `fild` an integer leaf, and `fst`/`fstp` of a dword or qword, `fist`/`fistp` and `call _ftol` end a chain.
+- Site: a chain of two or more arithmetic operations (fadd, fsub, fmul, fdiv and variants, fsqrt, the `_CI` calls) with a float or integer load among its leaves, ending in a float store (`float-store`), a double store (`double-store`), `_ftol` (`ftol`) or `fistp`. Each node gets the type C gives it: double if any operand is, else float if any is, else ambiguous (integers and constants only).
+- Class `float-chain`: a float-typed operation feeds another operation, a conversion to int or a double store, so a float-evaluating compiler rounds where x87 does not. `safe`: every such operation is double in C. `unknown`: only integer loads, or a call result.
+- Source line: the COFF line table of the `/Zd` object (`tools/coff.py` reads it). The line is the store's; for an inlined function it is the line of the call, not of the inline body (UpdatePlayerEconomy's `SettleResourceAccount` and `AddIncomeW`, DrawBattleFrame's `DrawResourcePanel`, RateUnitType in ComputeBaseWeights), and a scheduled store can be a line or two after its statement.
+- Review: with 65 sites the classes were checked against the C source. 45 of the sites are classed as the scan gives them; for 20 the scan could not decide or was misled and `REVIEWED` in the tool holds the class (integer-only chains from `Length` helpers that use `float` locals are `float-chain`, those that use `double` locals are `safe`; the GUI `(int)((float)a * b / c)` forms are `float-chain`; UpdateMetalExtraction multiplies by a power of two, so reassociating is exact, and is `safe`).
+
+### Scan counts
+
+30 of the 1,613 game-logic functions have 65 sites.
+
+| Class | Sites | Functions | float-store | double-store | ftol | fistp |
+| --- | --- | --- | --- | --- | --- | --- |
+| float-chain | 44 | 16 | 19 | 5 | 20 | 0 |
+| safe | 21 | 16 | 2 | 3 | 15 | 1 |
+| unknown | 0 | 0 | 0 | 0 | 0 | 0 |
+
+The 16 `float-chain` functions: UpdatePlayerEconomy (9 sites), ScoutTimer::OnTimer (3), ComputeBaseWeights (3), RefreshUnitLists (3), AddRepairProgress (2), SteerAircraft (6), DrawLitPieces (1), DrawBattleFrame (4), ApplyAreaDamage (1), DrawSliderBar (1), SyncAssocGadgets (2), SetListBoxScrollByName (1), DrawSlider (1), DrawProgressBarGadget (1), CrossProduct (3), NormalizeVector (3). The list with lines is in the CSV.
+
+Not in the file: 19 single-operation float expressions converted by `_ftol` (`(int)(a * b)` with floats: the product is a double at the conversion, one rounding to float short), and no function returns a chain of two operations in st0. Chains over integer loads from 64-bit squares (`fild qword`) do not occur in game logic: the `Length` helpers load 32-bit ints.
+
+### Math functions
+
+`tools/bitexact.py` compares, under the game's FPU mode, the C runtime's functions with portable candidates (`lib/bitexact/test/math_test.c`, 2,000,000 random cases each unless noted). Only a port that matches goes into the library.
+
+- `fsqrt`: `bx_sqrt` (integer digit-by-digit square root, correctly rounded) matches x87 `fsqrt` on doubles (zeros, subnormals, integers and random bit patterns), matches float in and float out (`fld dword; fsqrt; fstp dword`, so the double rounding is harmless), and matches MSVC's `sqrt`: 0 mismatches each. It is in the library (`bx_sqrt`); a target with a correctly rounded `sqrt` instruction needs no port.
+- `_hypot`: no simple port. MSVC 5's `_hypot` (`__hypothlp`) sets the FPU to 64-bit precision (control word 0x133f) and computes `big = max(|x|, |y|)`, `ra = x / big`, `rb = y / big`, the sum `ra * ra + rb * rb`, its square root and the product with `big`, storing each of ra, rb, the sum, the root and the result as a double. A port in plain double steps differs in 45,901 of 2,000,000 cases (2.3%; 5.7% for integer arguments, 1.3% for random doubles, 2.0% for floats), for example `x -39 y -64972096`: want 64972096.000011712, simple 64972096.000011697. The same algorithm run on the x87 at 64-bit precision (test only, not portable) matches 0 of 2,000,000, so the remaining work for #5 is a port that rounds each step to a 64-bit mantissa and then to 53 bits (division, multiplication, addition and square root in integer code).
+- `_CIacos`: `fpatan(sqrt((1 + x) * (1 - x)), x)` on the x87, whose result is the 64-bit `fpatan` value (the same instruction as `bx_FUN_004b715a`'s). A plain-double series port differs in 45.7% of 500,000 arguments in [-1, 1] (`x 0.889465`: want 0.47462316414879513, got 0.47462316414879507). Left for phase 2 or #5: it needs the double-double arctangent of trig.c.
+- `atof`: for decimal text of up to 15 digits with a decimal point (the form of TDF values), the result equals the correctly rounded double, computed as `(double)digits / 10^k` (the integer is exact in a double and 10^k is exact up to 10^15, one division): 0 mismatches in 1,000,000 cases of 1 to 9 digits and 1,000,000 of 10 to 15 digits. Longer text and exponents were not tested. No library function yet, since the port covers only that form.
+- `sscanf("%f")` into a float: 4,089 of 1,000,000 cases (0.41%) differ from the correctly rounded double rounded to float, for example `"-93690462"`: sscanf gives -93690456, the candidate -93690464. The cases are long digit strings; short mission values like `12.5` agree. Left for phase 2 or #5.
+- `atan2` and `floor` are not called by game logic (data/crt_calls.csv), so they are not tested.
+
+### Format strings
+
+`uv run tools/x87scan.py --formats` finds the string literals pushed before each `sprintf`, `sscanf`, `printf` and `fprintf` call of the game-logic functions (190, 21, 6 and 21 calls; 36 have no literal in the argument window, in 13 functions, and the source of those has no float formats except the debug line `buildtimeleft: %1.3f` in the status panel and `HapiBank::WriteAuditFile`'s). `%f`, `%e` and `%g` appear in:
+
+- `RunInitialMission` (0x487bf0), `sscanf` with `%f`, 6 calls: the mission script's unit orders (` %f %f` move and patrol positions, ` %f %f %f` with a wait time, ` %[...] %d %f %f`). The floats become `(int)(f * 65536.0)` order positions and `(int)(f * 30.0f)` times, so the result reaches game state: it needs the exact `sscanf` result above.
+- `DrawNetworkStats` (`%1.1f`), `DrawBattleFrame` (`%.1f`, 2 calls) and `DrawUnitInfoPanel` (`+%.0f`, `+%.1f`, `-%.0f`, `-%.1f`): display text only.
+- `HapiBank::WriteAuditFile` (`%f`): an audit file written from a console command, log only.
+
+No game-logic function uses `%e` or `%g`. The `atof` calls are separate: `TdfRecord::GetFieldDouble` and `GetFieldFixed` parse TDF values into game state, and `CmdSearch` and `CommandArgs::GetFloatArg` are console-only.
