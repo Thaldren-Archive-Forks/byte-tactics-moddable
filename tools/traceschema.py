@@ -19,44 +19,39 @@ ROOT = Path(__file__).resolve().parent.parent
 TYPES = ROOT / "include/ta_types.h"
 OUT = ROOT / "src/harness/trace_schema.h"
 
-BASE_SIZES = {
+BASE_SIZES: dict[str, int] = {
     "char": 1, "signed char": 1, "unsigned char": 1, "short": 2, "unsigned short": 2,
     "int": 4, "unsigned int": 4, "unsigned": 4, "long": 4, "unsigned long": 4,
     "float": 4, "double": 8, "__int64": 8, "unsigned __int64": 8,
 }
 
-POINTER_TARGETS = {
+POINTER_TARGETS: dict[str, str] = {
     "Unit": "UNIT", "Player": "PLAYER", "UnitDef": "UNITDEF", "WeaponDef": "WEAPONDEF",
     "Def_0049d270": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Obj_00406f50": "PROJECTILE",
     "Feature": "FEATURE", "Object3do": "PIECE", "Object3D": "PIECE",
 }
 
-# type -> {offset: name}: names better than the ta_types.h ones, from the code that uses them.
-NAMES = {
+NAMES: dict[str, dict[int, str]] = {
     "Unit": {0xA6: "unitDefIndex"},
     "Debris": {0x0: "obj"},
 }
 
-# type -> {offset: target}: fields ta_types.h types as int (or as a pointer to the wrong
-# thing) that hold a pointer.
-POINTERS = {
+POINTERS: dict[str, dict[int, str]] = {
     "Unit": {0x0: "HEAP", 0x8: "HEAP", 0x24: "HEAP", 0x40: "HEAP", 0x82: "HEAP", 0x86: "HEAP"},
     "Player": {0x74: "HEAP"},
     "Projectile": {0x4E: "HEAP"},
     "Debris": {0x0: "PIECE"},
 }
 
-POINTER_NAMES = {}
+POINTER_NAMES: dict[tuple[str, int], str] = {}
 
-# (type, field name or "+0xoffset", reason): fields left out of the hash and the dump.
-EXCLUSIONS = []
+EXCLUSIONS: list[tuple[str, str, str]] = []
 
-# (type, offset) -> (mask, reason): scalar fields of which only the masked bits are state.
-MASKS = {
+MASKS: dict[tuple[str, int], tuple[int, str]] = {
     ("ExplodedPiece", 0x28): (0x3F, "bits 6 to 31 are never written; StartExplodePiece copies them from an uninitialised stack header"),
 }
 
-SYNTHETIC = {
+SYNTHETIC: dict[str, str] = {
     "ExplodedPiece": """
         Unit* unit;
         int index;
@@ -125,12 +120,11 @@ SYNTHETIC = {
         unsigned char flags;
     """,
 }
-SYNTHETIC_SIZES = {
+SYNTHETIC_SIZES: dict[str, int] = {
     "ExplodedPiece": 0x30, "PieceRec": 0x36, "Face": 0x20, "SpotObject": 0x30, "SpotAnim": 0x30,
 }
 
-# (ta_types.h or synthetic type, table name)
-TYPE_ORDER = [
+TYPE_ORDER: list[tuple[str, str]] = [
     ("Unit", "Unit"),
     ("Obj_00406f50", "Projectile"),
     ("Player", "Player"),
@@ -143,15 +137,14 @@ TYPE_ORDER = [
     ("SpotAnim", "SpotAnim"),
 ]
 
-WIND_FIELDS = [
+WIND_FIELDS: list[tuple[str, str]] = [
     ("windCounter", "unsigned int"), ("windSpeedDenominator", "int"), ("windX", "int"),
     ("windY", "int"), ("windZ", "int"), ("windDirection", "unsigned short"),
     ("windSpeed", "int"), ("windStrength", "float"), ("windEnabled", "int"),
     ("windSpeedMin", "int"), ("windSpeedMax", "int"),
 ]
 
-# (name, global, size, pointer target)
-METEOR_GLOBALS = [
+METEOR_GLOBALS: list[tuple[str, str, int, str | None]] = [
     ("nextStrikeTime", "g_meteorNextStrikeTime", 4, None),
     ("weaponName", "g_meteorWeaponName", 32, None),
     ("spawnMagnitude", "g_meteorSpawnMagnitude", 4, None),
@@ -166,7 +159,7 @@ METEOR_GLOBALS = [
     ("target", "g_meteorTarget", 4, None),
     ("scheduleGap", "g_meteorScheduleGap", 4, None),
 ]
-METEOR_DECLS = {
+METEOR_DECLS: dict[str, str] = {
     "g_meteorWeaponName": "char g_meteorWeaponName[32]",
     "g_meteorOrigin": "Point16 g_meteorOrigin",
     "g_meteorTarget": "Point16 g_meteorTarget",

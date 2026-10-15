@@ -567,7 +567,7 @@ static void Resolve(unsigned p, int target, unsigned* tag, unsigned* index)
     case TT_UNIT:
         base = GameU32(GAME_UNITS);
         stride = UNIT_STRIDE;
-        count = *(unsigned short*)GameAt(GAME_POOL_COUNT) + 1;
+        count = *(unsigned short*)GameAt(GAME_POOL_COUNT);
         break;
     case TT_PLAYER:
         base = (unsigned)GameAt(GAME_PLAYERS);
@@ -625,17 +625,20 @@ static unsigned ReadMasked(const unsigned char* p, const TraceField* f)
     return v & f->mask;
 }
 
+static void HashField(const unsigned char* base, const TraceField* f)
+{
+    if (f->kind == TF_POINTER)
+        HashPointer(*(const unsigned*)(base + f->offset), f->target);
+    else if (f->mask != 0)
+        HashU32(ReadMasked(base + f->offset, f));
+    else
+        HashBuf(base + f->offset, f->size);
+}
+
 static void HashPlan(const unsigned char* base, const TraceField* plan, unsigned n)
 {
-    for (unsigned k = 0; k < n; k++) {
-        const TraceField* f = &plan[k];
-        if (f->kind == TF_POINTER)
-            HashPointer(*(const unsigned*)(base + f->offset), f->target);
-        else if (f->mask != 0)
-            HashU32(ReadMasked(base + f->offset, f));
-        else
-            HashBuf(base + f->offset, f->size);
-    }
+    for (unsigned k = 0; k < n; k++)
+        HashField(base, &plan[k]);
 }
 
 static void DumpPrefix(const char* path)
@@ -863,7 +866,7 @@ static void VisitWind()
     for (unsigned k = 0; k < kWindFieldCount; k++) {
         const TraceField* f = &kWindFields[k];
         char path[64];
-        HashBuf(GameAt(f->offset), f->size);
+        HashField(GameAt(0), f);
         if (s_dumpNow) {
             sprintf(path, "wind.%s", f->name);
             DumpPrefix(path);
