@@ -287,6 +287,7 @@ int __stdcall RandomInt(int range);
 // FUNCTION: 0x490c40
 void __cdecl UpdateWind()
 {
+    int t = GetTickCount();
     if (g_game->windCounter < g_game->gameTick) {
         // The __int64 cast keeps the _allmul/_alldiv calls; keep this one
         // expression with no temporary.
