@@ -1,6 +1,8 @@
 #ifndef BITEXACT_H
 #define BITEXACT_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -55,6 +57,32 @@ void bx_apply_rotation_matrix(const bx_i32 m[9], const bx_i32 *in, bx_i32 *out);
 
 /* FUN_004b7381: a * b / c with a 64-bit product, truncated toward zero, or 0 when c is 0; the exe traps when the quotient does not fit in an int, here it is INT_MIN. */
 bx_i32 bx_FUN_004b7381(bx_i32 a, bx_i32 b, bx_i32 c);
+
+/* The state of one rand stream: LIBCMT keeps it per thread, the port takes it as a parameter so callers name the stream. */
+typedef struct {
+    bx_u32 holdrand;
+} bx_rand_state;
+
+/* LIBCMT srand: restarts the stream s from seed. */
+void bx_srand(bx_rand_state *s, bx_u32 seed);
+
+/* LIBCMT rand: advances the stream s and returns the next value, 0 to 0x7fff. */
+int bx_rand(bx_rand_state *s);
+
+/* std::random_shuffle(first, last) as MSVC 5's STL compiles it for an int array: draws last - first - 1 times from s, none for an empty or one-element range. */
+void bx_random_shuffle_int(bx_rand_state *s, int *first, int *last);
+
+/* The number of rand calls BuildExplosionFrame (0x420d20) makes for a size x size frame: one per pixel. */
+bx_u32 bx_explosion_frame_draws(int size);
+
+/* The number of rand calls InitExplosions (0x420620) makes in all: its three explosions' frames summed. */
+bx_u32 bx_init_explosions_draws(void);
+
+/* Advances the stream s by the draws of InitExplosions (0x420620), the load thread's draws between the seed and the start-position shuffle. */
+void bx_init_explosions_rand(bx_rand_state *s);
+
+/* LIBCMT qsort: sorts num elements of width bytes with the library's own partition and swap order, so equal elements end in the same order and cmp sees the same calls; not stable. */
+void bx_qsort(void *base, size_t num, size_t width, int (*cmp)(const void *, const void *));
 
 #ifdef __cplusplus
 }
