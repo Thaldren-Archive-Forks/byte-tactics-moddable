@@ -218,4 +218,7 @@ of building HEAD.
 in `view_seed`; with `--scenario` given twice, run mode runs A on the first file
 and B on the second.
 
-Total run time of the suite: TOTALTIME (see the figures below).
+Run time of the suite, measured on a 20-core machine with Wine, two scenarios at
+a time, and other jobs running: `--check` took 7:35 and 6:34 (the second on a
+fresh Wine prefix), and `--traces` 7:07, not counting the build. The longest
+scenarios, `long-greenhaven-8p` and `skirmish4-long`, take about 2 minutes each.
