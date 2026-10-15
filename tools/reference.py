@@ -158,7 +158,6 @@ _launch = threading.Lock()
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict[str, str], list[tuple[int, str]], float]:
     """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken."""
     with _launch:
-        # playtest.py names its session by the second: let each run start in its own.
         time.sleep(2.5)
     ticks = next(int(line.split()[1], 0) for line in scenario.read_text().splitlines() if line.startswith("ticks "))
     timeout = RUN_SECONDS_BASE + ticks / RUN_TICKS_PER_SECOND
