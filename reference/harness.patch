@@ -38,7 +38,7 @@ index dfaed16c..6849b6d6 100644
      name = g_game->mapInfo->GetPlanet();
      if (strcmp(name, "Lunar") == 0 && g_game->flag_37ef2 != 0)
 diff --git a/src/frontend/frontend.cpp b/src/frontend/frontend.cpp
-index e6cdf42b..8b670104 100644
+index e6cdf42b..0f77ee62 100644
 --- a/src/frontend/frontend.cpp
 +++ b/src/frontend/frontend.cpp
 @@ -500,6 +500,8 @@ void PresentFrontendFrame()
@@ -87,6 +87,21 @@ index e6cdf42b..8b670104 100644
                      if (s->life & 1) {
                          if (s->y & 1) {
                              s->dy = -3;
+@@ -1073,11 +1075,14 @@ static int UseServiceCalls(void)
+     return 0;
+ }
+ 
++void HarnessStartSkirmish();
++
+ // The front-end state machine of frontend.cpp (line numbers in the
+ // CheckFrontendStateChange calls are the original __LINE__ values).
+ // FUNCTION: 0x426e80
+ void RunFrontendStateMachine(void)
+ {
++    HarnessStartSkirmish();
+     UpdateSubState();
+ 
+     switch ((unsigned char)g_game->frontendMenuState) {
 diff --git a/src/frontend/skirmish_menu.cpp b/src/frontend/skirmish_menu.cpp
 index 847785d8..4a3f47f0 100644
 --- a/src/frontend/skirmish_menu.cpp
@@ -347,7 +362,7 @@ index 004f0206..1df52aa9 100644
              g_game->scrollY += ry;
              g_game->value_14333--;
 diff --git a/src/ingame/dialogs_493340.cpp b/src/ingame/dialogs_493340.cpp
-index 342b43f5..3a1138aa 100644
+index 342b43f5..9ff04499 100644
 --- a/src/ingame/dialogs_493340.cpp
 +++ b/src/ingame/dialogs_493340.cpp
 @@ -1175,6 +1175,8 @@ void OpenMain2Layout()
@@ -370,6 +385,23 @@ index 342b43f5..3a1138aa 100644
      unsigned int now = GetTicks();
      g_game->simBudgetDtTicks = now - g_game->lastSimBudgetTick;
      g_game->lastSimBudgetTick = now;
+@@ -1248,6 +1254,8 @@ void UpdateFramePacing()
+     }
+ }
+ 
++void HarnessAfterStep();
++
+ // Runs one game update per pending time step (g_game->simStepsPending), profiling each
+ // phase into g_game->profileTimingBars.acc[]; the profile object also lives at +0x38d85 with
+ // total at +4, the display copy at +8 and the accumulators at +0x2c.
+@@ -1290,6 +1298,7 @@ void __stdcall RunGameSteps(int showStats)
+             g_packetManager.SendAllQueued(0);
+             g_game->profileTimingBars.AccumulateProfileTime(0);
+         }
++        HarnessAfterStep();
+     }
+ 
+     EmptyPostSimStepHook();
 diff --git a/src/network/net_condenser.cpp b/src/network/net_condenser.cpp
 index 42483511..0223e961 100644
 --- a/src/network/net_condenser.cpp

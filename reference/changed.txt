@@ -1,6 +1,7 @@
 0x418310 DrawMapDebugOverlay
 0x41c6f0 UpdateScreenShake
 0x425b80 UpdateMenuSparks
+0x426e80 RunFrontendStateMachine
 0x44fc10 NetCondenser::SendPacket
 0x450380 AnnouncePlayerLeft
 0x472ab0 EmitJitteredThrustParticles
@@ -18,6 +19,7 @@
 0x47bd70 AnnounceForcesDestroyed
 0x47fd70 SpeechQueue::PlaySpeech
 0x495230 UpdateFramePacing
+0x495490 RunGameSteps
 0x497180 LoadMatch
 0x49e830 GameMain
 0x4cdb40 Sound::PlayNextTrack
