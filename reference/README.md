@@ -53,6 +53,40 @@ Defaults are the ones in `LoadSettings`, never the registry.
 slots no key names are open, and at least 2 slots must exist. The game's player
 count is the highest named slot plus one.
 
+## Scripted orders
+
+A scenario can order the units of a `controller human` slot (a human otherwise
+does nothing). One `order` line per order; lines may repeat and accumulate.
+
+```
+order <tick> <unit selector> <kind> <target>
+order 5 0:ARMCOM:1 move 700 300
+order 5 0:ARMCOM:1 build ARMSOLAR 640 260
+order 150 0:ARMCOM:1 reclaim 0:ARMSOLAR:1
+```
+
+- `<tick>` is a game tick from 1 to `ticks`. The order is issued at the start of
+  that tick, before the first phase, so the trace sees its effect in the same
+  tick. Orders on one tick are issued in file order.
+- A unit selector is `<slot>:<unit type>:<n>`, the n-th live unit of that type
+  owned by that slot in pool-index order (the unit type name is the unit's name
+  in the game data, any case), or `<slot>:all`, all of that slot's live units.
+- A target is `x z` in world units, or a unit selector that names one unit
+  (`<slot>:all` is not allowed there). With a unit selector the order is
+  issued as if the cursor were over that unit.
+- Kinds: `move`, `attack`, `patrol`, `guard` and `reclaim` take a target.
+  `build <unit type> x z` takes the unit type before the position.
+
+Each order is issued as a mouse click does: the harness selects the named
+units, sets the order mode and cursor position, and calls the game's
+`IssueOrderToSelection` (`build` calls `IssueMobileBuildOrders`, as a click on a
+build site does). The selection is put back afterwards.
+
+A bad selector, kind or position, a slot that is not `human`, a tick after the
+last tick, an unknown unit type, a build site the game rejects, or a selector
+that names no live unit at its tick exits with status 2 and a message that
+names the line.
+
 ## Traces
 
 In test mode the exe writes `trace.txt` in its working directory: a hash of the
@@ -132,7 +166,7 @@ Exit status is 0 for identical traces, 1 for a divergence and 2 for an error.
 
 ## The suite
 
-`reference/scenarios/` holds the scenario suite: AI-versus-AI games that vary the
+`reference/scenarios/` holds the scenario suite: AI-versus-AI games (and the three `orders-` scenarios, which script a human slot) that vary the
 map, the player count (2, 3, 4, 6, 8 and 10), the sides, ally teams, fixed and
 random start positions, the options (difficulty, line of sight, mapping,
 starting resources) and the length, up to 27000 ticks (15 minutes). The two `long-` scenarios are
@@ -152,6 +186,9 @@ seeds) and runs deterministically: two runs give identical traces.
 | eight-pincushion-teams | Pincushion | 8 | 12600 | Eight players on Pincushion in four allied pairs, seven minutes |
 | long-great-divide-2p | Great Divide | 2 | 27000 | Two players on Great Divide for 27000 ticks (fifteen minutes), a long run |
 | long-greenhaven-8p | Greenhaven | 8 | 27000 | Eight players on Greenhaven in two allied teams of four for 27000 ticks (fifteen minutes), a long run |
+| orders-build-patrol | The Pass | 2 | 600 | Human Arm commander builds a solar collector, then patrols (`build`, `patrol`) |
+| orders-guard-reclaim | The Pass | 2 | 600 | Human Arm commander builds a solar collector, guards it, then reclaims it (`build`, `guard`, `reclaim`) |
+| orders-move-attack | The Pass | 2 | 600 | Human Arm commander moves, attacks the Core commander, then the whole slot moves (`move`, `attack`, `<slot>:all`) |
 | quad-fox-holes | Fox Holes | 4 | 7200 | Four players on Fox Holes, alternating sides, four minutes |
 | quad-king-of-the-hill | King of the Hill | 4 | 9000 | Four players on King of the Hill in two allied teams of two, five minutes |
 | quad-lava-highground | Lava Highground | 4 | 5400 | Four Arm players on Lava Highground, random start positions, three minutes |
@@ -222,3 +259,5 @@ Run time of the suite, measured on a 20-core machine with Wine, two scenarios at
 a time, and other jobs running: `--check` took 7:35 and 6:34 (the second on a
 fresh Wine prefix), and `--traces` 7:07, not counting the build. The longest
 scenarios, `long-greenhaven-8p` and `skirmish4-long`, take about 2 minutes each.
+With the three `orders-` scenarios (27 in all), `--traces` took 10:15 and `--check` 15:46,
+the latter with other jobs running on the machine.
