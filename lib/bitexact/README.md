@@ -80,8 +80,9 @@ full list, per function, is `data/crt_calls.csv` (`uv run tools/crtcalls.py`
 rewrites it). A game-logic function is one reachable from the eight phase calls
 of `RunGameSteps` (HandleNetPackets, UpdateAllUnits, UpdateProjectiles,
 UpdateExplosions, UpdatePlayers, UpdateFeatures, UpdateWind, UpdateMeteors) or
-from `LoadMatch`, or `AssignStartPositions` (0x4568c0), a root by explicit listing
-(`EXTRA_ROOTS` in the tool) because only frame handlers call it; everything else is presentation. Counts are game-logic
+from `LoadMatch`, or is `AssignStartPositions` (0x4568c0), which is a root by
+explicit listing (`EXTRA_ROOTS` in the tool) because only frame handlers call
+it. Everything else is presentation. Counts are game-logic
 functions, then call or instruction sites. `sqrt` never appears as a call:
 the compiler emits `fsqrt` inline.
 
@@ -221,12 +222,12 @@ operation, not at each C expression. Values spilled to memory as `float` or
   likewise counted as game logic.
 - Format strings of `sprintf`, `sscanf`, `printf` and `fprintf` are not
   inspected, so a `%f` or `%g` use (which would need #73) is not ruled out.
-- `rand` against #52: the sites agree with its tables except one, marked
-  `conflict:` in the CSV. `BuildExplosionFrame` (0x420d20) is presentation in
-  #52, but `LoadMatch` reaches it through `InitExplosions`; the maintainer
-  decided on #52 and #72 that it is game logic. `AssignStartPositions`
-  (0x4568c0) is called only from `MainLoopTick` and `LoadingScreenFrame`, which
-  nothing in game logic reaches, so it is a game root by explicit listing.
+- `rand` against #52: the sites agree with its tables and the CSV has no
+  `conflict:` notes left. Two calls were settled by decision: the maintainer
+  ruled on #52 and #72 that `BuildExplosionFrame` (0x420d20), which #52 lists
+  as presentation, is game logic (`LoadMatch` reaches it through
+  `InitExplosions`), and `AssignStartPositions` (0x4568c0), which only
+  `MainLoopTick` and `LoadingScreenFrame` call, is a game root by explicit listing.
   `DrawProjectiles` (0x49be60) and `StartMeteorShower` (0x438070) match #52 only
   through the console commands (`CmdMakePoster`, `CmdMeteor`). The `Rand` that
   #52 lists at 0x423c50 is inlined into `UpdateFeatures` (0x424050). Twelve

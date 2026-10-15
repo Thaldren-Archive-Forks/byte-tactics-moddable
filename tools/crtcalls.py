@@ -38,7 +38,8 @@ sorted by address, then callee. The notes column holds the number of sites
 library function whose address is taken, `via console commands only`, and a
 `conflict:` note where the class of a `rand` site disagrees with the call-site
 tables of #52 (BuildExplosionFrame, which #52 keeps on rand although it is
-presentation, is listed as one; the maintainer ruled it game logic). Callers of HarnessViewRand that game logic
+presentation, was listed as one until the maintainer ruled it game logic;
+MAINTAINER_RAND records that). Callers of HarnessViewRand that game logic
 reaches are only printed.
 """
 
@@ -81,8 +82,11 @@ PRESENTATION_RAND = {
     0x473d50, 0x41c6f0, 0x47fd70, 0x4cdb40, 0x425b80, 0x478790, 0x478e80, 0x47bd70, 0x418310,
     0x450380, 0x44fc10,
 }
-GAME_RAND = {0x490c40, 0x437d60, 0x437de0, 0x438070, 0x423c50, 0x49be60, 0x497180, 0x4568c0, 0x490360}
-GAME_RAND_PRESENTATION_EXCEPTION = {0x420d20}
+MAINTAINER_RAND: dict[int, str] = {
+    0x420d20: "#52 lists it as presentation; the maintainer later decided on #52 and #72 that it is game logic on rand",
+}
+GAME_RAND = {0x490c40, 0x437d60, 0x437de0, 0x438070, 0x423c50, 0x49be60, 0x497180, 0x4568c0, 0x490360} | set(
+    MAINTAINER_RAND)
 INLINED_RAND = {0x424050: "inlined Rand, which #52 lists under 0x423c50"}
 
 
@@ -356,8 +360,6 @@ def main() -> None:
                     msg = "#52 keeps it in game logic, but only presentation reaches it"
                 else:
                     msg = "presentation by reachability and not in the tables of #52"
-            elif address in GAME_RAND_PRESENTATION_EXCEPTION:
-                msg = "#52 calls it presentation (kept on rand, fixed draw count), but LoadMatch reaches it"
             elif address in INLINED_RAND:
                 notes.append(INLINED_RAND[address])
             elif address not in GAME_RAND:

@@ -133,7 +133,7 @@ address,function,callee,kind,file,class,notes
 0x420d20,BuildExplosionFrame,_allmul,call,src/weapons/explosions_420d20.cpp,game,sites=1
 0x420d20,BuildExplosionFrame,_ftol,call,src/weapons/explosions_420d20.cpp,game,sites=2
 0x420d20,BuildExplosionFrame,fsqrt,inline,src/weapons/explosions_420d20.cpp,game,sites=1
-0x420d20,BuildExplosionFrame,rand,call,src/weapons/explosions_420d20.cpp,game,"sites=1; conflict: #52 calls it presentation (kept on rand, fixed draw count), but LoadMatch reaches it"
+0x420d20,BuildExplosionFrame,rand,call,src/weapons/explosions_420d20.cpp,game,sites=1
 0x4211d0,DrawExplodedPieceFaces,_chkstk,call,src/weapons/explosions.cpp,game,sites=1; via console commands only
 0x421700,BreakPieceIntoDebris,_ftol,call,src/weapons/explosions.cpp,game,sites=5
 0x422040,StampFeatureMetal,_ftol,call,src/map/features.cpp,game,sites=1
