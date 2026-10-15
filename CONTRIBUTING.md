@@ -23,6 +23,28 @@ uv run tools/check.py 0x401070  # must print MATCH
 Clone this repository, not upstream Byte Tactics: the scripts branch from
 `origin/moddable`.
 
+## Modern build
+
+The modern build compiles every file under `src/` with clang-cl for
+`i686-pc-windows-msvc`, against MSVC 5's own headers. It only compiles: it
+writes objects under `build/modern/` and does not link (#92). LLVM is pinned
+to **22.1.8**, and `cmake/clang-cl-i686.cmake` fails on any other version.
+
+```sh
+sudo dnf install clang lld cmake ninja-build      # Fedora
+cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake
+cmake --build build/modern
+```
+
+Configuring runs `tools/modern_headers.py`, which writes patched copies of the
+nine STL headers clang-cl cannot parse, and a case-insensitive overlay for
+MSVC 5's upper-case `INCLUDE`, under `build/modern/`. The toolchain itself is
+never edited.
+
+There is no CI job for it: the build needs `toolchain/msvc5-sp3/INCLUDE`, which
+must never be committed, so it can only run where the toolchain is installed
+(see "Setting up").
+
 ## Running an agent
 
 Start your agent in the repository folder. Claude Code reads `CLAUDE.md`,

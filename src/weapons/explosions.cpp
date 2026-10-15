@@ -346,7 +346,8 @@ void InitExplosions()
     g_game->shade = 50;
     g_game->explosions[2] = MakeExplosion(g_explosion2Duration / 2, g_explosion2StartSize, g_explosion2EndSize);
     g_game->shade = 100;
-    for (int i = 0; i < 300; ++i) {
+    int i;
+    for (i = 0; i < 300; ++i) {
         g_game->pieces[i].state = -1;
         g_game->pieces[i].vertexCount = 8;
         g_game->pieces[i].faceCount = 6;

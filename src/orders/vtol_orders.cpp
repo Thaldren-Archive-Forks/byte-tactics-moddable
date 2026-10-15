@@ -48,10 +48,12 @@ struct Order;
 // The push_back of the two visitor vectors copies through this helper
 // instead of the generic std::_Construct: it must be declared before
 // <vector> so its inlining is the original's.
+#ifndef __clang__
 void __stdcall CopyDwordIfNonNull(Unit**, Unit* const*);
 namespace std {
 inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest, &src); }
 }
+#endif
 #include <vector>
 namespace ta {
 #include <ta_types.h>

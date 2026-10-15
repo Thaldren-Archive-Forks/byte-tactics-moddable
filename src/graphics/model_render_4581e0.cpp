@@ -207,7 +207,8 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
                 Vec3* v = list->pieces[p].vertices;
                 info = list->pieces[p].info;
                 // No n local or count guard: the loop runs to info->vertexCount.
-                for (int k = 0; k < info->vertexCount; k++, v++) {
+                int k;
+                for (k = 0; k < info->vertexCount; k++, v++) {
                     int x;
                     int y;
                     int z;

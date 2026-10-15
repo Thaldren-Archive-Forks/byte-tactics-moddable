@@ -296,7 +296,7 @@ struct Game {
     union {
         char password[0x11];           // +0x2be3
         struct {
-            char password[0x2bee - 0x2be3];
+            char passwordArea[0x2bee - 0x2be3];
             union {
                 unsigned short flag0 : 1;      // +0x2bee
                 unsigned short dirty : 1;

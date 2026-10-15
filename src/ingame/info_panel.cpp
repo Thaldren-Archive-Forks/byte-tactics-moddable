@@ -926,7 +926,7 @@ int __stdcall DrawUnitBuilderProbe(void* surface)
     sprintf(buf, "uid: %03d '%s'\n", unit->id, (char*)unit->type);
     DrawString(surface, buf, 0x86, y, -1);
     y += lineHeight;
-    char* mobile = unit->type->mobile ? "MOBILE" : "BUILDING";
+    char* mobile = (char*)(unit->type->mobile ? "MOBILE" : "BUILDING");
     char* remote;
     if (unit->player->f_0 != 0 && (unit->player->controller == 1 || unit->player->controller == 2))
         remote = "LOCAL";

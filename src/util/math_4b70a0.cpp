@@ -21,9 +21,9 @@
 // int  FUN_004b7381(int a, int b, int c)         a * b / c, or 0 when c is 0
 
 // GLOBAL: 0x509f00
-extern "C" short g_sinTable[];          // sine table
+extern "C" short g_sinTable[128];          // sine table
 // GLOBAL: 0x50a000
-extern "C" short g_cosTable[];          // the sine table from a quarter turn on (cosine)
+extern "C" short g_cosTable[512];          // the sine table from a quarter turn on (cosine)
 // GLOBAL: 0x509ef0
 extern "C" double g_radToAngle16;       // 0x8000 / pi: radians to angle units
 // GLOBAL: 0x509ef8

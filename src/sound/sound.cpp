@@ -752,7 +752,7 @@ void SpeechQueue::PlaySpeech(int index, int param_2, int param_3)
         && (g_game->soundFlags & 0x40)) {
         char* name;
         if (g_cmdSingEnabled)
-            name = ((g_game->gameTick / 30) & 7) ? "sing" : "honk";
+            name = (char*)(((g_game->gameTick / 30) & 7) ? "sing" : "honk");
         else
             name = cat->slots[slot].table1 + idx * 0x40;
 
