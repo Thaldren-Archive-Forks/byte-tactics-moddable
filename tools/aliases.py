@@ -1236,11 +1236,14 @@ def prune_dead(paths: list[Path], aliases: dict[str, str], roots: tuple[str, ...
             if sec.name == ".llvm_addrsig":
                 sec.chars |= IMAGE_SCN_LNK_REMOVE
         dead |= set()
+        placed = {si for si in dead if re.fullmatch(r"\.(data|rdata|bss)\$[0-9a-f]{8}", secs[si - 1].name)}
         for si in dead:
             sec = secs[si - 1]
-            sec.data, sec.size, sec.relocs = b"", 0, []
+            sec.relocs = []
+            if si not in placed:
+                sec.data, sec.size = b"", 0
         for sym in syms:
-            if sym.section in dead and sym.aux and sym.sclass == IMAGE_SYM_CLASS_STATIC:
+            if sym.section in dead - placed and sym.aux and sym.sclass == IMAGE_SYM_CLASS_STATIC:
                 aux = bytearray(sym.aux[0])
                 struct.pack_into("<IHH", aux, 0, 0, 0, 0)
                 sym.aux[0] = bytes(aux)
