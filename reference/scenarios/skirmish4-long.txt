@@ -1,0 +1,11 @@
+# Same as skirmish4 for 27000 ticks: reaches past tick 25786, where a hover unit's ground bob once read the wall clock.
+game_seed 2
+crt_seed 2
+view_seed 1
+map Metal Heck
+start_positions fixed
+ticks 27000
+player0.side Arm
+player1.side Core
+player2.side Arm
+player3.side Core

@@ -775,6 +775,7 @@ struct Hs_0048a490 {
 #pragma pack(pop)
 
 unsigned int GetTicks();
+int HarnessTestMode();
 int __cdecl FUN_004b715a(int x, int y);
 void __cdecl FUN_004b7173(unsigned short deg, Pos2_0048a490* p);
 
@@ -838,7 +839,8 @@ void __stdcall AlignUnitToGround(Unit* u)
                 int sea = g_game->seaLevel;
                 hs[k].h = max(H, sea);
                 // short p and `* 2048`, not `<< 11`: keeps the 0x1f mask and 16-bit add.
-                short p = (short)(((GetTicks() & 0x1f) + k * 8) * 2048 + u->hoverBobPhase);
+                unsigned int bobClock = HarnessTestMode() ? g_game->gameTick : GetTicks();
+                short p = (short)(((bobClock & 0x1f) + k * 8) * 2048 + u->hoverBobPhase);
                 int s = u->def->sight / 2;
                 // Owner kept in a local across the 64-bit helper calls.
                 Body_0048a1e0* o = u->motion;

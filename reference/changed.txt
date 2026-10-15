@@ -18,6 +18,7 @@
 0x478e80 OpenMissionBriefing
 0x47bd70 AnnounceForcesDestroyed
 0x47fd70 SpeechQueue::PlaySpeech
+0x48a490 AlignUnitToGround
 0x495230 UpdateFramePacing
 0x495490 RunGameSteps
 0x497180 LoadMatch
