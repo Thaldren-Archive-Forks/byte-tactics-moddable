@@ -181,6 +181,8 @@ public:
     void Emit();
 };
 
+int HarnessViewRand();
+
 // FUNCTION: 0x473d50
 void NanoParticles::Emit()
 {
@@ -191,12 +193,12 @@ void NanoParticles::Emit()
     int i = 0;
     for (int n = 5; n != 0; n--) {
         NanoParticle e;
-        e.pos.x = (int)(((__int64)rand() * radius.x) / 0x8000) + center.x;
-        e.pos.y = (int)(((__int64)rand() * radius.y) / 0x8000) + center.y;
-        e.pos.z = (int)(((__int64)rand() * radius.z) / 0x8000) + center.z;
-        e.tgt.x = (int)(((__int64)rand() * spread.x) / 0x8000) + target.x;
-        e.tgt.y = (int)(((__int64)rand() * spread.y) / 0x8000) + target.y;
-        e.tgt.z = (int)(((__int64)rand() * spread.z) / 0x8000) + target.z;
+        e.pos.x = (int)(((__int64)HarnessViewRand() * radius.x) / 0x8000) + center.x;
+        e.pos.y = (int)(((__int64)HarnessViewRand() * radius.y) / 0x8000) + center.y;
+        e.pos.z = (int)(((__int64)HarnessViewRand() * radius.z) / 0x8000) + center.z;
+        e.tgt.x = (int)(((__int64)HarnessViewRand() * spread.x) / 0x8000) + target.x;
+        e.tgt.y = (int)(((__int64)HarnessViewRand() * spread.y) / 0x8000) + target.y;
+        e.tgt.z = (int)(((__int64)HarnessViewRand() * spread.z) / 0x8000) + target.z;
 
         e.vel = e.tgt - e.pos;
         int len = e.vel.Length();

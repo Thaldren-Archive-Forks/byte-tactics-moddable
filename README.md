@@ -72,8 +72,9 @@ sub-issue per step. The mod-support design it builds on is
 The fork gives up matching bytes and network compatibility with 3.1c clients.
 It keeps the game's behaviour:
 
-- **The reference** is the matching build, which is 3.1c's game logic, plus a
-  test harness.
+- **The reference** is a build of a `moddable` commit
+  (`uv run tools/reference.py HEAD`): 3.1c's game logic plus a test harness,
+  which is part of `src/`.
 - **A test mode** makes runs reproducible: fixed random seeds, one simulation
   step per frame, scripted AI-vs-AI games.
 - **Traces** hash the game state after every phase of every tick. A change

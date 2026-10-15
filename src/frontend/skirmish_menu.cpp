@@ -1281,6 +1281,8 @@ extern char* g_forcesDestroyedTexts[];
 
 void __stdcall AddMessage(char* text, int key, int value, unsigned char last);
 
+int HarnessViewRand();
+
 // Announces that a player's forces were destroyed: "<Core|Arm> <random
 // message>", using one of three (translated) messages.
 // FUNCTION: 0x47bd70
@@ -1290,6 +1292,6 @@ void __stdcall AnnounceForcesDestroyed(Player* player)
     const char* side = "Core";
     if (!player->info->side)
         side = "Arm";
-    sprintf(buf, "%s %s", side, Translate(g_forcesDestroyedTexts[(unsigned int)rand() % 3]));
+    sprintf(buf, "%s %s", side, Translate(g_forcesDestroyedTexts[(unsigned int)HarnessViewRand() % 3]));
     AddMessage(buf, 4, 0, player->index);
 }

@@ -426,6 +426,8 @@ void FreeExplosions(void);
 void UpdateExplosions(void);
 
 void __stdcall SeedRandom(int x);
+unsigned HarnessGameSeed(unsigned live);
+unsigned HarnessCrtSeed(unsigned live);
 void __stdcall SleepMilliseconds(int x);
 int __stdcall RandomInt(int x);
 unsigned char __stdcall FindHostSlot();
@@ -572,8 +574,8 @@ void __cdecl LoadMatch(void*)
     int order[10];
 
     QueryPerformanceCounter(&perfCount);
-    SeedRandom(perfCount.LowPart + perfCount.HighPart);
-    srand((unsigned)time(NULL));
+    SeedRandom(HarnessGameSeed(perfCount.LowPart + perfCount.HighPart));
+    srand(HarnessCrtSeed((unsigned)time(NULL)));
     g_game->gameTick = 0;
 
     // Six of these casts stay: taking more than two out in this function moves

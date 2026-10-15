@@ -167,6 +167,8 @@ done:
     return 0;
 }
 
+int HarnessViewRand();
+
 // FUNCTION: 0x4cdb40
 void Sound::PlayNextTrack()
 {
@@ -244,7 +246,7 @@ void Sound::PlayNextTrack()
             playing = res == zero ? strcmp(buf, "playing") == zero : zero;
             if (playing != zero)
                 goto done;
-            this->PlayCdTrack(rand() % trackCount + 1, one);
+            this->PlayCdTrack(HarnessViewRand() % trackCount + 1, one);
             goto done;
             }
         case 3:
@@ -263,7 +265,7 @@ void Sound::PlayNextTrack()
             goto done;
         }
     }
-    r = rand() & 0xf;
+    r = HarnessViewRand() & 0xf;
     res = mciSendStringA("status cdaudio mode", buf, 0x40, (HWND)zero);
     playing = res == zero ? strcmp(buf, "playing") == 0 : 0;
     if (playing != 0 && arr_214[currentTrack] == trackCategory)

@@ -1780,6 +1780,8 @@ void TeleportParticles::Init(Vec3_004736e0* a, Vec3_004736e0* b, int c)
     Emit();
 }
 
+int HarnessViewRand();
+
 // Slot 4. It first makes room for however many ten-tick
 // units lie between the current tick and deadline with items.reserve(...),
 // then appends one element built from the three positions plus a random value,
@@ -1802,7 +1804,7 @@ void TeleportParticles::Emit()
         e.endTime = g_game->gameTick + sparkLifetime;
         e.data = g_game->flameStreamSeq;
         e.frameCount = GetGafFrameCount(g_game->flameStreamSeq) - 1;
-        e.frame = (int)(((__int64)rand() * e.frameCount) / 0x8000);
+        e.frame = (int)(((__int64)HarnessViewRand() * e.frameCount) / 0x8000);
         // Not push_back: calling through the List layout keeps the insert out of line.
         List_004737c0* v = (List_004737c0*)&items;
         v->insert(v->last, 1, e);
@@ -2045,9 +2047,9 @@ void WakeParticles::Emit()
         e.period = period;
         e.endTime = g_game->gameTick + period * 6;
         e.pos = pos_a;
-        e.pos.xp.hi += (int)((__int64)rand() * 7 / 0x8000) - 3;
-        e.pos.yp.hi += (int)((__int64)rand() * 7 / 0x8000) - 3;
-        e.pos.zp.hi += (int)((__int64)rand() * 7 / 0x8000) - 3;
+        e.pos.xp.hi += (int)((__int64)HarnessViewRand() * 7 / 0x8000) - 3;
+        e.pos.yp.hi += (int)((__int64)HarnessViewRand() * 7 / 0x8000) - 3;
+        e.pos.zp.hi += (int)((__int64)HarnessViewRand() * 7 / 0x8000) - 3;
         e.pos2 = pos_b;
         e.vel = dir;
         e.data = g_game->smoke1;
@@ -2080,7 +2082,7 @@ void SmokeParticle::Step()
     if (--timer == 0) {
         count++;
         int half = period / 2;
-        timer = (int)((__int64)rand() * half / 0x8000) + half;
+        timer = (int)((__int64)HarnessViewRand() * half / 0x8000) + half;
     }
 }
 
@@ -2138,7 +2140,7 @@ void SmokeParticles::Emit()
         rec.period = holdPeriod;
         rec.timer = holdPeriod;
         rec.data = altAnimation ? g_game->smoke2 : g_game->smoke1;
-        rec.limit = (int)(((__int64)rand() * (maxFrame - 2)) / 0x8000) + 2;
+        rec.limit = (int)(((__int64)HarnessViewRand() * (maxFrame - 2)) / 0x8000) + 2;
         rec.count = 0;
         ((Class_00476210*)v)->insert(v->end(), 1, rec);
     }
@@ -2178,7 +2180,7 @@ void TimedSubParticle::Step()
     if (--timer == 0) {
         count++;
         int half = period / 2;
-        timer = (int)((__int64)rand() * half / 0x8000) + half;
+        timer = (int)((__int64)HarnessViewRand() * half / 0x8000) + half;
     }
 }
 
@@ -2240,7 +2242,7 @@ void TimedSubParticles::Emit()
         rec.period = holdPeriod;
         rec.timer = holdPeriod;
         rec.data = g_game->smoke1;
-        rec.limit = (int)((__int64)rand() * (maxFrame - 2) / 0x8000) + 2;
+        rec.limit = (int)((__int64)HarnessViewRand() * (maxFrame - 2) / 0x8000) + 2;
         rec.count = 0;
         ((Vec_00476490*)v)->insert(v->end(), 1, &rec);
     } while (--i);
@@ -2272,7 +2274,7 @@ void SmokeParticles::Update()
         if (--it->timer == 0) {
             it->count++;
             int half = it->period / 2;
-            it->timer = (int)((__int64)rand() * half / 0x8000) + half;
+            it->timer = (int)((__int64)HarnessViewRand() * half / 0x8000) + half;
         }
         if (it->count >= it->limit) {
             records.erase(it);
@@ -2310,7 +2312,7 @@ void TimedSubParticles::Update()
         if (--it->timer == 0) {
             it->count++;
             int half = it->period / 2;
-            it->timer = (int)((__int64)rand() * half / 0x8000) + half;
+            it->timer = (int)((__int64)HarnessViewRand() * half / 0x8000) + half;
         }
         if (it->count >= it->limit) {
             records.erase(it);
@@ -2372,11 +2374,11 @@ void __stdcall EmitJitteredThrustParticles(Shape_00472ab0* pos, short index)
 {
     // One struct copy, then three separate += statements, not a loop.
     Shape_00472ab0 s = *pos;
-    s.v[0].hi += (int)((__int64)rand() * 3 / 0x8000) - 1;
-    s.v[1].hi += (int)((__int64)rand() * 3 / 0x8000) - 1;
-    s.v[2].hi += (int)((__int64)rand() * 3 / 0x8000) - 1;
+    s.v[0].hi += (int)((__int64)HarnessViewRand() * 3 / 0x8000) - 1;
+    s.v[1].hi += (int)((__int64)HarnessViewRand() * 3 / 0x8000) - 1;
+    s.v[2].hi += (int)((__int64)HarnessViewRand() * 3 / 0x8000) - 1;
     // A statement of its own before the allocation: rand() runs before the g_game load.
-    int r = (int)((__int64)rand() * 3 / 0x8000) + 1;
+    int r = (int)((__int64)HarnessViewRand() * 3 / 0x8000) + 1;
     Lists_00472330* lists = g_game->lists_00472330;
     ThrustParticles* p = new ThrustParticles;
     if (p) {

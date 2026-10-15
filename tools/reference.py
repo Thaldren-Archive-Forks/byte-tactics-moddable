@@ -1,14 +1,14 @@
-"""Build a test-mode exe from any git ref with the conformity harness applied.
+"""Build a test-mode exe from any commit of this repository.
 
-    uv run tools/reference.py main
+    uv run tools/reference.py HEAD
     uv run tools/reference.py a1b2c3d
 
-Checks the ref out in build/reference/<ref>, applies reference/harness.patch
-and copies reference/harness.cpp into it, links it with that ref's own tools,
-and leaves TotalA.exe, SMACKW32.DLL and commit.txt there. It then runs checkall
-over every annotated function and reports which ones no longer MATCH, against
-the allowlist in reference/changed.txt. Exits 1 if the patch does not apply,
-the build fails, or a function outside the allowlist does not MATCH.
+Checks the commit out in build/reference/<ref>, links it with its own tools
+(the conformity harness is part of its src/), and leaves TotalA.exe,
+SMACKW32.DLL and commit.txt there. It then runs checkall over every annotated
+function and reports which ones no longer MATCH, against the allowlist in the
+commit's own reference/changed.txt. Exits 1 if the build fails or a function
+outside the allowlist does not MATCH.
 """
 
 import argparse
@@ -20,7 +20,6 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REFERENCE = ROOT / "reference"
 OUTPUTS = ("TotalA.exe", "SMACKW32.DLL", "commit.txt")
 REF_ENV = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
 
@@ -35,18 +34,11 @@ def fail(message: str) -> None:
 
 
 def resolve(ref: str) -> str:
-    """The commit a ref names, trying origin/<ref> when there is no local one."""
-    found = []
-    for name in (ref, f"origin/{ref}"):
-        proc = git("rev-parse", "--verify", "-q", f"{name}^{{commit}}", check=False, capture=True)
-        found.append(proc.stdout.strip() if proc.returncode == 0 else None)
-    local, remote = found
-    if local and remote and local != remote and not ref.startswith("origin/"):
-        print(f"reference: warning: {ref} is {local[:12]} but origin/{ref} is {remote[:12]}; building {ref}",
-              file=sys.stderr)
-    if local or remote:
-        return local or remote
-    fail(f"{ref} names no commit")
+    """The commit a ref names."""
+    proc = git("rev-parse", "--verify", "-q", f"{ref}^{{commit}}", check=False, capture=True)
+    if proc.returncode:
+        fail(f"{ref} names no commit")
+    return proc.stdout.strip()
 
 
 def registered_worktrees() -> set[Path]:
@@ -80,22 +72,6 @@ def prepare_worktree(directory: Path, sha: str) -> None:
             link.symlink_to(target)
 
 
-def apply_harness(directory: Path, ref: str, sha: str) -> None:
-    patch = REFERENCE / "harness.patch"
-    source = REFERENCE / "harness.cpp"
-    for path in (patch, source):
-        if not path.is_file():
-            fail(f"{path.relative_to(ROOT)} is missing")
-    check = git("apply", "--check", str(patch), cwd=directory, check=False, capture=True)
-    if check.returncode:
-        sys.stderr.write(check.stderr)
-        fail(f"reference/harness.patch does not apply to {ref} ({sha})")
-    git("apply", str(patch), cwd=directory)
-    target = directory / "src/harness/harness.cpp"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(source, target)
-
-
 def build(directory: Path, sha: str) -> None:
     proc = subprocess.run(["uv", "run", "tools/link.py", "--carve"], cwd=directory, env=REF_ENV)
     if proc.returncode:
@@ -122,18 +98,13 @@ def is_match(line: str) -> bool:
 def checkall(directory: Path) -> dict[int, str]:
     with open(directory / "data/progress.csv", newline="") as f:
         addresses = [row["address"] for row in csv.DictReader(f)]
-    results = run_checkall(directory, addresses)
-    # TODO(#63): drop this retry once the reference is built with the fork's own tools.
-    retry = [f"{a:#x}" for a, line in results.items() if not is_match(line)]
-    if retry:
-        results.update(run_checkall(directory, retry))
-    return results
+    return run_checkall(directory, addresses)
 
 
-def read_allowlist() -> dict[int, str]:
-    path = REFERENCE / "changed.txt"
+def read_allowlist(directory: Path) -> dict[int, str]:
+    path = directory / "reference/changed.txt"
     if not path.is_file():
-        fail(f"{path.relative_to(ROOT)} is missing")
+        fail(f"{path.relative_to(directory)} is missing from {directory.relative_to(ROOT)}")
     allowed = {}
     for line in path.read_text().splitlines():
         line = line.strip()
@@ -158,8 +129,7 @@ def main() -> None:
         (directory / name).unlink(missing_ok=True)
 
     prepare_worktree(directory, sha)
-    apply_harness(directory, ref, sha)
-    allowed = read_allowlist()
+    allowed = read_allowlist(directory)
     build(directory, sha)
     results = checkall(directory)
 

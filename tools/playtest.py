@@ -4,7 +4,7 @@
     uv run tools/playtest.py --exe orig --exe carve --scenario arm,core --repeat 2 --parallel 4
     uv run tools/playtest.py --exe orig+carve --scenario mp --trap-stubs
     uv run tools/playtest.py --list
-    uv run tools/playtest.py --exe build/reference/main/TotalA.exe --testmode reference/scenarios/skirmish2.txt
+    uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe --testmode reference/scenarios/skirmish2.txt
 
 `--exe` takes `orig` (orig/TotalA.exe), `place` (build/place/TotalA.exe from
 tools/place.py), `carve` (build/link/TotalA.exe from tools/link.py --carve) or
