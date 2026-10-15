@@ -1,0 +1,19 @@
+# Six players on Yerrot Mountains in two allied teams of three, four minutes.
+game_seed 198
+crt_seed 1198
+view_seed 2198
+map Yerrot Mountains
+start_positions fixed
+ticks 7200
+player0.side Arm
+player0.team 2
+player1.side Arm
+player1.team 2
+player2.side Arm
+player2.team 2
+player3.side Core
+player3.team 3
+player4.side Core
+player4.team 3
+player5.side Core
+player5.team 3

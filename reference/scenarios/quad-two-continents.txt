@@ -1,0 +1,23 @@
+# Four players on Two Continents in teams of players 0 and 3 against 1 and 2, random start positions, 100 metal and energy.
+game_seed 177
+crt_seed 1177
+view_seed 2177
+map Two Continents
+start_positions random
+ticks 6000
+player0.metal 100
+player0.energy 100
+player1.metal 100
+player1.energy 100
+player2.metal 100
+player2.energy 100
+player3.metal 100
+player3.energy 100
+player0.side Core
+player0.team 0
+player1.side Arm
+player1.team 1
+player2.side Core
+player2.team 1
+player3.side Arm
+player3.team 0

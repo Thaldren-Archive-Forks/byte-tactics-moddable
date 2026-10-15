@@ -1,0 +1,11 @@
+# Four Arm players on Lava Highground, random start positions, three minutes.
+game_seed 170
+crt_seed 1170
+view_seed 2170
+map Lava Highground
+start_positions random
+ticks 5400
+player0.side Arm
+player1.side Arm
+player2.side Arm
+player3.side Arm
