@@ -2257,7 +2257,7 @@ def compile_cached(src: Path, stem: str) -> Path | None:
 def extract(src: Path, stem: str, wanted: set[str]) -> dict | None:
     """One file's views and the decorated names it defines or refers to."""
     cache = CACHE / "views" / (stem + ".json")
-    key = source_key(src, FLAGS + Path(__file__).read_text())
+    key = source_key(src, FLAGS + Path(__file__).read_text(), (src.resolve().parent,))
     if cache.exists():
         data = json.loads(cache.read_text())
         if data.get("key") == key:

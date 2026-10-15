@@ -14,7 +14,7 @@ FLAGS = "/O2"
 
 
 def reset() -> None:
-    check._direct_includes.cache_clear()
+    check._include_names.cache_clear()
     check.include_dir_hash.cache_clear()
 
 
@@ -61,6 +61,22 @@ def test_temp_tree() -> None:
         assert key(a, root) != ka and key(b, root) != kb, "include/ still covers every file"
 
 
+def test_nested_chain() -> None:
+    with tempfile.TemporaryDirectory() as t:
+        root = Path(t).resolve()
+        (root / "include").mkdir()
+        (root / "src/A/sub").mkdir(parents=True)
+        a = root / "src/A/a.cpp"
+        a.write_text('#include "sub/b.h"\n')
+        (root / "src/A/sub/b.h").write_text('#include "c.h"\n')
+        (root / "src/A/c.h").write_text("int c;\n")
+        files, missing = include_closure(a, root=root)
+        assert root / "src/A/c.h" in files and missing == [], "c.h is found through the includer's directory"
+        ka = key(a, root)
+        (root / "src/A/c.h").write_text("int c2;\n")
+        assert key(a, root) != ka, "editing c.h must change a.cpp's key"
+
+
 def test_real_tree() -> None:
     reset()
     mission = (ROOT / "src/map/mission.h").resolve()
@@ -72,6 +88,7 @@ def test_real_tree() -> None:
 
 if __name__ == "__main__":
     test_temp_tree()
+    test_nested_chain()
     test_real_tree()
     print("ok")
     sys.exit(0)

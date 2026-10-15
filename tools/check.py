@@ -55,8 +55,6 @@ FORBIDDEN = re.compile(r"\b(__asm|_asm|_emit|__emit)\b|#\s*pragma\s+(optimize|co
 GAP_FORBIDDEN = re.compile(r"#\s*pragma\s+(optimize|code_seg)")
 
 
-# --- cache keys ---------------------------------------------------------------
-
 QUOTED_INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*"([^"\n]+)"', re.M)
 COMMENTS = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
 
@@ -70,39 +68,38 @@ def include_dir_hash(root: Path = ROOT) -> str:
 
 
 @functools.lru_cache(maxsize=None)
-def _direct_includes(path: Path, dirs: tuple[Path, ...]) -> tuple[tuple[Path, ...], tuple[str, ...]]:
-    """The files a file's quoted includes resolve to (its own directory first,
-    then dirs), and the names that resolve to nothing."""
+def _include_names(path: Path) -> tuple[str, ...]:
+    """The names of a file's quoted includes, comments ignored."""
     text = COMMENTS.sub(lambda m: "\n" * m.group(0).count("\n"), path.read_text(errors="replace"))
-    found, missing = [], []
-    for name in QUOTED_INCLUDE.findall(text):
-        name = name.replace("\\", "/")
-        for d in (path.parent, *dirs):
-            if (d / name).is_file():
-                found.append((d / name).resolve())
-                break
-        else:
-            missing.append(name)
-    return tuple(found), tuple(missing)
+    return tuple(name.replace("\\", "/") for name in QUOTED_INCLUDE.findall(text))
 
 
 def include_closure(src: Path, includes: tuple[Path, ...] = (), root: Path = ROOT) -> tuple[list[Path], list[str]]:
     """Every file src reaches through quoted includes, sorted, and the include
     names that resolve to nothing. Search order is the compiler's: the including
-    file's directory, then includes, then include/."""
+    file's directory, then the directory of each file further up the include
+    chain (most recent first), then includes, then include/."""
     dirs = (*includes, root / "include")
     seen: set[Path] = set()
     missing: set[str] = set()
-    todo = [src.resolve()]
+    visited: set[tuple[Path, tuple[Path, ...]]] = set()
+    start = src.resolve()
+    todo = [(start, (start.parent,))]
     while todo:
-        cur = todo.pop()
-        found, absent = _direct_includes(cur, dirs)
-        missing.update(absent)
-        for f in found:
-            if f not in seen:
-                seen.add(f)
-                todo.append(f)
-    seen.discard(src.resolve())
+        cur, chain = todo.pop()
+        if (cur, chain) in visited:
+            continue
+        visited.add((cur, chain))
+        for name in _include_names(cur):
+            for d in (*chain, *dirs):
+                if (d / name).is_file():
+                    f = (d / name).resolve()
+                    seen.add(f)
+                    todo.append((f, tuple(dict.fromkeys((f.parent, *chain)))))
+                    break
+            else:
+                missing.add(name)
+    seen.discard(start)
     return sorted(seen), sorted(missing)
 
 
