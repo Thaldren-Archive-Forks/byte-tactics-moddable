@@ -374,7 +374,7 @@ def compare(orig: Original, obj: CoffObject, address: int, want: str | None = No
     the bytes are compared: the result has the symbol and bytes_match but no
     references, score or diff (tools/progress.py's first pass needs no more)."""
     symbols = load_symbols() if symbols is None else symbols
-    aliases = load_aliases()  # a local: checkall's threads share this module
+    aliases = load_aliases()
     picked, err = select_function(obj, want, qualname)
     if not picked:
         return Result(address, "", 0, 0, False, 0.0, error=err)
