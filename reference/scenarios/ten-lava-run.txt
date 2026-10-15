@@ -1,0 +1,17 @@
+# Ten players on Lava Run, alternating sides, three minutes.
+game_seed 226
+crt_seed 1226
+view_seed 2226
+map Lava Run
+start_positions fixed
+ticks 5400
+player0.side Arm
+player1.side Core
+player2.side Arm
+player3.side Core
+player4.side Arm
+player5.side Core
+player6.side Arm
+player7.side Core
+player8.side Arm
+player9.side Core

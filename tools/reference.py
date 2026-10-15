@@ -2,6 +2,9 @@
 
     uv run tools/reference.py HEAD
     uv run tools/reference.py a1b2c3d
+    uv run tools/reference.py HEAD --traces     # write reference/traces/
+    uv run tools/reference.py HEAD --check      # compare against reference/traces/
+    uv run tools/reference.py --check --exe build/x/TotalA.exe
 
 Checks the commit out in build/reference/<ref>, links it with its own tools
 (the conformity harness is part of its src/), and leaves TotalA.exe,
@@ -9,6 +12,16 @@ SMACKW32.DLL and commit.txt there. It then runs checkall over every annotated
 function and reports which ones no longer MATCH, against the allowlist in the
 commit's own reference/changed.txt. Exits 1 if the build fails or a function
 outside the allowlist does not MATCH.
+
+`--traces` then plays every scenario in reference/scenarios/ (two at a time,
+under Wine through tools/playtest.py) and writes reference/traces/<scenario>.txt:
+the header of the run's trace.txt and one digest per tick (tools/tracedigest.py).
+`--check` plays the same scenarios and compares the digests with the stored ones.
+On the first difference it builds the reference from the commit the trace
+records, prints tools/tracediff.py's report for that scenario and exits 1. A
+missing or extra trace or scenario exits 1. `--exe` checks a given exe instead
+of building the ref. Set WINEARCH=win64 for Wine; `--game-dir` names the game's
+install.
 """
 
 import argparse
@@ -17,10 +30,22 @@ import os
 import shutil
 import subprocess
 import sys
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+
+import tracediff
+import tracedigest
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUTS = ("TotalA.exe", "SMACKW32.DLL", "commit.txt")
+SCENARIOS = ROOT / "reference/scenarios"
+TRACES = ROOT / "reference/traces"
+PARALLEL = 2
+RUN_SECONDS_BASE = 120
+RUN_TICKS_PER_SECOND = 40
+RUN_ATTEMPTS = 2
 REF_ENV = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
 
 
@@ -118,10 +143,173 @@ def label(address: int, name: str) -> str:
     return f"{address:#x} {name}".rstrip()
 
 
+def clock(seconds: float) -> str:
+    m, s = divmod(int(round(seconds)), 60)
+    return f"{m}:{s:02d}"
+
+
+def scenario_files() -> dict[str, Path]:
+    return {p.stem: p for p in sorted(SCENARIOS.glob("*.txt"))}
+
+
+_launch = threading.Lock()
+
+
+def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict[str, str], list[tuple[int, str]], float]:
+    """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken."""
+    with _launch:
+        # playtest.py names its session by the second: let each run start in its own.
+        time.sleep(2.5)
+    ticks = next(int(line.split()[1], 0) for line in scenario.read_text().splitlines() if line.startswith("ticks "))
+    timeout = RUN_SECONDS_BASE + ticks / RUN_TICKS_PER_SECOND
+    t0 = time.time()
+    for attempt in range(RUN_ATTEMPTS):
+        try:
+            run = tracediff.play(exe, scenario, game_dir, None, timeout)
+            break
+        except tracediff.Error as e:
+            if attempt == RUN_ATTEMPTS - 1:
+                raise
+            print(f"{scenario.stem}: run failed, trying again: {str(e).splitlines()[-1][:200]}", flush=True)
+    elapsed = time.time() - t0
+    try:
+        header, rows = tracediff.parse_trace(tracediff.need(run, "trace.txt"))
+    finally:
+        shutil.rmtree(run.parent, ignore_errors=True)
+    for key in ("game_seed", "crt_seed", "view_seed"):
+        if key not in header:
+            raise tracediff.Error(f"{scenario}: the trace has no {key} line")
+    return header, tracedigest.digests(rows), elapsed
+
+
+def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None) -> dict[str, tuple]:
+    """Every scenario's play_scenario result, PARALLEL at a time; exits 1 if one fails to run."""
+    results: dict[str, tuple] = {}
+    failures: list[str] = []
+
+    def one(name: str) -> None:
+        try:
+            results[name] = play_scenario(exe, scenarios[name], game_dir)
+        except (tracediff.Error, OSError) as e:
+            failures.append(f"{name}: {e}")
+
+    with ThreadPoolExecutor(PARALLEL) as pool:
+        list(pool.map(one, scenarios))
+    if failures:
+        fail("scenarios failed to run:\n" + "\n".join(failures))
+    return results
+
+
+def write_traces(sha: str, exe: Path, game_dir: str | None) -> None:
+    scenarios = scenario_files()
+    if not scenarios:
+        fail(f"no scenarios in {SCENARIOS.relative_to(ROOT)}")
+    t0 = time.time()
+    results = play_all(exe, scenarios, game_dir)
+    TRACES.mkdir(parents=True, exist_ok=True)
+    for old in TRACES.glob("*.txt"):
+        old.unlink()
+    for name, (header, digests, elapsed) in results.items():
+        header = {**header, "commit": sha, "scenario": str(scenarios[name].relative_to(ROOT))}
+        (TRACES / f"{name}.txt").write_text(tracedigest.render(header, digests))
+        print(f"wrote {(TRACES / f'{name}.txt').relative_to(ROOT)}: {len(digests)} ticks, {clock(elapsed)}")
+    print(f"{len(results)} traces, commit {sha}, total {clock(time.time() - t0)}")
+
+
+def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) -> str | None:
+    """A description of the first tick at which the digests differ, or None."""
+    for a, b in zip(stored, got):
+        if a != b:
+            return f"tick {a[0]}: stored {a[1]}, got {b[1]}"
+    if len(stored) != len(got):
+        longer, which = (stored, "stored") if len(stored) > len(got) else (got, "got")
+        return f"tick {longer[min(len(stored), len(got))][0]}: only the {which} trace has it"
+    return None
+
+
+def check_traces(exe: Path, game_dir: str | None) -> None:
+    scenarios = scenario_files()
+    stored = {p.stem: p for p in sorted(TRACES.glob("*.txt"))} if TRACES.is_dir() else {}
+    problems = [f"scenario {n} has no trace in {TRACES.relative_to(ROOT)}" for n in scenarios if n not in stored]
+    problems += [f"trace {n} has no scenario in {SCENARIOS.relative_to(ROOT)}" for n in stored if n not in scenarios]
+    if not scenarios or problems:
+        fail("\n".join(problems) or f"no scenarios in {SCENARIOS.relative_to(ROOT)}")
+    expected = {}
+    for name, path in stored.items():
+        try:
+            expected[name] = tracedigest.parse_digest(path)
+        except tracediff.Error as e:
+            fail(str(e))
+
+    t0 = time.time()
+    results = play_all(exe, scenarios, game_dir)
+    wall = time.time() - t0
+    bad: list[str] = []
+    for name in scenarios:
+        header, digests, elapsed = results[name]
+        want_header, want = expected[name]
+        diff = first_difference(want, digests)
+        seeds = [k for k in ("game_seed", "crt_seed", "view_seed") if want_header.get(k) != header[k]]
+        if seeds:
+            diff = diff or "the scenario's seeds differ from the stored trace: " + ", ".join(seeds)
+        print(f"{'DIFF' if diff else 'ok':4} {name} ({len(digests)} ticks, {clock(elapsed)})" + (f" {diff}" if diff else ""))
+        if diff:
+            bad.append(name)
+    print(f"{len(scenarios) - len(bad)} of {len(scenarios)} scenarios equal, total {clock(wall)}")
+    if not bad:
+        return
+
+    name = bad[0]
+    sha = expected[name][0].get("commit", "unknown")
+    print(f"\ntracediff for {name}, against the reference at {sha}:", flush=True)
+    if resolve_quiet(sha) is None:
+        fail(f"{name}: the trace's commit {sha} is not in this repository")
+    ref_dir = build_cached(sha)
+    cmd = [sys.executable, str(ROOT / "tools/tracediff.py"), str(ref_dir / "TotalA.exe"), str(exe),
+           "--scenario", str(scenarios[name])]
+    if game_dir:
+        cmd += ["--game-dir", game_dir]
+    subprocess.run(cmd)
+    sys.exit(1)
+
+
+def resolve_quiet(ref: str) -> str | None:
+    proc = git("rev-parse", "--verify", "-q", f"{ref}^{{commit}}", check=False, capture=True)
+    return proc.stdout.strip() if proc.returncode == 0 else None
+
+
+def build_cached(sha: str) -> Path:
+    """build/reference/<sha>, built if it holds no exe of that commit."""
+    directory = ROOT / "build/reference" / sha
+    stamp = directory / "commit.txt"
+    if not (directory / "TotalA.exe").is_file() or not stamp.is_file() or stamp.read_text().strip() != sha:
+        for name in OUTPUTS:
+            (directory / name).unlink(missing_ok=True)
+        prepare_worktree(directory, sha)
+        build(directory, sha)
+    return directory
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("ref", help="branch, tag or commit to build")
-    ref = ap.parse_args().ref
+    ap.add_argument("ref", nargs="?", help="branch, tag or commit to build")
+    ap.add_argument("--traces", action="store_true", help="play every scenario and write reference/traces/")
+    ap.add_argument("--check", action="store_true", help="play every scenario and compare with reference/traces/")
+    ap.add_argument("--exe", metavar="PATH", help="--check: check this exe instead of building the ref")
+    ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
+    args = ap.parse_args()
+    ref = args.ref
+    if args.traces == args.check and (args.traces or args.exe):
+        ap.error("give one of --traces and --check")
+    if args.exe and not args.check:
+        ap.error("--exe needs --check")
+    if args.exe and not Path(args.exe).is_file():
+        ap.error(f"{args.exe} is not a file")
+    if not args.exe and not ref:
+        ap.error("give a ref to build")
+    if args.exe:
+        check_traces(Path(args.exe).resolve(), args.game_dir)
+        return
 
     sha = resolve(ref)
     directory = ROOT / "build/reference" / ref
@@ -148,6 +336,10 @@ def main() -> None:
             print(f"    {results[a]}")
         sys.exit(1)
     print("  not allowlisted, changed: none")
+    if args.traces:
+        write_traces(sha, directory / "TotalA.exe", args.game_dir)
+    elif args.check:
+        check_traces(directory / "TotalA.exe", args.game_dir)
 
 
 if __name__ == "__main__":

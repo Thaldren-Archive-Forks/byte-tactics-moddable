@@ -1,0 +1,23 @@
+# Eight players on Pincushion in four allied pairs, seven minutes.
+game_seed 219
+crt_seed 1219
+view_seed 2219
+map Pincushion
+start_positions fixed
+ticks 12600
+player0.side Arm
+player0.team 0
+player1.side Arm
+player1.team 0
+player2.side Core
+player2.team 1
+player3.side Core
+player3.team 1
+player4.side Arm
+player4.team 2
+player5.side Arm
+player5.team 2
+player6.side Core
+player6.team 3
+player7.side Core
+player7.team 3

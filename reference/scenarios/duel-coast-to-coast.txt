@@ -1,0 +1,10 @@
+# Two Core players on Coast To Coast, three minutes, difficulty 2.
+game_seed 114
+crt_seed 1114
+view_seed 2114
+map Coast To Coast
+start_positions fixed
+ticks 5400
+difficulty 2
+player0.side Core
+player1.side Core

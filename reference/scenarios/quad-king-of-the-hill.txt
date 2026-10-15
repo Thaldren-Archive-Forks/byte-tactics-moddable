@@ -1,0 +1,15 @@
+# Four players on King of the Hill in two allied teams of two, five minutes.
+game_seed 163
+crt_seed 1163
+view_seed 2163
+map King of the Hill
+start_positions fixed
+ticks 9000
+player0.side Arm
+player0.team 0
+player1.side Arm
+player1.team 0
+player2.side Core
+player2.team 1
+player3.side Core
+player3.team 1

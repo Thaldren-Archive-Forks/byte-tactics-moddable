@@ -1,0 +1,11 @@
+# Two players on The Pass with the map unmapped and line of sight off, ninety seconds.
+game_seed 128
+crt_seed 1128
+view_seed 2128
+map The Pass
+start_positions fixed
+ticks 2700
+mapping 0
+line_of_sight 0
+player0.side Core
+player1.side Arm

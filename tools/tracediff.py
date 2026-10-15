@@ -15,6 +15,10 @@ phase that differs, with its value in A and in B. Set WINEARCH=win64 for Wine.
 `--traces` compares existing trace files without running, and reports the first
 divergence only. `--dumps` diffs the phase of two existing dump files.
 
+`--ignore-view-seed` accepts traces whose headers differ only in view_seed (any
+other header difference is still refused). In run mode, give `--scenario` twice
+to run A on the first file and B on the second.
+
 Exit status: 0 if the traces are identical, 1 if they differ, 2 on a usage
 error, a failed run or traces that cannot be compared (different seeds or
 scenario).
@@ -53,8 +57,9 @@ def parse_trace(path: Path) -> tuple[dict[str, str], list[tuple[int, str, str]]]
     return header, rows
 
 
-def check_headers(a: dict[str, str], b: dict[str, str]) -> None:
-    bad = [f"{k}: a={a.get(k)} b={b.get(k)}" for k in COMPARED_HEADERS if a.get(k) != b.get(k)]
+def check_headers(a: dict[str, str], b: dict[str, str], ignore_view_seed: bool = False) -> None:
+    keys = [k for k in COMPARED_HEADERS if not (ignore_view_seed and k == "view_seed")]
+    bad = [f"{k}: a={a.get(k)} b={b.get(k)}" for k in keys if a.get(k) != b.get(k)]
     if bad:
         raise Error("the traces are not of the same run, " + "; ".join(bad))
 
@@ -100,13 +105,15 @@ def print_diff(diffs: list[tuple[str, str, str]]) -> None:
         print("  no field differs in the dumps")
 
 
-def play(exe: Path, scenario: Path, game_dir: str | None, dump: int | None) -> Path:
+def play(exe: Path, scenario: Path, game_dir: str | None, dump: int | None, timeout: float | None = None) -> Path:
     """Run the exe on the scenario with playtest.py; the run's directory."""
     cmd = [sys.executable, str(ROOT / "tools/playtest.py"), "--exe", str(exe), "--testmode", str(scenario)]
     if game_dir:
         cmd += ["--game-dir", game_dir]
     if dump is not None:
         cmd += ["--testdump", str(dump)]
+    if timeout is not None:
+        cmd += ["--testmode-timeout", f"{timeout:g}"]
     r = subprocess.run(cmd, capture_output=True, text=True)
     sys.stderr.write(r.stderr)
     m = re.search(r"^logs and screenshots: (.+)/$", r.stdout, re.M)
@@ -126,17 +133,18 @@ def need(run: Path, name: str) -> Path:
 
 def compare(args: argparse.Namespace) -> int:
     exes = [Path(e).resolve() for e in args.exe]
-    scenario = Path(args.scenario).resolve()
-    runs = [play(e, scenario, args.game_dir, None) for e in exes]
+    scenarios = [Path(s).resolve() for s in args.scenario]
+    scenarios *= 2 if len(scenarios) == 1 else 1
+    runs = [play(e, s, args.game_dir, None) for e, s in zip(exes, scenarios)]
     (ha, ra), (hb, rb) = (parse_trace(need(r, "trace.txt")) for r in runs)
-    check_headers(ha, hb)
+    check_headers(ha, hb, args.ignore_view_seed)
     div = first_divergence(ra, rb)
     if not div:
         print(f"traces identical ({len(ra)} lines)")
         return 0
     tick, phase = div
     print(f"first divergence: tick {tick}, phase {phase}")
-    runs = [play(e, scenario, args.game_dir, tick) for e in exes]
+    runs = [play(e, s, args.game_dir, tick) for e, s in zip(exes, scenarios)]
     print_diff(diff_dumps(need(runs[0], "dump.txt"), need(runs[1], "dump.txt"), tick, phase))
     return 1
 
@@ -144,7 +152,10 @@ def compare(args: argparse.Namespace) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("exe", nargs="*", help="the two exes, A then B")
-    ap.add_argument("--scenario", metavar="FILE", help="a reference/ scenario file")
+    ap.add_argument("--scenario", metavar="FILE", action="append",
+                    help="a reference/ scenario file (twice: A's, then B's)")
+    ap.add_argument("--ignore-view-seed", action="store_true",
+                    help="accept traces whose headers differ only in view_seed")
     ap.add_argument("--game-dir", help="the game's install (default: Steam's)")
     ap.add_argument("--traces", nargs=2, metavar=("A", "B"), help="compare two trace.txt files, without running")
     ap.add_argument("--dumps", nargs=2, metavar=("A", "B"), help="diff two dump.txt files, with --at")
@@ -155,14 +166,17 @@ def main() -> int:
         ap.error("give two exes with --scenario, or --traces A B, or --dumps A B --at TICK PHASE")
     if args.exe and (len(args.exe) != 2 or not args.scenario):
         ap.error("two exes and --scenario are required")
-    if args.exe and not Path(args.scenario).is_file():
-        ap.error(f"{args.scenario} is not a file")
+    if args.exe and len(args.scenario) > 2:
+        ap.error("--scenario takes at most two files")
+    for s in args.scenario or []:
+        if args.exe and not Path(s).is_file():
+            ap.error(f"{s} is not a file")
     if args.dumps and (not args.at or not args.at[0].isdigit() or args.at[1] not in PHASES):
         ap.error(f"--dumps needs --at TICK PHASE, phase one of {' '.join(PHASES)}")
     try:
         if args.traces:
             (ha, ra), (hb, rb) = (parse_trace(Path(t)) for t in args.traces)
-            check_headers(ha, hb)
+            check_headers(ha, hb, args.ignore_view_seed)
             div = first_divergence(ra, rb)
             if not div:
                 print(f"traces identical ({len(ra)} lines)")
