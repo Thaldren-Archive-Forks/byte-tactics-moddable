@@ -58,6 +58,9 @@ void bx_apply_rotation_matrix(const bx_i32 m[9], const bx_i32 *in, bx_i32 *out);
 /* FUN_004b7381: a * b / c with a 64-bit product, truncated toward zero, or 0 when c is 0; the exe traps when the quotient does not fit in an int, here it is INT_MIN. */
 bx_i32 bx_FUN_004b7381(bx_i32 a, bx_i32 b, bx_i32 c);
 
+/* The correctly rounded square root, equal to x87 fsqrt at 53-bit precision (and to SSE2 sqrtsd and wasm f64.sqrt), done in integer code; finite non-negative x, a negative x giving the x87 indefinite NaN. */
+double bx_sqrt(double x);
+
 /* The state of one rand stream: LIBCMT keeps it per thread, the port takes it as a parameter so callers name the stream. */
 typedef struct {
     bx_u32 holdrand;

@@ -1869,12 +1869,12 @@ void UnitMotion::SteerAircraft(Unit* unit) {
     float dist = (float)_hypot(velocity.x, velocity.z) * eps;
     float maxd = (float)unit->def->brakerate * eps;
     if (dist > maxd) {
-        int f = (int)((double)(maxd / dist) * 65536.0);
+        int f = (int)((double)maxd / dist * 65536.0);
         // MulFixed and AddFixed take the component by reference; written
         // inline the clamp differs.
         MulFixed(velocity.x, f);
         MulFixed(velocity.z, f);
-        int g = (int)((double)(dist - maxd) * 65536.0);
+        int g = (int)(((double)dist - maxd) * 65536.0);
         velocity += Offset(unit->angles.heading, g);
     }
 

@@ -52,6 +52,7 @@ import re
 import struct
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import capstone
 
@@ -168,13 +169,13 @@ def table_targets(orig: Original, addr: int, nxt: int, funcs) -> list[int]:
     return [v for (v,) in struct.iter_unpack("<I", raw) if v in funcs]
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--quiet", action="store_true", help="only write the file")
-    ap.add_argument("--why", action="append", default=[], metavar="ADDR",
-                    help="print the shortest chain from a game-logic root to a function")
-    args = ap.parse_args()
+def analyze() -> SimpleNamespace:
+    """Decode every game and gap function and find which ones game logic reaches.
 
+    Returns a namespace: infos (address to function info), game_reach (the
+    game-logic addresses), core, parent, rows, edges, by_addr, by_name, funcs
+    and the counters unresolved, from_original and uncovered.
+    """
     funcs, starts = load_functions()
     symbols = load_symbols()
     by_addr: dict[int, str] = {}
@@ -330,6 +331,21 @@ def main() -> None:
             if b not in core:
                 core.add(b)
                 queue.append(b)
+    return SimpleNamespace(infos=infos, game_reach=game_reach, core=core, parent=parent, rows=rows,
+                           edges=edges, by_addr=by_addr, by_name=by_name, funcs=funcs,
+                           unresolved=unresolved, from_original=from_original, uncovered=uncovered)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--quiet", action="store_true", help="only write the file")
+    ap.add_argument("--why", action="append", default=[], metavar="ADDR",
+                    help="print the shortest chain from a game-logic root to a function")
+    args = ap.parse_args()
+
+    g = analyze()
+    infos, rows, parent, game_reach, core = g.infos, g.rows, g.parent, g.game_reach, g.core
+    by_addr, unresolved, from_original, uncovered = g.by_addr, g.unresolved, g.from_original, g.uncovered
     for want in args.why:
         a = int(want, 16)
         chain = []

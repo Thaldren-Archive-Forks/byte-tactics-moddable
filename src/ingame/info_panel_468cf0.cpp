@@ -380,11 +380,11 @@ static void DrawResourcePanel(Surface *ctx, PlayerState_00468cf0 *pl, Resources 
   Rect *r = &sideDef->rcEnergyBar;
   bar = *r;
   if (pl->flEnergyStorage > 0.0f) {
-    bar.right = (int)((bar.right - bar.left) * res->metal / pl->flEnergyStorage + bar.left);
+    bar.right = (int)((double)(bar.right - bar.left) * res->metal / pl->flEnergyStorage + bar.left);
     FillRectangle((int)ctx, (int)&bar, sideDef->nEnergyColor);
     if (pl->flShareThresholdEnergy > 0.0f && pl->flEnergyAmount > pl->flShareThresholdEnergy) {
       box = *r;
-      box.left = (int)((box.right - box.left) * pl->flShareThresholdEnergy / pl->flEnergyStorage + box.left);
+      box.left = (int)((double)(box.right - box.left) * pl->flShareThresholdEnergy / pl->flEnergyStorage + box.left);
       box.right = box.left + 2;
       FillRectangle((int)ctx, (int)&box, pal[0xc]);
     }
