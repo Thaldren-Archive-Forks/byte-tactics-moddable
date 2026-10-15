@@ -1,0 +1,11 @@
+# Four computer players, one team each, five minutes of game time.
+game_seed 2
+crt_seed 2
+view_seed 1
+map Metal Heck
+start_positions fixed
+ticks 9000
+player0.side Arm
+player1.side Core
+player2.side Arm
+player3.side Core

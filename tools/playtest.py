@@ -4,6 +4,7 @@
     uv run tools/playtest.py --exe orig --exe carve --scenario arm,core --repeat 2 --parallel 4
     uv run tools/playtest.py --exe orig+carve --scenario mp --trap-stubs
     uv run tools/playtest.py --list
+    uv run tools/playtest.py --exe build/reference/main/TotalA.exe --testmode reference/scenarios/skirmish2.txt
 
 `--exe` takes `orig` (orig/TotalA.exe), `place` (build/place/TotalA.exe from
 tools/place.py), `carve` (build/link/TotalA.exe from tools/link.py --carve) or
@@ -12,6 +13,10 @@ carve in the others. A scenario is a script in tools/playtest/<name>.txt (the
 step language is described in docs/linking.md). Every pair of scenario and
 exe is one run, and `--parallel` runs that many at once. `--trap-stubs` plays
 a copy of an ordinary link whose stubs fault when reached (see stub_traps).
+
+`--testmode <file>` instead runs each exe with `-testmode <file>` (a scenario of
+reference/README.md) and passes when it exits with status 0 within
+`--testmode-timeout` seconds.
 
 Each run has its own:
 
@@ -248,7 +253,7 @@ def find_game_dir(arg: str | None) -> Path:
 
 def wine_env(prefix: Path, display: str = "") -> dict[str, str]:
     env = dict(os.environ)
-    env.update(WINEPREFIX=str(prefix), WINEARCH="win32", WINEDLLOVERRIDES="mscoree,mshtml=", WINEDEBUG="-all")
+    env.update(WINEPREFIX=str(prefix), WINEARCH=os.environ.get("WINEARCH", "win32"), WINEDLLOVERRIDES="mscoree,mshtml=", WINEDEBUG="-all")
     env.pop("WAYLAND_DISPLAY", None)
     if display:
         env["DISPLAY"] = display
@@ -365,6 +370,8 @@ class Instance:
         subprocess.run(["cp", "-a", str(template), str(self.prefix)], check=True)
         copy_game(game_src, self.game)
         shutil.copy2(self.run.exes[min(self.index, len(self.run.exes)) - 1], self.game / "TotalA.exe")
+        if self.run.testmode:
+            shutil.copyfile(self.run.testmode, self.game / "testmode.txt")
         for name, text in files.items():
             (self.game / name).write_text(text.replace("\\n", "\r\n"))
         if reg:
@@ -425,7 +432,8 @@ class Instance:
         env = self.env()
         env["WINEDEBUG"] = debug
         exe = "Z:" + str(self.game / "TotalA.exe").replace("/", "\\")
-        self.wine = subprocess.Popen(["wine", exe], cwd=self.game, env=env, start_new_session=True,
+        args = ["-testmode", "testmode.txt"] if self.run.testmode else []
+        self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
                                      stdout=(self.run.out / f"wine{self.suffix}.log").open("w"),
                                      stderr=subprocess.STDOUT)
         self.run.note(f"  game{self.suffix} started on display {self.display}, pid {self.wine.pid}"
@@ -734,7 +742,7 @@ class GotoLabel(Exception):
 
 class Run:
     def __init__(self, number: int, name: str, scenario: Scenario, exes: list[Path], exe_tag: str, session: Path,
-                 screens: dict[str, Screen], debug: str, window: bool = False):
+                 screens: dict[str, Screen], debug: str, window: bool = False, testmode: Path | None = None):
         self.number = number
         self.name = name
         self.scenario = scenario
@@ -745,6 +753,7 @@ class Run:
         self.screens = screens
         self.debug = debug
         self.window = window         # a visible Xephyr window instead of an invisible Xvfb display
+        self.testmode = testmode     # a reference/ scenario file to run the exe on
         self.instances = [Instance(self, i + 1) for i in range(scenario.instances)]
         self.t0 = time.time()
         self.log = None
@@ -928,7 +937,7 @@ class Run:
                 time.sleep(0.5)
             for i in self.instances:
                 if i.alive():
-                    raise StepFailed(f"the game{i.suffix} still runs {args[0]}s after quitting")
+                    raise StepFailed(f"the game{i.suffix} still runs after {args[0]}s")
                 self.note(f"  exited{i.suffix}, exit code {i.rc}")
                 i.quit = True
                 if i.rc != 0:
@@ -1201,6 +1210,10 @@ def main() -> None:
     ap.add_argument("--keep", action="store_true", help="keep each run's prefix and game directory")
     ap.add_argument("--trap-stubs", action="store_true",
                     help="play copies of ordinary links (an exe with a map) whose stubs fault when reached")
+    ap.add_argument("--testmode", metavar="FILE",
+                    help="run each --exe with -testmode FILE (a reference/ scenario) and wait for it to exit")
+    ap.add_argument("--testmode-timeout", type=float, default=900, metavar="SECONDS",
+                    help="--testmode: fail when the game runs longer (default 900)")
     ap.add_argument("--list", action="store_true", help="list the scenarios")
     ap.add_argument("--signature", nargs="+", metavar="NAME GEOMETRY IMAGE",
                     help="print a screens.txt line for an area of screenshots of one screen")
@@ -1227,13 +1240,20 @@ def main() -> None:
             found = [f"{s.name}({s.distance(img):.2f})" for s in screens.values() if s.matches(img)]
             print(f"{image}: {' '.join(found) or '-'}")
         return
-    if not args.exe or not args.scenario:
-        ap.error("--exe and --scenario are required")
+    if not args.exe or not (args.scenario or args.testmode):
+        ap.error("--exe and --scenario (or --testmode) are required")
+    if args.testmode and not Path(args.testmode).is_file():
+        ap.error(f"{args.testmode} is not a file")
     for tool in ("Xephyr" if args.window else "Xvfb", "xdotool", "import", "wine", "pactl", "parec"):
         if not shutil.which(tool):
             raise SystemExit(f"{tool} is not installed")
     exes = resolve_exes(args.exe)
     scenarios = [load_scenario(s) for v in args.scenario for s in v.split(",")]
+    testmode = None
+    if args.testmode:
+        steps = [["every", "5"], ["start"], ["waitexit", f"{args.testmode_timeout:g}"]]
+        testmode = Scenario(Path(args.testmode).stem, list(enumerate(steps, 1)), {})
+        scenarios.append(testmode)
     for sc in scenarios:
         check_scenario(sc, screens)
     game_src = find_game_dir(args.game_dir)
@@ -1263,7 +1283,8 @@ def main() -> None:
             for k in range(args.repeat):
                 name = f"{sc.name}-{tag}" + (f"-{k + 1}" if args.repeat > 1 else "")
                 runs.append(Run(len(runs) + 1, name, sc, [p for _, p in parts], tag, session, screens,
-                                args.debug, args.window))
+                                args.debug, args.window,
+                                Path(args.testmode).resolve() if sc is testmode else None))
     parallel = args.parallel or min(3, len(runs))
     template = template_prefix()
     dplay = directplay_prefix() if any(sc.directplay for sc in scenarios) else None

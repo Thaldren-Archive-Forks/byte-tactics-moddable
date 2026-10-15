@@ -1,0 +1,9 @@
+# Two computer players on a small map, one minute of game time.
+game_seed 1
+crt_seed 1
+view_seed 1
+map The Pass
+start_positions fixed
+ticks 1800
+player0.side Arm
+player1.side Core
