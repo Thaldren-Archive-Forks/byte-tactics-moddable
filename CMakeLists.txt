@@ -26,7 +26,7 @@ add_library(data OBJECT link/data.cpp)
 set(GAME_COMPILE_OPTIONS
   -fms-compatibility -fms-extensions -fms-compatibility-version=11.00
   -fno-strict-aliasing -fwrapv -fno-delete-null-pointer-checks -Xclang -fno-assume-sane-operator-new -mno-sse
-  /Gz /GR- /GS- /Gw -ftrivial-auto-var-init=zero -Wno-nonportable-include-path -Wno-c++11-narrowing -Wno-writable-strings -Wno-microsoft -Wno-c++20-extensions
+  /Gz /GR- /GS- /Gw -Wno-nonportable-include-path -Wno-c++11-narrowing -Wno-writable-strings -Wno-microsoft -Wno-c++20-extensions
   -vfsoverlay "${CMAKE_BINARY_DIR}/overlay.json")
 foreach(target game data)
   target_include_directories(${target} PRIVATE "${CMAKE_SOURCE_DIR}/include")
