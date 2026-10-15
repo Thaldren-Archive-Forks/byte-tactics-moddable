@@ -78,7 +78,6 @@ LINK_SIZE = 4_000_000
 REGKEY = r"HKEY_CURRENT_USER\Software\Cavedog Entertainment\Total Annihilation"
 POLL = 1.0          # seconds between checks of the watched screens while waiting
 SOUND_LEVEL = 200   # RMS (16-bit samples) above which a second counts as sound
-# Files in a prefix that Wine writes to in place: each run gets its own copy.
 PREFIX_WRITTEN = ("system.reg", "user.reg", "userdef.reg", ".update-timestamp")
 TEMPLATE_REVISION = 2   # bump to remake the template prefixes
 
