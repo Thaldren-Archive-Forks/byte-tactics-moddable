@@ -264,15 +264,31 @@ of game logic with their format strings.
 
 | Class | Sites | Functions | float-store | double-store | ftol | fistp |
 | --- | --- | --- | --- | --- | --- | --- |
-| float-chain | 44 | 16 | 19 | 5 | 20 | 0 |
-| safe | 21 | 16 | 2 | 3 | 15 | 1 |
+| float-chain | 38 | 16 | 19 | 3 | 16 | 0 |
+| safe | 27 | 18 | 2 | 5 | 19 | 1 |
 | unknown | 0 | 0 | 0 | 0 | 0 | 0 |
 
-The 16 `float-chain` functions: UpdatePlayerEconomy (9 sites), ScoutTimer::OnTimer (3), ComputeBaseWeights (3), RefreshUnitLists (3), AddRepairProgress (2), SteerAircraft (6), DrawLitPieces (1), DrawBattleFrame (4), ApplyAreaDamage (1), DrawSliderBar (1), SyncAssocGadgets (2), SetListBoxScrollByName (1), DrawSlider (1), DrawProgressBarGadget (1), CrossProduct (3), NormalizeVector (3). The list with lines is in the CSV.
+The `disposition` column says what became of each site:
+
+| Disposition | Sites | Meaning |
+| --- | --- | --- |
+| rewritten | 6 | the source now states the double precision x87 used, and the function still matches (`uv run tools/check.py`): 2 in UpdatePlayerEconomy (the wasted-resource sums), 2 in SteerAircraft (the two `* 65536.0` conversions), 2 in DrawBattleFrame (the energy bar and share box); these now read `safe` |
+| 5 | 38 | left for #5's modern build to reproduce: two attempted rewrites changed the bytes, or the rewrite could not state the precision (float locals that x87 never stored) |
+| n/a | 21 | safe sites: the source is double there |
+
+The 16 functions with `5` sites: UpdatePlayerEconomy (7), ScoutTimer::OnTimer (3), ComputeBaseWeights (3), RefreshUnitLists (3), AddRepairProgress (2), SteerAircraft (4), DrawLitPieces (1), DrawBattleFrame (2), ApplyAreaDamage (1), DrawSliderBar (1), SyncAssocGadgets (2), SetListBoxScrollByName (1), DrawSlider (1), DrawProgressBarGadget (1), CrossProduct (3), NormalizeVector (3). The list with lines is in the CSV.
 
 Not in the file: 19 single-operation float expressions converted by `_ftol` (`(int)(a * b)` with floats: the product is a double at the conversion, one rounding to float short), and no function returns a chain of two operations in st0. Chains over integer loads from 64-bit squares (`fild qword`) do not occur in game logic: the `Length` helpers load 32-bit ints.
 
 ### Math functions
+
+| Function | Outcome | Left for |
+| --- | --- | --- |
+| `sqrt` | exact: `bx_sqrt` matches x87 `fsqrt` (double, float in and out, CRT `sqrt`) | none |
+| `_hypot` | needs emulation of its 64-bit-precision steps; a plain-double port differs in 2.3% | #5 |
+| `acos` | `fpatan` of `sqrt((1+x)(1-x))` and `x`; a plain-double port differs in 45.7% | #5 |
+| `atof` | matches the correctly rounded double up to 15 digits | none for that form |
+| `sscanf %f` | differs from the correctly rounded value in 0.41%; `RunInitialMission` needs it exact | #5 |
 
 `tools/bitexact.py` compares, under the game's FPU mode, the C runtime's functions with portable candidates (`lib/bitexact/test/math_test.c`, 2,000,000 random cases each unless noted). Only a port that matches goes into the library.
 

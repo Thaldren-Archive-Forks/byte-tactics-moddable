@@ -54,7 +54,12 @@ out of the file.
 Columns of data/x87_sites.csv: address (of the function), function, file,
 line, offset (of the store or conversion, from the function start), chain (the
 expression, f/d/i for float, double and integer loads), result (float-store,
-double-store, ftol or fistp), class. Sorted by address and offset.
+double-store, ftol or fistp), class, disposition. Sorted by address and offset.
+
+Disposition: `rewritten` for a float-chain site whose C source now states the
+precision x87 used (REWRITTEN, the site's class then reads `safe`, and the
+function still matches), `5` for a float-chain site left for the modern build
+of #5 to reproduce, `n/a` for a safe site.
 """
 
 import argparse
@@ -96,6 +101,14 @@ REVIEWED = {
     (0x4a2e40, 0x254): "float-chain",
     (0x4a3ef0, 0x173): "float-chain",
     (0x4a4660, 0xf3): "float-chain",
+}
+REWRITTEN = {
+    (0x401360, 0x78a),
+    (0x401360, 0x7c7),
+    (0x43d290, 0x15d),
+    (0x43d290, 0x1af),
+    (0x468cf0, 0x41e),
+    (0x468cf0, 0x49e),
 }
 FLOAT_FORMAT = re.compile(r"%[-+ #0]*(?:\d+|\*)?(?:\.(?:\d+|\*))?[lL]?[feEgG]")
 
@@ -478,14 +491,19 @@ def main() -> None:
                 if ops < 2 or not loads:
                     continue
                 cls = REVIEWED.get((address, off - lo), cls)
+                if (address, off - lo) in REWRITTEN:
+                    cls = "safe"
+                    disposition = "rewritten"
+                else:
+                    disposition = "5" if cls == "float-chain" else "n/a"
                 functions_with_sites.add(address)
                 chain = root.text if len(root.text) <= MAX_CHAIN else root.text[:MAX_CHAIN - 3] + "..."
                 rows.append({"address": f"{address:#x}", "function": fname, "file": f,
                              "line": line_at(table, off), "offset": f"{off - lo:#x}", "chain": chain,
-                             "result": result, "class": cls, "_a": address, "_o": off - lo})
+                             "result": result, "class": cls, "disposition": disposition, "_a": address, "_o": off - lo})
     rows.sort(key=lambda r: (r["_a"], r["_o"]))
     with OUT.open("w", newline="") as fh:
-        w = csv.DictWriter(fh, ["address", "function", "file", "line", "offset", "chain", "result", "class"],
+        w = csv.DictWriter(fh, ["address", "function", "file", "line", "offset", "chain", "result", "class", "disposition"],
                            lineterminator="\n", extrasaction="ignore")
         w.writeheader()
         w.writerows(rows)
