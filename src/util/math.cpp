@@ -162,12 +162,21 @@ Vec3f_004b6eb0 __stdcall VectorFromToInt(Vec3_004b6cc0 from, Vec3_004b6cc0 to)
 // FUNCTION: 0x4b6f70
 Vec3f_004b6eb0 __stdcall CrossProduct(Vec3f_004b6eb0 a, Vec3f_004b6eb0 b)
 {
+#ifdef __clang__
+    double yz = (double)a.y * b.z;
+    double zy = (double)a.z * b.y;
+    double zx = (double)a.z * b.x;
+    double xz = (double)a.x * b.z;
+    double xy = (double)a.x * b.y;
+    double yx = (double)a.y * b.x;
+#else
     float yz = a.y * b.z;
     float zy = a.z * b.y;
     float zx = a.z * b.x;
     float xz = a.x * b.z;
     float xy = a.x * b.y;
     float yx = a.y * b.x;
+#endif
     Vec3f_004b6eb0 r;
     r.z = (float)(xy - yx);
     r.x = (float)(yz - zy);
@@ -181,11 +190,19 @@ Vec3f_004b6eb0 __stdcall CrossProduct(Vec3f_004b6eb0 a, Vec3f_004b6eb0 b)
 Vec3f_004b6eb0 __stdcall NormalizeVector(Vec3f_004b6eb0 v)
 {
     // Squares stay in their own locals: an inline sum hoists the x87 loads.
+#ifdef __clang__
+    struct { double x, y, z; } sq;
+    sq.x = (double)v.x * v.x;
+    sq.y = (double)v.y * v.y;
+    sq.z = (double)v.z * v.z;
+    double len = sqrt(sq.x + sq.y + sq.z);
+#else
     Vec3f_004b6eb0 sq;
     sq.x = v.x * v.x;
     sq.y = v.y * v.y;
     sq.z = v.z * v.z;
     float len = sqrt(sq.x + sq.y + sq.z);
+#endif
     v.x /= len;
     v.y /= len;
     v.z /= len;

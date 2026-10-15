@@ -104,7 +104,11 @@ void __stdcall DrawSlider(Dialog* gui, int gadgetIndex)
                 int denominator = (e->u.list.scroll > size + 1) ? e->u.list.scroll : size + 1;
                 int step = numerator / denominator;
                 int last = e->u.list.rowCount;
+#ifdef __clang__
+                int rows = (int)((double)step / last * (me->height - 3));
+#else
                 int rows = (int)((float)step / last * (me->height - 3));
+#endif
                 me->knobSize = rows;
                 if (me->knobSize < 10) {
                     me->knobSize = 10;

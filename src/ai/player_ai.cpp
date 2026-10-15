@@ -116,9 +116,15 @@ void PlayerAI::RefreshUnitLists()
                 // The table holds signed bytes: the cast gives the sign-extending load.
                 float weight=(char)weights[u->unitDefIndex];
                 sum.total+=weight;
+#ifdef __clang__
+                sum.x-=(double)u->pos.x*weight*-0.0000152587890625f;
+                sum.y-=(double)u->pos.y*weight*-0.0000152587890625f;
+                sum.z-=(double)u->pos.z*weight*-0.0000152587890625f;
+#else
                 sum.x-=(float)u->pos.x*weight*-0.0000152587890625f;
                 sum.y-=(float)u->pos.y*weight*-0.0000152587890625f;
                 sum.z-=(float)u->pos.z*weight*-0.0000152587890625f;
+#endif
             }
         }
     }

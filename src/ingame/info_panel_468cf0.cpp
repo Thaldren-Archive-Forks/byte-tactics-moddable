@@ -410,11 +410,11 @@ static void DrawResourcePanel(Surface *ctx, PlayerState_00468cf0 *pl, Resources 
   r = &sideDef->rcMetalBar;
   bar = *r;
   if (pl->flMetalStorage > 0.0f) {
-    bar.right = (int)((bar.right - bar.left) * res->energy / pl->flMetalStorage + bar.left);
+    bar.right = (int)((double)(bar.right - bar.left) * res->energy / pl->flMetalStorage + bar.left);
     FillRectangle((int)ctx, (int)&bar, sideDef->nMetalColor);
     if (pl->flShareThresholdMetal > 0.0f && pl->flMetalAmount > pl->flShareThresholdMetal) {
       box = *r;
-      box.left = (int)((box.right - box.left) * pl->flShareThresholdMetal / pl->flMetalStorage + box.left);
+      box.left = (int)((double)(box.right - box.left) * pl->flShareThresholdMetal / pl->flMetalStorage + box.left);
       box.right = box.left + 2;
       FillRectangle((int)ctx, (int)&box, pal[0xc]);
     }
