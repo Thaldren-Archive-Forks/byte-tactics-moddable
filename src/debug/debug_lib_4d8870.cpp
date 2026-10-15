@@ -18,16 +18,16 @@ struct Trace_004d8870 {
     {
         int* frame;
         int* top;
-        int eip;
+        int returnAddress;
         __asm {
             mov frame, ebp
             mov top, esp
         here:
             lea eax, here
-            mov eip, eax
+            mov returnAddress, eax
         }
         stack = top;
-        WalkFrameChain(frame, top, eip, skip, entries, 14, &count, &stackCopy, 1, &copied);
+        WalkFrameChain(frame, top, returnAddress, skip, entries, 14, &count, &stackCopy, 1, &copied);
     }
 };
 

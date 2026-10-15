@@ -15,6 +15,7 @@ extern double g_angle16ToRad;
 int g_rotationMatrix[9];
 
 extern int __cdecl FixedSine(unsigned short angle);
+extern int run_math_tests(void);
 
 typedef int (__cdecl *fn_angle)(unsigned short);
 typedef int (__cdecl *fn_mul_hi)(int, int);
@@ -453,7 +454,6 @@ int main(void)
     test_build();
     test_apply();
     test_div3();
-
     for (i = 0; i < (int)(sizeof(all_stats) / sizeof(all_stats[0])); i++) {
         printf("%s: %lu cases, %lu mismatches", all_stats[i]->name, all_stats[i]->cases, all_stats[i]->mismatches);
         if (all_stats[i]->skipped)
@@ -462,6 +462,7 @@ int main(void)
         if (all_stats[i]->mismatches)
             bad = 1;
     }
+    bad |= run_math_tests();
     printf("info: the table's 80-bit fsincos values are exact roundings; this CPU's fsincos differs from them in %lu of %lu values"
            " (%lu with another exponent), by at most %lu in the last mantissa bits, mostly near a quarter turn\n",
            fsincos_last_bit, 2 * st_fsincos.cases, fsincos_exponent_differs, fsincos_max_diff);

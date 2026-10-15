@@ -1464,7 +1464,7 @@ connect:
     PlaySoundByName("Smlbutton", 0);
     BlankScreen();
 tcpaddr:
-    WriteGameRegistryValue("TCPADDR", GetGadgetText(gadget, "ADDRESS", 0), 0x80);
+    WriteGameRegistryValue((void*)"TCPADDR", GetGadgetText(gadget, "ADDRESS", 0), 0x80);
 }
 
 // Opens the TCP settings dialog (TCP.GUI) with HandleTcpDialogClick as its handler.
@@ -1570,9 +1570,9 @@ void __stdcall HandleSerialDialogClick(Gui* gadget)
         return;
     }
     a = FindGadgetChecked(entries, "SPEEDS")->index;
-    WriteGameRegistryValue("SERBAUD", &a, 4);
+    WriteGameRegistryValue((void*)"SERBAUD", &a, 4);
     a = FindGadgetChecked(entries, "PORTS")->index;
-    WriteGameRegistryValue("SERPORT", &a, 4);
+    WriteGameRegistryValue((void*)"SERPORT", &a, 4);
 }
 
 // Opens the serial link dialog (SERIAL.GUI), gives the "PORTS" and "SPEEDS"
@@ -1681,7 +1681,7 @@ void SaveModemNumbers(void)
                 memcpy(&g_modemAccounts[i], &g_modemAccounts[i - 1], 0x102);
             memcpy(&g_modemAccounts[0], &temp, 0x102);
         }
-        WriteGameRegistryValue("MODEMNUMBERS", g_modemAccounts, 0x1428);
+        WriteGameRegistryValue((void*)"MODEMNUMBERS", g_modemAccounts, 0x1428);
     }
 }
 
@@ -1717,7 +1717,7 @@ static inline void SaveModemNumbers_00442a30()
                 memcpy(&g_modemAccounts[i], &g_modemAccounts[i - 1], 0x102);
             memcpy(&g_modemAccounts[0], &temp, 0x102);
         }
-        WriteGameRegistryValue("MODEMNUMBERS", g_modemAccounts, 0x1428);
+        WriteGameRegistryValue((void*)"MODEMNUMBERS", g_modemAccounts, 0x1428);
     }
 }
 
@@ -3390,7 +3390,7 @@ void __stdcall HandleAlliesClick(Gui* gadget)
             && p->index != 10) {
             PlaySoundByName("Options", 0);
             SetAlliance(local->id, p->id, local->allied[i] ^= 1, 0);
-            char* verb = local->allied[i] ? "allied with" : "broke alliance with";
+            char* verb = (char*)(local->allied[i] ? "allied with" : "broke alliance with");
             sprintf(buf, " %s %s", Translate(verb),
                     (char*)g_game + 0x1b8e + i * 0x14b);
             SendChatMessage(local, buf, 4, 0);

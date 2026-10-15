@@ -276,7 +276,7 @@ StringRef* StringRef::Assign(StringRef* param_1)
 #pragma auto_inline(on)
 
 // Element type: 0x249 bytes with a name string at +0x20 (see 0x42db60.cpp).
-static UnitDef* __inline Copy_backward(UnitDef* F, UnitDef* L, UnitDef* X)
+static __inline UnitDef* Copy_backward(UnitDef* F, UnitDef* L, UnitDef* X)
 {
     while (F != L)
         *--X = *--L;

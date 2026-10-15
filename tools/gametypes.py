@@ -90,7 +90,6 @@ symbol ids and where that puts the functions waiting on a symbol-id window.
 import argparse
 import bisect
 import csv
-import hashlib
 import json
 import os
 import re
@@ -101,7 +100,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from check import DEFAULT_FLAGS, ROOT, compile_source, winpath  # noqa: E402
+from check import DEFAULT_FLAGS, ROOT, compile_source, source_key, winpath  # noqa: E402
 from sources import primary_address, sources  # noqa: E402
 from coff import parse_object  # noqa: E402
 from ghidratypes import (  # noqa: E402
@@ -2227,7 +2226,7 @@ def declared_names() -> set[str]:
 
 
 def compile_cached(src: Path, stem: str) -> Path | None:
-    key = hashlib.sha256(src.read_bytes() + FLAGS.encode()).hexdigest()[:16]
+    key = source_key(src, FLAGS, (src.resolve().parent,))
     stamp = CACHE / "obj" / (stem + ".key")
     obj = stamp.with_suffix(".obj")
     if stamp.exists() and stamp.read_text() == key and obj.exists():
@@ -2258,7 +2257,7 @@ def compile_cached(src: Path, stem: str) -> Path | None:
 def extract(src: Path, stem: str, wanted: set[str]) -> dict | None:
     """One file's views and the decorated names it defines or refers to."""
     cache = CACHE / "views" / (stem + ".json")
-    key = hashlib.sha256(src.read_bytes() + FLAGS.encode() + Path(__file__).read_bytes()).hexdigest()[:16]
+    key = source_key(src, FLAGS + Path(__file__).read_text(), (src.resolve().parent,))
     if cache.exists():
         data = json.loads(cache.read_text())
         if data.get("key") == key:

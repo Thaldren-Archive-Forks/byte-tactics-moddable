@@ -420,7 +420,7 @@ void SaveCdLists()
     for (int i = 0; i < g_game->sound->GetTrackCount(); i++) {
         g_cdListsDiscEntries.tracks[i] = g_game->sound->GetCategoryOfTrack(i + 1);
     }
-    WriteGameRegistryValue("CDLISTS", &g_cdListsDiscEntries, sizeof(g_cdListsDiscEntries));
+    WriteGameRegistryValue((void*)"CDLISTS", &g_cdListsDiscEntries, sizeof(g_cdListsDiscEntries));
 }
 
 // Refreshes the CD-list table at g_cdListsDiscEntries from the CD object: it saves and
@@ -669,7 +669,7 @@ void ShutdownGame(void)
     for (int i = 0; i < g_game->sound->GetTrackCount(); i++) {
         g_cdListsDiscEntries.tracks[i] = g_game->sound->GetCategoryOfTrack(i + 1);
     }
-    WriteGameRegistryValue("CDLISTS", &g_cdListsDiscEntries, 0xaa0);
+    WriteGameRegistryValue((void*)"CDLISTS", &g_cdListsDiscEntries, 0xaa0);
     FreePictureCache();
     FreeGafSlot((Obj_004aeda0*)&g_game->gui, 1);
     FreeGafSlot((Obj_004aeda0*)&g_game->gui, 0);

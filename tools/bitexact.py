@@ -31,7 +31,8 @@ BUILD = ROOT / "build/bitexact"
 ORIGINAL = ROOT / "src/util/math_4b70a0.cpp"
 TABLES = BUILD / "bx_tables.c"
 ORIG_DATA = BUILD / "orig_data.c"
-PORT_SOURCES = [LIB / "trig.c", TABLES, ORIG_DATA]
+PORT_SOURCES = [LIB / "trig.c", LIB / "math.c", TABLES, ORIG_DATA]
+MATH_TEST = LIB / "test/math_test.c"
 TEST = LIB / "test/bitexact_test.c"
 CRT_PORT_SOURCES = [LIB / "rand.c", LIB / "qsort.c"]
 CRT_TESTS = [LIB / "test/crt_test.c", LIB / "test/stl_shuffle.cpp"]
@@ -97,7 +98,7 @@ def build() -> Path | None:
     if original is None:
         print(log, file=sys.stderr)
         return None
-    return link("bitexact_test.exe", [original], [*PORT_SOURCES, TEST])
+    return link("bitexact_test.exe", [original], [*PORT_SOURCES, TEST, MATH_TEST])
 
 
 def build_crt() -> Path | None:

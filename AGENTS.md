@@ -77,6 +77,7 @@ issue lands:
 
 - Game logic is deterministic. It reads time only as ticks and draws random
   numbers only from the game-logic streams (#3).
+  `tools/determinismlint.py` checks this on the lines a change adds, in CI.
 - Game state lives in the shared state block (#7). A module keeps nothing
   between ticks outside it.
 - Subsystems call each other through seams (#8).
@@ -150,6 +151,10 @@ one of three forms:
 3. `// FUNCTION: 0x4b6c30` address markers, which tie a function to the
    reference so a trace divergence can be looked up there.
 
+The lint also allows the `GLOBAL:`, `ENTRY:` and `FLAGS:` lines, because the
+matching tools read them as build input, not commentary; they go when #89
+removes the matching tools.
+
 Code that looks wrong but is deliberate, such as a 3.1c quirk, is documented by
 a quirk flag whose name says what it does (#1), or by a `TODO(#n)` pointing at
 the issue that will add one.
@@ -157,6 +162,8 @@ the issue that will add one.
 Files from the decompilation still carry its matching notes. Leave them in
 files your issue doesn't otherwise change; #35 removes them all in one
 pass.
+
+`tools/commentlint.py` checks this in CI, on the lines a pull request adds.
 
 ## Writing style
 

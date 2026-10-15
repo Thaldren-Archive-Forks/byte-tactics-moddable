@@ -384,12 +384,12 @@ void __stdcall UpdatePlayerEconomy(Player* p)
     p->energy = avail[0];
     if (avail[0] > p->energyCapacity) {
         p->energy = p->energyCapacity;
-        p->energyWasted += avail[0] - p->energyCapacity;
+        p->energyWasted += (double)avail[0] - p->energyCapacity;
     }
     p->metal = avail[1];
     if (avail[1] > p->metalCapacity) {
         p->metal = p->metalCapacity;
-        p->metalWasted += avail[1] - p->metalCapacity;
+        p->metalWasted += (double)avail[1] - p->metalCapacity;
     }
     for (u = p->unitsBegin; u <= p->unitsEnd; u++) {
         if (u->flags & 0x10000000) {
