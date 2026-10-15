@@ -1,0 +1,79 @@
+diff --git a/src/game/game_load.cpp b/src/game/game_load.cpp
+index 1af83a6e..ba99dd29 100644
+--- a/src/game/game_load.cpp
++++ b/src/game/game_load.cpp
+@@ -426,6 +426,8 @@ void FreeExplosions(void);
+ void UpdateExplosions(void);
+ 
+ void __stdcall SeedRandom(int x);
++unsigned HarnessGameSeed(unsigned live);
++unsigned HarnessCrtSeed(unsigned live);
+ void __stdcall SleepMilliseconds(int x);
+ int __stdcall RandomInt(int x);
+ unsigned char __stdcall FindHostSlot();
+@@ -572,8 +574,8 @@ void __cdecl LoadMatch(void*)
+     int order[10];
+ 
+     QueryPerformanceCounter(&perfCount);
+-    SeedRandom(perfCount.LowPart + perfCount.HighPart);
+-    srand((unsigned)time(NULL));
++    SeedRandom(HarnessGameSeed(perfCount.LowPart + perfCount.HighPart));
++    srand(HarnessCrtSeed((unsigned)time(NULL)));
+     g_game->gameTick = 0;
+ 
+     // Six of these casts stay: taking more than two out in this function moves
+diff --git a/src/game/main.cpp b/src/game/main.cpp
+index cebdd9c1..fb405da2 100644
+--- a/src/game/main.cpp
++++ b/src/game/main.cpp
+@@ -218,6 +218,9 @@ void __stdcall ReadGameRegistryValue(const char* param_1, void* param_2, int* pa
+ void __stdcall WriteGameRegistryValue(const char* param_1, void* param_2, int param_3);
+ void __stdcall LoadTranslations(const char* param_1, char* param_2);
+ 
++void HarnessInit(char* cmdLine);
++unsigned HarnessCrtSeed(unsigned live);
++
+ // FUNCTION: 0x49e830
+ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                            LPSTR lpCmdLine, int nCmdShow)
+@@ -232,6 +235,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+     char buf74[0x32];
+     int lzero = 0;
+ 
++    HarnessInit(lpCmdLine);
+     (void)hPrevInstance;
+ 
+     InitDebugSupport(8);
+@@ -246,7 +250,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+     if (hSem != (HANDLE)lzero)
+         return -1;
+     CreateSemaphoreA(NULL, 1, 1, g_appName);
+-    srand(time(0));
++    srand(HarnessCrtSeed(time(0)));
+     if (ParseCommandLine(lpCmdLine, g_appName) == 0)
+         return 1;
+     InitDisplayDefaults(&g_displayContext);
+diff --git a/src/ingame/dialogs_493340.cpp b/src/ingame/dialogs_493340.cpp
+index 342b43f5..3a1138aa 100644
+--- a/src/ingame/dialogs_493340.cpp
++++ b/src/ingame/dialogs_493340.cpp
+@@ -1175,6 +1175,8 @@ void OpenMain2Layout()
+     gadget->data = g_game;
+ }
+ 
++int HarnessTestMode();
++
+ // Frame pacing: measures the time since the last call, finds the slowest
+ // active player (the one with the lowest tick counter that still has units),
+ // and turns the lag behind the fastest into a speed factor. That factor scales
+@@ -1186,6 +1188,10 @@ void OpenMain2Layout()
+ // FUNCTION: 0x495230
+ void UpdateFramePacing()
+ {
++    if (HarnessTestMode()) {
++        g_game->simStepsPending = 1;
++        return;
++    }
+     unsigned int now = GetTicks();
+     g_game->simBudgetDtTicks = now - g_game->lastSimBudgetTick;
+     g_game->lastSimBudgetTick = now;

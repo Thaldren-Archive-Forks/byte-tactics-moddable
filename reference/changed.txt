@@ -1,0 +1,3 @@
+0x495230 UpdateFramePacing
+0x497180 LoadMatch
+0x49e830 GameMain
