@@ -1165,6 +1165,8 @@ void __stdcall OpenNewGameMenu(int param_1)
     SetCursorMode(0x13);
 }
 
+int HarnessViewRand();
+
 // FUNCTION: 0x478790
 void __stdcall UpdateSolarSystem(Gui* arg1, Gadget* arg2)
 {
@@ -1173,12 +1175,12 @@ void __stdcall UpdateSolarSystem(Gui* arg1, Gadget* arg2)
     void* surface = arg1->layer->entries->surface;
 
     if (--g_briefingWindTickCountdown <= 0) {
-        g_briefingWindSpeed += rand() % 5 - 2;
+        g_briefingWindSpeed += HarnessViewRand() % 5 - 2;
         if (g_briefingWindSpeed < windMin)
             g_briefingWindSpeed = windMin;
         if (g_briefingWindSpeed > windMax)
             g_briefingWindSpeed = windMax;
-        g_briefingWindTickCountdown = rand() % 0x3f;
+        g_briefingWindTickCountdown = HarnessViewRand() % 0x3f;
     }
 
     int i = FindGadgetIndex(arg1->layer->entries, "SOLARSYSTEM", 0xe);
@@ -1408,8 +1410,8 @@ void OpenMissionBriefing(void)
     SetButtonStageByName(&g_game->gui, "SHUTUP", 1);
 
     g_briefingWindSpeed = g_game->mapInfo->minWindSpeed +
-                   rand() % (g_game->mapInfo->maxWindSpeed - g_game->mapInfo->minWindSpeed + 1);
-    g_briefingWindTickCountdown = rand() % 64;
+                   HarnessViewRand() % (g_game->mapInfo->maxWindSpeed - g_game->mapInfo->minWindSpeed + 1);
+    g_briefingWindTickCountdown = HarnessViewRand() % 64;
 
     name = g_game->mapInfo->GetPlanet();
     if (strcmp(name, "Lunar") == 0 && g_game->flag_37ef2 != 0)

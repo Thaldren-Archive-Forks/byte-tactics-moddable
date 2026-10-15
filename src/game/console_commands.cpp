@@ -1561,6 +1561,8 @@ struct MissionRule;
 struct MissionFeature;
 struct HapiFile;
 struct StringPool;
+int HarnessViewRand();
+
 // FUNCTION: 0x418310
 void __stdcall DrawMapDebugOverlay(void* surface)
 {
@@ -1614,7 +1616,7 @@ void __stdcall DrawMapDebugOverlay(void* surface)
                 PathCell* cell = g_game->pathfinder->grid.At(x, y);
                 if (cell->flags & 4) {
                     SetFont(g_game->fontSmlFont);
-                    SetTextColors(rand() & 255, GetTextKeyColor());
+                    SetTextColors(HarnessViewRand() & 255, GetTextKeyColor());
                     DrawString(surface, "G", p[0].x, p[0].y, -1);
                 }
                 // unsigned char: gives the byte compares.

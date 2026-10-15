@@ -699,6 +699,8 @@ static inline unsigned char FindPlayerIndex_00450380(int id)
     return 10;
 }
 
+int HarnessViewRand();
+
 // Announces that the player with the given id has left, unless the local
 // player is flagged. The index search was an inlined helper and appears twice
 // in the original (see 0x44fed0, which has the same shape).
@@ -715,7 +717,7 @@ void __stdcall AnnouncePlayerLeft(int id)
         p = &g_game->players[FindPlayerIndex_00450380(id)];
     if (p == 0)
         return;
-    sprintf(buf, "%s %s", p->name, Translate(g_leftGameTexts[rand() & 7]));
+    sprintf(buf, "%s %s", p->name, Translate(g_leftGameTexts[HarnessViewRand() & 7]));
     AddMessage(buf, 4, 0, p->index);
 }
 

@@ -1675,6 +1675,8 @@ void __stdcall AccumulateScreenShake(int dx, int dy, int value)
 
 // The original calls this out of line from UpdateCameraFollow.
 #pragma auto_inline(off)
+int HarnessViewRand();
+
 // FUNCTION: 0x41c6f0
 void UpdateScreenShake()
 {
@@ -1683,8 +1685,8 @@ void UpdateScreenShake()
         if (count > 0) {
             int dx = g_game->sum_x * count / g_game->value_1432f;
             int dy = g_game->sum_y * count / g_game->value_1432f;
-            int rx = (int)(((__int64)rand() * dx) / 32768) - dx / 2;
-            int ry = (int)(((__int64)rand() * dy) / 32768) - dy / 2;
+            int rx = (int)(((__int64)HarnessViewRand() * dx) / 32768) - dx / 2;
+            int ry = (int)(((__int64)HarnessViewRand() * dy) / 32768) - dy / 2;
             g_game->scrollX += rx;
             g_game->scrollY += ry;
             g_game->value_14333--;

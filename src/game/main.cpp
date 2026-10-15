@@ -218,6 +218,9 @@ void __stdcall ReadGameRegistryValue(const char* param_1, void* param_2, int* pa
 void __stdcall WriteGameRegistryValue(const char* param_1, void* param_2, int param_3);
 void __stdcall LoadTranslations(const char* param_1, char* param_2);
 
+void HarnessInit(char* cmdLine);
+unsigned HarnessCrtSeed(unsigned live);
+
 // FUNCTION: 0x49e830
 int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                            LPSTR lpCmdLine, int nCmdShow)
@@ -232,6 +235,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     char buf74[0x32];
     int lzero = 0;
 
+    HarnessInit(lpCmdLine);
     (void)hPrevInstance;
 
     InitDebugSupport(8);
@@ -246,7 +250,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (hSem != (HANDLE)lzero)
         return -1;
     CreateSemaphoreA(NULL, 1, 1, g_appName);
-    srand(time(0));
+    srand(HarnessCrtSeed(time(0)));
     if (ParseCommandLine(lpCmdLine, g_appName) == 0)
         return 1;
     InitDisplayDefaults(&g_displayContext);

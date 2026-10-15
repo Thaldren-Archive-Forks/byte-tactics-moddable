@@ -1,8 +1,8 @@
 # Reference build and scenarios
 
-`uv run tools/reference.py main` builds `build/reference/main/TotalA.exe`: the
-`main` branch with `harness.patch` and `harness.cpp` applied. The functions the
-patch changes are listed in `changed.txt`.
+`uv run tools/reference.py HEAD` builds `build/reference/HEAD/TotalA.exe`: the
+current commit, with the harness in `src/harness/harness.cpp`. The game functions
+the harness changes are listed in `changed.txt`.
 
 ## Running a scenario
 
@@ -12,8 +12,8 @@ A bad scenario or a failed check exits with status 2 and a message on stderr
 that names the line.
 
 ```sh
-build/reference/main/TotalA.exe -testmode reference/scenarios/skirmish2.txt
-WINEARCH=win64 uv run tools/playtest.py --exe build/reference/main/TotalA.exe \
+build/reference/HEAD/TotalA.exe -testmode reference/scenarios/skirmish2.txt
+WINEARCH=win64 uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe \
   --testmode reference/scenarios/skirmish2.txt     # under Wine, headless
 ```
 

@@ -727,6 +727,8 @@ void SpeechQueue::PlayNextSpeechEntry()
     count--;
 }
 
+int HarnessViewRand();
+
 // Handles one entry of the nine-entry sound request list: picks a random
 // sample from the entry's sound category slot, plays "sounds/<name>.WAV" when
 // the entry is due, re-arms the repeat timer, and (when logging is enabled)
@@ -744,7 +746,7 @@ void SpeechQueue::PlaySpeech(int index, int param_2, int param_3)
     catIndex = (unsigned short)entries[index].unit->def->soundcategory;
     SoundCat_0047fd70* cat = &g_game->soundCategories[catIndex];
     int count = cat->slots[slot].count;
-    int idx = (int)((__int64)rand() * count / 0x8000);
+    int idx = (int)((__int64)HarnessViewRand() * count / 0x8000);
 
     if ((int)e->priority > 10 - g_game->unitChat && count > 0 && param_2 != 0
         && (g_game->soundFlags & 0x40)) {

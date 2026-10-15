@@ -500,6 +500,8 @@ void PresentFrontendFrame()
     FlipScreen();
 }
 
+int HarnessViewRand();
+
 // Per-tick update of the smoke layer: a hundred live smoke puffs walking the
 // 640x480 cell map, one cell per tick. A puff that is not running is dropped
 // at a random cell that still holds a burnt feature (low nibble > 12); from
@@ -544,7 +546,7 @@ void UpdateMenuSparks()
                                 s->dy = 0;
                                 // Char-typed arms keep the computation in 8-bit registers.
                                 s->dx = (s->x & 1) ? (char)-3 : (char)3;
-                                s->fuel = (rand() & 0xf) + 1;
+                                s->fuel = (HarnessViewRand() & 0xf) + 1;
                             } else {
                                 // if/else, not a conditional: stops the dx = 0 store hoisting above.
                                 if (s->y & 1) {
@@ -553,7 +555,7 @@ void UpdateMenuSparks()
                                     s->dy = -3;
                                 }
                                 s->dx = 0;
-                                s->fuel = (rand() & 0xf) + 1;
+                                s->fuel = (HarnessViewRand() & 0xf) + 1;
                             }
                         } else {
                             s->fuel--;
@@ -561,14 +563,14 @@ void UpdateMenuSparks()
                     }
                 }
             } else {
-                s->x = rand() % 640;
-                s->y = rand() % 220;
+                s->x = HarnessViewRand() % 640;
+                s->y = HarnessViewRand() % 220;
                 s->pos = s->x + s->y * 640;
                 // `> 12`, not `<= 12` with continue: every path must reach the s++ below.
                 if ((dest[s->pos] & 0xf) > 12) {
                     s->active = 1;
-                    s->life = rand() + 1;
-                    s->fuel = (rand() & 0x1f) + 1;
+                    s->life = HarnessViewRand() + 1;
+                    s->fuel = (HarnessViewRand() & 0x1f) + 1;
                     if (s->life & 1) {
                         if (s->y & 1) {
                             s->dy = -3;
@@ -1073,11 +1075,14 @@ static int UseServiceCalls(void)
     return 0;
 }
 
+void HarnessStartSkirmish();
+
 // The front-end state machine of frontend.cpp (line numbers in the
 // CheckFrontendStateChange calls are the original __LINE__ values).
 // FUNCTION: 0x426e80
 void RunFrontendStateMachine(void)
 {
+    HarnessStartSkirmish();
     UpdateSubState();
 
     switch ((unsigned char)g_game->frontendMenuState) {

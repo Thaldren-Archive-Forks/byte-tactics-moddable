@@ -40,6 +40,7 @@ void LzssDisablePreset();
 void LzssEnablePreset();
 int __stdcall HAPINET_sendpacket(void* net, unsigned long from, unsigned long to, void* data, unsigned long size);
 void __stdcall CountPacket(int size, int overhead, int sent);
+int HarnessViewRand();
 
 #pragma pack(push, 1)
 class NetCondenser {
@@ -240,7 +241,7 @@ int NetCondenser::SendPacket(void* session, int from)
 
     // A simulated packet loss: the packet is thrown away unless the dice say so.
     int result;
-    if (g_game->netSendDropPct != 0 && (int)((__int64)rand() * 101 / 32768) <= g_game->netSendDropPct)
+    if (g_game->netSendDropPct != 0 && (int)((__int64)HarnessViewRand() * 101 / 32768) <= g_game->netSendDropPct)
         result = 0;
     else
         result = HAPINET_sendpacket(session, from, to, packet, total);

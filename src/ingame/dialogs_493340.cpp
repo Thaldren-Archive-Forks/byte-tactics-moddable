@@ -1175,6 +1175,8 @@ void OpenMain2Layout()
     gadget->data = g_game;
 }
 
+int HarnessTestMode();
+
 // Frame pacing: measures the time since the last call, finds the slowest
 // active player (the one with the lowest tick counter that still has units),
 // and turns the lag behind the fastest into a speed factor. That factor scales
@@ -1186,6 +1188,10 @@ void OpenMain2Layout()
 // FUNCTION: 0x495230
 void UpdateFramePacing()
 {
+    if (HarnessTestMode()) {
+        g_game->simStepsPending = 1;
+        return;
+    }
     unsigned int now = GetTicks();
     g_game->simBudgetDtTicks = now - g_game->lastSimBudgetTick;
     g_game->lastSimBudgetTick = now;
@@ -1248,6 +1254,8 @@ void UpdateFramePacing()
     }
 }
 
+void HarnessAfterStep();
+
 // Runs one game update per pending time step (g_game->simStepsPending), profiling each
 // phase into g_game->profileTimingBars.acc[]; the profile object also lives at +0x38d85 with
 // total at +4, the display copy at +8 and the accumulators at +0x2c.
@@ -1290,6 +1298,7 @@ void __stdcall RunGameSteps(int showStats)
             g_packetManager.SendAllQueued(0);
             g_game->profileTimingBars.AccumulateProfileTime(0);
         }
+        HarnessAfterStep();
     }
 
     EmptyPostSimStepHook();
