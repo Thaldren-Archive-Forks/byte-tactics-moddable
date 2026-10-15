@@ -1226,6 +1226,10 @@ def prune_dead(paths: list[Path], aliases: dict[str, str], roots: tuple[str, ...
                 reach((oi, sym.section))
             elif sym.section == 0:
                 reach_name(sym.name)
+                if sym.sclass == IMAGE_SYM_CLASS_WEAK_EXTERNAL and sym.aux:
+                    fallback = raws[oi].get(struct.unpack_from("<I", sym.aux[0], 0)[0])
+                    if fallback is not None and fallback.section > 0:
+                        reach((oi, fallback.section))
     removed = 0
     for oi, path in enumerate(paths):
         chars, secs, syms = objs[oi]
