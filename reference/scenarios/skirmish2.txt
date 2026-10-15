@@ -2,7 +2,6 @@
 game_seed 1
 crt_seed 1
 view_seed 1
-fpu_control_word 0xD001F
 map The Pass
 start_positions fixed
 ticks 1800

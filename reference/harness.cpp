@@ -51,6 +51,7 @@ static unsigned s_lineOfSight = 1;
 static unsigned s_losType = 1;
 static unsigned s_fixedLocations = 1;
 static int s_localPlayer = -1;
+static int s_localPlayerLine = 0;
 static unsigned s_ticks = 0;
 static int s_started = 0;
 
@@ -125,7 +126,7 @@ static void ReadPlayerKey(int lineNo, const char* key, const char* value)
     } else if (strcmp(field, "team") == 0) {
         p->team = ParseRange(lineNo, key, value, 5);
     } else if (strcmp(field, "color") == 0) {
-        p->color = ParseNumber(lineNo, key, value);
+        p->color = ParseRange(lineNo, key, value, 9);
     } else if (strcmp(field, "metal") == 0) {
         p->metal = ParseNumber(lineNo, key, value);
     } else if (strcmp(field, "energy") == 0) {
@@ -168,7 +169,10 @@ static void ReadKey(int lineNo, const char* key, char* value)
         else
             FailLine(lineNo, "must be fixed or random", key, "");
     } else if (strcmp(key, "local_player") == 0)
+    {
         s_localPlayer = ParseRange(lineNo, key, value, MAX_PLAYERS - 1);
+        s_localPlayerLine = lineNo;
+    }
     else if (strcmp(key, "ticks") == 0) {
         s_ticks = ParseNumber(lineNo, key, value);
         if (s_ticks == 0)
@@ -188,6 +192,14 @@ static void CheckScenario()
         Fail("testmode: scenario needs at least 2 players (player<N>.* keys, N 0 to 9)\n");
     if (s_ticks == 0)
         Fail("testmode: scenario needs a ticks line\n");
+    if (s_map[0] == '\0')
+        Fail("testmode: scenario needs a map line\n");
+    if (s_localPlayer >= 0 && !s_players[s_localPlayer].named) {
+        char msg[128];
+        sprintf(msg, "testmode: scenario line %d: local_player %d is not a player the scenario names\n",
+                s_localPlayerLine, s_localPlayer);
+        Fail(msg);
+    }
 }
 
 static void ReadScenario(const char* path)
@@ -244,7 +256,7 @@ static void SetUpSkirmish()
     int highest = 0;
     int active = 0;
 
-    memset(t, 0, 0x22c);
+    memset(t, 0, sizeof *t);
     for (int i = 0; i < MAX_PLAYERS; i++) {
         PlayerSpec* p = &s_players[i];
         Player_0047ae60* slot = &t->players[i];
@@ -275,13 +287,7 @@ static void SetUpSkirmish()
 
     SetMissionType(2);
     Mission* mission = (Mission*)g_game->net;
-    if (s_map[0] != '\0') {
-        strcpy(t->mapName, s_map);
-    } else {
-        mission->RefreshMapList(0);
-        strncpy(t->mapName, (char*)mission->GetMissionName(), 0x100);
-        t->mapName[0x100] = '\0';
-    }
+    strcpy(t->mapName, s_map);
     t->difficulty = s_difficulty;
     t->commanderDeath = s_commanderDeath;
     t->mapping = s_mapping;
@@ -292,10 +298,7 @@ static void SetUpSkirmish()
 
     if (mission->LoadMissionByName(t->mapName) == 0) {
         char msg[600];
-        if (s_mapLine != 0)
-            sprintf(msg, "testmode: scenario line %d: no map named \"%s\"\n", s_mapLine, t->mapName);
-        else
-            sprintf(msg, "testmode: cannot load the default map \"%s\"\n", t->mapName);
+        sprintf(msg, "testmode: scenario line %d: no map named \"%s\"\n", s_mapLine, t->mapName);
         Fail(msg);
     }
     if (mission->CountStartPositions() < active) {
@@ -374,10 +377,12 @@ void HarnessInit(char* cmdLine)
     s_viewState = s_viewSeed;
 
     unsigned cw = _control87(0, 0);
-    if (cw != s_fpuControlWord) {
-        char msg[128];
-        sprintf(msg, "testmode: FPU control word (_control87) is 0x%05X, scenario expects 0x%05X\n",
-                cw, s_fpuControlWord);
+    if ((cw & ~_MCW_IC) != (s_fpuControlWord & ~_MCW_IC)) {
+        char msg[256];
+        sprintf(msg,
+                "testmode: FPU control word (_control87) is 0x%05X (0x%05X without the infinity bit), "
+                "scenario expects 0x%05X (0x%05X)\n",
+                cw, cw & ~_MCW_IC, s_fpuControlWord, s_fpuControlWord & ~_MCW_IC);
         Fail(msg);
     }
 }

@@ -2,7 +2,6 @@
 game_seed 2
 crt_seed 2
 view_seed 1
-fpu_control_word 0xD001F
 map Metal Heck
 start_positions fixed
 ticks 9000
