@@ -1,9 +1,24 @@
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../bitexact.h"
+#include "vectors.h"
+
+#ifdef BX_REPLAY
+#define ORACLE_DOUBLE(call) vec_get_double()
+#define ORACLE_BITS(call) vec_get()
+#else
+static double oracle_double(double value)
+{
+    vec_put_double(value);
+    return value;
+}
+#define ORACLE_DOUBLE(call) oracle_double(call)
+#define ORACLE_BITS(call) vec_put(call)
+#endif
 
 #define MATH_CASES 2000000
 
@@ -143,10 +158,10 @@ static void test_sqrt(math_stat_t *sd, math_stat_t *sf, math_stat_t *sc)
         float f;
         if (x < 0)
             x = -x;
-        want = x87_sqrt(x);
+        want = ORACLE_DOUBLE(x87_sqrt(x));
         got = bx_sqrt(x);
         record_u(sd, bits_of(want) == bits_of(got), "x %.17g want %.17g got %.17g", x, want, got);
-        want = sqrt(x);
+        want = ORACLE_DOUBLE(sqrt(x));
         record_u(sc, bits_of(want) == bits_of(got), "x %.17g want %.17g got %.17g", x, want, got);
         if ((i & 3) == 1)
             f = (float)random_int_double();
@@ -155,7 +170,7 @@ static void test_sqrt(math_stat_t *sd, math_stat_t *sf, math_stat_t *sc)
         if (f < 0)
             f = -f;
         {
-            float wantf = x87_sqrt_float(f);
+            float wantf = float_from_bits(ORACLE_BITS(bits_of_float(x87_sqrt_float(f))));
             float gotf = (float)bx_sqrt((double)f);
             record_u(sf, bits_of_float(wantf) == bits_of_float(gotf), "f %.9g want %.9g got %.9g", (double)f,
                      (double)wantf, (double)gotf);
@@ -222,7 +237,7 @@ static void test_hypot(math_stat_t *simple, math_stat_t *extended, math_stat_t *
                 y = 1.0e30;
             break;
         }
-        want = _hypot(x, y);
+        want = ORACLE_DOUBLE(_hypot(x, y));
         got = simple_hypot(x, y);
         record_b(simple, bits_of(want) == bits_of(got), "x %.17g y %.17g want %.17g got %.17g", x, y, want, got);
         record_b(&by_class[i & 3], bits_of(want) == bits_of(got), "x %.17g y %.17g want %.17g got %.17g", x, y,
@@ -271,7 +286,7 @@ static void test_acos(math_stat_t *s)
         double want, got;
         if (i & 1)
             x = (double)(mrnd() % 1000001u) / 1000000.0;
-        want = acos(x);
+        want = ORACLE_DOUBLE(acos(x));
         got = simple_acos(x);
         record_u(s, bits_of(want) == bits_of(got), "x %.17g want %.17g got %.17g", x, want, got);
     }
@@ -317,11 +332,16 @@ static void test_atof(math_stat_t *typical, math_stat_t *wide, math_stat_t *scan
         got = (double)(bx_i64)m / pow10_table[frac];
         if (neg)
             got = -got;
-        want = atof(text);
+        want = ORACLE_DOUBLE(atof(text));
         if (!(i & 1)) {
             float scanned_value = 0;
             float exact_value = (float)got;
+#ifdef BX_REPLAY
+            scanned_value = float_from_bits(vec_get());
+#else
             sscanf(text, "%f", &scanned_value);
+            vec_put(bits_of_float(scanned_value));
+#endif
             scanned->cases++;
             if (bits_of_float(scanned_value) != bits_of_float(exact_value)) {
                 scanned->mismatches++;

@@ -6,6 +6,7 @@
 
 #include "../bitexact.h"
 #include "../bx_tables.h"
+#include "vectors.h"
 
 #define INT_MIN_ (-2147483647 - 1)
 #define INT_MAX_ 2147483647
@@ -14,7 +15,25 @@
 extern double g_angle16ToRad;
 int g_rotationMatrix[9];
 
+#ifdef BX_REPLAY
+#define ORACLE_INT(call) ((int)vec_get())
+#define ORACLE_WORDS(call, words, n) \
+    do { \
+        int oracle_i; \
+        for (oracle_i = 0; oracle_i < (n); oracle_i++) \
+            (words)[oracle_i] = (int)vec_get(); \
+    } while (0)
+#else
 extern int __cdecl FixedSine(unsigned short angle);
+#define ORACLE_INT(call) ((int)vec_put((bx_u32)(call)))
+#define ORACLE_WORDS(call, words, n) \
+    do { \
+        int oracle_i; \
+        call; \
+        for (oracle_i = 0; oracle_i < (n); oracle_i++) \
+            vec_put((bx_u32)(words)[oracle_i]); \
+    } while (0)
+#endif
 extern int run_math_tests(void);
 
 typedef int (__cdecl *fn_angle)(unsigned short);
@@ -130,12 +149,12 @@ static void test_angles(void)
 {
     unsigned int a;
     for (a = 0; a < 0x10000; a++) {
-        int want = FixedSine((unsigned short)a);
+        int want = ORACLE_INT(FixedSine((unsigned short)a));
         int got = bx_FixedSine((bx_u16)a);
         st_sine.cases++;
         if (want != got)
             mismatch(&st_sine, "angle 0x%04x want %d got %d", a, want, got);
-        want = orig_cos((unsigned short)a);
+        want = ORACLE_INT(orig_cos((unsigned short)a));
         got = bx_fixed_cos((bx_u16)a);
         st_cos.cases++;
         if (want != got)
@@ -148,7 +167,7 @@ static void test_mul_hi(void)
     int i, j;
     for (i = 0; i < n_specials; i++)
         for (j = 0; j < n_specials; j++) {
-            int want = orig_mul_hi(specials[i], specials[j]);
+            int want = ORACLE_INT(orig_mul_hi(specials[i], specials[j]));
             int got = bx_mul_hi32(specials[i], specials[j]);
             st_mulhi.cases++;
             if (want != got)
@@ -157,7 +176,7 @@ static void test_mul_hi(void)
     for (i = 0; i < RANDOM_CASES; i++) {
         int a = (i & 1) ? rnd_full() : rnd_wide();
         int b = (i & 2) ? rnd_full() : rnd_wide();
-        int want = orig_mul_hi(a, b);
+        int want = ORACLE_INT(orig_mul_hi(a, b));
         int got = bx_mul_hi32(a, b);
         st_mulhi.cases++;
         if (want != got)
@@ -167,12 +186,12 @@ static void test_mul_hi(void)
 
 static void one_scaled(unsigned int a, int scale)
 {
-    int want = orig_sin_scaled((short)a, scale);
+    int want = ORACLE_INT(orig_sin_scaled((short)a, scale));
     int got = bx_FUN_004b70ef((bx_i16)a, scale);
     st_sin_scaled.cases++;
     if (want != got)
         mismatch(&st_sin_scaled, "angle 0x%04x scale %d want %d got %d", a & 0xffff, scale, want, got);
-    want = orig_cos_scaled((short)a, scale);
+    want = ORACLE_INT(orig_cos_scaled((short)a, scale));
     got = bx_FUN_004b7123((bx_i16)a, scale);
     st_cos_scaled.cases++;
     if (want != got)
@@ -195,7 +214,7 @@ static void test_scaled(void)
 
 static void one_atan(int x, int z)
 {
-    int want = orig_atan(x, z);
+    int want = ORACLE_INT(orig_atan(x, z));
     int got = bx_FUN_004b715a(x, z);
     st_atan.cases++;
     if (want != got)
@@ -278,7 +297,7 @@ static void one_rotate(unsigned int a, int x, int z)
     int w[2], g[2];
     w[0] = g[0] = x;
     w[1] = g[1] = z;
-    orig_rotate((short)a, w);
+    ORACLE_WORDS(orig_rotate((short)a, w), w, 2);
     bx_FUN_004b7173((bx_i16)a, g);
     st_rotate.cases++;
     if (w[0] != g[0] || w[1] != g[1])
@@ -318,7 +337,7 @@ static void one_build(unsigned short a0, unsigned short a1, unsigned short a2)
     angles[1] = (bx_i16)a1;
     angles[2] = (bx_i16)a2;
     memset(g_rotationMatrix, 0x5a, sizeof(g_rotationMatrix));
-    orig_build(obj);
+    ORACLE_WORDS(orig_build(obj), g_rotationMatrix, 9);
     bx_build_rotation_matrix(angles, m);
     st_build.cases++;
     for (i = 0; i < 9; i++)
@@ -357,7 +376,7 @@ static void test_apply(void)
         for (k = 0; k < 3; k++)
             in[k] = (i & 4) ? edges[rnd32() % N_EDGES] : (wide ? rnd_wide() : rnd_full());
         memcpy(g_rotationMatrix, m, sizeof(m));
-        orig_apply(in, want);
+        ORACLE_WORDS(orig_apply(in, want), want, 3);
         bx_apply_rotation_matrix(m, in, got);
         st_apply.cases++;
         if (memcmp(want, got, sizeof(want)))
@@ -366,7 +385,7 @@ static void test_apply(void)
             int w2[3], g2[3];
             memcpy(w2, in, sizeof(in));
             memcpy(g2, in, sizeof(in));
-            orig_apply(w2, w2);
+            ORACLE_WORDS(orig_apply(w2, w2), w2, 3);
             bx_apply_rotation_matrix(m, g2, g2);
             st_apply.cases++;
             if (memcmp(w2, g2, sizeof(w2)))
@@ -386,7 +405,7 @@ static void one_div3(int a, int b, int c)
             return;
         }
     }
-    want = orig_div3(a, b, c);
+    want = ORACLE_INT(orig_div3(a, b, c));
     got = bx_FUN_004b7381(a, b, c);
     st_div3.cases++;
     if (want != got)
@@ -412,6 +431,7 @@ static void test_div3(void)
     }
 }
 
+#ifndef BX_REPLAY
 static void *entry(int offset, const unsigned char *expect_prologue)
 {
     unsigned char *p = (unsigned char *)FixedSine + offset;
@@ -421,10 +441,13 @@ static void *entry(int offset, const unsigned char *expect_prologue)
     }
     return p;
 }
+#endif
 
-int main(void)
+int main(int argc, char **argv)
 {
+#ifndef BX_REPLAY
     static const unsigned char prologue[3] = {0x55, 0x8b, 0xec};
+#endif
     unsigned int cw;
     int i, bad = 0;
 
@@ -434,6 +457,9 @@ int main(void)
 
     printf("g_angle16ToRad %.17g\n", g_angle16ToRad);
 
+    if (argc > 1 && !vec_open(argv[1]))
+        return 2;
+#ifndef BX_REPLAY
     orig_cos = (fn_angle)entry(0x20, prologue);
     orig_mul_hi = (fn_mul_hi)entry(0x40, prologue);
     orig_sin_scaled = (fn_scaled)entry(0x4f, prologue);
@@ -443,6 +469,7 @@ int main(void)
     orig_build = (fn_build)entry(0x107, prologue);
     orig_apply = (fn_apply)entry(0x242, prologue);
     orig_div3 = (fn_div3)entry(0x2e1, prologue);
+#endif
 
     build_specials();
     test_angles();
@@ -463,6 +490,8 @@ int main(void)
             bad = 1;
     }
     bad |= run_math_tests();
+    if (argc > 1)
+        bad |= vec_close();
     printf("info: the table's 80-bit fsincos values are exact roundings; this CPU's fsincos differs from them in %lu of %lu values"
            " (%lu with another exponent), by at most %lu in the last mantissa bits, mostly near a quarter turn\n",
            fsincos_last_bit, 2 * st_fsincos.cases, fsincos_exponent_differs, fsincos_max_diff);
