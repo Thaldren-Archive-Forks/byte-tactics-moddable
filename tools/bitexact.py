@@ -9,8 +9,11 @@ g_cosTable, g_radToAngle16 and g_angle16ToRad, while the port uses the
 generated tables. Compiles src/util/math_4b70a0.cpp as it is (the flags tools/check.py uses) and
 lib/bitexact side by side into one MSVC 5 console exe under Wine, which calls
 both over every 16-bit angle, a sweep of scales and fixed-seed random inputs,
-and prints `name: N cases, M mismatches` for each entry point. The exit status
-is non-zero on any mismatch. Everything is built under build/bitexact/.
+and prints `name: N cases, M mismatches` for each entry point. A second exe
+(test/crt_test.c, test/stl_shuffle.cpp) links LIBCMT's own rand, srand and
+qsort and MSVC 5's std::random_shuffle beside the rand and qsort ports and
+compares them. The exit status is non-zero on any mismatch. Everything is built
+under build/bitexact/.
 """
 
 import argparse
@@ -30,6 +33,8 @@ TABLES = BUILD / "bx_tables.c"
 ORIG_DATA = BUILD / "orig_data.c"
 PORT_SOURCES = [LIB / "trig.c", TABLES, ORIG_DATA]
 TEST = LIB / "test/bitexact_test.c"
+CRT_PORT_SOURCES = [LIB / "rand.c", LIB / "qsort.c"]
+CRT_TESTS = [LIB / "test/crt_test.c", LIB / "test/stl_shuffle.cpp"]
 CFLAGS = ["/nologo", "/c", "/O2", "/Op", "/MT", "/W3", "/TC", "/Zm1000"]
 LIBS = ["LIBCMT.LIB", "KERNEL32.LIB"]
 
@@ -40,7 +45,8 @@ def compile_c(src: Path) -> Path | None:
     if obj.exists() and obj.stat().st_mtime > max(d.stat().st_mtime for d in deps):
         return obj
     obj.unlink(missing_ok=True)
-    cmd = [str(ROOT / "tools/wcl"), *CFLAGS, f"/I{winpath(LIB)}", f"/Fo{winpath(obj)}", winpath(src)]
+    flags = ["/nologo", "/c", "/O2", "/MT", "/W3", "/GX", "/TP", "/Zm1000"] if src.suffix == ".cpp" else CFLAGS
+    cmd = [str(ROOT / "tools/wcl"), *flags, f"/I{winpath(LIB)}", f"/Fo{winpath(obj)}", winpath(src)]
     proc = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
     log = (proc.stdout + proc.stderr).replace("\r", "")
     if proc.returncode != 0 or not obj.exists():
@@ -91,15 +97,24 @@ def build() -> Path | None:
     if original is None:
         print(log, file=sys.stderr)
         return None
-    objects = [original]
-    for src in [*PORT_SOURCES, TEST]:
+    return link("bitexact_test.exe", [original], [*PORT_SOURCES, TEST])
+
+
+def build_crt() -> Path | None:
+    BUILD.mkdir(parents=True, exist_ok=True)
+    return link("crt_test.exe", [], [*CRT_PORT_SOURCES, *CRT_TESTS])
+
+
+def link(name: str, objects: list[Path], sources: list[Path]) -> Path | None:
+    objects = list(objects)
+    for src in sources:
         obj = compile_c(src)
         if obj is None:
             return None
         objects.append(obj)
-    exe = BUILD / "bitexact_test.exe"
+    exe = BUILD / name
     exe.unlink(missing_ok=True)
-    rsp = BUILD / "objects.rsp"
+    rsp = BUILD / (name + ".rsp")
     rsp.write_text("\n".join(winpath(o) for o in objects) + "\n")
     cmd = [str(ROOT / "tools/wlink"), "/nologo", "/INCREMENTAL:NO", "/SUBSYSTEM:CONSOLE",
            f"/OUT:{winpath(exe)}", f"@{winpath(rsp)}", *LIBS]
@@ -123,6 +138,10 @@ def main() -> int:
     if exe is None:
         return 2
     code = run(exe)
+    crt = build_crt()
+    if crt is None:
+        return 2
+    code = run(crt) or code
     print("bitexact: " + ("OK" if code == 0 else f"FAILED (exit {code})"))
     return code
 
