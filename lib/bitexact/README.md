@@ -51,7 +51,7 @@ Together 391606 draws, `bx_init_explosions_draws()`; `bx_init_explosions_rand` a
 
 `bx_tables.c` is not committed. `uv run tools/bitexact_tables.py` computes it
 (by default into `build/bitexact/bx_tables.c`), `tools/bitexact.py` runs it
-before every build, and #5's build does the same. The generator does not read the exe, and its output is deterministic.
+before every build, and the modern build's CMake does the same. The generator does not read the exe, and its output is deterministic.
 The tables, declared in `bx_tables.h`:
 
 - `bx_sin_table`: 640 `bx_i16` entries, `round(sin(i * 2 * pi / 512) * 0x2000)`; the cosine table is the same array 128 entries on.
@@ -92,14 +92,19 @@ Inputs of the trig exe: every 16-bit angle, crossed with scales 0, +-1, powers o
 INT_MIN and INT_MAX, and 10^6 or more random cases per function from a fixed
 xorshift seed.
 
-## Under clang (#5)
+## Under clang
 
-`test/bitexact_test.c` compares through a handful of `orig_*` function
-pointers. For clang (i686 and wasm32) the same source is built either with
-the vectors the MSVC 5 exe writes (inputs from the same generator, outputs of
-the original), or, for i686, with the original linked in. Build with
-`-msse2 -mfpmath=sse` (or the 53-bit mode set before the tests), `-std=c89`,
-and the port must produce the same `0 mismatches` lines.
+`uv run tools/bitexact.py` runs the tests twice. The MSVC 5 exes also write what the originals returned (`build/bitexact/vectors/bitexact.bin` and `crt.bin`, about 900 MB together): every `ORACLE_*` call of the tests, in order, from `test/vectors.c`. Then the same test sources are built with `clang-cl` for i686 (`-DBX_REPLAY`: the original is not linked in, the oracle calls read the vectors) against MSVC 5's headers and `LIBCMT.LIB`, as the modern build is, and run under Wine. The library is compiled with SSE2 doubles (`-msse2 -mfpmath=sse`, no contraction), the test code with x87 (`-mno-sse`) like the game's files. Both halves must print the same `0 mismatches` lines; the clang half also fails if it runs out of vectors or leaves some unread. `--compiler msvc` or `--compiler clang` runs one half, the clang half on the vectors of the last MSVC run.
+
+The generator inputs are deterministic in both builds, so the n-th oracle call of the clang run is the n-th of the MSVC run. The `info:` lines that need the CPU's own `fsincos` are the only live ones.
+
+## In the modern build
+
+`CMakeLists.txt` builds `lib/bitexact` as a static library (`bx_tables.c` first, by `uv run tools/bitexact_tables.py` into the build directory, as a custom command) and links it into the modern exe. `src/` is not edited; the routing is done by the build, in `cmake/bitexact/`:
+
+- `src/util/math_4b70a0.cpp` is left out of the source list and `cmake/bitexact/trig.c` defines its symbols (`FixedSine`, `FUN_004b70c0` to `FUN_004b7381`) as calls into `bx_FixedSine` and the other trig ports. The matrix routines use the global `g_rotationMatrix`, as the original does. The angle arguments are `int` there, narrowed inside, because callers declare them as `short` or `int`.
+- `route.h` is force-included (`/FI`) into each source that `data/crt_calls.csv` lists with a game-class `fsqrt`, `rand` or `srand` row. It turns `sqrt` into `bx_sqrt`, `rand` into `bx_game_rand` and `srand` into `bx_game_srand`. This also reaches the `rand` inside the `std::random_shuffle` that `LoadMatch` and `AssignStartPositions` instantiate, so the shuffle draws from the game stream with the order `bx_random_shuffle_int` is tested to have. `cmake/bitexact/game_rand.c` holds the game stream, one `bx_rand_state`, apart from `HarnessViewRand`'s. It also copies the seed to the CRT's per-thread slot, where the test harness's trace reads `rng.crtHoldrand`.
+- Left on the C runtime, because the inventory sends them to #73 and the library has no port: `_ftol`, `_hypot`, `_CIacos`, `atof`. `qsort` has no game-logic caller, and the presentation `sqrt` sites (files with no game-class row) keep the inline `fsqrt`.
 
 ## CRT and float operations in game logic
 

@@ -55,6 +55,13 @@ its address, with the original's bytes between them), because the decompiled
 code reaches past an array's end into the global that follows it, and leaves
 out the code no live function reaches.
 
+The build also compiles `lib/bitexact` and routes the game logic's `rand`,
+`srand`, `sqrt` and the trig entry points of `src/util/math_4b70a0.cpp` to it
+(see "In the modern build" in `lib/bitexact/README.md`); `src/` is untouched, so
+the matching build is not affected. `uv run tools/bitexact.py` tests the library
+under both compilers, MSVC 5 first and then clang-cl against the vectors it
+wrote.
+
 There is no CI job for it: the build needs `toolchain/msvc5-sp3/INCLUDE`, which
 must never be committed, so it can only run where the toolchain is installed
 (see "Setting up").

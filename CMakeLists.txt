@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(TotalA CXX)
+project(TotalA C CXX)
 
 set(MSVC5_INCLUDE "${CMAKE_SOURCE_DIR}/toolchain/msvc5-sp3/INCLUDE")
 if(NOT EXISTS "${MSVC5_INCLUDE}/WINDOWS.H")
@@ -7,7 +7,9 @@ if(NOT EXISTS "${MSVC5_INCLUDE}/WINDOWS.H")
 endif()
 get_filename_component(MSVC5_INCLUDE "${MSVC5_INCLUDE}" REALPATH)
 
+set(CMAKE_C_FLAGS "")
 set(CMAKE_CXX_FLAGS "")
+set(CMAKE_C_FLAGS_RELEASE "/O2")
 set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob2")
 set(CMAKE_BUILD_TYPE Release)
 
@@ -20,6 +22,28 @@ if(NOT HEADERS_RESULT EQUAL 0)
 endif()
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
+list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/util/math_4b70a0.cpp")
+
+find_program(UV uv REQUIRED)
+set(BITEXACT_DIR "${CMAKE_SOURCE_DIR}/lib/bitexact")
+set(BITEXACT_SHIM_DIR "${CMAKE_SOURCE_DIR}/cmake/bitexact")
+set(BITEXACT_TABLES "${CMAKE_BINARY_DIR}/bitexact/bx_tables.c")
+add_custom_command(
+  OUTPUT "${BITEXACT_TABLES}"
+  COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_BINARY_DIR}/bitexact"
+  COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/bitexact_tables.py" "${BITEXACT_TABLES}"
+  DEPENDS "${CMAKE_SOURCE_DIR}/tools/bitexact_tables.py"
+  VERBATIM)
+add_library(bitexact STATIC
+  "${BITEXACT_DIR}/trig.c" "${BITEXACT_DIR}/math.c" "${BITEXACT_DIR}/rand.c" "${BITEXACT_DIR}/qsort.c"
+  "${BITEXACT_TABLES}"
+  "${BITEXACT_SHIM_DIR}/trig.c" "${BITEXACT_SHIM_DIR}/game_rand.c")
+target_include_directories(bitexact PRIVATE "${BITEXACT_DIR}")
+target_include_directories(bitexact SYSTEM PRIVATE "${MSVC5_INCLUDE}")
+target_compile_options(bitexact PRIVATE
+  -fms-compatibility -fms-extensions -fms-compatibility-version=11.00 -msse2 -mfpmath=sse /clang:-ffp-contract=off /GS-
+  -fno-strict-aliasing -fwrapv -Wno-nonportable-include-path -Wno-microsoft -Wno-comment
+  -vfsoverlay "${CMAKE_BINARY_DIR}/overlay.json")
 
 add_library(game OBJECT ${SOURCES})
 add_library(data OBJECT link/data.cpp)
@@ -44,11 +68,27 @@ foreach(source IN LISTS SOURCES)
   endif()
 endforeach()
 
+set(CRT_CALLS_CSV "${CMAKE_SOURCE_DIR}/data/crt_calls.csv")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CRT_CALLS_CSV}")
+file(STRINGS "${CRT_CALLS_CSV}" CRT_CALL_ROWS)
+set(ROUTED_SOURCES "")
+foreach(row IN LISTS CRT_CALL_ROWS)
+  if(row MATCHES "^0x[0-9a-f]+,[^,]+,(fsqrt|rand|srand),[a-z]+,([^,]+),game,")
+    list(APPEND ROUTED_SOURCES "${CMAKE_SOURCE_DIR}/${CMAKE_MATCH_2}")
+  endif()
+endforeach()
+list(REMOVE_DUPLICATES ROUTED_SOURCES)
+foreach(source IN LISTS ROUTED_SOURCES)
+  if(NOT source IN_LIST SOURCES)
+    message(FATAL_ERROR "data/crt_calls.csv names ${source}, which is not a source of the build")
+  endif()
+  set_property(SOURCE "${source}" APPEND PROPERTY COMPILE_OPTIONS "/FI${BITEXACT_SHIM_DIR}/route.h")
+endforeach()
+
 set(MSVC5_LIB "${CMAKE_SOURCE_DIR}/toolchain/msvc5-sp3/LIB")
 find_program(DLLTOOL llvm-dlltool REQUIRED)
 find_program(LLD_LINK lld-link REQUIRED)
 find_program(LLVM_RC llvm-rc REQUIRED)
-find_program(UV uv REQUIRED)
 
 set(IMPORT_LIBS "")
 foreach(dll smackw32 dplayx ddraw dsound)
@@ -69,7 +109,7 @@ foreach(lib IN LISTS MSVC5_LIBS)
   endforeach()
 endforeach()
 
-set(SYSTEM_LIBS "")
+set(SYSTEM_LIBS "$<TARGET_FILE:bitexact>")
 foreach(lib LIBCMT LIBCPMT OLDNAMES DPLAY)
   list(APPEND SYSTEM_LIBS "${MSVC5_LIB}/${lib}.LIB")
 endforeach()
@@ -113,7 +153,7 @@ add_custom_command(
   COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/aliases.py"
           --objects "@${CMAKE_BINARY_DIR}/alias_objects.rsp" --libs ${SYSTEM_LIBS} ${IMPORT_LIBS} ${ZLIB_OBJECTS}
           --winmain 0x49e830 --patch-dir "${CMAKE_BINARY_DIR}/objs" --out "${CMAKE_BINARY_DIR}/aliases.obj"
-  DEPENDS game data extra $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> ${IMPORT_LIBS}
+  DEPENDS game data extra bitexact $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> ${IMPORT_LIBS}
           "${CMAKE_SOURCE_DIR}/tools/aliases.py")
 
 add_custom_command(
