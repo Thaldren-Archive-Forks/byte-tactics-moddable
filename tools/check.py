@@ -135,7 +135,6 @@ def mangled_prefixes(qualname: str) -> list[str]:
 ALIASES = ROOT / "data/aliases.csv"
 CONSTANTS = ROOT / "data/constants.csv"
 PATCHES = ROOT / "data/exe_patches.csv"
-ALIAS_MAP: dict[str, set[int]] = {}
 
 
 def load_constants() -> set[tuple[int, int]]:
@@ -375,8 +374,7 @@ def compare(orig: Original, obj: CoffObject, address: int, want: str | None = No
     the bytes are compared: the result has the symbol and bytes_match but no
     references, score or diff (tools/progress.py's first pass needs no more)."""
     symbols = load_symbols() if symbols is None else symbols
-    ALIAS_MAP.clear()
-    ALIAS_MAP.update(load_aliases())
+    aliases = load_aliases()  # a local: checkall's threads share this module
     picked, err = select_function(obj, want, qualname)
     if not picked:
         return Result(address, "", 0, 0, False, 0.0, error=err)
@@ -412,7 +410,7 @@ def compare(orig: Original, obj: CoffObject, address: int, want: str | None = No
             refs.append(Ref(off, r.symbol, 0, "unverified", f"relocation type {r.type:#x}"))
             continue
         refs.append(check_ref(orig, obj, sec, start, address, off, r.symbol, target, field_ours,
-                              by_name, symbols, by_addr))
+                              by_name, symbols, by_addr, aliases))
 
     ours_ins = disasm(data, address)
     reloc_ins = {i.address for i in ours_ins for ref in refs
@@ -451,7 +449,8 @@ def compare(orig: Original, obj: CoffObject, address: int, want: str | None = No
                   "", shape_ratio, target_only)
 
 
-def check_ref(orig, obj, sec, start, address, off, sym_name, target, addend, by_name, symbols, by_addr) -> Ref:
+def check_ref(orig, obj, sec, start, address, off, sym_name, target, addend, by_name, symbols, by_addr,
+              aliases) -> Ref:
     sym = by_name.get(sym_name)
     # Defined in this object: compare what it points at.
     if sym is not None and sym.section > 0:
@@ -462,9 +461,9 @@ def check_ref(orig, obj, sec, start, address, off, sym_name, target, addend, by_
             return Ref(off, sym_name, target, "ok" if ok else "mismatch",
                        "" if ok else f"should point into this function at {want:#x}")
         if target_sec.is_code:
-            return lookup(off, sym_name, target, symbols, by_addr)
+            return lookup(off, sym_name, target, symbols, by_addr, aliases)
         if sym_name.startswith("??_7"):
-            problem = check_vtable(orig, obj, target_sec, sym.value, target, symbols)
+            problem = check_vtable(orig, obj, target_sec, sym.value, target, symbols, aliases)
             if problem:
                 return Ref(off, sym_name, target, "mismatch", problem)
         # Up to the next symbol in the same section: MSVC packs constants
@@ -473,7 +472,7 @@ def check_ref(orig, obj, sec, start, address, off, sym_name, target, addend, by_
                  and s.storage_class in (2, 3)]
         ours = target_sec.data[sym.value:min(after, default=len(target_sec.data))]
         if not ours or not any(ours[:64]):
-            return lookup(off, sym_name, target, symbols, by_addr)  # uninitialised data
+            return lookup(off, sym_name, target, symbols, by_addr, aliases)  # uninitialised data
         ours = ours[:ours.index(0) + 1] if sym_name.startswith(("$SG", "??_C@")) and 0 in ours else ours[:16]
         theirs = orig.read(target + addend, len(ours)) if sym_name.startswith("$SG") else orig.read(target, len(ours))
         if sym_name.startswith("$SG"):
@@ -485,7 +484,7 @@ def check_ref(orig, obj, sec, start, address, off, sym_name, target, addend, by_
         ok = ours == theirs
         return Ref(off, sym_name, target, "ok" if ok else "mismatch",
                    "" if ok else f"contents differ: ours {ours[:24]!r} original {theirs[:24]!r}")
-    return lookup(off, sym_name, target, symbols, by_addr)
+    return lookup(off, sym_name, target, symbols, by_addr, aliases)
 
 
 def relocated_fields(obj, sec, start, address, data_sec, base, ours, theirs) -> tuple[bytes, bytes, str]:
@@ -527,7 +526,7 @@ def same_slot_function(held: str, name: str, fn: int) -> bool:
     return bool(placeholder.match(held.split("::")[-1]) and placeholder.match(name.split("::")[-1]))
 
 
-def check_vtable(orig, obj, sec, start, target, symbols) -> str:
+def check_vtable(orig, obj, sec, start, target, symbols, aliases) -> str:
     """Compare a vtable defined in our object with the original one at target:
     every slot we declare must be a function in the original's vtable, and
     must not disagree with a name already established for that function."""
@@ -553,7 +552,7 @@ def check_vtable(orig, obj, sec, start, target, symbols) -> str:
         # The reverse: the slot's function already has another name (a method
         # inherited from a base class keeps the base's name).
         held = [n for n, a in symbols.items() if a == fn]
-        if (known is None and held and fn not in ALIAS_MAP.get(name, ())
+        if (known is None and held and fn not in aliases.get(name, ())
                 and not any(is_placeholder(h, fn) or same_slot_function(h, name, fn) for h in held)):
             return (f"vtable slot {off // 4} is {fn:#x}, already named '{held[0]}' in data/symbols.csv; "
                     "declare it under that name (a base class's method if it is inherited)")
@@ -574,9 +573,9 @@ def static_stem(name: str) -> str:
     return STATIC_SUFFIX.sub("", name)
 
 
-def lookup(off, sym_name, target, symbols, by_addr) -> Ref:
+def lookup(off, sym_name, target, symbols, by_addr, aliases) -> Ref:
     name = base_name(sym_name)
-    if target in ALIAS_MAP.get(name, ()):
+    if target in aliases.get(name, ()):
         return Ref(off, sym_name, target, "ok", "duplicate copy (data/aliases.csv)")
     # A placeholder name carries its own address: it must be where the original points.
     m = PLACEHOLDER.search(name.split("::")[-1])

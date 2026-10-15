@@ -123,7 +123,7 @@ def checkall(directory: Path) -> dict[int, str]:
     with open(directory / "data/progress.csv", newline="") as f:
         addresses = [row["address"] for row in csv.DictReader(f)]
     results = run_checkall(directory, addresses)
-    # TODO(#59): drop this retry once checkall's parallel compile is fixed.
+    # TODO(#63): drop this retry once the reference is built with the fork's own tools.
     retry = [f"{a:#x}" for a, line in results.items() if not is_match(line)]
     if retry:
         results.update(run_checkall(directory, retry))
