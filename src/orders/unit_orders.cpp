@@ -117,9 +117,9 @@ struct UnitDef {
         unsigned char flags245;        // +0x245, AttackUTypeOrder's byte test
         unsigned int flags245u;        // +0x245, the handlers that test a dword
         struct {
-            unsigned int low : 20;     // +0x245, SelfDestructOrder's countdown
+            unsigned int low245 : 20;
             unsigned int countdown : 3;
-            unsigned int high : 9;
+            unsigned int high245 : 9;
         };
         struct {
             unsigned int lo : 12;
@@ -1021,6 +1021,25 @@ int __stdcall QMoveQPatrolOrder(int unused1, void* order, int unused3)
     return 6;
 }
 
+#ifdef __clang__
+struct Unit;
+struct Order;
+struct View;
+struct Pos;
+
+#pragma pack(push, 1)
+struct UnitOrderType {
+    const char* status;
+    int (__stdcall* run)(Unit* unit, Order* order, int flags);
+    void (__stdcall* draw)(void* surface, View* view, Order* order, Pos* out, int flag);
+    int target;
+    unsigned int flags;
+    unsigned char internal;
+    const char* name;
+};
+#pragma pack(pop)
+#endif
+
 // Registers a table with RegisterOrderTypes under a numeric id; one of several
 // small functions doing the same for different tables.
 // FUNCTION: 0x403180
@@ -1028,8 +1047,13 @@ void RegisterUnitOrders()
 {
     // The name (the definition below spells it too) is what tools/progress.py
     // learns the table's address from.
+#ifdef __clang__
+    extern const UnitOrderType g_unitOrders[23];
+    RegisterOrderTypes((void*)g_unitOrders, 0x17);
+#else
     extern char g_unitOrders[];
     RegisterOrderTypes(g_unitOrders, 0x17);
+#endif
 }
 
 // Order handler: asks GetOrderType for the next order kind (returned as a
@@ -1875,8 +1899,13 @@ void FreeExplosions();
 // FUNCTION: 0x406bf0
 void RegisterGroundOrders()
 {
+#ifdef __clang__
+    extern const UnitOrderType g_groundOrders[22];
+    RegisterOrderTypes((void*)g_groundOrders, 0x16);
+#else
     extern char g_groundOrders[];
     RegisterOrderTypes(g_groundOrders, 0x16);
+#endif
 }
 
 // std::vector<Unit*>::_Destroy(first, last) from MSVC 5's <vector>: empty,
@@ -2027,6 +2056,7 @@ struct Order;
 struct View;
 struct Pos;
 
+#ifndef __clang__
 #pragma pack(push, 1)
 struct UnitOrderType {
     const char* status;                                         // +0x00 shown while the order runs
@@ -2039,6 +2069,7 @@ struct UnitOrderType {
     const char* name;                                           // +0x15 the key the table is sorted by
 };
 #pragma pack(pop)
+#endif
 
 int __stdcall StopOrder(Unit* unit, Order* order, int flags);
 int __stdcall MakeSelectableOrder(Unit* unit, Order* order, int flags);

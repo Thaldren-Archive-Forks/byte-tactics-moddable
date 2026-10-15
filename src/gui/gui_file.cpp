@@ -48,9 +48,9 @@ void __stdcall WriteSectionHeader(FileHandle* file, char* name, int depth)
     sprintf(line, "[%s]", name);
     WriteTabsInline(file, depth - 1);
     HAPI_WriteFile(file, line, strlen(line));
-    HAPI_WriteFile(file, "\n", 1);
+    HAPI_WriteFile(file, (void*)"\n", 1);
     WriteTabsInline(file, depth);
-    HAPI_WriteFile(file, "{\n", 2);
+    HAPI_WriteFile(file, (void*)"{\n", 2);
 }
 
 // Writes `depth` tabs and then a closing brace line.
@@ -60,7 +60,7 @@ void __stdcall WriteSectionEnd(FileHandle* file, int depth)
     char tab = '\t';
     for (int i = 0; i < depth; i++)
         HAPI_WriteFile(file, &tab, 1);
-    HAPI_WriteFile(file, "}\n", 2);
+    HAPI_WriteFile(file, (void*)"}\n", 2);
 }
 
 // Writes "<key>=<value>;" on its own line, indented by `depth` tabs.
@@ -274,9 +274,9 @@ void __stdcall WritePanelFields(Obj_004ad4f0* obj, FileHandle* out, int indent)
     for (i = 0; i < d - 1; i++)
         HAPI_WriteFile(out, &tab, 1);
     HAPI_WriteFile(out, line, strlen(line));
-    HAPI_WriteFile(out, "\n", 1);
+    HAPI_WriteFile(out, (void*)"\n", 1);
     WriteTabs(out, d);
-    HAPI_WriteFile(out, "{\n", 2);
+    HAPI_WriteFile(out, (void*)"{\n", 2);
 
     value = _itoa(obj->major, num, 10);
     tab = '\t';
@@ -302,7 +302,7 @@ void __stdcall WritePanelFields(Obj_004ad4f0* obj, FileHandle* out, int indent)
     tab = '\t';
     for (i = 0; i < d; i++)
         HAPI_WriteFile(out, &tab, 1);
-    HAPI_WriteFile(out, "}\n", 2);
+    HAPI_WriteFile(out, (void*)"}\n", 2);
 
     strncpy(num, obj->panel, 16);
     num[16] = 0;
@@ -891,9 +891,9 @@ void __stdcall WriteGuiFile(char* obj, char* name)
         sprintf(gadget, "GADGET%d", index);
         sprintf(header, "[%s]", gadget);
         HAPI_WriteFile(out, header, strlen(header));
-        HAPI_WriteFile(out, "\n", 1);
+        HAPI_WriteFile(out, (void*)"\n", 1);
         WriteTabs(out, 1);
-        HAPI_WriteFile(out, "{\n", 2);
+        HAPI_WriteFile(out, (void*)"{\n", 2);
         sprintf(common, "[%s]", "COMMON");
         // Block-scope char with a plain for loop: the three tab chars share one frame slot.
         {
@@ -901,9 +901,9 @@ void __stdcall WriteGuiFile(char* obj, char* name)
             for (int i = 0; i < 1; i++) HAPI_WriteFile(out, &t1, 1);
         }
         HAPI_WriteFile(out, common, strlen(common));
-        HAPI_WriteFile(out, "\n", 1);
+        HAPI_WriteFile(out, (void*)"\n", 1);
         WriteTabs(out, 2);
-        HAPI_WriteFile(out, "{\n", 2);
+        HAPI_WriteFile(out, (void*)"{\n", 2);
         WriteCommonFields((Common_004ad350*)p, out, 2);
         // Counter and char defined in this block, in this order: emitted in source order.
         {
@@ -911,7 +911,7 @@ void __stdcall WriteGuiFile(char* obj, char* name)
             char t2 = '\t';
             do { HAPI_WriteFile(out, &t2, 1); } while (--j);
         }
-        HAPI_WriteFile(out, "}\n", 2);
+        HAPI_WriteFile(out, (void*)"}\n", 2);
         switch (*(unsigned char*)p) {
         case 0:
             WritePanelFields((Obj_004ad4f0*)p, out, 1);
@@ -957,7 +957,7 @@ void __stdcall WriteGuiFile(char* obj, char* name)
             char t3 = '\t';
             for (int i = 0; i < 1; i++) HAPI_WriteFile(out, &t3, 1);
         }
-        HAPI_WriteFile(out, "}\n", 2);
+        HAPI_WriteFile(out, (void*)"}\n", 2);
     }
     HAPI_CloseFile(out);
 }

@@ -501,7 +501,7 @@ void __stdcall DrawUnitInfoPanel(void* surface) {
                     }
                 }
             } else {
-                char* prefix = ((unsigned char)(unit->flags >> 9) & 1) != 0 ? "S: " : "R: ";
+                char* prefix = (char*)(((unsigned char)(unit->flags >> 9) & 1) != 0 ? "S: " : "R: ");
                 char* s = Translate("Unidentified object");
                 sprintf(text, "%s%s", prefix, s);
                 int w = GetTextWidth((void*)panel->pFontData, (unsigned char*)text);
