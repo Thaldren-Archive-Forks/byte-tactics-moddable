@@ -105,6 +105,7 @@ import shlex
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -120,6 +121,7 @@ FUNCTION_KINDS = {"FunctionDecl", "CXXMethodDecl", "CXXConstructorDecl", "CXXDes
                   "CXXConversionDecl"}
 LVALUE_KINDS = {"DeclRefExpr", "MemberExpr", "ArraySubscriptExpr", "ParenExpr"}
 UNEVALUATED = {"UnaryExprOrTypeTraitExpr", "CXXTypeidExpr", "CXXNoexceptExpr"}
+JSON_START = re.compile(r'^\{\n  "id"', re.M)
 CHUNK = re.compile(r"^    \{\n.*?^    \},?\n", re.S | re.M)
 INCLUDED_FROM = re.compile(r'"includedFrom": \{\s*"file": "[^"]*"\s*\}')
 QUALIFIERS = re.compile(r"\b(const|volatile|struct|class|union|enum|__restrict)\b")
@@ -629,14 +631,22 @@ def analyse(job: tuple[Path, list[str], str]) -> list[list]:
             for fn in unit.functions for kind, target in [("function", "")] + fn["items"]]
 
 
-def analyse_unit(job: tuple[Path, list[str], str], analyzer: type) -> tuple[Analyzer, str]:
-    """Run clang-cl on one file and walk its dump with an analyzer; returns it and clang's stderr."""
+def analyse_unit(job: tuple[Path, list[str], str], analyzer: type,
+                 prepare: Callable[[Analyzer, str], None] | None = None) -> tuple[Analyzer, str]:
+    """Run clang-cl on one file and walk its dump with an analyzer; returns it and clang's stderr.
+
+    Whatever clang prints before the JSON (record layouts) goes to prepare(unit, text) first."""
     root, argv, directory = job
     run = subprocess.run(argv, cwd=directory, capture_output=True, text=True, errors="replace")
     if run.returncode != 0 and "error:" in run.stderr:
         raise SystemExit("%s: clang-cl failed\n%s" % (argv[-1], run.stderr[-2000:]))
-    text = run.stdout
+    found = JSON_START.search(run.stdout)
+    if found is None:
+        raise SystemExit("%s: clang-cl printed no syntax tree\n%s" % (argv[-1], run.stderr[-2000:]))
+    text = run.stdout[found.start():]
     unit = analyzer(root)
+    if prepare:
+        prepare(unit, run.stdout[:found.start()])
     position = ("", 0)
     start = text.index('"inner": [')
     for m in CHUNK.finditer(text, start):

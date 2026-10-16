@@ -4,6 +4,7 @@
 """
 
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -162,6 +163,14 @@ class ScanTest(unittest.TestCase):
 
     def test_calloc_is_a_site(self):
         self.assertEqual([a for a, w, _ in self.by_name["Zeroed"]["allocs"]], ["calloc"])
+
+
+class NoSyntaxTreeTest(unittest.TestCase):
+    def test_a_run_that_prints_no_syntax_tree_exits_with_clangs_stderr(self):
+        argv = [sys.executable, "-c", "import sys; print('layouts'); print('oops', file=sys.stderr)"]
+        with self.assertRaises(SystemExit) as caught:
+            sc.scan((Path("."), argv, "."))
+        self.assertIn("oops", str(caught.exception))
 
 
 class OwnGameTest(unittest.TestCase):

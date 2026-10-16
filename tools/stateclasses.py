@@ -60,7 +60,7 @@ Columns:
 
 Phases. The roots are those of hazards.ROOTS, each walked separately over the `call` rows
 of data/rwsets.csv and the hand-resolved edges of data/hazard_edges.csv (hazards.Graph),
-so a function carries the set of roots that reach it. HarnessPhase numbers them 0 to 7:
+so a function carries the set of roots that reach it. HarnessPhase numbers them 0 to 8:
 
   0 HandleNetPackets   1 UpdateAllUnits   2 UpdateProjectiles   3 UpdateExplosions
   4 UpdatePlayers      5 UpdateFeatures   6 StepAllGafSequences and UpdateWind
@@ -227,7 +227,6 @@ PRIMITIVES = {"void", "char", "unsigned char", "signed char", "short", "unsigned
               "long", "unsigned long", "float", "double", "?"}
 LAYOUT_FLAG = ["-Xclang", "-fdump-record-layouts-complete"]
 LAYOUT_LINE = re.compile(r"^\s*(\d+)(?::(\d+)-(\d+))? \|( *)(.*?)\s*$")
-JSON_START = re.compile(r'^\{\n  "id"', re.M)
 RECORD_KEYWORD = re.compile(r"^(struct|union|class|enum)\s+")
 UNKNOWN_RANGE = re.compile(r"^(unknown_|pad)")
 WRITE_MODES = ("write", "maybe_written", "escape")
@@ -542,29 +541,14 @@ class StateAnalyzer(Analyzer):
         fn["allocs"] = allocations(node, name)
 
 
+def set_view(unit: StateAnalyzer, layouts: str) -> None:
+    """Take the Game ranges from the record layouts clang printed before the syntax tree."""
+    unit.view = view_spans(layout_fields(layouts, "Game"))
+
+
 def scan(job: tuple[Path, list[str], str]) -> dict:
     """Run clang-cl on one file (layouts and syntax tree) and return what the tool needs from it."""
-    root, argv, directory = job
-    run = subprocess.run(argv, cwd=directory, capture_output=True, text=True, errors="replace")
-    if run.returncode != 0 and "error:" in run.stderr:
-        raise SystemExit("%s: clang-cl failed\n%s" % (argv[-1], run.stderr[-2000:]))
-    start = JSON_START.search(run.stdout)
-    layouts, text = run.stdout[:start.start()], run.stdout[start.start():]
-    unit = StateAnalyzer(root)
-    unit.view = view_spans(layout_fields(layouts, "Game"))
-    position = ("", 0)
-    for m in rwsets.CHUNK.finditer(text, text.index('"inner": [')):
-        chunk = m.group()
-        file = rwsets.first_file(chunk) or position[0]
-        if not file or unit.relative(file) is None:
-            position = rwsets.last_position(chunk, *position)
-            continue
-        node = json.loads(chunk.rstrip().rstrip(","))
-        tracker = rwsets.Position(*position)
-        tracker.annotate(node)
-        position = (tracker.file, tracker.line)
-        unit.declare(node, None)
-    unit.assign_markers()
+    unit, _ = rwsets.analyse_unit(job, StateAnalyzer, set_view)
     owns_game = unit.game_var.replace("*", "").replace("const", "").strip() == "Game" and "*" in unit.game_var
     functions = [{key: fn[key] for key in ("address", "function", "file", "start", "regions", "bounds", "statics",
                                            "allocs")}
