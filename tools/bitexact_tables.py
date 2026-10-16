@@ -43,6 +43,7 @@ ANGLE16_TO_RAD = 0x509EF8
 POW10_POS = 0x5116F0
 POW10_NEG = 0x511850
 POW10_ENTRIES = 29
+ATAN_SERIES_TERMS = 12
 
 PREC = 256
 ONE = 1 << PREC
@@ -173,6 +174,14 @@ def generate(out_path: Path) -> None:
     for hi, lo in atans:
         vals += [f"0x{hi[0]:08x}u", f"0x{hi[1]:08x}u", f"0x{lo[0]:08x}u", f"0x{lo[1]:08x}u"]
     out.append("const bx_u32 bx_atan_sixteenths[17 * 4] = {\n" + rows(vals, 4) + "};\n\n")
+    vals = []
+    for m in range(ATAN_SERIES_TERMS):
+        f = Fraction((-1) ** m, 2 * m + 1)
+        hi = float(f)
+        lo = float(f - Fraction(hi))
+        assert abs(Fraction(hi) + Fraction(lo) - f) < Fraction(1, 1 << 100)
+        vals += [f"0x{w:08x}u" for w in (*double_bits(hi), *double_bits(lo))]
+    out.append(f"const bx_u32 bx_atan_series[{ATAN_SERIES_TERMS} * 4] = {{\n" + rows(vals, 4) + "};\n\n")
     vals = []
     for hi, lo in (pi_dd, half_dd):
         vals += [f"0x{hi[0]:08x}u", f"0x{hi[1]:08x}u", f"0x{lo[0]:08x}u", f"0x{lo[1]:08x}u"]

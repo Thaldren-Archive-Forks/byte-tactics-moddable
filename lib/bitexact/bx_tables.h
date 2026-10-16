@@ -15,6 +15,8 @@ extern const bx_u32 bx_angle16_to_rad_bits[2];
 
 extern const bx_u32 bx_atan_sixteenths[17 * 4];
 
+extern const bx_u32 bx_atan_series[12 * 4];
+
 extern const bx_u32 bx_pi_pi_half[2 * 4];
 
 extern const bx_u32 bx_sincos_table[65536 * 5];

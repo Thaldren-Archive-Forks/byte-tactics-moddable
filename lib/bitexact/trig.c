@@ -391,9 +391,9 @@ static bx_dd bx_dd_atan_ratio(double n, double d)
     den = bx_dd_add(bx_dd_from_double(16.0 * d), bx_dd_product((double)k, n));
     u = bx_dd_div(num, den);
     w = bx_dd_mul(u, u);
-    p = bx_dd_div(bx_dd_from_double(-1.0), bx_dd_from_double(23.0));
+    bx_dd_const(bx_atan_series + 4 * 11, &p.hi, &p.lo);
     for (m = 10; m >= 0; m--) {
-        c = bx_dd_div(bx_dd_from_double(m & 1 ? -1.0 : 1.0), bx_dd_from_double((double)(2 * m + 1)));
+        bx_dd_const(bx_atan_series + 4 * m, &c.hi, &c.lo);
         p = bx_dd_add(bx_dd_mul(p, w), c);
     }
     atan_u = bx_dd_mul(u, p);
