@@ -15,6 +15,7 @@ typedef struct {
 } bx_fp_format;
 
 static const bx_fp_format bx_float_format = {128, -127, 24, 8, 32, 127};
+static const bx_fp_format bx_double_format = {1024, -1023, 53, 11, 64, 1023};
 
 static bx_u32 bx_get32(const bx_u16 *w, int i)
 {
@@ -299,7 +300,7 @@ static void bx_shr_man(bx_u32 *man, int n)
         man[i] = i >= words ? man[i - words] : 0;
 }
 
-static bx_u32 bx_ld12_to_float_bits(const bx_ld12 *x, const bx_fp_format *f)
+static bx_u32 bx_ld12_to_bits(const bx_ld12 *x, const bx_fp_format *f, bx_u32 *low)
 {
     bx_u32 man[3], copy[3], sign, bits;
     int e, biased, i;
@@ -339,6 +340,7 @@ static bx_u32 bx_ld12_to_float_bits(const bx_ld12 *x, const bx_fp_format *f)
         }
     }
     bits = (bx_u32)biased << (31 - f->exp_bits);
+    *low = man[1];
     return bits | sign | man[0];
 }
 
@@ -352,18 +354,13 @@ static int bx_is_exp_letter(char c)
     return c == 'e' || c == 'E' || c == 'd' || c == 'D';
 }
 
-float bx_strtof_msvc5(const char *text, const char **end)
+static void bx_scan_ld12(const char *text, const char **end, bx_ld12 *out)
 {
     const char *p = text;
     unsigned char digits[25];
     int count = 0, adjust = 0, negative = 0, seen = 0, exp_value = 0, exp_negative = 0;
     int power;
     bx_ld12 ld;
-    bx_u32 bits;
-    union {
-        float f;
-        bx_u32 u;
-    } result;
 
     while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
         p++;
@@ -446,12 +443,42 @@ float bx_strtof_msvc5(const char *text, const char **end)
         }
     }
     ld.w[5] = (bx_u16)(ld.w[5] | (negative ? 0x8000u : 0));
-    bits = bx_ld12_to_float_bits(&ld, &bx_float_format);
-    result.u = bits;
-    return result.f;
+    *out = ld;
+    return;
 
 no_number:
     if (end)
         *end = text;
-    return 0.0f;
+    bx_ld12_zero(out);
+}
+
+float bx_strtof_msvc5(const char *text, const char **end)
+{
+    bx_ld12 ld;
+    bx_u32 low;
+    union {
+        float f;
+        bx_u32 u;
+    } result;
+
+    bx_scan_ld12(text, end, &ld);
+    result.u = bx_ld12_to_bits(&ld, &bx_float_format, &low);
+    return result.f;
+}
+
+double bx_atof_msvc5(const char *text)
+{
+    bx_ld12 ld;
+    bx_u32 low;
+    union {
+        double d;
+        bx_u32 w[2];
+    } result;
+
+    while (*text == ' ' || (*text >= 9 && *text <= 13))
+        text++;
+    bx_scan_ld12(text, 0, &ld);
+    result.w[1] = bx_ld12_to_bits(&ld, &bx_double_format, &low);
+    result.w[0] = low;
+    return result.d;
 }

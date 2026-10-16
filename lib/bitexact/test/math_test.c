@@ -411,6 +411,154 @@ static void test_atof(math_stat_t *typical, math_stat_t *wide, math_stat_t *scan
 }
 
 
+#define ATOF_RANDOM_CASES 1100000
+
+static const char *atof_fixed[] = {
+    "", " ", "0", "-0", "+0", "0.0", "1", "-1", "+1", "+-1", "-+1", "--1", ".5", "-.5", "+.5", "5.", "-5.", ".", "-.", "+.",
+    "1e", "1e+", "1e-", "1E5", "1e5", "1e+5", "1e-5", "1d5", "1D5", "1d-5", "1.5e", "1.5e+", "e5", ".e5", "1.e5", ".5e1",
+    " 12", "\t12", "\n12", "\r12", "\v12", "\f12", " \t\n\r\v\f 12", "12 ", "12abc", "12.5.6", "1,5", "1_000", "0x10", "0X1p3",
+    "inf", "-inf", "+inf", "Inf", "INF", "infinity", "Infinity", "nan", "-nan", "NaN", "nan(123)", "1.#INF", "-1.#INF",
+    "1.#QNAN", "1.#IND", "-1.#IND", "1.#SNAN", "#INF", "00000", "000.000", "0e100", "0e-100", "0.0e999999",
+    "1e308", "1.7976931348623157e308", "1.7976931348623158e308", "1.7976931348623159e308", "1.8e308", "1e309", "1e310",
+    "9e999", "-1e309", "1e400", "1e4932", "1e5000", "1e99999999999", "-1e99999999999", "1e-99999999999",
+    "2.2250738585072014e-308", "2.2250738585072011e-308", "2.225073858507201e-308", "1e-308", "1e-310", "1e-320",
+    "4.9406564584124654e-324", "4.9e-324", "2.4703282292062327e-324", "2.4703282292062328e-324", "2.5e-324", "1e-323",
+    "1e-324", "1e-325", "1e-330", "1e-400", "1e-4000", "1e-5000", "1e-4950", "1e-4932",
+    "9007199254740992", "9007199254740993", "9007199254740994", "9007199254740995", "18014398509481984",
+    "18014398509481985", "18014398509481986", "18014398509481987", "9007199254740993.0000000001",
+    "0.1", "0.2", "0.3", "0.7", "1.1", "3.14159265358979323846", "2.718281828459045", "123456789012345678901234567890",
+    "0.000000000000000000000000000001", "100000000000000000000000", "1e23", "8.5e-5", "5e-324", "123456789.123456789"};
+
+static void make_atof_text(int i, char *text)
+{
+    static const char alphabet[] = " +-.0123456789eEdD#inf\ta";
+    int p = 0, j, kind = (int)(mrnd() % 8u);
+
+    if (kind < 5) {
+        char d[48];
+        int digits = 1 + (int)(mrnd() % (kind == 4 ? 40u : 20u)), frac = (int)(mrnd() % (unsigned)(digits + 2)) - 1;
+        int ex = kind == 3 ? (int)(mrnd() % 700u) - 350 : (int)(mrnd() % 80u) - 40;
+        for (j = 0; j < digits; j++)
+            d[j] = (char)('0' + (int)(mrnd() % 10u));
+        if (kind == 4 && (mrnd() & 1))
+            for (j = digits / 2; j < digits; j++)
+                d[j] = (mrnd() & 1) ? '0' : '9';
+        if ((mrnd() & 7) == 0)
+            for (j = (int)(mrnd() % 3u); j > 0; j--)
+                text[p++] = ' ';
+        if ((mrnd() & 7) == 0)
+            text[p++] = (char)(9 + (int)(mrnd() % 5u));
+        if (mrnd() & 1)
+            text[p++] = '-';
+        else if ((mrnd() & 7) == 0)
+            text[p++] = '+';
+        for (j = 0; j < digits; j++) {
+            if (j == frac)
+                text[p++] = '.';
+            text[p++] = d[j];
+        }
+        if (frac == digits)
+            text[p++] = '.';
+        if (kind >= 2) {
+            static const char letters[] = "eEdD";
+            text[p++] = letters[mrnd() & 3u];
+            if (ex < 0) {
+                text[p++] = '-';
+                ex = -ex;
+            } else if (mrnd() & 1) {
+                text[p++] = '+';
+            }
+            if (ex >= 100)
+                text[p++] = (char)('0' + ex / 100);
+            if (ex >= 10 || (mrnd() & 1))
+                text[p++] = (char)('0' + ex / 10 % 10);
+            text[p++] = (char)('0' + ex % 10);
+        }
+        if ((mrnd() & 15) == 0)
+            text[p++] = "xa. e-"[mrnd() % 6u];
+    } else if (kind == 5) {
+        int n = 1 + (int)(mrnd() % 14u);
+        for (j = 0; j < n; j++)
+            text[p++] = alphabet[mrnd() % (sizeof(alphabet) - 1)];
+    } else {
+        int digits = 1 + (int)(mrnd() % 3u);
+        long mant = (long)(mrnd() % 100000u);
+        int scale = (int)(mrnd() % 6u);
+        p += sprintf(text + p, "%ld", mant);
+        if (scale)
+            p += sprintf(text + p, ".%0*ld", digits + scale, (long)(mrnd() % 1000000u));
+    }
+    (void)i;
+    text[p] = 0;
+}
+
+static void show_text(const char *text, char *out)
+{
+    int p = 0;
+    for (; *text && p < 120; text++) {
+        if ((unsigned char)*text < 32)
+            p += sprintf(out + p, "\\x%02x", (unsigned)(unsigned char)*text);
+        else
+            out[p++] = *text;
+    }
+    out[p] = 0;
+}
+
+static void check_atof(math_stat_t *s, const char *text, double want)
+{
+    double got = bx_atof_msvc5(text);
+    s->cases++;
+    if (bits_of(want) != bits_of(got)) {
+        s->mismatches++;
+        if (s->mismatches <= 3) {
+            char shown[600];
+            show_text(text, shown);
+            printf("  bx_atof_msvc5 mismatch: \"%s\" atof 0x%08x%08x port 0x%08x%08x\n", shown,
+                   (bx_u32)(bits_of(want) >> 32), (bx_u32)bits_of(want), (bx_u32)(bits_of(got) >> 32),
+                   (bx_u32)bits_of(got));
+        }
+    }
+}
+
+static void test_atof_msvc5(math_stat_t *s, math_stat_t *tdf, const char *tdf_path)
+{
+    int i;
+    char text[160];
+    FILE *f = tdf_path ? fopen(tdf_path, "r") : 0;
+    unsigned long count = 0, recorded, k;
+
+    for (i = 0; i < (int)(sizeof(atof_fixed) / sizeof(atof_fixed[0])); i++)
+        check_atof(s, atof_fixed[i], ORACLE_DOUBLE(atof(atof_fixed[i])));
+    for (i = 0; i < ATOF_RANDOM_CASES; i++) {
+        make_atof_text(i, text);
+        check_atof(s, text, ORACLE_DOUBLE(atof(text)));
+    }
+    if (f) {
+        while (fgets(text, sizeof(text), f))
+            count++;
+        rewind(f);
+    }
+    recorded = ORACLE_BITS(count);
+    for (k = 0; k < recorded; k++) {
+        double want;
+        int have = f && fgets(text, sizeof(text), f) != 0;
+        if (!have)
+            text[0] = 0;
+        text[strcspn(text, "\r\n")] = 0;
+        want = ORACLE_DOUBLE(atof(text));
+        if (!have) {
+            tdf->cases++;
+            tdf->mismatches++;
+            continue;
+        }
+        check_atof(tdf, text, want);
+    }
+    if (f)
+        fclose(f);
+    printf("bx_atof_msvc5 TDF strings from the install: %lu%s\n", recorded,
+           recorded ? "" : " (none: run tools/tdfnumbers.py to extract them)");
+}
+
 static void make_float_text(char *text)
 {
     int kind = (int)(mrnd() % 6u), digits, frac, j, p = 0;
@@ -659,7 +807,7 @@ static int report(const math_stat_t *s, int fatal)
     return fatal && s->mismatches != 0;
 }
 
-int run_math_tests(void)
+int run_math_tests(const char *tdf_path)
 {
     static math_stat_t sd = {"bx_sqrt vs x87 fsqrt"}, sf = {"bx_sqrt vs x87 fsqrt, float in and out"},
                        sc = {"bx_sqrt vs CRT sqrt"}, hy = {"simple hypot (double steps, 53-bit) vs _hypot"},
@@ -679,7 +827,8 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
                        at1 = {"correctly rounded atof, up to 9 digits vs atof"},
                        at2 = {"correctly rounded atof, 10 to 15 digits vs atof"},
                        sc3 = {"sscanf %f vs the correctly rounded double rounded to float"},
-                       sf1 = {"bx_strtof_msvc5 vs sscanf %f"}, ss1 = {"bx_sscanf vs sscanf"};
+                       sf1 = {"bx_strtof_msvc5 vs sscanf %f"}, ss1 = {"bx_sscanf vs sscanf"},
+                       af1 = {"bx_atof_msvc5 vs atof"}, af2 = {"bx_atof_msvc5 vs atof, TDF strings"};
     int bad = 0, i;
 
     test_sqrt(&sd, &sf, &sc);
@@ -688,6 +837,7 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
     test_atof(&at1, &at2, &sc3);
     test_strtof(&sf1);
     test_sscanf(&ss1);
+    test_atof_msvc5(&af1, &af2, tdf_path);
     bad |= report(&sd, 1);
     bad |= report(&sf, 1);
     bad |= report(&sc, 1);
@@ -711,5 +861,7 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
     report(&sc3, 0);
     bad |= report(&sf1, 1);
     bad |= report(&ss1, 1);
+    bad |= report(&af1, 1);
+    bad |= report(&af2, 1);
     return bad;
 }
