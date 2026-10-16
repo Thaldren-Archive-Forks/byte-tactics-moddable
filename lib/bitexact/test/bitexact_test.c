@@ -34,7 +34,7 @@ extern int __cdecl FixedSine(unsigned short angle);
             vec_put((bx_u32)(words)[oracle_i]); \
     } while (0)
 #endif
-extern int run_math_tests(void);
+extern int run_math_tests(const char *tdf_path);
 
 typedef int (__cdecl *fn_angle)(unsigned short);
 typedef int (__cdecl *fn_mul_hi)(int, int);
@@ -489,7 +489,7 @@ int main(int argc, char **argv)
         if (all_stats[i]->mismatches)
             bad = 1;
     }
-    bad |= run_math_tests();
+    bad |= run_math_tests(argc > 2 ? argv[2] : 0);
     if (argc > 1)
         bad |= vec_close();
     printf("info: the table's 80-bit fsincos values are exact roundings; this CPU's fsincos differs from them in %lu of %lu values"
