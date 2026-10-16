@@ -305,8 +305,13 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
                     for (int j = 0; j < face->count; j++, idx++) {
                         poly[j] = vertex[*idx];
                         if (list->pieces[p].flags.lit) {
+#ifdef __clang__
+                            double light = (double)accum[*idx][0] * g_lightX + (double)accum[*idx][1] * g_lightY;
+                            light += (double)accum[*idx][2] * g_lightZ;
+#else
                             float light = accum[*idx][0] * g_lightX + accum[*idx][1] * g_lightY;
                             light += accum[*idx][2] * g_lightZ;
+#endif
                             poly[j].shade = 0x1f & ((int)(DAT_004fd4cc * light));
                         } else {
                             poly[j].shade = 0xf;

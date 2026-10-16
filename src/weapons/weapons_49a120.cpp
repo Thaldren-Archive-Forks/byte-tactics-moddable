@@ -294,11 +294,19 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
                     float edge = weapon->def->edgeDamage;
                     float scale;
                     if (distance) {
+#ifdef __clang__
+                        double t = (double)distance / radius - 1.0f;
+#else
                         float t = (float)distance / radius - 1.0f;
+#endif
                         // Square t in place and assign the whole falloff back to t
                         // before `scale = t`: sets the x87 stack lifetimes.
                         t *= t;
+#ifdef __clang__
+                        t = (1.0f - (double)edge) * t + edge;
+#else
                         t = (1.0f - edge) * t + edge;
+#endif
                         scale = t;
                     } else {
                         scale = 1.0f;

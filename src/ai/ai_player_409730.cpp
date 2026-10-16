@@ -296,7 +296,11 @@ int __stdcall RateUnitType(UnitDef* p)
         result += 10;
     if (GetEnergyUse(p) < 0.0f)
         result += 10;
+#ifdef __clang__
+    result = (int)((int)((double)result - (double)p->metalCost * -0.01f) - (double)p->energyCost * -0.002f);
+#else
     result = (int)((int)(result - p->metalCost * -0.01f) - p->energyCost * -0.002f);
+#endif
     result += (signed char)RateWeapons(p);
     if (MIN(result, 100) < -100)
         return -100;
@@ -359,7 +363,11 @@ void PlayerAI::ComputeBaseWeights()
         e->a = x;
         e->c = (char)max(0.0f, min(100.0f, def->energyCost * -0.0025f - GetEnergyUse(def) * 5.0f));
         // The e->b bonus is a plain conditional: RateWeapons only inlines then.
+#ifdef __clang__
+        e->b = (char)max(0.0f, min(100.0f, (double)(float)((double)def->metalCost * -0.02f + (def->makesMetal ? 25 : 0)) + (def->extractsMetal != 0.0f ? 100 : 0)));
+#else
         e->b = (char)max(0.0f, min(100.0f, (float)(def->metalCost * -0.02f) + (def->makesMetal ? 25 : 0) + (def->extractsMetal != 0.0f ? 100 : 0)));
+#endif
     }
 }
 

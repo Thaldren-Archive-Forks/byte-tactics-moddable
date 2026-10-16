@@ -88,10 +88,10 @@ int __cdecl FUN_004b7123(short angle, int scale);
 // priority tie in the callers.
 static inline int Length(const Vec3& v)
 {
-    float x = (float)v.x;
-    float y = (float)v.y;
-    float z = (float)v.z;
-    float sq = x * x + y * y + z * z;
+    double x = v.x;
+    double y = v.y;
+    double z = v.z;
+    double sq = x * x + y * y + z * z;
     int len = (int)sqrt(sq);
     return len;
 }

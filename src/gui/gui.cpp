@@ -2139,7 +2139,11 @@ void __stdcall DrawSliderBar(Object_004a2580* obj, int index)
         if (e->u.text[0] != 0) {
             strcpy(buf, e->u.text);
         } else if (e->max != 0) {
+#ifdef __clang__
+            int num = (int)((double)e->knobPos * e->max / (e->width - e->knobSize));
+#else
             int num = (int)((float)e->knobPos * e->max / (e->width - e->knobSize));
+#endif
             _itoa(num, buf, 10);
         } else if (e->attribs & 8) {
             _itoa(e->knobPos + 1, buf, 10);
@@ -2236,8 +2240,13 @@ void __stdcall SyncAssocGadgets(Dialog_4a2be0* param_1, int param_2)
                             int edx_val = *(short*)(entry - 0x80) -
                                 *(short*)(entry - 0x127) / rows;
                             int eax_val = *(short*)(me + 0x140) + esi_val;
+#ifdef __clang__
+                            int result = (int)((double)edx_val * eax_val /
+                                (*(short*)(me + 0x136) - 1));
+#else
                             int result = (int)((float)edx_val * eax_val /
                                 (*(short*)(me + 0x136) - 1));
+#endif
                             *(short*)(entry - 0x84) = result;
                         }
                         DrawListBox(param_1, i);
@@ -2259,8 +2268,13 @@ void __stdcall SyncAssocGadgets(Dialog_4a2be0* param_1, int param_2)
                                 short height = *(short*)(entry - 0xa);
                                 short count = *(short*)(me + 0xbe);
                                 // Split into a named ratio: fixes the x87 operand-staging order.
+#ifdef __clang__
+                                double ratio = (double)scale * height;
+                                result = (int)(ratio / count);
+#else
                                 float ratio = (float)scale * height;
                                 result = (int)(ratio / count);
+#endif
                             } else {
                                 result = 0;
                             }
@@ -2378,8 +2392,13 @@ void __stdcall SetListBoxScrollByName(Dialog_4a2e40* param_1, char* param_2, int
         unsigned char pkind = peer->team;
         Gadget* e3 = &entries[FindKind_004a2e40(entries, pkind)];
         // Keep the float conversions: the original uses integer-memory FPU multiply/divide.
+#ifdef __clang__
+        double q = (double)e3->range * me->u.list.firstRow / me->u.list.maxFirstRow;
+        if ((double)e3->knobPos != q)
+#else
         float q = (float)e3->range * me->u.list.firstRow / me->u.list.maxFirstRow;
         if ((float)e3->knobPos != q)
+#endif
             e3->knobPos = (short)q;
     }
     param_1->changed = 1;
@@ -3452,8 +3471,13 @@ void __stdcall DrawProgressBarGadget(Dialog_4a4660 *obj, int index)
     rect.bottom -= 2;
     FillRectangle(surface, &rect, entry->image);
 
+#ifdef __clang__
+    double scale = (double)entry->u.anim.value / entry->u.anim.total;
+    rect.right = (int)(scale * (entry->width - 4)) + rect.left;
+#else
     float scale = (float)entry->u.anim.value / entry->u.anim.total;
     rect.right = (int)(scale * (entry->width - 4)) + rect.left;
+#endif
     FillRectangle(surface, &rect, entry->colours);
 
     if (entry->u.anim.showText != 0) {
