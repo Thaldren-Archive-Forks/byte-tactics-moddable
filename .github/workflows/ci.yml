@@ -65,7 +65,7 @@ jobs:
           if [ "$EVENT" != pull_request ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           elif git diff --name-only "origin/$BASE_REF...HEAD" |
-              grep -qE '^(src/|include/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$|tools/sources\.py$|tools/rwsets\.py$|tools/test_rwsets\.py$|data/rwsets\.csv$|tools/hazards\.py$|tools/test_hazards\.py$|data/hazards\.csv$|tools/stateclasses\.py$|tools/test_stateclasses\.py$|tools/test_trace_coverage\.py$|data/trace_coverage\.csv$|data/state_classes\.csv$|tools/coupling\.py$|tools/test_coupling\.py$|data/subsystems\.csv$|data/coupling\.csv$|data/hazard_edges\.csv$|data/globals\.csv$|data/game_logic\.csv$|pyproject\.toml$|uv\.lock$)'; then
+              grep -qE '^(src/|include/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$|tools/sources\.py$|tools/rwsets\.py$|tools/test_rwsets\.py$|data/rwsets\.csv$|tools/hazards\.py$|tools/test_hazards\.py$|data/hazards\.csv$|tools/stateclasses\.py$|tools/test_stateclasses\.py$|tools/test_trace_coverage\.py$|tools/playtest\.py$|tools/test_playtest_dialogs\.py$|data/trace_coverage\.csv$|data/state_classes\.csv$|tools/coupling\.py$|tools/test_coupling\.py$|data/subsystems\.csv$|data/coupling\.csv$|data/hazard_edges\.csv$|data/globals\.csv$|data/game_logic\.csv$|pyproject\.toml$|uv\.lock$)'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -131,6 +131,10 @@ jobs:
           uv run tools/test_trace_coverage.py
           uv run tools/stateclasses.py --check --build-dir build/modern
           uv run tools/stateclasses.py --unclassified
+
+      - name: Test the playtest dialog handling
+        if: steps.changed.outputs.run == 'true'
+        run: uv run tools/test_playtest_dialogs.py
 
       - name: Check data/coupling.csv is current
         if: steps.changed.outputs.run == 'true'
