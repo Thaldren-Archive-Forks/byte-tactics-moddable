@@ -258,6 +258,9 @@ it builds the reference from the commit the trace records (cached in
 differing scenario and exits 1. `--check --exe <path>` checks a given exe instead
 of building HEAD, and its report is `tracediff.py` run on the reference exe and
 that exe: the first differing tick, phase, field and the function the phase runs.
+A differing scenario's run is kept: its `trace.txt` (and `dump.txt`, if any) is copied to
+`build/scratch/check-<scenario>-<time>/`, and the `DIFF` line ends with that path, so a one-off
+divergence can be diagnosed later with the file mode of `tools/tracediff.py` against a good run.
 
 The full `--check` is what a pull request's gate needs.
 
