@@ -156,8 +156,17 @@ reruns both with `--testdump` at that tick and lists the fields that differ:
 
 ```
 first divergence: tick 900, phase units
-  units[12].health: a=0x0064 b=0x0063
+  phase function: UpdateAllUnits (FUNCTION: 0x48ad30)
+  first differing field: units[12].health: a=0x0064 b=0x0063
+  all 1 differing fields:
+    units[12].health: a=0x0064 b=0x0063
 ```
+
+The phase function is the one `RunGameSteps` calls just before the phase's hash
+(`PHASE_FUNCTIONS` in `tools/tracediff.py`): `net` `HandleNetPackets`, `units`
+`UpdateAllUnits`, `projectiles` `UpdateProjectiles`, `explosions`
+`UpdateExplosions`, `players` `UpdatePlayers`, `features` `UpdateFeatures`,
+`wind` `UpdateWind` and `meteors` `UpdateMeteors`.
 
 Traces with different scenario or seeds are refused (exit 2).
 Exit status is 0 for identical traces, 1 for a divergence and 2 for an error.
@@ -247,7 +256,8 @@ when a trace has no scenario or a scenario has no trace, and on a difference:
 it builds the reference from the commit the trace records (cached in
 `build/reference/<sha>`), prints the `tools/tracediff.py` report for the first
 differing scenario and exits 1. `--check --exe <path>` checks a given exe instead
-of building HEAD.
+of building HEAD, and its report is `tracediff.py` run on the reference exe and
+that exe: the first differing tick, phase, field and the function the phase runs.
 
 The full `--check` is what a pull request's gate needs.
 

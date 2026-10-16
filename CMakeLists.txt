@@ -22,12 +22,18 @@ if(NOT HEADERS_RESULT EQUAL 0)
 endif()
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
+find_program(UV uv REQUIRED)
+execute_process(COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/sources.py" --link-order
+  OUTPUT_VARIABLE LINK_ORDER OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE LINK_ORDER_RESULT)
+if(NOT LINK_ORDER_RESULT EQUAL 0)
+  message(FATAL_ERROR "tools/sources.py --link-order failed")
+endif()
+string(REPLACE "\n" ";" SOURCES "${LINK_ORDER}")
 option(BITEXACT_ROUTE "Route the game logic's CRT calls to lib/bitexact" ON)
 if(BITEXACT_ROUTE)
   list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/util/math_4b70a0.cpp")
 endif()
 
-find_program(UV uv REQUIRED)
 set(BITEXACT_DIR "${CMAKE_SOURCE_DIR}/lib/bitexact")
 set(BITEXACT_SHIM_DIR "${CMAKE_SOURCE_DIR}/cmake/bitexact")
 set(BITEXACT_TABLES "${CMAKE_BINARY_DIR}/bitexact/bx_tables.c")
@@ -136,10 +142,15 @@ endforeach()
 
 file(GLOB ZLIB_OBJECTS "${CMAKE_SOURCE_DIR}/toolchain/thirdparty/zlib-1.0.4/*.obj")
 
-execute_process(COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/resources.py" --print-art
-  OUTPUT_VARIABLE ART_DIR OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE ART_RESULT)
-if(NOT ART_RESULT EQUAL 0)
-  message(FATAL_ERROR "tools/resources.py --print-art failed")
+option(BT_COMPILE_ONLY "Configure for building the game and bitexact targets only (no orig/TotalA.exe)" OFF)
+if(BT_COMPILE_ONLY)
+  set(ART_DIR "")
+else()
+  execute_process(COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/resources.py" --print-art
+    OUTPUT_VARIABLE ART_DIR OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE ART_RESULT)
+  if(NOT ART_RESULT EQUAL 0)
+    message(FATAL_ERROR "tools/resources.py --print-art failed")
+  endif()
 endif()
 add_custom_command(
   OUTPUT "${CMAKE_BINARY_DIR}/TotalA.res"

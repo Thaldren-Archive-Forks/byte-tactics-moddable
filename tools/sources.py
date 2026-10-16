@@ -284,6 +284,7 @@ def main() -> None:
     ap.add_argument("address", nargs="*", type=lambda s: int(s, 16))
     ap.add_argument("--kinds", action="store_true", help="count the files of each kind")
     ap.add_argument("--list", action="store_true", help="every file in link order: kind, path, addresses")
+    ap.add_argument("--link-order", action="store_true", help="the absolute path of every file, one per line, in link order")
     args = ap.parse_args()
     if args.kinds:
         counts: dict[str, int] = {}
@@ -296,6 +297,9 @@ def main() -> None:
             addrs = function_addresses(s) or global_addresses(s)
             print(f"{kind_of(s):8s} {relative(s)}  {' '.join(f'{a:#x}' for a in addrs[:8])}"
                   f"{' ...' if len(addrs) > 8 else ''}")
+    if args.link_order:
+        for s in sources():
+            print(s)
     status = 0
     for a in args.address:
         src = find_source(a) or find_global(a)

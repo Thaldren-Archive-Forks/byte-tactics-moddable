@@ -49,6 +49,11 @@ libraries, zlib from `toolchain/thirdparty` and the resources (`llvm-rc`). It
 needs `uv`, `orig/TotalA.exe` (the icon, the cursor and the initial value of
 some globals) and `llvm-dlltool`, `llvm-rc` and `lld-link`.
 
+The objects are linked in `tools/sources.py`'s link order, the reference's, and
+`tools/aliases.py` keeps one definition (the first that is not an inline copy) of a name defined in
+several files (the copies kept in callers' files, `docs/linking.md`), as
+LINK's `/FORCE:MULTIPLE` does, so the link prints no duplicate-symbol warning.
+
 The link refuses unresolved names: there are no stubs. `tools/aliases.py` also
 lays the game's data out in 3.1c's order (each global in a section named for
 its address, with the original's bytes between them), because the decompiled
@@ -62,9 +67,15 @@ the matching build is not affected. `uv run tools/bitexact.py` tests the library
 under both compilers, MSVC 5 first and then clang-cl against the vectors it
 wrote.
 
-There is no CI job for it: the build needs `toolchain/msvc5-sp3/INCLUDE`, which
-must never be committed, so it can only run where the toolchain is installed
-(see "Setting up").
+The `modern-compile` CI job compiles the game and `lib/bitexact` with clang-cl
+(`cmake --build build/modern --target game bitexact`, configured with
+`-DBT_COMPILE_ONLY=ON`) on pull requests that touch `src/`, `include/`, `lib/`,
+`cmake/`, `CMakeLists.txt`, `tools/setup_toolchain.sh`, `tools/sources.py`,
+`pyproject.toml` or `uv.lock`. It checks that the
+source still builds with LLVM 22.1.8 against MSVC 5's headers, which
+`tools/setup_toolchain.sh` fetches into a cached `toolchain/`. It does not
+link: the link needs `orig/TotalA.exe`, which must never be committed, and
+trace runs need the game's data, so both stay local.
 
 ## Running an agent
 

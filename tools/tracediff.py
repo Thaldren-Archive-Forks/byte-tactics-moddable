@@ -10,7 +10,10 @@ It then runs both again with `--testdump <tick>` and prints every field of that
 phase that differs, with its value in A and in B. Set WINEARCH=win64 for Wine.
 
     first divergence: tick 900, phase units
-      units[12].health: a=0x0064 b=0x0063
+      phase function: UpdateAllUnits (FUNCTION: 0x48ad30)
+      first differing field: units[12].health: a=0x0064 b=0x0063
+      all 1 differing fields:
+        units[12].health: a=0x0064 b=0x0063
 
 `--traces` compares existing trace files without running, and reports the first
 divergence only. `--dumps` diffs the phase of two existing dump files.
@@ -32,6 +35,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PHASES = ("net", "units", "projectiles", "explosions", "players", "features", "wind", "meteors")
+PHASE_FUNCTIONS = {
+    "net": ("HandleNetPackets", 0x453D40),
+    "units": ("UpdateAllUnits", 0x48AD30),
+    "projectiles": ("UpdateProjectiles", 0x49B720),
+    "explosions": ("UpdateExplosions", 0x420F30),
+    "players": ("UpdatePlayers", 0x464F80),
+    "features": ("UpdateFeatures", 0x424050),
+    "wind": ("UpdateWind", 0x490C40),
+    "meteors": ("UpdateMeteors", 0x437DE0),
+}
 COMPARED_HEADERS = ("scenario", "game_seed", "crt_seed", "view_seed")
 
 
@@ -98,11 +111,27 @@ def diff_dumps(a: Path, b: Path, tick: int, phase: str) -> list[tuple[str, str, 
             if fa.get(k) != fb.get(k)]
 
 
+def describe_phase(phase: str) -> str:
+    """The function a phase's hash follows, from RunGameSteps (src/ingame/dialogs_493340.cpp)."""
+    name, address = PHASE_FUNCTIONS[phase]
+    return f"{name} (FUNCTION: {address:#x})"
+
+
 def print_diff(diffs: list[tuple[str, str, str]]) -> None:
-    for path, va, vb in diffs:
-        print(f"  {path}: a={va} b={vb}")
+    """The first differing field on its own line, then all of them."""
     if not diffs:
         print("  no field differs in the dumps")
+        return
+    path, va, vb = diffs[0]
+    print(f"  first differing field: {path}: a={va} b={vb}")
+    print(f"  all {len(diffs)} differing fields:")
+    for path, va, vb in diffs:
+        print(f"    {path}: a={va} b={vb}")
+
+
+def print_divergence(tick: int, phase: str) -> None:
+    print(f"first divergence: tick {tick}, phase {phase}")
+    print(f"  phase function: {describe_phase(phase)}")
 
 
 def play(exe: Path, scenario: Path, game_dir: str | None, dump: int | None, timeout: float | None = None) -> Path:
@@ -143,7 +172,7 @@ def compare(args: argparse.Namespace) -> int:
         print(f"traces identical ({len(ra)} lines)")
         return 0
     tick, phase = div
-    print(f"first divergence: tick {tick}, phase {phase}")
+    print_divergence(tick, phase)
     runs = [play(e, s, args.game_dir, tick) for e, s in zip(exes, scenarios)]
     print_diff(diff_dumps(need(runs[0], "dump.txt"), need(runs[1], "dump.txt"), tick, phase))
     return 1
@@ -181,11 +210,12 @@ def main() -> int:
             if not div:
                 print(f"traces identical ({len(ra)} lines)")
                 return 0
-            print(f"first divergence: tick {div[0]}, phase {div[1]}")
+            print_divergence(*div)
             return 1
         if args.dumps:
             diffs = diff_dumps(Path(args.dumps[0]), Path(args.dumps[1]), int(args.at[0]), args.at[1])
             print(f"tick {args.at[0]}, phase {args.at[1]}")
+            print(f"  phase function: {describe_phase(args.at[1])}")
             print_diff(diffs)
             return 1 if diffs else 0
         return compare(args)
