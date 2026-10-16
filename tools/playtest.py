@@ -7,7 +7,8 @@
     uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe --testmode reference/scenarios/skirmish2.txt
 
 `--exe` takes `orig` (orig/TotalA.exe), `place` (build/place/TotalA.exe from
-tools/place.py), `carve` (build/link/TotalA.exe from tools/link.py --carve) or
+tools/place.py), `carve` (build/link/TotalA.exe from tools/link.py --carve),
+`modern` (build/modern/TotalA.exe from the CMake build) or
 the path of an exe; `orig+carve` runs orig in a scenario's first instance and
 carve in the others. A scenario is a script in tools/playtest/<name>.txt (the
 step language is described in docs/linking.md). Every pair of scenario and
@@ -66,6 +67,13 @@ EXES = {
     "orig": ROOT / "orig/TotalA.exe",
     "place": ROOT / "build/place/TotalA.exe",
     "carve": ROOT / "build/link/TotalA.exe",
+    "modern": ROOT / "build/modern/TotalA.exe",
+}
+BUILD_HINTS = {
+    "place": "uv run tools/place.py",
+    "carve": "uv run tools/link.py --carve",
+    "modern": "cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake"
+    " && cmake --build build/modern",
 }
 GAME_DIRS = [
     Path.home() / ".local/share/Steam/steamapps/common/Total Annihilation",
@@ -1119,7 +1127,7 @@ def resolve_exes(values: list[str]) -> list[list[tuple[str, Path]]]:
                     path = Path(item).resolve()
                     tag = path.parent.name if path.name.lower() == "totala.exe" else path.stem
                 if not path.exists():
-                    hint = {"place": "uv run tools/place.py", "carve": "uv run tools/link.py --carve"}.get(item)
+                    hint = BUILD_HINTS.get(item)
                     raise SystemExit(f"{path} is missing" + (f": build it with {hint}" if hint else ""))
                 parts.append((tag, path))
             out.append(parts)
@@ -1235,7 +1243,7 @@ def summary(session: Path, runs: list[Run], shots: dict[str, list[str]]) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--exe", action="append", default=[],
-                    help="orig, place, carve or a path (repeat, or commas); A+B: A in instance 1, B in the others")
+                    help="orig, place, carve, modern or a path (repeat, or commas); A+B: A in instance 1, B in the others")
     ap.add_argument("--scenario", action="append", default=[], help="a tools/playtest/ scenario (repeat, or commas)")
     ap.add_argument("--repeat", type=int, default=1, help="run each pair this many times")
     ap.add_argument("--parallel", type=int, default=0, help="runs at once (default: all of them, at most 3)")

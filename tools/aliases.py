@@ -1280,13 +1280,15 @@ def main() -> None:
                          "and write the copies' paths to DIR/objects.rsp")
     ap.add_argument("--import-def", type=Path, default=None, metavar="LIB",
                     help="instead write the module-definition file of an old-style import library (its "
-                         "__imp_ names), for llvm-dlltool -k; --objects is ignored")
+                         "__imp_ names), for llvm-dlltool -k; WINMM.LIB is named WIN32.dll, as in GOG's exe; "
+                         "--objects is ignored")
     ap.add_argument("--winmain", type=lambda v: int(v, 0), default=None,
                     help="alias _WinMain@16 to the function at this address")
     args = ap.parse_args()
     if args.import_def is not None:
         names = sorted(n[len("__imp_"):] for n in archive_symbols(args.import_def) if n.startswith("__imp_"))
-        lines = [f"LIBRARY {args.import_def.stem}.dll", "EXPORTS"]
+        dll = "WIN32" if args.import_def.stem.upper() == "WINMM" else args.import_def.stem
+        lines = [f"LIBRARY {dll}.dll", "EXPORTS"]
         lines += [f"    {n[1:] if n.startswith('_') else n}" for n in names]
         args.out.write_text("\n".join(lines) + "\n")
         print(f"aliases: {len(names)} imports of {args.import_def.name} in {args.out}", file=sys.stderr)
