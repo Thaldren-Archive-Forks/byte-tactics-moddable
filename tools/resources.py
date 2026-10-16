@@ -9,7 +9,8 @@ The exe holds an icon (32x32 and 16x16, 16 colours), a cursor and a version
 resource. The script is in the repository; the icon and cursor are Cavedog's
 art, which it does not hold. They come from a directory given with --art or
 the BT_ART_DIR environment variable (CI supplies them that way), or else are
-extracted from the player's own orig/TotalA.exe into build/res/art/. With
+extracted from the player's own orig/TotalA.exe into build/res/art/ (the modern build
+extracts into its own build directory). With
 neither, the build stops and says so. --extract writes the script out of the
 exe again, which is how it was made.
 
@@ -46,9 +47,9 @@ RT_CURSOR, RT_ICON, RT_GROUP_CURSOR, RT_GROUP_ICON, RT_VERSION = 1, 3, 12, 14, 1
 
 # --- the art --------------------------------------------------------------------------
 
-def art_dir(given: Path | None = None) -> Path:
+def art_dir(given: Path | None = None, extracted: Path = EXTRACTED) -> Path:
     """The directory holding the icon and cursor: --art, BT_ART_DIR, or the
-    files extracted from orig/TotalA.exe."""
+    files extracted from orig/TotalA.exe into `extracted`."""
     given = given or (Path(os.environ["BT_ART_DIR"]) if os.environ.get("BT_ART_DIR") else None)
     if given is not None:
         given = given if given.is_absolute() else Path.cwd() / given
@@ -57,10 +58,10 @@ def art_dir(given: Path | None = None) -> Path:
             raise SystemExit(f"{given}: {', '.join(missing)} missing (the art for src/res/TotalA.rc)")
         return given
     if EXE.exists():
-        if not all((EXTRACTED / name).is_file() for name in ART) or any(
-                (EXTRACTED / name).stat().st_mtime < EXE.stat().st_mtime for name in ART):
-            extract_art(EXE, EXTRACTED)
-        return EXTRACTED
+        if not all((extracted / name).is_file() for name in ART) or any(
+                (extracted / name).stat().st_mtime < EXE.stat().st_mtime for name in ART):
+            extract_art(EXE, extracted)
+        return extracted
     raise SystemExit("the icon and cursor (Cavedog's art) are not in the repository: put your copy of the "
                      "game's TotalA.exe at orig/TotalA.exe, or pass --art DIR (or set BT_ART_DIR) with "
                      f"{' and '.join(ART)} in DIR")
@@ -74,11 +75,18 @@ def extract_art(exe: Path, out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     for kind, _, _, data in items:
         if kind == RT_GROUP_ICON:
-            (out / "TotalA.ico").write_bytes(group_file(data, {i: d for (t, i), d in images.items()
+            write_atomic(out / "TotalA.ico", group_file(data, {i: d for (t, i), d in images.items()
                                                                if t == RT_ICON}, False))
         elif kind == RT_GROUP_CURSOR:
-            (out / "TotalA.cur").write_bytes(group_file(data, {i: d for (t, i), d in images.items()
+            write_atomic(out / "TotalA.cur", group_file(data, {i: d for (t, i), d in images.items()
                                                                if t == RT_CURSOR}, True))
+
+
+def write_atomic(path: Path, data: bytes) -> None:
+    """Write path so that a concurrent reader sees the old file or the whole new one."""
+    temp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+    temp.write_bytes(data)
+    os.replace(temp, path)
 
 
 # --- compiling ----------------------------------------------------------------------
@@ -279,12 +287,15 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--art", type=Path, help=f"the directory with {' and '.join(ART)} (default: BT_ART_DIR, "
                                              "or extracted from orig/TotalA.exe)")
+    ap.add_argument("--art-out", type=Path, default=EXTRACTED,
+                    help="where --print-art extracts the art from orig/TotalA.exe (default: build/res/art; "
+                         "the modern build gives each build directory its own)")
     ap.add_argument("--extract", action="store_true", help="rewrite src/res/TotalA.rc from orig/TotalA.exe")
     ap.add_argument("--print-art", action="store_true",
                     help="print the directory holding the icon and cursor, and stop (the modern build's llvm-rc)")
     args = ap.parse_args()
     if args.print_art:
-        print(art_dir(args.art))
+        print(art_dir(args.art, args.art_out.resolve()))
         return
     if args.extract:
         extract(EXE)
