@@ -699,6 +699,8 @@ enum {
     PIECE_COUNT = 300,
     EXPLODED_SLOTS = 100,
     CELL_STRIDE = 13,
+    CELL_FLAGS = 12,
+    CELL_FLAGS_DRAW_MARK = 4,
     CELL_LIMIT = 1 << 22,
     REC_STRIDE = 10,
     REC_LIMIT = 1 << 20,
@@ -1249,8 +1251,16 @@ static void VisitMapCells()
     unsigned n = MapCellCount();
     HashByte(11);
     VisitValue("cells.count", n, 4);
-    if (cells != NULL)
-        VisitBlob("cells", 0, cells, CELL_STRIDE, n);
+    if (cells != NULL) {
+        unsigned char* copy = (unsigned char*)malloc((size_t)CELL_STRIDE * n);
+        if (copy == NULL)
+            Fail("testmode: out of memory hashing the map cells\n");
+        memcpy(copy, cells, (size_t)CELL_STRIDE * n);
+        for (unsigned i = 0; i < n; i++)
+            copy[i * CELL_STRIDE + CELL_FLAGS] &= (unsigned char)~CELL_FLAGS_DRAW_MARK;
+        VisitBlob("cells", 0, copy, CELL_STRIDE, n);
+        free(copy);
+    }
     EndSection();
 }
 
