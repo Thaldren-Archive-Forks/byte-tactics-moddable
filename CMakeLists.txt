@@ -146,7 +146,7 @@ option(BT_COMPILE_ONLY "Configure for building the game and bitexact targets onl
 if(BT_COMPILE_ONLY)
   set(ART_DIR "")
 else()
-  execute_process(COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/resources.py" --print-art
+  execute_process(COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/resources.py" --print-art --art-out "${CMAKE_BINARY_DIR}/art"
     OUTPUT_VARIABLE ART_DIR OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE ART_RESULT)
   if(NOT ART_RESULT EQUAL 0)
     message(FATAL_ERROR "tools/resources.py --print-art failed")
