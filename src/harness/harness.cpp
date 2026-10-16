@@ -21,6 +21,8 @@ void __stdcall SetMissionType(int owner);
 void __stdcall ResetPlayerSlots(void);
 void ApplySlotsToGamePlayers();
 void InitMissionStatus();
+char IsMemSet();
+int GetMemSetValue();
 
 enum { MAX_PLAYERS = 10 };
 
@@ -586,6 +588,12 @@ void HarnessInit(char* cmdLine)
         Fail(msg);
     }
     OpenTrace(cw);
+    if (IsMemSet()) {
+        char note[96];
+        DWORD noted;
+        sprintf(note, "testmode: allocations are filled with 0x%08x\n", (unsigned)GetMemSetValue());
+        WriteFile(GetStdHandle(STD_ERROR_HANDLE), note, (DWORD)strlen(note), &noted, NULL);
+    }
 }
 
 int HarnessTestMode()

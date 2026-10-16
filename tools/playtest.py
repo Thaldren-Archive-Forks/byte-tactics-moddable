@@ -18,7 +18,8 @@ a copy of an ordinary link whose stubs fault when reached (see stub_traps).
 `--testmode <file>` instead runs each exe with `-testmode <file>` (a scenario of
 reference/README.md) and passes when it exits with status 0 within
 `--testmode-timeout` seconds. The trace the exe writes (trace.txt, and dump.txt
-with `--testdump <tick>`) is copied to the run's directory.
+with `--testdump <tick>`) is copied to the run's directory. `--poison` adds the game's own
+`-memset=0xcdcdcdcd` switch, which makes GameAlloc (and so operator new) fill new memory with 0xCD.
 
 Each run has its own:
 
@@ -63,6 +64,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCENARIOS = ROOT / "tools/playtest"
 OUT = ROOT / "build/playtest"
+POISON_SWITCH = "-memset=0xcdcdcdcd"
 EXES = {
     "orig": ROOT / "orig/TotalA.exe",
     "place": ROOT / "build/place/TotalA.exe",
@@ -466,6 +468,8 @@ class Instance:
         args = ["-testmode", "testmode.txt"] if self.run.testmode else []
         if self.run.testmode and self.run.testdump is not None:
             args += ["-testdump", str(self.run.testdump)]
+        if self.run.testmode and self.run.poison:
+            args += [POISON_SWITCH]
         self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
                                      stdout=(self.run.out / f"wine{self.suffix}.log").open("w"),
                                      stderr=subprocess.STDOUT)
@@ -784,7 +788,7 @@ class GotoLabel(Exception):
 class Run:
     def __init__(self, number: int, name: str, scenario: Scenario, exes: list[Path], exe_tag: str, session: Path,
                  screens: dict[str, Screen], debug: str, window: bool = False, testmode: Path | None = None,
-                 testdump: int | None = None):
+                 testdump: int | None = None, poison: bool = False):
         self.number = number
         self.name = name
         self.scenario = scenario
@@ -797,6 +801,7 @@ class Run:
         self.window = window         # a visible Xephyr window instead of an invisible Xvfb display
         self.testmode = testmode     # a reference/ scenario file to run the exe on
         self.testdump = testdump     # the tick to dump the state of, with testmode
+        self.poison = poison
         self.instances = [Instance(self, i + 1) for i in range(scenario.instances)]
         self.t0 = time.time()
         self.log = None
@@ -1260,6 +1265,8 @@ def main() -> None:
                     help="--testmode: fail when the game runs longer (default 900)")
     ap.add_argument("--testdump", type=int, metavar="TICK",
                     help="--testmode: also run with -testdump TICK, which writes dump.txt")
+    ap.add_argument("--poison", action="store_true",
+                    help="--testmode: fill new game allocations with 0xCD (the game's -memset switch)")
     ap.add_argument("--list", action="store_true", help="list the scenarios")
     ap.add_argument("--signature", nargs="+", metavar="NAME GEOMETRY IMAGE",
                     help="print a screens.txt line for an area of screenshots of one screen")
@@ -1290,6 +1297,8 @@ def main() -> None:
         ap.error("--exe and --scenario (or --testmode) are required")
     if args.testdump is not None and not args.testmode:
         ap.error("--testdump needs --testmode")
+    if args.poison and not args.testmode:
+        ap.error("--poison needs --testmode")
     if args.testdump is not None and args.testdump < 0:
         ap.error("--testdump takes a tick of 0 or more")
     if args.testmode and not Path(args.testmode).is_file():
@@ -1338,7 +1347,8 @@ def main() -> None:
                 runs.append(Run(len(runs) + 1, name, sc, [p for _, p in parts], tag, session, screens,
                                 args.debug, args.window,
                                 Path(args.testmode).resolve() if sc is testmode else None,
-                                args.testdump if sc is testmode else None))
+                                args.testdump if sc is testmode else None,
+                                args.poison and sc is testmode))
     parallel = args.parallel or min(3, len(runs))
     template = template_prefix()
     dplay = directplay_prefix() if any(sc.directplay for sc in scenarios) else None

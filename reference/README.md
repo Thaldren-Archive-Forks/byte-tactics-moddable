@@ -294,6 +294,24 @@ divergence can be diagnosed later with the file mode of `tools/tracediff.py` aga
 
 The full `--check` is what a pull request's gate needs.
 
+## Poison mode
+
+Game memory comes from `GameAlloc` (and `operator new`, which calls it), which is plain
+`malloc`: a new block holds whatever the heap had. A table that hashes bytes the game
+never wrote would then differ from run to run. `--poison` finds such bytes:
+
+```sh
+uv run tools/reference.py HEAD --check --poison      # the stored digests must still match
+uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe --testmode reference/scenarios/skirmish2.txt --poison
+```
+
+It passes the game's own `-memset=0xcdcdcdcd` switch (a debug option of the game's library:
+`IsMemSet`, `GetMemSetValue`, `FillPattern` in `GameAlloc`), so every `GameAlloc` and
+`operator new` block is filled with 0xCD before the game uses it; `GameCalloc` still zeroes.
+The exe says so on stderr at the start. What it does not fill: `realloc` growth, memory from
+`malloc`, `HeapAlloc` or `VirtualAlloc` called directly, and stack and static data. A table
+whose digests differ under `--poison` reads uninitialised bytes: skip them by a field list.
+
 ## Quick check
 
 ```sh
