@@ -251,6 +251,29 @@ it builds the reference from the commit the trace records (cached in
 differing scenario and exits 1. `--check --exe <path>` checks a given exe instead
 of building HEAD.
 
+The full `--check` is what a pull request's gate needs.
+
+## Quick check
+
+```sh
+uv run tools/reference.py HEAD --check --quick     # a fixed subset, for a fast look
+```
+
+`--quick` is the same `--check` restricted to the five scenarios in the
+`QUICK` constant of `tools/reference.py`. Its scenarios take about 1 to 2
+minutes at the default `--parallel`, after the build and checkall. A pass says so and reminds you that it is not the gate; a failure
+prints the same `tools/tracediff.py` report as the full run. `--quick` goes with
+`--check` and `--exe`, and `--traces` rejects it. It is no substitute for the
+full `--check`, which is what a pull request's gate needs.
+
+| Name | Players | Sides | Start positions |
+| --- | ---: | --- | --- |
+| duel-coast-to-coast | 2 | Core | fixed |
+| duel-great-divide | 2 | Arm | random |
+| eight-full-moon | 8 | Arm and Core | fixed |
+| eight-greenhaven | 8 | Arm | random |
+| orders-move-attack | 2 | Arm and Core, scripted orders | fixed |
+
 `tools/tracediff.py --ignore-view-seed` accepts traces whose headers differ only
 in `view_seed`; with `--scenario` given twice, run mode runs A on the first file
 and B on the second.
