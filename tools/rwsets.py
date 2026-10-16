@@ -247,7 +247,7 @@ class Analyzer:
     def __init__(self, root: Path):
         self.root = root
         self.records: dict[str, str] = {}
-        self.methods: dict[str, tuple[str, bool]] = {}
+        self.methods: dict[str, tuple[str, bool, bool]] = {}
         self.statics: dict[str, str] = {}
         self.functions: list[dict] = []
         self.root_cache: dict[str, str | None] = {}
@@ -289,7 +289,11 @@ class Analyzer:
                 self.declare(child, name)
         elif kind == "VarDecl":
             if node.get("storageClass") == "static":
-                self.statics[node["id"]] = "%s@%s" % (node.get("name", "?"), os.path.basename(node["_file"]))
+                name = node.get("name", "?")
+                if owner:
+                    self.statics[node["id"]] = owner + "::" + name
+                else:
+                    self.statics[node["id"]] = "%s@%s" % (name, self.relative(node["_file"]) or node["_file"])
         elif kind in FUNCTION_KINDS and not node.get("isImplicit"):
             parent = node.get("parentDeclContextId")
             cls = self.records.get(parent) if parent else owner
@@ -297,7 +301,8 @@ class Analyzer:
             if kind == "CXXConstructorDecl" and cls:
                 name = cls.split("::")[-1]
             qualified = cls + "::" + name if cls and not name.startswith(cls + "::") else name
-            self.methods[node["id"]] = (qualified, bool(node.get("virtual")))
+            const = node.get("type", {}).get("qualType", "").endswith(" const")
+            self.methods[node["id"]] = (qualified, bool(node.get("virtual")), const)
             if any(c["kind"].endswith("Stmt") for c in node.get("inner", ())):
                 self.function(node, qualified)
 
@@ -489,9 +494,9 @@ class Walker:
             self.record("call", callee["referencedDecl"]["name"])
         elif callee["kind"] == "MemberExpr" and callee.get("referencedMemberDecl") and \
                 callee["type"].get("qualType") == "<bound member function type>":
-            name, virtual = self.unit.methods.get(callee["referencedMemberDecl"], (callee.get("name", "?"), False))
+            name, virtual, const_method = self.unit.methods.get(
+                callee["referencedMemberDecl"], (callee.get("name", "?"), False, False))
             self.record("indirect_call" if virtual else "call", ("virtual " + name) if virtual else name)
-            const_method = callee["type"].get("qualType", "").endswith(" const")
             base = callee["inner"][0] if callee.get("inner") else None
             if base is not None:
                 if callee.get("isArrow"):

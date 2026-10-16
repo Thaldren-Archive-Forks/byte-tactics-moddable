@@ -18,6 +18,9 @@ extern int g_other;
 typedef int (*Handler)(int);
 extern Handler g_handlers[4];
 struct Table { Handler fire; };
+struct Counter { static int count; int n; int Get() const { return n; } void Bump() { n++; } };
+extern Counter g_counter;
+static int s_local;
 int Helper(int);
 void Fill(int* out);
 void Look(const int* in);
@@ -41,6 +44,14 @@ int Indirect(Table* t, int x) { return g_handlers[x](x) + t->fire(x); }
 
 // FUNCTION: 0x401050
 void Calls() { int local = 0; Fill(&local); Look(&local); Fill(&g_count); Look(&g_other); Helper(g_count); }
+
+void ConstCall() { g_counter.Get(); }
+
+void NonConstCall() { g_counter.Bump(); }
+
+int ClassStatic() { return Counter::count; }
+
+int FileStatic() { return s_local; }
 
 void Empty() {}
 
@@ -98,6 +109,17 @@ class RwsetsTest(unittest.TestCase):
         self.assertEqual(self.by_function["Calls"], {
             ("call", "Fill"), ("call", "Look"), ("call", "Helper"),
             ("global_maybe_written", "g_count"), ("global_read", "g_other"), ("global_read", "g_count")})
+
+    def test_const_method_on_a_global_reads_it(self):
+        self.assertEqual(self.by_function["ConstCall"], {("call", "Counter::Get"), ("global_read", "g_counter")})
+        self.assertEqual(self.by_function["NonConstCall"], {
+            ("call", "Counter::Bump"), ("global_maybe_written", "g_counter")})
+
+    def test_class_static_is_a_global_of_the_class(self):
+        self.assertEqual(self.by_function["ClassStatic"], {("global_read", "Counter::count")})
+
+    def test_file_static_carries_the_repo_path(self):
+        self.assertEqual(self.by_function["FileStatic"], {("global_read", "s_local@src/a.cpp")})
 
     def test_escapes_and_function_references(self):
         self.assertEqual(self.by_function["Escapes"], {
