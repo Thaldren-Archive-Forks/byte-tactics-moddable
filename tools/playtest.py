@@ -574,6 +574,33 @@ class Instance:
             return None
         return Gray.parse_pgm(r.stdout)
 
+    def windows(self) -> list[tuple[str, int, int]]:
+        """The (title, width, height) of each visible top-level window on this display."""
+        env = {**os.environ, "DISPLAY": self.display}
+
+        def xdo_out(*args: str) -> str:
+            try:
+                return subprocess.run(["xdotool", *args], env=env, capture_output=True, text=True,
+                                      timeout=15).stdout
+            except subprocess.TimeoutExpired:
+                return ""
+
+        found = []
+        for wid in xdo_out("search", "--onlyvisible", "--maxdepth", "1", "--name", ".").split():
+            geo = dict(l.split("=", 1) for l in xdo_out("getwindowgeometry", "--shell", wid).split() if "=" in l)
+            if "WIDTH" in geo and "HEIGHT" in geo:
+                found.append((xdo_out("getwindowname", wid).strip(), int(geo["WIDTH"]), int(geo["HEIGHT"])))
+        return found
+
+    def error_dialog(self) -> tuple[str, str] | None:
+        """The (kind, title) of an error dialog this game shows, or None."""
+        trace = self.game / "trace.txt"
+        try:
+            started = ticks_started(trace.read_text(errors="replace")) if trace.is_file() else False
+        except OSError:
+            started = False
+        return classify_dialog(self.windows(), started)
+
     def shot(self, name: str, jpeg: bool = False) -> None:
         path = self.run.out / (name + (".jpg" if jpeg else ".png"))
         args = ["import", "-window", "root"]
@@ -773,7 +800,39 @@ def list_scenarios() -> None:
 
 
 class StepFailed(Exception):
-    pass
+    def __init__(self, message: str, kind: str = ""):
+        super().__init__(message)
+        self.kind = kind
+
+
+DIALOG_POLL_SECONDS = 5
+CRT_DIALOG_TITLE = "Microsoft Visual C++ Runtime Library"
+FATAL_DIALOG_TITLE = "Cavedog"
+DIALOG_SIZE = (100, 40, 420, 220)
+
+
+def ticks_started(trace: str) -> bool:
+    """Whether a trace.txt holds a tick row yet (a line `<tick> <phase> <hash>`)."""
+    return re.search(r"^\d+ \S+ [0-9a-f]+$", trace, re.M) is not None
+
+
+def classify_dialog(windows: list[tuple[str, int, int]], started: bool) -> tuple[str, str] | None:
+    """The (kind, title) of an error dialog among visible top-level windows (title, width, height), or None.
+
+    The CRT and fatal-error boxes are known by title. The DirectX box takes the game window's own
+    title, so it is any dialog-sized window before the first tick; after that only the known titles count.
+    """
+    for title, _, _ in windows:
+        if CRT_DIALOG_TITLE in title:
+            return "dialog-crt", title
+        if title == FATAL_DIALOG_TITLE:
+            return "dialog-cavedog", title
+    if not started:
+        lo_w, lo_h, hi_w, hi_h = DIALOG_SIZE
+        for title, w, h in windows:
+            if lo_w <= w <= hi_w and lo_h <= h <= hi_h:
+                return "dialog-directx", title
+    return None
 
 
 class Interrupted(Exception):
@@ -808,6 +867,7 @@ class Run:
         self.watch: dict[str, str] = {}
         self.result = "not run"
         self.reason = ""
+        self.kind = ""
         self.notes: list[str] = []
         self.events: list[str] = []
         self.started = False
@@ -981,8 +1041,16 @@ class Run:
             raise GotoLabel(args[0])
         elif cmd == "waitexit":
             deadline = time.time() + float(args[0])
+            next_poll = time.time() + DIALOG_POLL_SECONDS
             while time.time() < deadline and any(i.alive() for i in self.instances):
                 time.sleep(0.5)
+                if time.time() >= next_poll:
+                    next_poll = time.time() + DIALOG_POLL_SECONDS
+                    for i in self.instances:
+                        found = i.alive() and i.error_dialog()
+                        if found:
+                            raise StepFailed(f"the game{i.suffix} shows an error dialog ({found[0]}, "
+                                             f"window title \"{found[1]}\")", found[0])
             for i in self.instances:
                 if i.alive():
                     raise StepFailed(f"the game{i.suffix} still runs after {args[0]}s")
@@ -1059,12 +1127,12 @@ class Run:
                         raise SystemExit(f"{self.scenario.name}: no label {g.label}")
                     pc = self.scenario.labels[g.label]
                 except StepFailed as e:
-                    raise StepFailed(f"line {n} ({' '.join(words)}): {e}") from None
+                    raise StepFailed(f"line {n} ({' '.join(words)}): {e}", e.kind) from None
             self.result = "PASS"
         except Interrupted:
             self.result, self.reason = "INTERRUPTED", "stopped by a signal"
         except StepFailed as e:
-            self.result, self.reason = "FAIL", str(e)
+            self.result, self.reason, self.kind = "FAIL", str(e), e.kind
             for inst in self.instances:
                 if inst.alive():
                     inst.shot(f"failed{inst.suffix}")
@@ -1105,7 +1173,7 @@ class Run:
         data = {
             "run": self.name, "scenario": self.scenario.name, "exe": self.exe_tag,
             "paths": [str(e) for e in self.exes],
-            "result": self.result, "reason": self.reason, "seconds": round(self.duration, 1),
+            "result": self.result, "reason": self.reason, "kind": self.kind, "seconds": round(self.duration, 1),
             "exit_codes": [i.rc for i in self.instances], "events": self.events, "notes": self.notes,
             "music": music, "sound_seconds": [i.sound_seconds for i in self.instances],
             "music_seconds": [i.music_seconds for i in self.instances],
