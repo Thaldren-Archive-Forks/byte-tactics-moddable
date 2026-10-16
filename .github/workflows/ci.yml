@@ -40,3 +40,73 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: python3 tools/determinismlint.py "origin/$BASE_REF...HEAD"
+
+  modern-compile:
+    name: modern-compile
+    runs-on: ubuntu-24.04
+    env:
+      LLVM_VERSION: 22.1.8
+      LLVM_SHA256: df0e1ecf16caf3489a272a5eea4eec9b0d82878f6477fa309504f918a0006384
+      UV_VERSION: 0.12.19
+      BT_NO_ORIG: 1
+      BT_NO_GHIDRA: 1
+      BT_NO_ZLIB: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check whether the modern build is affected
+        id: changed
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "$EVENT" != pull_request ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "origin/$BASE_REF...HEAD" |
+              grep -qE '^(src/|include/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install packages
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build cmake p7zip-full cabextract curl xz-utils
+          curl -LsSf "https://astral.sh/uv/$UV_VERSION/install.sh" | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install LLVM ${{ env.LLVM_VERSION }}
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          url="https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/LLVM-$LLVM_VERSION-Linux-X64.tar.xz"
+          curl -fSL -o "$RUNNER_TEMP/llvm.tar.xz" "$url"
+          echo "$LLVM_SHA256  $RUNNER_TEMP/llvm.tar.xz" | sha256sum -c -
+          mkdir -p "$HOME/llvm"
+          tar -xJf "$RUNNER_TEMP/llvm.tar.xz" -C "$HOME/llvm" --strip-components=1 --wildcards '*/bin/*' '*/lib/*'
+          rm "$RUNNER_TEMP/llvm.tar.xz"
+          echo "$HOME/llvm/bin" >> "$GITHUB_PATH"
+
+      - name: Cache the MSVC 5 toolchain
+        if: steps.changed.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            toolchain
+            ~/.cache/byte-tactics
+          key: toolchain-${{ hashFiles('tools/setup_toolchain.sh') }}
+
+      - name: Set up the toolchain
+        if: steps.changed.outputs.run == 'true'
+        run: tools/setup_toolchain.sh
+
+      - name: Configure
+        if: steps.changed.outputs.run == 'true'
+        run: cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake -DBT_COMPILE_ONLY=ON
+
+      - name: Compile the game and bitexact
+        if: steps.changed.outputs.run == 'true'
+        run: cmake --build build/modern --target game bitexact

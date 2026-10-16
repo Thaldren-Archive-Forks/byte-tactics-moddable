@@ -142,10 +142,15 @@ endforeach()
 
 file(GLOB ZLIB_OBJECTS "${CMAKE_SOURCE_DIR}/toolchain/thirdparty/zlib-1.0.4/*.obj")
 
-execute_process(COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/resources.py" --print-art
-  OUTPUT_VARIABLE ART_DIR OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE ART_RESULT)
-if(NOT ART_RESULT EQUAL 0)
-  message(FATAL_ERROR "tools/resources.py --print-art failed")
+option(BT_COMPILE_ONLY "Configure for building the game and bitexact targets only (no orig/TotalA.exe)" OFF)
+if(BT_COMPILE_ONLY)
+  set(ART_DIR "")
+else()
+  execute_process(COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/resources.py" --print-art
+    OUTPUT_VARIABLE ART_DIR OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE ART_RESULT)
+  if(NOT ART_RESULT EQUAL 0)
+    message(FATAL_ERROR "tools/resources.py --print-art failed")
+  endif()
 endif()
 add_custom_command(
   OUTPUT "${CMAKE_BINARY_DIR}/TotalA.res"

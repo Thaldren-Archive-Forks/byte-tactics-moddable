@@ -67,9 +67,14 @@ the matching build is not affected. `uv run tools/bitexact.py` tests the library
 under both compilers, MSVC 5 first and then clang-cl against the vectors it
 wrote.
 
-There is no CI job for it: the build needs `toolchain/msvc5-sp3/INCLUDE`, which
-must never be committed, so it can only run where the toolchain is installed
-(see "Setting up").
+The `modern-compile` CI job compiles the game and `lib/bitexact` with clang-cl
+(`cmake --build build/modern --target game bitexact`, configured with
+`-DBT_COMPILE_ONLY=ON`) on pull requests that touch `src/`, `include/`, `lib/`,
+`cmake/`, `CMakeLists.txt` or `tools/setup_toolchain.sh`. It checks that the
+source still builds with LLVM 22.1.8 against MSVC 5's headers, which
+`tools/setup_toolchain.sh` fetches into a cached `toolchain/`. It does not
+link: the link needs `orig/TotalA.exe`, which must never be committed, and
+trace runs need the game's data, so both stay local.
 
 ## Running an agent
 
