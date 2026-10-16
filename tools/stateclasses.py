@@ -1,6 +1,7 @@
 """Propose a class (sim, view, platform or mixed) for every piece of the game's state, with evidence.
 
     uv run tools/stateclasses.py                 # writes data/state_classes.csv, keeping class and note
+    uv run tools/stateclasses.py --out F         # write F instead (a dry run; class and note kept from the data file)
     uv run tools/stateclasses.py --check         # fail if anything but class and note differs
     uv run tools/stateclasses.py --unclassified  # fail if a row has an empty class
     uv run tools/stateclasses.py --unjoined      # list the globals no row of data/rwsets.csv names
@@ -1011,6 +1012,7 @@ def main() -> None:
     parser.add_argument("--unclassified", action="store_true", help="fail if a row has no class")
     parser.add_argument("--unjoined", action="store_true", help="list the globals no row of rwsets.csv names")
     parser.add_argument("--build-dir", type=Path, default=rwsets.DEFAULT_BUILD_DIR)
+    parser.add_argument("--out", type=Path, default=OUT, help="write the rows here instead of the data file")
     parser.add_argument("--jobs", type=int, default=4)
     args = parser.parse_args()
     sys.setrecursionlimit(100000)
@@ -1046,7 +1048,7 @@ def main() -> None:
     merged = merge_kept(rows, old)
     now = {(r["kind"], r["name"]) for r in merged}
     lost = [r for r in old if (r["class"] or r["note"]) and (r["kind"], r["name"]) not in now]
-    OUT.write_text(render(merged))
+    args.out.write_text(render(merged))
     print("%d rows, %d files, %.0fs" % (len(merged), files, elapsed))
     if lost:
         print("warning: %d rows with a class or note no longer exist and were dropped" % len(lost))
