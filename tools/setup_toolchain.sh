@@ -4,7 +4,8 @@
 # Needs: curl, 7z, cabextract, wine.
 # For a build without the game (CI: tools/place.py builds the exe from
 # data/layout.csv), set BT_NO_ORIG=1 to skip the original, and BT_NO_GHIDRA=1
-# to skip Ghidra, which only the decompiling tools use.
+# to skip Ghidra, which only the decompiling tools use. BT_NO_ZLIB=1 skips
+# building zlib (it needs Wine), which only a link needs.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -110,7 +111,7 @@ fi
 # zlib 1.0.4, statically linked into the game (compiled by Cavedog with /Gz /Zp1).
 # Built here so tools/functions.py can recognise its functions.
 ZLIB=zlib-1.0.4
-if [ ! -f "$TC/thirdparty/$ZLIB/zutil.obj" ]; then
+if [ ! -f "$TC/thirdparty/$ZLIB/zutil.obj" ] && [ -z "${BT_NO_ZLIB:-}" ]; then
     mkdir -p "$TC/thirdparty"
     fetch "https://github.com/madler/zlib/archive/refs/tags/v1.0.4.tar.gz" "$DL/$ZLIB.tar.gz" 54076bfd66625988bb752b500ced6569
     [ -d "$TC/thirdparty/$ZLIB" ] || tar xzf "$DL/$ZLIB.tar.gz" -C "$TC/thirdparty"

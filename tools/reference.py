@@ -306,7 +306,7 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
 
     name = bad[0]
     sha = expected[name][0].get("commit", "unknown")
-    print(f"\ntracediff for {name}, against the reference at {sha}:", flush=True)
+    print(f"\ntracediff for {name}: a = the reference at {sha}, b = {exe}", flush=True)
     if resolve_quiet(sha) is None:
         fail(f"{name}: the trace's commit {sha} is not in this repository")
     ref_dir = build_cached(sha)
