@@ -4,3 +4,4 @@
 #define _hypot bx_hypot
 #define acos bx_acos
 #define sscanf bx_sscanf
+#define atof bx_atof_msvc5

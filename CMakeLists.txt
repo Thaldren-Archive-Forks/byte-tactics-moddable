@@ -78,7 +78,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CRT_CALLS_CSV}
 file(STRINGS "${CRT_CALLS_CSV}" CRT_CALL_ROWS)
 set(ROUTED_SOURCES "")
 foreach(row IN LISTS CRT_CALL_ROWS)
-  if(row MATCHES "^0x[0-9a-f]+,[^,]+,(fsqrt|rand|srand|_hypot|_CIacos|sscanf),[a-z]+,([^,]+),game,")
+  if(row MATCHES "^0x[0-9a-f]+,[^,]+,(fsqrt|rand|srand|_hypot|_CIacos|sscanf|atof),[a-z]+,([^,]+),game,")
     list(APPEND ROUTED_SOURCES "${CMAKE_SOURCE_DIR}/${CMAKE_MATCH_2}")
   endif()
 endforeach()
