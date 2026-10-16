@@ -262,6 +262,13 @@ A differing scenario's run is kept: its `trace.txt` (and `dump.txt`, if any) is 
 `build/scratch/check-<scenario>-<time>/`, and the `DIFF` line ends with that path, so a one-off
 divergence can be diagnosed later with the file mode of `tools/tracediff.py` against a good run.
 
+`tools/playtest.py` polls every 5 seconds for an error dialog and fails the run at once, with the
+kind in the reason, `result.json` and `failed.png`: `dialog-directx` (a dialog-sized window before
+tick 1: "Environment Initialization Failed"), `dialog-crt` (the "Microsoft Visual C++ Runtime
+Library" box, as for R6025) or `dialog-cavedog` (the fatal error box). `reference.py` tries a run
+once more after a nonzero exit or `dialog-directx`; any other dialog, a hang and a failure after
+tick 1 are reported as they are.
+
 The full `--check` is what a pull request's gate needs.
 
 ## Quick check
