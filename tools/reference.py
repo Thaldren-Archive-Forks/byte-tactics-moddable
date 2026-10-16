@@ -200,6 +200,9 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
 
     With `want` (the stored header and digests), a run that differs is kept: the last element is the
     directory holding its trace.txt, otherwise None.
+
+    A run whose exe crashes (a nonzero exit) is tried once more, since an exe fault at startup
+    was seen in 1 of 300 runs; a run that is still going at the timeout is a hang and fails at once.
     """
     ticks = scenario_ticks(scenario)
     timeout = RUN_SECONDS_BASE + ticks / RUN_TICKS_PER_SECOND
@@ -209,7 +212,7 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
             run = tracediff.play(exe, scenario, game_dir, None, timeout)
             break
         except tracediff.Error as e:
-            if attempt == RUN_ATTEMPTS - 1:
+            if attempt == RUN_ATTEMPTS - 1 or "still runs after" in str(e):
                 raise
             print(f"{scenario.stem}: run failed, trying again: {last_lines(e)}", flush=True)
     elapsed = time.time() - t0
