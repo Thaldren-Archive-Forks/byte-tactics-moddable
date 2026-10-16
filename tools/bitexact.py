@@ -9,7 +9,10 @@ g_cosTable, g_radToAngle16 and g_angle16ToRad, while the port uses the
 generated tables. Compiles src/util/math_4b70a0.cpp as it is (the flags tools/check.py uses) and
 lib/bitexact side by side into one MSVC 5 console exe under Wine, which calls
 both over every 16-bit angle, a sweep of scales and fixed-seed random inputs,
-and prints `name: N cases, M mismatches` for each entry point. A second exe
+and prints `name: N cases, M mismatches` for each entry point. The atof test
+also feeds bx_atof_msvc5 the numeric TDF value strings of the player's install if
+build/tdf_numbers.txt exists (tools/tdfnumbers.py writes it) and prints how many it
+found. A second exe
 (test/crt_test.c, test/stl_shuffle.cpp) links LIBCMT's own rand, srand and
 qsort and MSVC 5's std::random_shuffle beside the rand and qsort ports and
 compares them. While the MSVC 5 exes run they also write what the originals
@@ -42,6 +45,7 @@ MATH_TEST = LIB / "test/math_test.c"
 TEST = LIB / "test/bitexact_test.c"
 VECTORS_SOURCE = LIB / "test/vectors.c"
 VECTORS = BUILD / "vectors"
+TDF_NUMBERS = ROOT / "build/tdf_numbers.txt"
 MSVC5 = (ROOT / "toolchain/msvc5-sp3").resolve()
 CLANG_BUILD = BUILD / "clang"
 CRT_PORT_SOURCES = [LIB / "rand.c", LIB / "qsort.c"]
@@ -150,6 +154,11 @@ def run(exe: Path, *args: Path) -> int:
                           cwd=ROOT).returncode
 
 
+def tdf_args() -> list[Path]:
+    """The numeric TDF strings tools/tdfnumbers.py extracted, as the atof test's extra argument; none if not extracted."""
+    return [TDF_NUMBERS] if TDF_NUMBERS.exists() else []
+
+
 def clang_tools() -> dict[str, str] | None:
     tools = {name: shutil.which(name) for name in ("clang-cl", "lld-link", "llvm-dlltool")}
     missing = [name for name, path in tools.items() if path is None]
@@ -222,7 +231,7 @@ def run_clang() -> int:
             return 2
         print(f"clang: {exe.name}")
         sys.stdout.flush()
-        code = run(exe, vec) or code
+        code = run(exe, vec, *(tdf_args() if exe.name == "bitexact_test.exe" else [])) or code
     return code
 
 
@@ -237,7 +246,7 @@ def main() -> int:
         exe = build()
         if exe is None:
             return 2
-        code = run(exe, VECTORS / "bitexact.bin")
+        code = run(exe, VECTORS / "bitexact.bin", *tdf_args())
         crt = build_crt()
         if crt is None:
             return 2
