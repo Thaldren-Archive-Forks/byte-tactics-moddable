@@ -45,7 +45,7 @@ library function whose address is taken, `via console commands only`, and a
 `conflict:` note where the class of a `rand` site disagrees with the call-site
 tables of #52 (BuildExplosionFrame, which #52 keeps on rand although it is
 presentation, was listed as one until the maintainer ruled it game logic;
-MAINTAINER_RAND records that). Callers of HarnessViewRand that game logic
+MAINTAINER_RAND records that). A `srand` row can be classed game by hand the same way (MAINTAINER_SRAND: GameMain seeds the main thread's game stream). Callers of HarnessViewRand that game logic
 reaches are only printed.
 """
 
@@ -92,6 +92,9 @@ PRESENTATION_RAND = {
 }
 MAINTAINER_RAND: dict[int, str] = {
     0x420d20: "#52 lists it as presentation; the maintainer later decided on #52 and #72 that it is game logic on rand",
+}
+MAINTAINER_SRAND: dict[int, str] = {
+    0x49e830: "GameMain seeds the main thread's game rand stream, so the srand is game logic although only presentation reaches it",
 }
 GAME_RAND = {0x490c40, 0x437d60, 0x437de0, 0x438070, 0x423c50, 0x49be60, 0x497180, 0x4568c0, 0x490360} | set(
     MAINTAINER_RAND)
@@ -395,6 +398,9 @@ def main() -> None:
         notes = [f"sites={data['sites']}"] + sorted(data["notes"])
         if address in game_reach and address not in core:
             notes.append("via console commands only")
+        if callee == "srand" and address in MAINTAINER_SRAND:
+            cls = "game"
+            notes.append(MAINTAINER_SRAND[address])
         if callee == "rand":
             msg = None
             if cls == "presentation":

@@ -56,7 +56,7 @@ code reaches past an array's end into the global that follows it, and leaves
 out the code no live function reaches.
 
 The build also compiles `lib/bitexact` and routes the game logic's `rand`,
-`srand`, `sqrt` and the trig entry points of `src/util/math_4b70a0.cpp` to it
+`srand`, `sqrt`, `_hypot`, `acos`, the `%f` form of `sscanf` and the trig entry points of `src/util/math_4b70a0.cpp` to it
 (see "In the modern build" in `lib/bitexact/README.md`); `src/` is untouched, so
 the matching build is not affected. `uv run tools/bitexact.py` tests the library
 under both compilers, MSVC 5 first and then clang-cl against the vectors it

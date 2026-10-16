@@ -696,7 +696,7 @@ address,function,callee,kind,file,class,notes
 0x49e700,OutOfMemoryHandler,raise,call,src/game/main.cpp,game,sites=1; via console commands only
 0x49e700,OutOfMemoryHandler,strrchr,call,src/game/main.cpp,game,sites=1; via console commands only
 0x49e830,GameMain,atexit,call,src/game/main.cpp,presentation,sites=1
-0x49e830,GameMain,srand,call,src/game/main.cpp,presentation,sites=1
+0x49e830,GameMain,srand,call,src/game/main.cpp,game,"sites=1; GameMain seeds the main thread's game rand stream, so the srand is game logic although only presentation reaches it"
 0x49e830,GameMain,time,call,src/game/main.cpp,presentation,sites=1
 0x49ee30,ParseCommandLine,_chkstk,call,src/game/main_49eda0.cpp,presentation,sites=1
 0x49ee30,ParseCommandLine,_splitpath,call,src/game/main_49eda0.cpp,presentation,sites=1
