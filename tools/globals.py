@@ -56,6 +56,7 @@ from linkcheck import (CRT_LIBS, address_of, data_symbol, declare, global_table,
                        load_objects, records, shape, type_size)
 
 GLOBALS = ROOT / "data/globals.csv"
+DECLARED_SIZES = ("definition", "type", "type>gap")
 LINK = ROOT / "link"
 HEADER = LINK / "globals.h"
 DATA = LINK / "data.cpp"
@@ -399,8 +400,7 @@ def build(objects, img: Image) -> list[dict]:
         if outer is not None and addr < end and not row["defined"]:
             base = int(outer["address"], 16)
             row["defined"] = f"in {outer['name']}+{addr - base:#x}"
-            if addr + int(row["size"]) > end and outer["size_from"] != "definition":
-                # The part runs past the global that holds it: so does the global.
+            if addr + int(row["size"]) > end and outer["size_from"] not in DECLARED_SIZES:
                 end = addr + int(row["size"])
                 outer["size"], outer["size_from"] = end - base, "parts"
             continue

@@ -366,7 +366,6 @@ int g_cdBypassDriveScan;  // 0x511de0 .bss
 int g_cdPathMismatch;  // 0x511de4 .bss
 Game* g_game;  // 0x511de8 .bss
 int g_endGameGlamourSoundStarted;  // 0x511dec .bss
-ExplodedPiece* g_explodedPieces[100];  // 0x511df0 .bss
 unsigned char g_debrisMemCache[16];  // 0x511f80 .bss
 int g_explosion0Duration;  // 0x511f90 .bss
 int g_explosion0StartSize;  // 0x511f94 .bss
@@ -394,7 +393,7 @@ int g_otaEnumFileCount;  // 0x5122e0 .bss
 unsigned char DAT_005122e4[4];  // 0x5122e4 .bss
 int g_meteorNextStrikeTime;  // 0x5122e8 .bss
 unsigned char DAT_005122ec[4];  // 0x5122ec .bss
-char g_meteorWeaponName[32];  // 0x5122f0 .bss
+unsigned char DAT_005122f4[28];  // 0x5122f4 .bss
 int g_meteorSpawnMagnitude;  // 0x512310 .bss
 int g_meteorSpawnInterval;  // 0x512314 .bss
 int g_meteorActive;  // 0x512318 .bss
@@ -559,7 +558,7 @@ int g_gafEncodeOutputSize;  // 0x51fdb0 .bss
 unsigned char DAT_0051fdb4[4];  // 0x51fdb4 .bss
 TranslationTable* g_translations;  // 0x51fdb8 .bss
 unsigned char DAT_0051fdbc[4];  // 0x51fdbc .bss
-char g_language[304];  // 0x51fdc0 .bss
+char g_language[256];  // 0x51fdc0 .bss (the type runs past the next known address, 0x51fdc0+0x40)
 int g_edgeSpan;  // 0x51fef0 .bss
 int g_edgeHighIndexB;  // 0x51fef4 .bss
 Chunk* g_edgeTable;  // 0x51fef8 .bss
@@ -589,7 +588,6 @@ char g_memFussyDefault;  // 0x5289b8 .bss
 void (__stdcall* g_outOfMemoryHandler)(void);  // 0x5289bc .bss
 int g_errorLogWritten;  // 0x5289c0 .bss
 int g_debugLibInstance;  // 0x5289c4 .bss
-unsigned char DAT_005289c8[4];  // 0x5289c8 .bss
 unsigned int g_committedBytesPeak;  // 0x5289d0 .bss
 unsigned int g_lastAllocOffset;  // 0x5289d4 .bss
 unsigned int g_currentBytesPeak;  // 0x5289d8 .bss

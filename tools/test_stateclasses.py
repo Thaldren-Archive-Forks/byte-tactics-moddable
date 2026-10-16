@@ -4,6 +4,7 @@
 """
 
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -58,6 +59,13 @@ int LiteralRead() { return g_game->blob[5]; }
 void VariableIndex(int i) { g_game->blob[i] = 1; }
 int SmallVariable(int i) { return g_game->small[i]; }
 void WholeArray() { char* p = g_game->blob; (void)p; }
+struct Pool { char* buffer; };
+Pool g_pool;
+char* g_held;
+void StoreField(Pool* p) { p->buffer = (char*)malloc(32); }
+void StoreGlobal() { g_held = (char*)malloc(32); }
+void StoreStatic() { static char* s; s = (char*)malloc(32); }
+void StoreLocal() { char* b; b = (char*)malloc(32); (void)b; }
 char g_end[4];
 long Bound() { char* p = 0; return (long)p < (long)g_end; }
 """
@@ -147,21 +155,35 @@ class ScanTest(unittest.TestCase):
                                                        "pad": "int"})
 
     def test_new_and_new_array_sites(self):
-        self.assertEqual([(a, w) for a, w, _ in self.by_name["Plain"]["allocs"]], [("new", "Unit"), ("new[]", "Unit")])
+        self.assertEqual([(a, w) for a, w, *_ in self.by_name["Plain"]["allocs"]], [("new", "Unit"), ("new[]", "Unit")])
 
     def test_the_type_is_the_sizeof_operand_or_the_cast_type_or_the_tag(self):
-        self.assertEqual([(a, w) for a, w, _ in self.by_name["Sized"]["allocs"]],
+        self.assertEqual([(a, w) for a, w, *_ in self.by_name["Sized"]["allocs"]],
                          [("GameAllocIgnoreTag", "Unit")])
-        self.assertEqual([(a, w) for a, w, _ in self.by_name["Cast"]["allocs"]],
+        self.assertEqual([(a, w) for a, w, *_ in self.by_name["Cast"]["allocs"]],
                          [("GameAllocIgnoreTag", "Unit")])
-        self.assertEqual([(a, w) for a, w, _ in self.by_name["Tag"]["allocs"]], [("malloc", "char")])
+        self.assertEqual([(a, w) for a, w, *_ in self.by_name["Tag"]["allocs"]], [("malloc", "char")])
+
+    def test_the_target_an_allocation_is_assigned_to_is_a_field_or_a_global_and_not_a_local(self):
+        stored = {name: self.by_name[name]["allocs"][0][3]
+                  for name in ("StoreField", "StoreGlobal", "StoreStatic", "StoreLocal", "Tag")}
+        self.assertEqual(stored, {"StoreField": "Pool::buffer", "StoreGlobal": "g_held", "StoreStatic": "s@StoreStatic",
+                                  "StoreLocal": "", "Tag": ""})
 
     def test_a_wrapper_placement_new_and_the_allocator_itself_are_not_sites(self):
         for name in ("Wrapper", "Placement", "GameAlloc"):
             self.assertEqual(self.by_name[name]["allocs"], [], name)
 
     def test_calloc_is_a_site(self):
-        self.assertEqual([a for a, w, _ in self.by_name["Zeroed"]["allocs"]], ["calloc"])
+        self.assertEqual([a for a, w, *_ in self.by_name["Zeroed"]["allocs"]], ["calloc"])
+
+
+class NoSyntaxTreeTest(unittest.TestCase):
+    def test_a_run_that_prints_no_syntax_tree_exits_with_clangs_stderr(self):
+        argv = [sys.executable, "-c", "import sys; print('layouts'); print('oops', file=sys.stderr)"]
+        with self.assertRaises(SystemExit) as caught:
+            sc.scan((Path("."), argv, "."))
+        self.assertIn("oops", str(caught.exception))
 
 
 class OwnGameTest(unittest.TestCase):
@@ -274,7 +296,7 @@ class ModelTest(unittest.TestCase):
                {"name": "g_hwnd", "address": "0x500030", "type": "int"},
                {"name": "g_untouched", "address": "0x500040", "type": "int"}]
 
-    def rows(self):
+    def rows(self, extra=()):
         roots = list(sc.PHASE_LABELS) + [sc.DRIVER] + sc.LOAD_ROOTS + sc.PRESENTATION_ROOTS
         rows = function_rows(*roots, "Helper", "Draw", "Init")
         rows += [["", "UpdateAllUnits", "src/UpdateAllUnits.cpp", "call", "Helper"],
@@ -290,10 +312,10 @@ class ModelTest(unittest.TestCase):
                  ["", "LoadMatch", "src/LoadMatch.cpp", "call", "Init"]]
         rows += [["0x401000", "Init", "src/Init.cpp", "function", ""]]
         rows.append(["", "Init", "src/Init.cpp", "global_write", "g_count"])
-        return rows
+        return rows + list(extra)
 
-    def build(self, scans=None, regions=()):
-        rows = self.rows()
+    def build(self, scans=None, regions=(), extra_rows=()):
+        rows = self.rows(extra_rows)
         graph = hazards.Graph(rows)
         scans = scans if scans is not None else [{"functions": [], "fields": {}, "static_types": {}}]
         return sc.rows_of(rows, graph, self.GLOBALS, scans, list(regions), set())
@@ -351,9 +373,9 @@ class ModelTest(unittest.TestCase):
 
     def test_a_heap_site_in_game_logic_is_a_row_and_one_outside_is_not(self):
         sites = [{"function": "Init", "file": "src/Init.cpp", "start": 1, "address": "0x401000", "regions": [],
-                  "statics": [], "allocs": [("new", "Unit", 3), ("new", "Unit", 4), ("malloc", "char", 5)]},
+                  "statics": [], "allocs": [("new", "Unit", 3, ""), ("new", "Unit", 4, ""), ("malloc", "char", 5, "")]},
                  {"function": "Draw", "file": "src/Draw.cpp", "start": 1, "address": "", "regions": [],
-                  "statics": [], "allocs": [("new", "Sprite", 3)]}]
+                  "statics": [], "allocs": [("new", "Sprite", 3, "")]}]
         scan = {"functions": sites, "fields": {"Unit": {"hp": "int", "selected": "int"}}, "static_types": {}}
         rows = [r for r in self.build([scan]) if r["kind"] == "heap"]
         self.assertEqual([r["name"] for r in rows], ["Init: malloc char", "Init: new Unit", "Init: new Unit #2"])
@@ -364,12 +386,39 @@ class ModelTest(unittest.TestCase):
     def test_a_heap_site_of_a_type_the_walk_uses_is_a_row_wherever_it_is(self):
         def site(function, file, what):
             return {"function": function, "file": file, "start": 1, "address": "", "regions": [], "statics": [],
-                    "allocs": [("new", what, 3)]}
+                    "allocs": [("new", what, 3, "")]}
         scan = {"functions": [site("Draw", "src/Draw.cpp", "Unit"), site("Draw", "src/Draw.cpp", "Sprite"),
                               site("Draw", "src/debug/Draw.cpp", "Unit")],
                 "fields": {}, "static_types": {}}
         rows = [r["name"] for r in self.build([scan]) if r["kind"] == "heap"]
         self.assertEqual(rows, ["Draw: new Unit"])
+
+    def test_a_raw_buffer_stored_where_the_walk_looks_is_a_row_and_a_local_one_is_not(self):
+        def site(function, file, stored):
+            return {"function": function, "file": file, "start": 1, "address": "", "regions": [], "statics": [],
+                    "allocs": [("operator new", "char", 3, stored)]}
+        scan = {"functions": [site("Draw", "src/Draw.cpp", "Packets::buffer"), site("Show", "src/Show.cpp", ""),
+                              site("Flip", "src/Flip.cpp", "Packets::other"),
+                              site("Trace", "src/debug/Trace.cpp", "Packets::buffer"),
+                              site("Hold", "src/Hold.cpp", "g_held")],
+                "fields": {}, "static_types": {}}
+        extra = [["", "UpdateAllUnits", "u.cpp", "field_read", "Packets::buffer"],
+                 ["", "UpdateAllUnits", "u.cpp", "global_write", "g_held"]]
+        rows = [r["name"] for r in self.build([scan], extra_rows=extra) if r["kind"] == "heap"]
+        self.assertEqual(rows, ["Draw: operator new char", "Hold: operator new char"])
+
+    def test_stored_target_names_a_field_or_a_global_and_not_a_local(self):
+        def assign(lhs):
+            call = {"kind": "CallExpr", "inner": []}
+            cast = {"kind": "CStyleCastExpr", "type": {"qualType": "char *"}, "inner": [call]}
+            return call, [{"kind": "BinaryOperator", "opcode": "=", "inner": [lhs, cast]}, cast]
+        member = {"kind": "MemberExpr", "name": "buffer", "inner": [{"kind": "DeclRefExpr", "type": {"qualType": "Packets"}}]}
+        ref = lambda i: {"kind": "DeclRefExpr", "referencedDecl": {"kind": "VarDecl", "id": i, "name": "v" + i}}
+        call, parents = assign(member)
+        self.assertEqual(sc.stored_target(call, parents, {}), "Packets::buffer")
+        call, parents = assign(ref("1"))
+        self.assertEqual(sc.stored_target(call, parents, {}), "v1")
+        self.assertEqual(sc.stored_target(call, parents, {"1": ""}), "")
 
     def test_the_null_address_is_no_static_row(self):
         items = sc.Items([["", "F", "f.cpp", "global_read", "DAT_00000000"]], self.GLOBALS)
