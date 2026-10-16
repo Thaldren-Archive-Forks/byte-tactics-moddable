@@ -1,13 +1,13 @@
 address,function,file,line,offset,chain,result,class,disposition
 0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,318,0x240,((f[edx+0x37ede] * f[ecx+0x1d2]) + f[esi+0xbc]),float-store,float-chain,modern
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,450,0x685,((f[eax] + f[esp+0x28]) + d[edi+0xac]),double-store,float-chain,modern
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,450,0x6e5,((f[eax] + f[esp+0x28]) + f[edi+0x8c]),float-store,float-chain,modern
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,437,0x78a,((f[esp+0x28] - f[edi+0xa4]) + d[edi+0xcc]),double-store,safe,rewritten
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,442,0x7c7,((f[esp+0x2c] - f[edi+0xa8]) + d[edi+0xd4]),double-store,safe,rewritten
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,446,0x80b,((f[eax+4] - (f[esp+0x10] * f[eax+4])) + (f[eax+8] - (f[esp+0x30] * f[eax+8]))),float-store,float-chain,modern
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,447,0x839,((f[eax+0x1c] - (f[esp+0x14] * f[eax+0x1c])) + (f[eax+0x20] - (f[esp+0x34] * f[eax+0x20]))),float-store,float-chain,modern
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,450,0x87d,((f[eax+8] - (f[esp+0x10] * f[eax+8])) + (f[eax+0xc] - (f[esp+0x30] * f[eax+0xc]))),float-store,float-chain,modern
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,452,0x8b6,((f[eax+8] - (f[esp+0x10] * f[eax+0x20])) + (f[eax+0xc] - (f[esp+0x28] * f[eax+0xc]))),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,470,0x685,((f[eax] + f[esp+0x28]) + d[edi+0xac]),double-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,470,0x6e5,((f[eax] + f[esp+0x28]) + f[edi+0x8c]),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,457,0x78a,((f[esp+0x28] - f[edi+0xa4]) + d[edi+0xcc]),double-store,safe,rewritten
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,462,0x7c7,((f[esp+0x2c] - f[edi+0xa8]) + d[edi+0xd4]),double-store,safe,rewritten
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,466,0x80b,((f[eax+4] - (f[esp+0x10] * f[eax+4])) + (f[eax+8] - (f[esp+0x30] * f[eax+8]))),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,467,0x839,((f[eax+0x1c] - (f[esp+0x14] * f[eax+0x1c])) + (f[eax+0x20] - (f[esp+0x34] * f[eax+0x20]))),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,470,0x87d,((f[eax+8] - (f[esp+0x10] * f[eax+8])) + (f[eax+0xc] - (f[esp+0x30] * f[eax+0xc]))),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,472,0x8b6,((f[eax+8] - (f[esp+0x10] * f[eax+0x20])) + (f[eax+0xc] - (f[esp+0x28] * f[eax+0xc]))),float-store,float-chain,modern
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,145,0x171,sqrt((((i[esp+0x3c] * i[esp+0x3c]) + (i[esp+0x40] * i[esp+0x40])) + (i[esp+0x44] * i[esp+0x44]))),ftol,safe,rewritten
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,167,0x292,sqrt((((i[esp+0x48] * i[esp+0x48]) + (i[esp+0x4c] * i[esp+0x4c])) + (i[esp+0x50] * i[esp+0x50]))),ftol,safe,rewritten
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,178,0x3a8,sqrt((((i[esp+0x54] * i[esp+0x54]) + (i[esp+0x58] * i[esp+0x58])) + (i[esp+0x5c] * i[esp+0x5c]))),ftol,safe,rewritten
