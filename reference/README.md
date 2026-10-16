@@ -169,9 +169,7 @@ Exit status is 0 for identical traces, 1 for a divergence and 2 for an error.
 `reference/scenarios/` holds the scenario suite: AI-versus-AI games (and the three `orders-` scenarios, which script a human slot) that vary the
 map, the player count (2, 3, 4, 6, 8 and 10), the sides, ally teams, fixed and
 random start positions, the options (difficulty, line of sight, mapping,
-starting resources) and the length, up to 27000 ticks (15 minutes). The two `long-` scenarios are
-capped at 27000 ticks by #90: runs past that length are not yet deterministic,
-and they return to 54000 ticks (30 minutes) when #90 lands. Each has its
+starting resources) and the length, up to 54000 ticks (30 minutes). Each has its
 own game, C runtime and view seeds (the first three predate the suite and share
 seeds) and runs deterministically: two runs give identical traces.
 
@@ -184,8 +182,8 @@ seeds) and runs deterministically: two runs give identical traces.
 | eight-full-moon | Full Moon | 8 | 9000 | Eight players on Full Moon, alternating sides, five minutes |
 | eight-greenhaven | Greenhaven | 8 | 5400 | Eight Arm players on Greenhaven, random start positions, three minutes |
 | eight-pincushion-teams | Pincushion | 8 | 12600 | Eight players on Pincushion in four allied pairs, seven minutes |
-| long-great-divide-2p | Great Divide | 2 | 27000 | Two players on Great Divide for 27000 ticks (fifteen minutes), a long run |
-| long-greenhaven-8p | Greenhaven | 8 | 27000 | Eight players on Greenhaven in two allied teams of four for 27000 ticks (fifteen minutes), a long run |
+| long-great-divide-2p | Great Divide | 2 | 54000 | Two players on Great Divide for 54000 ticks (thirty minutes), a long run that no commander death ends |
+| long-greenhaven-8p | Greenhaven | 8 | 54000 | Eight players on Greenhaven in two allied teams of four for 54000 ticks (thirty minutes), a long run |
 | orders-build-patrol | The Pass | 2 | 600 | Human Arm commander builds a solar collector, then patrols (`build`, `patrol`) |
 | orders-guard-reclaim | The Pass | 2 | 600 | Human Arm commander builds a solar collector, guards it, then reclaims it (`build`, `guard`, `reclaim`) |
 | orders-move-attack | The Pass | 2 | 600 | Human Arm commander moves, attacks the Core commander, then the whole slot moves (`move`, `attack`, `<slot>:all`) |

@@ -1,11 +1,10 @@
-# Eight players on Greenhaven in two allied teams of four for 27000 ticks (fifteen minutes), a long run.
-# TODO(#90): restore to 54000 ticks once long runs are deterministic
+# Eight players on Greenhaven in two allied teams of four for 54000 ticks (thirty minutes), a long run.
 game_seed 247
 crt_seed 1247
 view_seed 2247
 map Greenhaven
 start_positions fixed
-ticks 27000
+ticks 54000
 player0.side Arm
 player0.team 0
 player1.side Core

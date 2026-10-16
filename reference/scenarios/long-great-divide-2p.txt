@@ -1,10 +1,10 @@
-# Two players on Great Divide for 27000 ticks (fifteen minutes), a long run.
-# TODO(#90): restore to 54000 ticks once long runs are deterministic
+# Two players on Great Divide for 54000 ticks (thirty minutes), a long run that no commander death ends.
 game_seed 240
 crt_seed 1240
 view_seed 2240
 map Great Divide
 start_positions fixed
-ticks 27000
+commander_death 0
+ticks 54000
 player0.side Arm
 player1.side Core
