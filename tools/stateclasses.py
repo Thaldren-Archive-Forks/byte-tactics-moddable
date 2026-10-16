@@ -637,6 +637,7 @@ class Walks:
         ui = {f for f, files in self.files.items() if any(x.startswith(PRESENTATION_DIRS) for x in files)}
         ui -= set(SIM_IN_PRESENTATION_DIRS)
         presentation_starts = ui | set(PRESENTATION_ROOTS)
+        self.stops = presentation_starts
         self.phases: dict[str, set[str]] = defaultdict(set)
         for root, label in PHASE_LABELS.items():
             for name in reach(graph, [root], presentation_starts):
