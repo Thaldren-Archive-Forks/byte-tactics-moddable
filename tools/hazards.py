@@ -14,7 +14,7 @@ column of data/hazards.csv is filled in by hand with `real` or `false_positive`,
 `note` says why.
 
 Game logic is every function reachable through the `call` rows of data/rwsets.csv from
-the roots below. Overloads share a name in rwsets.csv, so a walk reaches all of them. A
+the roots below (the tick roots), or from the load roots (see Load). Overloads share a name in rwsets.csv, so a walk reaches all of them. A
 virtual or function-pointer call has no `call` row, so the walk also follows the edges of
 data/hazard_edges.csv (columns caller, target, reason): one row per calling function and
 function it can reach through a virtual method, a function pointer or a table of them,
@@ -29,6 +29,14 @@ change or feed the simulation:
   UpdateAllUnits, UpdateProjectiles, UpdateExplosions, UpdatePlayers, UpdateFeatures,
   StepAllGafSequences, UpdateWind, UpdateMeteors      phases 1 to 7
   UpdateResourceSharing the resource-sharing step after the phases
+
+Load. LOAD_ROOTS are LoadMatch (0x497180), which builds the simulation state when a match
+starts (BuildAllPassMaps, for one), and AssignStartPositions (0x4568c0), which only frame
+handlers call and which draws the start slots. They are walked over the same `call` rows
+and edges, and like the tick walk the load walk has no stop at presentation code: the hand
+check marks the hazards of the helpers that only draw or play a sound false_positive. The
+`phase` column of a row is `tick` when the walk from the tick roots reaches its function,
+else `load`; a function both walks reach is `tick`.
 
 Left out: HarnessBeforeStep, HarnessPhase and HarnessAfterStep (the trace harness
 reads the state, it is not the game), AccumulateProfileTime (profiling), UpdateCameraFollow,
@@ -93,12 +101,12 @@ also gives the warnings below). Kinds, one row per place:
   indirect_call    a call through a function pointer or a virtual method, with the target
                    text rwsets.csv has for it. A hand check says where it can go.
 
-data/hazards.csv columns: address, function, file, line, kind, target, verdict, note,
+data/hazards.csv columns: address, function, file, line, kind, target, verdict, note, phase,
 sorted like data/rwsets.csv (address, function, file, kind, target, then line). A row is
 identified by (function, kind, target, number of the row among those of the function with
-the same kind and target, in line order), not by its line, so a regeneration keeps the
-verdict and note of a row when source lines move. The candidates, lines included, must
-match the committed file in --check, which ignores verdict and note.
+the same kind and target, in line order), not by its line or phase, so a regeneration keeps
+the verdict and note of a row when source lines move or its function changes phase. The candidates, lines and phases included, must match the committed
+file in --check, which ignores verdict and note.
 """
 
 import argparse
@@ -119,10 +127,12 @@ from rwsets import ROOT, Analyzer, Walker, is_pointer, record_name, strip, strip
 RWSETS = ROOT / "data/rwsets.csv"
 EDGES = ROOT / "data/hazard_edges.csv"
 HAZARDS = ROOT / "data/hazards.csv"
-COLUMNS = ["address", "function", "file", "line", "kind", "target", "verdict", "note"]
+COLUMNS = ["address", "function", "file", "line", "kind", "target", "verdict", "note", "phase"]
+PHASES = ("tick", "load")
 VERDICTS = ("", "real", "false_positive")
 ROOTS = ["HandleNetPackets", "UpdateAllUnits", "UpdateProjectiles", "UpdateExplosions", "UpdatePlayers",
          "UpdateFeatures", "StepAllGafSequences", "UpdateWind", "UpdateMeteors", "UpdateResourceSharing"]
+LOAD_ROOTS = ["LoadMatch", "AssignStartPositions"]
 THREAD_ROW_LIMIT = 400
 WARNING_FLAGS = ["-Wuninitialized", "-Wsometimes-uninitialized", "-Wconditional-uninitialized"]
 TIME_CALLS = {"timeGetTime", "GetTickCount", "QueryPerformanceCounter", "QueryPerformanceFrequency",
@@ -335,10 +345,20 @@ class LineWalker(Walker):
         unit.last_walker = self
 
     def call(self, node: dict) -> None:
+        self.located(node, super().call)
+
+    def visit(self, node: dict, mode: str = "R") -> None:
+        if node.get("kind") in ("CXXDeleteExpr", "CXXBindTemporaryExpr"):
+            self.located(node, lambda n: super(LineWalker, self).visit(n, mode))
+        else:
+            super().visit(node, mode)
+
+    def located(self, node: dict, walk) -> None:
+        """Walk a node with the line and id of the expression that runs a call."""
         saved = self.line, self.node
         self.line, self.node = node.get("_line", 0), node.get("id", "")
         try:
-            super().call(node)
+            walk(node)
         finally:
             self.line, self.node = saved
 
@@ -462,9 +482,14 @@ def load_graph() -> tuple[list[list[str]], Graph]:
     return rows, Graph(rows, read_edges(EDGES, {r[1] for r in rows if r[3] == "function"}))
 
 
-def candidates(functions: list[dict], graph: Graph, roots=ROOTS) -> list[list]:
-    """The hazard rows [address, function, file, line, kind, target] for the game logic of the graph."""
-    logic = graph.reach(roots)
+def candidates(functions: list[dict], graph: Graph, roots=ROOTS, load_roots=LOAD_ROOTS) -> list[list]:
+    """The hazard rows [address, function, file, line, kind, target, phase] for the game logic of the graph."""
+    ticking = graph.reach(roots)
+    logic = ticking | graph.reach(load_roots)
+
+    def phase(name: str) -> str:
+        return "tick" if name in ticking else "load"
+
     entries = defaultdict(set)
     for fn in functions:
         for kind, target, line in fn["events"]:
@@ -483,7 +508,7 @@ def candidates(functions: list[dict], graph: Graph, roots=ROOTS) -> list[list]:
         head = [fn["address"], fn["function"], fn["file"]]
         for kind, target, line in fn["events"]:
             if kind != "thread_entry":
-                rows.append(head + [line, kind, target])
+                rows.append(head + [line, kind, target, phase(fn["function"])])
     threaded = defaultdict(list)
     for fn in functions:
         if fn["function"] in logic:
@@ -494,12 +519,12 @@ def candidates(functions: list[dict], graph: Graph, roots=ROOTS) -> list[list]:
         for glob, readers in threaded.items():
             for fn in readers:
                 rows.append([fn["address"], fn["function"], fn["file"], fn["start"], "thread_global",
-                             "%s <- %s" % (glob, "+".join(sorted(writers[glob])))])
+                             "%s <- %s" % (glob, "+".join(sorted(writers[glob]))), phase(fn["function"])])
     else:
         for glob, readers in threaded.items():
             fn = min(readers, key=lambda f: (f["address"] == "", f["address"], f["function"]))
             rows.append([fn["address"], fn["function"], fn["file"], fn["start"], "thread_global",
-                         "%s <- %s" % (glob, "+".join(sorted(writers[glob])))])
+                         "%s <- %s" % (glob, "+".join(sorted(writers[glob]))), phase(fn["function"])])
     return [list(r) for r in sorted(set(map(tuple, rows)), key=order)]
 
 
@@ -524,7 +549,8 @@ def merge_verdicts(rows: list[list], old: list[list[str]]) -> list[list]:
     """The rows with the verdict and note the old file had for the same (function, kind, target, n)."""
     kept = {key: (row[6], row[7]) for key, row in zip(occurrences(old), sorted(old, key=order))}
     ordered = sorted(rows, key=order)
-    return [list(row[:6]) + list(kept.get(key, ("", ""))) for key, row in zip(occurrences(ordered), ordered)]
+    return [list(row[:6]) + list(kept.get(key, ("", ""))) + [row[6]]
+            for key, row in zip(occurrences(ordered), ordered)]
 
 
 def render(rows: list[list]) -> str:
@@ -541,7 +567,7 @@ def read_hazards(path: Path = HAZARDS) -> list[list]:
         return []
     with path.open(newline="") as f:
         rows = list(csv.reader(f))[1:]
-    return [r[:3] + [int(r[3])] + r[4:] for r in rows]
+    return [r[:3] + [int(r[3])] + r[4:8] + (r[8:9] or [""]) for r in rows]
 
 
 def generate(build_dir: Path, jobs: int) -> tuple[list[list], int]:
@@ -558,8 +584,9 @@ def generate(build_dir: Path, jobs: int) -> tuple[list[list], int]:
     return candidates(list(functions.values()), graph), len(commands)
 
 
-def key_lines(rows: list[list]) -> list[str]:
-    return [",".join(map(str, sorted_row[:6])) for sorted_row in sorted(rows, key=order)]
+def key_lines(rows: list[list], phase_at: int) -> list[str]:
+    """The candidate part of each row (verdict and note left out) as text, in order; `phase_at` is the phase column."""
+    return [",".join(map(str, r[:6] + [r[phase_at]])) for r in sorted(rows, key=order)]
 
 
 def main() -> None:
@@ -584,7 +611,7 @@ def main() -> None:
     rows, files = generate(args.build_dir, args.jobs)
     elapsed = time.time() - started
     if args.check:
-        have, want = key_lines(old), key_lines(rows)
+        have, want = key_lines(old, 8), key_lines(rows, 6)
         if have != want:
             diff = list(difflib.unified_diff(have, want, "data/hazards.csv", "regenerated", lineterm="", n=0))
             print("\n".join(diff[:40]))

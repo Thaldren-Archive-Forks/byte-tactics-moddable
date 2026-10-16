@@ -1,6 +1,7 @@
 """Propose a class (sim, view, platform or mixed) for every piece of the game's state, with evidence.
 
     uv run tools/stateclasses.py                 # writes data/state_classes.csv, keeping class and note
+    uv run tools/stateclasses.py --out F         # write F instead (a dry run; class and note kept from the data file)
     uv run tools/stateclasses.py --check         # fail if anything but class and note differs
     uv run tools/stateclasses.py --unclassified  # fail if a row has an empty class
     uv run tools/stateclasses.py --unjoined      # list the globals no row of data/rwsets.csv names
@@ -38,9 +39,12 @@ Rows (kind), one per item, sorted by kind, then address, then name:
                reaches from a phase root or a load root. A site elsewhere (the lobby and
                the frame handlers reach UnitSync, its map nodes and the packet manager
                only that way) is a row too when it allocates a record whose fields a
-               function of the walk reads or writes, and it is outside src/debug/ and
-               src/harness/. A raw byte buffer is not such a record, so InitPacketManager's
-               0x42a-byte `operator new` is no row.
+               function of the walk reads or writes, or it allocates a primitive
+               (a raw buffer, which has no record to join on) and assigns it to a global or
+               a `Type::field` that a function of the walk accesses (InitPacketManager's
+               0x42a-byte `operator new`, stored in the packet manager's buffer field), and
+               it is outside src/debug/ and src/harness/. A buffer held in a local, or in
+               a global or field no walk touches, is no row.
 
 Columns:
 
@@ -60,7 +64,7 @@ Columns:
 
 Phases. The roots are those of hazards.ROOTS, each walked separately over the `call` rows
 of data/rwsets.csv and the hand-resolved edges of data/hazard_edges.csv (hazards.Graph),
-so a function carries the set of roots that reach it. HarnessPhase numbers them 0 to 7:
+so a function carries the set of roots that reach it. HarnessPhase numbers them 0 to 8:
 
   0 HandleNetPackets   1 UpdateAllUnits   2 UpdateProjectiles   3 UpdateExplosions
   4 UpdatePlayers      5 UpdateFeatures   6 StepAllGafSequences and UpdateWind
@@ -227,7 +231,6 @@ PRIMITIVES = {"void", "char", "unsigned char", "signed char", "short", "unsigned
               "long", "unsigned long", "float", "double", "?"}
 LAYOUT_FLAG = ["-Xclang", "-fdump-record-layouts-complete"]
 LAYOUT_LINE = re.compile(r"^\s*(\d+)(?::(\d+)-(\d+))? \|( *)(.*?)\s*$")
-JSON_START = re.compile(r'^\{\n  "id"', re.M)
 RECORD_KEYWORD = re.compile(r"^(struct|union|class|enum)\s+")
 UNKNOWN_RANGE = re.compile(r"^(unknown_|pad)")
 WRITE_MODES = ("write", "maybe_written", "escape")
@@ -437,6 +440,26 @@ def context_type(node: dict, parents: list[dict]) -> str | None:
     return None
 
 
+def stored_target(node: dict, parents: list[dict], locals_: dict[str, str]) -> str:
+    """The rwsets target (`Type::field`, a global's name or a static) an allocation is assigned to, else empty."""
+    child = node
+    for parent in reversed(parents):
+        kind = parent["kind"]
+        if kind in hazards.WRAPPING:
+            child = parent
+        elif kind == "BinaryOperator" and parent["opcode"] == "=" and parent["inner"][1] is child:
+            target = peel(parent["inner"][0])
+            if target["kind"] == "MemberExpr":
+                return "%s::%s" % (record_name(peel(target["inner"][0])["type"]), target.get("name") or "<anon>")
+            if target["kind"] == "DeclRefExpr" and target["referencedDecl"]["kind"] == "VarDecl":
+                decl = target["referencedDecl"]
+                return locals_.get(decl["id"], decl["name"])
+            return ""
+        else:
+            return ""
+    return ""
+
+
 def is_returned(node: dict, parents: list[dict]) -> bool:
     """Whether the allocation's result goes straight to a return (a wrapper)."""
     return hazards.holder_of(node, parents) == "return"
@@ -458,24 +481,42 @@ def argument_type(node: dict) -> str | None:
     return found
 
 
-def allocations(node: dict, function: str) -> list[tuple[str, str, int]]:
-    """The (allocator, type or tag, line) allocation sites in one function definition."""
+def local_variables(node: dict, function: str) -> dict[str, str]:
+    """The variables declared in a function by id: "" for a local, `name@Function` for a static.
+
+    A parameter is no VarDecl, and a local is not state."""
+    found = {}
+    stack = [node]
+    while stack:
+        n = stack.pop()
+        if n.get("kind") == "VarDecl":
+            found[n["id"]] = "%s@%s" % (n["name"], function) if n.get("storageClass") == "static" else ""
+        stack.extend(n.get("inner", ()))
+    return found
+
+
+def allocations(node: dict, function: str) -> list[tuple[str, str, int, str]]:
+    """The (allocator, type or tag, line, where stored) allocation sites in one function definition.
+
+    Where stored is the `Type::field` or global the result is assigned to, or empty."""
     if function in ALLOCATORS:
         return []
-    found: list[tuple[str, str, int]] = []
+    found: list[tuple[str, str, int, str]] = []
     parents: list[dict] = []
+    locals_ = local_variables(node, function)
 
     def walk(n: dict) -> None:
         kind = n.get("kind")
         if kind is None:
             return
         if kind == "CXXNewExpr" and not n.get("isPlacement") and not is_returned(n, parents):
-            found.append(("new[]" if n.get("isArray") else "new", record_name(n["type"]), n.get("_line", 0)))
+            found.append(("new[]" if n.get("isArray") else "new", record_name(n["type"]), n.get("_line", 0),
+                          stored_target(n, parents, locals_)))
         elif kind == "CallExpr" and call_name(n) and not is_returned(n, parents):
             context = context_type(n, parents)
             argument = argument_type(n)
             what = context if context and context not in PRIMITIVES else argument or context or "?"
-            found.append((call_name(n), what, n.get("_line", 0)))
+            found.append((call_name(n), what, n.get("_line", 0), stored_target(n, parents, locals_)))
         if kind not in rwsets.UNEVALUATED:
             parents.append(n)
             for child in n.get("inner", ()):
@@ -542,29 +583,14 @@ class StateAnalyzer(Analyzer):
         fn["allocs"] = allocations(node, name)
 
 
+def set_view(unit: StateAnalyzer, layouts: str) -> None:
+    """Take the Game ranges from the record layouts clang printed before the syntax tree."""
+    unit.view = view_spans(layout_fields(layouts, "Game"))
+
+
 def scan(job: tuple[Path, list[str], str]) -> dict:
     """Run clang-cl on one file (layouts and syntax tree) and return what the tool needs from it."""
-    root, argv, directory = job
-    run = subprocess.run(argv, cwd=directory, capture_output=True, text=True, errors="replace")
-    if run.returncode != 0 and "error:" in run.stderr:
-        raise SystemExit("%s: clang-cl failed\n%s" % (argv[-1], run.stderr[-2000:]))
-    start = JSON_START.search(run.stdout)
-    layouts, text = run.stdout[:start.start()], run.stdout[start.start():]
-    unit = StateAnalyzer(root)
-    unit.view = view_spans(layout_fields(layouts, "Game"))
-    position = ("", 0)
-    for m in rwsets.CHUNK.finditer(text, text.index('"inner": [')):
-        chunk = m.group()
-        file = rwsets.first_file(chunk) or position[0]
-        if not file or unit.relative(file) is None:
-            position = rwsets.last_position(chunk, *position)
-            continue
-        node = json.loads(chunk.rstrip().rstrip(","))
-        tracker = rwsets.Position(*position)
-        tracker.annotate(node)
-        position = (tracker.file, tracker.line)
-        unit.declare(node, None)
-    unit.assign_markers()
+    unit, _ = rwsets.analyse_unit(job, StateAnalyzer, set_view)
     owns_game = unit.game_var.replace("*", "").replace("const", "").strip() == "Game" and "*" in unit.game_var
     functions = [{key: fn[key] for key in ("address", "function", "file", "start", "regions", "bounds", "statics",
                                            "allocs")}
@@ -888,13 +914,17 @@ def rows_of(rwsets_rows: list[list[str]], graph: hazards.Graph, globals_rows: li
             unknown=bool(UNKNOWN_RANGE.match(region["name"])))
     sim_types = {target.split("::")[0] for _, function, _, kind, target in rwsets_rows
                  if kind.startswith("field_") and "::" in target and function in walks.sim}
+    sim_targets = {target for _, function, _, kind, target in rwsets_rows
+                   if kind.startswith(("field_", "global_")) and function in walks.sim}
     sites = []
     for fn in functions.values():
         address = walks.addresses.get(fn["function"], fn["address"])
         in_logic = fn["function"] in walks.sim or address in logic_addresses
-        for allocator, what, line in fn["allocs"]:
-            reached = what in sim_types and what not in PRIMITIVES and not fn["file"].startswith(NON_GAME_DIRS)
-            if in_logic or reached:
+        for allocator, what, line, stored in fn["allocs"]:
+            outside = fn["file"].startswith(NON_GAME_DIRS)
+            reached = what in sim_types and what not in PRIMITIVES and not outside
+            held = what in PRIMITIVES and stored in sim_targets and not outside
+            if in_logic or reached or held:
                 sites.append((fn["function"], address, fn["file"], line, allocator, what))
     count: dict[str, int] = defaultdict(int)
     ordered = sorted(set(sites), key=lambda s: (s[2], s[3], s[4], s[5], s[0]))
@@ -983,6 +1013,7 @@ def main() -> None:
     parser.add_argument("--unclassified", action="store_true", help="fail if a row has no class")
     parser.add_argument("--unjoined", action="store_true", help="list the globals no row of rwsets.csv names")
     parser.add_argument("--build-dir", type=Path, default=rwsets.DEFAULT_BUILD_DIR)
+    parser.add_argument("--out", type=Path, default=OUT, help="write the rows here instead of the data file")
     parser.add_argument("--jobs", type=int, default=4)
     args = parser.parse_args()
     sys.setrecursionlimit(100000)
@@ -1018,7 +1049,7 @@ def main() -> None:
     merged = merge_kept(rows, old)
     now = {(r["kind"], r["name"]) for r in merged}
     lost = [r for r in old if (r["class"] or r["note"]) and (r["kind"], r["name"]) not in now]
-    OUT.write_text(render(merged))
+    args.out.write_text(render(merged))
     print("%d rows, %d files, %.0fs" % (len(merged), files, elapsed))
     if lost:
         print("warning: %d rows with a class or note no longer exist and were dropped" % len(lost))

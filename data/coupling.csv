@@ -249,6 +249,7 @@ features,platform,call,RandomInt,3
 features,platform,call,TdfFile::LoadFile,1
 features,platform,call,TdfFile::ResetCurrentRecord,3
 features,platform,call,TdfFile::SelectRecord,3
+features,platform,call,TdfFile::~TdfFile,3
 features,platform,call,TdfRecord::GetFieldDouble,1
 features,platform,call,TdfRecord::GetFieldInt,1
 features,platform,call,TdfRecord::GetFieldString,4
@@ -558,6 +559,7 @@ game,platform,call,TdfFile::SelectRecord,3
 game,platform,call,TdfFile::SelectRecordAt,1
 game,platform,call,TdfFile::SetCurrentRecord,2
 game,platform,call,TdfFile::Unload,1
+game,platform,call,TdfFile::~TdfFile,2
 game,platform,call,TdfRecord::CopyRecordName,1
 game,platform,call,TdfRecord::GetFieldInt,3
 game,platform,call,TdfRecord::GetFieldString,1
@@ -1062,6 +1064,7 @@ los_radar,platform,call,TdfFile::LoadFile,1
 los_radar,platform,call,TdfFile::ResetCurrentRecord,1
 los_radar,platform,call,TdfFile::SelectRecord,2
 los_radar,platform,call,TdfFile::Unload,1
+los_radar,platform,call,TdfFile::~TdfFile,1
 los_radar,platform,call,TdfRecord::GetFieldInt,2
 los_radar,platform,call,TdfRecord::GetFieldString,1
 los_radar,platform,call,Unguarded_insert,1
@@ -1125,6 +1128,7 @@ los_radar,targeting,shared_write,Unit::flags,1
 los_radar,targeting,shared_write,Vec3::x,1
 los_radar,targeting,shared_write,Vec3::z,1
 los_radar,units,call,GetGroundHeight,1
+los_radar,units,indirect,CompareUnitTypeNames,1
 los_radar,units,shared_write,Cell::feature,1
 los_radar,units,shared_write,Game::heightMap,2
 los_radar,units,shared_write,ObjectState::unknown_4,2
@@ -1242,6 +1246,7 @@ map,platform,call,TdfFile::LoadFile,3
 map,platform,call,TdfFile::ResetCurrentRecord,7
 map,platform,call,TdfFile::SelectRecord,7
 map,platform,call,TdfFile::Unload,1
+map,platform,call,TdfFile::~TdfFile,2
 map,platform,call,TdfRecord::FindSubRecord,1
 map,platform,call,TdfRecord::GetFieldDouble,1
 map,platform,call,TdfRecord::GetFieldInt,2
@@ -1253,6 +1258,7 @@ map,platform,call,operator delete,12
 map,platform,call,operator new,10
 map,players,call,MissionConditions::FreeConditions,1
 map,players,call,MissionConditions::RegisterConditions,1
+map,players,call,MissionConditions::~MissionConditions,1
 map,players,indirect,VictoryMoveUnitToRadius::VisitUnit,1
 map,players,shared_write,Game::mapInfo,9
 map,players,shared_write,Game::victoryConditions,2
@@ -1667,6 +1673,7 @@ orders,network,shared_write,Unit::angles,1
 orders,network,shared_write,Unit::flags,2
 orders,network,shared_write,Unit::pos,1
 orders,pathfinding,call,Pathfinder::AbortIfGoalMatch,2
+orders,pathfinding,call,Pathfinder::~Pathfinder,1
 orders,pathfinding,shared_write,Point16::x,8
 orders,pathfinding,shared_write,Point16::y,8
 orders,pathfinding,shared_write,Unit::cell,1
@@ -1702,6 +1709,7 @@ orders,presentation,call,EmitTeleportParticles,1
 orders,presentation,call,MarkSelectionOrdersDirty,6
 orders,presentation,call,QueueUnitSpeech,26
 orders,presentation,call,UpdateBuildMenuIfFocusUnit,2
+orders,presentation,indirect,ParticleSystem::~ParticleSystem,5
 orders,presentation,shared_write,AiSearchGoal::active,1
 orders,presentation,shared_write,AiSearchGoal::count,1
 orders,presentation,shared_write,Angles16::bank,1
@@ -1715,6 +1723,7 @@ orders,presentation,shared_write,Order::next,1
 orders,presentation,shared_write,Order::pos,3
 orders,presentation,shared_write,Order::unit,3
 orders,presentation,shared_write,OrderFx::source,1
+orders,presentation,shared_write,OrderFx::vtable,1
 orders,presentation,shared_write,Point16::x,6
 orders,presentation,shared_write,Point16::y,6
 orders,presentation,shared_write,Point::x,18
@@ -2020,6 +2029,7 @@ platform,presentation,indirect,OnNextTrackTimer,1
 platform,presentation,indirect,OnStreamTimer,1
 platform,presentation,shared_write,_finddata_t::attrib,1
 platform,presentation,shared_write,_finddata_t::time_write,1
+platform,units,indirect,CompareUnitTypeNames,1
 platform,weapons,shared_write,Game::explosionSeq,2
 platform,weapons,shared_write,Game::lavaSplashSeq,2
 platform,weapons,shared_write,Game::waterSplashSeq,2
@@ -2660,6 +2670,7 @@ presentation,orders,shared_write,Game::interfaceType,3
 presentation,orders,shared_write,MissionType::index,10
 presentation,orders,shared_write,Order::flags,95
 presentation,orders,shared_write,OrderFx::source,6
+presentation,orders,shared_write,OrderFx::vtable,12
 presentation,orders,shared_write,Player::active,3
 presentation,orders,shared_write,Player::allied,6
 presentation,orders,shared_write,Player::energy,1
@@ -2761,6 +2772,7 @@ presentation,platform,call,TdfFile::SelectRecord,4
 presentation,platform,call,TdfFile::SelectRecordAt,3
 presentation,platform,call,TdfFile::SetCurrentRecord,1
 presentation,platform,call,TdfFile::Unload,3
+presentation,platform,call,TdfFile::~TdfFile,6
 presentation,platform,call,TdfRecord::CopyRecordName,2
 presentation,platform,call,TdfRecord::GetFieldInt,10
 presentation,platform,call,TdfRecord::GetFieldString,13
@@ -3016,7 +3028,7 @@ units,los_radar,call,RevealNewUnit,1
 units,los_radar,call,SortUnitTypes,1
 units,los_radar,call,StringRef::Assign,1
 units,los_radar,call,UpdateUnitLineOfSight,2
-units,los_radar,indirect,UnitScript::SetPieceVisible,1
+units,los_radar,indirect,UnitScript::SetPieceVisible,2
 units,los_radar,shared_write,Game::hotRadarUnitList,1
 units,los_radar,shared_write,Game::units,3
 units,los_radar,shared_write,ObjectState::unknown_4,1
@@ -3050,6 +3062,7 @@ units,map,call,RemoveUnitFromMap,2
 units,map,call,SetYardOpen,1
 units,map,call,SpatialBucket::PrependUnit,1
 units,map,call,SpatialBucket::UnlinkUnit,1
+units,map,call,StringRef::~StringRef,1
 units,map,shared_write,Fixed::value,1
 units,map,shared_write,Game::units,4
 units,map,shared_write,MovementClass::badSlope,2
@@ -3233,6 +3246,7 @@ units,platform,call,HapiBank::SetIntegerItem,1
 units,platform,call,HapiBank::WriteBox,2
 units,platform,call,ListDirectory,2
 units,platform,call,LoadCobScript,2
+units,platform,call,OvrFile::~OvrFile,1
 units,platform,call,ProtectBlockReadOnly,6
 units,platform,call,ProtectBlockReadWrite,8
 units,platform,call,RandomInt,2
@@ -3248,6 +3262,7 @@ units,platform,call,TdfFile::ResetCurrentRecord,2
 units,platform,call,TdfFile::SelectRecord,3
 units,platform,call,TdfFile::SelectRecordAt,1
 units,platform,call,TdfFile::Unload,2
+units,platform,call,TdfFile::~TdfFile,4
 units,platform,call,TdfRecord::FindFieldValue,1
 units,platform,call,TdfRecord::GetFieldDouble,1
 units,platform,call,TdfRecord::GetFieldFixed,1
@@ -3521,6 +3536,7 @@ weapons,platform,call,TdfFile::LoadFile,2
 weapons,platform,call,TdfFile::ResetCurrentRecord,2
 weapons,platform,call,TdfFile::SelectRecord,1
 weapons,platform,call,TdfFile::SelectRecordAt,1
+weapons,platform,call,TdfFile::~TdfFile,1
 weapons,platform,call,TdfRecord::FindSubRecord,1
 weapons,platform,call,TdfRecord::GetFieldDouble,1
 weapons,platform,call,TdfRecord::GetFieldInt,1
@@ -3656,6 +3672,7 @@ wind_meteors,platform,call,HapiBank::SetIntegerItem,1
 wind_meteors,platform,call,RandomInt,1
 wind_meteors,platform,call,TdfFile::LoadFile,1
 wind_meteors,platform,call,TdfFile::SelectRecord,1
+wind_meteors,platform,call,TdfFile::~TdfFile,1
 wind_meteors,platform,call,TdfRecord::GetFieldDouble,1
 wind_meteors,platform,call,TdfRecord::GetFieldInt,1
 wind_meteors,platform,call,TdfRecord::GetFieldString,1

@@ -57,6 +57,28 @@ void Empty() {}
 
 // FUNCTION: 0x401060
 void Escapes() { int* p = &g_count; Handler h = Helper; *p = 1; (void)h; }
+
+struct Plain { ~Plain(); int a; };
+struct Virt { virtual ~Virt(); };
+struct Sub : Virt { int b; };
+struct Trivial { int a; };
+typedef Plain PlainT;
+Plain MakePlain();
+void UsePlain(const Plain&);
+
+void DeleteClass(Plain* p, PlainT* q) { delete p; delete q; }
+
+void DeleteVirtual(Virt* v) { delete v; }
+
+void DeleteInherited(Sub* s) { delete s; }
+
+void DeleteArray(Plain* p) { delete[] p; }
+
+void Temporary() { UsePlain(MakePlain()); }
+
+void LocalAtScopeExit() { Plain x; Plain many[2]; Plain* ref = &x; Plain& alias = x; (void)ref; (void)alias; }
+
+void TrivialType(Trivial* t) { Trivial local; delete t; (void)local; }
 """
 
 
@@ -124,6 +146,30 @@ class RwsetsTest(unittest.TestCase):
     def test_escapes_and_function_references(self):
         self.assertEqual(self.by_function["Escapes"], {
             ("global_escape", "g_count"), ("fn_ref", "Helper"), ("deref_write", "*int")})
+
+    def test_delete_calls_the_destructor_and_operator_delete(self):
+        self.assertEqual(self.by_function["DeleteClass"], {
+            ("call", "operator delete"), ("call", "Plain::~Plain")})
+
+    def test_delete_of_a_virtual_destructor_is_also_an_indirect_call(self):
+        self.assertEqual(self.by_function["DeleteVirtual"], {
+            ("call", "operator delete"), ("call", "Virt::~Virt"), ("indirect_call", "virtual Virt::~Virt")})
+        self.assertEqual(self.by_function["DeleteInherited"], {
+            ("call", "operator delete"), ("call", "Sub::~Sub"), ("indirect_call", "virtual Sub::~Sub")})
+
+    def test_delete_array_is_a_direct_destructor_call(self):
+        self.assertEqual(self.by_function["DeleteArray"], {
+            ("call", "operator delete"), ("call", "Plain::~Plain")})
+
+    def test_temporary_calls_the_destructor(self):
+        self.assertEqual(self.by_function["Temporary"], {("call", "MakePlain"), ("call", "UsePlain"),
+                                                         ("call", "Plain::~Plain")})
+
+    def test_local_calls_the_destructor_at_scope_exit(self):
+        self.assertEqual(self.by_function["LocalAtScopeExit"], {("call", "Plain::~Plain")})
+
+    def test_trivial_destructor_has_no_row(self):
+        self.assertEqual(self.by_function["TrivialType"], {("call", "operator delete")})
 
     def test_every_function_has_a_definition_row(self):
         defined = {row[1] for row in self.rows if row[3] == "function" and row[4] == ""}

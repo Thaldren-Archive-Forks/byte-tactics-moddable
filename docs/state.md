@@ -48,14 +48,14 @@ Known limits:
 
 ## Counts
 
-As of the last read of `data/state_classes.csv` (1681 rows):
+As of the last read of `data/state_classes.csv` (1690 rows):
 
 | kind | sim | view | platform | mixed | total |
 |---|---|---|---|---|---|
-| global | 105 | 370 | 287 | 0 | 762 |
-| static | 12 | 13 | 119 | 0 | 144 |
+| global | 108 | 370 | 291 | 0 | 769 |
+| static | 10 | 13 | 114 | 0 | 137 |
 | game-region | 75 | 293 | 69 | 9 | 446 |
-| heap | 214 | 45 | 70 | 0 | 329 |
+| heap | 215 | 46 | 77 | 0 | 338 |
 
 ## Mixed cases and how to split them
 
@@ -103,7 +103,7 @@ Found during review. Each needs an order, a message to the driver, or a split of
 
 ## Limits and left out
 
-- Load-time code is in the load walk, but destructors are invisible to it (#133).
+- Load-time code is in the load walk, and a destructor's accesses are evidence (`delete` and temporaries are `call` rows in `data/rwsets.csv`). A destructor of a class that is neither user-provided nor virtual is not followed (see the docstring of `tools/rwsets.py`).
 - The classes of clear-cut UI, debug and platform rows rest on the tool's evidence plus names. Rows that matter to the tick were checked against the code.
 - Rows the review marked "unsure" in their notes (check the code before relying on them):
   - game-region: `unknown_2851`, `count_14277`, `eyes`, `count_148e7`, `data_148eb`, `interfaceType`, `gameSpeed`, `effectiveGameSpeed`, `net_flags`.

@@ -1609,9 +1609,11 @@ address,function,file,kind,target
 0x408cb0,SquadManager::SquadManager,src/ai/ai_player.cpp,field_write,SquadManager::timers
 0x408cb0,SquadManager::SquadManager,src/ai/ai_player.cpp,field_write,SquadManager::unused_9
 0x408cb0,SquadManager::SquadManager,src/ai/ai_player.cpp,function,
+0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,call,SquadTimer::~SquadTimer
 0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,call,operator delete
 0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,field_read,SquadManager::timers
 0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,function,
+0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,indirect_call,virtual SquadTimer::~SquadTimer
 0x409160,PlayerAI::PlayerAI,src/ai/ai_player.cpp,call,PlayerAI::InitPlacementGrid
 0x409160,PlayerAI::PlayerAI,src/ai/ai_player.cpp,call,PlayerAI::InitUnitTables
 0x409160,PlayerAI::PlayerAI,src/ai/ai_player.cpp,call,resize
@@ -1975,6 +1977,7 @@ address,function,file,kind,target
 0x40b370,RebuildFeatureCells,src/ai/ai_player.cpp,call,PlayerAI::BuildFeatureCells
 0x40b370,RebuildFeatureCells,src/ai/ai_player.cpp,function,
 0x40b370,RebuildFeatureCells,src/ai/ai_player.cpp,global_read,g_playerAI
+0x40b390,DestroyPlayerAI,src/ai/ai_player.cpp,call,PlayerAI::~PlayerAI
 0x40b390,DestroyPlayerAI,src/ai/ai_player.cpp,call,operator delete
 0x40b390,DestroyPlayerAI,src/ai/ai_player.cpp,function,
 0x40b390,DestroyPlayerAI,src/ai/ai_player.cpp,global_read,g_playerAI
@@ -2711,6 +2714,7 @@ address,function,file,kind,target
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,call,GetFactoriesInRadius
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,call,GetHeadingBetween
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,call,IssueAttackOrder
+0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,call,LandingPadList::~LandingPadList
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,call,Offset
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,call,Order::SetAttachedFx
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,call,Order::SetDeadlineTicks
@@ -3011,6 +3015,7 @@ address,function,file,kind,target
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,GetHeadingBetween
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,GetSpeed
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,IsDamaged
+0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,LandingPadList::~LandingPadList
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,Offset
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,Order::AnnounceStatusIfFlagged
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,Order::SetAttachedFx
@@ -5289,6 +5294,7 @@ address,function,file,kind,target
 0x41d6a0,FindGameCdDrive,src/game/cd_check.cpp,call,FindNextCdDrive
 0x41d6a0,FindGameCdDrive,src/game/cd_check.cpp,call,TdfFile::LoadFile
 0x41d6a0,FindGameCdDrive,src/game/cd_check.cpp,call,TdfFile::SelectRecord
+0x41d6a0,FindGameCdDrive,src/game/cd_check.cpp,call,TdfFile::~TdfFile
 0x41d6a0,FindGameCdDrive,src/game/cd_check.cpp,call,TdfRecord::GetFieldInt
 0x41d6a0,FindGameCdDrive,src/game/cd_check.cpp,call,sprintf
 0x41d6a0,FindGameCdDrive,src/game/cd_check.cpp,field_read,TdfFile::current
@@ -6322,6 +6328,7 @@ address,function,file,kind,target
 0x4222b0,FindOptionalGafEntry,src/map/features.cpp,function,
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,call,FindFilesRecursive
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,call,TdfFile::LoadFile
+0x4222e0,LoadFeatureFileList,src/map/features.cpp,call,TdfFile::~TdfFile
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,call,begin
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,call,end
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,call,operator delete
@@ -6331,6 +6338,7 @@ address,function,file,kind,target
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,function,
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,global_read,s_featureTdfParsers@src/map/features.cpp
 0x4222e0,LoadFeatureFileList,src/map/features.cpp,global_write,s_featureTdfParsers@src/map/features.cpp
+0x4223e0,FreeFeatureFileList,src/map/features.cpp,call,TdfFile::~TdfFile
 0x4223e0,FreeFeatureFileList,src/map/features.cpp,call,begin
 0x4223e0,FreeFeatureFileList,src/map/features.cpp,call,end
 0x4223e0,FreeFeatureFileList,src/map/features.cpp,call,operator delete
@@ -7047,6 +7055,7 @@ address,function,file,kind,target
 0x425d80,HandleMainMenuClick,src/frontend/frontend.cpp,call,SetCursorMode
 0x425d80,HandleMainMenuClick,src/frontend/frontend.cpp,call,SetOffscreenSurface
 0x425d80,HandleMainMenuClick,src/frontend/frontend.cpp,call,TdfFile::LoadFile
+0x425d80,HandleMainMenuClick,src/frontend/frontend.cpp,call,TdfFile::~TdfFile
 0x425d80,HandleMainMenuClick,src/frontend/frontend.cpp,call,Translate
 0x425d80,HandleMainMenuClick,src/frontend/frontend.cpp,call,sprintf
 0x425d80,HandleMainMenuClick,src/frontend/frontend.cpp,field_maybe_written,Game::gui
@@ -7482,6 +7491,7 @@ address,function,file,kind,target
 0x429000,CheckGpfVersion,src/game/data_files.cpp,call,OpenMessageBox
 0x429000,CheckGpfVersion,src/game/data_files.cpp,call,TdfFile::LoadFile
 0x429000,CheckGpfVersion,src/game/data_files.cpp,call,TdfFile::SelectRecord
+0x429000,CheckGpfVersion,src/game/data_files.cpp,call,TdfFile::~TdfFile
 0x429000,CheckGpfVersion,src/game/data_files.cpp,call,TdfRecord::GetFieldString
 0x429000,CheckGpfVersion,src/game/data_files.cpp,call,Translate
 0x429000,CheckGpfVersion,src/game/data_files.cpp,call,_strcmpi
@@ -7579,6 +7589,7 @@ address,function,file,kind,target
 0x429870,LoadGameResources,src/game/data_files.cpp,call,TdfFile::ResetCurrentRecord
 0x429870,LoadGameResources,src/game/data_files.cpp,call,TdfFile::SelectRecord
 0x429870,LoadGameResources,src/game/data_files.cpp,call,TdfFile::Unload
+0x429870,LoadGameResources,src/game/data_files.cpp,call,TdfFile::~TdfFile
 0x429870,LoadGameResources,src/game/data_files.cpp,call,TdfRecord::GetFieldInt
 0x429870,LoadGameResources,src/game/data_files.cpp,call,TdfRecord::GetFieldString
 0x429870,LoadGameResources,src/game/data_files.cpp,call,sprintf
@@ -7810,6 +7821,7 @@ address,function,file,kind,target
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,HapiBank::OpenBank
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,ListDirectory
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,LoadWeaponTDFs
+0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,OvrFile::~OvrFile
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,ProtectBlockReadOnly
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,ProtectBlockReadWrite
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,ShowErrorBox
@@ -7819,6 +7831,7 @@ address,function,file,kind,target
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,TdfFile::GetValue
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,TdfFile::LoadBuffer
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,TdfFile::SelectRecord
+0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,TdfFile::~TdfFile
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,Translate
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,floor
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,memcpy
@@ -8180,11 +8193,13 @@ address,function,file,kind,target
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,GetCategoryMask
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,GetLocalizedString
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,MovementClass::ReadMoveInfo
+0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,MovementClass::~MovementClass
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,ReplaceFlagField
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,SetFlagField
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfFile::LoadFile
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfFile::SelectRecord
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfFile::Unload
+0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfFile::~TdfFile
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfRecord::FindFieldValue
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfRecord::GetFieldDouble
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfRecord::GetFieldFixed
@@ -8339,6 +8354,7 @@ address,function,file,kind,target
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,TdfFile::ResetCurrentRecord
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,TdfFile::SelectRecord
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,TdfFile::Unload
+0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,TdfFile::~TdfFile
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,TdfRecord::GetFieldString
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,UnitTable::Construct
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,UnitTable::Initialize
@@ -8428,6 +8444,7 @@ address,function,file,kind,target
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfFile::LoadFile
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfFile::ResetCurrentRecord
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfFile::SelectRecordAt
+0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfFile::~TdfFile
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfRecord::GetFieldInt
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfRecord::GetFieldString
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,_strcmpi
@@ -8502,6 +8519,7 @@ address,function,file,kind,target
 0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,call,TdfFile::LoadFile
 0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,call,TdfFile::ResetCurrentRecord
 0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,call,TdfFile::SelectRecordAt
+0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,call,TdfFile::~TdfFile
 0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,call,begin
 0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,call,end
 0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,field_escape,Game::weaponDefs
@@ -8514,6 +8532,7 @@ address,function,file,kind,target
 0x42e310,LoadWeaponTypes,src/weapons/weapon_types.cpp,global_read,g_game
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,BindModelTextures
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,BuildDataPath
+0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,Entry_00432cf0::~Entry_00432cf0
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,FatalError
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,FindGafEntry
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,Load3do
@@ -8522,6 +8541,7 @@ address,function,file,kind,target
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,MirrorObject
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,Ne
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,SetWeaponFireHandler
+0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,StringRef::~StringRef
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,Table_00499cd0::LowerBound
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,TdfRecord::FindSubRecord
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,call,TdfRecord::GetFieldDouble
@@ -8624,6 +8644,7 @@ address,function,file,kind,target
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,global_maybe_written,DAT_005119b8
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,global_read,g_game
 0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,call,GameFreeThunk
+0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,call,Table_00499cd0::~Table_00499cd0
 0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,call,operator delete
 0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,call,strlen
 0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,field_escape,Game::weaponDefs
@@ -8652,6 +8673,7 @@ address,function,file,kind,target
 0x42f580,LoadSoundCategories,src/sound/sound_types.cpp,call,TdfFile::ResetCurrentRecord
 0x42f580,LoadSoundCategories,src/sound/sound_types.cpp,call,TdfFile::SelectRecordAt
 0x42f580,LoadSoundCategories,src/sound/sound_types.cpp,call,TdfFile::Unload
+0x42f580,LoadSoundCategories,src/sound/sound_types.cpp,call,TdfFile::~TdfFile
 0x42f580,LoadSoundCategories,src/sound/sound_types.cpp,call,TdfRecord::CopyRecordName
 0x42f580,LoadSoundCategories,src/sound/sound_types.cpp,call,TdfRecord::GetSubRecordCount
 0x42f580,LoadSoundCategories,src/sound/sound_types.cpp,call,memset
@@ -8684,6 +8706,7 @@ address,function,file,kind,target
 0x42f7e0,LoadAllSound,src/sound/sound_types.cpp,call,TdfFile::ResetCurrentRecord
 0x42f7e0,LoadAllSound,src/sound/sound_types.cpp,call,TdfFile::SelectRecordAt
 0x42f7e0,LoadAllSound,src/sound/sound_types.cpp,call,TdfFile::Unload
+0x42f7e0,LoadAllSound,src/sound/sound_types.cpp,call,TdfFile::~TdfFile
 0x42f7e0,LoadAllSound,src/sound/sound_types.cpp,call,TdfRecord::CopyRecordName
 0x42f7e0,LoadAllSound,src/sound/sound_types.cpp,call,TdfRecord::GetFieldString
 0x42f7e0,LoadAllSound,src/sound/sound_types.cpp,field_read,TdfFile::current
@@ -8880,6 +8903,7 @@ address,function,file,kind,target
 0x431740,ApplyUseOnlyUnits,src/game/settings.cpp,call,TdfFile::LoadFile
 0x431740,ApplyUseOnlyUnits,src/game/settings.cpp,call,TdfFile::ResetCurrentRecord
 0x431740,ApplyUseOnlyUnits,src/game/settings.cpp,call,TdfFile::SelectRecordAt
+0x431740,ApplyUseOnlyUnits,src/game/settings.cpp,call,TdfFile::~TdfFile
 0x431740,ApplyUseOnlyUnits,src/game/settings.cpp,call,TdfRecord::CopyRecordName
 0x431740,ApplyUseOnlyUnits,src/game/settings.cpp,call,_strcmpi
 0x431740,ApplyUseOnlyUnits,src/game/settings.cpp,field_escape,UnitDef::unitname
@@ -8926,6 +8950,7 @@ address,function,file,kind,target
 0x431a60,LoadSideData,src/game/side_data.cpp,call,TdfFile::ResetCurrentRecord
 0x431a60,LoadSideData,src/game/side_data.cpp,call,TdfFile::SelectRecord
 0x431a60,LoadSideData,src/game/side_data.cpp,call,TdfFile::Unload
+0x431a60,LoadSideData,src/game/side_data.cpp,call,TdfFile::~TdfFile
 0x431a60,LoadSideData,src/game/side_data.cpp,call,TdfRecord::GetFieldInt
 0x431a60,LoadSideData,src/game/side_data.cpp,call,TdfRecord::GetFieldString
 0x431a60,LoadSideData,src/game/side_data.cpp,call,sprintf
@@ -9109,6 +9134,7 @@ address,function,file,kind,target
 0x433130,LosTables::LoadLosTables,src/map/los_tables_433130.cpp,call,TdfFile::LoadFile
 0x433130,LosTables::LoadLosTables,src/map/los_tables_433130.cpp,call,TdfFile::SelectRecord
 0x433130,LosTables::LoadLosTables,src/map/los_tables_433130.cpp,call,TdfFile::Unload
+0x433130,LosTables::LoadLosTables,src/map/los_tables_433130.cpp,call,TdfFile::~TdfFile
 0x433130,LosTables::LoadLosTables,src/map/los_tables_433130.cpp,call,TdfRecord::GetFieldInt
 0x433130,LosTables::LoadLosTables,src/map/los_tables_433130.cpp,call,begin
 0x433130,LosTables::LoadLosTables,src/map/los_tables_433130.cpp,call,end
@@ -9142,6 +9168,7 @@ address,function,file,kind,target
 0x4335e0,LosTable::GetLosLine,src/map/los_tables.cpp,call,operator[]
 0x4335e0,LosTable::GetLosLine,src/map/los_tables.cpp,deref_read,*LosTable
 0x4335e0,LosTable::GetLosLine,src/map/los_tables.cpp,function,
+0x4335f0,LosTable::ResizeLines,src/map/los_tables.cpp,call,Elem_00434360::~Elem_00434360
 0x4335f0,LosTable::ResizeLines,src/map/los_tables.cpp,call,resize
 0x4335f0,LosTable::ResizeLines,src/map/los_tables.cpp,function,
 0x4336f0,LosLine::LoadLosLine,src/map/los_tables.cpp,call,TdfRecord::GetFieldString
@@ -9168,6 +9195,7 @@ address,function,file,kind,target
 0x4345c0,StoreDwordIfDst,src/map/los_tables.cpp,deref_read,*int
 0x4345c0,StoreDwordIfDst,src/map/los_tables.cpp,deref_write,*int
 0x4345c0,StoreDwordIfDst,src/map/los_tables.cpp,function,
+0x434ab0,SetMissionType,src/map/map_list.cpp,call,Mission::~Mission
 0x434ab0,SetMissionType,src/map/map_list.cpp,call,operator delete
 0x434ab0,SetMissionType,src/map/map_list.cpp,call,operator new
 0x434ab0,SetMissionType,src/map/map_list.cpp,field_read,Game::mapInfo
@@ -9176,6 +9204,7 @@ address,function,file,kind,target
 0x434ab0,SetMissionType,src/map/map_list.cpp,function,
 0x434ab0,SetMissionType,src/map/map_list.cpp,global_read,g_game
 0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,call,GameFreeThunk
+0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,call,Mission::~Mission
 0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,call,operator delete
 0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,field_read,Game::mapInfo
 0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,field_write,Game::mapInfo
@@ -9197,6 +9226,7 @@ address,function,file,kind,target
 0x434bf0,LoadMapList,src/map/map_list.cpp,call,SetCursorMode
 0x434bf0,LoadMapList,src/map/map_list.cpp,call,StripExtension
 0x434bf0,LoadMapList,src/map/map_list.cpp,call,TdfFile::LoadFile
+0x434bf0,LoadMapList,src/map/map_list.cpp,call,TdfFile::~TdfFile
 0x434bf0,LoadMapList,src/map/map_list.cpp,call,Translate
 0x434bf0,LoadMapList,src/map/map_list.cpp,call,_strcmpi
 0x434bf0,LoadMapList,src/map/map_list.cpp,call,_strlwr
@@ -9427,12 +9457,14 @@ address,function,file,kind,target
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,Mission::LoadMissionData
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,Mission::SelectSchema
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,MissionConditions::RegisterConditions
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,MissionConditions::~MissionConditions
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,OpenMessageBox
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,SetMeteorParams
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,ShowErrorBox
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfFile::LoadFile
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfFile::ResetCurrentRecord
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfFile::SelectRecord
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfFile::~TdfFile
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfRecord::GetFieldInt
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfRecord::GetFieldString
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,Translate
@@ -9619,7 +9651,9 @@ address,function,file,kind,target
 0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,call,HAPI_readfromfile
 0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,call,MapCache::InsertMapCacheEntry
 0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,call,MapCacheEntry::SetChecksum
+0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,call,MapCacheEntry::~MapCacheEntry
 0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,call,Mission::GetNameSlot
+0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,call,StringRef::~StringRef
 0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,call,_strcmpi
 0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,field_read,Header_004373a0::featureOffset
 0x4373a0,Mission::ComputeMapChecksum,src/map/map_list.cpp,field_read,Header_004373a0::features
@@ -9847,6 +9881,7 @@ address,function,file,kind,target
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,call,FatalError
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,call,TdfFile::LoadFile
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,call,TdfFile::SelectRecord
+0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,call,TdfFile::~TdfFile
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,call,TdfRecord::GetFieldDouble
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,call,TdfRecord::GetFieldInt
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,call,TdfRecord::GetFieldString
@@ -9862,6 +9897,7 @@ address,function,file,kind,target
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,global_escape,g_extTdf
 0x438320,MeteorParams::LoadMeteorDefaults,src/map/meteors.cpp,global_maybe_written,DAT_005119b8
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,call,InsertBefore
+0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,call,Order::~Order
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,call,operator new
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,deref_read,*Order
@@ -9930,6 +9966,7 @@ address,function,file,kind,target
 0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
 0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,function,
 0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,indirect_call,"indirect via void (*)(void *, int) __attribute__((thiscall))"
+0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
@@ -9939,7 +9976,9 @@ address,function,file,kind,target
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,function,
+0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
+0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,call,operator new
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,deref_read,*int
@@ -9953,7 +9992,9 @@ address,function,file,kind,target
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,function,
+0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
+0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,call,operator new
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
@@ -9968,7 +10009,9 @@ address,function,file,kind,target
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,function,
+0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
+0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,call,operator new
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
@@ -9981,6 +10024,7 @@ address,function,file,kind,target
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,function,
+0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
 0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,Entry_0043a1f0::flags
 0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::kind
@@ -10198,6 +10242,7 @@ address,function,file,kind,target
 0x439e80,Order::SetDeadlineTicks,src/orders/order_list.cpp,global_read,g_game
 0x439ea0,ReadyOrder,src/orders/order_list.cpp,function,
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,call,DeleteOrder
+0x439eb0,DeleteOrders,src/orders/order_list.cpp,call,Order::~Order
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,call,operator delete
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,deref_read,*Order
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,deref_write,*Order
@@ -10209,6 +10254,7 @@ address,function,file,kind,target
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_read,Unit::list2
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_write,Order::flags
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,function,
+0x439f80,DeleteOrder,src/orders/order_list.cpp,call,Order::~Order
 0x439f80,DeleteOrder,src/orders/order_list.cpp,call,operator delete
 0x439f80,DeleteOrder,src/orders/order_list.cpp,deref_read,*Order
 0x439f80,DeleteOrder,src/orders/order_list.cpp,deref_write,*Order
@@ -10255,6 +10301,7 @@ address,function,file,kind,target
 0x43a1e0,OrderBase::OrStatusFlags,src/orders/order_list.cpp,function,
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,call,CobScript::FindScript
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,call,CobScript::StartScriptWithArgsByIndex
+0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,call,SendScriptCallNoArgs
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,call,Unit::ReleaseWeapons
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,call,UnitRef::Unlink
@@ -10275,6 +10322,7 @@ address,function,file,kind,target
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,function,
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,global_read,g_missionOrderTableBegin
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,indirect_call,"indirect via void (*)(Unit *, Order *, int) __attribute__((stdcall)) [Entry_0043a1f0::notify]"
+0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
 0x43a2d0,WriteUnitTypeNameKey,src/orders/order_list.cpp,call,HapiBank::HasItem
 0x43a2d0,WriteUnitTypeNameKey,src/orders/order_list.cpp,call,HapiBank::SetStringItem
@@ -10461,6 +10509,7 @@ address,function,file,kind,target
 0x43afc0,IssueOrCancelOrder,src/orders/order_list.cpp,field_read,Unit::list
 0x43afc0,IssueOrCancelOrder,src/orders/order_list.cpp,function,
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,call,AddOrder
+0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,call,Order::~Order
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,call,operator delete
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,deref_read,*Order
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,deref_write,*Order
@@ -14300,6 +14349,7 @@ address,function,file,kind,target
 0x44f6a0,CreatePathfinder,src/orders/order_targets.cpp,field_write,Game::pathfinder
 0x44f6a0,CreatePathfinder,src/orders/order_targets.cpp,function,
 0x44f6a0,CreatePathfinder,src/orders/order_targets.cpp,global_read,g_game
+0x44f6e0,DestroyPathfinder,src/orders/order_targets.cpp,call,Pathfinder::~Pathfinder
 0x44f6e0,DestroyPathfinder,src/orders/order_targets.cpp,call,operator delete
 0x44f6e0,DestroyPathfinder,src/orders/order_targets.cpp,field_read,Game::pathfinder
 0x44f6e0,DestroyPathfinder,src/orders/order_targets.cpp,field_write,Game::pathfinder
@@ -17442,6 +17492,7 @@ address,function,file,kind,target
 0x45f8c0,FillHelpPage,src/frontend/options.cpp,call,MarkChanged
 0x45f8c0,FillHelpPage,src/frontend/options.cpp,call,TdfFile::LoadFile
 0x45f8c0,FillHelpPage,src/frontend/options.cpp,call,TdfFile::SelectRecord
+0x45f8c0,FillHelpPage,src/frontend/options.cpp,call,TdfFile::~TdfFile
 0x45f8c0,FillHelpPage,src/frontend/options.cpp,call,TdfRecord::GetFieldString
 0x45f8c0,FillHelpPage,src/frontend/options.cpp,call,wsprintfA
 0x45f8c0,FillHelpPage,src/frontend/options.cpp,field_read,Gui::layer
@@ -20120,12 +20171,14 @@ address,function,file,kind,target
 0x46c8e0,CreateUnitSync,src/network/unit_sync.cpp,field_write,Game::sync
 0x46c8e0,CreateUnitSync,src/network/unit_sync.cpp,function,
 0x46c8e0,CreateUnitSync,src/network/unit_sync.cpp,global_read,g_game
+0x46c920,DeleteUnitSync,src/network/unit_sync.cpp,call,UnitSyncDel_0046c920::~UnitSyncDel_0046c920
 0x46c920,DeleteUnitSync,src/network/unit_sync.cpp,call,operator delete
 0x46c920,DeleteUnitSync,src/network/unit_sync.cpp,field_read,Game::sync
 0x46c920,DeleteUnitSync,src/network/unit_sync.cpp,field_write,Game::sync
 0x46c920,DeleteUnitSync,src/network/unit_sync.cpp,function,
 0x46c920,DeleteUnitSync,src/network/unit_sync.cpp,global_read,g_game
 0x46ca60,FinishUnitSync,src/network/unit_sync_46ca60.cpp,call,UnitSync::ApplyToUnitTypes
+0x46ca60,FinishUnitSync,src/network/unit_sync_46ca60.cpp,call,UnitSync::~UnitSync
 0x46ca60,FinishUnitSync,src/network/unit_sync_46ca60.cpp,call,operator delete
 0x46ca60,FinishUnitSync,src/network/unit_sync_46ca60.cpp,field_read,Game::sync
 0x46ca60,FinishUnitSync,src/network/unit_sync_46ca60.cpp,field_write,Game::sync
@@ -20360,6 +20413,7 @@ address,function,file,kind,target
 0x46dad0,UnitSync::ProcessSync,src/network/unit_sync_46dad0.cpp,call,PacketSequencer::Inl
 0x46dad0,UnitSync::ProcessSync,src/network/unit_sync_46dad0.cpp,call,PacketSequencer::SendUnsequenced
 0x46dad0,UnitSync::ProcessSync,src/network/unit_sync_46dad0.cpp,call,Pass
+0x46dad0,UnitSync::ProcessSync,src/network/unit_sync_46dad0.cpp,call,SyncPlayerRecord::~SyncPlayerRecord
 0x46dad0,UnitSync::ProcessSync,src/network/unit_sync_46dad0.cpp,call,UnitSync::CheckUnitAvailable
 0x46dad0,UnitSync::ProcessSync,src/network/unit_sync_46dad0.cpp,call,UnitSync::SendSyncPacket
 0x46dad0,UnitSync::ProcessSync,src/network/unit_sync_46dad0.cpp,call,Vec_0046d860::Push
@@ -20598,6 +20652,7 @@ address,function,file,kind,target
 0x4702d0,CopyDwordRangeOverwrite,src/network/unit_sync.cpp,deref_write,*int
 0x4702d0,CopyDwordRangeOverwrite,src/network/unit_sync.cpp,function,
 0x470300,FinishUnitSync,src/network/unit_sync_player.cpp,call,UnitSync::ApplyToUnitTypes
+0x470300,FinishUnitSync,src/network/unit_sync_player.cpp,call,UnitSync::~UnitSync
 0x470300,FinishUnitSync,src/network/unit_sync_player.cpp,call,operator delete
 0x470300,FinishUnitSync,src/network/unit_sync_player.cpp,field_read,Game::sync
 0x470300,FinishUnitSync,src/network/unit_sync_player.cpp,field_write,Game::sync
@@ -20671,6 +20726,7 @@ address,function,file,kind,target
 0x470f60,CopyPointer,src/graphics/particles.cpp,deref_write,*int
 0x470f60,CopyPointer,src/graphics/particles.cpp,function,
 0x470f80,ParticleLists::ParticleLists,src/graphics/particles.cpp,function,
+0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,call,ParticleSystem::~ParticleSystem
 0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,call,begin
 0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,call,end
 0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,call,erase
@@ -20678,6 +20734,8 @@ address,function,file,kind,target
 0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,deref_read,*ParticleSystem
 0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,field_maybe_written,ParticleLists::lists
 0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,function,
+0x470fb0,ParticleLists::~ParticleLists,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::~ParticleSystem
+0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,call,ParticleSystem::~ParticleSystem
 0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,call,begin
 0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,call,end
 0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,call,erase
@@ -20687,6 +20745,7 @@ address,function,file,kind,target
 0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,function,
 0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::IsFinished
 0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::Update
+0x471050,ParticleLists::UpdateAll,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::~ParticleSystem
 0x4710e0,ParticleLists::DrawAll,src/graphics/particles.cpp,call,begin
 0x4710e0,ParticleLists::DrawAll,src/graphics/particles.cpp,call,end
 0x4710e0,ParticleLists::DrawAll,src/graphics/particles.cpp,deref_read,*ParticleSystem
@@ -20699,6 +20758,7 @@ address,function,file,kind,target
 0x471120,ParticleLists::DrawList,src/graphics/particles.cpp,field_escape,ParticleLists::lists
 0x471120,ParticleLists::DrawList,src/graphics/particles.cpp,function,
 0x471120,ParticleLists::DrawList,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::Render
+0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,call,Listener_00471120::~Listener_00471120
 0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,call,begin
 0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,call,erase
 0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,call,operator delete
@@ -20709,6 +20769,7 @@ address,function,file,kind,target
 0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,field_read,Elem_00473500::p
 0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,field_read,ParticleLists::lists
 0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,function,
+0x471160,ParticleLists::AddToList,src/graphics/particles_471160.cpp,indirect_call,virtual Listener_00471120::~Listener_00471120
 0x471340,ParticleLists::AddTeleportParticles,src/graphics/particles.cpp,call,ParticleLists::Add
 0x471340,ParticleLists::AddTeleportParticles,src/graphics/particles.cpp,call,operator new
 0x471340,ParticleLists::AddTeleportParticles,src/graphics/particles.cpp,function,
@@ -20762,11 +20823,13 @@ address,function,file,kind,target
 0x471d90,CreateParticleLists,src/graphics/particles.cpp,field_write,Game::lists_00471d90
 0x471d90,CreateParticleLists,src/graphics/particles.cpp,function,
 0x471d90,CreateParticleLists,src/graphics/particles.cpp,global_read,g_game
+0x471de0,DestroyParticleLists,src/graphics/particles_471de0.cpp,call,ParticleLists::~ParticleLists
 0x471de0,DestroyParticleLists,src/graphics/particles_471de0.cpp,call,operator delete
 0x471de0,DestroyParticleLists,src/graphics/particles_471de0.cpp,field_read,Game::lists_38d77
 0x471de0,DestroyParticleLists,src/graphics/particles_471de0.cpp,field_write,Game::lists_38d77
 0x471de0,DestroyParticleLists,src/graphics/particles_471de0.cpp,function,
 0x471de0,DestroyParticleLists,src/graphics/particles_471de0.cpp,global_read,g_game
+0x471eb0,UpdateParticles,src/graphics/particles.cpp,call,Listener_00471eb0::~Listener_00471eb0
 0x471eb0,UpdateParticles,src/graphics/particles.cpp,call,begin
 0x471eb0,UpdateParticles,src/graphics/particles.cpp,call,end
 0x471eb0,UpdateParticles,src/graphics/particles.cpp,call,erase
@@ -20778,6 +20841,7 @@ address,function,file,kind,target
 0x471eb0,UpdateParticles,src/graphics/particles.cpp,global_read,g_game
 0x471eb0,UpdateParticles,src/graphics/particles.cpp,indirect_call,virtual Listener_00471eb0::Slot1
 0x471eb0,UpdateParticles,src/graphics/particles.cpp,indirect_call,virtual Listener_00471eb0::Slot3
+0x471eb0,UpdateParticles,src/graphics/particles.cpp,indirect_call,virtual Listener_00471eb0::~Listener_00471eb0
 0x471f40,DrawParticles,src/graphics/particles.cpp,call,begin
 0x471f40,DrawParticles,src/graphics/particles.cpp,call,end
 0x471f40,DrawParticles,src/graphics/particles.cpp,deref_read,*Listener_471f40
@@ -21591,6 +21655,7 @@ address,function,file,kind,target
 0x476a60,BuildCampaignNameList,src/frontend/campaign_menu.cpp,call,ScanDirectory
 0x476a60,BuildCampaignNameList,src/frontend/campaign_menu.cpp,call,TdfFile::LoadFile
 0x476a60,BuildCampaignNameList,src/frontend/campaign_menu.cpp,call,TdfFile::SelectRecord
+0x476a60,BuildCampaignNameList,src/frontend/campaign_menu.cpp,call,TdfFile::~TdfFile
 0x476a60,BuildCampaignNameList,src/frontend/campaign_menu.cpp,call,TdfRecord::GetFieldString
 0x476a60,BuildCampaignNameList,src/frontend/campaign_menu.cpp,call,strcmp
 0x476a60,BuildCampaignNameList,src/frontend/campaign_menu.cpp,call,strlen
@@ -24837,6 +24902,7 @@ address,function,file,kind,target
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,call,ClearFootprintAndUnlink
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,call,ClearUnitRefs
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,call,CobScript::StartScriptWithArgs
+0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,call,CobScript::~CobScript
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,call,CreateUnitCorpse
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,call,DamageUnit
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,call,DeleteOrders
@@ -24931,6 +24997,7 @@ address,function,file,kind,target
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,global_maybe_written,g_killedScriptName
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,global_maybe_written,g_takenLeadFormat
 0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,global_read,g_game
+0x4866d0,ApplyUnitDeath,src/units/units_485010.cpp,indirect_call,virtual CobScript::~CobScript
 0x486e80,KillUnitsOfType,src/units/units_485010.cpp,call,KillUnit
 0x486e80,KillUnitsOfType,src/units/units_485010.cpp,field_read,Game::units
 0x486e80,KillUnitsOfType,src/units/units_485010.cpp,field_read,Game::unitsEnd
@@ -25377,6 +25444,8 @@ address,function,file,kind,target
 0x488bf0,FreeUnitCategories,src/units/unit_commands.cpp,function,
 0x488bf0,FreeUnitCategories,src/units/unit_commands.cpp,global_maybe_written,s_unitCategories@src/units/unit_commands.cpp
 0x488bf0,FreeUnitCategories,src/units/unit_commands.cpp,global_write,g_mapLoadFlag
+0x488c50,GetCategoryMask,src/units/unit_commands.cpp,call,StringRef::~StringRef
+0x488c50,GetCategoryMask,src/units/unit_commands.cpp,call,UnitCategory::~UnitCategory
 0x488c50,GetCategoryMask,src/units/unit_commands.cpp,call,_strcmpi
 0x488c50,GetCategoryMask,src/units/unit_commands.cpp,call,begin
 0x488c50,GetCategoryMask,src/units/unit_commands.cpp,call,end
@@ -27204,11 +27273,14 @@ address,function,file,kind,target
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,indirect_call,virtual OrderFx::GetType
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,indirect_call,virtual OrderFx::SerializeToBits
 0x490940,PackedPosGoal::PackedPosGoal,src/game/victory.cpp,function,
+0x4909e0,PackedPosGoal::~PackedPosGoal,src/game/victory.cpp,call,OrderFx::~OrderFx
 0x4909e0,PackedPosGoal::~PackedPosGoal,src/game/victory.cpp,call,operator delete
 0x4909e0,PackedPosGoal::~PackedPosGoal,src/game/victory.cpp,field_read,PathGoal::target
 0x4909e0,PackedPosGoal::~PackedPosGoal,src/game/victory.cpp,field_write,PathGoal::target
 0x4909e0,PackedPosGoal::~PackedPosGoal,src/game/victory.cpp,function,
+0x4909e0,PackedPosGoal::~PackedPosGoal,src/game/victory.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,call,BitReader::ReadBits
+0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,call,OrderFx::~OrderFx
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,call,UnitMotion::SetFlightMode
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,call,operator delete
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,call,operator new
@@ -27217,6 +27289,7 @@ address,function,file,kind,target
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_read,Struct_004907e0::obj
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_write,PathGoal::target
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,function,
+0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x490aa0,QueryGlobalMemoryStatus,src/game/victory.cpp,call,GlobalMemoryStatus
 0x490aa0,QueryGlobalMemoryStatus,src/game/victory.cpp,field_write,_MEMORYSTATUS::dwLength
 0x490aa0,QueryGlobalMemoryStatus,src/game/victory.cpp,function,
@@ -33329,6 +33402,7 @@ address,function,file,kind,target
 0x4aeac0,ReadGuiFile,src/gui/gui_file.cpp,call,TdfFile::SelectRecordAt
 0x4aeac0,ReadGuiFile,src/gui/gui_file.cpp,call,TdfFile::SetCurrentRecord
 0x4aeac0,ReadGuiFile,src/gui/gui_file.cpp,call,TdfFile::Unload
+0x4aeac0,ReadGuiFile,src/gui/gui_file.cpp,call,TdfFile::~TdfFile
 0x4aeac0,ReadGuiFile,src/gui/gui_file.cpp,call,TdfRecord::GetFieldInt
 0x4aeac0,ReadGuiFile,src/gui/gui_file.cpp,call,TdfRecord::GetFieldString
 0x4aeac0,ReadGuiFile,src/gui/gui_file.cpp,call,Translate
@@ -34977,6 +35051,8 @@ address,function,file,kind,target
 0x4b7590,ClearDefaultCommandHandler,src/util/commands.cpp,function,
 0x4b7590,ClearDefaultCommandHandler,src/util/commands.cpp,global_write,g_defaultCommandHandler
 0x4b7590,ClearDefaultCommandHandler,src/util/commands.cpp,global_write,g_defaultCommandMask
+0x4b7620,RegisterCommand,src/util/commands.cpp,call,CommandEntry::~CommandEntry
+0x4b7620,RegisterCommand,src/util/commands.cpp,call,StringRef::~StringRef
 0x4b7620,RegisterCommand,src/util/commands.cpp,call,begin
 0x4b7620,RegisterCommand,src/util/commands.cpp,call,end
 0x4b7620,RegisterCommand,src/util/commands.cpp,call,insert
@@ -34988,6 +35064,8 @@ address,function,file,kind,target
 0x4b7620,RegisterCommand,src/util/commands.cpp,field_read,StringRef::data
 0x4b7620,RegisterCommand,src/util/commands.cpp,function,
 0x4b7620,RegisterCommand,src/util/commands.cpp,global_maybe_written,s_commandTable@src/util/commands.cpp
+0x4b7760,RegisterCommands,src/util/commands.cpp,call,CommandEntry::~CommandEntry
+0x4b7760,RegisterCommands,src/util/commands.cpp,call,StringRef::~StringRef
 0x4b7760,RegisterCommands,src/util/commands.cpp,call,begin
 0x4b7760,RegisterCommands,src/util/commands.cpp,call,end
 0x4b7760,RegisterCommands,src/util/commands.cpp,call,insert
@@ -35007,6 +35085,7 @@ address,function,file,kind,target
 0x4b7900,ExecuteCommand,src/util/commands.cpp,call,CommandArgs::GetArg
 0x4b7900,ExecuteCommand,src/util/commands.cpp,call,Find_004b7900
 0x4b7900,ExecuteCommand,src/util/commands.cpp,call,StringRef::MakeLower
+0x4b7900,ExecuteCommand,src/util/commands.cpp,call,StringRef::~StringRef
 0x4b7900,ExecuteCommand,src/util/commands.cpp,field_read,CommandArgs::count
 0x4b7900,ExecuteCommand,src/util/commands.cpp,field_read,HandlerSlot_004b7900::fn
 0x4b7900,ExecuteCommand,src/util/commands.cpp,field_read,HandlerSlot_004b7900::mask
@@ -36166,6 +36245,7 @@ address,function,file,kind,target
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,GameFreeThunk
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,HAPI_FindFirst
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,HAPI_FindNext
+0x4bca30,ListDirectory,src/util/hpi.cpp,call,StringRef::~StringRef
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,_findclose
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,insert
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,strcmp
@@ -36180,6 +36260,7 @@ address,function,file,kind,target
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,HAPI_FindFirst
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,HAPI_FindNext
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,MatchWildcard
+0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,StringRef::~StringRef
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,_findclose
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,insert
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,sprintf
@@ -37129,6 +37210,7 @@ address,function,file,kind,target
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,call,HAPI_SeekFile
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,call,HAPI_readfromfile
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,call,TdfFile::StripComments
+0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,call,TdfRecord::~TdfRecord
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,call,memcpy
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,call,operator delete
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,call,operator new
@@ -37141,6 +37223,7 @@ address,function,file,kind,target
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,GameAllocIgnoreTag
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,GameFreeThunk
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,TdfFile::StripComments
+0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,TdfRecord::~TdfRecord
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,memcpy
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,operator delete
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,operator new
@@ -37150,6 +37233,7 @@ address,function,file,kind,target
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,field_write,TdfFile::flags
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,field_write,TdfFile::root
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,function,
+0x4c3240,TdfFile::Unload,src/util/tdf.cpp,call,TdfRecord::~TdfRecord
 0x4c3240,TdfFile::Unload,src/util/tdf.cpp,call,operator delete
 0x4c3240,TdfFile::Unload,src/util/tdf.cpp,field_read,TdfFile::root
 0x4c3240,TdfFile::Unload,src/util/tdf.cpp,field_write,TdfFile::current
@@ -37182,6 +37266,7 @@ address,function,file,kind,target
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,call,Map_004c3e40::LowerBound
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,call,Ne
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,call,SkipSpace
+0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,call,StringRef::~StringRef
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,call,TdfRecord::MakeTrimmedString
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,call,end
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,call,operator new
@@ -37204,6 +37289,7 @@ address,function,file,kind,target
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,field_write,TdfRecord::text
 0x4c3e40,TdfRecord::TdfRecord,src/util/tdf.cpp,function,
 0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,call,GameFreeThunk
+0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,call,TdfRecord::~TdfRecord
 0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,call,begin
 0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,call,end
 0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,call,operator delete
@@ -37211,6 +37297,7 @@ address,function,file,kind,target
 0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,field_maybe_written,TdfRecord::children
 0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,field_read,TdfRecord::name
 0x4c42a0,TdfRecord::~TdfRecord,src/util/tdf.cpp,function,
+0x4c4340,TdfRecord::MakeTrimmedString,src/util/tdf.cpp,call,StringRef::~StringRef
 0x4c4340,TdfRecord::MakeTrimmedString,src/util/tdf.cpp,deref_read,*char
 0x4c4340,TdfRecord::MakeTrimmedString,src/util/tdf.cpp,deref_write,*char
 0x4c4340,TdfRecord::MakeTrimmedString,src/util/tdf.cpp,function,
@@ -37283,6 +37370,7 @@ address,function,file,kind,target
 0x4c5190,TdfField::operator=,src/util/tdf.cpp,call,AssignPair
 0x4c5190,TdfField::operator=,src/util/tdf.cpp,deref_read,*TdfField
 0x4c5190,TdfField::operator=,src/util/tdf.cpp,function,
+0x4c51b0,TdfFile::~TdfFile,src/util/tdf_4c51b0.cpp,call,TdfRecord::~TdfRecord
 0x4c51b0,TdfFile::~TdfFile,src/util/tdf_4c51b0.cpp,call,operator delete
 0x4c51b0,TdfFile::~TdfFile,src/util/tdf_4c51b0.cpp,field_read,TdfFile::root
 0x4c51b0,TdfFile::~TdfFile,src/util/tdf_4c51b0.cpp,field_write,TdfFile::current
@@ -37300,11 +37388,13 @@ address,function,file,kind,target
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,InsertNew
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,Ne
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,StringRef::AssignText
+0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,StringRef::~StringRef
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfFieldVector::DestroyAll
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfFile::LoadFile
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfFile::ResetCurrentRecord
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfFile::SelectRecordAt
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfFile::Unload
+0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfFile::~TdfFile
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfRecord::CopyRecordName
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TdfRecord::GetFieldString
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,TranslationTable::FindLowerBound
@@ -37823,6 +37913,7 @@ address,function,file,kind,target
 0x4c93f0,StringRef::AssignText,src/graphics/surface.cpp,global_escape,g_emptyString
 0x4c93f0,StringRef::AssignText,src/graphics/surface.cpp,global_read,g_emptyStringRefs
 0x4c93f0,StringRef::AssignText,src/graphics/surface.cpp,global_write,g_emptyStringRefs
+0x4c9490,StringRef::SubString,src/graphics/surface.cpp,call,StringRef::~StringRef
 0x4c9490,StringRef::SubString,src/graphics/surface.cpp,call,strlen
 0x4c9490,StringRef::SubString,src/graphics/surface.cpp,field_read,StringRef::data
 0x4c9490,StringRef::SubString,src/graphics/surface.cpp,function,
@@ -40681,6 +40772,7 @@ address,function,file,kind,target
 0x4e04e0,FindLeftmostNode,src/debug/debug_lib.cpp,function,
 0x4e04e0,FindLeftmostNode,src/debug/debug_lib.cpp,global_read,DAT_005292c4
 0x4e0520,MemoryStatusDialog::LoadWorkingSetPref,src/debug/debug_lib.cpp,call,CavedogRegistryKey::ApplyBool
+0x4e0520,MemoryStatusDialog::LoadWorkingSetPref,src/debug/debug_lib.cpp,call,CavedogRegistryKey::~CavedogRegistryKey
 0x4e0520,MemoryStatusDialog::LoadWorkingSetPref,src/debug/debug_lib.cpp,field_escape,MemoryStatusDialog::workingSet
 0x4e0520,MemoryStatusDialog::LoadWorkingSetPref,src/debug/debug_lib.cpp,function,
 0x4e0520,MemoryStatusDialog::LoadWorkingSetPref,src/debug/debug_lib.cpp,global_read,g_memoryStatusWindowName
@@ -40923,6 +41015,7 @@ address,function,file,kind,target
 0x4e1b00,NameTableLockAtexitHandler,src/debug/debug_lib.cpp,function,
 0x4e1b10,SyncPerformanceSettings,src/debug/debug_lib.cpp,call,CavedogRegistryKey::ApplyBool
 0x4e1b10,SyncPerformanceSettings,src/debug/debug_lib.cpp,call,CavedogRegistryKey::ApplyDword
+0x4e1b10,SyncPerformanceSettings,src/debug/debug_lib.cpp,call,CavedogRegistryKey::~CavedogRegistryKey
 0x4e1b10,SyncPerformanceSettings,src/debug/debug_lib.cpp,function,
 0x4e1b10,SyncPerformanceSettings,src/debug/debug_lib.cpp,global_escape,g_perfAutoPairing
 0x4e1b10,SyncPerformanceSettings,src/debug/debug_lib.cpp,global_escape,g_perfDisplayInDebugger
@@ -41210,6 +41303,7 @@ address,function,file,kind,target
 0x4e3030,CavedogRegistryKey::ApplyByte,src/debug/debug_lib.cpp,function,
 0x4e3080,RestoreWindowPosition,src/debug/debug_lib.cpp,call,CavedogRegistryKey::ReadBool
 0x4e3080,RestoreWindowPosition,src/debug/debug_lib.cpp,call,CavedogRegistryKey::ReadInt
+0x4e3080,RestoreWindowPosition,src/debug/debug_lib.cpp,call,CavedogRegistryKey::~CavedogRegistryKey
 0x4e3080,RestoreWindowPosition,src/debug/debug_lib.cpp,call,GetSystemMetrics
 0x4e3080,RestoreWindowPosition,src/debug/debug_lib.cpp,call,GetWindowLongA
 0x4e3080,RestoreWindowPosition,src/debug/debug_lib.cpp,call,GetWindowPlacement
@@ -41234,6 +41328,7 @@ address,function,file,kind,target
 0x4e33d0,RestoreWindow,src/debug/debug_lib.cpp,function,
 0x4e3400,SaveWindowPosition,src/debug/debug_lib.cpp,call,CavedogRegistryKey::WriteBool
 0x4e3400,SaveWindowPosition,src/debug/debug_lib.cpp,call,CavedogRegistryKey::WriteDword
+0x4e3400,SaveWindowPosition,src/debug/debug_lib.cpp,call,CavedogRegistryKey::~CavedogRegistryKey
 0x4e3400,SaveWindowPosition,src/debug/debug_lib.cpp,call,GetWindowLongA
 0x4e3400,SaveWindowPosition,src/debug/debug_lib.cpp,call,GetWindowPlacement
 0x4e3400,SaveWindowPosition,src/debug/debug_lib.cpp,call,GetWindowRect
@@ -41333,6 +41428,7 @@ address,function,file,kind,target
 ,Activate,src/gui/gui.cpp,field_read,Layer::entries
 ,Activate,src/gui/gui.cpp,field_write,Layer::current
 ,Activate,src/gui/gui.cpp,function,
+,Add,src/graphics/particles.cpp,call,ParticleSystem::~ParticleSystem
 ,Add,src/graphics/particles.cpp,call,begin
 ,Add,src/graphics/particles.cpp,call,erase
 ,Add,src/graphics/particles.cpp,call,operator delete
@@ -41342,6 +41438,7 @@ address,function,file,kind,target
 ,Add,src/graphics/particles.cpp,field_maybe_written,Lists_00471fd0::lists
 ,Add,src/graphics/particles.cpp,field_read,Lists_00471fd0::lists
 ,Add,src/graphics/particles.cpp,function,
+,Add,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::~ParticleSystem
 ,Add,src/orders/unit_orders.cpp,field_read,Vec3::x
 ,Add,src/orders/unit_orders.cpp,field_read,Vec3::y
 ,Add,src/orders/unit_orders.cpp,field_read,Vec3::z
@@ -41479,6 +41576,7 @@ address,function,file,kind,target
 ,AddVectors,src/orders/vtol_orders.cpp,field_write,Vec3::y
 ,AddVectors,src/orders/vtol_orders.cpp,field_write,Vec3::z
 ,AddVectors,src/orders/vtol_orders.cpp,function,
+,Add_004720d0,src/graphics/particles.cpp,call,ParticleSystem::~ParticleSystem
 ,Add_004720d0,src/graphics/particles.cpp,call,begin
 ,Add_004720d0,src/graphics/particles.cpp,call,erase
 ,Add_004720d0,src/graphics/particles.cpp,call,operator delete
@@ -41488,6 +41586,7 @@ address,function,file,kind,target
 ,Add_004720d0,src/graphics/particles.cpp,field_maybe_written,Lists_004720d0::lists
 ,Add_004720d0,src/graphics/particles.cpp,field_read,Lists_004720d0::lists
 ,Add_004720d0,src/graphics/particles.cpp,function,
+,Add_004720d0,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::~ParticleSystem
 ,AllocDepthFrame,src/graphics/gaf.cpp,call,GameAllocIgnoreTag
 ,AllocDepthFrame,src/graphics/gaf.cpp,field_write,GafFrame::count
 ,AllocDepthFrame,src/graphics/gaf.cpp,field_write,GafFrame::flag9
@@ -43476,6 +43575,7 @@ address,function,file,kind,target
 ,FreeC,src/units/movement_class.cpp,deref_read,*void
 ,FreeC,src/units/movement_class.cpp,deref_write,*void
 ,FreeC,src/units/movement_class.cpp,function,
+,FreeFeatureList,src/map/features_424c00.cpp,call,TdfFile::~TdfFile
 ,FreeFeatureList,src/map/features_424c00.cpp,call,begin
 ,FreeFeatureList,src/map/features_424c00.cpp,call,end
 ,FreeFeatureList,src/map/features_424c00.cpp,call,operator delete
@@ -44102,6 +44202,8 @@ address,function,file,kind,target
 ,InsertCommand,src/orders/order_list.cpp,field_write,Order::flags
 ,InsertCommand,src/orders/order_list.cpp,function,
 ,InsertNew,src/util/tdf_4c54f0.cpp,call,MakeElem
+,InsertNew,src/util/tdf_4c54f0.cpp,call,StringRef::~StringRef
+,InsertNew,src/util/tdf_4c54f0.cpp,call,TdfField::~TdfField
 ,InsertNew,src/util/tdf_4c54f0.cpp,call,TdfFieldVector::Insert
 ,InsertNew,src/util/tdf_4c54f0.cpp,field_escape,TdfField::value
 ,InsertNew,src/util/tdf_4c54f0.cpp,field_escape,TranslationTable::v
@@ -44638,6 +44740,7 @@ address,function,file,kind,target
 ,Land,src/orders/vtol_orders.cpp,function,
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,AppendOrder
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,GetFactoriesInRadius
+,Land,src/orders/vtol_orders_4152f0.cpp,call,LandingPadList::~LandingPadList
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,Order::SetAttachedFx
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,RandomInt
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,empty
@@ -44738,6 +44841,7 @@ address,function,file,kind,target
 ,LineSize_004a3ef0,src/gui/gui_4a3ef0.cpp,field_read,Font_004a3ef0::glyph
 ,LineSize_004a3ef0,src/gui/gui_4a3ef0.cpp,field_read,GafFrame::height
 ,LineSize_004a3ef0,src/gui/gui_4a3ef0.cpp,function,
+,Lists_00472330::Add,src/graphics/particles.cpp,call,ParticleSystem::~ParticleSystem
 ,Lists_00472330::Add,src/graphics/particles.cpp,call,begin
 ,Lists_00472330::Add,src/graphics/particles.cpp,call,erase
 ,Lists_00472330::Add,src/graphics/particles.cpp,call,operator delete
@@ -44747,6 +44851,8 @@ address,function,file,kind,target
 ,Lists_00472330::Add,src/graphics/particles.cpp,field_maybe_written,Lists_00472330::lists
 ,Lists_00472330::Add,src/graphics/particles.cpp,field_read,Lists_00472330::lists
 ,Lists_00472330::Add,src/graphics/particles.cpp,function,
+,Lists_00472330::Add,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::~ParticleSystem
+,Lists_00472430::Add,src/graphics/particles.cpp,call,ParticleSystem::~ParticleSystem
 ,Lists_00472430::Add,src/graphics/particles.cpp,call,begin
 ,Lists_00472430::Add,src/graphics/particles.cpp,call,erase
 ,Lists_00472430::Add,src/graphics/particles.cpp,call,operator delete
@@ -44756,6 +44862,8 @@ address,function,file,kind,target
 ,Lists_00472430::Add,src/graphics/particles.cpp,field_maybe_written,Lists_00472430::lists
 ,Lists_00472430::Add,src/graphics/particles.cpp,field_read,Lists_00472430::lists
 ,Lists_00472430::Add,src/graphics/particles.cpp,function,
+,Lists_00472430::Add,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::~ParticleSystem
+,Lists_00472530::Add,src/graphics/particles.cpp,call,ParticleSystem::~ParticleSystem
 ,Lists_00472530::Add,src/graphics/particles.cpp,call,begin
 ,Lists_00472530::Add,src/graphics/particles.cpp,call,erase
 ,Lists_00472530::Add,src/graphics/particles.cpp,call,operator delete
@@ -44765,6 +44873,7 @@ address,function,file,kind,target
 ,Lists_00472530::Add,src/graphics/particles.cpp,field_maybe_written,Lists_00472530::lists
 ,Lists_00472530::Add,src/graphics/particles.cpp,field_read,Lists_00472530::lists
 ,Lists_00472530::Add,src/graphics/particles.cpp,function,
+,Lists_00472530::Add,src/graphics/particles.cpp,indirect_call,virtual ParticleSystem::~ParticleSystem
 ,LoadAccount_00442a30,src/frontend/multi.cpp,call,FillAccountList
 ,LoadAccount_00442a30,src/frontend/multi.cpp,call,FindGadgetChecked
 ,LoadAccount_00442a30,src/frontend/multi.cpp,call,GetGadgetText
@@ -44929,6 +45038,7 @@ address,function,file,kind,target
 ,LosTable::GetLine,src/map/los_tables.cpp,call,operator[]
 ,LosTable::GetLine,src/map/los_tables.cpp,deref_read,*LosTable
 ,LosTable::GetLine,src/map/los_tables.cpp,function,
+,LosTable::SetNumLines,src/map/los_tables.cpp,call,Elem_00434360::~Elem_00434360
 ,LosTable::SetNumLines,src/map/los_tables.cpp,call,resize
 ,LosTable::SetNumLines,src/map/los_tables.cpp,function,
 ,LosTables::LosTables,src/map/line_of_sight.cpp,function,
@@ -44938,6 +45048,7 @@ address,function,file,kind,target
 ,LowerBound,src/util/tdf.cpp,call,operator()
 ,LowerBound,src/util/tdf.cpp,field_read,StringRef::ptr
 ,LowerBound,src/util/tdf.cpp,function,
+,MakeElem,src/util/tdf_4c54f0.cpp,call,TdfField::~TdfField
 ,MakeElem,src/util/tdf_4c54f0.cpp,function,
 ,MakeExplosion,src/weapons/explosions.cpp,call,BuildExplosionFrame
 ,MakeExplosion,src/weapons/explosions.cpp,call,GameAllocIgnoreTag
@@ -44955,6 +45066,7 @@ address,function,file,kind,target
 ,MakeFixed_0043d6d0,src/orders/order_list.cpp,field_write,FP_0043d6d0::frac
 ,MakeFixed_0043d6d0,src/orders/order_list.cpp,field_write,FP_0043d6d0::whole
 ,MakeFixed_0043d6d0,src/orders/order_list.cpp,function,
+,MakePair,src/util/tdf.cpp,call,TdfField::~TdfField
 ,MakePair,src/util/tdf.cpp,function,
 ,MakePoint,src/map/line_of_sight.cpp,field_write,Point::x
 ,MakePoint,src/map/line_of_sight.cpp,field_write,Point::y
@@ -45035,6 +45147,8 @@ address,function,file,kind,target
 ,MapSize_0049be60::Contains,src/weapons/weapons.cpp,field_read,MapSize_0049be60::width
 ,MapSize_0049be60::Contains,src/weapons/weapons.cpp,function,
 ,Map_004c3e40::InsertNew,src/util/tdf.cpp,call,MakePair
+,Map_004c3e40::InsertNew,src/util/tdf.cpp,call,StringRef::~StringRef
+,Map_004c3e40::InsertNew,src/util/tdf.cpp,call,TdfField::~TdfField
 ,Map_004c3e40::InsertNew,src/util/tdf.cpp,call,insert
 ,Map_004c3e40::InsertNew,src/util/tdf.cpp,field_escape,TdfField::value
 ,Map_004c3e40::InsertNew,src/util/tdf.cpp,field_maybe_written,Map_004c3e40::v
@@ -45816,6 +45930,7 @@ address,function,file,kind,target
 ,ParseTestDump,src/harness/harness.cpp,function,
 ,ParseTestDump,src/harness/harness.cpp,global_write,s_dumpEnabled@src/harness/harness.cpp
 ,ParseTestDump,src/harness/harness.cpp,global_write,s_dumpTick@src/harness/harness.cpp
+,ParticleLists::Add,src/graphics/particle_lists.h,call,ParticleSystem::~ParticleSystem
 ,ParticleLists::Add,src/graphics/particle_lists.h,call,begin
 ,ParticleLists::Add,src/graphics/particle_lists.h,call,erase
 ,ParticleLists::Add,src/graphics/particle_lists.h,call,operator delete
@@ -45825,6 +45940,8 @@ address,function,file,kind,target
 ,ParticleLists::Add,src/graphics/particle_lists.h,field_maybe_written,ParticleLists::lists
 ,ParticleLists::Add,src/graphics/particle_lists.h,field_read,ParticleLists::lists
 ,ParticleLists::Add,src/graphics/particle_lists.h,function,
+,ParticleLists::Add,src/graphics/particle_lists.h,indirect_call,virtual ParticleSystem::~ParticleSystem
+,ParticleLists::Add,src/graphics/particles_471820.cpp,call,SmokeParticles::~SmokeParticles
 ,ParticleLists::Add,src/graphics/particles_471820.cpp,call,begin
 ,ParticleLists::Add,src/graphics/particles_471820.cpp,call,erase
 ,ParticleLists::Add,src/graphics/particles_471820.cpp,call,operator delete
@@ -45836,6 +45953,8 @@ address,function,file,kind,target
 ,ParticleLists::Add,src/graphics/particles_471820.cpp,field_read,Elem_00473500::p
 ,ParticleLists::Add,src/graphics/particles_471820.cpp,field_read,ParticleLists::lists
 ,ParticleLists::Add,src/graphics/particles_471820.cpp,function,
+,ParticleLists::Add,src/graphics/particles_471820.cpp,indirect_call,virtual SmokeParticles::~SmokeParticles
+,ParticleLists::Add,src/graphics/particles_471a50.cpp,call,TimedSubParticles::~TimedSubParticles
 ,ParticleLists::Add,src/graphics/particles_471a50.cpp,call,begin
 ,ParticleLists::Add,src/graphics/particles_471a50.cpp,call,erase
 ,ParticleLists::Add,src/graphics/particles_471a50.cpp,call,operator delete
@@ -45847,6 +45966,8 @@ address,function,file,kind,target
 ,ParticleLists::Add,src/graphics/particles_471a50.cpp,field_read,Elem_00473500::p
 ,ParticleLists::Add,src/graphics/particles_471a50.cpp,field_read,ParticleLists::lists
 ,ParticleLists::Add,src/graphics/particles_471a50.cpp,function,
+,ParticleLists::Add,src/graphics/particles_471a50.cpp,indirect_call,virtual TimedSubParticles::~TimedSubParticles
+,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,call,Listener_00470fb0::~Listener_00470fb0
 ,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,call,begin
 ,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,call,end
 ,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,call,erase
@@ -45854,6 +45975,7 @@ address,function,file,kind,target
 ,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,deref_read,*Listener_00470fb0
 ,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,field_maybe_written,ParticleLists::lists
 ,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,function,
+,ParticleLists::~ParticleLists,src/graphics/particles_471de0.cpp,indirect_call,virtual Listener_00470fb0::~Listener_00470fb0
 ,ParticleSystem::ParticleSystem,src/graphics/particles_471820.cpp,field_write,ParticleSystem::deadline
 ,ParticleSystem::ParticleSystem,src/graphics/particles_471820.cpp,function,
 ,ParticleSystem::operator delete,src/graphics/particles_471820.cpp,call,ObjectPool::FreeSlot
@@ -45981,11 +46103,13 @@ address,function,file,kind,target
 ,Patrol,src/orders/vtol_orders.cpp,call,FindPads
 ,Patrol,src/orders/vtol_orders.cpp,call,GetOrderType
 ,Patrol,src/orders/vtol_orders.cpp,call,IsDamaged
+,Patrol,src/orders/vtol_orders.cpp,call,LandingPadList::~LandingPadList
 ,Patrol,src/orders/vtol_orders.cpp,call,Offset
 ,Patrol,src/orders/vtol_orders.cpp,call,Order::SetAttachedFx
 ,Patrol,src/orders/vtol_orders.cpp,call,Order::SetDeadlineTicks
 ,Patrol,src/orders/vtol_orders.cpp,call,RandomInt
 ,Patrol,src/orders/vtol_orders.cpp,call,SearchRange
+,Patrol,src/orders/vtol_orders.cpp,call,UnitList::~UnitList
 ,Patrol,src/orders/vtol_orders.cpp,call,VisitObjectsInRange
 ,Patrol,src/orders/vtol_orders.cpp,call,empty
 ,Patrol,src/orders/vtol_orders.cpp,call,operator new
@@ -46006,11 +46130,13 @@ address,function,file,kind,target
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,FindPads
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,GetOrderType
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,IsDamaged
+,Patrol,src/orders/vtol_orders_410850.cpp,call,LandingPadList::~LandingPadList
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,Offset
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,Order::SetAttachedFx
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,Order::SetDeadlineTicks
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,RandomInt
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,SearchRange
+,Patrol,src/orders/vtol_orders_410850.cpp,call,UnitList::~UnitList
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,VisitObjectsInRange
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,empty
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,operator new
@@ -46520,6 +46646,7 @@ address,function,file,kind,target
 ,Remove,src/weapons/weapons_49b720.cpp,field_write,ProjFlags_0049b720::dead
 ,Remove,src/weapons/weapons_49b720.cpp,function,
 ,Remove,src/weapons/weapons_49b720.cpp,global_read,g_game
+,RemoveAndDelete,src/orders/order_list.cpp,call,Order::~Order
 ,RemoveAndDelete,src/orders/order_list.cpp,call,operator delete
 ,RemoveAndDelete,src/orders/order_list.cpp,deref_read,*Order
 ,RemoveAndDelete,src/orders/order_list.cpp,deref_write,*Order
@@ -46543,6 +46670,7 @@ address,function,file,kind,target
 ,RemoveFromList,src/orders/order_list.cpp,field_escape,Order::next
 ,RemoveFromList,src/orders/order_list.cpp,field_read,Order::next
 ,RemoveFromList,src/orders/order_list.cpp,function,
+,RemoveNode,src/orders/order_list.cpp,call,Order::~Order
 ,RemoveNode,src/orders/order_list.cpp,call,operator delete
 ,RemoveNode,src/orders/order_list.cpp,deref_read,*Order
 ,RemoveNode,src/orders/order_list.cpp,deref_write,*Order
@@ -47283,6 +47411,7 @@ address,function,file,kind,target
 ,TdfRecord::GetChild,src/util/tdf.cpp,field_read,TdfRecord::children
 ,TdfRecord::GetChild,src/util/tdf.cpp,function,
 ,TdfRecord::~TdfRecord,src/util/tdf_4c2f60.cpp,call,GameFreeThunk
+,TdfRecord::~TdfRecord,src/util/tdf_4c2f60.cpp,call,TdfRecord::~TdfRecord
 ,TdfRecord::~TdfRecord,src/util/tdf_4c2f60.cpp,call,begin
 ,TdfRecord::~TdfRecord,src/util/tdf_4c2f60.cpp,call,end
 ,TdfRecord::~TdfRecord,src/util/tdf_4c2f60.cpp,call,operator delete
@@ -47291,6 +47420,7 @@ address,function,file,kind,target
 ,TdfRecord::~TdfRecord,src/util/tdf_4c2f60.cpp,field_read,TdfRecord::name
 ,TdfRecord::~TdfRecord,src/util/tdf_4c2f60.cpp,function,
 ,TdfRecord::~TdfRecord,src/util/tdf_4c3120.cpp,call,GameFreeThunk
+,TdfRecord::~TdfRecord,src/util/tdf_4c3120.cpp,call,TdfRecord::~TdfRecord
 ,TdfRecord::~TdfRecord,src/util/tdf_4c3120.cpp,call,begin
 ,TdfRecord::~TdfRecord,src/util/tdf_4c3120.cpp,call,end
 ,TdfRecord::~TdfRecord,src/util/tdf_4c3120.cpp,call,operator delete
@@ -47299,6 +47429,7 @@ address,function,file,kind,target
 ,TdfRecord::~TdfRecord,src/util/tdf_4c3120.cpp,field_read,TdfRecord::name
 ,TdfRecord::~TdfRecord,src/util/tdf_4c3120.cpp,function,
 ,TdfRecord::~TdfRecord,src/util/tdf_4c51b0.cpp,call,GameFreeThunk
+,TdfRecord::~TdfRecord,src/util/tdf_4c51b0.cpp,call,TdfRecord::~TdfRecord
 ,TdfRecord::~TdfRecord,src/util/tdf_4c51b0.cpp,call,begin
 ,TdfRecord::~TdfRecord,src/util/tdf_4c51b0.cpp,call,end
 ,TdfRecord::~TdfRecord,src/util/tdf_4c51b0.cpp,call,operator delete
@@ -47524,6 +47655,7 @@ address,function,file,kind,target
 ,UnitSyncPlayer::operator=,src/network/unit_sync_46f7a0.cpp,function,
 ,UnitTypeSet::UnitTypeSet,src/units/unit_commands.cpp,call,memset
 ,UnitTypeSet::UnitTypeSet,src/units/unit_commands.cpp,function,
+,UnlinkNode,src/orders/order_list.cpp,call,Order::~Order
 ,UnlinkNode,src/orders/order_list.cpp,call,operator delete
 ,UnlinkNode,src/orders/order_list.cpp,deref_write,*Order
 ,UnlinkNode,src/orders/order_list.cpp,field_read,Order::flags

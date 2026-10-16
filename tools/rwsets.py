@@ -49,12 +49,34 @@ Kinds:
                                    anything may then read or write it
   function                         the definition itself, so a function that touches nothing
                                    has a row (empty target)
-  call                             a function called directly, by name
+  call                             a function called directly, by name; also
+                                   `Class::~Class` for a destructor that runs (see below)
   indirect_call                    `indirect via <type> [<field or variable>]` for a call
                                    through a function pointer; `virtual Class::Method`
-                                   for a virtual method
+                                   for a virtual method, `virtual Class::~Class` for a
+                                   `delete` of a class with a virtual destructor
   fn_ref                           a function whose address is taken without a call
   asm                              the function has inline assembly (target `inline`)
+
+Destructors. Only a class with a non-trivial destructor (user-provided, virtual, or
+implied by a member or base that has one) gets rows; `Class` is the type with
+typedefs removed. These cases are covered:
+
+  delete p, delete[] p      call `Class::~Class` of the pointed-to type, besides
+                            `operator delete`; for `delete p` (not `delete[]`) of a
+                            class whose destructor is virtual, itself or by overriding
+                            a base's, also indirect_call `virtual Class::~Class`
+  temporaries               a CXXBindTemporaryExpr (clang writes one only for a
+                            non-trivial destructor) is a call `Class::~Class`
+  locals                    a local variable of class type (or an array of it) that is
+                            not static, extern, a pointer or a reference is a call
+                            `Class::~Class`. clang's dump has no node for the call at
+                            scope exit, so it is read off the declaration
+
+Not covered: destructors that run for by-value parameters, for the members and bases
+inside a destructor, for objects thrown or caught, and `delete` of a pointer to an
+incomplete or dependent type. A destructor called by name (`p->~Class()`) is a
+normal call.
 
 A compound assignment (`x += 1`) and `++` and `--` are a read and a write.
 Locals and parameters are not recorded.
@@ -83,6 +105,7 @@ import shlex
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -98,6 +121,7 @@ FUNCTION_KINDS = {"FunctionDecl", "CXXMethodDecl", "CXXConstructorDecl", "CXXDes
                   "CXXConversionDecl"}
 LVALUE_KINDS = {"DeclRefExpr", "MemberExpr", "ArraySubscriptExpr", "ParenExpr"}
 UNEVALUATED = {"UnaryExprOrTypeTraitExpr", "CXXTypeidExpr", "CXXNoexceptExpr"}
+JSON_START = re.compile(r'^\{\n  "id"', re.M)
 CHUNK = re.compile(r"^    \{\n.*?^    \},?\n", re.S | re.M)
 INCLUDED_FROM = re.compile(r'"includedFrom": \{\s*"file": "[^"]*"\s*\}')
 QUALIFIERS = re.compile(r"\b(const|volatile|struct|class|union|enum|__restrict)\b")
@@ -164,6 +188,12 @@ def record_name(t: dict) -> str:
     text = QUALIFIERS.sub("", text).replace("*", "").replace("&", "")
     text = re.sub(r"\(unnamed[^)]*\)|\(anonymous[^)]*\)", "<anon>", text)
     return " ".join(text.split()).replace("::<anon>", "") or "?"
+
+
+def pointee(t: dict) -> dict:
+    """The type a pointer type points to, as a type dictionary for record_name."""
+    text = type_text(t).strip()
+    return {"qualType": text[:text.rfind("*")].strip()}
 
 
 def is_pointer(t: dict) -> bool:
@@ -251,6 +281,7 @@ class Analyzer:
         self.records: dict[str, str] = {}
         self.methods: dict[str, tuple[str, bool, bool]] = {}
         self.statics: dict[str, str] = {}
+        self.destructors: dict[str, dict] = {}
         self.functions: list[dict] = []
         self.root_cache: dict[str, str | None] = {}
 
@@ -287,6 +318,14 @@ class Analyzer:
             if owner and node.get("name"):
                 name = owner + "::" + name
             self.records[node["id"]] = name
+            data = node.get("definitionData")
+            if node.get("completeDefinition") and data is not None and node.get("name"):
+                self.destructors[name] = {
+                    "nontrivial": "nonTrivial" in data.get("dtor", {}),
+                    "virtual": any(c["kind"] == "CXXDestructorDecl" and c.get("virtual")
+                                   for c in node.get("inner", ())),
+                    "bases": [record_name(b["type"]) for b in node.get("bases", ())],
+                }
             for child in node.get("inner", ()):
                 self.declare(child, name)
         elif kind == "VarDecl":
@@ -307,6 +346,11 @@ class Analyzer:
             self.methods[node["id"]] = (qualified, bool(node.get("virtual")), const)
             if any(c["kind"].endswith("Stmt") for c in node.get("inner", ())):
                 self.function(node, qualified)
+
+    def virtual_destructor(self, name: str) -> bool:
+        """Whether the destructor of a class is virtual, itself or by overriding a base's."""
+        info = self.destructors.get(name)
+        return bool(info) and (info["virtual"] or any(self.virtual_destructor(b) for b in info["bases"]))
 
     def function(self, node: dict, name: str) -> None:
         """Analyse one function definition."""
@@ -342,10 +386,24 @@ class Walker:
             if n.get("kind") in ("VarDecl", "ParmVarDecl"):
                 static = n["kind"] == "VarDecl" and n.get("storageClass") == "static"
                 self.locals[n["id"]] = "%s@%s" % (n["name"], self.name) if static else None
+                if n["kind"] == "VarDecl" and n.get("storageClass") not in ("static", "extern"):
+                    self.destructor(n["type"], False)
             stack.extend(n.get("inner", ()))
 
     def record(self, kind: str, target: str) -> None:
         self.items.add((kind, target))
+
+    def destructor(self, t: dict, dispatch: bool) -> None:
+        """A call of the destructor of a class type, a virtual one if the object may be a subclass."""
+        text = type_text(t)
+        name = record_name(t)
+        info = self.unit.destructors.get(name)
+        if not info or not info["nontrivial"] or (text.endswith("&") or is_pointer(t)):
+            return
+        target = "%s::~%s" % (name, name.split("::")[-1])
+        self.record("call", target)
+        if dispatch and self.unit.virtual_destructor(name):
+            self.record("indirect_call", "virtual " + target)
 
     def access(self, category: str, target: str, mode: str) -> None:
         """Record an access of a global, field or dereference: R, W, RW, MW (maybe written) or ESC."""
@@ -398,6 +456,12 @@ class Walker:
                 self.visit(child, "R")
         elif kind == "CXXDeleteExpr":
             self.record("call", "operator delete")
+            if inner and is_pointer(inner[0]["type"]):
+                self.destructor(pointee(inner[0]["type"]), not node.get("isArray"))
+            for child in inner:
+                self.visit(child, "R")
+        elif kind == "CXXBindTemporaryExpr":
+            self.destructor(node["type"], False)
             for child in inner:
                 self.visit(child, "R")
         else:
@@ -567,14 +631,22 @@ def analyse(job: tuple[Path, list[str], str]) -> list[list]:
             for fn in unit.functions for kind, target in [("function", "")] + fn["items"]]
 
 
-def analyse_unit(job: tuple[Path, list[str], str], analyzer: type) -> tuple[Analyzer, str]:
-    """Run clang-cl on one file and walk its dump with an analyzer; returns it and clang's stderr."""
+def analyse_unit(job: tuple[Path, list[str], str], analyzer: type,
+                 prepare: Callable[[Analyzer, str], None] | None = None) -> tuple[Analyzer, str]:
+    """Run clang-cl on one file and walk its dump with an analyzer; returns it and clang's stderr.
+
+    Whatever clang prints before the JSON (record layouts) goes to prepare(unit, text) first."""
     root, argv, directory = job
     run = subprocess.run(argv, cwd=directory, capture_output=True, text=True, errors="replace")
     if run.returncode != 0 and "error:" in run.stderr:
         raise SystemExit("%s: clang-cl failed\n%s" % (argv[-1], run.stderr[-2000:]))
-    text = run.stdout
+    found = JSON_START.search(run.stdout)
+    if found is None:
+        raise SystemExit("%s: clang-cl printed no syntax tree\n%s" % (argv[-1], run.stderr[-2000:]))
+    text = run.stdout[found.start():]
     unit = analyzer(root)
+    if prepare:
+        prepare(unit, run.stdout[:found.start()])
     position = ("", 0)
     start = text.index('"inner": [')
     for m in CHUNK.finditer(text, start):

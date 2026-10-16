@@ -63,6 +63,12 @@ int ReadShared() { return g_shared; }
 
 void Inline() { __asm { nop } }
 void Indirect(int x) { g_hook(x); }
+
+struct Base { virtual ~Base(); int v; };
+struct Guard { ~Guard(); };
+Guard MakeGuard();
+void DeleteVirtual(Base* b) { delete b; }
+void TemporaryGuard() { MakeGuard(); }
 """
 
 
@@ -151,6 +157,14 @@ class HazardsTest(unittest.TestCase):
         self.assertEqual([k for k, t in self.events("Indirect")], ["indirect_call"])
         self.assertTrue(self.events("Indirect")[0][1].startswith("indirect via"))
 
+    def test_destructor_calls_carry_the_line(self):
+        self.assertEqual(self.events("DeleteVirtual", "indirect_call"), [("indirect_call", "virtual Base::~Base")])
+        lines = SOURCE.splitlines()
+        for name in ("DeleteVirtual", "TemporaryGuard"):
+            for kind, target, line in self.by_name[name]["events"]:
+                self.assertIn(name, lines[line - 1])
+        self.assertTrue(self.by_name["DeleteVirtual"]["events"])
+
     def test_events_carry_the_line(self):
         lines = SOURCE.splitlines()
         for name, fn in self.by_name.items():
@@ -189,9 +203,9 @@ class WalkTest(unittest.TestCase):
     def test_an_edge_makes_the_target_game_logic(self):
         functions = [fn("Root"), fn("Hooked", [("time_read", "GetTickCount", 4)])]
         graph = hazards.Graph(RWSETS + [["", "Hooked", "src/a.cpp", "function", ""]], [("Root", "Hooked")])
-        rows = hazards.candidates(functions, graph, roots=["Root"])
-        self.assertEqual(rows, [["", "Hooked", "src/a.cpp", 4, "time_read", "GetTickCount"]])
-        self.assertEqual(hazards.candidates(functions, hazards.Graph(RWSETS), roots=["Root"]), [])
+        rows = hazards.candidates(functions, graph, roots=["Root"], load_roots=[])
+        self.assertEqual(rows, [["", "Hooked", "src/a.cpp", 4, "time_read", "GetTickCount", "tick"]])
+        self.assertEqual(hazards.candidates(functions, hazards.Graph(RWSETS), roots=["Root"], load_roots=[]), [])
 
     def test_edges_are_read_and_a_stale_name_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -208,20 +222,45 @@ class WalkTest(unittest.TestCase):
         graph = hazards.Graph(RWSETS)
         functions = [fn("Root", [("asm", "inline", 3)]), fn("Leaf", [("time_read", "GetTickCount", 9)]),
                      fn("Orphan", [("time_read", "GetTickCount", 20)])]
-        rows = hazards.candidates(functions, graph, roots=["Root"])
-        self.assertEqual(rows, [["", "Leaf", "src/a.cpp", 9, "time_read", "GetTickCount"],
-                                ["", "Root", "src/a.cpp", 3, "asm", "inline"]])
+        rows = hazards.candidates(functions, graph, roots=["Root"], load_roots=[])
+        self.assertEqual(rows, [["", "Leaf", "src/a.cpp", 9, "time_read", "GetTickCount", "tick"],
+                                ["", "Root", "src/a.cpp", 3, "asm", "inline", "tick"]])
+
+    def test_load_roots_add_functions_the_tick_roots_do_not_reach(self):
+        graph = hazards.Graph(RWSETS + [["", "Loader", "src/a.cpp", "call", "Helper"]])
+        functions = [fn("Root", [("asm", "inline", 3)]), fn("Loader", [("asm", "inline", 5)]),
+                     fn("Helper", [("time_read", "GetTickCount", 8)]), fn("Orphan", [("asm", "inline", 20)])]
+        rows = hazards.candidates(functions, graph, roots=["Root"], load_roots=["Loader"])
+        self.assertEqual([(r[1], r[6]) for r in rows], [("Helper", "load"), ("Loader", "load"), ("Root", "tick")])
+        self.assertEqual(hazards.candidates(functions, graph, roots=["Root"], load_roots=[]),
+                         [["", "Root", "src/a.cpp", 3, "asm", "inline", "tick"]])
+
+    def test_a_function_both_walks_reach_is_tick(self):
+        graph = hazards.Graph(RWSETS + [["", "Loader", "src/a.cpp", "call", "Leaf"]])
+        functions = [fn("Leaf", [("asm", "inline", 9)]), fn("Loader")]
+        rows = hazards.candidates(functions, graph, roots=["Root"], load_roots=["Loader"])
+        self.assertEqual(rows, [["", "Leaf", "src/a.cpp", 9, "asm", "inline", "tick"]])
+
+    def test_a_thread_global_read_only_by_load_code_is_load(self):
+        graph = hazards.Graph(RWSETS + [["", "Loader", "src/a.cpp", "call", "Leaf"]])
+        functions = [fn("Loader", [("thread_entry", "Worker", 3)]), fn("Leaf", start=7), fn("Worker")]
+        rows = hazards.candidates(functions, graph, roots=["Idle"], load_roots=["Loader"])
+        self.assertEqual(rows, [["", "Leaf", "src/a.cpp", 7, "thread_global", "g_shared <- Worker", "load"]])
+
+    def test_the_default_load_roots_are_load_match_and_assign_start_positions(self):
+        self.assertEqual(hazards.LOAD_ROOTS, ["LoadMatch", "AssignStartPositions"])
+        self.assertTrue(set(hazards.LOAD_ROOTS).isdisjoint(hazards.ROOTS))
 
     def test_thread_globals_are_written_from_an_entry_point_and_read_by_game_logic(self):
         graph = hazards.Graph(RWSETS)
         functions = [fn("Root", [("thread_entry", "Worker", 3)]), fn("Leaf", start=7), fn("Worker"), fn("Helper")]
-        rows = hazards.candidates(functions, graph, roots=["Root"])
-        self.assertEqual(rows, [["", "Leaf", "src/a.cpp", 7, "thread_global", "g_shared <- Worker"]])
+        rows = hazards.candidates(functions, graph, roots=["Root"], load_roots=[])
+        self.assertEqual(rows, [["", "Leaf", "src/a.cpp", 7, "thread_global", "g_shared <- Worker", "tick"]])
 
     def test_a_global_only_the_main_thread_writes_is_not_a_thread_global(self):
         graph = hazards.Graph(RWSETS + [["", "Leaf", "src/a.cpp", "global_write", "g_main"],
                                         ["", "Root", "src/a.cpp", "global_read", "g_main"]])
-        rows = hazards.candidates([fn("Root", [("thread_entry", "Worker", 3)]), fn("Leaf")], graph, roots=["Root"])
+        rows = hazards.candidates([fn("Root", [("thread_entry", "Worker", 3)]), fn("Leaf")], graph, roots=["Root"], load_roots=[])
         self.assertEqual([r[5] for r in rows if r[4] == "thread_global"], ["g_shared <- Worker"])
 
 
@@ -244,33 +283,53 @@ class WarningTest(unittest.TestCase):
 
 
 class FileTest(unittest.TestCase):
-    ROWS = [["0x401000", "A", "src/a.cpp", 10, "asm", "inline"], ["0x401000", "A", "src/a.cpp", 20, "asm", "inline"],
-            ["", "B", "src/b.cpp", 5, "time_read", "time"]]
+    ROWS = [["0x401000", "A", "src/a.cpp", 10, "asm", "inline", "tick"],
+            ["0x401000", "A", "src/a.cpp", 20, "asm", "inline", "tick"],
+            ["", "B", "src/b.cpp", 5, "time_read", "time", "tick"]]
+
+    def old(self, verdicts):
+        """ROWS as read from the file: the verdict and note before the phase."""
+        return [r[:6] + v + r[6:] for r, v in zip(self.ROWS, verdicts)]
 
     def test_rows_are_sorted_by_address_then_name_and_unaddressed_last(self):
         shuffled = [self.ROWS[2], self.ROWS[1], self.ROWS[0]]
         self.assertEqual(sorted(shuffled, key=hazards.order), self.ROWS)
 
     def test_verdicts_follow_the_occurrence_not_the_line(self):
-        old = [r + v for r, v in zip(self.ROWS, [["real", "first"], ["false_positive", "second"], ["", ""]])]
-        moved = [["0x401000", "A", "src/a.cpp", 11, "asm", "inline"], ["0x401000", "A", "src/a.cpp", 31, "asm", "inline"],
-                 ["", "B", "src/b.cpp", 6, "time_read", "time"]]
+        old = self.old([["real", "first"], ["false_positive", "second"], ["", ""]])
+        moved = [["0x401000", "A", "src/a.cpp", 11, "asm", "inline", "tick"],
+                 ["0x401000", "A", "src/a.cpp", 31, "asm", "inline", "tick"],
+                 ["", "B", "src/b.cpp", 6, "time_read", "time", "tick"]]
         merged = hazards.merge_verdicts(moved, old)
-        self.assertEqual([r[3:] for r in merged], [[11, "asm", "inline", "real", "first"],
-                                                   [31, "asm", "inline", "false_positive", "second"],
-                                                   [6, "time_read", "time", "", ""]])
+        self.assertEqual([r[3:] for r in merged], [[11, "asm", "inline", "real", "first", "tick"],
+                                                   [31, "asm", "inline", "false_positive", "second", "tick"],
+                                                   [6, "time_read", "time", "", "", "tick"]])
+
+    def test_verdicts_carry_over_when_the_phase_changes_or_is_missing(self):
+        old = self.old([["real", "first"], ["", ""], ["", ""]])
+        loaded = [r[:6] + ["load"] for r in self.ROWS]
+        self.assertEqual([(r[6], r[7], r[8]) for r in hazards.merge_verdicts(loaded, old)][0], ("real", "first", "load"))
+        legacy = [r[:8] for r in old]
+        self.assertEqual(hazards.merge_verdicts(self.ROWS, legacy)[0][6:], ["real", "first", "tick"])
+
+    def test_check_keys_include_the_phase_but_not_the_verdict(self):
+        old = self.old([["real", "first"], ["", ""], ["", ""]])
+        self.assertEqual(hazards.key_lines(old, 8), hazards.key_lines(self.ROWS, 6))
+        loaded = [r[:6] + ["load"] for r in self.ROWS]
+        self.assertNotEqual(hazards.key_lines(old, 8), hazards.key_lines(loaded, 6))
 
     def test_a_new_row_has_no_verdict(self):
-        old = [self.ROWS[0] + ["real", "x"]]
+        old = self.old([["real", "x"]])[:1]
         merged = hazards.merge_verdicts(self.ROWS[:2], old)
         self.assertEqual([(r[6], r[7]) for r in merged], [("real", "x"), ("", "")])
 
     def test_render_round_trips_through_read(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "h.csv"
-            rows = [r + ["real", "has, a comma"] for r in self.ROWS]
+            rows = self.old([["real", "has, a comma"]] * 3)
             path.write_text(hazards.render(rows))
             self.assertEqual(hazards.read_hazards(path), rows)
+            self.assertEqual(rows[0][8], "tick")
 
 
 if __name__ == "__main__":
