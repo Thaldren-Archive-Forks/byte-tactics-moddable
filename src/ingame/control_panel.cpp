@@ -1309,7 +1309,12 @@ int __stdcall AddBuildProgress(Unit* builder, Unit* unit, float amount)
         return 0;
     UnitType* type = unit->def;
     float prev = unit->buildLeft;
+#ifdef __clang__
+    volatile float roundedNext = min(max(prev - amount / type->buildtime, 0.0f), 1.0f);
+    float next = roundedNext;
+#else
     float next = min(max(prev - amount / type->buildtime, 0.0f), 1.0f);
+#endif
     float step = prev - next;
     float energyCharge = type->energyCost * step;
     float metalCharge = type->metalCost * step;
