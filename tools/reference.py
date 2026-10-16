@@ -16,7 +16,7 @@ outside the allowlist does not MATCH.
 
 Every scenario is played with new game allocations zeroed (the game's own -memset=0 switch, through
 tools/playtest.py --testmode). `--check --poison` fills them with 0xCD instead (-memset=0xcdcdcdcd); a
-table that reads uninitialised bytes then differs from the stored digests.
+table that reads uninitialised bytes may then differ from the stored digests, and the report lists those.
 
 `--traces` then plays every scenario in reference/scenarios/ (`--parallel N` at a
 time, default half the CPUs and at most 6, under Wine through tools/playtest.py) and writes reference/traces/<scenario>.txt:
@@ -364,6 +364,8 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     ref_dir = build_cached(sha)
     cmd = [sys.executable, str(ROOT / "tools/tracediff.py"), str(ref_dir / "TotalA.exe"), str(exe),
            "--scenario", str(scenarios[name])]
+    if poison:
+        cmd.append("--poison-b")
     if game_dir:
         cmd += ["--game-dir", game_dir]
     subprocess.run(cmd)
@@ -395,7 +397,7 @@ def main() -> None:
     ap.add_argument("--quick", action="store_true",
                     help="--check: play only the fixed quick subset (not the gate)")
     ap.add_argument("--poison", action="store_true",
-                    help="--check: play the scenarios with new game allocations filled with 0xCD; the digests must still equal the stored ones")
+                    help="--check: play the scenarios with new game allocations filled with 0xCD; list the bytes whose starting value reaches hashed state; a difference is expected for real uninitialised reads")
     ap.add_argument("--exe", metavar="PATH", help="--check: check this exe instead of building the ref")
     ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
     ap.add_argument("--parallel", type=int, default=default_parallel(), metavar="N",

@@ -22,6 +22,8 @@ are read from the last phase's lines.
 `--traces` compares existing trace files without running, and reports the first
 divergence only. `--dumps` diffs the phase of two existing dump files.
 
+`--poison-b` runs B with `playtest.py --poison` (new allocations filled with 0xCD), A as usual.
+
 `--ignore-view-seed` accepts traces whose headers differ only in view_seed (any
 other header difference is still refused). In run mode, give `--scenario` twice
 to run A on the first file and B on the second.
@@ -177,7 +179,8 @@ def compare(args: argparse.Namespace) -> int:
     exes = [Path(e).resolve() for e in args.exe]
     scenarios = [Path(s).resolve() for s in args.scenario]
     scenarios *= 2 if len(scenarios) == 1 else 1
-    runs = [play(e, s, args.game_dir, None) for e, s in zip(exes, scenarios)]
+    poison = [False, args.poison_b]
+    runs = [play(e, s, args.game_dir, None, None, p) for e, s, p in zip(exes, scenarios, poison)]
     (ha, ra), (hb, rb) = (parse_trace(need(r, "trace.txt")) for r in runs)
     check_headers(ha, hb, args.ignore_view_seed)
     div = first_divergence(ra, rb)
@@ -186,7 +189,7 @@ def compare(args: argparse.Namespace) -> int:
         return 0
     tick, phase = div
     print_divergence(tick, phase)
-    runs = [play(e, s, args.game_dir, tick) for e, s in zip(exes, scenarios)]
+    runs = [play(e, s, args.game_dir, tick, None, p) for e, s, p in zip(exes, scenarios, poison)]
     print_diff(diff_dumps(need(runs[0], "dump.txt"), need(runs[1], "dump.txt"), tick, phase))
     return 1
 
@@ -199,6 +202,8 @@ def main() -> int:
     ap.add_argument("--ignore-view-seed", action="store_true",
                     help="accept traces whose headers differ only in view_seed")
     ap.add_argument("--game-dir", help="the game's install (default: Steam's)")
+    ap.add_argument("--poison-b", action="store_true",
+                    help="run B with new game allocations filled with 0xCD (as reference.py --check --poison does)")
     ap.add_argument("--traces", nargs=2, metavar=("A", "B"), help="compare two trace.txt files, without running")
     ap.add_argument("--dumps", nargs=2, metavar=("A", "B"), help="diff two dump.txt files, with --at")
     ap.add_argument("--at", nargs=2, metavar=("TICK", "PHASE"), help="--dumps: the tick and phase to diff")

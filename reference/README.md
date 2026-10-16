@@ -316,15 +316,18 @@ stderr at the start (`testmode: allocations are filled with 0x00000000`).
 `--poison` finds the bytes whose starting value reaches the hashed state:
 
 ```sh
-uv run tools/reference.py HEAD --check --poison      # the stored digests must still match
+uv run tools/reference.py HEAD --check --poison      # lists the bytes whose starting value reaches hashed state
 uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe --testmode reference/scenarios/skirmish2.txt --poison
 ```
 
 It passes `-memset=0xcdcdcdcd` instead, so each block is filled with 0xCD. `GameCalloc` still
 zeroes. What neither fill reaches: `realloc` growth, memory from `malloc`, `HeapAlloc` or
-`VirtualAlloc` called directly, and stack and static data. A table whose digests differ under
-`--poison` reads uninitialised bytes: either the game reads them (they stay in the trace and go
-on the list of #7 tasks) or it never does (a harness skip, listed in `data/trace_coverage.csv`).
+`VirtualAlloc` called directly, and stack and static data. The run lists the bytes whose
+initial contents reach hashed state. They are either harness skips (never read by the game,
+listed in `data/trace_coverage.csv`) or real uninitialised reads, which stay traced and go on the
+list of #7 tasks. A difference from the stored digests is expected for the latter, so it is not a
+failure of the run. On a difference the report reruns tracediff with B poisoned (`--poison-b`), so
+it compares the runs that differed.
 
 ## Quick check
 
