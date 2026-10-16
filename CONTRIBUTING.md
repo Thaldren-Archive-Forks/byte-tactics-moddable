@@ -49,6 +49,11 @@ libraries, zlib from `toolchain/thirdparty` and the resources (`llvm-rc`). It
 needs `uv`, `orig/TotalA.exe` (the icon, the cursor and the initial value of
 some globals) and `llvm-dlltool`, `llvm-rc` and `lld-link`.
 
+The objects are linked in `tools/sources.py`'s link order, the reference's, and
+`tools/aliases.py` keeps one definition (the first that is not an inline copy) of a name defined in
+several files (the copies kept in callers' files, `docs/linking.md`), as
+LINK's `/FORCE:MULTIPLE` does, so the link prints no duplicate-symbol warning.
+
 The link refuses unresolved names: there are no stubs. `tools/aliases.py` also
 lays the game's data out in 3.1c's order (each global in a section named for
 its address, with the original's bytes between them), because the decompiled

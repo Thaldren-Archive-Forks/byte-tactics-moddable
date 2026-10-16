@@ -1025,6 +1025,7 @@ def write_init_object(symbol: str, out: Path) -> None:
 IMAGE_SCN_CNT_CODE = 0x20
 IMAGE_SCN_CNT_UNINIT = 0x80
 IMAGE_SCN_LNK_COMDAT = 0x1000
+IMAGE_COMDAT_SELECT_NODUPLICATES = 1
 IMAGE_SCN_MEM_WRITE = 0x80000000
 REL_DIR32, REL_DIR32NB = 0x06, 0x07
 IMAGE_SYM_CLASS_STATIC = 3
@@ -1156,6 +1157,58 @@ def drop_unreferenced_undefined(secs: list[Section], syms: list[Symbol]) -> list
             struct.pack_into("<I", aux, 0, new_raw[struct.unpack_from("<I", aux, 0)[0]])
             sym.aux[0] = bytes(aux)
     return kept
+
+
+def drop_duplicates(paths: list[Path]) -> dict[str, tuple[Path, list[Path]]]:
+    """Keep one definition of each external name that the linker would report
+    twice, and make the other definitions undefined, leaving their sections out
+    of the link. Copies that fold (COMDAT, any selection) are only dropped
+    where a definition that does not fold exists: LINK warns about the pair.
+    The kept one is the first that does not fold, else the first, in the order
+    of paths: what LINK picks under /FORCE:MULTIPLE, so with paths in
+    tools/sources.py's link order the image holds the definitions the
+    reference does. Returns name -> (kept, dropped)."""
+    objs = [read(p.read_bytes()) for p in paths]
+    found: dict[str, list[tuple[int, bool]]] = defaultdict(list)
+    for oi, (_, secs, syms) in enumerate(objs):
+        folds = {sym.section for sym in syms
+                 if sym.sclass == IMAGE_SYM_CLASS_STATIC and sym.section > 0 and sym.aux
+                 and sym.name == secs[sym.section - 1].name
+                 and secs[sym.section - 1].chars & IMAGE_SCN_LNK_COMDAT
+                 and sym.aux[0][14] != IMAGE_COMDAT_SELECT_NODUPLICATES}
+        for sym in syms:
+            if sym.section > 0 and sym.sclass == IMAGE_SYM_CLASS_EXTERNAL \
+                    and not secs[sym.section - 1].chars & IMAGE_SCN_LNK_REMOVE:
+                found[sym.name].append((oi, sym.section in folds))
+    losers: dict[str, list[int]] = {}
+    winners: dict[str, int] = {}
+    for name, defs in found.items():
+        if len(defs) < 2 or all(folds for _, folds in defs):
+            continue
+        keep = next((oi for oi, folds in defs if not folds), defs[0][0])
+        winners[name] = keep
+        losers[name] = [oi for oi, _ in defs if oi != keep]
+    changed: dict[int, set[str]] = defaultdict(set)
+    for name, ois in losers.items():
+        for oi in ois:
+            changed[oi].add(name)
+    for oi, names in changed.items():
+        chars, secs, syms = objs[oi]
+        sections = {sym.section for sym in syms if sym.name in names and sym.section > 0}
+        for sym in syms:
+            if sym.section in sections and sym.sclass == IMAGE_SYM_CLASS_EXTERNAL and sym.name not in names:
+                raise SystemExit(f"aliases: {paths[oi].name} defines {sym.name} in a section with the "
+                                 f"duplicate {sorted(names)[0]}")
+        for si in sections:
+            sec = secs[si - 1]
+            sec.chars |= IMAGE_SCN_LNK_REMOVE
+            sec.chars &= ~IMAGE_SCN_LNK_COMDAT
+            sec.relocs = []
+        for sym in syms:
+            if sym.name in names and sym.section > 0:
+                sym.section, sym.value = 0, 0
+        write(chars, secs, drop_unreferenced_undefined(secs, syms), paths[oi])
+    return {name: (paths[winners[name]], [paths[oi] for oi in ois]) for name, ois in losers.items()}
 
 
 def prune_dead(paths: list[Path], aliases: dict[str, str], roots: tuple[str, ...]) -> int:
@@ -1325,6 +1378,8 @@ def main() -> None:
                             overloads=overloaded_names(symbols))
     print(f"aliases: {len(aliases):,} aliases for {len(objects):,} objects", file=sys.stderr)
     if args.patch_dir is not None:
+        dropped = drop_duplicates([p for p in objects if p.name != "layout.obj"])
+        print(f"aliases: {len(dropped)} names defined in more than one object kept from the first", file=sys.stderr)
         removed = prune_dead([p for p in objects if p.name != "layout.obj"], aliases, ("_WinMain@16",))
         print(f"aliases: {removed:,} sections no live section reaches left out of the link", file=sys.stderr)
 
