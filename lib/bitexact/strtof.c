@@ -354,10 +354,10 @@ static int bx_is_exp_letter(char c)
 
 float bx_strtof_msvc5(const char *text, const char **end)
 {
-    const char *p = text, *start, *letter = 0;
+    const char *p = text;
     unsigned char digits[25];
     int count = 0, adjust = 0, negative = 0, seen = 0, exp_value = 0, exp_negative = 0;
-    int power, i;
+    int power;
     bx_ld12 ld;
     bx_u32 bits;
     union {
@@ -367,7 +367,6 @@ float bx_strtof_msvc5(const char *text, const char **end)
 
     while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
         p++;
-    start = p;
     if (*p == '+' || *p == '-') {
         negative = *p == '-';
         p++;
@@ -403,7 +402,6 @@ float bx_strtof_msvc5(const char *text, const char **end)
     }
     if (bx_is_exp_letter(*p)) {
         const char *q = p + 1;
-        letter = p;
         if (*q == '+' || *q == '-') {
             exp_negative = *q == '-';
             q++;
@@ -422,7 +420,6 @@ float bx_strtof_msvc5(const char *text, const char **end)
             p = q;
         }
     }
-    (void)letter;
     if (end)
         *end = p;
     if (count > 24) {
@@ -449,8 +446,6 @@ float bx_strtof_msvc5(const char *text, const char **end)
         }
     }
     ld.w[5] = (bx_u16)(ld.w[5] | (negative ? 0x8000u : 0));
-    for (i = 0; i < 0; i++)
-        ;
     bits = bx_ld12_to_float_bits(&ld, &bx_float_format);
     result.u = bits;
     return result.f;
