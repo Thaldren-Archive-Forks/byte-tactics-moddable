@@ -651,9 +651,21 @@ enum {
     GAME_SPOT_ENTRIES = 0x1420b,
     GAME_SPOT_USED_HEAD = 0x14213,
     GAME_SPOT_REST_HEAD = 0x14217,
+    GAME_PATHFINDER = 0x14207,
     GAME_FEATURE_COUNT = 0x14253,
     GAME_FEATURES = 0x1426f,
     GAME_POOL_COUNT = 0x14351,
+    GAME_MAP_WIDTH = 0x14233,
+    GAME_MAP_HEIGHT = 0x14237,
+    GAME_VISIBILITY = 0x14273,
+    GAME_EYE_COUNT = 0x14277,
+    GAME_EYES = 0x1427b,
+    GAME_CELLS = 0x14287,
+    GAME_SPATIAL_CELLS = 0x1429f,
+    GAME_SPATIAL_WIDTH = 0x142a3,
+    GAME_SPATIAL_HEIGHT = 0x142a7,
+    GAME_SPATIAL_COUNT = 0x142ab,
+    GAME_SPATIAL_OVERFLOW = 0x142b7,
     GAME_UNITS = 0x14357,
     GAME_DEF_COUNT = 0x1438f,
     GAME_DEFS = 0x1439b,
@@ -677,15 +689,48 @@ enum {
     DEBRIS_STRIDE = 0x54,
     SPOT_CAPACITY = 0x800,
     PIECE_COUNT = 300,
-    EXPLODED_SLOTS = 100
+    EXPLODED_SLOTS = 100,
+    CELL_STRIDE = 13,
+    CELL_LIMIT = 1 << 22,
+    REC_STRIDE = 10,
+    REC_LIMIT = 1 << 20,
+    EYE_STRIDE = 0x24,
+    EYE_CAPACITY = 20,
+    NODE_STRIDE = 0x14,
+    NODE_LIMIT = 1 << 19,
+    NODE_PENALTY = 0x10,
+    NODE_G = 8,
+    MOVECLASS_STRIDE = 0x20,
+    MOVECLASS_COUNT = 32,
+    PASSMAP_LIMIT = 1 << 22,
+    PASSMAP_ROW_LIMIT = 4096,
+    PLAYER_EXPLORED = 0x7c,
+    PLAYER_EXPLORED_SIZE = 0x88,
+    EXPLORED_LIMIT = 1 << 22,
+    PF_POOL = 0x0,
+    PF_ITEMS = 0x4,
+    PF_FREE_HEAD = 0x8,
+    PF_USED = 0xc,
+    PF_COUNT = 0x14,
+    PF_CELLS = 0x1c,
+    PF_CELL_COUNT = 0x28,
+    PF_DIRTY = 0x2c,
+    PF_OBJECT = 0x58
 };
+
+extern char DAT_00512370[];
+
+static unsigned char* MoveClasses()
+{
+    return (unsigned char*)DAT_00512370 - 0x18;
+}
 
 extern unsigned char* g_explodedPieces[EXPLODED_SLOTS];
 
-static const char* const s_phaseNames[8] = { "net", "units", "projectiles", "explosions", "players", "features",
-                                             "wind", "meteors" };
+static const char* const s_phaseNames[9] = { "net", "units", "projectiles", "explosions", "players", "features",
+                                             "wind", "meteors", "world" };
 static const char* const s_targetNames[] = { "", "heap", "unit", "player", "unitdef", "weapondef", "projectile",
-                                             "feature", "piece" };
+                                             "feature", "piece", "rec", "node", "moveclass" };
 
 static int s_dumpNow = 0;
 static unsigned s_traceTick = 0;
@@ -703,18 +748,31 @@ static unsigned GameU32(unsigned offset)
     return *(unsigned*)GameAt(offset);
 }
 
+#define HASH_MULTIPLY \
+    { \
+        unsigned pc = (lo & 0xffff) * 435; \
+        unsigned pa = (lo >> 16) * 435; \
+        unsigned plo = pc + (pa << 16); \
+        unsigned carry = plo < pc; \
+        hi = hi * 435 + (pa >> 16) + carry + (lo << 8); \
+        lo = plo; \
+    }
+
 static void HashBuf(const unsigned char* p, unsigned n)
 {
     unsigned lo = s_hashLo;
     unsigned hi = s_hashHi;
-    while (n--) {
+    while (n >= 8) {
+        lo ^= *(const unsigned*)p;
+        hi ^= *(const unsigned*)(p + 4);
+        HASH_MULTIPLY
+        p += 8;
+        n -= 8;
+    }
+    while (n > 0) {
         lo ^= *p++;
-        unsigned pc = (lo & 0xffff) * 435;
-        unsigned pa = (lo >> 16) * 435;
-        unsigned plo = pc + (pa << 16);
-        unsigned carry = plo < pc;
-        hi = hi * 435 + (pa >> 16) + carry + (lo << 8);
-        lo = plo;
+        HASH_MULTIPLY
+        n--;
     }
     s_hashLo = lo;
     s_hashHi = hi;
@@ -776,6 +834,28 @@ static void Resolve(unsigned p, int target, unsigned* tag, unsigned* index)
         stride = PIECE_STRIDE;
         count = PIECE_COUNT;
         break;
+    case TT_REC:
+        if (p == GameU32(GAME_SPATIAL_OVERFLOW)) {
+            *tag = TT_REC;
+            *index = 0xffffffff;
+            return;
+        }
+        base = GameU32(GAME_SPATIAL_CELLS);
+        stride = REC_STRIDE;
+        count = GameU32(GAME_SPATIAL_COUNT);
+        break;
+    case TT_NODE:
+        if (GameU32(GAME_PATHFINDER) == 0)
+            return;
+        base = *(unsigned*)(GameU32(GAME_PATHFINDER) + PF_POOL);
+        stride = NODE_STRIDE;
+        count = *(unsigned*)(GameU32(GAME_PATHFINDER) + PF_USED);
+        break;
+    case TT_MOVECLASS:
+        base = (unsigned)MoveClasses();
+        stride = MOVECLASS_STRIDE;
+        count = MOVECLASS_COUNT;
+        break;
     default:
         return;
     }
@@ -833,6 +913,8 @@ static void DumpValue(const unsigned char* p, const TraceField* f)
             fputs("null", s_dump);
         else if (tag == TT_HEAP)
             fputs("heap", s_dump);
+        else if (tag == TT_REC && index == 0xffffffff)
+            fputs("rec:overflow", s_dump);
         else
             fprintf(s_dump, "%s:%u", s_targetNames[tag], index);
     } else if (f->kind == TF_SCALAR && f->mask != 0) {
@@ -1037,29 +1119,26 @@ static void VisitFeatures()
     EndSection();
 }
 
-static void VisitWind()
+static void VisitFieldList(const char* prefix, const unsigned char* base, const TraceField* fields, unsigned n)
 {
-    HashByte(8);
-    for (unsigned k = 0; k < kWindFieldCount; k++) {
-        const TraceField* f = &kWindFields[k];
-        char path[64];
-        HashField(GameAt(0), f);
+    for (unsigned k = 0; k < n; k++) {
+        const TraceField* f = &fields[k];
+        char path[96];
+        HashField(base, f);
         if (s_dumpNow) {
-            sprintf(path, "wind.%s", f->name);
+            sprintf(path, "%s.%s", prefix, f->name);
             DumpPrefix(path);
-            DumpValue(GameAt(f->offset), f);
+            DumpValue(base + f->offset, f);
         }
     }
-    EndSection();
 }
 
-static void VisitMeteors()
+static void VisitGlobalList(const char* prefix, const TraceGlobal* list, unsigned n)
 {
-    HashByte(9);
-    for (unsigned k = 0; k < kMeteorGlobalCount; k++) {
-        const TraceGlobal* g = &kMeteorGlobals[k];
+    for (unsigned k = 0; k < n; k++) {
+        const TraceGlobal* g = &list[k];
         TraceField f;
-        char path[64];
+        char path[96];
         f.name = g->name;
         f.offset = 0;
         f.size = g->size;
@@ -1071,12 +1150,321 @@ static void VisitMeteors()
         else
             HashBuf((const unsigned char*)g->address, g->size);
         if (s_dumpNow) {
-            sprintf(path, "meteors.%s", g->name);
+            sprintf(path, "%s.%s", prefix, g->name);
             DumpPrefix(path);
             DumpValue((const unsigned char*)g->address, &f);
         }
     }
+}
+
+static void VisitWind()
+{
+    HashByte(8);
+    VisitFieldList("wind", GameAt(0), kWindFields, kWindFieldCount);
     EndSection();
+}
+
+static void VisitMeteors()
+{
+    HashByte(9);
+    VisitGlobalList("meteors", kMeteorGlobals, kMeteorGlobalsCount);
+    EndSection();
+}
+
+static void VisitValue(const char* path, unsigned value, unsigned size)
+{
+    HashBuf((const unsigned char*)&value, size);
+    if (s_dumpNow) {
+        DumpPrefix(path);
+        fprintf(s_dump, "0x%0*x\n", size * 2, value);
+    }
+}
+
+static void VisitPointer(const char* path, unsigned value, int target)
+{
+    TraceField f;
+    HashPointer(value, target);
+    if (s_dumpNow) {
+        f.name = "";
+        f.offset = 0;
+        f.size = 4;
+        f.kind = TF_POINTER;
+        f.target = (unsigned char)target;
+        f.mask = 0;
+        DumpPrefix(path);
+        DumpValue((const unsigned char*)&value, &f);
+    }
+}
+
+static void VisitBlob(const char* name, unsigned first, const unsigned char* p, unsigned stride, unsigned count)
+{
+    static const char digits[] = "0123456789abcdef";
+    char path[96];
+    char line[64];
+    HashBuf(p, stride * count);
+    if (!s_dumpNow)
+        return;
+    for (unsigned i = 0; i < count; i++) {
+        const unsigned char* e = p + i * stride;
+        unsigned b;
+        unsigned len = 4;
+        memcpy(line, "hex:", 4);
+        for (b = 0; b < stride; b++) {
+            line[len++] = digits[e[b] >> 4];
+            line[len++] = digits[e[b] & 15];
+        }
+        line[len++] = '\n';
+        line[len] = '\0';
+        sprintf(path, "%s[%u]", name, first + i);
+        DumpPrefix(path);
+        fputs(line, s_dump);
+    }
+}
+
+static unsigned MapCellCount()
+{
+    unsigned n = GameU32(GAME_MAP_WIDTH) * GameU32(GAME_MAP_HEIGHT);
+    return n <= CELL_LIMIT ? n : 0;
+}
+
+static void VisitGameScalars()
+{
+    HashByte(10);
+    VisitFieldList("game", GameAt(0), kGameScalarFields, kGameScalarFieldCount);
+    VisitGlobalList("game", kScalarGlobals, kScalarGlobalsCount);
+    EndSection();
+}
+
+static void VisitMapCells()
+{
+    unsigned char* cells = (unsigned char*)GameU32(GAME_CELLS);
+    unsigned n = MapCellCount();
+    HashByte(11);
+    VisitValue("cells.count", n, 4);
+    if (cells != NULL)
+        VisitBlob("cells", 0, cells, CELL_STRIDE, n);
+    EndSection();
+}
+
+static void VisitVisibility()
+{
+    unsigned char* mask = (unsigned char*)GameU32(GAME_VISIBILITY);
+    unsigned entries = MapCellCount() / 4;
+    HashByte(12);
+    VisitValue("visibility.count", entries, 4);
+    if (mask != NULL)
+        VisitBlob("visibility", 0, mask, 2, entries);
+    EndSection();
+}
+
+static void VisitExplored()
+{
+    char path[64];
+    HashByte(13);
+    for (unsigned who = 0; who < MAX_PLAYERS; who++) {
+        unsigned char* player = GameAt(GAME_PLAYERS) + who * PLAYER_STRIDE;
+        unsigned char* cells = *(unsigned char**)(player + PLAYER_EXPLORED);
+        unsigned size = *(unsigned*)(player + PLAYER_EXPLORED_SIZE);
+        if (cells == NULL || size > EXPLORED_LIMIT)
+            size = 0;
+        sprintf(path, "players[%u].explored", who);
+        VisitValue(path, size, 4);
+        if (size != 0)
+            VisitBlob(path, 0, cells, 1, size);
+    }
+    EndSection();
+}
+
+static void VisitSpatial()
+{
+    unsigned char* recs = (unsigned char*)GameU32(GAME_SPATIAL_CELLS);
+    unsigned count = GameU32(GAME_SPATIAL_COUNT);
+    unsigned char* overflow = (unsigned char*)GameU32(GAME_SPATIAL_OVERFLOW);
+    char path[64];
+    HashByte(14);
+    VisitValue("spatial.width", GameU32(GAME_SPATIAL_WIDTH), 4);
+    VisitValue("spatial.height", GameU32(GAME_SPATIAL_HEIGHT), 4);
+    if (recs == NULL || count > REC_LIMIT)
+        count = 0;
+    VisitValue("spatial.count", count, 4);
+    for (unsigned r = 0; r < count; r++) {
+        sprintf(path, "spatial[%u]", r);
+        VisitElement(path, recs + r * REC_STRIDE, &kRecTable);
+    }
+    HashByte(overflow != NULL);
+    if (overflow != NULL)
+        VisitElement("spatial.overflow", overflow, &kRecTable);
+    EndSection();
+}
+
+static void VisitEyes()
+{
+    unsigned char* eyes = (unsigned char*)GameU32(GAME_EYES);
+    unsigned count = GameU32(GAME_EYE_COUNT);
+    char path[64];
+    HashByte(15);
+    if (eyes == NULL || count > EYE_CAPACITY)
+        count = 0;
+    VisitValue("eyes.count", count, 4);
+    for (unsigned e = 0; e < count; e++) {
+        sprintf(path, "eyes[%u]", e);
+        VisitElement(path, eyes + e * EYE_STRIDE, &kEyeTable);
+    }
+    EndSection();
+}
+
+static unsigned char s_nodeFree[NODE_LIMIT];
+
+static void VisitPathNodes(const unsigned char* pf)
+{
+    unsigned char* pool = *(unsigned char**)(pf + PF_POOL);
+    unsigned char** items = *(unsigned char***)(pf + PF_ITEMS);
+    int freeHead = *(int*)(pf + PF_FREE_HEAD);
+    unsigned used = *(unsigned*)(pf + PF_USED);
+    unsigned count = *(unsigned*)(pf + PF_COUNT);
+    char path[96];
+    if (pool == NULL || items == NULL || used > NODE_LIMIT || count > used) {
+        used = 0;
+        count = 0;
+    }
+    memset(s_nodeFree, 0, used);
+    for (unsigned guard = 0; guard < used && freeHead >= 0 && (unsigned)freeHead < used; guard++) {
+        if (s_nodeFree[freeHead])
+            break;
+        s_nodeFree[freeHead] = 1;
+        freeHead = *(int*)(pool + freeHead * NODE_STRIDE);
+    }
+    for (unsigned node = 0; node < used; node++) {
+        unsigned char* n = pool + node * NODE_STRIDE;
+        if (s_nodeFree[node])
+            continue;
+        HashU32(node);
+        sprintf(path, "pathfinder.pool[%u]", node);
+        VisitElement(path, n, &kNodeTable);
+        if (*(int*)(n + NODE_G) != 0) {
+            strcat(path, ".penalty");
+            VisitValue(path, *(unsigned short*)(n + NODE_PENALTY), 2);
+        }
+    }
+    VisitValue("pathfinder.heap.count", count, 4);
+    for (unsigned slot = 0; slot < count; slot++) {
+        sprintf(path, "pathfinder.heap[%u]", slot);
+        VisitPointer(path, (unsigned)items[slot], TT_NODE);
+    }
+}
+
+static void VisitPathCells(const unsigned char* pf)
+{
+    unsigned char* cells = *(unsigned char**)(pf + PF_CELLS);
+    unsigned* dirty = *(unsigned**)(pf + PF_DIRTY);
+    unsigned count = *(unsigned*)(pf + PF_CELL_COUNT);
+    char path[96];
+    unsigned words;
+    if (cells == NULL || dirty == NULL || count > CELL_LIMIT)
+        count = 0;
+    words = (count + 255) >> 8;
+    for (unsigned w = 0; w < words; w++) {
+        unsigned bits = dirty[w];
+        if (bits == 0)
+            continue;
+        sprintf(path, "pathfinder.dirty[%u]", w);
+        VisitU32(path, bits);
+        for (unsigned bit = 0; bit < 32; bit++) {
+            if (!((bits >> bit) & 1))
+                continue;
+            for (unsigned k = 0; k < 8; k++) {
+                unsigned index = (w << 8) + (bit << 3) + k;
+                const unsigned char* c = cells + index * 4;
+                unsigned flags = c[0];
+                unsigned state = flags & 3;
+                if (index >= count)
+                    break;
+                sprintf(path, "pathfinder.cells[%u].flags", index);
+                VisitValue(path, flags, 1);
+                if ((flags & 8) || state == 1 || state == 2) {
+                    sprintf(path, "pathfinder.cells[%u].dir", index);
+                    VisitValue(path, c[1], 1);
+                }
+                if (state == 1 || state == 2) {
+                    sprintf(path, "pathfinder.cells[%u].node", index);
+                    VisitValue(path, *(const unsigned short*)(c + 2), 2);
+                }
+            }
+        }
+    }
+}
+
+static void VisitPathfinder()
+{
+    unsigned char* pf = (unsigned char*)GameU32(GAME_PATHFINDER);
+    HashByte(16);
+    HashByte(pf != NULL);
+    if (pf != NULL) {
+        VisitElement("pathfinder", pf, &kPathfinderTable);
+        if (*(unsigned*)(pf + PF_OBJECT) != 0)
+            VisitElement("pathfinder", pf, &kPathfinderSearchTable);
+        VisitPathNodes(pf);
+        VisitPathCells(pf);
+    }
+    EndSection();
+    HashByte(17);
+    VisitGlobalList("pathfinder", kPathGlobals, kPathGlobalsCount);
+    EndSection();
+}
+
+static void VisitMoveClasses()
+{
+    unsigned char* classes = MoveClasses();
+    char path[64];
+    HashByte(18);
+    for (unsigned c = 0; c < MOVECLASS_COUNT; c++) {
+        sprintf(path, "moveClasses[%u]", c);
+        VisitElement(path, classes + c * MOVECLASS_STRIDE, &kMoveClassTable);
+    }
+    EndSection();
+}
+
+static unsigned s_passRow[PASSMAP_ROW_LIMIT];
+
+static void VisitPassMaps()
+{
+    unsigned char* classes = MoveClasses();
+    char path[64];
+    HashByte(19);
+    for (unsigned c = 0; c < MOVECLASS_COUNT; c++) {
+        unsigned char* e = classes + c * MOVECLASS_STRIDE;
+        const unsigned* cells = *(const unsigned**)(e + 0x18);
+        unsigned width = *(unsigned*)(e + 0x10);
+        unsigned height = *(unsigned*)(e + 0x14);
+        unsigned full = height >> 4;
+        unsigned tail = height & 15;
+        if (cells == NULL || width == 0 || height == 0 || width > PASSMAP_ROW_LIMIT
+            || width * ((height + 15) >> 4) > PASSMAP_LIMIT)
+            continue;
+        HashU32(c);
+        sprintf(path, "moveClasses[%u].passMap", c);
+        VisitBlob(path, 0, (const unsigned char*)cells, 4, full * width);
+        if (tail != 0) {
+            unsigned mask = (1u << (tail * 2)) - 1;
+            for (unsigned x = 0; x < width; x++)
+                s_passRow[x] = cells[full * width + x] & mask;
+            VisitBlob(path, full * width, (const unsigned char*)s_passRow, 4, width);
+        }
+    }
+    EndSection();
+}
+
+static void VisitWorld()
+{
+    VisitGameScalars();
+    VisitMapCells();
+    VisitVisibility();
+    VisitExplored();
+    VisitSpatial();
+    VisitEyes();
+    VisitPathfinder();
+    VisitMoveClasses();
+    VisitPassMaps();
 }
 
 enum {
@@ -1283,6 +1671,13 @@ void HarnessPhase(int phase)
     VisitMeteors();
 
     fprintf(s_trace, "%u %s %08x%08x\n", tick, s_phaseNames[phase], s_hashHi, s_hashLo);
+    if (phase == 7 || s_dumpNow) {
+        s_hashLo = 0x84222325;
+        s_hashHi = 0xcbf29ce4;
+        VisitWorld();
+        if (phase == 7)
+            fprintf(s_trace, "%u %s %08x%08x\n", tick, s_phaseNames[8], s_hashHi, s_hashLo);
+    }
     if (phase == 7) {
         fflush(s_trace);
         if (s_dumpNow)
@@ -1319,13 +1714,13 @@ static void OpenTrace(unsigned controlWord)
     s_trace = fopen("trace.txt", "wb");
     if (s_trace == NULL)
         Fail("testmode: cannot write trace.txt\n");
-    fprintf(s_trace, "bt-trace 1\ncommit %s\nscenario %s\ngame_seed %u\ncrt_seed %u\nview_seed %u\n"
+    fprintf(s_trace, "bt-trace %d\ncommit %s\nscenario %s\ngame_seed %u\ncrt_seed %u\nview_seed %u\n"
                      "fpu_control_word 0x%05X\n",
-            commit, s_scenarioPath, s_gameSeed, s_crtSeed, s_viewSeed, controlWord);
+            TRACE_FORMAT, commit, s_scenarioPath, s_gameSeed, s_crtSeed, s_viewSeed, controlWord);
     if (s_dumpEnabled) {
         s_dump = fopen("dump.txt", "wb");
         if (s_dump == NULL)
             Fail("testmode: cannot write dump.txt\n");
-        fputs("bt-dump 1\n", s_dump);
+        fprintf(s_dump, "bt-dump %d\n", TRACE_FORMAT);
     }
 }

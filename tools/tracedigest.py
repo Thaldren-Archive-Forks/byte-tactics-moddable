@@ -2,13 +2,13 @@
 
     uv run tools/tracedigest.py trace.txt --commit <sha> --scenario <path> > digest.txt
 
-The digest of a tick is the 64-bit FNV-1a hash of that tick's phase hashes in
-trace order, each as 8 little-endian bytes. The output holds the header lines of
+The digest of a tick is the 64-bit FNV-1a hash of that tick's rows in
+trace order (the phases, then `world`), each hash as 8 little-endian bytes. The output holds the header lines of
 the trace (the trace format, commit, scenario, seeds and fpu_control_word), then
 one `<tick> <digest>` line per tick, the digest in 16 lowercase hex digits.
 
-    bt-digest 1
-    trace_format bt-trace 1
+    bt-digest 2
+    trace_format bt-trace 2
     commit <sha>
     scenario reference/scenarios/skirmish2.txt
     game_seed 1
@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 from tracediff import Error, parse_trace
+from traceschema import TRACE_FORMAT
 
 FNV_OFFSET = 0xCBF29CE484222325
 FNV_PRIME = 0x100000001B3
@@ -54,7 +55,7 @@ def digests(rows: list[tuple[int, str, str]]) -> list[tuple[int, str]]:
 
 def render(header: dict[str, str], per_tick: list[tuple[int, str]]) -> str:
     """The digest file text for a trace's header and its per-tick digests."""
-    lines = ["bt-digest 1", "trace_format bt-trace 1"]
+    lines = [f"bt-digest {TRACE_FORMAT}", f"trace_format bt-trace {TRACE_FORMAT}"]
     lines += [f"{k} {header[k]}" for k in HEADER_KEYS]
     lines += [f"{tick} {digest}" for tick, digest in per_tick]
     return "\n".join(lines) + "\n"
@@ -67,8 +68,8 @@ def parse_digest(path: Path) -> tuple[dict[str, str], list[tuple[int, str]]]:
     for n, line in enumerate(path.read_text().splitlines(), 1):
         words = line.split()
         if n == 1:
-            if words != ["bt-digest", "1"]:
-                raise Error(f"{path}: not a bt-digest 1 file")
+            if words != ["bt-digest", str(TRACE_FORMAT)]:
+                raise Error(f"{path}: not a bt-digest {TRACE_FORMAT} file")
         elif len(words) == 2 and words[0].isdigit() and len(words[1]) == 16:
             rows.append((int(words[0]), words[1]))
         elif rows or not words:
