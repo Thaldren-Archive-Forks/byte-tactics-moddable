@@ -24,7 +24,7 @@ List your open pull requests (`gh pr list -R ozgb/byte-tactics-moddable --author
   - Reply to each inline comment saying what you changed (with the commit) or why not.
   - Push. The new head SHA is the request for another review.
 - **Failing checks:** read the log (`gh pr checks`, `gh run view --log-failed`), fix, push.
-- **Behind `moddable` with conflicts:** rebase onto `origin/moddable`, re-run the gate, force-push the branch (`--force-with-lease`).
+- **Behind `moddable`:** leave it unless there are conflicts or the review asks for an update (`docs/team.md`, "Branches behind `moddable`"). The maintainer merges, and updating changes your head, which sends the PR back for review. When an update is needed, merge `origin/moddable` into the branch (`git-safe push` refuses the force-push a rebase needs), re-run the gate and push.
 This step is done when every one of your pull requests is waiting on the maintainer or on CI that is still running.
 
 ### 2. Take an issue
