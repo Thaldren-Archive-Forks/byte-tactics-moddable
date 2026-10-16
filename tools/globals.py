@@ -399,8 +399,10 @@ def build(objects, img: Image) -> list[dict]:
         if outer is not None and addr < end and not row["defined"]:
             base = int(outer["address"], 16)
             row["defined"] = f"in {outer['name']}+{addr - base:#x}"
-            if addr + int(row["size"]) > end and outer["size_from"] != "definition":
-                # The part runs past the global that holds it: so does the global.
+            if addr + int(row["size"]) > end and outer["size_from"] not in ("definition", "type", "type>gap"):
+                # The part runs past a global whose size is a guess (a gap): so does the
+                # global. A declared type is the source's own word, and the part is another
+                # named global that happens to start inside it (g_language, a char[256]).
                 end = addr + int(row["size"])
                 outer["size"], outer["size_from"] = end - base, "parts"
             continue
