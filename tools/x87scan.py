@@ -58,12 +58,14 @@ double-store, ftol or fistp), class, disposition. Sorted by address and offset.
 
 Disposition: `rewritten` for a float-chain site whose C source now states the
 precision x87 used (REWRITTEN, the site's class then reads `safe`, and the
-function still matches), `5` for a float-chain site left for the modern build
-of #5 to reproduce, `n/a` for a safe site.
+function still matches), `5` for a float-chain site nobody has handled yet (`--check` fails on it), `modern` for a float-chain site whose chain the source
+states only under `#ifdef __clang__` (the MSVC 5 source is unchanged), `n/a`
+for a safe site.
 """
 
 import argparse
 import csv
+import io
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -108,6 +110,46 @@ REWRITTEN = {
     (0x43d290, 0x1af),
     (0x468cf0, 0x41e),
     (0x468cf0, 0x49e),
+    (0x408100, 0x171),
+    (0x408100, 0x292),
+    (0x408100, 0x3a8),
+    (0x468cf0, 0x702),
+    (0x468cf0, 0x782),
+}
+MODERN = {
+    (0x401360, 0x240),
+    (0x401360, 0x685),
+    (0x401360, 0x6e5),
+    (0x401360, 0x80b),
+    (0x401360, 0x839),
+    (0x401360, 0x87d),
+    (0x401360, 0x8b6),
+    (0x409730, 0x1c9),
+    (0x409730, 0x1e4),
+    (0x409730, 0x5ab),
+    (0x40aa40, 0x22d),
+    (0x40aa40, 0x237),
+    (0x40aa40, 0x23b),
+    (0x41bd10, 0x53),
+    (0x41bd10, 0x72),
+    (0x43d290, 0x362),
+    (0x43d290, 0x36a),
+    (0x43d290, 0x36e),
+    (0x43d290, 0x372),
+    (0x459c70, 0x677),
+    (0x49a120, 0x2c0),
+    (0x4a2580, 0x4fa),
+    (0x4a2be0, 0xe3),
+    (0x4a2be0, 0x211),
+    (0x4a2e40, 0x254),
+    (0x4a3ef0, 0x173),
+    (0x4a4660, 0xf3),
+    (0x4b6f70, 0x47),
+    (0x4b6f70, 0x4d),
+    (0x4b6f70, 0x5e),
+    (0x4b6ff0, 0x49),
+    (0x4b6ff0, 0x53),
+    (0x4b6ff0, 0x5d),
 }
 FLOAT_FORMAT = re.compile(r"%[-+ #0]*(?:\d+|\*)?(?:\.(?:\d+|\*))?[lL]?[feEgG]")
 
@@ -439,6 +481,8 @@ def format_strings(obj, sec, insns, lo: int) -> list[tuple[str, str]]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--check", action="store_true",
+                    help="write nothing; exit 1 on a float chain that is neither rewritten nor modern, or a stale CSV")
     ap.add_argument("--quiet", action="store_true", help="only write the file")
     ap.add_argument("--formats", action="store_true",
                     help="print the printf and scanf format strings of game-logic functions, flagging %%f %%e %%g")
@@ -491,19 +535,30 @@ def main() -> None:
                 if (address, off - lo) in REWRITTEN:
                     cls = "safe"
                     disposition = "rewritten"
+                elif cls == "float-chain":
+                    disposition = "modern" if (address, off - lo) in MODERN else "5"
                 else:
-                    disposition = "5" if cls == "float-chain" else "n/a"
+                    disposition = "n/a"
                 functions_with_sites.add(address)
                 chain = root.text if len(root.text) <= MAX_CHAIN else root.text[:MAX_CHAIN - 3] + "..."
                 rows.append({"address": f"{address:#x}", "function": fname, "file": f,
                              "line": line_at(table, off), "offset": f"{off - lo:#x}", "chain": chain,
                              "result": result, "class": cls, "disposition": disposition, "_a": address, "_o": off - lo})
     rows.sort(key=lambda r: (r["_a"], r["_o"]))
-    with OUT.open("w", newline="") as fh:
-        w = csv.DictWriter(fh, ["address", "function", "file", "line", "offset", "chain", "result", "class", "disposition"],
-                           lineterminator="\n", extrasaction="ignore")
-        w.writeheader()
-        w.writerows(rows)
+    text = io.StringIO()
+    w = csv.DictWriter(text, ["address", "function", "file", "line", "offset", "chain", "result", "class", "disposition"],
+                       lineterminator="\n", extrasaction="ignore")
+    w.writeheader()
+    w.writerows(rows)
+    todo = [r for r in rows if r["disposition"] == "5"]
+    if args.check:
+        for r in todo:
+            print(f"x87scan: unhandled float chain in {r['function']} at {r['address']}+{r['offset']} ({r['file']}:{r['line']})")
+        stale = OUT.read_text() != text.getvalue()
+        if stale:
+            print("x87scan: data/x87_sites.csv is out of date, run tools/x87scan.py")
+        sys.exit(1 if todo or stale else 0)
+    OUT.write_text(text.getvalue())
 
     if args.quiet:
         return

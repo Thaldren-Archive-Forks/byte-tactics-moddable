@@ -1366,8 +1366,13 @@ int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float f)
     int v = s->buildtime;
     if (unit->health >= max)
         return 0;
+#ifdef __clang__
+    int n1 = (int)(((double)max * f - 1.0f) / v + 1.0f);
+    int n2 = (int)(((double)s->energyCost * f - 1.0f) / v + 1.0f);
+#else
     int n1 = (int)((max * f - 1.0f) / v + 1.0f);
     int n2 = (int)((s->energyCost * f - 1.0f) / v + 1.0f);
+#endif
     if (n1 >= 1)
         n1 = 1;
     if (n2 >= 1)

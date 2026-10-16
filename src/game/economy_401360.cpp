@@ -147,8 +147,12 @@ void __stdcall SettleResourceAccount(Res_00401360* r, float ratioBacklog, float 
     r->lastProduced = r->produced;
     r->used = 0;
     r->produced = 0;
+#ifdef __clang__
+    r->backlog = (double)r->backlog - (double)ratioBacklog * r->backlog + ((double)r->demand - (double)ratioDemand * r->demand);
+#else
     r->backlog = r->backlog - ratioBacklog * r->backlog;
     r->backlog += r->demand - ratioDemand * r->demand;
+#endif
     r->demand = 0;
 }
 
@@ -211,6 +215,11 @@ static inline void AddIncomeDB(Unit* u, float* dst, double v)
         *dst += v;
 }
 
+#ifdef __clang__
+#define WIND_ADD(v) (v)
+#else
+#define WIND_ADD(v) ((float)(v))
+#endif
 // Takes a double but adds (float)v: its case blocks merge into the else branch's.
 static inline void AddIncomeW(Unit* u, float* dst, double v)
 {
@@ -224,12 +233,14 @@ static inline void AddIncomeW(Unit* u, float* dst, double v)
             *dst += v * 0.7;
             return;
         default:
-            *dst += (float)v;
+            *dst += WIND_ADD(v);
             return;
         }
     }
-    *dst += (float)v;
+    *dst += WIND_ADD(v);
 }
+
+#undef WIND_ADD
 
 static int Use_00401180(Unit* u, float amount)
 {
@@ -304,7 +315,7 @@ void __stdcall UpdatePlayerEconomy(Player* p)
                     if (ok)
                         AddIncome(u, &u->resourceSlot.res[1].produced, u->def->makesMetal);
                 } else if (u->def->windgenerator > 0) {
-                    AddIncomeW(u, &u->resourceSlot.res[0].produced, g_game->windFraction * u->def->windgenerator);
+                    AddIncomeW(u, &u->resourceSlot.res[0].produced, (double)g_game->windFraction * u->def->windgenerator);
                 } else if (u->def->tidalgenerator > 0) {
                     AddIncomeDB(u, &u->resourceSlot.res[0].produced, g_game->tidal * u->def->tidalgenerator);
                 }
@@ -338,7 +349,12 @@ void __stdcall UpdatePlayerEconomy(Player* p)
         backlogA[1] += u->resourceSlot.res[1].backlog;
     }
     Econ_00401360* e = (Econ_00401360*)p->econ;
+#ifdef __clang__
+    double energyProduced = (double)producedA[0] + e->res[0].produced;
+    producedA[0] = energyProduced;
+#else
     producedA[0] += e->res[0].produced;
+#endif
     usedA[0] += e->res[0].used;
     demandA[0] += e->res[0].demand;
     backlogA[0] += e->res[0].backlog;
@@ -352,13 +368,21 @@ void __stdcall UpdatePlayerEconomy(Player* p)
     }
     p->energyIncome = producedA[0];
     p->energyUsage = usedA[0];
+#ifdef __clang__
+    p->totalEnergyProduced += energyProduced;
+#else
     p->totalEnergyProduced += producedA[0];
+#endif
     p->totalEnergyConsumed += usedA[0];
     p->metalIncome = producedA[1];
     p->metalUsage = usedA[1];
     p->totalMetalProduced += producedA[1];
     p->totalMetalConsumed += usedA[1];
+#ifdef __clang__
+    avail[0] = energyProduced + p->energy;
+#else
     avail[0] = producedA[0] + p->energy;
+#endif
     avail[1] = producedA[1] + p->metal;
     for (i = 0; i < 2; i++) {
         float take;

@@ -38,10 +38,10 @@ add_custom_command(
   DEPENDS "${CMAKE_SOURCE_DIR}/tools/bitexact_tables.py"
   VERBATIM)
 add_library(bitexact STATIC
-  "${BITEXACT_DIR}/trig.c" "${BITEXACT_DIR}/math.c" "${BITEXACT_DIR}/rand.c" "${BITEXACT_DIR}/qsort.c"
+  "${BITEXACT_DIR}/trig.c" "${BITEXACT_DIR}/math.c" "${BITEXACT_DIR}/strtof.c" "${BITEXACT_DIR}/rand.c" "${BITEXACT_DIR}/qsort.c"
   "${BITEXACT_TABLES}" "${BITEXACT_SHIM_DIR}/game_rand.c")
 if(BITEXACT_ROUTE)
-  target_sources(bitexact PRIVATE "${BITEXACT_SHIM_DIR}/trig.c")
+  target_sources(bitexact PRIVATE "${BITEXACT_SHIM_DIR}/trig.c" "${BITEXACT_SHIM_DIR}/sscanf.c")
 endif()
 target_include_directories(bitexact PRIVATE "${BITEXACT_DIR}")
 target_include_directories(bitexact SYSTEM PRIVATE "${MSVC5_INCLUDE}")
@@ -78,11 +78,10 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CRT_CALLS_CSV}
 file(STRINGS "${CRT_CALLS_CSV}" CRT_CALL_ROWS)
 set(ROUTED_SOURCES "")
 foreach(row IN LISTS CRT_CALL_ROWS)
-  if(row MATCHES "^0x[0-9a-f]+,[^,]+,(fsqrt|rand|srand),[a-z]+,([^,]+),game,")
+  if(row MATCHES "^0x[0-9a-f]+,[^,]+,(fsqrt|rand|srand|_hypot|_CIacos|sscanf),[a-z]+,([^,]+),game,")
     list(APPEND ROUTED_SOURCES "${CMAKE_SOURCE_DIR}/${CMAKE_MATCH_2}")
   endif()
 endforeach()
-list(APPEND ROUTED_SOURCES "${CMAKE_SOURCE_DIR}/src/game/main.cpp")
 list(REMOVE_DUPLICATES ROUTED_SOURCES)
 if(NOT BITEXACT_ROUTE)
   set(ROUTED_SOURCES "")

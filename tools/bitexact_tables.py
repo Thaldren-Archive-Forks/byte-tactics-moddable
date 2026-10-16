@@ -17,6 +17,14 @@ cos of the double angle * g_angle16ToRad, computed in exact integer
 arithmetic (tools/bitexact.py checks the table against the CPU's fsincos).
 The same arithmetic gives atan(k/16) and pi as double-double constants for
 the port's atan2.
+
+The CRT's text to float conversion (LIBCMT's strgtold12 and ld12mul, in
+lib/bitexact/strtof.c) multiplies by powers of ten from two tables of 29
+entries each, 10^(+-n) for n = 1..7, 8..56 in steps of 8 and so on by
+powers of 8 up to 10^(+-4096), as 12-byte extended values: an 80-bit mantissa
+rounded to nearest and an exponent word. An entry whose low 16 bits are 0x8000 or more is stored one
+unit of the 64-bit mantissa too high, because the multiplier subtracts that unit
+again; tools/bitexact.py checks the tables against the exe.
 """
 
 import math
@@ -32,6 +40,10 @@ SIN_TABLE = 0x509F00
 SIN_TABLE_LEN = 640
 RAD_TO_ANGLE16 = 0x509EF0
 ANGLE16_TO_RAD = 0x509EF8
+POW10_POS = 0x5116F0
+POW10_NEG = 0x511850
+POW10_ENTRIES = 29
+ATAN_SERIES_TERMS = 12
 
 PREC = 256
 ONE = 1 << PREC
@@ -97,6 +109,32 @@ def double_double(v: int) -> tuple[tuple[int, int], tuple[int, int]]:
     return double_bits(hi), double_bits(lo)
 
 
+def pow10_entry(n: int, negative: bool) -> bytes:
+    """The 12 bytes of the table entry for 10^n or 10^-n."""
+    v = Fraction(10) ** (-n if negative else n)
+    shift = 79 - (v.numerator.bit_length() - v.denominator.bit_length())
+    for s in (shift - 1, shift, shift + 1, shift + 2):
+        x = v * Fraction(2) ** s
+        if (x.numerator // x.denominator).bit_length() == 80:
+            shift = s
+            break
+    x = v * Fraction(2) ** shift
+    m, rem = divmod(x.numerator, x.denominator)
+    if 2 * rem > x.denominator or (2 * rem == x.denominator and m & 1):
+        m += 1
+    exp = 0x3FFF + 79 - shift
+    if m.bit_length() == 81:
+        m >>= 1
+        exp += 1
+    if m & 0xFFFF >= 0x8000:
+        m += 0x10000
+    return (m | exp << 80).to_bytes(12, "little")
+
+
+def pow10_table(negative: bool) -> bytes:
+    return b"".join(pow10_entry((i % 7 + 1) * 8 ** (i // 7), negative) for i in range(POW10_ENTRIES))
+
+
 def sin_table() -> list[int]:
     return [round(math.sin(i * 2 * math.pi / 512) * 0x2000) for i in range(SIN_TABLE_LEN)]
 
@@ -137,9 +175,22 @@ def generate(out_path: Path) -> None:
         vals += [f"0x{hi[0]:08x}u", f"0x{hi[1]:08x}u", f"0x{lo[0]:08x}u", f"0x{lo[1]:08x}u"]
     out.append("const bx_u32 bx_atan_sixteenths[17 * 4] = {\n" + rows(vals, 4) + "};\n\n")
     vals = []
+    for m in range(ATAN_SERIES_TERMS):
+        f = Fraction((-1) ** m, 2 * m + 1)
+        hi = float(f)
+        lo = float(f - Fraction(hi))
+        assert abs(Fraction(hi) + Fraction(lo) - f) < Fraction(1, 1 << 100)
+        vals += [f"0x{w:08x}u" for w in (*double_bits(hi), *double_bits(lo))]
+    out.append(f"const bx_u32 bx_atan_series[{ATAN_SERIES_TERMS} * 4] = {{\n" + rows(vals, 4) + "};\n\n")
+    vals = []
     for hi, lo in (pi_dd, half_dd):
         vals += [f"0x{hi[0]:08x}u", f"0x{hi[1]:08x}u", f"0x{lo[0]:08x}u", f"0x{lo[1]:08x}u"]
     out.append("const bx_u32 bx_pi_pi_half[2 * 4] = {\n" + rows(vals, 4) + "};\n\n")
+
+    for name, negative in (("bx_pow10_pos", False), ("bx_pow10_neg", True)):
+        raw = pow10_table(negative)
+        words = struct.unpack(f"<{len(raw) // 4}I", raw)
+        out.append(f"const bx_u32 {name}[{POW10_ENTRIES} * 3] = {{\n{rows([f'0x{w:08x}u' for w in words], 3)}}};\n\n")
 
     vals = []
     for idx in range(65536):

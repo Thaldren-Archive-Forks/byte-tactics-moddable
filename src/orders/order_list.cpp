@@ -1895,7 +1895,11 @@ void UnitMotion::SteerAircraft(Unit* unit) {
             velocity.y = -da.y;
     }
 
+#ifdef __clang__
+    double hd = _hypot(da.x, da.z) * eps;
+#else
     float hd = (float)_hypot(da.x, da.z) * eps;
+#endif
     short d = (short)(heading - unit->angles.heading);
     if (d != 0) {
         unsigned short max = unit->def->max_turn;
@@ -1914,6 +1918,18 @@ void UnitMotion::SteerAircraft(Unit* unit) {
     if (hd < 8.0f)
         hd = 8.0f;
 
+#ifdef __clang__
+    double k = -sqrt((2.0 * f18) / hd);
+    double vxd = (double)da.x * k * eps - (double)db.x * eps;
+    double vzd = (double)da.z * k * eps - (double)db.z * eps;
+    float vx = vxd;
+    float vz = vzd;
+    double mag = _hypot(vxd, vzd);
+    if (mag > f18) {
+        vx = vx * (f18 / mag);
+        vz = vz * (f18 / mag);
+    }
+#else
     float k = -sqrt((2.0f * f18) / hd);
     // The parentheses keep k * eps in st(2) instead of spilling it.
     float vx = ((float)da.x) * k * eps - (float)db.x * eps;
@@ -1923,6 +1939,8 @@ void UnitMotion::SteerAircraft(Unit* unit) {
         vx = vx * (f18 / mag);
         vz = vz * (f18 / mag);
     }
+
+#endif
 
     AddFixed(velocity.x, vx);
     AddFixed(velocity.z, vz);

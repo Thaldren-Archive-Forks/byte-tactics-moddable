@@ -46,6 +46,9 @@ bx_i32 bx_FUN_004b7123(bx_i16 angle, bx_i32 scale);
 /* FUN_004b715a: the angle (0x8000 is half a turn) of the vector (z, x), that is atan2(x, z), rounded to nearest even; needs a 53-bit FPU precision and round to nearest, as the game sets (_control87 0x9001F), and agrees with the exe's fpatan except where the exact result is within about 1e-13 of a half. */
 bx_i32 bx_FUN_004b715a(bx_i32 x, bx_i32 z);
 
+/* The result of fpatan(sqrt((1 + x) * (1 - x)), x), the x87 code of MSVC 5's acos under 53-bit precision, stored as a double; x in [-1, 1], an x outside giving the x87 indefinite NaN; agrees with the CPU's fpatan except where its 64-bit result is not the correctly rounded one. */
+double bx_acos(double x);
+
 /* FUN_004b7173: rotates xz[0] (x) and xz[1] (z) by angle in place, doing nothing when the angle is 0; exact for the game's FPU mode (_control87 0x9001F), a result out of int range becoming INT_MIN as fistp stores it. */
 void bx_FUN_004b7173(bx_i16 angle, bx_i32 *xz);
 
@@ -60,6 +63,12 @@ bx_i32 bx_FUN_004b7381(bx_i32 a, bx_i32 b, bx_i32 c);
 
 /* The correctly rounded square root, equal to x87 fsqrt at 53-bit precision (and to SSE2 sqrtsd and wasm f64.sqrt), done in integer code; finite non-negative x, a negative x giving the x87 indefinite NaN. */
 double bx_sqrt(double x);
+
+/* MSVC 5's _hypot: big = max(|x|, |y|), then sqrt((x / big)^2 + (y / big)^2) * big with each step rounded to a 64-bit mantissa as the x87 does at control word 0x133f and then stored as a double; finite arguments, results within double range. */
+double bx_hypot(double x, double y);
+
+/* The float MSVC 5's sscanf("%f") stores for text: LIBCMT's strgtold12 (24 digits, 80-bit powers of ten), then the rounding of ld12cvt to 24 bits, which is not always the correctly rounded float; *end gets the first character not used, text when there is no number. */
+float bx_strtof_msvc5(const char *text, const char **end);
 
 /* The state of one rand stream: LIBCMT keeps it per thread, the port takes it as a parameter so callers name the stream. */
 typedef struct {

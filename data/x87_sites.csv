@@ -1,25 +1,25 @@
 address,function,file,line,offset,chain,result,class,disposition
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,307,0x240,((f[edx+0x37ede] * f[ecx+0x1d2]) + f[esi+0xbc]),float-store,float-chain,5
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,400,0x685,((f[eax] + f[esp+0x28]) + d[edi+0xac]),double-store,float-chain,5
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,400,0x6e5,((f[eax] + f[esp+0x28]) + f[edi+0x8c]),float-store,float-chain,5
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,387,0x78a,((f[esp+0x28] - f[edi+0xa4]) + d[edi+0xcc]),double-store,safe,rewritten
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,392,0x7c7,((f[esp+0x2c] - f[edi+0xa8]) + d[edi+0xd4]),double-store,safe,rewritten
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,396,0x80b,((f[eax+4] - (f[esp+0x10] * f[eax+4])) + (f[eax+8] - (f[esp+0x30] * f[eax+8]))),float-store,float-chain,5
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,397,0x839,((f[eax+0x1c] - (f[esp+0x14] * f[eax+0x1c])) + (f[eax+0x20] - (f[esp+0x34] * f[eax+0x20]))),float-store,float-chain,5
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,400,0x87d,((f[eax+8] - (f[esp+0x10] * f[eax+8])) + (f[eax+0xc] - (f[esp+0x30] * f[eax+0xc]))),float-store,float-chain,5
-0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,402,0x8b6,((f[eax+8] - (f[esp+0x10] * f[eax+0x20])) + (f[eax+0xc] - (f[esp+0x28] * f[eax+0xc]))),float-store,float-chain,5
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,145,0x171,sqrt((((i[esp+0x3c] * i[esp+0x3c]) + (i[esp+0x40] * i[esp+0x40])) + (i[esp+0x44] * i[esp+0x44]))),ftol,float-chain,5
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,167,0x292,sqrt((((i[esp+0x48] * i[esp+0x48]) + (i[esp+0x4c] * i[esp+0x4c])) + (i[esp+0x50] * i[esp+0x50]))),ftol,float-chain,5
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,178,0x3a8,sqrt((((i[esp+0x54] * i[esp+0x54]) + (i[esp+0x58] * i[esp+0x58])) + (i[esp+0x5c] * i[esp+0x5c]))),ftol,float-chain,5
-0x409730,PlayerAI::ComputeBaseWeights,src/ai/ai_player_409730.cpp,319,0x1c9,(i[esp+0x14] - (f[edi+0x18a] * f[0]/$T1296)),ftol,float-chain,5
-0x409730,PlayerAI::ComputeBaseWeights,src/ai/ai_player_409730.cpp,319,0x1e4,(i[esp+0x1c] - (f[edi+0x186] * f[0]/$T1297)),ftol,float-chain,5
-0x409730,PlayerAI::ComputeBaseWeights,src/ai/ai_player_409730.cpp,362,0x5ab,((f[edi+0x18a] * f[0]/$T1540) + i[esp+0x14]),float-store,float-chain,5
-0x40aa40,PlayerAI::RefreshUnitLists,src/ai/player_ai.cpp,129,0x22d,(f[esp+0x14] - ((i[ecx+0x6a] * i[esp+0x10]) * f[0]/$T35437)),float-store,float-chain,5
-0x40aa40,PlayerAI::RefreshUnitLists,src/ai/player_ai.cpp,129,0x237,(f[esp+0x18] - ((i[ecx+0x6e] * i[esp+0x10]) * f[0]/$T35437)),float-store,float-chain,5
-0x40aa40,PlayerAI::RefreshUnitLists,src/ai/player_ai.cpp,129,0x23b,(f[esp+0x1c] - ((i[ecx+0x72] * i[esp+0x10]) * f[0]/$T35437)),float-store,float-chain,5
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,318,0x240,((f[edx+0x37ede] * f[ecx+0x1d2]) + f[esi+0xbc]),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,424,0x685,((f[eax] + f[esp+0x28]) + d[edi+0xac]),double-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,424,0x6e5,((f[eax] + f[esp+0x28]) + f[edi+0x8c]),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,411,0x78a,((f[esp+0x28] - f[edi+0xa4]) + d[edi+0xcc]),double-store,safe,rewritten
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,416,0x7c7,((f[esp+0x2c] - f[edi+0xa8]) + d[edi+0xd4]),double-store,safe,rewritten
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,420,0x80b,((f[eax+4] - (f[esp+0x10] * f[eax+4])) + (f[eax+8] - (f[esp+0x30] * f[eax+8]))),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,421,0x839,((f[eax+0x1c] - (f[esp+0x14] * f[eax+0x1c])) + (f[eax+0x20] - (f[esp+0x34] * f[eax+0x20]))),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,424,0x87d,((f[eax+8] - (f[esp+0x10] * f[eax+8])) + (f[eax+0xc] - (f[esp+0x30] * f[eax+0xc]))),float-store,float-chain,modern
+0x401360,UpdatePlayerEconomy,src/game/economy_401360.cpp,426,0x8b6,((f[eax+8] - (f[esp+0x10] * f[eax+0x20])) + (f[eax+0xc] - (f[esp+0x28] * f[eax+0xc]))),float-store,float-chain,modern
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,145,0x171,sqrt((((i[esp+0x3c] * i[esp+0x3c]) + (i[esp+0x40] * i[esp+0x40])) + (i[esp+0x44] * i[esp+0x44]))),ftol,safe,rewritten
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,167,0x292,sqrt((((i[esp+0x48] * i[esp+0x48]) + (i[esp+0x4c] * i[esp+0x4c])) + (i[esp+0x50] * i[esp+0x50]))),ftol,safe,rewritten
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,178,0x3a8,sqrt((((i[esp+0x54] * i[esp+0x54]) + (i[esp+0x58] * i[esp+0x58])) + (i[esp+0x5c] * i[esp+0x5c]))),ftol,safe,rewritten
+0x409730,PlayerAI::ComputeBaseWeights,src/ai/ai_player_409730.cpp,323,0x1c9,(i[esp+0x14] - (f[edi+0x18a] * f[0]/$T1296)),ftol,float-chain,modern
+0x409730,PlayerAI::ComputeBaseWeights,src/ai/ai_player_409730.cpp,323,0x1e4,(i[esp+0x1c] - (f[edi+0x186] * f[0]/$T1297)),ftol,float-chain,modern
+0x409730,PlayerAI::ComputeBaseWeights,src/ai/ai_player_409730.cpp,369,0x5ab,((f[edi+0x18a] * f[0]/$T1540) + i[esp+0x14]),float-store,float-chain,modern
+0x40aa40,PlayerAI::RefreshUnitLists,src/ai/player_ai.cpp,135,0x22d,(f[esp+0x14] - ((i[ecx+0x6a] * i[esp+0x10]) * f[0]/$T35437)),float-store,float-chain,modern
+0x40aa40,PlayerAI::RefreshUnitLists,src/ai/player_ai.cpp,135,0x237,(f[esp+0x18] - ((i[ecx+0x6e] * i[esp+0x10]) * f[0]/$T35437)),float-store,float-chain,modern
+0x40aa40,PlayerAI::RefreshUnitLists,src/ai/player_ai.cpp,135,0x23b,(f[esp+0x1c] - ((i[ecx+0x72] * i[esp+0x10]) * f[0]/$T35437)),float-store,float-chain,modern
 0x40bfe0,FindBuildPosition,src/ai/ai_player.cpp,1943,0xa6,sqrt((((i[esp+0x28] * i[esp+0x28]) + (i[esp+0x2c] * i[esp+0x2c])) + (i[esp+0x30] * i[esp+0x30]))),ftol,safe,n/a
-0x41bd10,AddRepairProgress,src/ingame/control_panel.cpp,1369,0x53,((((i[esp+0x18] * f[esp+0x20]) - f[0]/$T37310) / i[esp+0xc]) - f[0]/$T37317),ftol,float-chain,5
-0x41bd10,AddRepairProgress,src/ingame/control_panel.cpp,1370,0x72,((((f[esi+0x186] * f[esp+0x20]) - f[0]/$T37310) / ?) - f[0]/$T37317),ftol,float-chain,5
+0x41bd10,AddRepairProgress,src/ingame/control_panel.cpp,1373,0x53,((((i[esp+0x18] * f[esp+0x20]) - f[0]/$T37310) / i[esp+0xc]) - f[0]/$T37317),ftol,float-chain,modern
+0x41bd10,AddRepairProgress,src/ingame/control_panel.cpp,1374,0x72,((((f[esi+0x186] * f[esp+0x20]) - f[0]/$T37310) / ?) - f[0]/$T37317),ftol,float-chain,modern
 0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,23,0x67,(((d[esp+0x18] - i[esp+0x10]) * (d[esp+0x18] - i[esp+0x10])) * d[0]/$T870),double-store,safe,n/a
 0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,26,0xba,(((i[esp+0x14] + sqrt(((d[esp+0x20] * d[esp+0x20]) + d[esp+0x28]))) / d[esp+0x18]) * d[0]/$T871),ftol,safe,n/a
 0x437840,UpdateMetalExtraction,src/units/unit_motion.cpp,202,0xa6,((f[eax+0x1ce] * i[esp+0x18]) * d[0]/$T29559),float-store,safe,n/a
@@ -27,40 +27,40 @@ address,function,file,line,offset,chain,result,class,disposition
 0x4394e0,DrawPathAnim,src/ingame/markers.cpp,525,0x9c,sqrt((((i[esp+0x28] * i[esp+0x28]) + (i[esp+0x2c] * i[esp+0x2c])) + (i[esp+0x30] * i[esp+0x30]))),ftol,safe,n/a
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1872,0x15d,((f[esp+0x5c] / f[esp+0x14]) * d[0]/$T39059),ftol,safe,rewritten
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1877,0x1af,((f[esp+0x14] - f[esp+0x5c]) * d[0]/$T39059),ftol,safe,rewritten
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1921,0x362,(((i[esp+0x24] * -sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060))) * f[0]/$T39058) - (i[esp+0x58] * f[0]/$T39058)),float-store,float-chain,5
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1921,0x36a,(((i[esp+0x24] * -sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060))) * f[0]/$T39058) - (i[esp+0x58] * f[0]/$T39058)),double-store,float-chain,5
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1921,0x36e,(((-sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060)) * i[esp+0x1c]) * f[0]/$T39058) - (i[esp+0x50] * f[0]/$T39058)),float-store,float-chain,5
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1921,0x372,(((-sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060)) * i[esp+0x1c]) * f[0]/$T39058) - (i[esp+0x50] * f[0]/$T39058)),double-store,float-chain,5
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1924,0x39e,(f[esp+0x5c] * (f[esp+0x18] / hypot())),float-store,safe,n/a
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1929,0x3e7,sqrt((((i[esi] * i[esi]) + (i[esi+4] * i[esi+4])) + (i[esi+8] * i[esi+8]))),ftol,safe,n/a
-0x459c70,UnitTable::DrawLitPieces,src/graphics/model_render_4581e0.cpp,309,0x677,((((f[esp+eax+0x224] * f[0]/g_lightX) + (f[esp+eax+0x228] * f[0]/g_lightY)) + (f[esp+eax+0x22c] * f[0]/g_lightZ)) * f[0]/DAT_004fd4cc),ftol,float-chain,5
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1937,0x362,(((i[esp+0x24] * -sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060))) * f[0]/$T39058) - (i[esp+0x58] * f[0]/$T39058)),float-store,float-chain,modern
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1937,0x36a,(((i[esp+0x24] * -sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060))) * f[0]/$T39058) - (i[esp+0x58] * f[0]/$T39058)),double-store,float-chain,modern
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1937,0x36e,(((-sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060)) * i[esp+0x1c]) * f[0]/$T39058) - (i[esp+0x50] * f[0]/$T39058)),float-store,float-chain,modern
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1937,0x372,(((-sqrt(((f[esp+0x18] + f[esp+0x18]) / f[0]/$T39060)) * i[esp+0x1c]) * f[0]/$T39058) - (i[esp+0x50] * f[0]/$T39058)),double-store,float-chain,modern
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1940,0x39e,(f[esp+0x5c] * (f[esp+0x18] / hypot())),float-store,safe,n/a
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,1947,0x3e7,sqrt((((i[esi] * i[esi]) + (i[esi+4] * i[esi+4])) + (i[esi+8] * i[esi+8]))),ftol,safe,n/a
+0x459c70,UnitTable::DrawLitPieces,src/graphics/model_render_4581e0.cpp,315,0x677,((((f[esp+eax+0x224] * f[0]/g_lightX) + (f[esp+eax+0x228] * f[0]/g_lightY)) + (f[esp+eax+0x22c] * f[0]/g_lightZ)) * f[0]/DAT_004fd4cc),ftol,float-chain,modern
 0x464060,DrawMessages,src/network/net_chat.cpp,259,0x181,(d[0]/$T1428 - (i[esp+0x18] * d[0]/$T1427)),ftol,safe,n/a
 0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,513,0x41e,(((i[esp+0x10] * f[esp+0x79]) / f[ebp+0xa4]) + i[esp+0x9c]),ftol,safe,rewritten
 0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,513,0x49e,(((i[esp+0x10] * f[ebp+0xe8]) / f[ebp+0xa4]) + i[esp+0x24]),ftol,safe,rewritten
-0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,513,0x702,(((i[esp+0x10] * f[esp+0x85]) / f[ebp+0xa8]) + i[esp+0x9c]),ftol,float-chain,5
-0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,513,0x782,(((i[esp+0x10] * f[ebp+0xe4]) / f[ebp+0xa8]) + i[esp+0x24]),ftol,float-chain,5
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,513,0x702,(((i[esp+0x10] * f[esp+0x85]) / f[ebp+0xa8]) + i[esp+0x9c]),ftol,safe,rewritten
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,513,0x782,(((i[esp+0x10] * f[ebp+0xe4]) / f[ebp+0xa8]) + i[esp+0x24]),ftol,safe,rewritten
 0x474760,WakeParticles::Init,src/graphics/particles.cpp,2020,0x86,sqrt((((i[esi] * i[esi]) + (i[esi+4] * i[esi+4])) + (i[esi+8] * i[esi+8]))),ftol,safe,n/a
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,1050,0x201,((i[esp+0x10] * d[0]/$T33766) * d[0]/$T33767),ftol,safe,n/a
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,1052,0x221,((i[esp+0x30] * d[0]/$T33766) * d[0]/$T33767),ftol,safe,n/a
 0x48a1e0,GetWeaponTargetPos,src/units/unit_targets.cpp,724,0x19e,sqrt((((i[esp+0x10] * i[esp+0x10]) + (i[esp+0x14] * i[esp+0x14])) + (i[esp+0x18] * i[esp+0x18]))),ftol,safe,n/a
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,291,0x26a,sqrt((((i[esp+0x34] * d[esp+0x20]) + (i[esp+0x38] * d[esp+0x18])) + (i[esp+0x3c] * i[esp+0x3c]))),ftol,safe,n/a
-0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,302,0x2c0,(((((i[esp+0x18] / i[esp+0x4c]) - f[0]/$T17445) * ((i[esp+0x18] / i[esp+0x4c]) - f[0]/$T17445)) * (f[0]/$T17445 - f[esp+0x6c])) + f[esp+0x6c]),float-store,float-chain,5
-0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,343,0x494,sqrt((((i[esp+0x80] * i[esp+0x80]) + (i[esp+0x84] * i[esp+0x84])) + (i[esp+0x88] * i[esp+0x88]))),ftol,safe,n/a
+0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,310,0x2c0,(((((i[esp+0x18] / i[esp+0x4c]) - f[0]/$T17445) * ((i[esp+0x18] / i[esp+0x4c]) - f[0]/$T17445)) * (f[0]/$T17445 - f[esp+0x6c])) + f[esp+0x6c]),float-store,float-chain,modern
+0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,351,0x494,sqrt((((i[esp+0x80] * i[esp+0x80]) + (i[esp+0x84] * i[esp+0x84])) + (i[esp+0x88] * i[esp+0x88]))),ftol,safe,n/a
 0x49a850,VectorLength,src/weapons/weapons.cpp,1011,0x33,sqrt((((i[eax] * d[esp]) + (i[eax+4] * d[esp+8])) + (i[eax+8] * i[eax+8]))),ftol,safe,n/a
 0x49a890,SolveLaunchAngle,src/weapons/weapons.cpp,1043,0xff,sqrt((((((d[esp+0x10] - ((i[esp+0x10] * d[esp]) * d[0]/$T9251)) * d[esp+0x10]) + ((d[esp] * d[esp]) * d[esp+0x18])) * d[esp+0x20]) - (((d[esp] * d[esp]) * d[esp+0x18]) * d[esp+0x18]))),double-store,safe,n/a
 0x49a890,SolveLaunchAngle,src/weapons/weapons.cpp,1044,0x11f,((sqrt((((((d[esp+0x10] - ((i[esp+0x10] * d[esp]) * d[0]/$T9251)) * d[esp+0x10]) + ((d[esp] * d[esp]) * d[esp+0x18])) * d[esp+0x20]) - (((d[esp] * d[esp]) * d[esp+0x18]) * d[esp+0x18]))) + ((d[esp+0x10] + d[esp+0x28]) * d[esp])) / d[esp+...,double-store,safe,n/a
 0x49b3e0,GetProjectileAimPoint,src/weapons/weapons.cpp,1445,0x5d,sqrt((((i[esp+0x10] * i[esp+0x10]) + (i[esp+0x14] * i[esp+0x14])) + (i[esp+0x18] * i[esp+0x18]))),ftol,safe,n/a
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,3293,0x691,sqrt((((i[esp+0x60] * i[esp+0x60]) + (i[esp+0x64] * i[esp+0x64])) + (i[esp+0x68] * i[esp+0x68]))),ftol,safe,n/a
-0x4a2580,DrawSliderBar,src/gui/gui.cpp,2142,0x4fa,((i[esp+0x54] * i[esp+0x58]) / i[esp+0x54]),ftol,float-chain,5
-0x4a2be0,SyncAssocGadgets,src/gui/gui.cpp,2263,0xe3,((i[esp+0x10] * i[esp+0x10]) / i[esp+0x10]),ftol,float-chain,5
-0x4a2be0,SyncAssocGadgets,src/gui/gui.cpp,2240,0x211,((i[esp+0x10] * i[esp+0x10]) / i[esp+0x10]),ftol,float-chain,5
-0x4a2e40,SetListBoxScrollByName,src/gui/gui.cpp,2383,0x254,((i[esp+0x18] * i[esp+0x18]) / i[esp+0x18]),ftol,float-chain,5
-0x4a3ef0,DrawSlider,src/gui/gui_4a3ef0.cpp,107,0x173,((i[esp+0x10] / i[esp+0x14]) * i[esp+0x14]),ftol,float-chain,5
-0x4a4660,DrawProgressBarGadget,src/gui/gui.cpp,3456,0xf3,((i[esi+0xba] / i[esi+0xb6]) * i[esp+0x38]),ftol,float-chain,5
-0x4b6f70,CrossProduct,src/util/math.cpp,175,0x47,((f[esp+0x18] * f[esp+8]) - (f[esp+0x14] * f[esp+0xc])),float-store,float-chain,5
-0x4b6f70,CrossProduct,src/util/math.cpp,175,0x4d,((f[esp+0x1c] * f[esp+0xc]) - (f[esp+0x18] * f[esp+0x10])),float-store,float-chain,5
-0x4b6f70,CrossProduct,src/util/math.cpp,175,0x5e,((f[esp+0x14] * f[esp+0x10]) - (f[esp+0x1c] * f[esp+8])),float-store,float-chain,5
-0x4b6ff0,NormalizeVector,src/util/math.cpp,192,0x49,(f[esp+8] / sqrt((((f[esp+8] * f[esp+8]) + (f[esp+0xc] * f[esp+0xc])) + (f[esp+0x10] * f[esp+0x10])))),float-store,float-chain,5
-0x4b6ff0,NormalizeVector,src/util/math.cpp,192,0x53,(f[esp+0xc] / sqrt((((f[esp+8] * f[esp+8]) + (f[esp+0xc] * f[esp+0xc])) + (f[esp+0x10] * f[esp+0x10])))),float-store,float-chain,5
-0x4b6ff0,NormalizeVector,src/util/math.cpp,192,0x5d,(f[esp+0x10] / sqrt((((f[esp+8] * f[esp+8]) + (f[esp+0xc] * f[esp+0xc])) + (f[esp+0x10] * f[esp+0x10])))),float-store,float-chain,5
+0x4a2580,DrawSliderBar,src/gui/gui.cpp,2145,0x4fa,((i[esp+0x54] * i[esp+0x58]) / i[esp+0x54]),ftol,float-chain,modern
+0x4a2be0,SyncAssocGadgets,src/gui/gui.cpp,2276,0xe3,((i[esp+0x10] * i[esp+0x10]) / i[esp+0x10]),ftol,float-chain,modern
+0x4a2be0,SyncAssocGadgets,src/gui/gui.cpp,2248,0x211,((i[esp+0x10] * i[esp+0x10]) / i[esp+0x10]),ftol,float-chain,modern
+0x4a2e40,SetListBoxScrollByName,src/gui/gui.cpp,2402,0x254,((i[esp+0x18] * i[esp+0x18]) / i[esp+0x18]),ftol,float-chain,modern
+0x4a3ef0,DrawSlider,src/gui/gui_4a3ef0.cpp,110,0x173,((i[esp+0x10] / i[esp+0x14]) * i[esp+0x14]),ftol,float-chain,modern
+0x4a4660,DrawProgressBarGadget,src/gui/gui.cpp,3479,0xf3,((i[esi+0xba] / i[esi+0xb6]) * i[esp+0x38]),ftol,float-chain,modern
+0x4b6f70,CrossProduct,src/util/math.cpp,184,0x47,((f[esp+0x18] * f[esp+8]) - (f[esp+0x14] * f[esp+0xc])),float-store,float-chain,modern
+0x4b6f70,CrossProduct,src/util/math.cpp,184,0x4d,((f[esp+0x1c] * f[esp+0xc]) - (f[esp+0x18] * f[esp+0x10])),float-store,float-chain,modern
+0x4b6f70,CrossProduct,src/util/math.cpp,184,0x5e,((f[esp+0x14] * f[esp+0x10]) - (f[esp+0x1c] * f[esp+8])),float-store,float-chain,modern
+0x4b6ff0,NormalizeVector,src/util/math.cpp,209,0x49,(f[esp+8] / sqrt((((f[esp+8] * f[esp+8]) + (f[esp+0xc] * f[esp+0xc])) + (f[esp+0x10] * f[esp+0x10])))),float-store,float-chain,modern
+0x4b6ff0,NormalizeVector,src/util/math.cpp,209,0x53,(f[esp+0xc] / sqrt((((f[esp+8] * f[esp+8]) + (f[esp+0xc] * f[esp+0xc])) + (f[esp+0x10] * f[esp+0x10])))),float-store,float-chain,modern
+0x4b6ff0,NormalizeVector,src/util/math.cpp,209,0x5d,(f[esp+0x10] / sqrt((((f[esp+8] * f[esp+8]) + (f[esp+0xc] * f[esp+0xc])) + (f[esp+0x10] * f[esp+0x10])))),float-store,float-chain,modern
 0x4b70a0,FixedSine,src/util/math_4b70a0.cpp,132,0xcb,((i[ebp+8] patan i[ebp+0xc]) * d[0]/g_radToAngle16),fistp,safe,n/a
