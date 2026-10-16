@@ -79,7 +79,8 @@ Found during review. Each needs an order, a message to the driver, or a split of
 - `DrawWeaponCoverage` (src/ingame/markers.cpp:564) sets `order->flags |= 0x200000` and `order->cached` while drawing.
 - Console commands and the debug hotkey:
   - `CmdATM`, `CmdNoMetal` and `CmdNoEnergy` write `Player.metal` and `Player.energy`.
-  - `CmdSeaLevel`, `CmdEdge`, `CmdControl` and `CmdView` write `localPlayer` and `playerIndex`, which the tick reads.
+  - `CmdSeaLevel` writes `seaLevel` and `CmdEdge` writes `mapWidth` and `mapHeight` (src/game/console_commands.cpp:843, :731-732).
+  - `CmdControl` and `CmdView` write `localPlayer` and `playerIndex` (console_commands.cpp:854-868), which the tick reads.
   - The cheat toggles write `uiOptionFlags` bits.
   - `CmdILose` and `CmdIWin` write `endGameFlags`.
   - `CmdMeteor` writes the meteor globals.
