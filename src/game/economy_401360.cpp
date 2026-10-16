@@ -430,6 +430,12 @@ void __stdcall UpdatePlayerEconomy(Player* p)
     volatile float roundedAvail[2] = {avail[0], avail[1]};
     avail[0] = roundedAvail[0];
     avail[1] = roundedAvail[1];
+    volatile float roundedRatio[2] = {ratioA[0], ratioA[1]};
+    volatile float roundedDemandRatio[2] = {demandRatio[0], demandRatio[1]};
+    for (i = 0; i < 2; i++) {
+        ratioA[i] = roundedRatio[i];
+        demandRatio[i] = roundedDemandRatio[i];
+    }
 #endif
     p->energy = avail[0];
     if (avail[0] > p->energyCapacity) {
