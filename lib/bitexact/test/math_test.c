@@ -509,6 +509,46 @@ static void test_strtof(math_stat_t *s)
 
 int __cdecl bx_sscanf(const char *buf, const char *fmt, ...);
 
+extern void (__cdecl *bx_sscanf_refusal)(const char *fmt);
+
+static int refusals;
+
+static void __cdecl count_refusal(const char *fmt)
+{
+    (void)fmt;
+    refusals++;
+}
+
+static void test_sscanf_refusal(math_stat_t *s)
+{
+    static const char *refused[] = {"%e", "%g", "%E", "%G", "%lf", "%5f", "%*f", "%Lf", "%d %lf", "%f %e", "%lg",
+                                    "%[a-z] %3f", "%%%le"};
+    static const char *allowed[] = {"%f", " %f %f", "%d %f", "%%f", "%*d %f", "%[a-z] %d", "%s", "%x"};
+    void (__cdecl *saved)(const char *) = bx_sscanf_refusal;
+    unsigned int i;
+    float f = 0;
+    int d = 0;
+    char str[64];
+
+    bx_sscanf_refusal = count_refusal;
+    for (i = 0; i < sizeof(refused) / sizeof(refused[0]); i++) {
+        refusals = 0;
+        bx_sscanf("1 2 3", refused[i], &f, &f, &f);
+        s->cases++;
+        if (refusals != 1 && ++s->mismatches == 1)
+            sprintf(s->example, "format \"%s\" refused %d times, not once", refused[i], refusals);
+    }
+    for (i = 0; i < sizeof(allowed) / sizeof(allowed[0]); i++) {
+        refusals = 0;
+        str[0] = 0;
+        bx_sscanf("1 2 3", allowed[i], &f, &f, &d);
+        s->cases++;
+        if (refusals != 0 && ++s->mismatches == 1)
+            sprintf(s->example, "format \"%s\" refused", allowed[i]);
+    }
+    bx_sscanf_refusal = saved;
+}
+
 typedef struct {
     int ret;
     int i[2];
@@ -679,7 +719,8 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
                        at1 = {"correctly rounded atof, up to 9 digits vs atof"},
                        at2 = {"correctly rounded atof, 10 to 15 digits vs atof"},
                        sc3 = {"sscanf %f vs the correctly rounded double rounded to float"},
-                       sf1 = {"bx_strtof_msvc5 vs sscanf %f"}, ss1 = {"bx_sscanf vs sscanf"};
+                       sf1 = {"bx_strtof_msvc5 vs sscanf %f"}, ss1 = {"bx_sscanf vs sscanf"},
+                       ss2 = {"bx_sscanf refuses every float format but a plain %f"};
     int bad = 0, i;
 
     test_sqrt(&sd, &sf, &sc);
@@ -688,6 +729,7 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
     test_atof(&at1, &at2, &sc3);
     test_strtof(&sf1);
     test_sscanf(&ss1);
+    test_sscanf_refusal(&ss2);
     bad |= report(&sd, 1);
     bad |= report(&sf, 1);
     bad |= report(&sc, 1);
@@ -711,5 +753,6 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
     report(&sc3, 0);
     bad |= report(&sf1, 1);
     bad |= report(&ss1, 1);
+    bad |= report(&ss2, 1);
     return bad;
 }

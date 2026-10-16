@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "bitexact.h"
 
@@ -37,6 +38,21 @@ static int spec_length(const char *f)
     }
     return *p ? (int)(p + 1 - f) : 0;
 }
+
+static int is_float_directive(const char *f, int len)
+{
+    char c = f[len - 1];
+
+    return c == 'f' || c == 'F' || c == 'e' || c == 'E' || c == 'g' || c == 'G';
+}
+
+static void __cdecl refuse_float_format(const char *fmt)
+{
+    fprintf(stderr, "bx_sscanf: float format \"%s\" has no bit-exact parser, only a plain %%f has\n", fmt);
+    abort();
+}
+
+void (__cdecl *bx_sscanf_refusal)(const char *fmt) = refuse_float_format;
 
 static int is_plain_float(const char *f, int len)
 {
@@ -93,6 +109,10 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
             break;
         if (is_plain_float(f, len))
             own_float = 1;
+        else if (is_float_directive(f, len)) {
+            bx_sscanf_refusal(fmt);
+            return EOF;
+        }
         if (f[1] != '*')
             conversions++;
         f += len;
