@@ -30,7 +30,7 @@ Hold it against each of these, and record a finding for every miss:
 
 Then post one review: the verdict line for the current head SHA, the findings, and inline comments on the lines they concern. For a pull request you reviewed before, check each earlier finding was changed or answered; accept a reasoned answer or keep the finding (`docs/team.md`, "Disagreements").
 
-**Merge** on `approve` when checks are green and it's up to date with `moddable`: `gh pr merge <PR> --merge --delete-branch`. Then remove its worktree and go to step 2 for its issue.
+**Merge** on `approve` when checks are green and the tree you tested is the tree that lands (`docs/team.md`, "Branches behind `moddable`"): `gh pr merge <PR> --merge --delete-branch`. A branch that is behind but doesn't overlap the missed commits is merged as it stands. Don't ask for an update that would only reset your approval. When it does overlap, the update is a must-change finding in your review, not a request after an `approve`. Then remove its worktree and go to step 2 for its issue.
 
 ### 2. Reconcile after a merge
 

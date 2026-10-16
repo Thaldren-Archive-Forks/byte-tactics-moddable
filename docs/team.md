@@ -55,6 +55,13 @@ gh api repos/ozgb/byte-tactics-moddable/pulls/<PR> --jq .head.sha
 
 A pull request **needs review** when it is open, not a draft, and its head SHA differs from the SHA in its latest verdict (or it has none). Pushing new commits is how the author asks for another review: no label or mention is needed.
 
+## Branches behind `moddable`
+
+Only the maintainer merges. A branch doesn't have to contain `moddable`'s head to be merged: what matters is that the tree the maintainer tested is the tree that lands. Updating a branch changes its head, which sends it back for review, so nobody updates one without a reason.
+
+- **Merge as it stands** when GitHub reports no conflicts and the commits the branch lacks touch none of its files and none of the tools its gate runs. Check with `git diff --name-only $(git merge-base origin/moddable <head>) origin/moddable`.
+- **Update first** when there are conflicts, or when those commits touch the pull request's files or its gate's tools. The maintainer makes this a must-change finding naming the overlapping commits. The lead merges `origin/moddable` into the branch, re-runs the gate and pushes. Merge rather than rebase: `git-safe push` refuses force-pushes.
+
 ## Labels
 
 | Label | Set by | Meaning | Cleared by |
