@@ -624,12 +624,14 @@ void HarnessAfterStep()
     char msg[64];
     DWORD written;
     if (s_trace != NULL)
-        fflush(s_trace);
+        fclose(s_trace);
     if (s_dump != NULL)
-        fflush(s_dump);
+        fclose(s_dump);
+    s_trace = NULL;
+    s_dump = NULL;
     sprintf(msg, "testmode: reached tick %u\n", s_ticks);
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, (DWORD)strlen(msg), &written, NULL);
-    ExitProcess(0);
+    TerminateProcess(GetCurrentProcess(), 0);
 }
 
 #include "trace_schema.h"
