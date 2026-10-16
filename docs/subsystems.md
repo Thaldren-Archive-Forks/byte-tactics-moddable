@@ -29,14 +29,14 @@ The subsystems and the issue each maps to:
 | [players](#the-remaining-subsystems) | 149 | none yet |
 | [map](#the-remaining-subsystems) | 109 | none yet |
 | [network](#the-remaining-subsystems) | 450 | none yet |
-| [game](#the-remaining-subsystems) | 153 | none yet |
+| [game](#the-remaining-subsystems) | 160 | none yet |
 | [harness](#the-remaining-subsystems) | 58 | none yet |
-| [presentation](#the-remaining-subsystems) | 1545 | none yet |
-| [platform](#the-remaining-subsystems) | 814 | none yet |
+| [presentation](#the-remaining-subsystems) | 1514 | none yet |
+| [platform](#the-remaining-subsystems) | 838 | none yet |
 
 The eight subsystems without a module issue are described briefly [below](#the-remaining-subsystems). #10 (per-module replay tests) uses all of them.
 
-How to read a section. **Entry points** are the phase roots the subsystem holds and the functions other subsystems call, with the callers. A caller in `presentation` can be the main loop or `RunGameSteps` (which is in `src/ingame/`), not drawing code. **Imports** are the functions it calls in other subsystems, by target. **Sim writes** and **sim reads** list items with their class from `data/state_classes.csv` and the number of its functions that access the item; "also written by" names the other writers. Lists are cut to the twelve most used named items. "Named" leaves out the shared value types (`Vec3`, `Point`, `Fixed`) and the per-file copies of a struct that the source declares several times (a name ending in an address, such as `Proj_0049c740`).
+How to read a section. **Entry points** are the phase roots the subsystem holds and the functions other subsystems call, with the callers. The main loop and the frame handlers (`MainLoopTick`, `RunGameSteps`, `UpdateFramePacing`, `BattleFrame`, `EndGameFrame`, `MainFrameTick`) are in `game` by `override`, although most are in presentation folders (`src/ingame/`), so a phase root has callers in `game`, not in `presentation`. **Imports** are the functions it calls in other subsystems, by target. **Sim writes** and **sim reads** list items with their class from `data/state_classes.csv` and the number of its functions that access the item; "also written by" names the other writers. Lists are cut to the twelve most used named items. "Named" leaves out the shared value types (`Vec3`, `Point`, `Fixed`) and the per-file copies of a struct that the source declares several times (a name ending in an address, such as `Proj_0049c740`).
 
 
 ## wind_meteors
@@ -47,14 +47,14 @@ Issue #9. 15 functions. `UpdateWind`, `UpdateMeteors`, the meteor parameters and
 
 11 functions are called from other subsystems. The most called, with their callers:
 
-- `UpdateWind` (1 from game, 1 from presentation)
+- `UpdateWind` (2 from game)
 - `CmdMeteor` (1 from platform)
 - `DisableMeteors` (1 from map)
 - `EmptyShutdownPreCleanup` (1 from game)
 - `EnableMeteors` (1 from map)
 - `InitMeteors` (1 from game)
 - `LoadMeteors` (1 from game)
-- By calling subsystem (functions called): game 5, map 4, presentation 2, platform 1
+- By calling subsystem (functions called): game 6, map 4, platform 1
 
 **Imports.** 14 functions of 2 subsystems, by target, each with the number of functions it calls there:
 
@@ -98,7 +98,7 @@ Issue #11. 38 functions. The resource accounts (`UnitResources`), `UpdatePlayerE
 - `UpdateMetalExtraction` (2 from units)
 - `CmdNoEnergy` (1 from platform)
 - `CmdNoMetal` (1 from platform)
-- By calling subsystem (functions called): platform 7, units 6, players 4, presentation 2, ai 1, network 1
+- By calling subsystem (functions called): platform 7, units 6, players 4, ai 1, game 1, network 1
 
 **Imports.** 18 functions of 6 subsystems, by target, each with the number of functions it calls there:
 
@@ -146,7 +146,7 @@ Issue #12. 62 functions. `UpdateFeatures` and feature loading, spreading, burnin
 - `CmdBurnAll` (1 from platform)
 - `CmdBurnOne` (1 from platform)
 - `CmdFeature` (1 from platform)
-- By calling subsystem (functions called): game 7, los_radar 5, orders 3, network 3, platform 3, units 2
+- By calling subsystem (functions called): game 8, los_radar 5, orders 3, network 3, platform 3, units 2
 
 **Imports.** 46 functions of 8 subsystems, by target, each with the number of functions it calls there:
 
@@ -288,7 +288,7 @@ Issue #15. 118 functions. `UpdateProjectiles`, `UpdateExplosions`, `UpdateUnitWe
 - `FindFeatureAtPos` (3 from orders, 1 from players)
 - `FindWeaponByName` (1 from features, 1 from units, 1 from wind_meteors)
 - `GetWeaponRange` (2 from orders, 1 from targeting)
-- By calling subsystem (functions called): units 12, orders 7, game 6, presentation 4, ai 3, network 3
+- By calling subsystem (functions called): units 12, game 8, orders 7, ai 3, network 3, players 3
 
 **Imports.** 69 functions of 13 subsystems, by target, each with the number of functions it calls there:
 
@@ -386,7 +386,7 @@ Issue #17. 118 functions. Line of sight, radar and sonar, the LOS tables, the ma
 - `UpdateUnitLineOfSight` (2 from players, 2 from units, 1 from orders)
 - `StringRef::Assign` (2 from platform, 1 from map, 1 from units)
 - `ClampWorldPosToTerrain` (2 from game, 1 from players)
-- By calling subsystem (functions called): units 12, presentation 9, platform 9, game 7, map 7, players 6
+- By calling subsystem (functions called): units 12, platform 9, game 8, presentation 8, map 7, players 6
 
 **Imports.** 47 functions of 8 subsystems, by target, each with the number of functions it calls there:
 
@@ -475,21 +475,21 @@ Issue #18. 468 functions. The order state machines, VTOL orders, order lists, un
 
 Each has no module issue yet. Entry points and couplings come from the same tool (`uv run tools/coupling.py --summary NAME`); the numbers count functions.
 
-**units** (193 functions). Phase root `UpdateAllUnits`, which calls `RunOrders` (orders) and `UpdateUnitWeapons` (weapons). 68 functions are called from outside; the busiest are `GetHeadingBetween` (28), `Unit::SetStateBits` (24), `GetGroundHeight` (20). It is called most by orders (26 distinct functions) and game (23). It imports 179 functions, mostly platform (54), presentation (34), orders (21) and network (17). It holds the unit table and lifecycle code (`CreateUnit`, `Unit::SetStateBits`, COB scripts), and it is the other side of most of orders' writes.
+**units** (193 functions). Phase root `UpdateAllUnits`, which calls `RunOrders` (orders) and `UpdateUnitWeapons` (weapons). 68 functions are called from outside; the busiest are `GetHeadingBetween` (28), `Unit::SetStateBits` (24), `GetGroundHeight` (20). It is called most by orders (26 distinct functions) and game (24). It imports 179 functions, mostly platform (56), presentation (32), orders (21) and network (17). It holds the unit table and lifecycle code (`CreateUnit`, `Unit::SetStateBits`, COB scripts), and it is the other side of most of orders' writes.
 
-**players** (149 functions). Phase root `UpdatePlayers`, which calls into economy (`UpdatePlayerEconomy`), ai (`UpdatePlayerAI`, squads), pathfinding (`RunSearches`) and los_radar (three LOS calls) in turn. 41 functions are called from outside, mostly by presentation (16) and game (16); the busiest are `KillPlayerUnits` (5), `ShutdownScoreTables` (4), `TransferEnergy` (4). It imports 77 functions: platform 23, network 12, ai 10, presentation 9, los_radar 6. It holds the per-player state and victory conditions.
+**players** (149 functions). Phase root `UpdatePlayers`, which calls into economy (`UpdatePlayerEconomy`), ai (`UpdatePlayerAI`, squads), pathfinding (`RunSearches`) and los_radar (three LOS calls) in turn. 41 functions are called from outside, mostly by game (17) and presentation (14); the busiest are `KillPlayerUnits` (5), `ShutdownScoreTables` (4), `TransferEnergy` (4). It imports 77 functions: platform 23, network 12, ai 10, presentation 9, los_radar 6. It holds the per-player state and victory conditions.
 
-**map** (109 functions). No phase root. 51 functions are called from outside, by presentation (25), game (20), units (12) and orders (9); the busiest are `Mission::GetGameType` (45), `Mission::LoadMissionByName` (15), `Mission::GetMissionName` (12) (mission accessors) and `CanPlaceUnitFootprint` (8). It imports 62 functions: platform 36, los_radar 7, wind_meteors 4. It holds the terrain, the pass maps and footprints.
+**map** (109 functions). No phase root. 51 functions are called from outside, by presentation (24), game (22), units (12) and orders (9); the busiest are `Mission::GetGameType` (45), `Mission::LoadMissionByName` (15), `Mission::GetMissionName` (12) (mission accessors) and `CanPlaceUnitFootprint` (8). It imports 62 functions: platform 36, los_radar 7, wind_meteors 4. It holds the terrain, the pass maps and footprints.
 
-**network** (450 functions). Phase root `HandleNetPackets`, which dispatches into every subsystem, so what it reaches says nothing about the owner. 103 functions are called from outside, mostly by presentation (70) and game (25); the busiest are `BroadcastPlayerInfo` (26), `BroadcastPacket` (23), `AddMessage` (18). It imports 86 functions: presentation 30, platform 17, players 11, units 10. Its packet handlers write many sim items (250 in all).
+**network** (450 functions). Phase root `HandleNetPackets`, which dispatches into every subsystem, so what it reaches says nothing about the owner. 103 functions are called from outside, mostly by presentation (65) and game (32); the busiest are `BroadcastPlayerInfo` (26), `BroadcastPacket` (23), `AddMessage` (18). It imports 86 functions: presentation 26, platform 21, players 11, units 10. Its packet handlers write many sim items (250 in all).
 
-**game** (153 functions). Phase root `StepAllGafSequences`. Mostly start-up, load, save and shutdown code. 94 functions are called from outside, by platform (67 distinct functions) and presentation (26); the busiest are `SetCursorMode` (20), `SaveSettings` (9), `SavedGameSelectHandler` (7). It imports 371 functions, the most of any subsystem, 175 of them from presentation, then platform 76, network 25, units 23 and map 20.
+**game** (160 functions). Phase root `StepAllGafSequences`. Start-up, load, save and shutdown code, and the main loop: `MainLoopTick`, `RunGameSteps` (which calls every phase root), `UpdateFramePacing`, `BattleFrame`, `EndGameFrame`, `MainFrameTick`, `RunEndGameState` and `UpdateBattleRoom` (the last two pump `HandleNetPackets`) are set to game by `override`, because what drives the step is not presentation. 92 functions are called from outside, by platform (67 distinct functions) and presentation (24); the busiest are `SetCursorMode` (19), `SaveSettings` (9), `SavedGameSelectHandler` (7). It imports 444 functions, the most of any subsystem, 215 of them from presentation, then platform 88, network 32, units 24 and map 22.
 
 **harness** (58 functions). The test harness of #3 (`src/harness`). No phase root. 10 functions are called from outside; the busiest are `HarnessViewRand` (20), `HarnessTestMode` (4), `HarnessCrtSeed` (2). It imports 11 functions (presentation 5, map 3). The sim calls it too: weapons imports `HarnessPoseObject` and `HarnessTestMode`.
 
-**presentation** (1545 functions). Rendering, UI and sound (`src/graphics`, `src/gui`, `src/frontend`, `src/ingame`, `src/sound`), except what a phase walk reaches. No phase root, although `RunGameSteps` is in this folder. 254 functions are called from outside, mostly by game (175 distinct functions); the busiest are `QueueUnitSpeech` (27), `GetTicks` (21), `GetDisplay` (16). It imports 261 functions: platform 77, network 70, game 26, map 25, players 16. The reverse direction is the one to remove: 53 imports from presentation in the nine module subsystems, the largest in los_radar (18), weapons (16) and features (9).
+**presentation** (1514 functions). Rendering, UI and sound (`src/graphics`, `src/gui`, `src/frontend`, `src/ingame`, `src/sound`), except what a phase walk reaches, the main loop and frame handlers (game), and the timer, window and environment code of `src/graphics/display.cpp` (platform). No phase root, and none of its functions calls one (a test checks this). 310 functions are called from outside, mostly by game (215 distinct functions); the busiest are `QueueUnitSpeech` (27), `PlaySoundByName` (18), `GetDisplay` (17). It imports 247 functions: platform 85, network 65, game 24, map 24, players 14. The reverse direction is the one to remove: 53 imports from presentation in the nine module subsystems, the largest in los_radar (18), weapons (16) and features (9).
 
-**platform** (814 functions). Devices, files, memory, the TDF and `HapiBank` readers, the console and the C library. No phase root. 163 functions are called from outside, by presentation (77 distinct functions), game (76), units (54) and map (36); the busiest are `operator new` (138), `GameFreeThunk` (135), `operator delete` (104), then `Translate` and `RandomInt` (60). It imports 112 functions, 67 of them from game.
+**platform** (838 functions). Devices, files, memory, the TDF and `HapiBank` readers, the console and the C library, and the timers (`GetTicks`, `GetMilliseconds`), window and environment code of `src/graphics/display.cpp` (24 functions, set by `override`). No phase root. 178 functions are called from outside, by game (88 distinct functions), presentation (85), units (56) and map (36); the busiest are `operator new` (138), `GameFreeThunk` (134), `operator delete` (104), then `Translate` (84) and `RandomInt` (60). It imports 138 functions: game 67, presentation 44.
 
 ## Notes from the data
 
@@ -506,4 +506,4 @@ Limits of the data:
 - Shared value types (`Vec3`, `Point`, `Fixed`) and unrelated structs with one name (`Grid`, `Pos`) give every subsystem that touches them a row. They are left out of the named lists but still counted in the totals.
 - Calls through a function pointer or a virtual method appear only where `data/hazard_edges.csv` resolves them by hand.
 - Destructors are missing from the call data until #133, so the cleanup calls of a subsystem are undercounted.
-- A function in a mixed folder (`src/game`, `src/map`) is assigned by file, then by phase walk, then by name. The overrides in `data/subsystems.csv` (41) fix the known misses; a wrong assignment shows as a surprising coupling above.
+- A function in a mixed folder (`src/game`, `src/map`) is assigned by file, then by phase walk, then by name. The overrides in `data/subsystems.csv` (72) fix the known misses; a wrong assignment shows as a surprising coupling above.

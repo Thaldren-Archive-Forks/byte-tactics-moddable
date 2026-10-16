@@ -245,6 +245,12 @@ class DataTest(unittest.TestCase):
                if r["subsystem"] == "presentation" and r["function"] in reached and not r["override"]]
         self.assertEqual(bad, [])
 
+    def test_no_phase_root_is_called_from_presentation(self):
+        shown = [r["target"] for r in self.coupling
+                 if r["from"] == "presentation" and r["kind"] in ("call", "indirect")
+                 and r["target"] in hazards.ROOTS]
+        self.assertEqual(shown, [])
+
     def test_the_phase_roots_are_in_their_subsystems(self):
         want = dict(cp.PHASE_SUBSYSTEMS, HandleNetPackets="network")
         got = {}
