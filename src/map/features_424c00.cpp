@@ -68,7 +68,11 @@ struct Model3D_00424c00 {
 extern Game* g_game;
 typedef std::vector<TdfFile*> FeatureList;
 // File-scope static, as in 0x4223e0.
+#ifdef __clang__
+static FeatureList* volatile s_featureTdfParsers;
+#else
 static FeatureList* s_featureTdfParsers;
+#endif
 
 void __stdcall LoadFeatureFileList();
 unsigned short __stdcall LoadFeatureType(char* name);
