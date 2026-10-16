@@ -173,7 +173,11 @@ def scenario_ticks(scenario: Path) -> int:
 
 
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict[str, str], list[tuple[int, str]], float]:
-    """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken."""
+    """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken.
+
+    A run whose exe crashes (a nonzero exit) is tried once more, since an exe fault at startup
+    was seen in 1 of 300 runs; a run that is still going at the timeout is a hang and fails at once.
+    """
     ticks = scenario_ticks(scenario)
     timeout = RUN_SECONDS_BASE + ticks / RUN_TICKS_PER_SECOND
     t0 = time.time()
@@ -182,7 +186,7 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict
             run = tracediff.play(exe, scenario, game_dir, None, timeout)
             break
         except tracediff.Error as e:
-            if attempt == RUN_ATTEMPTS - 1:
+            if attempt == RUN_ATTEMPTS - 1 or "still runs after" in str(e):
                 raise
             print(f"{scenario.stem}: run failed, trying again: {last_lines(e)}", flush=True)
     elapsed = time.time() - t0
