@@ -58,8 +58,9 @@ double-store, ftol or fistp), class, disposition. Sorted by address and offset.
 
 Disposition: `rewritten` for a float-chain site whose C source now states the
 precision x87 used (REWRITTEN, the site's class then reads `safe`, and the
-function still matches), `5` for a float-chain site left for the modern build
-of #5 to reproduce, `n/a` for a safe site.
+function still matches), `modern` for a float-chain site whose chain the source
+states only under `#ifdef __clang__` (the MSVC 5 source is unchanged), `n/a`
+for a safe site.
 """
 
 import argparse
@@ -108,6 +109,11 @@ REWRITTEN = {
     (0x43d290, 0x1af),
     (0x468cf0, 0x41e),
     (0x468cf0, 0x49e),
+    (0x408100, 0x171),
+    (0x408100, 0x292),
+    (0x408100, 0x3a8),
+    (0x468cf0, 0x702),
+    (0x468cf0, 0x782),
 }
 FLOAT_FORMAT = re.compile(r"%[-+ #0]*(?:\d+|\*)?(?:\.(?:\d+|\*))?[lL]?[feEgG]")
 
@@ -491,8 +497,10 @@ def main() -> None:
                 if (address, off - lo) in REWRITTEN:
                     cls = "safe"
                     disposition = "rewritten"
+                elif cls == "float-chain":
+                    disposition = "modern"
                 else:
-                    disposition = "5" if cls == "float-chain" else "n/a"
+                    disposition = "n/a"
                 functions_with_sites.add(address)
                 chain = root.text if len(root.text) <= MAX_CHAIN else root.text[:MAX_CHAIN - 3] + "..."
                 rows.append({"address": f"{address:#x}", "function": fname, "file": f,
