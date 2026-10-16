@@ -129,3 +129,4 @@ jobs:
         run: |
           uv run tools/test_stateclasses.py
           uv run tools/stateclasses.py --check --build-dir build/modern
+          uv run tools/stateclasses.py --unclassified

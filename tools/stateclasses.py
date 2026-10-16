@@ -35,7 +35,12 @@ Rows (kind), one per item, sorted by kind, then address, then name:
                to, else the `sizeof` operand, else the first string literal (the tag). A
                site whose result is returned is a wrapper and not a row, its callers are.
                Game logic is a function of data/game_logic.csv or one the walk below
-               reaches from a phase root or a load root.
+               reaches from a phase root or a load root. A site elsewhere (the lobby and
+               the frame handlers reach UnitSync, its map nodes and the packet manager
+               only that way) is a row too when it allocates a record whose fields a
+               function of the walk reads or writes, and it is outside src/debug/ and
+               src/harness/. A raw byte buffer is not such a record, so InitPacketManager's
+               0x42a-byte `operator new` is no row.
 
 Columns:
 
@@ -139,6 +144,23 @@ The regions are the layout of include/ta_types.h, from a probe file that include
 a nested path (`g_game->players[i].hp`) are `Player::hp` in rwsets.csv, which is why
 a region of structs takes the fields of the type.
 
+A view field wider than one real field (a view that declares one array over the unknown bytes
+after a field: settings.cpp's `password` is 71 KB) is attributed only what the access touches.
+A subscript with a literal index of a primitive array is that one element. Any other subscript
+is the whole array if it is at most OVERLAY_BYTES (64) long, else its first byte, because
+the AST cannot tell which element a computed index reaches. Passing the array to a call or taking its
+address names its start, as before. Only a file whose `g_game` is declared as a pointer to
+its own `struct Game` counts: font.cpp declares a `struct Game` for the object `GetDisplay()`
+returns and has no `g_game`, so its `Game::` accesses name no region.
+
+Sub-objects. A row of data/globals.csv whose `defined` column says `in X+off` lies inside
+another global. It has the accesses that name it and nothing of X: the parent's
+accesses, by name or through its type, are never copied to it. A global whose address is
+only compared with something (`while (p < (int)g_serialPortNumber)`, the end of a
+table the loop walks) is not accessed by it: that escape is dropped. `DAT_00000000`, which
+the source names for a read of absolute address 0 (UnitSync::ProcessSync reads it in the
+`direct != 0` branch, a null address in the shipped exe too), is no variable and no row.
+
 Limits. Inline assembly is not looked into (an `asm` function may touch more). A call
 through a function pointer or a virtual method only follows the edges of
 data/hazard_edges.csv. A callee's writes through a pointer argument are not looked into.
@@ -194,9 +216,10 @@ SIM_IN_PRESENTATION_DIRS = ["StepGafSequence"]
 PLATFORM_TYPE = re.compile(r"\b(HWND|HDC|HANDLE|HINSTANCE|HMODULE|HBITMAP|HPALETTE|HFONT|HICON|HCURSOR|HKEY|"
                            r"HGLOBAL|FILE|_?GUID|CRITICAL_SECTION|CritSec_\w+|LoadedImage|IDirect\w+|"
                            r"LPDIRECT\w+|DDSURFACEDESC\w*|DSBUFFERDESC\w*|WNDCLASS\w*|Surface|DirectDraw\w*)\b")
-PLATFORM_NAME = re.compile(r"(^|_)(hwnd|hinst|handle|module|window|dialog|device|process|dll|pfn|gdperf|psapi|"
-                           r"dplay|ddraw|dsound|guid|iid|clsid|dpaid|dplproperty)(_|$)|direct_?(x|sound|draw|play)|"
-                           r"windows_sound|blit_lock|lzss_lock|screen_lock|squash_thread|image_help")
+PLATFORM_NAME = re.compile(r"(^|_)(hwnd|hinst|handle|module|device|process|dll|pfn|gdperf|psapi|"
+                           r"dplay|ddraw|dsound|guid|iid|clsid|dpaid|dplproperty)(_|$)|direct_(sound|draw|play)|"
+                           r"windows_sound|window_(class|name)|blit_lock|lzss_lock|screen_lock|squash_thread|"
+                           r"image_help")
 PLATFORM_ALLOCATORS = {"VirtualAlloc"}
 ALLOCATORS = (set(hazards.ALLOCATORS) | {"calloc", "GameAllocIgnoreTag", "GameAllocShared", "GameAllocThunk",
                                          "VirtualAlloc"})
@@ -308,15 +331,84 @@ def by_value_name(t: dict) -> str:
     return record_name(t)
 
 
+ELEMENT_SIZES = {"char": 1, "unsigned char": 1, "signed char": 1, "short": 2, "unsigned short": 2, "int": 4,
+                 "unsigned int": 4, "long": 4, "unsigned long": 4, "float": 4}
+OVERLAY_BYTES = 64
+COMPARISONS = {"<", ">", "<=", ">=", "==", "!="}
+
+
+def peel(node: dict) -> dict:
+    """The node under casts and parentheses."""
+    while node["kind"] in ("ImplicitCastExpr", "CStyleCastExpr", "ParenExpr") and node.get("inner"):
+        node = node["inner"][0]
+    return node
+
+
+def constant_index(node: dict) -> int | None:
+    """The value of an integer literal index, else None."""
+    node = peel(node)
+    if node["kind"] == "IntegerLiteral":
+        return int(node["value"])
+    return None
+
+
 class RegionWalker(Walker):
-    """The rwsets walker, recording `Game::name` accesses as the byte range of the member in this file's view."""
+    """The rwsets walker, recording `Game::name` accesses as the byte range they touch in this file's view.
+
+    A plain access of a member is the member's whole range. A subscript of an array member
+    is the one element when the index is a literal and the element a primitive. Any other
+    index is the whole array if it is at most OVERLAY_BYTES long, else its first byte: a view
+    often declares one big array over the unknown bytes after a field, and the access cannot
+    be told from a loop or a computed offset. Taking the address or passing the array to a
+    call names its start in the same way.
+    """
+
+    hint: tuple[str, int, int] | None = None
 
     def record(self, kind: str, target: str) -> None:
         if kind.startswith("field_") and target.startswith("Game::"):
-            span = self.unit.view.get(target[len("Game::"):])
+            name = target[len("Game::"):]
+            span = self.unit.view.get(name)
             if span:
-                kind, target = "region_" + kind[len("field_"):], "%d-%d" % span
+                low, high = span
+                if self.hint and self.hint[0] == name:
+                    low, high = min(high, low + self.hint[1]), min(high, low + self.hint[2])
+                kind, target = "region_" + kind[len("field_"):], "%d-%d" % (low, high)
         super().record(kind, target)
+
+    def lvalue(self, node: dict, mode: str, path: bool = False) -> None:
+        if node["kind"] == "ArraySubscriptExpr" and not path:
+            base, index = node["inner"]
+            member = strip(base)
+            if base["kind"] == "ImplicitCastExpr" and member["kind"] == "MemberExpr" and member.get("inner") and \
+                    record_name(member["inner"][0]["type"]) == "Game":
+                size = ELEMENT_SIZES.get(type_text(node["type"]).replace("const ", "").strip())
+                value = constant_index(index)
+                span = self.unit.view.get(member.get("name") or "", (0, 0))
+                if size and value is not None and value >= 0:
+                    low, high = value * size, (value + 1) * size
+                elif span[1] - span[0] <= OVERLAY_BYTES:
+                    low, high = 0, span[1] - span[0]
+                else:
+                    low, high = 0, 1
+                self.visit(index, "R")
+                self.hint = (member.get("name") or "", low, high)
+                try:
+                    self.lvalue(member, mode)
+                finally:
+                    self.hint = None
+                return
+        super().lvalue(node, mode, path)
+
+    def visit(self, node: dict, mode: str = "R") -> None:
+        if node.get("kind") == "BinaryOperator" and node["opcode"] in COMPARISONS:
+            for child in node["inner"]:
+                target = peel(child)
+                if target["kind"] == "DeclRefExpr" and target["referencedDecl"]["kind"] == "VarDecl" and \
+                        target["referencedDecl"]["id"] not in self.locals:
+                    name = self.unit.statics.get(target["referencedDecl"]["id"], target["referencedDecl"]["name"])
+                    self.record("bound_global", name)
+        super().visit(node, mode)
 
 
 def call_name(node: dict) -> str | None:
@@ -418,10 +510,13 @@ class StateAnalyzer(Analyzer):
         self.view: dict[str, tuple[int, int]] = {}
         self.fields: dict[str, dict[str, str]] = defaultdict(dict)
         self.static_types: dict[str, str] = {}
+        self.game_var = ""
 
     def declare(self, node: dict, owner: str | None) -> None:
         super().declare(node, owner)
         kind = node["kind"]
+        if kind == "VarDecl" and node.get("name") == "g_game":
+            self.game_var = node["type"].get("qualType", "")
         if kind == "VarDecl" and node["id"] in self.statics:
             self.static_types[self.statics[node["id"]]] = node["type"].get("qualType", "")
         elif kind == "CXXRecordDecl" and node.get("name") and node.get("completeDefinition"):
@@ -442,6 +537,7 @@ class StateAnalyzer(Analyzer):
             return
         fn = self.functions[-1]
         fn["regions"] = [item for item in fn["items"] if item[0].startswith("region_")]
+        fn["bounds"] = [item[1] for item in fn["items"] if item[0] == "bound_global"]
         fn["statics"] = function_statics(node, name)
         fn["allocs"] = allocations(node, name)
 
@@ -469,8 +565,13 @@ def scan(job: tuple[Path, list[str], str]) -> dict:
         position = (tracker.file, tracker.line)
         unit.declare(node, None)
     unit.assign_markers()
-    functions = [{key: fn[key] for key in ("address", "function", "file", "start", "regions", "statics", "allocs")}
+    owns_game = unit.game_var.replace("*", "").replace("const", "").strip() == "Game" and "*" in unit.game_var
+    functions = [{key: fn[key] for key in ("address", "function", "file", "start", "regions", "bounds", "statics",
+                                           "allocs")}
                  for fn in unit.functions]
+    if not owns_game:
+        for fn in functions:
+            fn["regions"] = []
     return {"functions": functions, "fields": dict(unit.fields), "static_types": unit.static_types}
 
 
@@ -687,22 +788,29 @@ def make_row(kind: str, name: str, address: str, ev: Evidence, platform: str | N
 class Items:
     """The accesses of every global, static and field in data/rwsets.csv, joined to the rows of data/globals.csv."""
 
-    def __init__(self, rows: list[list[str]], globals_rows: list[dict]):
+    def __init__(self, rows: list[list[str]], globals_rows: list[dict], bounds: set | frozenset = frozenset()):
         self.by_name = {g["name"]: g for g in globals_rows}
         self.by_address = {int(g["address"], 16): g for g in globals_rows}
         self.access: dict[tuple, Access] = defaultdict(Access)
         for _, function, _, kind, target in rows:
             category, _, mode = kind.partition("_")
             if category == "global" and mode:
-                self.access[self.join(target)].add(function, mode)
+                key = self.join(target)
+                if key and not (mode == "escape" and (function, target) in bounds):
+                    self.access[key].add(function, mode)
             elif category == "field" and mode and not target.startswith("Game::"):
                 self.access[("field", target)].add(function, mode)
 
-    def join(self, target: str) -> tuple:
-        """The key of the row a global target belongs to: ("global", name) or ("static", target)."""
+    def join(self, target: str) -> tuple | None:
+        """The key of the row a global target belongs to: ("global", name) or ("static", target).
+
+        None for `DAT_00000000`, which is no variable: a read of absolute address 0.
+        """
         if target in self.by_name:
             return ("global", target)
         m = re.fullmatch(r"DAT_([0-9a-f]{8})", target)
+        if m and int(m.group(1), 16) == 0:
+            return None
         if m and int(m.group(1), 16) in self.by_address:
             return ("global", self.by_address[int(m.group(1), 16)]["name"])
         return ("static", target)
@@ -733,7 +841,6 @@ def rows_of(rwsets_rows: list[list[str]], graph: hazards.Graph, globals_rows: li
             regions: list[dict], logic_addresses: set[str]) -> list[dict]:
     """Every row of data/state_classes.csv (class and note empty), sorted."""
     walks = Walks(rwsets_rows, graph)
-    items = Items(rwsets_rows, globals_rows)
     fields: dict[str, dict[str, str]] = defaultdict(dict)
     static_types: dict[str, str] = {}
     functions: dict[tuple, dict] = {}
@@ -744,6 +851,8 @@ def rows_of(rwsets_rows: list[list[str]], graph: hazards.Graph, globals_rows: li
         static_types.update(scan_result["static_types"])
         for fn in scan_result["functions"]:
             functions.setdefault((fn["function"], fn["file"], fn["start"]), fn)
+    bounds = {(fn["function"], name) for fn in functions.values() for name in fn.get("bounds", ())}
+    items = Items(rwsets_rows, globals_rows, bounds)
     for fn in functions.values():
         for kind, target in fn["regions"]:
             start, end = map(int, target.split("-"))
@@ -776,11 +885,15 @@ def rows_of(rwsets_rows: list[list[str]], graph: hazards.Graph, globals_rows: li
     for region in regions:
         add("game-region", region["name"], "0x%x" % region["start"], region_access(region, spans), region["type"],
             unknown=bool(UNKNOWN_RANGE.match(region["name"])))
+    sim_types = {target.split("::")[0] for _, function, _, kind, target in rwsets_rows
+                 if kind.startswith("field_") and "::" in target and function in walks.sim}
     sites = []
     for fn in functions.values():
         address = walks.addresses.get(fn["function"], fn["address"])
-        if fn["function"] in walks.sim or address in logic_addresses:
-            for allocator, what, line in fn["allocs"]:
+        in_logic = fn["function"] in walks.sim or address in logic_addresses
+        for allocator, what, line in fn["allocs"]:
+            reached = what in sim_types and what not in PRIMITIVES and not fn["file"].startswith(NON_GAME_DIRS)
+            if in_logic or reached:
                 sites.append((fn["function"], address, fn["file"], line, allocator, what))
     count: dict[str, int] = defaultdict(int)
     ordered = sorted(set(sites), key=lambda s: (s[2], s[3], s[4], s[5], s[0]))

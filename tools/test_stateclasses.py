@@ -35,7 +35,7 @@ LAYOUT = """*** Dumping AST Record Layout
 
 SOURCE = """struct Settings { int speed; int volume; };
 struct Unit { int hp; Settings settings; Unit* next; int pad[2]; };
-struct Game { char unknown_0[4]; int tick; int more; };
+struct Game { char unknown_0[4]; int tick; int more; char blob[100]; char small[4]; };
 extern "C" { void* malloc(unsigned); void* calloc(unsigned, unsigned); }
 void* operator new(unsigned, void* where) { return where; }
 void* GameAllocIgnoreTag(char* name, unsigned int size);
@@ -53,6 +53,13 @@ void Tag() { char* b = (char*)malloc(32); (void)b; }
 char* Wrapper(unsigned n) { return (char*)malloc(n); }
 void Placement(void* where) { Unit* u = new (where) Unit; (void)u; }
 void Zeroed() { void* z = calloc(1, 8); (void)z; }
+void LiteralIndex() { g_game->blob[3] = 1; }
+int LiteralRead() { return g_game->blob[5]; }
+void VariableIndex(int i) { g_game->blob[i] = 1; }
+int SmallVariable(int i) { return g_game->small[i]; }
+void WholeArray() { char* p = g_game->blob; (void)p; }
+char g_end[4];
+long Bound() { char* p = 0; return (long)p < (long)g_end; }
 """
 
 
@@ -122,6 +129,16 @@ class ScanTest(unittest.TestCase):
         self.assertEqual(sorted(self.by_name["BumpMore"]["regions"]),
                          [("region_read", "8-12"), ("region_write", "8-12")])
 
+    def test_a_literal_index_is_one_element_and_any_other_index_the_start_of_the_array(self):
+        self.assertEqual(self.by_name["LiteralIndex"]["regions"], [("region_write", "15-16")])
+        self.assertEqual(self.by_name["LiteralRead"]["regions"], [("region_read", "17-18")])
+        self.assertEqual(self.by_name["VariableIndex"]["regions"], [("region_write", "12-13")])
+        self.assertEqual(self.by_name["SmallVariable"]["regions"], [("region_read", "112-116")])
+        self.assertEqual(self.by_name["WholeArray"]["regions"], [("region_escape", "12-112")])
+
+    def test_a_global_compared_as_an_address_is_a_bound(self):
+        self.assertEqual(self.by_name["Bound"]["bounds"], ["g_end"])
+
     def test_function_statics_are_named_with_their_function(self):
         self.assertEqual(self.by_name["Count"]["statics"], [("kLimit@Count", "const int"), ("calls@Count", "int")])
 
@@ -145,6 +162,14 @@ class ScanTest(unittest.TestCase):
 
     def test_calloc_is_a_site(self):
         self.assertEqual([a for a, w, _ in self.by_name["Zeroed"]["allocs"]], ["calloc"])
+
+
+class OwnGameTest(unittest.TestCase):
+    def test_a_file_whose_game_is_not_the_type_of_g_game_has_no_regions(self):
+        font = functions("struct Game { int tick; };\nGame* GetDisplay();\nint F() { return GetDisplay()->tick; }\n")
+        self.assertEqual(font["functions"][0]["regions"], [])
+        game = functions("struct Game { int tick; };\nextern Game* g_game;\nint F() { return g_game->tick; }\n")
+        self.assertEqual(game["functions"][0]["regions"], [("region_read", "0-4")])
 
 
 def ev(**kw):
@@ -225,12 +250,15 @@ class RuleTest(unittest.TestCase):
     def test_platform_reasons(self):
         self.assertEqual(sc.platform_reason("g_x", "HWND"), "type HWND")
         self.assertEqual(sc.platform_reason("lock@GetAllocLock", "CritSec_004da780"), "type CritSec_004da780")
-        self.assertEqual(sc.platform_reason("g_cdPlayerWindow", "int"), "name matches window")
+        self.assertEqual(sc.platform_reason("g_windowClassName", "int"), "name matches window_class")
         self.assertEqual(sc.platform_reason("IID_IDirectDraw", ""), "name matches iid")
         self.assertEqual(sc.platform_reason("Foo: VirtualAlloc ?", "?", "VirtualAlloc"), "allocator VirtualAlloc")
         self.assertIsNone(sc.platform_reason("g_unitCount", "int"))
         self.assertIsNone(sc.platform_reason("g_cdPlayer", "int"))
         self.assertIsNone(sc.platform_reason("g_modemCount", "int"))
+        for ui in ("g_directXCheckDone", "g_cdPlayerDialogShown", "g_helpDialogBaseGadgetCount",
+                   "g_shareDialogPlayerNetIds", "g_lzssPresetWindow"):
+            self.assertIsNone(sc.platform_reason(ui, "int"), ui)
         self.assertEqual(sc.platform_reason("g_pfnStackWalk", "int"), "name matches pfn")
         self.assertEqual(sc.platform_reason("g_noDirectSound", "int"), "name matches direct_sound")
 
@@ -332,6 +360,34 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(rows[1]["address"], "0x401000")
         self.assertEqual((rows[1]["load_write"], rows[1]["presentation"], rows[1]["proposed"]), ("yes", "w", "mixed"))
         self.assertEqual(rows[0]["proposed"], "sim")
+
+    def test_a_heap_site_of_a_type_the_walk_uses_is_a_row_wherever_it_is(self):
+        def site(function, file, what):
+            return {"function": function, "file": file, "start": 1, "address": "", "regions": [], "statics": [],
+                    "allocs": [("new", what, 3)]}
+        scan = {"functions": [site("Draw", "src/Draw.cpp", "Unit"), site("Draw", "src/Draw.cpp", "Sprite"),
+                              site("Draw", "src/debug/Draw.cpp", "Unit")],
+                "fields": {}, "static_types": {}}
+        rows = [r["name"] for r in self.build([scan]) if r["kind"] == "heap"]
+        self.assertEqual(rows, ["Draw: new Unit"])
+
+    def test_the_null_address_is_no_static_row(self):
+        items = sc.Items([["", "F", "f.cpp", "global_read", "DAT_00000000"]], self.GLOBALS)
+        self.assertIsNone(items.join("DAT_00000000"))
+        self.assertEqual(dict(items.access), {})
+
+    def test_a_global_compared_as_a_bound_is_not_an_escape(self):
+        rows = [["", "F", "f.cpp", "global_escape", "g_count"], ["", "G", "g.cpp", "global_escape", "g_count"]]
+        items = sc.Items(rows, self.GLOBALS, {("F", "g_count")})
+        self.assertEqual(items.access[("global", "g_count")].reads, {"G"})
+
+    def test_a_global_inside_another_has_only_the_accesses_that_name_it(self):
+        globals_rows = self.GLOBALS + [{"name": "g_inner", "address": "0x500004", "type": "int", "defined": "in g_count+0x4"}]
+        rows = self.rows() + [["", "UpdateAllUnits", "src/UpdateAllUnits.cpp", "global_write", "g_count"]]
+        built = sc.rows_of(rows, hazards.Graph(rows), globals_rows, [{"functions": [], "fields": {},
+                                                                      "static_types": {}}], [], set())
+        inner = self.by(built, "global", "g_inner")
+        self.assertEqual((inner["writers"], inner["readers"], inner["proposed"]), ("", "", ""))
 
     def test_a_function_static_is_a_row_with_its_function_address(self):
         scan = {"functions": [{"function": "Init", "file": "src/Init.cpp", "start": 1, "address": "0x401000",
