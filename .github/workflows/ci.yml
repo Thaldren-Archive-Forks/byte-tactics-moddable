@@ -122,3 +122,4 @@ jobs:
         run: |
           uv run tools/test_hazards.py
           uv run tools/hazards.py --check --build-dir build/modern
+          uv run tools/hazards.py --unchecked
