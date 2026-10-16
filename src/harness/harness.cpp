@@ -699,8 +699,11 @@ enum {
     PIECE_COUNT = 300,
     EXPLODED_SLOTS = 100,
     CELL_STRIDE = 13,
+    CELL_FEATURE = 8,
+    CELL_SPOT = 10,
     CELL_FLAGS = 12,
     CELL_FLAGS_DRAW_MARK = 4,
+    CELL_FLAGS_UNUSED = 0x80,
     CELL_LIMIT = 1 << 22,
     REC_STRIDE = 10,
     REC_LIMIT = 1 << 20,
@@ -1256,8 +1259,13 @@ static void VisitMapCells()
         if (copy == NULL)
             Fail("testmode: out of memory hashing the map cells\n");
         memcpy(copy, cells, (size_t)CELL_STRIDE * n);
-        for (unsigned i = 0; i < n; i++)
-            copy[i * CELL_STRIDE + CELL_FLAGS] &= (unsigned char)~CELL_FLAGS_DRAW_MARK;
+        for (unsigned i = 0; i < n; i++) {
+            unsigned char* c = copy + i * CELL_STRIDE;
+            unsigned feature = c[CELL_FEATURE] | (c[CELL_FEATURE + 1] << 8);
+            c[CELL_FLAGS] &= (unsigned char)~(CELL_FLAGS_DRAW_MARK | CELL_FLAGS_UNUSED);
+            if (feature >= 0xfffb && feature != 0xfffe)
+                c[CELL_SPOT] = c[CELL_SPOT + 1] = 0;
+        }
         VisitBlob("cells", 0, copy, CELL_STRIDE, n);
         free(copy);
     }
