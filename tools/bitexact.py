@@ -37,7 +37,7 @@ BUILD = ROOT / "build/bitexact"
 ORIGINAL = ROOT / "src/util/math_4b70a0.cpp"
 TABLES = BUILD / "bx_tables.c"
 ORIG_DATA = BUILD / "orig_data.c"
-PORT_SOURCES = [LIB / "trig.c", LIB / "math.c", TABLES, ORIG_DATA]
+PORT_SOURCES = [LIB / "trig.c", LIB / "math.c", LIB / "strtof.c", TABLES, ORIG_DATA]
 MATH_TEST = LIB / "test/math_test.c"
 TEST = LIB / "test/bitexact_test.c"
 VECTORS_SOURCE = LIB / "test/vectors.c"
@@ -87,6 +87,12 @@ def generate_and_check() -> bool:
     if struct.pack("<dd", rad_to_angle16, angle16_to_rad) != exe_doubles:
         print("tables: generated doubles differ from orig/TotalA.exe", file=sys.stderr)
         ok = False
+    for name, negative, base in (("positive", False, bitexact_tables.POW10_POS),
+                                 ("negative", True, bitexact_tables.POW10_NEG)):
+        size = 12 * bitexact_tables.POW10_ENTRIES
+        if bitexact_tables.pow10_table(negative) != orig.read(base, size):
+            print(f"tables: generated {name} powers of ten differ from orig/TotalA.exe", file=sys.stderr)
+            ok = False
     if not ok:
         return False
     exe_rad, exe_rad2 = struct.unpack("<dd", exe_doubles)
@@ -97,7 +103,7 @@ def generate_and_check() -> bool:
         f"unsigned short g_cosTable[512] = {{{words(exe_cos)}}};\n"
         f"double g_radToAngle16 = {exe_rad:.17g};\n"
         f"double g_angle16ToRad = {exe_rad2:.17g};\n")
-    print("tables: generated sine table and doubles match orig/TotalA.exe")
+    print("tables: generated sine table, doubles and powers of ten match orig/TotalA.exe")
     return True
 
 
