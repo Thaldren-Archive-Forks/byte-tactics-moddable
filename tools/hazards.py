@@ -345,10 +345,20 @@ class LineWalker(Walker):
         unit.last_walker = self
 
     def call(self, node: dict) -> None:
+        self.located(node, super().call)
+
+    def visit(self, node: dict, mode: str = "R") -> None:
+        if node.get("kind") in ("CXXDeleteExpr", "CXXBindTemporaryExpr"):
+            self.located(node, lambda n: super(LineWalker, self).visit(n, mode))
+        else:
+            super().visit(node, mode)
+
+    def located(self, node: dict, walk) -> None:
+        """Walk a node with the line and id of the expression that runs a call."""
         saved = self.line, self.node
         self.line, self.node = node.get("_line", 0), node.get("id", "")
         try:
-            super().call(node)
+            walk(node)
         finally:
             self.line, self.node = saved
 

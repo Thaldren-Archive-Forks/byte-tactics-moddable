@@ -63,6 +63,12 @@ int ReadShared() { return g_shared; }
 
 void Inline() { __asm { nop } }
 void Indirect(int x) { g_hook(x); }
+
+struct Base { virtual ~Base(); int v; };
+struct Guard { ~Guard(); };
+Guard MakeGuard();
+void DeleteVirtual(Base* b) { delete b; }
+void TemporaryGuard() { MakeGuard(); }
 """
 
 
@@ -150,6 +156,14 @@ class HazardsTest(unittest.TestCase):
         self.assertEqual(self.events("Inline"), [("asm", "inline")])
         self.assertEqual([k for k, t in self.events("Indirect")], ["indirect_call"])
         self.assertTrue(self.events("Indirect")[0][1].startswith("indirect via"))
+
+    def test_destructor_calls_carry_the_line(self):
+        self.assertEqual(self.events("DeleteVirtual", "indirect_call"), [("indirect_call", "virtual Base::~Base")])
+        lines = SOURCE.splitlines()
+        for name in ("DeleteVirtual", "TemporaryGuard"):
+            for kind, target, line in self.by_name[name]["events"]:
+                self.assertIn(name, lines[line - 1])
+        self.assertTrue(self.by_name["DeleteVirtual"]["events"])
 
     def test_events_carry_the_line(self):
         lines = SOURCE.splitlines()
