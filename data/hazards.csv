@@ -4,13 +4,23 @@ address,function,file,line,kind,target,verdict,note
 0x401e00,AttackUTypeOrder,src/orders/unit_orders.cpp,1950,ptr_compare,<= Unit*,,
 0x404db0,ResurrectOrder,src/orders/unit_orders_404db0.cpp,229,ptr_compare,- Cell*,,
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,22,ptr_compare,<= Unit*,,
+0x406db0,CmdWeight,src/ai/ai_player.cpp,713,thread_global,g_aiCommandsEnabled <- LoadThreadMain,,
+0x406e40,CmdLimit,src/ai/ai_player.cpp,732,thread_global,g_aiCommandsEnabled <- LoadThreadMain,,
 0x408830,SquadManager::AssignSquads,src/ai/ai_player.cpp,1212,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
+0x409dc0,ScaleUnitWeights,src/ai/ai_player.cpp,1478,ptr_to_int,Elem_0040d550 * -> int,,
+0x409dc0,ScaleUnitWeights,src/ai/ai_player.cpp,1481,ptr_to_int,Elem_0040d550 * -> int,,
+0x409dc0,ScaleUnitWeights,src/ai/ai_player.cpp,1471,thread_global,g_playerAI <- LoadThreadMain,,
+0x409e90,SetUnitLimits,src/ai/ai_player.cpp,1488,thread_global,g_playerAI <- LoadThreadMain,,
+0x409f80,ParseDownloadableAiWeightScripts,src/ai/ai_player.cpp,1517,thread_global,g_playerAI <- LoadThreadMain,,
+0x40a040,ReparseAiWeightScriptsIfLimitNotSticky,src/ai/ai_player.cpp,1537,thread_global,g_playerAI <- LoadThreadMain,,
+0x40a100,ResetAIPlayers,src/ai/ai_player.cpp,1559,thread_global,g_playerAI <- LoadThreadMain,,
 0x40aa40,PlayerAI::RefreshUnitLists,src/ai/player_ai.cpp,106,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
 0x40ad80,GetVisibleEnemiesInRadius,src/ai/ai_player.cpp,1718,thread_global,g_playerAI <- LoadThreadMain,,
 0x40b0d0,HasReadyUnitInRange,src/ai/ai_player.cpp,1743,thread_global,g_playerAI <- LoadThreadMain,,
 0x40b2c0,UpdatePlayerAI,src/ai/ai_player.cpp,1771,thread_global,g_playerAI <- LoadThreadMain,,
 0x40b390,DestroyPlayerAI,src/ai/ai_player.cpp,1798,thread_global,g_playerAI <- LoadThreadMain,,
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,16,thread_global,g_playerAI <- LoadThreadMain,,
+0x40c250,DumpPlayerAI,src/ai/ai_player.cpp,1975,thread_global,g_playerAI <- LoadThreadMain,,
 0x40e630,Pathfinder::StartSearch,src/ai/pathfind.cpp,968,indirect_call,virtual Target::GetGoals,false_positive,"targets: ApproachRadius::AppendGoalCell, OrderFx::FillGoalCells, PointMarker::AppendGoalCell, RingApproach::AppendGoalCell (followed via data/hazard_edges.csv)"
 0x40e630,Pathfinder::StartSearch,src/ai/pathfind.cpp,983,indirect_call,virtual Target::IsGoal,false_positive,"targets: ApproachRadius::ContainsCell, OrderFx::ContainsCell, PointMarker::ContainsCell, RingApproach::ContainsCell (followed via data/hazard_edges.csv)"
 0x40e9c0,Pathfinder::AbortIfGoalMatch,src/ai/pathfind.cpp,1025,ptr_to_int,AiSearchGoal * -> int,,
@@ -79,9 +89,57 @@ address,function,file,line,kind,target,verdict,note
 0x415f40,CountPacket,src/network/net_stats.cpp,232,thread_global,g_packetBytesSent <- EnumPlayersCallback+LoadThreadMain,false_positive,"Network statistics counter: only reset (src/game/console_commands.cpp:1171-1182) and displayed, no reader decides anything; a lost update changes a number on screen."
 0x415f40,CountPacket,src/network/net_stats.cpp,232,thread_global,g_packetsReceived <- EnumPlayersCallback+LoadThreadMain,false_positive,"Network statistics counter: only reset (src/game/console_commands.cpp:1171-1182) and displayed, no reader decides anything; a lost update changes a number on screen."
 0x415f40,CountPacket,src/network/net_stats.cpp,232,thread_global,g_packetsSent <- EnumPlayersCallback+LoadThreadMain,false_positive,"Network statistics counter: only reset (src/game/console_commands.cpp:1171-1182) and displayed, no reader decides anything; a lost update changes a number on screen."
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_compressedBytesSent <- EnumPlayersCallback+LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_compressionPercent <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_lastCompressedBytesSent <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_lastMessageBytesReceived <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_lastMessageBytesSent <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_lastPacketBytesReceived <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_lastPacketBytesSent <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_lastPacketsReceived <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_lastPacketsSent <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_messageBytesReceived <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_messageBytesReceivedRate <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_messageBytesSent <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_messageBytesSentRate <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_netStatsTick <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetBytesReceived <- EnumPlayersCallback+LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetBytesReceivedRate <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetBytesSent <- EnumPlayersCallback+LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetBytesSentRate <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetsReceived <- EnumPlayersCallback+LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetsReceivedRate <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetsSent <- EnumPlayersCallback+LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,250,thread_global,g_packetsSentRate <- LoadThreadMain,,
+0x415fa0,FormatNetStats,src/network/net_stats.cpp,252,time_read,GetTicks,,
+0x416150,GetByteRates,src/network/net_stats.cpp,292,thread_global,g_byteRatesLastReceived <- LoadThreadMain,,
+0x416150,GetByteRates,src/network/net_stats.cpp,292,thread_global,g_byteRatesLastSent <- LoadThreadMain,,
+0x416150,GetByteRates,src/network/net_stats.cpp,292,thread_global,g_byteRatesTick <- LoadThreadMain,,
+0x416150,GetByteRates,src/network/net_stats.cpp,292,thread_global,g_bytesReceivedPerSecond <- LoadThreadMain,,
+0x416150,GetByteRates,src/network/net_stats.cpp,292,thread_global,g_bytesSentPerSecond <- LoadThreadMain,,
+0x416150,GetByteRates,src/network/net_stats.cpp,292,thread_global,g_packetBytesReceived <- EnumPlayersCallback+LoadThreadMain,,
+0x416150,GetByteRates,src/network/net_stats.cpp,292,thread_global,g_packetBytesSent <- EnumPlayersCallback+LoadThreadMain,,
+0x416150,GetByteRates,src/network/net_stats.cpp,294,time_read,GetTicks,,
+0x4161f0,FUN_004161f0,src/network/net_stats.cpp,311,thread_global,g_messageBytesByType <- EnumPlayersCallback+LoadThreadMain,,
+0x4161f0,FUN_004161f0,src/network/net_stats.cpp,311,thread_global,g_messageCountByType <- EnumPlayersCallback+LoadThreadMain,,
+0x416460,CmdSelectable,src/game/console_commands.cpp,630,ptr_compare,<= Unit*,,
+0x4172e0,CmdSing,src/game/console_commands.cpp,1060,thread_global,g_cmdSingEnabled <- LoadThreadMain,,
+0x417600,CmdMakePoster,src/game/console_commands.cpp,1224,time_read,GetTicks,,
+0x417a60,CmdDebugBreak,src/game/console_commands.cpp,1320,heap_uncleared,operator new,,
+0x417f30,DrawSelectedGoal,src/game/console_commands.cpp,1463,indirect_call,virtual Iface_00417f30::Method_28,,
+0x417f60,DrawTriangleContours,src/game/console_commands.cpp,1475,thread_global,g_contourOffset <- LoadThreadMain,,
+0x417f60,DrawTriangleContours,src/game/console_commands.cpp,1475,thread_global,g_contourSpacing <- LoadThreadMain,,
+0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,1567,thread_global,g_contourSpacing <- LoadThreadMain,,
+0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,1633,uninit,arrowColor (conditional-uninitialized),,
+0x419550,CmdSFX,src/game/share_commands.cpp,253,thread_global,g_fxEventPoolBlocked <- LoadThreadMain,,
 0x419be0,HandleOrderButtonClick,src/ingame/control_panel.cpp,690,uninit,e (conditional-uninitialized),,
 0x41a120,RefreshOrderButtons,src/ingame/control_panel.cpp,806,ptr_to_int,Gadget * -> int,,
 0x41d8b0,GetCdPathMismatch,src/game/cd_check.cpp,170,thread_global,g_cdPathMismatch <- LoadThreadMain,,
+0x420b00,DrawExplosions,src/weapons/explosions.cpp,429,thread_global,g_explodedPieces <- LoadThreadMain,,
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,505,thread_global,g_explodedPieces <- LoadThreadMain,,
+0x421150,FindFreeExplodedPieceSlot,src/weapons/explosions.cpp,579,thread_global,g_explodedPieces <- LoadThreadMain,,
+0x421620,StartExplodePiece,src/weapons/explosions.cpp,788,thread_global,g_explodedPieces <- LoadThreadMain,,
+0x4224b0,LoadFeatureType,src/map/features_4224b0.cpp,201,uninit,anims (conditional-uninitialized),,
 0x423c50,PlaceFeature,src/map/features.cpp,1072,ptr_compare,- Cell*,false_positive,"cell - g_game->heightMap: the cell points into the height map array, so this is the cell index."
 0x423c50,PlaceFeature,src/map/features.cpp,1134,ptr_compare,- Cell*,false_positive,"cell - g_game->heightMap: the cell points into the height map array, so this is the cell index."
 0x4246b0,RemoveFeature,src/map/features.cpp,1359,ptr_compare,- Cell*,false_positive,"cell - g_game->heightMap: the cell points into the height map array, so this is the cell index."
@@ -90,6 +148,7 @@ address,function,file,line,kind,target,verdict,note
 0x4288d0,LoadPictureCached,src/frontend/frontend.cpp,1634,ptr_to_int,void * -> int,,
 0x4288d0,LoadPictureCached,src/frontend/frontend.cpp,1658,ptr_to_int,void * -> int,,
 0x4288d0,LoadPictureCached,src/frontend/frontend.cpp,1608,thread_global,g_pictureCache <- LoadThreadMain,,
+0x42a140,BindModelTextures,src/game/data_files.cpp,606,uninit,entry (conditional-uninitialized),,
 0x432520,OpenSummaryBank,src/game/settings_campaign.cpp,122,heap_uncleared,new HapiBank,,
 0x4325b0,OpenHapiBank,src/game/settings_campaign.cpp,156,heap_uncleared,new HapiBank,,
 0x434bf0,LoadMapList,src/map/map_list.cpp,274,thread_global,g_otaEnumCacheComplete <- LoadThreadMain,,
@@ -114,6 +173,10 @@ address,function,file,line,kind,target,verdict,note
 0x437de0,UpdateMeteors,src/map/meteors.cpp,171,thread_global,g_meteorTarget <- LoadThreadMain,false_positive,"Written only on the load path (InitMeteors, SetMeteorParams, LoadMeteors via LoadMatch, src/map/meteors.cpp) before the loaded bit (src/game/game_load.cpp:811); UpdateMeteors/StartShower read it in ticks on the main thread after that, so there is no race."
 0x437de0,UpdateMeteors,src/map/meteors.cpp,171,thread_global,g_meteorWeapon <- LoadThreadMain,false_positive,"Written only on the load path (InitMeteors, SetMeteorParams, LoadMeteors via LoadMatch, src/map/meteors.cpp) before the loaded bit (src/game/game_load.cpp:811); UpdateMeteors/StartShower read it in ticks on the main thread after that, so there is no race."
 0x437de0,UpdateMeteors,src/map/meteors.cpp,171,thread_global,g_meteorsEnabled <- LoadThreadMain,false_positive,"Written only on the load path (InitMeteors, SetMeteorParams, LoadMeteors via LoadMatch, src/map/meteors.cpp) before the loaded bit (src/game/game_load.cpp:811); UpdateMeteors/StartShower read it in ticks on the main thread after that, so there is no race."
+0x438070,StartMeteorShower,src/map/meteors.cpp,206,thread_global,g_meteorScheduleGap <- LoadThreadMain,,
+0x438070,StartMeteorShower,src/map/meteors.cpp,206,thread_global,g_meteorShowerDuration <- LoadThreadMain,,
+0x438070,StartMeteorShower,src/map/meteors.cpp,206,thread_global,g_meteorStrikeEndTime <- LoadThreadMain,,
+0x438070,StartMeteorShower,src/map/meteors.cpp,206,thread_global,g_meteorTarget <- LoadThreadMain,,
 0x438180,SaveMeteors,src/map/meteors.cpp,221,thread_global,g_meteorActive <- LoadThreadMain,,
 0x438180,SaveMeteors,src/map/meteors.cpp,221,thread_global,g_meteorNextHitTime <- LoadThreadMain,,
 0x438180,SaveMeteors,src/map/meteors.cpp,221,thread_global,g_meteorNextStrikeTime <- LoadThreadMain,,
@@ -132,6 +195,8 @@ address,function,file,line,kind,target,verdict,note
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,559,indirect_call,virtual Slot_0043a1f0::Attach,,
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,565,indirect_call,virtual Slot_0043a1f0::Attach,,
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,572,indirect_call,virtual Slot_0043a1f0::Attach,,
+0x438ea0,DrawRangeCircle,src/ingame/markers.cpp,357,uninit,x2 (conditional-uninitialized),,
+0x438ea0,DrawRangeCircle,src/ingame/markers.cpp,358,uninit,y2 (conditional-uninitialized),,
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,816,indirect_call,virtual OrderFx::GetType,,
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,851,indirect_call,virtual OrderFx::SerializeToSave,,
 0x43b7c0,RunOrders,src/orders/order_list.cpp,1307,indirect_call,"indirect via int (*)(void *, Order *, unsigned int) __attribute__((stdcall)) [Elem_0043c390::notify]",false_positive,"targets: ActivateOrder, AirStrikeOrder, AirToAirOrder, AirToGroundHoverOrder, AirToGroundOrder, AttackChaseOrder and 60 more (followed via data/hazard_edges.csv); the entry is picked by the order kind, an index into a table sorted by unique names (order_list.cpp:1429-1543)"
@@ -208,6 +273,8 @@ address,function,file,line,kind,target,verdict,note
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,2433,indirect_call,virtual AiSearchGoal::SetPathOrder,,
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,2430,indirect_call,virtual Base_00490a10::ContainsUnit,,
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,2432,indirect_call,virtual Base_00490a10::KeepAfterComplete,,
+0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,2495,indirect_call,virtual Base_00490a10::ContainsCell,,
+0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,2502,indirect_call,virtual Base_00490a10::FillWorldPos,,
 0x44f940,NetCondenser::Accumulate,src/network/net_condenser.cpp,117,heap_uncleared,new char[],false_positive,sendBuffer is memcpy'd with exactly `size` bytes (src/network/net_condenser.cpp:119) and only sendSize bytes are used afterwards; unwritten tail is never read.
 0x450a10,AddNetPlayer,src/network/net_game.cpp,875,time_read,GetTicks,real,"Network game only: wall-clock stamp in Player.lastHeard (src/network/net_game.cpp:875), the traced last_time field (trace_schema.h:209), which IsTimedOut/RejectPlayer use to drop a player (net_game.cpp:2659-2670, 2761-2790). #40 (quirk flag or tick source)."
 0x451090,BuildGameInfo,src/network/net_game.cpp,1056,ptr_to_int,char * -> int,false_positive,Mission name string pointer passed as an opaque argument to the online/lobby report; not game state.
@@ -225,6 +292,11 @@ address,function,file,line,kind,target,verdict,note
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,3033,time_read,GetTicks,,
 0x4565a0,HandlePing,src/network/net_game.cpp,3145,time_read,GetTickCount,false_positive,"Stamps a latency probe packet that is sent to the peer and echoed back (src/network/net_game.cpp:3145); only the difference at :3169 is stored, and nothing reads the stamp as game state."
 0x4565a0,HandlePing,src/network/net_game.cpp,3169,time_read,GetTickCount,real,"Network game only: wall-clock round trip stored in Player.ping (src/network/net_game.cpp:3169), a traced field (src/harness/trace_schema.h:206); the simulation never reads it (only src/frontend/multi.cpp:4328 for the lobby). #7 or drop the field from the trace."
+0x459830,UnitTable::DrawPieces,src/graphics/model_render.cpp,616,uninit,src (conditional-uninitialized),,
+0x459c70,UnitTable::DrawLitPieces,src/graphics/model_render_4581e0.cpp,167,thread_global,g_lightX <- LoadThreadMain,,
+0x459c70,UnitTable::DrawLitPieces,src/graphics/model_render_4581e0.cpp,167,thread_global,g_lightY <- LoadThreadMain,,
+0x459c70,UnitTable::DrawLitPieces,src/graphics/model_render_4581e0.cpp,167,thread_global,g_lightZ <- LoadThreadMain,,
+0x459c70,UnitTable::DrawLitPieces,src/graphics/model_render_4581e0.cpp,348,uninit,src (conditional-uninitialized),,
 0x45aaa0,FreeObjectState,src/graphics/model_render.cpp,1073,ptr_to_int,GafFrame ** -> int,false_positive,"Address of a field passed as a handle id to ReleaseHandle, which only tests equality against chunk owners (unit_motion.cpp:399); render cache."
 0x45aaa0,FreeObjectState,src/graphics/model_render.cpp,1074,ptr_to_int,GafFrame ** -> int,false_positive,"Address of a field passed as a handle id to ReleaseHandle, which only tests equality against chunk owners (unit_motion.cpp:399); render cache."
 0x45ae80,CountObjects,src/graphics/model_render.cpp,1184,ptr_to_int,Object3do * -> int,false_positive,"Null test and recursive call on the child/sibling pointers, cast and cast back; the value is never used as a number."
@@ -244,6 +316,14 @@ address,function,file,line,kind,target,verdict,note
 0x45fc60,HandleOptionsPanelClick,src/frontend/options.cpp,2452,thread_global,g_optionsBackupSurface <- LoadThreadMain,,
 0x45fc60,HandleOptionsPanelClick,src/frontend/options.cpp,2452,thread_global,g_optionsBackupTrackTypes <- LoadThreadMain,,
 0x45fc60,HandleOptionsPanelClick,src/frontend/options.cpp,2452,thread_global,g_optionsFlipSurface <- LoadThreadMain,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2548,ptr_to_int,Surface * -> int,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2535,thread_global,g_optionsFlipFrame <- LoadThreadMain,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2535,thread_global,g_optionsFlipSurface <- LoadThreadMain,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2535,thread_global,g_optionsLightbarAnim <- LoadThreadMain,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2535,thread_global,g_optionsLightbarMaxX <- LoadThreadMain,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2535,thread_global,g_optionsLightbarX <- LoadThreadMain,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2535,thread_global,g_optionsLightbarY <- LoadThreadMain,,
+0x45ffb0,DrawOptionsScrollBar,src/frontend/options.cpp,2535,thread_global,g_optionsShellActive <- LoadThreadMain,,
 0x460160,OpenOptionsPanel,src/frontend/options.cpp,2597,thread_global,g_optionsBackupSurface <- LoadThreadMain,,
 0x460160,OpenOptionsPanel,src/frontend/options.cpp,2597,thread_global,g_optionsFlipSurface <- LoadThreadMain,,
 0x4604a0,OpenRestartDialog,src/frontend/options.cpp,2695,ptr_to_int,char * -> int,,
@@ -268,6 +348,7 @@ address,function,file,line,kind,target,verdict,note
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,1625,heap_uncleared,new char[],false_positive,receive buffer is filled by ReceivePacket and only `length` bytes returned by it are read (packets.cpp:1618-1650); network-only path.
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,1664,heap_uncleared,new char[],false_positive,saved frame is memcpy'd with `length` bytes (packets.cpp:1672) and read back only up to pendingBytes.
 0x463790,FrameQueue::QueueFrames,src/network/packets.cpp,1870,heap_uncleared,new char[],false_positive,recvBuffer gets memcpy of `size` bytes (packets.cpp:1881) and the parse loop is bounded by remaining = size-4.
+0x464060,DrawMessages,src/network/net_chat.cpp,213,uninit,show (sometimes-uninitialized),,
 0x464a00,FreePlayers,src/game/players_464290.cpp,500,ptr_compare,<= Player*,,
 0x464de0,ContinueWatchingCallback,src/game/players_464290.cpp,696,ptr_to_int,Form * -> int,,
 0x464f80,UpdatePlayers,src/game/players_464290.cpp,840,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
@@ -279,6 +360,111 @@ address,function,file,line,kind,target,verdict,note
 0x467440,UpdateSensorRadarAndCloak,src/ingame/info_panel_467440.cpp,190,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
 0x467440,UpdateSensorRadarAndCloak,src/ingame/info_panel_467440.cpp,209,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
 0x467440,UpdateSensorRadarAndCloak,src/ingame/info_panel_467440.cpp,225,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
+0x4689c0,DrawStatusPanel,src/ingame/info_panel.cpp,984,thread_global,g_statusPanelNextTick <- LoadThreadMain,,
+0x4689c0,DrawStatusPanel,src/ingame/info_panel.cpp,989,time_read,GetMilliseconds,,
+0x4689c0,DrawStatusPanel,src/ingame/info_panel.cpp,990,time_read,GetMilliseconds,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,506,ptr_to_int,PlayerState_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,507,ptr_to_int,PlayerState_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,508,ptr_to_int,PlayerState_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,509,ptr_to_int,PlayerState_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,587,ptr_to_int,PlayerState_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,627,ptr_to_int,PlayerState_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,723,ptr_to_int,Rect * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,729,ptr_to_int,Rect * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,731,ptr_to_int,Rect * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,781,ptr_to_int,Rect * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,476,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,477,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,485,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,486,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,488,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,516,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,517,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,571,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,572,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,573,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,588,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,591,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,603,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,604,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,615,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,617,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,628,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,631,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,636,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,638,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,639,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,640,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,641,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,649,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,651,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,658,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,660,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,678,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,681,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,686,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,690,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,692,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,723,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,729,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,731,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,735,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,736,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,739,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,741,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,743,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,749,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,750,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,753,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,757,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,761,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,764,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,766,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,776,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,779,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,780,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,781,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,783,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,784,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,785,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,786,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,787,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,788,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,789,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,790,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,791,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,793,ptr_to_int,Surface * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,588,ptr_to_int,Tile_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,591,ptr_to_int,Tile_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,628,ptr_to_int,Tile_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,631,ptr_to_int,Tile_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,615,ptr_to_int,Unit_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,617,ptr_to_int,Unit_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,649,ptr_to_int,Unit_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,651,ptr_to_int,Unit_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,678,ptr_to_int,Unit_00468cf0 * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,525,ptr_to_int,char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,681,ptr_to_int,char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,749,ptr_to_int,char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,753,ptr_to_int,char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,756,ptr_to_int,char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,757,ptr_to_int,char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,776,ptr_to_int,char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,750,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,774,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,783,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,784,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,785,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,786,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,787,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,788,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,789,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,790,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,791,ptr_to_int,const char * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,781,ptr_to_int,int * -> int,,
+0x468cf0,DrawBattleFrame,src/ingame/info_panel_468cf0.cpp,660,ptr_to_int,void ** -> int,,
+0x46a400,FrameTimers::AccumulateProfileTime,src/ingame/info_panel.cpp,1050,time_read,GetMilliseconds,,
+0x46a860,DrawUnitInfoPanel,src/ingame/info_panel_46a860.cpp,380,ptr_to_int,char * -> int,,
 0x46bce0,AllocScoreTables,src/game/statistics.cpp,86,thread_global,g_onlineReportPlayers <- LoadThreadMain,,
 0x46bce0,AllocScoreTables,src/game/statistics.cpp,86,thread_global,g_onlineReportScoreBoards <- LoadThreadMain,,
 0x46bce0,AllocScoreTables,src/game/statistics.cpp,86,thread_global,g_onlineReportScores <- LoadThreadMain,,
@@ -327,6 +513,7 @@ address,function,file,line,kind,target,verdict,note
 0x46c810,ReportGameChat,src/network/unit_sync.cpp,272,thread_global,g_reportFlags <- EnumPlayersCallback+LoadThreadMain,,
 0x46c810,ReportGameChat,src/network/unit_sync.cpp,272,thread_global,g_reporterDll <- LoadThreadMain,,
 0x46c810,ReportGameChat,src/network/unit_sync.cpp,272,thread_global,g_riReportGameChat <- LoadThreadMain,,
+0x471f90,DrawParticleList,src/graphics/particles.cpp,1348,indirect_call,virtual Listener_00471f90::Slot2,,
 0x471fd0,EmitTeleportParticles,src/graphics/particles.cpp,1373,indirect_call,virtual TeleportParticles::Init,,
 0x4720d0,EmitNanoParticles,src/graphics/particles.cpp,1410,indirect_call,virtual NanoParticles::Init,,
 0x472200,EmitReverseNanoParticles,src/graphics/particles.cpp,1430,indirect_call,virtual NanoParticles::Init,,
@@ -337,7 +524,12 @@ address,function,file,line,kind,target,verdict,note
 0x472810,EmitWhiteSmoke,src/graphics/particles_472630.cpp,548,indirect_call,virtual SmokeParticles::Init,false_positive,targets: SmokeParticles::Init (followed via data/hazard_edges.csv)
 0x4728f0,EmitBlackSmoke,src/graphics/particles_472630.cpp,562,indirect_call,virtual SmokeParticles::Init,,
 0x4729d0,EmitWeaponSmoke,src/graphics/particles_472630.cpp,573,indirect_call,virtual SmokeParticles::Init,false_positive,targets: SmokeParticles::Init (followed via data/hazard_edges.csv)
+0x472ab0,EmitJitteredThrustParticles,src/graphics/particles.cpp,2385,indirect_call,virtual ThrustParticles::Init,,
 0x472c50,EmitTimedSubParticles,src/graphics/particles_472630.cpp,584,indirect_call,virtual TimedSubParticles::Init,false_positive,targets: TimedSubParticles::Init (followed via data/hazard_edges.csv)
+0x4736e0,TeleportParticles::Init,src/graphics/particles.cpp,1780,indirect_call,virtual TeleportParticles::Emit,,
+0x473b50,NanoParticles::Init,src/graphics/particles.cpp,1850,indirect_call,virtual NanoParticles::Emit,,
+0x4742c0,ThrustParticles::Init,src/graphics/particles.cpp,1916,indirect_call,virtual ThrustParticles::Emit,,
+0x474760,WakeParticles::Init,src/graphics/particles.cpp,2023,indirect_call,virtual WakeParticles::Emit,,
 0x474d50,SmokeParticles::Init,src/graphics/particles.cpp,2121,indirect_call,virtual SmokeParticles::Emit,,
 0x475150,TimedSubParticles::Init,src/graphics/particles.cpp,2220,indirect_call,virtual TimedSubParticles::Emit,,
 0x476cd0,AllocColorMarkupText,src/frontend/campaign_menu.cpp,469,uninit,quote (conditional-uninitialized),,
@@ -376,6 +568,7 @@ address,function,file,line,kind,target,verdict,note
 0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,1139,heap_uncleared,operator new,,
 0x47f780,QueueUnitSpeech,src/sound/sound.cpp,588,thread_global,g_speechTypes <- LoadThreadMain,false_positive,"Sound state (speech queue, disk wav, looping buffer) written by the load thread through CreateUnit/QueueUnitSpeech or HandleNetPackets; it only chooses what to play, nothing reads it back into game state."
 0x47fad0,SpeechQueue::EnqueueSpeech,src/sound/sound.cpp,661,thread_global,g_speechTypes <- LoadThreadMain,false_positive,"Sound state (speech queue, disk wav, looping buffer) written by the load thread through CreateUnit/QueueUnitSpeech or HandleNetPackets; it only chooses what to play, nothing reads it back into game state."
+0x47fd70,SpeechQueue::PlaySpeech,src/sound/sound.cpp,740,thread_global,g_cmdSingEnabled <- LoadThreadMain,,
 0x47fd70,SpeechQueue::PlaySpeech,src/sound/sound.cpp,740,thread_global,g_speechTypes <- LoadThreadMain,false_positive,"Sound state (speech queue, disk wav, looping buffer) written by the load thread through CreateUnit/QueueUnitSpeech or HandleNetPackets; it only chooses what to play, nothing reads it back into game state."
 0x480eb0,UnitScript::EmitSfx,src/units/unit_script.cpp,445,ptr_to_int,Vec3 * -> int,,
 0x480eb0,UnitScript::EmitSfx,src/units/unit_script.cpp,448,ptr_to_int,Vec3 * -> int,,
@@ -395,10 +588,13 @@ address,function,file,line,kind,target,verdict,note
 0x485f50,CreateUnit,src/units/units_485010.cpp,900,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
 0x485f50,CreateUnit,src/units/units_485010.cpp,908,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
 0x485f50,CreateUnit,src/units/units_485010.cpp,911,ptr_compare,> Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
+0x486e80,KillUnitsOfType,src/units/units_485010.cpp,1340,ptr_compare,<= Unit*,,
+0x486ed0,KillAllUnits,src/units/units_485010.cpp,1354,ptr_compare,<= Unit*,,
 0x486f10,KillPlayerUnits,src/units/units_485010.cpp,1376,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
 0x4876c0,SaveUnits,src/units/unit_save.cpp,387,ptr_compare,<= Unit*,,
 0x488b10,FindUnitTypeId,src/units/unit_commands.cpp,688,ptr_compare,- char*,false_positive,"last and first both point into g_game->unitDefs (unit_commands.cpp:688), so the difference is an element count."
 0x488c50,GetCategoryMask,src/units/unit_commands.cpp,743,ptr_compare,- UnitCategory*,,
+0x489650,UnitRef::Unlink,src/units/unit_targets.cpp,320,indirect_call,virtual PathOrderAttach::~PathOrderAttach,,
 0x489740,ClearUnitRefs,src/units/unit_targets.cpp,372,indirect_call,virtual Listener_004896f0::Notify,false_positive,targets: Order::OrStatusFlags (followed via data/hazard_edges.csv)
 0x4897b0,NotifyUnitRefs,src/units/unit_targets.cpp,390,indirect_call,virtual Listener_004896f0::Notify,false_positive,targets: Order::OrStatusFlags (followed via data/hazard_edges.csv)
 0x48a1e0,GetWeaponTargetPos,src/units/unit_targets.cpp,714,ptr_to_int,Vec3_0048a1e0 * -> int,false_positive,"Out-parameter pointer passed as an int to GetSweetSpot and cast straight back to Vec3* (unit_scripts.cpp:366); round trip, not stored."
@@ -411,7 +607,9 @@ address,function,file,line,kind,target,verdict,note
 0x48b710,SendUnitStates,src/units/unit_position.cpp,793,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
 0x48b920,ReceiveUnitStates,src/units/unit_position.cpp,872,indirect_call,virtual PlayerData::ReadFrom,false_positive,"targets: PackedPosGoal::DeserializeNetUnitState, PathGoal::DeserializeNetUnitState, PatrolGoal::DeserializeNetUnitState (followed via data/hazard_edges.csv)"
 0x48b920,ReceiveUnitStates,src/units/unit_position.cpp,876,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
+0x48bae0,CollectVisibleUnitIds,src/ingame/selection.cpp,200,ptr_compare,<= Unit*,,
 0x48ca20,CollectSelectedUnits,src/ingame/selection.cpp,650,ptr_compare,<= Unit*,,
+0x48cc30,DrawSelectedUnitOrderOverlays,src/ingame/selection.cpp,675,ptr_compare,<= Unit*,,
 0x48cf30,IssueOrderToSelection,src/ingame/selection_48cf30.cpp,110,ptr_compare,<= Unit*,,
 0x48cf30,IssueOrderToSelection,src/ingame/selection_48cf30.cpp,124,ptr_compare,<= Unit*,,
 0x48d630,FocusCommander,src/ingame/selection.cpp,905,ptr_compare,<= Unit*,false_positive,"Both pointers are in one array (a player's slice of g_game->units, as CreateUnit units_485010.cpp:911 relies on), so the order is index order and layout-independent."
@@ -428,6 +626,7 @@ address,function,file,line,kind,target,verdict,note
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,1752,indirect_call,virtual OrderFx::GetDesiredHeading,,
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,1756,indirect_call,virtual OrderFx::KeepAfterComplete,,
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,1757,indirect_call,virtual PathGoal::SetPathOrder,,
+0x490860,LiteGoal::SetPathOrder,src/game/victory.cpp,1793,indirect_call,virtual PathGoal::SetPathOrder,,
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,1822,indirect_call,virtual OrderFx::GetType,,
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,1825,indirect_call,virtual OrderFx::GetType,,
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,1824,indirect_call,virtual OrderFx::SerializeToBits,,
@@ -453,8 +652,15 @@ address,function,file,line,kind,target,verdict,note
 0x4936f0,OpenShareDialog,src/ingame/dialogs_493340.cpp,449,ptr_to_int,Game * -> int,,
 0x493bf0,HandleTalkDialogEvent,src/ingame/dialogs_493340.cpp,537,thread_global,g_nonCampaignGame <- LoadThreadMain,,
 0x494050,OpenTalkDialog,src/ingame/dialogs_493340.cpp,667,thread_global,g_chatDraftInitialized <- LoadThreadMain,,
+0x4948e0,DrawScorePanel,src/ingame/dialogs_493340.cpp,887,thread_global,g_scorePanelFlashDecayTick <- LoadThreadMain,,
+0x4948e0,DrawScorePanel,src/ingame/dialogs_493340.cpp,887,thread_global,g_scorePanelKillFlash <- LoadThreadMain,,
+0x4948e0,DrawScorePanel,src/ingame/dialogs_493340.cpp,887,thread_global,g_scorePanelLossFlash <- LoadThreadMain,,
+0x4948e0,DrawScorePanel,src/ingame/dialogs_493340.cpp,887,thread_global,g_scorePanelSlidePos <- LoadThreadMain,,
+0x4948e0,DrawScorePanel,src/ingame/dialogs_493340.cpp,889,time_read,GetTicks,,
+0x4948e0,DrawScorePanel,src/ingame/dialogs_493340.cpp,890,time_read,GetTicks,,
 0x494ff0,AddCdActivitySample,src/ingame/dialogs_493340.cpp,1107,thread_global,g_cdActivityRingWriteIdx <- LoadThreadMain,false_positive,"Activity ring that only picks the CD music category (UpdateCdCategoryByActivity, src/ingame/dialogs_493340.cpp:1027-1110); reset in the load thread (src/game/game_state.cpp:789-790), never read by the simulation."
 0x494ff0,AddCdActivitySample,src/ingame/dialogs_493340.cpp,1107,thread_global,g_cdActivitySampleRing <- LoadThreadMain,false_positive,"Activity ring that only picks the CD music category (UpdateCdCategoryByActivity, src/ingame/dialogs_493340.cpp:1027-1110); reset in the load thread (src/game/game_state.cpp:789-790), never read by the simulation."
+0x495930,BuildScreenshotPath,src/ingame/keys.cpp,280,thread_global,DAT_005119b8 <- LoadThreadMain,,
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,335,ptr_compare,- Cell*,false_positive,"cell - g_game->heightMap: the cell points into the height map array, so this is the cell index."
 0x49ae20,CompactProjectiles,src/weapons/weapons.cpp,1284,ptr_compare,- Projectile_0049ae20*,false_positive,"Both sides point into the projectiles array (weapons.cpp:1243 types interceptedProjectile as Projectile*), so the difference is an index. The stored pointer itself is a separate matter, not this row."
 0x49ae20,CompactProjectiles,src/weapons/weapons.cpp,1285,ptr_compare,- Projectile_0049ae20*,false_positive,"Both sides point into the projectiles array (weapons.cpp:1243 types interceptedProjectile as Projectile*), so the difference is an index. The stored pointer itself is a separate matter, not this row."
@@ -534,6 +740,16 @@ address,function,file,line,kind,target,verdict,note
 0x4b1c00,CobScript::AnimatePieces,src/units/cob.cpp,925,indirect_call,virtual CobScript::SetPieceTranslation,false_positive,targets: UnitScript::SetPieceTranslation (followed via data/hazard_edges.csv)
 0x4b1ec0,CobScript::SaveScriptState,src/units/cob.cpp,1042,indirect_call,virtual CobScript::GetPieceRotation,,
 0x4b1ec0,CobScript::SaveScriptState,src/units/cob.cpp,1041,indirect_call,virtual CobScript::GetPieceTranslation,,
+0x4b2340,Relocate,src/util/int_map.cpp,48,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2340,Relocate,src/util/int_map.cpp,49,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2340,Relocate,src/util/int_map.cpp,51,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2340,Relocate,src/util/int_map.cpp,52,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2340,Relocate,src/util/int_map.cpp,54,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2340,Relocate,src/util/int_map.cpp,55,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2340,Relocate,src/util/int_map.cpp,56,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2340,Relocate,src/util/int_map.cpp,58,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2450,LoadCobScript,src/util/int_map.cpp,68,ptr_to_int,Data_004b2450 * -> int,,
+0x4b2450,LoadCobScript,src/util/int_map.cpp,62,thread_global,s_cobScriptCache@src/util/int_map.cpp <- LoadThreadMain,,
 0x4b26f0,GetCobChecksum,src/util/int_map.cpp,84,thread_global,s_cobScriptCache@src/util/int_map.cpp <- LoadThreadMain,,
 0x4b39c0,HapiBank::SaveBank,src/util/hapi_bank.cpp,322,uninit,noff (uninitialized),,
 0x4b4270,HapiBank::LoadAccount,src/util/hapi_bank.cpp,551,ptr_to_int,char * -> int,,
@@ -551,6 +767,7 @@ address,function,file,line,kind,target,verdict,note
 0x4b63f0,AddTimer,src/graphics/display.cpp,998,time_read,GetTickCount,,
 0x4b63f0,AddTimer,src/graphics/display.cpp,1000,time_read,GetTickCount,,
 0x4b64d0,RemoveTimer,src/graphics/display.cpp,1034,thread_global,g_timerCount <- LoadThreadMain,,
+0x4b6560,GetMilliseconds,src/graphics/display.cpp,1059,time_read,GetTickCount,,
 0x4b6c30,RandomInt,src/util/math_4b6c30.cpp,12,thread_global,g_randomSeed <- LoadThreadMain,real,"Network game only: LoadMatch draws start positions with RandomInt on the load thread (src/game/game_load.cpp:684-686) while the main thread's loading frame runs HandleNetPackets, which reaches RandomInt through StartFeatureBurning, so the draw order depends on timing. Single-player and test mode have no packets. #7."
 0x4b73c0,CommandArgs::GetArg,src/util/commands.cpp,162,ptr_to_int,char * -> int,,
 0x4b7440,CommandArgs::Tokenize,src/util/commands.cpp,215,ptr_compare,>= char*,,
@@ -559,11 +776,18 @@ address,function,file,line,kind,target,verdict,note
 0x4b7900,ExecuteCommand,src/util/commands.cpp,379,ptr_to_int,char * -> int,,
 0x4b7900,ExecuteCommand,src/util/commands.cpp,375,thread_global,g_defaultCommandHandler <- LoadThreadMain,,
 0x4b7900,ExecuteCommand,src/util/commands.cpp,375,thread_global,g_defaultCommandMask <- LoadThreadMain,,
+0x4b88d0,EraseFrameDithered,src/graphics/gaf.cpp,535,ptr_compare,<= unsigned char*,,
 0x4b8c60,LoadGaf,src/graphics/gaf.cpp,736,ptr_to_int,Blk * -> int,false_positive,"Relocates offsets in a loaded GAF file into addresses (gaf.cpp:736-747); sprite data for presentation, the animation state the simulation reads is frame indices."
 0x4b8c60,LoadGaf,src/graphics/gaf.cpp,741,ptr_to_int,int * -> int,false_positive,"Relocates offsets in a loaded GAF file into addresses (gaf.cpp:736-747); sprite data for presentation, the animation state the simulation reads is frame indices."
 0x4b8c60,LoadGaf,src/graphics/gaf.cpp,742,ptr_to_int,int * -> int,false_positive,"Relocates offsets in a loaded GAF file into addresses (gaf.cpp:736-747); sprite data for presentation, the animation state the simulation reads is frame indices."
 0x4b8c60,LoadGaf,src/graphics/gaf.cpp,745,ptr_to_int,int * -> int,false_positive,"Relocates offsets in a loaded GAF file into addresses (gaf.cpp:736-747); sprite data for presentation, the animation state the simulation reads is frame indices."
 0x4b8c60,LoadGaf,src/graphics/gaf.cpp,747,ptr_to_int,int * -> int,false_positive,"Relocates offsets in a loaded GAF file into addresses (gaf.cpp:736-747); sprite data for presentation, the animation state the simulation reads is frame indices."
+0x4b9360,DrawLens,src/graphics/gaf.cpp,1031,ptr_to_int,unsigned char * -> int,,
+0x4b9e60,CompressFrame,src/graphics/gaf.cpp,1320,uninit,len (conditional-uninitialized),,
+0x4b9ed0,EmitCopyRun,src/graphics/gaf.cpp,1331,thread_global,g_gafEncodeLiteralBuffer <- LoadThreadMain,,
+0x4b9ed0,EmitCopyRun,src/graphics/gaf.cpp,1331,thread_global,g_gafEncodeOutputSize <- LoadThreadMain,,
+0x4b9f50,EmitRepeatRun,src/graphics/gaf.cpp,1359,thread_global,g_gafEncodeOutputSize <- LoadThreadMain,,
+0x4ba000,CompressRow,src/graphics/gaf.cpp,1411,thread_global,g_gafEncodeOutputSize <- LoadThreadMain,,
 0x4baff0,ChangeExtension,src/graphics/palette.cpp,562,ptr_compare,>= char*,false_positive,"Pointers into one string buffer, subtracted or compared to get a position; file path/text handling, layout-independent."
 0x4bb4e0,HAPI_FindEntry,src/util/hpi_4bb4e0.cpp,24,ptr_compare,- char*,false_positive,"Pointers into one string buffer, subtracted or compared to get a position; file path/text handling, layout-independent."
 0x4bc4b0,HAPI_FindFirst,src/util/hpi.cpp,907,ptr_to_int,FindFiles * -> int,false_positive,"Returns the FindFiles handle pointer as an int to the caller, used as an opaque handle; file enumeration."
@@ -578,11 +802,25 @@ address,function,file,line,kind,target,verdict,note
 0x4be010,HAPI_RelocateDirectory,src/util/hpi.cpp,1634,ptr_to_int,ArchiveEntry * -> int,,
 0x4bfe10,GrayRectangle,src/graphics/draw.cpp,925,ptr_to_int,unsigned char * -> int,false_positive,"GUI/graphics handle or pixel address passed as an int; presentation only, not read by the simulation."
 0x4bfe10,GrayRectangle,src/graphics/draw.cpp,932,ptr_to_int,unsigned char * -> int,false_positive,"GUI/graphics handle or pixel address passed as an int; presentation only, not read by the simulation."
+0x4bff20,DitherRectangle,src/graphics/draw.cpp,975,ptr_compare,< unsigned char*,,
+0x4bff20,DitherRectangle,src/graphics/draw.cpp,984,ptr_compare,< unsigned int*,,
+0x4bff20,DitherRectangle,src/graphics/draw.cpp,993,ptr_compare,< unsigned int*,,
+0x4bff20,DitherRectangle,src/graphics/draw.cpp,1000,ptr_compare,<= unsigned char*,,
+0x4c0330,ScanFillPolygon,src/graphics/draw_4c0330.cpp,144,uninit,maxIdx (conditional-uninitialized),,
+0x4c0330,ScanFillPolygon,src/graphics/draw_4c0330.cpp,115,uninit,minIdx (conditional-uninitialized),,
+0x4c0820,DrawPolygonEdges,src/graphics/draw.cpp,1212,uninit,iymax (conditional-uninitialized),,
+0x4c0820,DrawPolygonEdges,src/graphics/draw.cpp,1181,uninit,iymin (conditional-uninitialized),,
+0x4c0c70,FillShadedPolygon,src/graphics/draw.cpp,1450,uninit,maxYi (conditional-uninitialized),,
+0x4c0c70,FillShadedPolygon,src/graphics/draw.cpp,1408,uninit,minYi (conditional-uninitialized),,
+0x4c1000,FillFlatPolygon,src/graphics/draw.cpp,1605,uninit,maxYi (conditional-uninitialized),,
+0x4c1000,FillFlatPolygon,src/graphics/draw.cpp,1569,uninit,minYi (conditional-uninitialized),,
 0x4c2340,GetCurrentMouseEvent,src/gui/keyboard.cpp,257,ptr_to_int,Queue_004c1ab0 * -> int,false_positive,"GUI/graphics handle or pixel address passed as an int; presentation only, not read by the simulation."
 0x4c2ba0,GetCursorSprite,src/gui/mouse.cpp,363,ptr_to_int,GafFrame * -> int,false_positive,"GUI/graphics handle or pixel address passed as an int; presentation only, not read by the simulation."
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,112,heap_uncleared,operator new,false_positive,"TdfRecord is built by placement-new constructor right after (src/util/tdf_4c2f60.cpp:112) which sets name and vectors; unknown_14 is never read. Load-time parse, not a tick."
 0x4c3e20,TdfFile::GetCurrentRecord,src/util/tdf.cpp,352,ptr_to_int,TdfRecord * -> int,false_positive,"Returns the current record pointer as an opaque handle that callers save and restore (side_data.cpp:96, 130, gui_file.cpp:1037); never ordered or hashed."
 0x4c4470,TdfRecord::FindSubRecord,src/util/tdf.cpp,549,ptr_compare,< TdfRecord*,,
+0x4c4630,TdfRecord::FindFieldValue,src/util/tdf.cpp,628,ptr_to_int,char * -> int,,
+0x4c4800,TdfRecord::GetFieldFixed,src/util/tdf.cpp,658,ptr_compare,- TdfField*,,
 0x4c48c0,TdfRecord::GetFieldString,src/util/tdf.cpp,686,ptr_compare,- TdfField*,false_positive,Binary or linear search within one sorted array/vector; the pointer difference or bound is an index in that array.
 0x4c5740,Translate,src/util/tdf_4c54f0.cpp,205,ptr_compare,- TdfField*,false_positive,Binary or linear search within one sorted array/vector; the pointer difference or bound is an index in that array.
 0x4c5840,FindTranslation,src/util/tdf_4c54f0.cpp,231,ptr_compare,< TdfField*,,
@@ -593,6 +831,10 @@ address,function,file,line,kind,target,verdict,note
 0x4c69f0,AllocSurface,src/graphics/surface.cpp,732,ptr_to_int,Surface * -> int,false_positive,"GUI/graphics handle or pixel address passed as an int; presentation only, not read by the simulation."
 0x4c7580,DrawFrameQuad,src/graphics/surface.cpp,1353,uninit,imax (conditional-uninitialized),false_positive,"rendering; imax is set in the first loop whenever any y exceeds -999999 (src/graphics/surface.cpp:1259-1270), always true."
 0x4c7580,DrawFrameQuad,src/graphics/surface.cpp,1313,uninit,imin (conditional-uninitialized),false_positive,rendering; imin is set in the first loop (src/graphics/surface.cpp:1259-1270) since any y is below 999999. Presentation.
+0x4c8760,DrawTexturedPolygon,src/graphics/surface.cpp,1821,uninit,highIndex (conditional-uninitialized),,
+0x4c8760,DrawTexturedPolygon,src/graphics/surface.cpp,1782,uninit,lowIndex (conditional-uninitialized),,
+0x4c8bb0,DrawLitTexturedPolygon,src/graphics/surface.cpp,1953,uninit,highIndex (conditional-uninitialized),,
+0x4c8bb0,DrawLitTexturedPolygon,src/graphics/surface.cpp,1919,uninit,lowIndex (conditional-uninitialized),,
 0x4c9790,HAPINET_guaranteepackets,src/network/hapinet.cpp,313,thread_global,g_guaranteePackets <- LoadThreadMain,real,"Network game only: HandlePing saves and restores the flag around its send (src/network/net_game.cpp:3145-3160); HandleNetPackets runs on both the load thread and the main thread's loading frame (src/game/game_load.cpp:607, 1054), so the save/restore can interleave and leave guaranteed delivery off. #7, unsure."
 0x4c97b0,HAPINET_sendpacket,src/network/hapinet.cpp,330,indirect_call,virtual DirectPlay_4c97b0::Send,false_positive,"targets: the DirectPlay method Send of the COM object (dplay.dll, outside the source, so no edge); the slot is fixed by the interface (network/hapinet.cpp:330), not chosen by an address"
 0x4c97b0,HAPINET_sendpacket,src/network/hapinet.cpp,327,ptr_to_int,const char * -> int,false_positive,"Pointer passed as an int to HapinetTrace (debug print) or returned as an opaque interface handle; networking, not game state."
@@ -619,12 +861,17 @@ address,function,file,line,kind,target,verdict,note
 0x4ca880,HAPINET_createcompoundaddress,src/network/hapinet.cpp,881,indirect_call,virtual Lobby_4c9a70::CreateCompoundAddress,,
 0x4ca880,HAPINET_createcompoundaddress,src/network/hapinet.cpp,879,ptr_to_int,const char * -> int,,
 0x4ca9d0,GetCreatedLobbyInterface,src/network/hapinet.cpp,949,ptr_to_int,Lobby_4c9a70 * -> int,false_positive,"Pointer passed as an int to HapinetTrace (debug print) or returned as an opaque interface handle; networking, not game state."
+0x4cb560,Load3do,src/graphics/pcx.cpp,573,ptr_to_int,void * -> int,,
 0x4cbbe0,BlitSurface,src/graphics/blit.cpp,38,asm,inline,false_positive,"Integer-only pixel copy (mov, add, rep movs; no rdtsc, no FPU control word) in a naked function that only draws into a surface, presentation (graphics/blit.cpp:38)."
 0x4cc3d0,BlitCompressedLit,src/graphics/blit.cpp,1109,asm,inline,false_positive,"Integer-only pixel copy (mov, add, rep movs; no rdtsc, no FPU control word) in a naked function that only draws into a surface, presentation (graphics/blit.cpp:1109)."
 0x4ccf60,BlitText,src/graphics/blit.cpp,2671,asm,inline,false_positive,"Integer-only pixel copy (mov, add, rep movs; no rdtsc, no FPU control word) in a naked function that only draws into a surface, presentation (graphics/blit.cpp:2671)."
 0x4cdb40,Sound::PlayNextTrack,src/sound/cd_audio.cpp,193,thread_global,g_cdFadeTimer <- LoadThreadMain,,
 0x4cdb40,Sound::PlayNextTrack,src/sound/cd_audio.cpp,193,thread_global,g_cdNextTrackTimer <- LoadThreadMain,,
 0x4ce190,Sound::CloseCdPlayerWindow,src/sound/cd_audio.cpp,372,thread_global,g_cdPlayerWindow <- LoadThreadMain,,
+0x4ce5b0,OnNextTrackTimer,src/sound/cd_audio.cpp,534,thread_global,g_cdNextTrackTimer <- LoadThreadMain,,
+0x4ce5e0,OnCdFadeTimer,src/sound/cd_audio.cpp,545,thread_global,g_cdFadeTimer <- LoadThreadMain,,
+0x4ce5e0,OnCdFadeTimer,src/sound/cd_audio.cpp,545,thread_global,g_cdFadeVolume <- LoadThreadMain,,
+0x4ce5e0,OnCdFadeTimer,src/sound/cd_audio.cpp,555,time_read,AddTimer,,
 0x4ce690,Sound::SetTrackCategory,src/sound/cd_audio.cpp,570,thread_global,g_cdFadeTimer <- LoadThreadMain,,
 0x4ce690,Sound::SetTrackCategory,src/sound/cd_audio.cpp,570,thread_global,g_cdNextTrackTimer <- LoadThreadMain,,
 0x4ce690,Sound::SetTrackCategory,src/sound/cd_audio.cpp,600,time_read,AddTimer,,
@@ -639,6 +886,7 @@ address,function,file,line,kind,target,verdict,note
 0x4d02a0,Sound::OpenSample,src/sound/samples.cpp,1089,ptr_to_int,IDirectSoundBuffer ** -> int,false_positive,Sample object pointer returned as an int handle to the sound caller; presentation.
 0x4d02a0,Sound::OpenSample,src/sound/samples.cpp,1108,ptr_to_int,IDirectSoundBuffer ** -> int,false_positive,Sample object pointer returned as an int handle to the sound caller; presentation.
 0x4d02a0,Sound::OpenSample,src/sound/samples.cpp,1132,ptr_to_int,IDirectSoundBuffer ** -> int,false_positive,Sample object pointer returned as an int handle to the sound caller; presentation.
+0x4d0680,OnStreamTimer,src/sound/samples.cpp,1168,thread_global,g_delayedSampleVolume <- LoadThreadMain,,
 0x4d06c0,Sound::StreamSampleDelayed,src/sound/samples.cpp,1182,time_read,AddTimer,,
 0x4d0b10,LzssContractNode,src/util/sqsh.cpp,55,thread_global,g_squashDictTree <- EnumPlayersCallback+LoadThreadMain,false_positive,"LZSS dictionary and window, used only inside LzssCompress/LzssExpand under the ticket lock g_squashThreadLockTicket (src/util/sqsh.cpp:229-272, 413-440), so two threads never use them together."
 0x4d0b80,LzssReplaceNode,src/util/sqsh.cpp,74,thread_global,g_squashDictTree <- EnumPlayersCallback+LoadThreadMain,false_positive,"LZSS dictionary and window, used only inside LzssCompress/LzssExpand under the ticket lock g_squashThreadLockTicket (src/util/sqsh.cpp:229-272, 413-440), so two threads never use them together."
@@ -889,12 +1137,52 @@ address,function,file,line,kind,target,verdict,note
 ,CloseTopScreen_inlined,src/gui/gui.cpp,6525,indirect_call,indirect via void (*)(void *) __attribute__((stdcall)) [Layer::handler],false_positive,"targets: Choice3DialogHandler, HandleAlliesClick, HandleBattleRoomClick, HandleBriefingClick, HandleBuildPanelClick, HandleCdCheckClick and 47 more (followed via data/hazard_edges.csv); set by the menu code that built the screen, never by an address or uninitialised memory (gadgets and layers are zeroed: gui/dialogs.cpp:227)"
 ,DequeueByCalls,src/network/packets.cpp,914,time_read,GetTicks,real,"Network game only: send-buffer retention clock (src/network/packets.cpp:664-673, 914, 1352-1373) decides when a buffer is reused; unsure that timing cannot change which packets are resent or overwritten. #7."
 ,Display::LockScreen,src/graphics/surface.cpp,102,thread_global,g_screenLockCount <- LoadThreadMain+MouseThreadProc,false_positive,"Screen/blit lock bookkeeping shared with the mouse thread (RedrawMouseCursor, src/gui/mouse.cpp:304-316) and the load thread's drawing; presentation only, the mouse thread writes no simulation record (threads.md). A race here can only garble drawing."
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,379,ptr_to_int,PlayerState_00468cf0 * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,379,ptr_to_int,Rect * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,384,ptr_to_int,Rect * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,389,ptr_to_int,Rect * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,414,ptr_to_int,Rect * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,419,ptr_to_int,Rect * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,376,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,379,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,384,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,389,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,393,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,394,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,397,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,403,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,409,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,414,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,419,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,424,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,425,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,428,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,431,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,434,ptr_to_int,Surface * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,368,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,393,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,396,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,397,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,403,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,409,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,424,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,427,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,428,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,431,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,434,ptr_to_int,char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,394,ptr_to_int,const char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,425,ptr_to_int,const char * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,375,ptr_to_int,unsigned short * -> int,,
+,DrawResourcePanel,src/ingame/info_panel_468cf0.cpp,376,ptr_to_int,ushort * -> int,,
 ,FillCampaignListInline,src/frontend/campaign_menu.cpp,869,thread_global,g_campaignNameList <- LoadThreadMain,,
 ,FillMissionListInline,src/frontend/campaign_menu.cpp,884,thread_global,g_missionNameList <- LoadThreadMain,,
+,FindByName,src/units/unit_commands.cpp,769,ptr_compare,- char*,,
 ,FindEntry,src/map/features_4224b0.cpp,109,ptr_compare,< TdfFile*,false_positive,Binary or linear search within one sorted array/vector; the pointer difference or bound is an index in that array.
 ,FindEntry,src/map/features_422ea0.cpp,61,ptr_compare,< TdfFile*,false_positive,Binary or linear search within one sorted array/vector; the pointer difference or bound is an index in that array.
 ,Find_00499cd0,src/weapons/weapons.cpp,637,ptr_compare,- Pair_00499cd0*,false_positive,Binary or linear search within one sorted array/vector; the pointer difference or bound is an index in that array.
 ,Find_004b7900,src/util/commands.cpp,354,ptr_compare,- CommandEntry*,,
+,FrameCounter_4b66a0::Tick,src/graphics/display.cpp,43,time_read,GetTickCount,,
+,FrameTimers::AccumulateProfileTime,src/ingame/dialogs_493340.cpp,30,time_read,GetMilliseconds,,
 ,FreeBlockMap::Freenode,src/debug/debug_lib.cpp,2075,thread_global,g_freeBlockFreeList <- EnumPlayersCallback+HAPINET_enumconnections+LoadThreadMain,,
 ,FreeBlockMap::Grow,src/debug/debug_lib.cpp,2158,ptr_to_int,void * -> unsigned int,false_positive,"Debug allocator or stack-walk bookkeeping (block maps ordered by address, stack bounds, VirtualAlloc results); the addresses are only handed back to the allocator or printed, and never reach game state."
 ,FreeBlockMap::Grow,src/debug/debug_lib.cpp,2168,ptr_to_int,void * -> unsigned int,false_positive,"Debug allocator or stack-walk bookkeeping (block maps ordered by address, stack bounds, VirtualAlloc results); the addresses are only handed back to the allocator or printed, and never reach game state."
@@ -978,7 +1266,9 @@ address,function,file,line,kind,target,verdict,note
 ,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,117,ptr_to_int,Class_0044e2d0 * -> int,,
 ,ProcessButtonCommand,src/network/online_45b250.cpp,62,indirect_call,"indirect via int (*)(int, char *, unsigned int, void (*)(char *) __attribute__((stdcall))) __attribute__((stdcall)) [f]",,
 ,ProcessButtonCommand,src/network/online_45b250.cpp,55,thread_global,g_onlineDll <- LoadThreadMain,,
+,ProfileMark,src/ingame/info_panel_468cf0.cpp,91,time_read,GetMilliseconds,,
 ,SaveModemNumbers_00442a30,src/frontend/multi.cpp,1709,thread_global,g_modemAccounts <- LoadThreadMain,,
+,ShowSelectBox,src/ingame/info_panel_468cf0.cpp,444,ptr_to_int,Rect * -> int,,
 ,StartShower,src/map/meteors.cpp,152,thread_global,g_meteorScheduleGap <- LoadThreadMain,false_positive,"Written only on the load path (InitMeteors, SetMeteorParams, LoadMeteors via LoadMatch, src/map/meteors.cpp) before the loaded bit (src/game/game_load.cpp:811); UpdateMeteors/StartShower read it in ticks on the main thread after that, so there is no race."
 ,StartShower,src/map/meteors.cpp,152,thread_global,g_meteorShowerDuration <- LoadThreadMain,false_positive,"Written only on the load path (InitMeteors, SetMeteorParams, LoadMeteors via LoadMatch, src/map/meteors.cpp) before the loaded bit (src/game/game_load.cpp:811); UpdateMeteors/StartShower read it in ticks on the main thread after that, so there is no race."
 ,StartShower,src/map/meteors.cpp,152,thread_global,g_meteorStrikeEndTime <- LoadThreadMain,false_positive,"Written only on the load path (InitMeteors, SetMeteorParams, LoadMeteors via LoadMatch, src/map/meteors.cpp) before the loaded bit (src/game/game_load.cpp:811); UpdateMeteors/StartShower read it in ticks on the main thread after that, so there is no race."
