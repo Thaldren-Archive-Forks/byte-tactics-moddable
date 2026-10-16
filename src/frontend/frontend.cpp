@@ -14,7 +14,11 @@
 
 class Sound {
 public:
+#ifdef __clang__
+    bool HasCdPlayerWindow();
+#else
     int HasCdPlayerWindow();
+#endif
     void SetTrackCategory(int value);
     int HasNoDriver();
     void CloseCdPlayerWindow();
