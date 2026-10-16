@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+TRACE_FORMAT = 2
 TYPES = ROOT / "include/ta_types.h"
 OUT = ROOT / "src/harness/trace_schema.h"
 
@@ -29,6 +30,7 @@ POINTER_TARGETS: dict[str, str] = {
     "Unit": "UNIT", "Player": "PLAYER", "UnitDef": "UNITDEF", "WeaponDef": "WEAPONDEF",
     "Def_0049d270": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Obj_00406f50": "PROJECTILE",
     "Feature": "FEATURE", "Object3do": "PIECE", "Object3D": "PIECE",
+    "Rec": "REC", "Node": "NODE", "MovementClass": "MOVECLASS",
 }
 
 NAMES: dict[str, dict[int, str]] = {
@@ -37,7 +39,7 @@ NAMES: dict[str, dict[int, str]] = {
 }
 
 POINTERS: dict[str, dict[int, str]] = {
-    "Unit": {0x0: "HEAP", 0x8: "HEAP", 0x24: "HEAP", 0x40: "HEAP", 0x82: "HEAP", 0x86: "HEAP"},
+    "Unit": {0x0: "HEAP", 0x8: "HEAP", 0x24: "HEAP", 0x40: "HEAP", 0x82: "REC", 0x86: "HEAP"},
     "Player": {0x74: "HEAP"},
     "Projectile": {0x4E: "HEAP"},
     "Debris": {0x0: "PIECE"},
@@ -45,7 +47,18 @@ POINTERS: dict[str, dict[int, str]] = {
 
 POINTER_NAMES: dict[tuple[str, int], str] = {}
 
-EXCLUSIONS: list[tuple[str, str, str]] = []
+EXCLUSIONS: list[tuple[str, str, str]] = [
+    ("Eye", "screen", "points at the record's own screenPos"),
+    ("Eye", "flagPtr", "points at the record's own flagB"),
+    ("Node", "penalty", "NodeData(x, y, g, f, steps) leaves it unset for the start node; the visit hashes it when g is not 0"),
+    ("Pathfinder", "capacity", "an allocation size, not behaviour: nothing reads it but the growth of the pool"),
+    ("Pathfinder", "found_x", "written only when a search reaches its goal, read right after"),
+    ("Pathfinder", "found_y", "written only when a search reaches its goal, read right after"),
+]
+
+PATHFINDER_SEARCH_FIELDS = {
+    "start_x", "start_y", "goalX", "goalY", "probe", "range", "path", "target", "owner", "turnCost", "stepCost",
+}
 
 MASKS: dict[tuple[str, int], tuple[int, str]] = {
     ("ExplodedPiece", 0x28): (0x3F, "bits 6 to 31 are never written; StartExplodePiece copies them from an uninitialised stack header"),
@@ -120,8 +133,87 @@ SYNTHETIC: dict[str, str] = {
         unsigned char flags;
     """,
 }
+SYNTHETIC.update({
+    "Rec": """
+        unsigned char a;
+        unsigned char b;
+        int flags;
+        Unit* first;
+    """,
+    "Eye": """
+        Player* player;
+        void* screen;
+        short x;
+        unsigned char flagA;
+        char flagB;
+        void* flagPtr;
+        Vec3 pos;
+        unsigned int expires;
+        int screenPos;
+    """,
+    "Node": """
+        int index;
+        short pos_x;
+        short pos_y;
+        int g;
+        int f;
+        short penalty;
+        short steps;
+    """,
+    "MovementClass": """
+        void* name;
+        short footprintX;
+        short footprintZ;
+        short maxWaterDepth;
+        short minWaterDepth;
+        unsigned char maxSlope;
+        unsigned char badSlope;
+        unsigned char maxWaterSlope;
+        unsigned char badWaterSlope;
+        unsigned int width;
+        unsigned int height;
+        void* cells;
+        unsigned int lastTick;
+    """,
+    "Pathfinder": """
+        void* pool;
+        void* items;
+        int freeHead;
+        int used;
+        int capacity;
+        int count;
+        int topPopped;
+        void* cells;
+        unsigned int width;
+        unsigned int height;
+        int cellCount;
+        void* dirty;
+        short start_x;
+        short start_y;
+        short found_x;
+        short found_y;
+        int goalX;
+        int goalY;
+        int probe;
+        int range;
+        int stepsPerTick;
+        int steps;
+        int costScale;
+        int baseScale;
+        Unit* object;
+        void* path;
+        void* target;
+        MovementClass* owner;
+        unsigned char turnCost[8];
+        unsigned char stepCost[8];
+        unsigned char player;
+        Unit* cursor[10];
+        int budget[10];
+    """,
+})
 SYNTHETIC_SIZES: dict[str, int] = {
     "ExplodedPiece": 0x30, "PieceRec": 0x36, "Face": 0x20, "SpotObject": 0x30, "SpotAnim": 0x30,
+    "Rec": 0xA, "Eye": 0x24, "Node": 0x14, "MovementClass": 0x20, "Pathfinder": 0xC9,
 }
 
 TYPE_ORDER: list[tuple[str, str]] = [
@@ -135,6 +227,38 @@ TYPE_ORDER: list[tuple[str, str]] = [
     ("Face", "Face"),
     ("SpotObject", "SpotObject"),
     ("SpotAnim", "SpotAnim"),
+    ("Rec", "Rec"),
+    ("Eye", "Eye"),
+    ("Node", "Node"),
+    ("MovementClass", "MoveClass"),
+]
+
+GAME_SCALARS: list[tuple[str, int, int, str | None, int]] = [
+    ("numPlayers", 0x2A3C, 2, None, 0),
+    ("localPlayer", 0x2A42, 1, None, 0),
+    ("playerIndex", 0x2A43, 1, None, 0),
+    ("netGameFlags", 0x2A44, 2, None, 0),
+    ("spotFeatureUnit", 0x1420F, 4, "UNIT", 0),
+    ("spotUsedHead", 0x14213, 4, None, 0),
+    ("spotRestHead", 0x14217, 4, None, 0),
+    ("spotFreeHead", 0x1421B, 4, None, 0),
+    ("spotField_1421f", 0x1421F, 4, "HEAP", 0),
+    ("scanIndex", 0x14257, 4, None, 0),
+    ("mapFlags", 0x14281, 2, None, 0xFFF7),
+    ("endGameCountdown", 0x39239, 2, None, 0),
+    ("endGameFlags", 0x3923B, 2, None, 0),
+]
+
+SCALAR_GLOBALS: list[tuple[str, str, int, str | None]] = [
+    ("cdPathMismatch", "g_cdPathMismatch", 4, None),
+    ("cdMismatchDefeatTick", "g_cdMismatchDefeatTick", 4, None),
+    ("economyPacketTick", "g_economyPacketTick", 4, None),
+]
+
+PATH_GLOBALS: list[tuple[str, str, int, str | None]] = [
+    ("playerTickLoad", "g_playerTickLoad", 40, None),
+    ("playerBudgetCap", "g_playerBudgetCap", 40, None),
+    ("budgetRefreshCounter", "g_budgetRefreshCounter", 4, None),
 ]
 
 WIND_FIELDS: list[tuple[str, str]] = [
@@ -159,6 +283,11 @@ METEOR_GLOBALS: list[tuple[str, str, int, str | None]] = [
     ("target", "g_meteorTarget", 4, None),
     ("scheduleGap", "g_meteorScheduleGap", 4, None),
 ]
+GLOBAL_DECLS: dict[str, str] = {
+    "g_cdMismatchDefeatTick": "unsigned int g_cdMismatchDefeatTick",
+    "g_playerTickLoad": "int g_playerTickLoad[10]",
+    "g_playerBudgetCap": "int g_playerBudgetCap[10]",
+}
 METEOR_DECLS: dict[str, str] = {
     "g_meteorWeaponName": "char g_meteorWeaponName[32]",
     "g_meteorOrigin": "Point16 g_meteorOrigin",
@@ -380,9 +509,11 @@ def generate():
         "#ifndef TRACE_SCHEMA_H",
         "#define TRACE_SCHEMA_H",
         "",
+        "#define TRACE_FORMAT %d" % TRACE_FORMAT,
+        "",
         "enum TraceKind { TF_SCALAR, TF_BYTES, TF_POINTER };",
         "enum TraceTarget { TT_NONE, TT_HEAP, TT_UNIT, TT_PLAYER, TT_UNITDEF, TT_WEAPONDEF, TT_PROJECTILE,",
-        "                   TT_FEATURE, TT_PIECE };",
+        "                   TT_FEATURE, TT_PIECE, TT_REC, TT_NODE, TT_MOVECLASS };",
         "",
         "struct TraceField {",
         "    const char* name;",
@@ -417,6 +548,13 @@ def generate():
         emit_table(lines, "k%sFields" % key, fields, True)
         emit_table(lines, "k%sPlan" % key, plan, False)
         tables.append((key, len(fields), len(plan), size))
+    fields, size = finish(schema, "Pathfinder", "Pathfinder")
+    for key, part in (("Pathfinder", [f for f in fields if f["name"].split("[")[0] not in PATHFINDER_SEARCH_FIELDS]),
+                      ("PathfinderSearch", [f for f in fields if f["name"].split("[")[0] in PATHFINDER_SEARCH_FIELDS])):
+        plan = plan_of(part)
+        emit_table(lines, "k%sFields" % key, part, True)
+        emit_table(lines, "k%sPlan" % key, plan, False)
+        tables.append((key, len(part), len(plan), size))
     for key, nf, npl, size in tables:
         lines.append("static const TraceTable k%sTable = { k%sFields, %d, k%sPlan, %d, 0x%x };"
                      % (key, key, nf, key, npl, size))
@@ -435,17 +573,40 @@ def generate():
     lines.append("static const unsigned kWindFieldCount = %d;" % len(wind))
     lines.append("")
 
-    for _, symbol, size, _ in METEOR_GLOBALS:
-        lines.append("extern %s;" % METEOR_DECLS.get(symbol, "int %s" % symbol))
+    scalars = []
+    game_text = schema.struct_source("Game")[0]
+    for name, offset, size, target, mask in GAME_SCALARS:
+        has_field = re.search(r"//\s*\+0x%x\b" % offset, game_text) or re.search(r"\bunknown_%x\[" % offset, game_text)
+        if not has_field and offset not in (0x14217,):
+            schema.errors.append("Game has no field at %#x for %s" % (offset, name))
+        entry = {"name": name, "offset": offset, "size": size, "kind": "pointer" if target else "scalar",
+                 "target": target}
+        if mask:
+            entry["mask"] = mask
+        scalars.append(entry)
+    emit_table(lines, "kGameScalarFields", scalars, True)
+    lines.append("static const unsigned kGameScalarFieldCount = %d;" % len(scalars))
     lines.append("")
-    lines.append("static const TraceGlobal kMeteorGlobals[] = {")
-    for name, symbol, size, target in METEOR_GLOBALS:
-        kind = "TF_POINTER" if target else ("TF_BYTES" if size > 8 else "TF_SCALAR")
-        lines.append("    { %s, &%s, %d, %s, %s }," % (c_string(name), symbol, size, kind,
-                                                      "TT_" + target if target else "TT_NONE"))
-    lines.append("};")
-    lines.append("static const unsigned kMeteorGlobalCount = %d;" % len(METEOR_GLOBALS))
+
+    declared = set()
+    for group in (METEOR_GLOBALS, SCALAR_GLOBALS, PATH_GLOBALS):
+        for _, symbol, size, _ in group:
+            if symbol in declared:
+                continue
+            declared.add(symbol)
+            decl = METEOR_DECLS.get(symbol) or GLOBAL_DECLS.get(symbol) or "int %s" % symbol
+            lines.append("extern %s;" % decl)
     lines.append("")
+    for cname, group in (("kMeteorGlobals", METEOR_GLOBALS), ("kScalarGlobals", SCALAR_GLOBALS),
+                         ("kPathGlobals", PATH_GLOBALS)):
+        lines.append("static const TraceGlobal %s[] = {" % cname)
+        for name, symbol, size, target in group:
+            kind = "TF_POINTER" if target else ("TF_BYTES" if size > 8 else "TF_SCALAR")
+            lines.append("    { %s, &%s, %d, %s, %s }," % (c_string(name), symbol, size, kind,
+                                                          "TT_" + target if target else "TT_NONE"))
+        lines.append("};")
+        lines.append("static const unsigned %sCount = %d;" % (cname, len(group)))
+        lines.append("")
     lines.append("#endif")
     return "\n".join(lines) + "\n", schema.errors
 

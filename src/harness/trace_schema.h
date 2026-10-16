@@ -2,9 +2,11 @@
 #ifndef TRACE_SCHEMA_H
 #define TRACE_SCHEMA_H
 
+#define TRACE_FORMAT 2
+
 enum TraceKind { TF_SCALAR, TF_BYTES, TF_POINTER };
 enum TraceTarget { TT_NONE, TT_HEAP, TT_UNIT, TT_PLAYER, TT_UNITDEF, TT_WEAPONDEF, TT_PROJECTILE,
-                   TT_FEATURE, TT_PIECE };
+                   TT_FEATURE, TT_PIECE, TT_REC, TT_NODE, TT_MOVECLASS };
 
 struct TraceField {
     const char* name;
@@ -74,7 +76,7 @@ static const TraceField kUnitFields[] = {
     { "field_7a", 0x7a, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "footprint.x", 0x7e, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "footprint.y", 0x80, 2, TF_SCALAR, TT_NONE, 0x0 },
-    { "", 0x82, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x82, 4, TF_POINTER, TT_REC, 0x0 },
     { "", 0x86, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "cargo", 0x8a, 4, TF_POINTER, TT_UNIT, 0x0 },
     { "next", 0x8e, 4, TF_POINTER, TT_UNIT, 0x0 },
@@ -139,7 +141,7 @@ static const TraceField kUnitPlan[] = {
     { "", 0x5c, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "", 0x60, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "", 0x64, 30, TF_BYTES, TT_NONE, 0x0 },
-    { "", 0x82, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x82, 4, TF_POINTER, TT_REC, 0x0 },
     { "", 0x86, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "", 0x8a, 4, TF_POINTER, TT_UNIT, 0x0 },
     { "", 0x8e, 4, TF_POINTER, TT_UNIT, 0x0 },
@@ -489,6 +491,151 @@ static const TraceField kSpotAnimPlan[] = {
     { "", 0x1c, 20, TF_BYTES, TT_NONE, 0x0 },
 };
 
+static const TraceField kRecFields[] = {
+    { "a", 0x0, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "b", 0x1, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "flags", 0x2, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "first", 0x6, 4, TF_POINTER, TT_UNIT, 0x0 },
+};
+
+static const TraceField kRecPlan[] = {
+    { "", 0x0, 6, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x6, 4, TF_POINTER, TT_UNIT, 0x0 },
+};
+
+static const TraceField kEyeFields[] = {
+    { "player", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "x", 0x8, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "flagA", 0xa, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "flagB", 0xb, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos.x", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos.y", 0x14, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos.z", 0x18, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "expires", 0x1c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "screenPos", 0x20, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kEyePlan[] = {
+    { "", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "", 0x8, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x10, 20, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kNodeFields[] = {
+    { "index", 0x0, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos_x", 0x4, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos_y", 0x6, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "g", 0x8, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "f", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "steps", 0x12, 2, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kNodePlan[] = {
+    { "", 0x0, 16, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x12, 2, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kMoveClassFields[] = {
+    { "name", 0x0, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "footprintX", 0x4, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "footprintZ", 0x6, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxWaterDepth", 0x8, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "minWaterDepth", 0xa, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxSlope", 0xc, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "badSlope", 0xd, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxWaterSlope", 0xe, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "badWaterSlope", 0xf, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "width", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "height", 0x14, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "cells", 0x18, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "lastTick", 0x1c, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kMoveClassPlan[] = {
+    { "", 0x0, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x4, 20, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x18, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x1c, 4, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kPathfinderFields[] = {
+    { "pool", 0x0, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "items", 0x4, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "freeHead", 0x8, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "used", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "count", 0x14, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "topPopped", 0x18, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "cells", 0x1c, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "width", 0x20, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "height", 0x24, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "cellCount", 0x28, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "dirty", 0x2c, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "stepsPerTick", 0x48, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "steps", 0x4c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "costScale", 0x50, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "baseScale", 0x54, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "object", 0x58, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "player", 0x78, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "cursor[0]", 0x79, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[1]", 0x7d, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[2]", 0x81, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[3]", 0x85, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[4]", 0x89, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[5]", 0x8d, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[6]", 0x91, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[7]", 0x95, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[8]", 0x99, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "cursor[9]", 0x9d, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "budget", 0xa1, 40, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kPathfinderPlan[] = {
+    { "", 0x0, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x4, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x8, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x14, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x1c, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x20, 12, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x2c, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x48, 16, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x58, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x78, 1, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x79, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x7d, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x81, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x85, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x89, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x8d, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x91, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x95, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x99, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0x9d, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "", 0xa1, 40, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kPathfinderSearchFields[] = {
+    { "start_x", 0x30, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "start_y", 0x32, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "goalX", 0x38, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "goalY", 0x3c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "probe", 0x40, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "range", 0x44, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "path", 0x5c, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "target", 0x60, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "owner", 0x64, 4, TF_POINTER, TT_MOVECLASS, 0x0 },
+    { "turnCost", 0x68, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "stepCost", 0x70, 8, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kPathfinderSearchPlan[] = {
+    { "", 0x30, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x38, 16, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x5c, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x60, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "", 0x64, 4, TF_POINTER, TT_MOVECLASS, 0x0 },
+    { "", 0x68, 16, TF_BYTES, TT_NONE, 0x0 },
+};
+
 static const TraceTable kUnitTable = { kUnitFields, 87, kUnitPlan, 30, 0x118 };
 static const TraceTable kProjectileTable = { kProjectileFields, 33, kProjectilePlan, 5, 0x6b };
 static const TraceTable kPlayerTable = { kPlayerFields, 76, kPlayerPlan, 12, 0x14b };
@@ -499,6 +646,12 @@ static const TraceTable kPieceRecTable = { kPieceRecFields, 14, kPieceRecPlan, 7
 static const TraceTable kFaceTable = { kFaceFields, 9, kFacePlan, 6, 0x20 };
 static const TraceTable kSpotObjectTable = { kSpotObjectFields, 18, kSpotObjectPlan, 3, 0x30 };
 static const TraceTable kSpotAnimTable = { kSpotAnimFields, 22, kSpotAnimPlan, 5, 0x30 };
+static const TraceTable kRecTable = { kRecFields, 4, kRecPlan, 2, 0xa };
+static const TraceTable kEyeTable = { kEyeFields, 9, kEyePlan, 3, 0x24 };
+static const TraceTable kNodeTable = { kNodeFields, 6, kNodePlan, 2, 0x14 };
+static const TraceTable kMoveClassTable = { kMoveClassFields, 13, kMoveClassPlan, 4, 0x20 };
+static const TraceTable kPathfinderTable = { kPathfinderFields, 28, kPathfinderPlan, 21, 0xc9 };
+static const TraceTable kPathfinderSearchTable = { kPathfinderSearchFields, 11, kPathfinderSearchPlan, 6, 0xc9 };
 
 static const TraceField kWindFields[] = {
     { "windCounter", 0x37ec4, 4, TF_SCALAR, TT_NONE, 0x0 },
@@ -516,6 +669,24 @@ static const TraceField kWindFields[] = {
 
 static const unsigned kWindFieldCount = 11;
 
+static const TraceField kGameScalarFields[] = {
+    { "numPlayers", 0x2a3c, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "localPlayer", 0x2a42, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "playerIndex", 0x2a43, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "netGameFlags", 0x2a44, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "spotFeatureUnit", 0x1420f, 4, TF_POINTER, TT_UNIT, 0x0 },
+    { "spotUsedHead", 0x14213, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "spotRestHead", 0x14217, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "spotFreeHead", 0x1421b, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "spotField_1421f", 0x1421f, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "scanIndex", 0x14257, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "mapFlags", 0x14281, 2, TF_SCALAR, TT_NONE, 0xfff7 },
+    { "endGameCountdown", 0x39239, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "endGameFlags", 0x3923b, 2, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const unsigned kGameScalarFieldCount = 13;
+
 extern int g_meteorNextStrikeTime;
 extern char g_meteorWeaponName[32];
 extern int g_meteorSpawnMagnitude;
@@ -529,6 +700,12 @@ extern int g_meteorsEnabled;
 extern int g_meteorNextHitTime;
 extern Point16 g_meteorTarget;
 extern int g_meteorScheduleGap;
+extern int g_cdPathMismatch;
+extern unsigned int g_cdMismatchDefeatTick;
+extern int g_economyPacketTick;
+extern int g_playerTickLoad[10];
+extern int g_playerBudgetCap[10];
+extern int g_budgetRefreshCounter;
 
 static const TraceGlobal kMeteorGlobals[] = {
     { "nextStrikeTime", &g_meteorNextStrikeTime, 4, TF_SCALAR, TT_NONE },
@@ -545,6 +722,20 @@ static const TraceGlobal kMeteorGlobals[] = {
     { "target", &g_meteorTarget, 4, TF_SCALAR, TT_NONE },
     { "scheduleGap", &g_meteorScheduleGap, 4, TF_SCALAR, TT_NONE },
 };
-static const unsigned kMeteorGlobalCount = 13;
+static const unsigned kMeteorGlobalsCount = 13;
+
+static const TraceGlobal kScalarGlobals[] = {
+    { "cdPathMismatch", &g_cdPathMismatch, 4, TF_SCALAR, TT_NONE },
+    { "cdMismatchDefeatTick", &g_cdMismatchDefeatTick, 4, TF_SCALAR, TT_NONE },
+    { "economyPacketTick", &g_economyPacketTick, 4, TF_SCALAR, TT_NONE },
+};
+static const unsigned kScalarGlobalsCount = 3;
+
+static const TraceGlobal kPathGlobals[] = {
+    { "playerTickLoad", &g_playerTickLoad, 40, TF_BYTES, TT_NONE },
+    { "playerBudgetCap", &g_playerBudgetCap, 40, TF_BYTES, TT_NONE },
+    { "budgetRefreshCounter", &g_budgetRefreshCounter, 4, TF_SCALAR, TT_NONE },
+};
+static const unsigned kPathGlobalsCount = 3;
 
 #endif

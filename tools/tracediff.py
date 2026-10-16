@@ -15,8 +15,14 @@ phase that differs, with its value in A and in B. Set WINEARCH=win64 for Wine.
       all 1 differing fields:
         units[12].health: a=0x0064 b=0x0063
 
+The row `world` is the tables hashed once per tick (game scalars, map, line of sight, pathfinder),
+after the last phase's row. A dump holds them after every phase, so the fields of a `world` divergence
+are read from the last phase's lines.
+
 `--traces` compares existing trace files without running, and reports the first
 divergence only. `--dumps` diffs the phase of two existing dump files.
+
+`--poison-b` runs B with `playtest.py --poison` (new allocations filled with 0xCD), A as usual.
 
 `--ignore-view-seed` accepts traces whose headers differ only in view_seed (any
 other header difference is still refused). In run mode, give `--scenario` twice
@@ -33,8 +39,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from traceschema import TRACE_FORMAT
+
 ROOT = Path(__file__).resolve().parent.parent
-PHASES = ("net", "units", "projectiles", "explosions", "players", "features", "wind", "meteors")
+PHASES = ("net", "units", "projectiles", "explosions", "players", "features", "wind", "meteors", "world")
 PHASE_FUNCTIONS = {
     "net": ("HandleNetPackets", 0x453D40),
     "units": ("UpdateAllUnits", 0x48AD30),
@@ -45,6 +53,7 @@ PHASE_FUNCTIONS = {
     "wind": ("UpdateWind", 0x490C40),
     "meteors": ("UpdateMeteors", 0x437DE0),
 }
+DUMP_PHASE = {"world": "meteors"}
 COMPARED_HEADERS = ("scenario", "game_seed", "crt_seed", "view_seed")
 
 
@@ -59,8 +68,8 @@ def parse_trace(path: Path) -> tuple[dict[str, str], list[tuple[int, str, str]]]
     for n, line in enumerate(path.read_text().splitlines(), 1):
         words = line.split()
         if n == 1:
-            if words != ["bt-trace", "1"]:
-                raise Error(f"{path}: not a bt-trace 1 file")
+            if words != ["bt-trace", str(TRACE_FORMAT)]:
+                raise Error(f"{path}: not a bt-trace {TRACE_FORMAT} file")
         elif len(words) == 3 and words[0].isdigit() and words[1] in PHASES:
             rows.append((int(words[0]), words[1], words[2]))
         elif rows or not words:
@@ -91,8 +100,8 @@ def parse_dump(path: Path) -> dict[tuple[int, str], dict[str, str]]:
     out: dict[tuple[int, str], dict[str, str]] = {}
     for n, line in enumerate(path.read_text().splitlines(), 1):
         if n == 1:
-            if line.split() != ["bt-dump", "1"]:
-                raise Error(f"{path}: not a bt-dump 1 file")
+            if line.split() != ["bt-dump", str(TRACE_FORMAT)]:
+                raise Error(f"{path}: not a bt-dump {TRACE_FORMAT} file")
             continue
         m = re.fullmatch(r"(\d+) (\w+) (\S+) (.*)", line)
         if not m:
@@ -103,6 +112,7 @@ def parse_dump(path: Path) -> dict[tuple[int, str], dict[str, str]]:
 
 def diff_dumps(a: Path, b: Path, tick: int, phase: str) -> list[tuple[str, str, str]]:
     """The (path, a value, b value) of each field of that phase that differs; "-" if absent."""
+    phase = DUMP_PHASE.get(phase, phase)
     fa = parse_dump(a).get((tick, phase), {})
     fb = parse_dump(b).get((tick, phase), {})
     if not fa and not fb:
@@ -113,6 +123,8 @@ def diff_dumps(a: Path, b: Path, tick: int, phase: str) -> list[tuple[str, str, 
 
 def describe_phase(phase: str) -> str:
     """The function a phase's hash follows, from RunGameSteps (src/ingame/dialogs_493340.cpp)."""
+    if phase not in PHASE_FUNCTIONS:
+        return "none (the once-per-tick tables, hashed after UpdateMeteors)"
     name, address = PHASE_FUNCTIONS[phase]
     return f"{name} (FUNCTION: {address:#x})"
 
@@ -134,7 +146,8 @@ def print_divergence(tick: int, phase: str) -> None:
     print(f"  phase function: {describe_phase(phase)}")
 
 
-def play(exe: Path, scenario: Path, game_dir: str | None, dump: int | None, timeout: float | None = None) -> Path:
+def play(exe: Path, scenario: Path, game_dir: str | None, dump: int | None, timeout: float | None = None,
+         poison: bool = False) -> Path:
     """Run the exe on the scenario with playtest.py; the run's directory."""
     cmd = [sys.executable, str(ROOT / "tools/playtest.py"), "--exe", str(exe), "--testmode", str(scenario)]
     if game_dir:
@@ -143,6 +156,8 @@ def play(exe: Path, scenario: Path, game_dir: str | None, dump: int | None, time
         cmd += ["--testdump", str(dump)]
     if timeout is not None:
         cmd += ["--testmode-timeout", f"{timeout:g}"]
+    if poison:
+        cmd.append("--poison")
     r = subprocess.run(cmd, capture_output=True, text=True)
     sys.stderr.write(r.stderr)
     m = re.search(r"^logs and screenshots: (.+)/$", r.stdout, re.M)
@@ -164,7 +179,8 @@ def compare(args: argparse.Namespace) -> int:
     exes = [Path(e).resolve() for e in args.exe]
     scenarios = [Path(s).resolve() for s in args.scenario]
     scenarios *= 2 if len(scenarios) == 1 else 1
-    runs = [play(e, s, args.game_dir, None) for e, s in zip(exes, scenarios)]
+    poison = [False, args.poison_b]
+    runs = [play(e, s, args.game_dir, None, None, p) for e, s, p in zip(exes, scenarios, poison)]
     (ha, ra), (hb, rb) = (parse_trace(need(r, "trace.txt")) for r in runs)
     check_headers(ha, hb, args.ignore_view_seed)
     div = first_divergence(ra, rb)
@@ -173,7 +189,7 @@ def compare(args: argparse.Namespace) -> int:
         return 0
     tick, phase = div
     print_divergence(tick, phase)
-    runs = [play(e, s, args.game_dir, tick) for e, s in zip(exes, scenarios)]
+    runs = [play(e, s, args.game_dir, tick, None, p) for e, s, p in zip(exes, scenarios, poison)]
     print_diff(diff_dumps(need(runs[0], "dump.txt"), need(runs[1], "dump.txt"), tick, phase))
     return 1
 
@@ -186,6 +202,8 @@ def main() -> int:
     ap.add_argument("--ignore-view-seed", action="store_true",
                     help="accept traces whose headers differ only in view_seed")
     ap.add_argument("--game-dir", help="the game's install (default: Steam's)")
+    ap.add_argument("--poison-b", action="store_true",
+                    help="run B with new game allocations filled with 0xCD (as reference.py --check --poison does)")
     ap.add_argument("--traces", nargs=2, metavar=("A", "B"), help="compare two trace.txt files, without running")
     ap.add_argument("--dumps", nargs=2, metavar=("A", "B"), help="diff two dump.txt files, with --at")
     ap.add_argument("--at", nargs=2, metavar=("TICK", "PHASE"), help="--dumps: the tick and phase to diff")

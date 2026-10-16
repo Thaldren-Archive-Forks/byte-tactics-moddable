@@ -14,6 +14,10 @@ function and reports which ones no longer MATCH, against the allowlist in the
 commit's own reference/changed.txt. Exits 1 if the build fails or a function
 outside the allowlist does not MATCH.
 
+Every scenario is played with new game allocations zeroed (the game's own -memset=0 switch, through
+tools/playtest.py --testmode). `--check --poison` fills them with 0xCD instead (-memset=0xcdcdcdcd); a
+table that reads uninitialised bytes may then differ from the stored digests, and the report lists those.
+
 `--traces` then plays every scenario in reference/scenarios/ (`--parallel N` at a
 time, default half the CPUs and at most 6, under Wine through tools/playtest.py) and writes reference/traces/<scenario>.txt:
 the header of the run's trace.txt and one digest per tick (tools/tracedigest.py).
@@ -208,7 +212,7 @@ def should_retry(message: str) -> bool:
 
 
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
-                  want: tuple[dict[str, str], list[tuple[int, str]]] | None = None,
+                  want: tuple[dict[str, str], list[tuple[int, str]]] | None = None, poison: bool = False,
                   ) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
     """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken.
 
@@ -225,7 +229,7 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
     t0 = time.time()
     for attempt in range(RUN_ATTEMPTS):
         try:
-            run = tracediff.play(exe, scenario, game_dir, None, timeout)
+            run = tracediff.play(exe, scenario, game_dir, None, timeout, poison)
             break
         except tracediff.Error as e:
             if attempt == RUN_ATTEMPTS - 1 or not should_retry(str(e)):
@@ -253,7 +257,7 @@ def last_lines(error: Exception, count: int = 1) -> str:
 
 
 def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int,
-             expected: dict[str, tuple] | None = None) -> dict[str, tuple]:
+             expected: dict[str, tuple] | None = None, poison: bool = False) -> dict[str, tuple]:
     """Every scenario's play_scenario result, `parallel` at a time and longest first; exits 1 if one fails to run.
 
     Each run has its own session directory, Wine prefix, game directory, X display and audio sink
@@ -266,7 +270,7 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
 
     def one(name: str) -> None:
         try:
-            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name))
+            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name), poison)
         except (tracediff.Error, OSError) as e:
             failures.append(f"{name}: failed to run, playtest.py ended with:\n    {last_lines(e, 5)}")
 
@@ -315,7 +319,7 @@ def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) 
     return None
 
 
-def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = False) -> None:
+def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = False, poison: bool = False) -> None:
     scenarios = scenario_files()
     stored = {p.stem: p for p in sorted(TRACES.glob("*.txt"))} if TRACES.is_dir() else {}
     if quick:
@@ -336,7 +340,7 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
             fail(str(e))
 
     t0 = time.time()
-    results = play_all(exe, scenarios, game_dir, parallel, expected)
+    results = play_all(exe, scenarios, game_dir, parallel, expected, poison)
     wall = time.time() - t0
     bad: list[str] = []
     for name in scenarios:
@@ -360,6 +364,8 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     ref_dir = build_cached(sha)
     cmd = [sys.executable, str(ROOT / "tools/tracediff.py"), str(ref_dir / "TotalA.exe"), str(exe),
            "--scenario", str(scenarios[name])]
+    if poison:
+        cmd.append("--poison-b")
     if game_dir:
         cmd += ["--game-dir", game_dir]
     subprocess.run(cmd)
@@ -390,6 +396,8 @@ def main() -> None:
     ap.add_argument("--check", action="store_true", help="play every scenario and compare with reference/traces/")
     ap.add_argument("--quick", action="store_true",
                     help="--check: play only the fixed quick subset (not the gate)")
+    ap.add_argument("--poison", action="store_true",
+                    help="--check: play the scenarios with new game allocations filled with 0xCD; list the bytes whose starting value reaches hashed state; a difference is expected for real uninitialised reads")
     ap.add_argument("--exe", metavar="PATH", help="--check: check this exe instead of building the ref")
     ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
     ap.add_argument("--parallel", type=int, default=default_parallel(), metavar="N",
@@ -400,6 +408,8 @@ def main() -> None:
     ref = args.ref
     if args.traces == args.check and (args.traces or args.exe):
         ap.error("give one of --traces and --check")
+    if args.poison and not args.check:
+        ap.error("--poison needs --check")
     if args.quick and not args.check:
         ap.error("--quick needs --check; it cannot be used with --traces")
     if args.exe and not args.check:
@@ -409,7 +419,7 @@ def main() -> None:
     if not args.exe and not ref:
         ap.error("give a ref to build")
     if args.exe:
-        check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick)
+        check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison)
         return
 
     sha = resolve(ref)
@@ -440,7 +450,7 @@ def main() -> None:
     if args.traces:
         write_traces(sha, directory / "TotalA.exe", args.game_dir, args.parallel)
     elif args.check:
-        check_traces(directory / "TotalA.exe", args.game_dir, args.parallel, args.quick)
+        check_traces(directory / "TotalA.exe", args.game_dir, args.parallel, args.quick, args.poison)
 
 
 if __name__ == "__main__":

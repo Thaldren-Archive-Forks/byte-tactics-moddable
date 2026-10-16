@@ -3,8 +3,12 @@
 Pure functions only; no game, display or Wine is run.
 """
 
+import argparse
+from pathlib import Path
+
 import playtest
 import reference
+import tracediff
 
 GAME = ("Total Annihilation", 640, 480)
 BOX = ("Total Annihilation", 231, 77)
@@ -32,6 +36,29 @@ def test_retry() -> None:
     assert not reference.should_retry("the game shows an error dialog (dialog-crt, window title \"x\")")
     assert not reference.should_retry("the game shows an error dialog (dialog-cavedog, window title \"x\")")
     assert not reference.should_retry("the game still runs after 1470s")
+
+
+
+def test_tracediff_poisons_only_b() -> None:
+    calls = []
+
+    def fake_play(exe, scenario, game_dir, dump, timeout=None, poison=False):
+        calls.append((exe.name, dump, poison))
+        return Path(exe.name)
+
+    saved = tracediff.play, tracediff.need, tracediff.parse_trace, tracediff.diff_dumps, tracediff.print_diff
+    tracediff.play = fake_play
+    tracediff.need = lambda run, name: run / name
+    tracediff.parse_trace = lambda path: ({}, [(1, "units", "aa")] if path.parent.name == "a.exe" else [(1, "units", "bb")])
+    tracediff.diff_dumps = lambda *a: []
+    tracediff.print_diff = lambda diffs: None
+    try:
+        args = argparse.Namespace(exe=["a.exe", "b.exe"], scenario=["s.txt"], game_dir=None,
+                                  ignore_view_seed=False, poison_b=True)
+        assert tracediff.compare(args) == 1
+    finally:
+        tracediff.play, tracediff.need, tracediff.parse_trace, tracediff.diff_dumps, tracediff.print_diff = saved
+    assert calls == [("a.exe", None, False), ("b.exe", None, True), ("a.exe", 1, False), ("b.exe", 1, True)], calls
 
 
 if __name__ == "__main__":
