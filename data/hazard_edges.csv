@@ -1,0 +1,500 @@
+caller,target,reason
+AiSearchGoal::SetWaypoints,AirManeuverOrder::IsComplete,"ContainsUnit is slot 4 of the OrderFx family, src/data/vtables.cpp:100"
+AiSearchGoal::SetWaypoints,ApproachRadius::ContainsUnit,"ContainsUnit is slot 4 of the OrderFx family, src/data/vtables.cpp:100"
+AiSearchGoal::SetWaypoints,Class_0044cf00::ContainsUnit,"ContainsUnit is slot 4 of the OrderFx family, src/data/vtables.cpp:100"
+AiSearchGoal::SetWaypoints,Class_0044e5b0::IsComplete,"ContainsUnit is slot 4 of the OrderFx family, src/data/vtables.cpp:100"
+AiSearchGoal::SetWaypoints,RingApproach::ContainsUnit,"ContainsUnit is slot 4 of the OrderFx family, src/data/vtables.cpp:100"
+AllocNode_004daa30,OutOfMemoryHandler,"g_outOfMemoryHandler is set only to OutOfMemoryHandler, src/game/main.cpp:36"
+AllocNode_004db000,OutOfMemoryHandler,"g_outOfMemoryHandler is set only to OutOfMemoryHandler, src/game/main.cpp:36"
+BlockMap::erase,BlockMap::_Max,"static member call, src/debug/debug_lib.cpp:1887"
+BlockMap::erase,BlockMap::_Min,"static member call, src/debug/debug_lib.cpp:1881"
+BlockMapAllocator::Allocate,OutOfMemoryHandler,"g_outOfMemoryHandler is set only to OutOfMemoryHandler, src/game/main.cpp:36"
+ClearUnitRefs,Order::OrStatusFlags,"slot 0 of Order; listener is the Order stored by Order constructor, src/orders/order_list.cpp:636"
+CloseTopScreen,Choice3DialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1136
+CloseTopScreen,HandleAlliesClick,Layer::handler assigned at src/frontend/multi.cpp:3579
+CloseTopScreen,HandleBattleRoomClick,Layer::handler assigned at src/frontend/multi_449bb0.cpp:280
+CloseTopScreen,HandleBriefingClick,Layer::handler assigned at src/frontend/options.cpp:2329
+CloseTopScreen,HandleBuildPanelClick,Layer::handler assigned at src/ingame/control_panel.cpp:1155
+CloseTopScreen,HandleCdCheckClick,Layer::handler assigned at src/frontend/endgame.cpp:984
+CloseTopScreen,HandleCloseCdPlayerChoice,Layer::handler assigned at src/frontend/frontend.cpp:746
+CloseTopScreen,HandleControlDialogClick,Layer::handler assigned at src/frontend/multi.cpp:3055
+CloseTopScreen,HandleEndMissionClick,Layer::handler assigned at src/frontend/endgame.cpp:860
+CloseTopScreen,HandleExitMenuClick,Layer::handler assigned at src/frontend/options.cpp:2797
+CloseTopScreen,HandleGameSettingsDialogClick,Layer::handler assigned at src/frontend/options.cpp:2224
+CloseTopScreen,HandleHelpClick,Layer::handler assigned at src/frontend/options.cpp:2420
+CloseTopScreen,HandleInGameOptionsClick,Layer::handler assigned at src/frontend/options.cpp:2910
+CloseTopScreen,HandleLoadListClick,Layer::handler assigned at src/frontend/multi.cpp:4683
+CloseTopScreen,HandleLogoSelectClick,Layer::handler assigned at src/frontend/multi.cpp:2452
+CloseTopScreen,HandleMain2LayoutEvent,Layer::handler assigned at src/game/game_load.cpp:793
+CloseTopScreen,HandleMainMenuClick,Layer::handler assigned at src/frontend/frontend.cpp:777
+CloseTopScreen,HandleMapSelectClick,Layer::handler assigned at src/frontend/multi.cpp:2412
+CloseTopScreen,HandleMissionBriefingClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:1394
+CloseTopScreen,HandleModemDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1850
+CloseTopScreen,HandleNewGameClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:1033
+CloseTopScreen,HandleNewMultiClick,Layer::handler assigned at src/frontend/multi.cpp:1228
+CloseTopScreen,HandleOptionsPanelClick,Layer::handler assigned at src/frontend/options.cpp:2619
+CloseTopScreen,HandleRejectChoice,Layer::handler assigned at src/frontend/multi.cpp:2890
+CloseTopScreen,HandleReportClick,Layer::handler assigned at src/frontend/multi.cpp:1964
+CloseTopScreen,HandleRestartDialogClick,Layer::handler assigned at src/frontend/options.cpp:2686
+CloseTopScreen,HandleRestrictionsClick,Layer::handler assigned at src/frontend/multi.cpp:4910
+CloseTopScreen,HandleSaveGameClick,Layer::handler assigned at src/frontend/multi.cpp:4635
+CloseTopScreen,HandleSelectGameClick,Layer::handler assigned at src/frontend/multi.cpp:2145
+CloseTopScreen,HandleSelectProviderClick,Layer::handler assigned at src/frontend/multi_444580.cpp:115
+CloseTopScreen,HandleSerialDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1584
+CloseTopScreen,HandleShareDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:427
+CloseTopScreen,HandleSingleMenuClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:801
+CloseTopScreen,HandleSkirmishClick,Layer::handler assigned at src/frontend/skirmish_menu.cpp:1248
+CloseTopScreen,HandleSkirmishMapClick,Layer::handler assigned at src/frontend/skirmish_menu.cpp:777
+CloseTopScreen,HandleSurrenderChoice,Layer::handler assigned at src/frontend/options.cpp:2760
+CloseTopScreen,HandleTabMenuEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:1137
+CloseTopScreen,HandleTalkDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:684
+CloseTopScreen,HandleTcpDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1478
+CloseTopScreen,HandleUnitInfoDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:763
+CloseTopScreen,HandleViewMapClick,Layer::handler assigned at src/frontend/multi.cpp:2301
+CloseTopScreen,HandleVisualOptionsClick,Layer::handler assigned at src/frontend/options.cpp:1967
+CloseTopScreen,InputDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1170
+CloseTopScreen,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:667
+CloseTopScreen,MessageBoxHandler,Layer::handler assigned at src/gui/dialogs.cpp:1074
+CloseTopScreen,NotExistDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1100
+CloseTopScreen,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:638
+CloseTopScreen,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:684
+CloseTopScreen,SetSerialBaudFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1605
+CloseTopScreen,SetSerialPortFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1602
+CloseTopScreen,ShowSelectedAccount,Layer::handler assigned at src/frontend/multi.cpp:1902
+CloseTopScreen,UpdateGameSelection,Layer::handler assigned at src/frontend/multi.cpp:2167
+CloseTopScreen,YesNoDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:972
+CloseTopScreen_inlined,Choice3DialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1136
+CloseTopScreen_inlined,HandleAlliesClick,Layer::handler assigned at src/frontend/multi.cpp:3579
+CloseTopScreen_inlined,HandleBattleRoomClick,Layer::handler assigned at src/frontend/multi_449bb0.cpp:280
+CloseTopScreen_inlined,HandleBriefingClick,Layer::handler assigned at src/frontend/options.cpp:2329
+CloseTopScreen_inlined,HandleBuildPanelClick,Layer::handler assigned at src/ingame/control_panel.cpp:1155
+CloseTopScreen_inlined,HandleCdCheckClick,Layer::handler assigned at src/frontend/endgame.cpp:984
+CloseTopScreen_inlined,HandleCloseCdPlayerChoice,Layer::handler assigned at src/frontend/frontend.cpp:746
+CloseTopScreen_inlined,HandleControlDialogClick,Layer::handler assigned at src/frontend/multi.cpp:3055
+CloseTopScreen_inlined,HandleEndMissionClick,Layer::handler assigned at src/frontend/endgame.cpp:860
+CloseTopScreen_inlined,HandleExitMenuClick,Layer::handler assigned at src/frontend/options.cpp:2797
+CloseTopScreen_inlined,HandleGameSettingsDialogClick,Layer::handler assigned at src/frontend/options.cpp:2224
+CloseTopScreen_inlined,HandleHelpClick,Layer::handler assigned at src/frontend/options.cpp:2420
+CloseTopScreen_inlined,HandleInGameOptionsClick,Layer::handler assigned at src/frontend/options.cpp:2910
+CloseTopScreen_inlined,HandleLoadListClick,Layer::handler assigned at src/frontend/multi.cpp:4683
+CloseTopScreen_inlined,HandleLogoSelectClick,Layer::handler assigned at src/frontend/multi.cpp:2452
+CloseTopScreen_inlined,HandleMain2LayoutEvent,Layer::handler assigned at src/game/game_load.cpp:793
+CloseTopScreen_inlined,HandleMainMenuClick,Layer::handler assigned at src/frontend/frontend.cpp:777
+CloseTopScreen_inlined,HandleMapSelectClick,Layer::handler assigned at src/frontend/multi.cpp:2412
+CloseTopScreen_inlined,HandleMissionBriefingClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:1394
+CloseTopScreen_inlined,HandleModemDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1850
+CloseTopScreen_inlined,HandleNewGameClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:1033
+CloseTopScreen_inlined,HandleNewMultiClick,Layer::handler assigned at src/frontend/multi.cpp:1228
+CloseTopScreen_inlined,HandleOptionsPanelClick,Layer::handler assigned at src/frontend/options.cpp:2619
+CloseTopScreen_inlined,HandleRejectChoice,Layer::handler assigned at src/frontend/multi.cpp:2890
+CloseTopScreen_inlined,HandleReportClick,Layer::handler assigned at src/frontend/multi.cpp:1964
+CloseTopScreen_inlined,HandleRestartDialogClick,Layer::handler assigned at src/frontend/options.cpp:2686
+CloseTopScreen_inlined,HandleRestrictionsClick,Layer::handler assigned at src/frontend/multi.cpp:4910
+CloseTopScreen_inlined,HandleSaveGameClick,Layer::handler assigned at src/frontend/multi.cpp:4635
+CloseTopScreen_inlined,HandleSelectGameClick,Layer::handler assigned at src/frontend/multi.cpp:2145
+CloseTopScreen_inlined,HandleSelectProviderClick,Layer::handler assigned at src/frontend/multi_444580.cpp:115
+CloseTopScreen_inlined,HandleSerialDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1584
+CloseTopScreen_inlined,HandleShareDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:427
+CloseTopScreen_inlined,HandleSingleMenuClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:801
+CloseTopScreen_inlined,HandleSkirmishClick,Layer::handler assigned at src/frontend/skirmish_menu.cpp:1248
+CloseTopScreen_inlined,HandleSkirmishMapClick,Layer::handler assigned at src/frontend/skirmish_menu.cpp:777
+CloseTopScreen_inlined,HandleSurrenderChoice,Layer::handler assigned at src/frontend/options.cpp:2760
+CloseTopScreen_inlined,HandleTabMenuEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:1137
+CloseTopScreen_inlined,HandleTalkDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:684
+CloseTopScreen_inlined,HandleTcpDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1478
+CloseTopScreen_inlined,HandleUnitInfoDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:763
+CloseTopScreen_inlined,HandleViewMapClick,Layer::handler assigned at src/frontend/multi.cpp:2301
+CloseTopScreen_inlined,HandleVisualOptionsClick,Layer::handler assigned at src/frontend/options.cpp:1967
+CloseTopScreen_inlined,InputDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1170
+CloseTopScreen_inlined,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:667
+CloseTopScreen_inlined,MessageBoxHandler,Layer::handler assigned at src/gui/dialogs.cpp:1074
+CloseTopScreen_inlined,NotExistDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1100
+CloseTopScreen_inlined,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:638
+CloseTopScreen_inlined,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:684
+CloseTopScreen_inlined,SetSerialBaudFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1605
+CloseTopScreen_inlined,SetSerialPortFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1602
+CloseTopScreen_inlined,ShowSelectedAccount,Layer::handler assigned at src/frontend/multi.cpp:1902
+CloseTopScreen_inlined,UpdateGameSelection,Layer::handler assigned at src/frontend/multi.cpp:2167
+CloseTopScreen_inlined,YesNoDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:972
+CobScript::AnimatePieces,UnitScript::GetPieceRotation,"overrides CobScript::GetPieceRotation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::AnimatePieces,UnitScript::GetPieceTranslation,"overrides CobScript::GetPieceTranslation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::AnimatePieces,UnitScript::SetPieceRotation,"overrides CobScript::SetPieceRotation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::AnimatePieces,UnitScript::SetPieceTranslation,"overrides CobScript::SetPieceTranslation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::EmitSfx,"overrides CobScript::EmitSfx; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::ExplodeLegacy,"overrides CobScript::ExplodeLegacy; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::ExplodePiece,"overrides CobScript::ExplodePiece; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::GetPieceRotation,"overrides CobScript::GetPieceRotation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::GetPieceTranslation,"overrides CobScript::GetPieceTranslation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::PlaySoundNoop,"overrides CobScript::PlaySoundNoop; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::SetPieceCached,"overrides CobScript::SetPieceCached; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::SetPieceRotation,"overrides CobScript::SetPieceRotation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::SetPieceShaded,"overrides CobScript::SetPieceShaded; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::SetPieceTranslation,"overrides CobScript::SetPieceTranslation; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,UnitScript::SetPieceVisible,"overrides CobScript::SetPieceVisible; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
+CobScript::RunThread,WeaponAimCobCb::OnAimCobReturn,"Callback::Complete slot 0; Callback is the weapon aim callback, vtable src/data/vtables.cpp:146"
+CobScript::StartScriptWithArgsByIndex,WeaponAimCobCb::OnAimCobReturn,"Callback::Complete slot 0; Callback is the weapon aim callback, vtable src/data/vtables.cpp:146"
+DecrementKnobPos,HandleEffectsVolumeSlider,slider callback assigned at src/frontend/options.cpp:1790
+DecrementKnobPos,HandleGameSpeedSlider,slider callback assigned at src/frontend/options.cpp:2138
+DecrementKnobPos,HandleGammaSlider,slider callback assigned at src/frontend/options.cpp:2040
+DecrementKnobPos,HandleMaxLinesSlider,slider callback assigned at src/frontend/options.cpp:2180
+DecrementKnobPos,HandleMusicVolumeSlider,slider callback assigned at src/frontend/options.cpp:1655
+DecrementKnobPos,HandleScreenSlider,slider callback assigned at src/frontend/options.cpp:2161
+DecrementKnobPos,HandleTextScrollSlider,slider callback assigned at src/frontend/options.cpp:2194
+DecrementKnobPos,HandleUnitCountSlider,slider callback assigned at src/frontend/multi.cpp:4984
+DecrementKnobPos,HandleVideoModeSlider,slider callback assigned at src/frontend/options.cpp:1980
+DecrementKnobPos,UpdateEnergyReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:446
+DecrementKnobPos,UpdateMetalReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:435
+EmitSmoke,SmokeParticles::Init,"new SmokeParticles, no subclass, src/graphics/particles_472630.cpp:524"
+EmitTimedSubParticles,TimedSubParticles::Init,"new TimedSubParticles, no subclass, src/graphics/particles_472630.cpp:582"
+EmitWeaponSmoke,SmokeParticles::Init,"new SmokeParticles, no subclass, src/graphics/particles_472630.cpp:524"
+EmitWhiteSmoke,SmokeParticles::Init,"new SmokeParticles, no subclass, src/graphics/particles_472630.cpp:524"
+FreeBlockAllocator::Allocate,OutOfMemoryHandler,"g_outOfMemoryHandler is set only to OutOfMemoryHandler, src/game/main.cpp:36"
+FreeBlockMap::Erase,FreeBlockMap::Color,"static member call, src/debug/debug_lib.cpp:2013"
+FreeBlockMap::Erase,FreeBlockMap::Destval,"static member call, src/debug/debug_lib.cpp:2073"
+FreeBlockMap::Erase,FreeBlockMap::Freenode,"static member call, src/debug/debug_lib.cpp:2075"
+FreeBlockMap::Erase,FreeBlockMap::Left,"static member call, src/debug/debug_lib.cpp:2010"
+FreeBlockMap::Erase,FreeBlockMap::Max,"static member call, src/debug/debug_lib.cpp:2029"
+FreeBlockMap::Erase,FreeBlockMap::Min,"static member call, src/debug/debug_lib.cpp:1680"
+FreeBlockMap::Erase,FreeBlockMap::Parent,"static member call, src/debug/debug_lib.cpp:2011"
+FreeBlockMap::Erase,FreeBlockMap::Right,"static member call, src/debug/debug_lib.cpp:2012"
+FreeBlockMap::Erase,FreeBlockMap::_Value,"static member call, src/debug/debug_lib.cpp:2014"
+FreeBlockMap::Lmost,FreeBlockMap::Left,"static member call, src/debug/debug_lib.cpp:2010"
+FreeBlockMap::Lrotate,FreeBlockMap::Left,"static member call, src/debug/debug_lib.cpp:2010"
+FreeBlockMap::Lrotate,FreeBlockMap::Parent,"static member call, src/debug/debug_lib.cpp:2011"
+FreeBlockMap::Lrotate,FreeBlockMap::Right,"static member call, src/debug/debug_lib.cpp:2012"
+FreeBlockMap::Rmost,FreeBlockMap::Right,"static member call, src/debug/debug_lib.cpp:2012"
+FreeBlockMap::Root,FreeBlockMap::Parent,"static member call, src/debug/debug_lib.cpp:2011"
+FreeBlockMap::Rrotate,FreeBlockMap::Left,"static member call, src/debug/debug_lib.cpp:2010"
+FreeBlockMap::Rrotate,FreeBlockMap::Parent,"static member call, src/debug/debug_lib.cpp:2011"
+FreeBlockMap::Rrotate,FreeBlockMap::Right,"static member call, src/debug/debug_lib.cpp:2012"
+FreeBlockMap::TreeInsert,FreeBlockMap::Key,"static member call, src/debug/debug_lib.cpp:2015"
+FreeBlockMap::TreeInsert,FreeBlockMap::Left,"static member call, src/debug/debug_lib.cpp:2010"
+FreeBlockMap::TreeInsert,FreeBlockMap::Right,"static member call, src/debug/debug_lib.cpp:2012"
+GameAlloc,OutOfMemoryHandler,"g_outOfMemoryHandler is set only to OutOfMemoryHandler, src/game/main.cpp:36"
+GameRealloc,OutOfMemoryHandler,"g_outOfMemoryHandler is set only to OutOfMemoryHandler, src/game/main.cpp:36"
+HandleButtonInput,HandleEffectsVolumeSlider,slider callback assigned at src/frontend/options.cpp:1790
+HandleButtonInput,HandleGameSpeedSlider,slider callback assigned at src/frontend/options.cpp:2138
+HandleButtonInput,HandleGammaSlider,slider callback assigned at src/frontend/options.cpp:2040
+HandleButtonInput,HandleMaxLinesSlider,slider callback assigned at src/frontend/options.cpp:2180
+HandleButtonInput,HandleMusicVolumeSlider,slider callback assigned at src/frontend/options.cpp:1655
+HandleButtonInput,HandleScreenSlider,slider callback assigned at src/frontend/options.cpp:2161
+HandleButtonInput,HandleTextScrollSlider,slider callback assigned at src/frontend/options.cpp:2194
+HandleButtonInput,HandleUnitCountSlider,slider callback assigned at src/frontend/multi.cpp:4984
+HandleButtonInput,HandleVideoModeSlider,slider callback assigned at src/frontend/options.cpp:1980
+HandleButtonInput,UpdateEnergyReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:446
+HandleButtonInput,UpdateMetalReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:435
+HandleGuiCommand,CacheLogosGadgetIndex,gadget callback assigned at src/frontend/multi.cpp:2480
+HandleGuiCommand,ContinueWatchingCallback,gadget callback assigned at src/game/players_464290.cpp:740
+HandleGuiCommand,DrawUnitInfoImage,gadget callback assigned at src/ingame/dialogs_493340.cpp:766
+HandleGuiCommand,FillMissionList,gadget callback assigned at src/frontend/campaign_menu.cpp:1115
+HandleGuiCommand,HandleTimeoutDialog,gadget callback assigned at src/network/net_game.cpp:2741
+HandleGuiCommand,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:649
+HandleGuiCommand,ShowSelectedSaveGame,gadget callback assigned at src/frontend/multi.cpp:4656
+HandleGuiCommand,ShowSelectedUnitCosts,gadget callback assigned at src/frontend/multi.cpp:4919
+HandleGuiCommand,UpdatePlanet,gadget callback assigned at src/frontend/campaign_menu.cpp:1513
+HandleGuiCommand,UpdateSolarSystem,gadget callback assigned at src/frontend/campaign_menu.cpp:1502
+HandleHotspotInput,CacheLogosGadgetIndex,gadget callback assigned at src/frontend/multi.cpp:2480
+HandleHotspotInput,ContinueWatchingCallback,gadget callback assigned at src/game/players_464290.cpp:740
+HandleHotspotInput,DrawUnitInfoImage,gadget callback assigned at src/ingame/dialogs_493340.cpp:766
+HandleHotspotInput,FillMissionList,gadget callback assigned at src/frontend/campaign_menu.cpp:1115
+HandleHotspotInput,HandleTimeoutDialog,gadget callback assigned at src/network/net_game.cpp:2741
+HandleHotspotInput,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:649
+HandleHotspotInput,ShowSelectedSaveGame,gadget callback assigned at src/frontend/multi.cpp:4656
+HandleHotspotInput,ShowSelectedUnitCosts,gadget callback assigned at src/frontend/multi.cpp:4919
+HandleHotspotInput,UpdatePlanet,gadget callback assigned at src/frontend/campaign_menu.cpp:1513
+HandleHotspotInput,UpdateSolarSystem,gadget callback assigned at src/frontend/campaign_menu.cpp:1502
+HandleListBoxInput,CacheLogosGadgetIndex,gadget callback assigned at src/frontend/multi.cpp:2480
+HandleListBoxInput,ContinueWatchingCallback,gadget callback assigned at src/game/players_464290.cpp:740
+HandleListBoxInput,DrawUnitInfoImage,gadget callback assigned at src/ingame/dialogs_493340.cpp:766
+HandleListBoxInput,FillMissionList,gadget callback assigned at src/frontend/campaign_menu.cpp:1115
+HandleListBoxInput,HandleTimeoutDialog,gadget callback assigned at src/network/net_game.cpp:2741
+HandleListBoxInput,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:649
+HandleListBoxInput,ShowSelectedSaveGame,gadget callback assigned at src/frontend/multi.cpp:4656
+HandleListBoxInput,ShowSelectedUnitCosts,gadget callback assigned at src/frontend/multi.cpp:4919
+HandleListBoxInput,UpdatePlanet,gadget callback assigned at src/frontend/campaign_menu.cpp:1513
+HandleListBoxInput,UpdateSolarSystem,gadget callback assigned at src/frontend/campaign_menu.cpp:1502
+IncrementKnobPos,HandleEffectsVolumeSlider,slider callback assigned at src/frontend/options.cpp:1790
+IncrementKnobPos,HandleGameSpeedSlider,slider callback assigned at src/frontend/options.cpp:2138
+IncrementKnobPos,HandleGammaSlider,slider callback assigned at src/frontend/options.cpp:2040
+IncrementKnobPos,HandleMaxLinesSlider,slider callback assigned at src/frontend/options.cpp:2180
+IncrementKnobPos,HandleMusicVolumeSlider,slider callback assigned at src/frontend/options.cpp:1655
+IncrementKnobPos,HandleScreenSlider,slider callback assigned at src/frontend/options.cpp:2161
+IncrementKnobPos,HandleTextScrollSlider,slider callback assigned at src/frontend/options.cpp:2194
+IncrementKnobPos,HandleUnitCountSlider,slider callback assigned at src/frontend/multi.cpp:4984
+IncrementKnobPos,HandleVideoModeSlider,slider callback assigned at src/frontend/options.cpp:1980
+IncrementKnobPos,UpdateEnergyReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:446
+IncrementKnobPos,UpdateMetalReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:435
+MissionConditions::AllVictoryConditionsMet,DefeatAllUnitsKilled::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,DefeatAnyUnitPassesX::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,DefeatAnyUnitPassesZ::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,DefeatDeathTimerRunsOut::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,MissionCondition::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,VictoryBuildUnitType::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,VictoryDestroyAllUnits::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,VictoryMoveUnitToRadius::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,VictoryTimerRunsOut::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,VictoryUnitTypePassesX::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+MissionConditions::AllVictoryConditionsMet,VictoryUnitTypePassesZ::IsSatisfied,"IsSatisfied overrides, src/game/victory.cpp:23"
+NotifyUnitRefs,Order::OrStatusFlags,"slot 0 of Order; listener is the Order stored by Order constructor, src/orders/order_list.cpp:636"
+OffsetChanged_004a4170,HandleEffectsVolumeSlider,slider callback assigned at src/frontend/options.cpp:1790
+OffsetChanged_004a4170,HandleGameSpeedSlider,slider callback assigned at src/frontend/options.cpp:2138
+OffsetChanged_004a4170,HandleGammaSlider,slider callback assigned at src/frontend/options.cpp:2040
+OffsetChanged_004a4170,HandleMaxLinesSlider,slider callback assigned at src/frontend/options.cpp:2180
+OffsetChanged_004a4170,HandleMusicVolumeSlider,slider callback assigned at src/frontend/options.cpp:1655
+OffsetChanged_004a4170,HandleScreenSlider,slider callback assigned at src/frontend/options.cpp:2161
+OffsetChanged_004a4170,HandleTextScrollSlider,slider callback assigned at src/frontend/options.cpp:2194
+OffsetChanged_004a4170,HandleUnitCountSlider,slider callback assigned at src/frontend/multi.cpp:4984
+OffsetChanged_004a4170,HandleVideoModeSlider,slider callback assigned at src/frontend/options.cpp:1980
+OffsetChanged_004a4170,UpdateEnergyReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:446
+OffsetChanged_004a4170,UpdateMetalReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:435
+Pathfinder::Cost,ApproachRadius::ApproxDistExcess,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::Cost,OrderFx::ApproxDist,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::Cost,PointMarker::ApproxDist,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::Cost,RingApproach::ApproxDistExcess,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::CostFix,ApproachRadius::ApproxDistExcess,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::CostFix,OrderFx::ApproxDist,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::CostFix,PointMarker::ApproxDist,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::CostFix,RingApproach::ApproxDistExcess,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::EstimateCost,ApproachRadius::ApproxDistExcess,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::EstimateCost,OrderFx::ApproxDist,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::EstimateCost,PointMarker::ApproxDist,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::EstimateCost,RingApproach::ApproxDistExcess,"Target::Cost is slot 7 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::RunSearches,AiSearchGoal::TryClaimRepath,"planner GetPath is slot 6 of the PathGoal family, src/orders/order_targets.cpp:951"
+Pathfinder::RunSearches,PathGoal::TryClaimRepath,"planner GetPath is slot 6 of the PathGoal family, src/orders/order_targets.cpp:951"
+Pathfinder::StartSearch,ApproachRadius::AppendGoalCell,"Target::GetGoals is slot 6 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::StartSearch,ApproachRadius::ContainsCell,"Target::IsGoal is slot 5 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::StartSearch,OrderFx::ContainsCell,"Target::IsGoal is slot 5 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::StartSearch,OrderFx::FillGoalCells,"Target::GetGoals is slot 6 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::StartSearch,PointMarker::AppendGoalCell,"Target::GetGoals is slot 6 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::StartSearch,PointMarker::ContainsCell,"Target::IsGoal is slot 5 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::StartSearch,RingApproach::AppendGoalCell,"Target::GetGoals is slot 6 of the OrderFx family, src/data/vtables.cpp:100"
+Pathfinder::StartSearch,RingApproach::ContainsCell,"Target::IsGoal is slot 5 of the OrderFx family, src/data/vtables.cpp:100"
+ReceiveUnitStates,PackedPosGoal::DeserializeNetUnitState,"slot 9 DeserializeNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+ReceiveUnitStates,PathGoal::DeserializeNetUnitState,"slot 9 DeserializeNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+ReceiveUnitStates,PatrolGoal::DeserializeNetUnitState,"slot 9 DeserializeNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+ReportException,AvWriteDetectStub,"cast of the function, src/debug/debug_lib.cpp:839"
+RunOrders,ActivateOrder,"order type table entry, src/orders/unit_orders.cpp:2149"
+RunOrders,AirStrikeOrder,"order type table entry, src/orders/unit_orders.cpp:2209"
+RunOrders,AirToAirOrder,"order type table entry, src/orders/unit_orders.cpp:2210"
+RunOrders,AirToGroundHoverOrder,"order type table entry, src/orders/unit_orders.cpp:2212"
+RunOrders,AirToGroundOrder,"order type table entry, src/orders/unit_orders.cpp:2211"
+RunOrders,AttackChaseOrder,"order type table entry, src/orders/unit_orders.cpp:2180"
+RunOrders,AttackKamikazeOrder,"order type table entry, src/orders/unit_orders.cpp:2181"
+RunOrders,AttackNoMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2148"
+RunOrders,AttackSpecialOrder,"order type table entry, src/orders/unit_orders.cpp:2182"
+RunOrders,AttackUTypeOrder,"order type table entry, src/orders/unit_orders.cpp:2165"
+RunOrders,BeCarriedOrder,"order type table entry, src/orders/unit_orders.cpp:2161"
+RunOrders,BuildWeaponOrder,"order type table entry, src/orders/unit_orders.cpp:2156"
+RunOrders,BuildingBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2155"
+RunOrders,CaptureOrder,"order type table entry, src/orders/unit_orders.cpp:2192"
+RunOrders,CloakOffOrder,"order type table entry, src/orders/unit_orders.cpp:2152"
+RunOrders,CloakOnOrder,"order type table entry, src/orders/unit_orders.cpp:2151"
+RunOrders,DeactivateOrder,"order type table entry, src/orders/unit_orders.cpp:2150"
+RunOrders,FollowGroundOrder,"order type table entry, src/orders/unit_orders.cpp:2178"
+RunOrders,GetBuiltOrder,"order type table entry, src/orders/unit_orders.cpp:2160"
+RunOrders,GroundPickupOrder,"order type table entry, src/orders/unit_orders.cpp:2185"
+RunOrders,GroundUnloadOrder,"order type table entry, src/orders/unit_orders.cpp:2186"
+RunOrders,GuardNoMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2166"
+RunOrders,HelpBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2189"
+RunOrders,MakeSelectableOrder,"order type table entry, src/orders/unit_orders.cpp:2162"
+RunOrders,MobileBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2188"
+RunOrders,MoveGroundOrder,"order type table entry, src/orders/unit_orders.cpp:2177"
+RunOrders,ParalyzeOrder,"order type table entry, src/orders/unit_orders.cpp:2159"
+RunOrders,ParkOrder,"order type table entry, src/orders/unit_orders.cpp:2183"
+RunOrders,PatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2184"
+RunOrders,QMoveQPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2168"
+RunOrders,ReadyOrder,"order type table entry, src/orders/unit_orders.cpp:2229"
+RunOrders,ReclaimOrder,"order type table entry, src/orders/unit_orders.cpp:2194"
+RunOrders,ReclaimUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2195"
+RunOrders,RepairPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2190"
+RunOrders,RepairUnitNoMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2196"
+RunOrders,RepairUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2191"
+RunOrders,ResurrectOrder,"order type table entry, src/orders/unit_orders.cpp:2193"
+RunOrders,SelfDestructOrder,"order type table entry, src/orders/unit_orders.cpp:2157"
+RunOrders,SelfRepairOrder,"order type table entry, src/orders/unit_orders.cpp:2167"
+RunOrders,StandbyMineOrder,"order type table entry, src/orders/unit_orders.cpp:2176"
+RunOrders,StandbyOrder,"order type table entry, src/orders/unit_orders.cpp:2175"
+RunOrders,StandingFireOrder,"order type table entry, src/orders/unit_orders.cpp:2154"
+RunOrders,StandingMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2153"
+RunOrders,StopOrder,"order type table entry, src/orders/unit_orders.cpp:2147"
+RunOrders,SuppressOrder,"order type table entry, src/orders/unit_orders.cpp:2179"
+RunOrders,TeleportOrder,"order type table entry, src/orders/unit_orders.cpp:2187"
+RunOrders,VtolEvadeOrder,"order type table entry, src/orders/unit_orders.cpp:2219"
+RunOrders,VtolFollowOrder,"order type table entry, src/orders/unit_orders.cpp:2207"
+RunOrders,VtolGetRepairedOrder,"order type table entry, src/orders/unit_orders.cpp:2222"
+RunOrders,VtolHelpBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2214"
+RunOrders,VtolLandIfCanOrder,"order type table entry, src/orders/unit_orders.cpp:2223"
+RunOrders,VtolLandingOrder,"order type table entry, src/orders/unit_orders.cpp:2204"
+RunOrders,VtolMobileBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2213"
+RunOrders,VtolMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2203"
+RunOrders,VtolPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2208"
+RunOrders,VtolPickupOrder,"order type table entry, src/orders/unit_orders.cpp:2205"
+RunOrders,VtolReclaimOrder,"order type table entry, src/orders/unit_orders.cpp:2217"
+RunOrders,VtolReclaimUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2218"
+RunOrders,VtolRepairPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2215"
+RunOrders,VtolRepairUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2216"
+RunOrders,VtolSeekAttackOrder,"order type table entry, src/orders/unit_orders.cpp:2220"
+RunOrders,VtolSeekGuardOrder,"order type table entry, src/orders/unit_orders.cpp:2221"
+RunOrders,VtolStandbyOrder,"order type table entry, src/orders/unit_orders.cpp:2202"
+RunOrders,VtolUnloadOrder,"order type table entry, src/orders/unit_orders.cpp:2206"
+RunOrders,WaitForAttackOrder,"order type table entry, src/orders/unit_orders.cpp:2164"
+RunOrders,WaitOrder,"order type table entry, src/orders/unit_orders.cpp:2163"
+RunSecondaryOrders,ActivateOrder,"order type table entry, src/orders/unit_orders.cpp:2149"
+RunSecondaryOrders,AirStrikeOrder,"order type table entry, src/orders/unit_orders.cpp:2209"
+RunSecondaryOrders,AirToAirOrder,"order type table entry, src/orders/unit_orders.cpp:2210"
+RunSecondaryOrders,AirToGroundHoverOrder,"order type table entry, src/orders/unit_orders.cpp:2212"
+RunSecondaryOrders,AirToGroundOrder,"order type table entry, src/orders/unit_orders.cpp:2211"
+RunSecondaryOrders,AttackChaseOrder,"order type table entry, src/orders/unit_orders.cpp:2180"
+RunSecondaryOrders,AttackKamikazeOrder,"order type table entry, src/orders/unit_orders.cpp:2181"
+RunSecondaryOrders,AttackNoMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2148"
+RunSecondaryOrders,AttackSpecialOrder,"order type table entry, src/orders/unit_orders.cpp:2182"
+RunSecondaryOrders,AttackUTypeOrder,"order type table entry, src/orders/unit_orders.cpp:2165"
+RunSecondaryOrders,BeCarriedOrder,"order type table entry, src/orders/unit_orders.cpp:2161"
+RunSecondaryOrders,BuildWeaponOrder,"order type table entry, src/orders/unit_orders.cpp:2156"
+RunSecondaryOrders,BuildingBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2155"
+RunSecondaryOrders,CaptureOrder,"order type table entry, src/orders/unit_orders.cpp:2192"
+RunSecondaryOrders,CloakOffOrder,"order type table entry, src/orders/unit_orders.cpp:2152"
+RunSecondaryOrders,CloakOnOrder,"order type table entry, src/orders/unit_orders.cpp:2151"
+RunSecondaryOrders,DeactivateOrder,"order type table entry, src/orders/unit_orders.cpp:2150"
+RunSecondaryOrders,FollowGroundOrder,"order type table entry, src/orders/unit_orders.cpp:2178"
+RunSecondaryOrders,GetBuiltOrder,"order type table entry, src/orders/unit_orders.cpp:2160"
+RunSecondaryOrders,GroundPickupOrder,"order type table entry, src/orders/unit_orders.cpp:2185"
+RunSecondaryOrders,GroundUnloadOrder,"order type table entry, src/orders/unit_orders.cpp:2186"
+RunSecondaryOrders,GuardNoMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2166"
+RunSecondaryOrders,HelpBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2189"
+RunSecondaryOrders,MakeSelectableOrder,"order type table entry, src/orders/unit_orders.cpp:2162"
+RunSecondaryOrders,MobileBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2188"
+RunSecondaryOrders,MoveGroundOrder,"order type table entry, src/orders/unit_orders.cpp:2177"
+RunSecondaryOrders,ParalyzeOrder,"order type table entry, src/orders/unit_orders.cpp:2159"
+RunSecondaryOrders,ParkOrder,"order type table entry, src/orders/unit_orders.cpp:2183"
+RunSecondaryOrders,PatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2184"
+RunSecondaryOrders,QMoveQPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2168"
+RunSecondaryOrders,ReadyOrder,"order type table entry, src/orders/unit_orders.cpp:2229"
+RunSecondaryOrders,ReclaimOrder,"order type table entry, src/orders/unit_orders.cpp:2194"
+RunSecondaryOrders,ReclaimUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2195"
+RunSecondaryOrders,RepairPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2190"
+RunSecondaryOrders,RepairUnitNoMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2196"
+RunSecondaryOrders,RepairUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2191"
+RunSecondaryOrders,ResurrectOrder,"order type table entry, src/orders/unit_orders.cpp:2193"
+RunSecondaryOrders,SelfDestructOrder,"order type table entry, src/orders/unit_orders.cpp:2157"
+RunSecondaryOrders,SelfRepairOrder,"order type table entry, src/orders/unit_orders.cpp:2167"
+RunSecondaryOrders,StandbyMineOrder,"order type table entry, src/orders/unit_orders.cpp:2176"
+RunSecondaryOrders,StandbyOrder,"order type table entry, src/orders/unit_orders.cpp:2175"
+RunSecondaryOrders,StandingFireOrder,"order type table entry, src/orders/unit_orders.cpp:2154"
+RunSecondaryOrders,StandingMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2153"
+RunSecondaryOrders,StopOrder,"order type table entry, src/orders/unit_orders.cpp:2147"
+RunSecondaryOrders,SuppressOrder,"order type table entry, src/orders/unit_orders.cpp:2179"
+RunSecondaryOrders,TeleportOrder,"order type table entry, src/orders/unit_orders.cpp:2187"
+RunSecondaryOrders,VtolEvadeOrder,"order type table entry, src/orders/unit_orders.cpp:2219"
+RunSecondaryOrders,VtolFollowOrder,"order type table entry, src/orders/unit_orders.cpp:2207"
+RunSecondaryOrders,VtolGetRepairedOrder,"order type table entry, src/orders/unit_orders.cpp:2222"
+RunSecondaryOrders,VtolHelpBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2214"
+RunSecondaryOrders,VtolLandIfCanOrder,"order type table entry, src/orders/unit_orders.cpp:2223"
+RunSecondaryOrders,VtolLandingOrder,"order type table entry, src/orders/unit_orders.cpp:2204"
+RunSecondaryOrders,VtolMobileBuildOrder,"order type table entry, src/orders/unit_orders.cpp:2213"
+RunSecondaryOrders,VtolMoveOrder,"order type table entry, src/orders/unit_orders.cpp:2203"
+RunSecondaryOrders,VtolPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2208"
+RunSecondaryOrders,VtolPickupOrder,"order type table entry, src/orders/unit_orders.cpp:2205"
+RunSecondaryOrders,VtolReclaimOrder,"order type table entry, src/orders/unit_orders.cpp:2217"
+RunSecondaryOrders,VtolReclaimUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2218"
+RunSecondaryOrders,VtolRepairPatrolOrder,"order type table entry, src/orders/unit_orders.cpp:2215"
+RunSecondaryOrders,VtolRepairUnitOrder,"order type table entry, src/orders/unit_orders.cpp:2216"
+RunSecondaryOrders,VtolSeekAttackOrder,"order type table entry, src/orders/unit_orders.cpp:2220"
+RunSecondaryOrders,VtolSeekGuardOrder,"order type table entry, src/orders/unit_orders.cpp:2221"
+RunSecondaryOrders,VtolStandbyOrder,"order type table entry, src/orders/unit_orders.cpp:2202"
+RunSecondaryOrders,VtolUnloadOrder,"order type table entry, src/orders/unit_orders.cpp:2206"
+RunSecondaryOrders,WaitForAttackOrder,"order type table entry, src/orders/unit_orders.cpp:2164"
+RunSecondaryOrders,WaitOrder,"order type table entry, src/orders/unit_orders.cpp:2163"
+SendUnitStates,AiSearchGoal::HasNetUnitState,"slot 7 HasNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+SendUnitStates,AiSearchGoal::SerializeNetUnitState,"slot 8 SerializeNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+SendUnitStates,LiteGoal::HasNetUnitState,"slot 7 HasNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+SendUnitStates,LiteGoal::SerializeNetUnitState,"slot 8 SerializeNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+SendUnitStates,PathGoal::HasNetUnitState,"slot 7 HasNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+SendUnitStates,PathGoal::SerializeNetUnitState,"slot 8 SerializeNetUnitState; PlayerData is the PathGoal family, src/orders/order_targets.cpp:916"
+Unit::SetStateBits,Order::OrStatusFlags,"slot 0 of Order; listener is the Order stored by Order constructor, src/orders/order_list.cpp:636"
+UnitMotion::DestroyObject,AiSearchGoal::~AiSearchGoal,v0 destructor; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::DestroyObject,PackedPosGoal::~PackedPosGoal,v0 destructor; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::DestroyObject,PathGoal::~PathGoal,v0 destructor; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerAircraft,PackedGoal::ExportGoalPose,v4 ExportGoalPose; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerAircraft,PathGoal::ExportGoalPose,v4 ExportGoalPose; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerGroundUnit,AiSearchGoal::FillWaypointWorldPos,v3 FillWaypointWorldPos; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerGroundUnit,AiSearchGoal::HasReadyWaypoints,v5 HasReadyWaypoints; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerGroundUnit,PathGoal::FillWaypointWorldPos,v3 FillWaypointWorldPos; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerGroundUnit,PathGoal::HasReadyWaypoints,v5 HasReadyWaypoints; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerGroundUnit,PatrolGoal::FillWaypointWorldPos,v3 FillWaypointWorldPos; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::SteerGroundUnit,PatrolGoal::HasReadyWaypoints,v5 HasReadyWaypoints; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::UpdateMotion,AiSearchGoal::TickTowardGoal,v2 TickTowardGoal; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::UpdateMotion,LiteGoal::TickTowardGoal,v2 TickTowardGoal; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::UpdateMotion,PackedGoal::TickTowardGoal,v2 TickTowardGoal; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitMotion::UpdateMotion,PathGoal::TickTowardGoal,v2 TickTowardGoal; UnitMotion obj is a PathGoal subclass chosen at src/orders/order_list.cpp:2101
+UnitRef::ClearRef,Order::OrStatusFlags,"slot 0 of Order; listener is the Order stored by Order constructor, src/orders/order_list.cpp:636"
+UpdateMenu,Choice3DialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1136
+UpdateMenu,HandleAlliesClick,Layer::handler assigned at src/frontend/multi.cpp:3579
+UpdateMenu,HandleBattleRoomClick,Layer::handler assigned at src/frontend/multi_449bb0.cpp:280
+UpdateMenu,HandleBriefingClick,Layer::handler assigned at src/frontend/options.cpp:2329
+UpdateMenu,HandleBuildPanelClick,Layer::handler assigned at src/ingame/control_panel.cpp:1155
+UpdateMenu,HandleCdCheckClick,Layer::handler assigned at src/frontend/endgame.cpp:984
+UpdateMenu,HandleCloseCdPlayerChoice,Layer::handler assigned at src/frontend/frontend.cpp:746
+UpdateMenu,HandleControlDialogClick,Layer::handler assigned at src/frontend/multi.cpp:3055
+UpdateMenu,HandleEndMissionClick,Layer::handler assigned at src/frontend/endgame.cpp:860
+UpdateMenu,HandleExitMenuClick,Layer::handler assigned at src/frontend/options.cpp:2797
+UpdateMenu,HandleGameSettingsDialogClick,Layer::handler assigned at src/frontend/options.cpp:2224
+UpdateMenu,HandleHelpClick,Layer::handler assigned at src/frontend/options.cpp:2420
+UpdateMenu,HandleInGameOptionsClick,Layer::handler assigned at src/frontend/options.cpp:2910
+UpdateMenu,HandleLoadListClick,Layer::handler assigned at src/frontend/multi.cpp:4683
+UpdateMenu,HandleLogoSelectClick,Layer::handler assigned at src/frontend/multi.cpp:2452
+UpdateMenu,HandleMain2LayoutEvent,Layer::handler assigned at src/game/game_load.cpp:793
+UpdateMenu,HandleMainMenuClick,Layer::handler assigned at src/frontend/frontend.cpp:777
+UpdateMenu,HandleMapSelectClick,Layer::handler assigned at src/frontend/multi.cpp:2412
+UpdateMenu,HandleMissionBriefingClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:1394
+UpdateMenu,HandleModemDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1850
+UpdateMenu,HandleNewGameClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:1033
+UpdateMenu,HandleNewMultiClick,Layer::handler assigned at src/frontend/multi.cpp:1228
+UpdateMenu,HandleOptionsPanelClick,Layer::handler assigned at src/frontend/options.cpp:2619
+UpdateMenu,HandleRejectChoice,Layer::handler assigned at src/frontend/multi.cpp:2890
+UpdateMenu,HandleReportClick,Layer::handler assigned at src/frontend/multi.cpp:1964
+UpdateMenu,HandleRestartDialogClick,Layer::handler assigned at src/frontend/options.cpp:2686
+UpdateMenu,HandleRestrictionsClick,Layer::handler assigned at src/frontend/multi.cpp:4910
+UpdateMenu,HandleSaveGameClick,Layer::handler assigned at src/frontend/multi.cpp:4635
+UpdateMenu,HandleSelectGameClick,Layer::handler assigned at src/frontend/multi.cpp:2145
+UpdateMenu,HandleSelectProviderClick,Layer::handler assigned at src/frontend/multi_444580.cpp:115
+UpdateMenu,HandleSerialDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1584
+UpdateMenu,HandleShareDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:427
+UpdateMenu,HandleSingleMenuClick,Layer::handler assigned at src/frontend/campaign_menu.cpp:801
+UpdateMenu,HandleSkirmishCheatText,Layer::textHandler assigned at src/frontend/skirmish_menu.cpp:1274
+UpdateMenu,HandleSkirmishClick,Layer::handler assigned at src/frontend/skirmish_menu.cpp:1248
+UpdateMenu,HandleSkirmishMapClick,Layer::handler assigned at src/frontend/skirmish_menu.cpp:777
+UpdateMenu,HandleSurrenderChoice,Layer::handler assigned at src/frontend/options.cpp:2760
+UpdateMenu,HandleTabMenuEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:1137
+UpdateMenu,HandleTalkDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:684
+UpdateMenu,HandleTcpDialogClick,Layer::handler assigned at src/frontend/multi.cpp:1478
+UpdateMenu,HandleUnitInfoDialogEvent,Layer::handler assigned at src/ingame/dialogs_493340.cpp:763
+UpdateMenu,HandleViewMapClick,Layer::handler assigned at src/frontend/multi.cpp:2301
+UpdateMenu,HandleVisualOptionsClick,Layer::handler assigned at src/frontend/options.cpp:1967
+UpdateMenu,InputDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1170
+UpdateMenu,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:667
+UpdateMenu,MessageBoxHandler,Layer::handler assigned at src/gui/dialogs.cpp:1074
+UpdateMenu,NotExistDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1100
+UpdateMenu,ReportDialogFrame,Layer::cb1c assigned at src/frontend/multi.cpp:1966
+UpdateMenu,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:638
+UpdateMenu,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:684
+UpdateMenu,SetSerialBaudFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1605
+UpdateMenu,SetSerialPortFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1602
+UpdateMenu,ShowSelectedAccount,Layer::handler assigned at src/frontend/multi.cpp:1902
+UpdateMenu,ToggleAnyMission,Layer::textHandler assigned at src/frontend/campaign_menu.cpp:821
+UpdateMenu,UnitRestrictDialogFrame,Layer::cb1c assigned at src/frontend/multi.cpp:4912
+UpdateMenu,UpdateGameSelection,Layer::handler assigned at src/frontend/multi.cpp:2167
+UpdateMenu,UpdateMenuSparks,Layer::cb1c assigned at src/frontend/frontend.cpp:779
+UpdateMenu,YesNoDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:972
+UpdateUnitWeapons,FireDroppedWeapon,"WeaponDef::fire set by SetWeaponFireHandler, src/weapons/weapons.cpp:2686"
+UpdateUnitWeapons,FireLineOfSightWeapon,"WeaponDef::fire set by SetWeaponFireHandler, src/weapons/weapons.cpp:2684"
+UpdateUnitWeapons,FireTurretWeapon,"WeaponDef::fire set by SetWeaponFireHandler, src/weapons/weapons.cpp:2676"
+UpdateUnitWeapons,FireVLaunchWeapon,"WeaponDef::fire set by SetWeaponFireHandler, src/weapons/weapons.cpp:2680"
+VisitObjectsInArea,ClaimFootprintVisitor::ClaimFootprint,"only visitor class, src/map/terrain.cpp:223"
+VisitObjectsInRange,DamagedAllyCollector::CollectDamagedAlly,visitor passed at src/orders/unit_orders_405980.cpp:48
+VisitObjectsInRange,DetectionVisitor::MarkUnitsInRadarOrSonarRadius,visitor passed at src/ingame/info_panel_467440.cpp:185
+VisitObjectsInRange,GroundAllyVisitor::CollectGroundAlly,visitor passed at src/orders/vtol_orders_410850.cpp:119
+VisitObjectsInRange,RadarJamVisitor::ApplyRadarJamFlag,visitor passed at src/ingame/info_panel_467440.cpp:198
+VisitObjectsInRange,RepairableUnitVisitor::CollectRepairableUnit,visitor passed at src/orders/vtol_orders_4152f0.cpp:144
+VisitObjectsInRange,SonarJamVisitor::ApplySonarJamFlag,visitor passed at src/ingame/info_panel_467440.cpp:204
+VisitObjectsInRange,VictoryMoveUnitToRadius::VisitUnit,visitor passed at src/game/victory.cpp:912

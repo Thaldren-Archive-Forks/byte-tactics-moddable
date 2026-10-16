@@ -14,9 +14,15 @@ column of data/hazards.csv is filled in by hand with `real` or `false_positive`,
 `note` says why.
 
 Game logic is every function reachable through the `call` rows of data/rwsets.csv from
-the roots below. Overloads share a name in rwsets.csv, so a walk reaches all of them, and
-a virtual or function-pointer call is not followed (each is an `indirect_call` row
-instead). The roots are the functions RunGameSteps (0x495490) calls in its phases that
+the roots below. Overloads share a name in rwsets.csv, so a walk reaches all of them. A
+virtual or function-pointer call has no `call` row, so the walk also follows the edges of
+data/hazard_edges.csv (columns caller, target, reason): one row per calling function and
+function it can reach through a virtual method, a function pointer or a table of them,
+resolved by hand from the vtables and from the assignments to the pointer, with the
+file:line of the evidence in `reason`. A call into code outside the source (a COM method,
+a function from GetProcAddress) has no edge. Both names of a row must be functions of
+data/rwsets.csv, and the tool fails on a stale row. Each such call is still an
+`indirect_call` row of data/hazards.csv, whose verdict says where it can go. The roots are the functions RunGameSteps (0x495490) calls in its phases that
 change or feed the simulation:
 
   HandleNetPackets      phase 0: applies received orders and unit state
@@ -111,6 +117,7 @@ import rwsets
 from rwsets import ROOT, Analyzer, Walker, is_pointer, record_name, strip, strip_parens, type_text
 
 RWSETS = ROOT / "data/rwsets.csv"
+EDGES = ROOT / "data/hazard_edges.csv"
 HAZARDS = ROOT / "data/hazards.csv"
 COLUMNS = ["address", "function", "file", "line", "kind", "target", "verdict", "note"]
 VERDICTS = ("", "real", "false_positive")
@@ -397,19 +404,24 @@ def scan_source(path: Path, root: Path) -> list[dict]:
 
 
 class Graph:
-    """The parts of data/rwsets.csv the walk and the thread check need."""
+    """The parts of data/rwsets.csv the walk and the thread check need, with the hand-resolved edges."""
 
-    def __init__(self, rows: list[list[str]]):
+    def __init__(self, rows: list[list[str]], edges: list[tuple[str, str]] = ()):
         self.calls: dict[str, set[str]] = defaultdict(set)
+        self.functions: set[str] = set()
         self.reads: dict[str, set[str]] = defaultdict(set)
         self.writes: dict[str, set[str]] = defaultdict(set)
         for address, function, file, kind, target in rows:
+            if kind == "function":
+                self.functions.add(function)
             if kind == "call":
                 self.calls[function].add(target)
             elif kind == "global_read":
                 self.reads[function].add(target)
             elif kind in ("global_write", "global_maybe_written"):
                 self.writes[function].add(target)
+        for caller, target in edges:
+            self.calls[caller].add(target)
 
     def reach(self, roots) -> set[str]:
         """Every function named by a `call` row on a path from the roots, the roots included."""
@@ -421,6 +433,22 @@ class Graph:
                     seen.add(callee)
                     todo.append(callee)
         return seen
+
+
+def read_edges(path: Path, functions: set[str]) -> list[tuple[str, str]]:
+    """The (caller, target) pairs of data/hazard_edges.csv; fail on a name that is not a function."""
+    if not path.exists():
+        return []
+    with path.open(newline="") as f:
+        rows = list(csv.reader(f))
+    if rows[0] != ["caller", "target", "reason"]:
+        sys.exit("hazards: %s must have the columns caller,target,reason" % path.name)
+    bad = [r for r in rows[1:] if len(r) != 3 or r[0] not in functions or r[1] not in functions]
+    for r in bad:
+        print("hazards: %s: %r is not a caller and a target that are both functions of data/rwsets.csv" % (path.name, r))
+    if bad:
+        sys.exit(1)
+    return [(r[0], r[1]) for r in rows[1:]]
 
 
 def read_rwsets(text: str) -> list[list[str]]:
@@ -520,7 +548,8 @@ def generate(build_dir: Path, jobs: int) -> tuple[list[list], int]:
     for result in results:
         for fn in result:
             functions.setdefault((fn["function"], fn["file"], fn["start"]), fn)
-    graph = Graph(read_rwsets(RWSETS.read_text()))
+    rows = read_rwsets(RWSETS.read_text())
+    graph = Graph(rows, read_edges(EDGES, {r[1] for r in rows if r[3] == "function"}))
     return candidates(list(functions.values()), graph), len(commands)
 
 

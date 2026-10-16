@@ -181,6 +181,29 @@ class WalkTest(unittest.TestCase):
         self.assertEqual(graph.reach(["Root"]), {"Root", "Middle", "Leaf", "external"})
         self.assertNotIn("Orphan", graph.reach(["Root"]))
 
+    def test_reach_follows_hand_resolved_edges(self):
+        graph = hazards.Graph(RWSETS, [("Leaf", "Orphan"), ("Orphan", "Worker")])
+        self.assertEqual(graph.reach(["Root"]), {"Root", "Middle", "Leaf", "external", "Orphan", "Worker", "Helper"})
+        self.assertNotIn("Worker", hazards.Graph(RWSETS).reach(["Root"]))
+
+    def test_an_edge_makes_the_target_game_logic(self):
+        functions = [fn("Root"), fn("Hooked", [("time_read", "GetTickCount", 4)])]
+        graph = hazards.Graph(RWSETS + [["", "Hooked", "src/a.cpp", "function", ""]], [("Root", "Hooked")])
+        rows = hazards.candidates(functions, graph, roots=["Root"])
+        self.assertEqual(rows, [["", "Hooked", "src/a.cpp", 4, "time_read", "GetTickCount"]])
+        self.assertEqual(hazards.candidates(functions, hazards.Graph(RWSETS), roots=["Root"]), [])
+
+    def test_edges_are_read_and_a_stale_name_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "e.csv"
+            path.write_text("caller,target,reason\nRoot,Leaf,slot 1 (src/a.cpp:3)\n")
+            self.assertEqual(hazards.read_edges(path, {"Root", "Leaf"}), [("Root", "Leaf")])
+            with self.assertRaises(SystemExit):
+                hazards.read_edges(path, {"Root"})
+            path.write_text("caller,to,reason\n")
+            with self.assertRaises(SystemExit):
+                hazards.read_edges(path, {"Root"})
+
     def test_rows_only_for_game_logic(self):
         graph = hazards.Graph(RWSETS)
         functions = [fn("Root", [("asm", "inline", 3)]), fn("Leaf", [("time_read", "GetTickCount", 9)]),
