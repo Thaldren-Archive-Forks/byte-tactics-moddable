@@ -70,7 +70,8 @@ wrote.
 The `modern-compile` CI job compiles the game and `lib/bitexact` with clang-cl
 (`cmake --build build/modern --target game bitexact`, configured with
 `-DBT_COMPILE_ONLY=ON`) on pull requests that touch `src/`, `include/`, `lib/`,
-`cmake/`, `CMakeLists.txt` or `tools/setup_toolchain.sh`. It checks that the
+`cmake/`, `CMakeLists.txt`, `tools/setup_toolchain.sh`, `tools/sources.py`,
+`pyproject.toml` or `uv.lock`. It checks that the
 source still builds with LLVM 22.1.8 against MSVC 5's headers, which
 `tools/setup_toolchain.sh` fetches into a cached `toolchain/`. It does not
 link: the link needs `orig/TotalA.exe`, which must never be committed, and

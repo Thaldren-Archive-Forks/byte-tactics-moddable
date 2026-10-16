@@ -65,7 +65,7 @@ jobs:
           if [ "$EVENT" != pull_request ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           elif git diff --name-only "origin/$BASE_REF...HEAD" |
-              grep -qE '^(src/|include/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$)'; then
+              grep -qE '^(src/|include/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$|tools/sources\.py$|pyproject\.toml$|uv\.lock$)'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
