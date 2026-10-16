@@ -33,9 +33,9 @@ static int spec_length(const char *f)
             p++;
         while (*p && *p != ']')
             p++;
-        return *p ? (int)(p + 1 - f) : (int)(p - f);
+        return *p ? (int)(p + 1 - f) : 0;
     }
-    return *p ? (int)(p + 1 - f) : (int)(p - f);
+    return *p ? (int)(p + 1 - f) : 0;
 }
 
 static int is_plain_float(const char *f, int len)
@@ -77,7 +77,7 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
     va_list ap;
     const char *f, *cur = buf;
     void *args[MAX_FORWARD];
-    int own_float = 0, conversions = 0, assigned = 0, eof = 0, len, i;
+    int own_float = 0, conversions = 0, assigned = 0, matched = 0, eof = 0, hit_end = 0, len, i;
 
     for (f = fmt; *f;) {
         if (*f != '%') {
@@ -89,6 +89,8 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
             continue;
         }
         len = spec_length(f);
+        if (len == 0)
+            break;
         if (is_plain_float(f, len))
             own_float = 1;
         if (f[1] != '*')
@@ -97,8 +99,8 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
     }
     va_start(ap, fmt);
     if (!own_float && conversions <= MAX_FORWARD) {
-        for (i = 0; i < conversions; i++)
-            args[i] = va_arg(ap, void *);
+        for (i = 0; i < MAX_FORWARD; i++)
+            args[i] = i < conversions ? va_arg(ap, void *) : 0;
         va_end(ap);
         return sscanf(buf, fmt, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8],
                       args[9], args[10], args[11]);
@@ -122,9 +124,12 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
                 break;
             cur++;
             f++;
+            hit_end = 0;
             continue;
         }
         len = spec_length(f);
+        if (len == 0)
+            break;
         if (is_plain_float(f, len)) {
             char token[400];
             int used;
@@ -142,12 +147,23 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
             *dest = bx_strtof_msvc5(token, 0);
             cur += used;
             assigned++;
+            matched = 1;
+            hit_end = *cur == 0;
         } else {
             char sub[64];
             int consumed = -1, r;
             void *dest = f[1] == '*' ? 0 : va_arg(ap, void *);
             if (len > 60)
                 break;
+            if (dest && f[len - 1] == 'n') {
+                if (hit_end) {
+                    eof = 1;
+                    break;
+                }
+                *(int *)dest = (int)(cur - buf);
+                f += len;
+                continue;
+            }
             for (i = 0; i < len; i++)
                 sub[i] = f[i];
             sub[len] = '%';
@@ -159,11 +175,13 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
                 break;
             }
             cur += consumed;
-            if (dest && f[len - 1] != 'n')
+            matched = 1;
+            hit_end = *cur == 0;
+            if (dest)
                 assigned++;
         }
         f += len;
     }
     va_end(ap);
-    return assigned == 0 && eof ? EOF : assigned;
+    return assigned == 0 && eof && !matched ? EOF : assigned;
 }

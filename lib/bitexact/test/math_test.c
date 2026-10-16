@@ -21,12 +21,13 @@ static double oracle_double(double value)
 #endif
 
 #define MATH_CASES 2000000
+#define ACOS_ALLOWED 50
 
 typedef struct {
     const char *name;
     unsigned long cases;
     unsigned long mismatches;
-    char example[160];
+    char example[320];
 } math_stat_t;
 
 static unsigned int m_state = 0x2545f491u;
@@ -334,6 +335,10 @@ static void test_acos(math_stat_t *s, math_stat_t *port, math_stat_t *by_class)
         record_u(s, bits_of(want) == bits_of(got), "x %.17g want %.17g got %.17g", x, want, got);
         got = bx_acos(x);
         record_u(port, bits_of(want) == bits_of(got), "x %.17g want %.17g got %.17g", x, want, got);
+        if (bits_of(want) != bits_of(got) && port->mismatches > ACOS_ALLOWED)
+            printf("  acos over the limit: x 0x%08x%08x want 0x%08x%08x got 0x%08x%08x\n", (bx_u32)(bits_of(x) >> 32),
+                   (bx_u32)bits_of(x), (bx_u32)(bits_of(want) >> 32), (bx_u32)bits_of(want),
+                   (bx_u32)(bits_of(got) >> 32), (bx_u32)bits_of(got));
         record_u(&by_class[c], bits_of(want) == bits_of(got), "x %.17g want %.17g got %.17g", x, want, got);
     }
 }
@@ -513,7 +518,8 @@ typedef struct {
 
 static const char *scan_formats[] = {
     " %d %d", " %f %f", " %[a-zA-Z0-9_.]", " %f %f %f", " %[a-zA-Z0-9_.] %d %f %f", " %f %d", " %d",
-    " %[a-zA-Z0-9.]", "%d %f", "%f,%f", "%s %f", "%f%d", "%f %[abc]"};
+    " %[a-zA-Z0-9.]", "%d %f", "%f,%f", "%s %f", "%f%d", "%f %[abc]", " %f %n", "%*d %f", " %f %",
+    "%*d%d", " %f %n%d"};
 #define N_SCAN_FORMATS ((int)(sizeof(scan_formats) / sizeof(scan_formats[0])))
 
 static void scan_word(char *text, int *p, const char *alphabet)
@@ -538,13 +544,16 @@ static void make_scan_text(int k, char *text)
                 text[p++] = ' ';
         } else if (*f != '%') {
             text[p++] = *f;
-        } else if (f[1] == 'd') {
+        } else if (f[1] == 'n' || f[1] == 0) {
+            if (f[1])
+                f++;
+        } else if (f[1] == 'd' || f[1] == '*') {
             int digits = 1 + (int)(mrnd() % 6u);
             if (mrnd() & 1)
                 text[p++] = '-';
             for (j = 0; j < digits; j++)
                 text[p++] = (char)('0' + (int)(mrnd() % 10u));
-            f++;
+            f += f[1] == '*' ? 2 : 1;
         } else if (f[1] == 'f') {
             make_float_text(piece);
             strcpy(text + p, piece);
@@ -592,6 +601,10 @@ static void scan_case(int k, const char *text, int port, scan_out *o)
     case 9: a[0] = &o->f[0]; a[1] = &o->f[1]; break;
     case 10: a[0] = o->s; a[1] = &o->f[0]; break;
     case 11: a[0] = &o->f[0]; a[1] = &o->i[0]; break;
+    case 13: a[0] = &o->f[0]; a[1] = &o->i[0]; break;
+    case 14: case 15: a[0] = &o->f[0]; break;
+    case 16: a[0] = &o->i[0]; break;
+    case 17: a[0] = &o->f[0]; a[1] = &o->i[0]; a[2] = &o->i[1]; break;
     default: a[0] = &o->f[0]; a[1] = o->s; break;
     }
     if (port)
@@ -619,8 +632,8 @@ static void test_sscanf(math_stat_t *s)
         if (memcmp(&want, &got, sizeof(want)) != 0) {
             s->mismatches++;
             if (s->mismatches == 1)
-                sprintf(s->example, "format \"%s\" text \"%.60s\" return %d vs %d", scan_formats[k], text, want.ret,
-                        got.ret);
+                sprintf(s->example, "format \"%s\" text \"%.60s\" return %d vs %d, ints %d %d vs %d %d, floats %08x %08x vs %08x %08x", scan_formats[k], text, want.ret,
+                        got.ret, want.i[0], want.i[1], got.i[0], got.i[1], want.f[0], want.f[1], got.f[0], got.f[1]);
         }
     }
 }
@@ -690,7 +703,7 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
         bad |= report(&hpc[i], 1);
     bad |= report(&hx, 1);
     report(&ac, 0);
-    bad |= report_up_to(&acp, 50);
+    bad |= report_up_to(&acp, ACOS_ALLOWED);
     for (i = 0; i < 8; i++)
         report(&acc[i], 0);
     report(&at1, 0);
