@@ -260,8 +260,8 @@ uv run tools/reference.py HEAD --check --quick     # a fixed subset, for a fast 
 ```
 
 `--quick` is the same `--check` restricted to the five scenarios in the
-`QUICK` constant of `tools/reference.py`. It takes about 2 minutes (see the
-times below). A pass says so and reminds you that it is not the gate; a failure
+`QUICK` constant of `tools/reference.py`. Its scenarios take about 1 to 2
+minutes at the default `--parallel`, after the build and checkall. A pass says so and reminds you that it is not the gate; a failure
 prints the same `tools/tracediff.py` report as the full run. `--quick` goes with
 `--check` and `--exe`, and `--traces` rejects it. It is no substitute for the
 full `--check`, which is what a pull request's gate needs.
