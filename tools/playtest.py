@@ -18,8 +18,9 @@ a copy of an ordinary link whose stubs fault when reached (see stub_traps).
 `--testmode <file>` instead runs each exe with `-testmode <file>` (a scenario of
 reference/README.md) and passes when it exits with status 0 within
 `--testmode-timeout` seconds. The trace the exe writes (trace.txt, and dump.txt
-with `--testdump <tick>`) is copied to the run's directory. `--poison` adds the game's own
-`-memset=0xcdcdcdcd` switch, which makes GameAlloc (and so operator new) fill new memory with 0xCD.
+with `--testdump <tick>`) is copied to the run's directory. Every `--testmode` run passes the game's
+own `-memset=0` switch, which makes GameAlloc (and so operator new) zero new memory. `--poison` passes
+`-memset=0xcdcdcdcd` instead, which fills it with 0xCD.
 
 Each run has its own:
 
@@ -64,6 +65,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCENARIOS = ROOT / "tools/playtest"
 OUT = ROOT / "build/playtest"
+ZERO_FILL_SWITCH = "-memset=0"
 POISON_SWITCH = "-memset=0xcdcdcdcd"
 EXES = {
     "orig": ROOT / "orig/TotalA.exe",
@@ -468,8 +470,8 @@ class Instance:
         args = ["-testmode", "testmode.txt"] if self.run.testmode else []
         if self.run.testmode and self.run.testdump is not None:
             args += ["-testdump", str(self.run.testdump)]
-        if self.run.testmode and self.run.poison:
-            args += [POISON_SWITCH]
+        if self.run.testmode:
+            args += [POISON_SWITCH if self.run.poison else ZERO_FILL_SWITCH]
         self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
                                      stdout=(self.run.out / f"wine{self.suffix}.log").open("w"),
                                      stderr=subprocess.STDOUT)

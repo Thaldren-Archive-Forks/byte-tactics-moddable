@@ -12,7 +12,7 @@ A bad scenario or a failed check exits with status 2 and a message on stderr
 that names the line.
 
 ```sh
-build/reference/HEAD/TotalA.exe -testmode reference/scenarios/skirmish2.txt
+build/reference/HEAD/TotalA.exe -testmode reference/scenarios/skirmish2.txt -memset=0
 WINEARCH=win64 uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe \
   --testmode reference/scenarios/skirmish2.txt     # under Wine, headless
 ```
@@ -301,23 +301,30 @@ tick 1 are reported as they are.
 
 The full `--check` is what a pull request's gate needs.
 
-## Poison mode
+## Zero fill and poison mode
 
 Game memory comes from `GameAlloc` (and `operator new`, which calls it), which is plain
-`malloc`: a new block holds whatever the heap had. A table that hashes bytes the game
-never wrote would then differ from run to run. `--poison` finds such bytes:
+`malloc`: a new block holds whatever the heap had, and the game reads some of those bytes
+(the spatial grid's `a` and `b` come from the edge cells' `high`, which nothing writes). The
+reference defines them: every test-mode run passes the game's own `-memset=0` switch (a debug
+option of the game's library: `IsMemSet`, `GetMemSetValue`, `FillPattern` in `GameAlloc`), so
+every `GameAlloc` and `operator new` block is zero before the game uses it. `tools/playtest.py
+--testmode` adds it; run the exe by hand with it, or the traces will not match the stored ones.
+`IsNearFillPattern` returns false for a zero fill, as with the switch off. The exe says so on
+stderr at the start (`testmode: allocations are filled with 0x00000000`).
+
+`--poison` finds the bytes whose starting value reaches the hashed state:
 
 ```sh
 uv run tools/reference.py HEAD --check --poison      # the stored digests must still match
 uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe --testmode reference/scenarios/skirmish2.txt --poison
 ```
 
-It passes the game's own `-memset=0xcdcdcdcd` switch (a debug option of the game's library:
-`IsMemSet`, `GetMemSetValue`, `FillPattern` in `GameAlloc`), so every `GameAlloc` and
-`operator new` block is filled with 0xCD before the game uses it; `GameCalloc` still zeroes.
-The exe says so on stderr at the start. What it does not fill: `realloc` growth, memory from
-`malloc`, `HeapAlloc` or `VirtualAlloc` called directly, and stack and static data. A table
-whose digests differ under `--poison` reads uninitialised bytes: skip them by a field list.
+It passes `-memset=0xcdcdcdcd` instead, so each block is filled with 0xCD. `GameCalloc` still
+zeroes. What neither fill reaches: `realloc` growth, memory from `malloc`, `HeapAlloc` or
+`VirtualAlloc` called directly, and stack and static data. A table whose digests differ under
+`--poison` reads uninitialised bytes: either the game reads them (they stay in the trace and go
+on the list of #7 tasks) or it never does (a harness skip, listed in `data/trace_coverage.csv`).
 
 ## Quick check
 

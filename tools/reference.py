@@ -14,9 +14,9 @@ function and reports which ones no longer MATCH, against the allowlist in the
 commit's own reference/changed.txt. Exits 1 if the build fails or a function
 outside the allowlist does not MATCH.
 
-`--check --poison` plays the scenarios with new game allocations filled with 0xCD instead of left as
-malloc gives them (the game's own -memset switch, through tools/playtest.py --poison); a table that
-reads uninitialised bytes then differs from the stored digests.
+Every scenario is played with new game allocations zeroed (the game's own -memset=0 switch, through
+tools/playtest.py --testmode). `--check --poison` fills them with 0xCD instead (-memset=0xcdcdcdcd); a
+table that reads uninitialised bytes then differs from the stored digests.
 
 `--traces` then plays every scenario in reference/scenarios/ (`--parallel N` at a
 time, default half the CPUs and at most 6, under Wine through tools/playtest.py) and writes reference/traces/<scenario>.txt:
