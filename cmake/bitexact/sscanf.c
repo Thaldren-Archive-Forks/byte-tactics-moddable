@@ -43,7 +43,7 @@ static int is_plain_float(const char *f, int len)
     return len == 2 && f[1] == 'f';
 }
 
-static int scan_float_token(const char *cur, char *token, int size)
+static int scan_float_token(const char *cur, char *token, int size, int *at_end)
 {
     int n = 0, digits = 0;
 
@@ -60,20 +60,15 @@ static int scan_float_token(const char *cur, char *token, int size)
             digits++;
         }
     }
-    if (digits && (*cur == 'e' || *cur == 'E')) {
-        const char *q = cur + 1;
-        int m = n;
-        token[m++] = *cur;
-        if ((*q == '+' || *q == '-') && m < size - 1)
-            token[m++] = *q++;
-        if (is_digit(*q)) {
-            while (is_digit(*q) && m < size - 1)
-                token[m++] = *q++;
-            n = m;
-            cur = q;
-        }
+    if (digits && (*cur == 'e' || *cur == 'E') && n < size - 1) {
+        token[n++] = *cur++;
+        if ((*cur == '+' || *cur == '-') && n < size - 1)
+            token[n++] = *cur++;
+        while (is_digit(*cur) && n < size - 1)
+            token[n++] = *cur++;
     }
     token[n] = 0;
+    *at_end = *cur == 0;
     return digits ? n : -1;
 }
 
@@ -140,9 +135,10 @@ int __cdecl bx_sscanf(const char *buf, const char *fmt, ...)
                 eof = 1;
                 break;
             }
-            used = scan_float_token(cur, token, sizeof(token));
+            used = scan_float_token(cur, token, sizeof(token), &eof);
             if (used < 0)
                 break;
+            eof = 0;
             *dest = bx_strtof_msvc5(token, 0);
             cur += used;
             assigned++;

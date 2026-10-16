@@ -502,6 +502,129 @@ static void test_strtof(math_stat_t *s)
     }
 }
 
+int __cdecl bx_sscanf(const char *buf, const char *fmt, ...);
+
+typedef struct {
+    int ret;
+    int i[2];
+    unsigned int f[3];
+    char s[64];
+} scan_out;
+
+static const char *scan_formats[] = {
+    " %d %d", " %f %f", " %[a-zA-Z0-9_.]", " %f %f %f", " %[a-zA-Z0-9_.] %d %f %f", " %f %d", " %d",
+    " %[a-zA-Z0-9.]", "%d %f", "%f,%f", "%s %f", "%f%d", "%f %[abc]"};
+#define N_SCAN_FORMATS ((int)(sizeof(scan_formats) / sizeof(scan_formats[0])))
+
+static void scan_word(char *text, int *p, const char *alphabet)
+{
+    int n = 1 + (int)(mrnd() % 12u), len = (int)strlen(alphabet), j;
+    for (j = 0; j < n; j++)
+        text[(*p)++] = alphabet[mrnd() % (unsigned)len];
+}
+
+static void make_scan_text(int k, char *text)
+{
+    const char *f = scan_formats[k];
+    int p = 0, spaces = (int)(mrnd() % 3u), cut, j;
+    char piece[96];
+
+    for (j = 0; j < spaces; j++)
+        text[p++] = ' ';
+    for (; *f; f++) {
+        if (*f == ' ') {
+            spaces = 1 + (int)(mrnd() % 3u);
+            for (j = 0; j < spaces; j++)
+                text[p++] = ' ';
+        } else if (*f != '%') {
+            text[p++] = *f;
+        } else if (f[1] == 'd') {
+            int digits = 1 + (int)(mrnd() % 6u);
+            if (mrnd() & 1)
+                text[p++] = '-';
+            for (j = 0; j < digits; j++)
+                text[p++] = (char)('0' + (int)(mrnd() % 10u));
+            f++;
+        } else if (f[1] == 'f') {
+            make_float_text(piece);
+            strcpy(text + p, piece);
+            p += (int)strlen(piece);
+            f++;
+        } else if (f[1] == '[') {
+            scan_word(text, &p, f[2] == 'a' && f[3] == 'b' ? "abcabcxyz" : "abcXYZ019_.");
+            while (*f != ']')
+                f++;
+        } else {
+            scan_word(text, &p, "abcXYZ019_.");
+            f++;
+        }
+    }
+    text[p] = 0;
+    cut = (int)(mrnd() % 16u);
+    if (cut == 0 && p > 0)
+        text[mrnd() % (unsigned)p] = 0;
+    else if (cut == 1)
+        strcat(text, " zz");
+    else if (cut == 2)
+        strcat(text, "x");
+    else if (cut == 3 && p > 0)
+        text[mrnd() % (unsigned)p] = 'q';
+}
+
+static void scan_case(int k, const char *text, int port, scan_out *o)
+{
+    void *a[4] = {0, 0, 0, 0};
+    const char *fmt = scan_formats[k];
+
+    memset(o, 0, sizeof(*o));
+    o->i[0] = o->i[1] = 0x5a5a5a5a;
+    o->f[0] = o->f[1] = o->f[2] = 0x7f7f1234u;
+    memset(o->s, '#', sizeof(o->s) - 1);
+    switch (k) {
+    case 0: a[0] = &o->i[0]; a[1] = &o->i[1]; break;
+    case 1: a[0] = &o->f[0]; a[1] = &o->f[1]; break;
+    case 2: case 7: a[0] = o->s; break;
+    case 3: a[0] = &o->f[0]; a[1] = &o->f[1]; a[2] = &o->f[2]; break;
+    case 4: a[0] = o->s; a[1] = &o->i[0]; a[2] = &o->f[0]; a[3] = &o->f[1]; break;
+    case 5: a[0] = &o->f[0]; a[1] = &o->i[0]; break;
+    case 6: a[0] = &o->i[0]; break;
+    case 8: a[0] = &o->i[0]; a[1] = &o->f[0]; break;
+    case 9: a[0] = &o->f[0]; a[1] = &o->f[1]; break;
+    case 10: a[0] = o->s; a[1] = &o->f[0]; break;
+    case 11: a[0] = &o->f[0]; a[1] = &o->i[0]; break;
+    default: a[0] = &o->f[0]; a[1] = o->s; break;
+    }
+    if (port)
+        o->ret = bx_sscanf(text, fmt, a[0], a[1], a[2], a[3]);
+    else
+        o->ret = sscanf(text, fmt, a[0], a[1], a[2], a[3]);
+}
+
+static void test_sscanf(math_stat_t *s)
+{
+    int i;
+    for (i = 0; i < 400000; i++) {
+        char text[512];
+        scan_out want, got;
+        int k = i % N_SCAN_FORMATS;
+        make_scan_text(k, text);
+#ifdef BX_REPLAY
+        vec_get_bytes(&want, sizeof(want));
+#else
+        scan_case(k, text, 0, &want);
+        vec_put_bytes(&want, sizeof(want));
+#endif
+        scan_case(k, text, 1, &got);
+        s->cases++;
+        if (memcmp(&want, &got, sizeof(want)) != 0) {
+            s->mismatches++;
+            if (s->mismatches == 1)
+                sprintf(s->example, "format \"%s\" text \"%.60s\" return %d vs %d", scan_formats[k], text, want.ret,
+                        got.ret);
+        }
+    }
+}
+
 static int report_up_to(const math_stat_t *s, unsigned long limit)
 {
     printf("%s: %lu cases, %lu mismatches (at most %lu allowed: the CPU's fpatan is not always the correctly rounded 64-bit value)\n",
@@ -543,7 +666,7 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
                        at1 = {"correctly rounded atof, up to 9 digits vs atof"},
                        at2 = {"correctly rounded atof, 10 to 15 digits vs atof"},
                        sc3 = {"sscanf %f vs the correctly rounded double rounded to float"},
-                       sf1 = {"bx_strtof_msvc5 vs sscanf %f"};
+                       sf1 = {"bx_strtof_msvc5 vs sscanf %f"}, ss1 = {"bx_sscanf vs sscanf"};
     int bad = 0, i;
 
     test_sqrt(&sd, &sf, &sc);
@@ -551,6 +674,7 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
     test_acos(&ac, &acp, acc);
     test_atof(&at1, &at2, &sc3);
     test_strtof(&sf1);
+    test_sscanf(&ss1);
     bad |= report(&sd, 1);
     bad |= report(&sf, 1);
     bad |= report(&sc, 1);
@@ -573,5 +697,6 @@ ac = {"simple acos vs acos"}, acp = {"bx_acos vs acos"},
     report(&at2, 0);
     report(&sc3, 0);
     bad |= report(&sf1, 1);
+    bad |= report(&ss1, 1);
     return bad;
 }
