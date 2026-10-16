@@ -1,7 +1,10 @@
 0x418310 DrawMapDebugOverlay
 0x41c6f0 UpdateScreenShake
+0x421620 StartExplodePiece
+0x421700 BreakPieceIntoDebris
 0x425b80 UpdateMenuSparks
 0x426e80 RunFrontendStateMachine
+0x43e3c0 GetSweetSpot
 0x44fc10 NetCondenser::SendPacket
 0x450380 AnnouncePlayerLeft
 0x472ab0 EmitJitteredThrustParticles
