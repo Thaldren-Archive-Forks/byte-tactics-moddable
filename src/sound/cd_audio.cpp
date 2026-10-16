@@ -121,6 +121,23 @@ int Sound::SetCdCallback(void (*cb)())
     return 1;
 }
 
+#ifdef __clang__
+static void SeedTrackReplies(char* count, char* trackType)
+{
+    int files = 0;
+    WIN32_FIND_DATAA found;
+    HANDLE h = FindFirstFileA("music\\*.mp3", &found);
+    if (h != INVALID_HANDLE_VALUE) {
+        do {
+            files++;
+        } while (FindNextFileA(h, &found));
+        FindClose(h);
+    }
+    wsprintfA(count, "%d", files);
+    strcpy(trackType, "other");
+}
+#endif
+
 // FUNCTION: 0x4cda00
 int Sound::QueryDisc()
 {
@@ -135,6 +152,9 @@ int Sound::QueryDisc()
     if (drive != 0)
         discSerial = GetVolumeSerial(drive);
     // Both mciSendStringA results are assigned to an int local before being tested.
+#ifdef __clang__
+    SeedTrackReplies(buf, type);
+#endif
     int hr = mciSendStringA("status cdaudio number of tracks", buf, 0x20, 0);
     // The whole body, tail included, nests in this if; the failure is the
     // trailing return 0 after it.
