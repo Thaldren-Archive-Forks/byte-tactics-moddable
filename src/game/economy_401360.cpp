@@ -358,7 +358,12 @@ void __stdcall UpdatePlayerEconomy(Player* p)
     usedA[0] += e->res[0].used;
     demandA[0] += e->res[0].demand;
     backlogA[0] += e->res[0].backlog;
+#ifdef __clang__
+    double metalProduced = (double)producedA[1] + e->res[1].produced;
+    producedA[1] = metalProduced;
+#else
     producedA[1] += e->res[1].produced;
+#endif
     usedA[1] += e->res[1].used;
     demandA[1] += e->res[1].demand;
     backlogA[1] += e->res[1].backlog;
@@ -383,7 +388,11 @@ void __stdcall UpdatePlayerEconomy(Player* p)
 #else
     avail[0] = producedA[0] + p->energy;
 #endif
+#ifdef __clang__
+    avail[1] = metalProduced + p->metal;
+#else
     avail[1] = producedA[1] + p->metal;
+#endif
     for (i = 0; i < 2; i++) {
         float take;
         if (backlogA[i] <= avail[i]) {
