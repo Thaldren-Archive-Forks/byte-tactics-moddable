@@ -467,7 +467,11 @@ void Order::ReattachFxToUnit()
         void* p2 = *(void**)p1;
         void* p3 = *(void**)p2;
         void* fn_ptr = *(void**)((char*)p3 + 4);
+#ifdef __clang__
+        ((void (__thiscall*)(void*, int))fn_ptr)(p2, (int)attached);
+#else
         ((void (__stdcall*)(int))fn_ptr)((int)attached);
+#endif
     }
 }
 
