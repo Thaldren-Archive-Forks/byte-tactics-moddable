@@ -4,6 +4,7 @@
     uv run tools/reference.py a1b2c3d
     uv run tools/reference.py HEAD --traces     # write reference/traces/
     uv run tools/reference.py HEAD --check      # compare against reference/traces/
+    uv run tools/reference.py HEAD --check --quick    # a fixed subset, not the gate
     uv run tools/reference.py --check --exe build/x/TotalA.exe
 
 Checks the commit out in build/reference/<ref>, links it with its own tools
@@ -20,7 +21,8 @@ the header of the run's trace.txt and one digest per tick (tools/tracedigest.py)
 On the first difference it builds the reference from the commit the trace
 records, prints tools/tracediff.py's report for that scenario and exits 1. A
 missing or extra trace or scenario exits 1. `--exe` checks a given exe instead
-of building the ref. Set WINEARCH=win64 for Wine; `--game-dir` names the game's
+of building the ref. `--quick` restricts `--check` to the scenarios named in QUICK.
+Set WINEARCH=win64 for Wine; `--game-dir` names the game's
 install.
 """
 
@@ -43,6 +45,7 @@ OUTPUTS = ("TotalA.exe", "SMACKW32.DLL", "commit.txt")
 SCENARIOS = ROOT / "reference/scenarios"
 TRACES = ROOT / "reference/traces"
 MAX_PARALLEL = 6
+QUICK = ("eight-full-moon", "eight-greenhaven", "duel-coast-to-coast", "duel-great-divide", "orders-move-attack")
 RUN_SECONDS_BASE = 120
 RUN_TICKS_PER_SECOND = 40
 RUN_ATTEMPTS = 2
@@ -261,9 +264,15 @@ def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) 
     return None
 
 
-def check_traces(exe: Path, game_dir: str | None, parallel: int) -> None:
+def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = False) -> None:
     scenarios = scenario_files()
     stored = {p.stem: p for p in sorted(TRACES.glob("*.txt"))} if TRACES.is_dir() else {}
+    if quick:
+        missing = [n for n in QUICK if n not in scenarios or n not in stored]
+        if missing:
+            fail("the quick subset names scenarios without both a scenario and a trace: " + ", ".join(missing))
+        scenarios = {n: scenarios[n] for n in QUICK}
+        stored = {n: stored[n] for n in QUICK}
     problems = [f"scenario {n} has no trace in {TRACES.relative_to(ROOT)}" for n in scenarios if n not in stored]
     problems += [f"trace {n} has no scenario in {SCENARIOS.relative_to(ROOT)}" for n in stored if n not in scenarios]
     if not scenarios or problems:
@@ -291,6 +300,8 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int) -> None:
             bad.append(name)
     print(f"{len(scenarios) - len(bad)} of {len(scenarios)} scenarios equal, total {clock(wall)}")
     if not bad:
+        if quick:
+            print("quick subset passed; this is not the gate, a pull request needs the full --check")
         return
 
     name = bad[0]
@@ -329,6 +340,8 @@ def main() -> None:
     ap.add_argument("ref", nargs="?", help="branch, tag or commit to build")
     ap.add_argument("--traces", action="store_true", help="play every scenario and write reference/traces/")
     ap.add_argument("--check", action="store_true", help="play every scenario and compare with reference/traces/")
+    ap.add_argument("--quick", action="store_true",
+                    help="--check: play only the fixed quick subset (not the gate)")
     ap.add_argument("--exe", metavar="PATH", help="--check: check this exe instead of building the ref")
     ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
     ap.add_argument("--parallel", type=int, default=default_parallel(), metavar="N",
@@ -339,6 +352,8 @@ def main() -> None:
     ref = args.ref
     if args.traces == args.check and (args.traces or args.exe):
         ap.error("give one of --traces and --check")
+    if args.quick and not args.check:
+        ap.error("--quick needs --check; it cannot be used with --traces")
     if args.exe and not args.check:
         ap.error("--exe needs --check")
     if args.exe and not Path(args.exe).is_file():
@@ -346,7 +361,7 @@ def main() -> None:
     if not args.exe and not ref:
         ap.error("give a ref to build")
     if args.exe:
-        check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel)
+        check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick)
         return
 
     sha = resolve(ref)
@@ -377,7 +392,7 @@ def main() -> None:
     if args.traces:
         write_traces(sha, directory / "TotalA.exe", args.game_dir, args.parallel)
     elif args.check:
-        check_traces(directory / "TotalA.exe", args.game_dir, args.parallel)
+        check_traces(directory / "TotalA.exe", args.game_dir, args.parallel, args.quick)
 
 
 if __name__ == "__main__":
