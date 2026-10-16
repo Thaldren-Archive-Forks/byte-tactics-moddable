@@ -49,6 +49,7 @@ QUICK = ("eight-full-moon", "eight-greenhaven", "duel-coast-to-coast", "duel-gre
 RUN_SECONDS_BASE = 120
 RUN_TICKS_PER_SECOND = 40
 RUN_ATTEMPTS = 2
+RETRY_DIALOG = "dialog-directx"
 REF_ENV = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
 
 
@@ -193,6 +194,19 @@ def keep_run(run: Path, scenario: str) -> Path:
     return kept
 
 
+def should_retry(message: str) -> bool:
+    """Whether a failed run is tried again: an exe crash or the DirectX init dialog, not a hang or another dialog.
+
+    playtest.py names an error dialog's kind (dialog-directx, dialog-crt, ...) in the failure. The DirectX
+    box is only classified so before the first tick; the runtime error (R6025) is a real fault.
+    """
+    if "still runs after" in message:
+        return False
+    if "dialog-" in message:
+        return RETRY_DIALOG in message
+    return True
+
+
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
                   want: tuple[dict[str, str], list[tuple[int, str]]] | None = None,
                   ) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
@@ -202,7 +216,9 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
     directory holding its trace.txt, otherwise None.
 
     A run whose exe crashes (a nonzero exit) is tried once more, since an exe fault at startup
-    was seen in 1 of 300 runs; a run that is still going at the timeout is a hang and fails at once.
+    was seen in 1 of 300 runs, and so is one that stopped on the DirectX initialisation dialog before
+    tick 1 (startup under load). A run that is still going at the timeout is a hang, and a run that
+    stopped on any other error dialog (R6025 and the like) is a game fault: both fail at once.
     """
     ticks = scenario_ticks(scenario)
     timeout = RUN_SECONDS_BASE + ticks / RUN_TICKS_PER_SECOND
@@ -212,7 +228,7 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
             run = tracediff.play(exe, scenario, game_dir, None, timeout)
             break
         except tracediff.Error as e:
-            if attempt == RUN_ATTEMPTS - 1 or "still runs after" in str(e):
+            if attempt == RUN_ATTEMPTS - 1 or not should_retry(str(e)):
                 raise
             print(f"{scenario.stem}: run failed, trying again: {last_lines(e)}", flush=True)
     elapsed = time.time() - t0
