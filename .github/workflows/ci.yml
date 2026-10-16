@@ -65,7 +65,7 @@ jobs:
           if [ "$EVENT" != pull_request ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           elif git diff --name-only "origin/$BASE_REF...HEAD" |
-              grep -qE '^(src/|include/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$|tools/sources\.py$|pyproject\.toml$|uv\.lock$)'; then
+              grep -qE '^(src/|include/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$|tools/sources\.py$|tools/rwsets\.py$|tools/test_rwsets\.py$|data/rwsets\.csv$|pyproject\.toml$|uv\.lock$)'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -105,8 +105,14 @@ jobs:
 
       - name: Configure
         if: steps.changed.outputs.run == 'true'
-        run: cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake -DBT_COMPILE_ONLY=ON
+        run: cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake -DBT_COMPILE_ONLY=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Compile the game and bitexact
         if: steps.changed.outputs.run == 'true'
         run: cmake --build build/modern --target game bitexact
+
+      - name: Check data/rwsets.csv is current
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          uv run tools/test_rwsets.py
+          uv run tools/rwsets.py --check --build-dir build/modern
