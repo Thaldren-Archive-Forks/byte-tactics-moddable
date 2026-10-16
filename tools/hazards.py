@@ -456,6 +456,12 @@ def read_rwsets(text: str) -> list[list[str]]:
     return list(csv.reader(io.StringIO(text)))[1:]
 
 
+def load_graph() -> tuple[list[list[str]], Graph]:
+    """The rows of data/rwsets.csv and the call graph with the hand-resolved edges of data/hazard_edges.csv."""
+    rows = read_rwsets(RWSETS.read_text())
+    return rows, Graph(rows, read_edges(EDGES, {r[1] for r in rows if r[3] == "function"}))
+
+
 def candidates(functions: list[dict], graph: Graph, roots=ROOTS) -> list[list]:
     """The hazard rows [address, function, file, line, kind, target] for the game logic of the graph."""
     logic = graph.reach(roots)
@@ -548,8 +554,7 @@ def generate(build_dir: Path, jobs: int) -> tuple[list[list], int]:
     for result in results:
         for fn in result:
             functions.setdefault((fn["function"], fn["file"], fn["start"]), fn)
-    rows = read_rwsets(RWSETS.read_text())
-    graph = Graph(rows, read_edges(EDGES, {r[1] for r in rows if r[3] == "function"}))
+    graph = load_graph()[1]
     return candidates(list(functions.values()), graph), len(commands)
 
 
