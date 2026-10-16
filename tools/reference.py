@@ -172,8 +172,34 @@ def scenario_ticks(scenario: Path) -> int:
     raise tracediff.Error(f"{scenario}: the scenario has no valid ticks line")
 
 
-def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict[str, str], list[tuple[int, str]], float]:
+def difference(want: tuple[dict[str, str], list[tuple[int, str]]], header: dict[str, str],
+               digests: list[tuple[int, str]]) -> str | None:
+    """Why a run differs from the stored (header, digests), or None when it equals them."""
+    want_header, want_digests = want
+    diff = first_difference(want_digests, digests)
+    seeds = [k for k in ("game_seed", "crt_seed", "view_seed") if want_header.get(k) != header[k]]
+    if seeds:
+        diff = diff or "the scenario's seeds differ from the stored trace: " + ", ".join(seeds)
+    return diff
+
+
+def keep_run(run: Path, scenario: str) -> Path:
+    """Copy the run's trace.txt (and dump.txt, if any) to build/scratch/check-<scenario>-<time>/."""
+    kept = ROOT / "build/scratch" / f"check-{scenario}-{time.strftime('%Y%m%d-%H%M%S')}"
+    kept.mkdir(parents=True, exist_ok=True)
+    for name in ("trace.txt", "dump.txt"):
+        if (run / name).is_file():
+            shutil.copy2(run / name, kept / name)
+    return kept
+
+
+def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
+                  want: tuple[dict[str, str], list[tuple[int, str]]] | None = None,
+                  ) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
     """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken.
+
+    With `want` (the stored header and digests), a run that differs is kept: the last element is the
+    directory holding its trace.txt, otherwise None.
 
     A run whose exe crashes (a nonzero exit) is tried once more, since an exe fault at startup
     was seen in 1 of 300 runs; a run that is still going at the timeout is a hang and fails at once.
@@ -190,14 +216,18 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None) -> tuple[dict
                 raise
             print(f"{scenario.stem}: run failed, trying again: {last_lines(e)}", flush=True)
     elapsed = time.time() - t0
+    kept = None
     try:
         header, rows = tracediff.parse_trace(tracediff.need(run, "trace.txt"))
+        for key in ("game_seed", "crt_seed", "view_seed"):
+            if key not in header:
+                raise tracediff.Error(f"{scenario}: the trace has no {key} line")
+        digests = tracedigest.digests(rows)
+        if want is not None and difference(want, header, digests):
+            kept = keep_run(run, scenario.stem)
     finally:
         shutil.rmtree(run.parent, ignore_errors=True)
-    for key in ("game_seed", "crt_seed", "view_seed"):
-        if key not in header:
-            raise tracediff.Error(f"{scenario}: the trace has no {key} line")
-    return header, tracedigest.digests(rows), elapsed
+    return header, digests, elapsed, kept
 
 
 def last_lines(error: Exception, count: int = 1) -> str:
@@ -206,12 +236,13 @@ def last_lines(error: Exception, count: int = 1) -> str:
     return "\n    ".join(lines[-count:]) or type(error).__name__
 
 
-def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int) -> dict[str, tuple]:
+def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int,
+             expected: dict[str, tuple] | None = None) -> dict[str, tuple]:
     """Every scenario's play_scenario result, `parallel` at a time and longest first; exits 1 if one fails to run.
 
     Each run has its own session directory, Wine prefix, game directory, X display and audio sink
     (tools/playtest.py names them by its pid), so runs share nothing but the template prefix,
-    which they only hardlink.
+    which they only hardlink. With `expected`, a scenario that differs keeps its trace (see play_scenario).
     """
     playtest.template_prefix()
     results: dict[str, tuple] = {}
@@ -219,7 +250,7 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
 
     def one(name: str) -> None:
         try:
-            results[name] = play_scenario(exe, scenarios[name], game_dir)
+            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name))
         except (tracediff.Error, OSError) as e:
             failures.append(f"{name}: failed to run, playtest.py ended with:\n    {last_lines(e, 5)}")
 
@@ -243,7 +274,7 @@ def write_traces(sha: str, exe: Path, game_dir: str | None, parallel: int) -> No
     t0 = time.time()
     results = play_all(exe, scenarios, game_dir, parallel)
     rendered = {}
-    for name, (header, digests, elapsed) in results.items():
+    for name, (header, digests, elapsed, _) in results.items():
         if not digests or any(k not in header for k in ("game_seed", "crt_seed", "view_seed")):
             fail(f"{name}: the run produced no complete trace; the stored traces are untouched")
         header = {**header, "commit": sha, "scenario": str(scenarios[name].relative_to(ROOT))}
@@ -251,7 +282,7 @@ def write_traces(sha: str, exe: Path, game_dir: str | None, parallel: int) -> No
     TRACES.mkdir(parents=True, exist_ok=True)
     for old in TRACES.glob("*.txt"):
         old.unlink()
-    for name, (header, digests, elapsed) in results.items():
+    for name, (header, digests, elapsed, _) in results.items():
         (TRACES / f"{name}.txt").write_text(rendered[name])
         print(f"wrote {(TRACES / f'{name}.txt').relative_to(ROOT)}: {len(digests)} ticks, {clock(elapsed)}")
     print(f"{len(results)} traces, commit {sha}, total {clock(time.time() - t0)}")
@@ -289,17 +320,14 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
             fail(str(e))
 
     t0 = time.time()
-    results = play_all(exe, scenarios, game_dir, parallel)
+    results = play_all(exe, scenarios, game_dir, parallel, expected)
     wall = time.time() - t0
     bad: list[str] = []
     for name in scenarios:
-        header, digests, elapsed = results[name]
-        want_header, want = expected[name]
-        diff = first_difference(want, digests)
-        seeds = [k for k in ("game_seed", "crt_seed", "view_seed") if want_header.get(k) != header[k]]
-        if seeds:
-            diff = diff or "the scenario's seeds differ from the stored trace: " + ", ".join(seeds)
-        print(f"{'DIFF' if diff else 'ok':4} {name} ({len(digests)} ticks, {clock(elapsed)})" + (f" {diff}" if diff else ""))
+        header, digests, elapsed, kept = results[name]
+        diff = difference(expected[name], header, digests)
+        where = f" [kept: {kept.relative_to(ROOT)}]" if kept else ""
+        print(f"{'DIFF' if diff else 'ok':4} {name} ({len(digests)} ticks, {clock(elapsed)})" + (f" {diff}{where}" if diff else ""))
         if diff:
             bad.append(name)
     print(f"{len(scenarios) - len(bad)} of {len(scenarios)} scenarios equal, total {clock(wall)}")
