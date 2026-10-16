@@ -48,14 +48,14 @@ Known limits:
 
 ## Counts
 
-As of the last read of `data/state_classes.csv` (1659 rows):
+As of the last read of `data/state_classes.csv` (1681 rows):
 
 | kind | sim | view | platform | mixed | total |
 |---|---|---|---|---|---|
 | global | 105 | 370 | 287 | 0 | 762 |
-| static | 12 | 13 | 120 | 0 | 145 |
+| static | 12 | 13 | 119 | 0 | 144 |
 | game-region | 75 | 293 | 69 | 9 | 446 |
-| heap | 202 | 43 | 61 | 0 | 306 |
+| heap | 214 | 45 | 70 | 0 | 329 |
 
 ## Mixed cases and how to split them
 
