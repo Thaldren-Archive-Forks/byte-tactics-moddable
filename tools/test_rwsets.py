@@ -42,6 +42,8 @@ int Indirect(Table* t, int x) { return g_handlers[x](x) + t->fire(x); }
 // FUNCTION: 0x401050
 void Calls() { int local = 0; Fill(&local); Look(&local); Fill(&g_count); Look(&g_other); Helper(g_count); }
 
+void Empty() {}
+
 // FUNCTION: 0x401060
 void Escapes() { int* p = &g_count; Handler h = Helper; *p = 1; (void)h; }
 """
@@ -59,7 +61,9 @@ def rows_of(source):
         tmp.cleanup()
     result = {}
     for address, function, file, kind, target in rows:
-        result.setdefault(function, set()).add((kind, target))
+        result.setdefault(function, set())
+        if kind != "function":
+            result[function].add((kind, target))
     return rows, result
 
 
@@ -98,6 +102,11 @@ class RwsetsTest(unittest.TestCase):
     def test_escapes_and_function_references(self):
         self.assertEqual(self.by_function["Escapes"], {
             ("global_escape", "g_count"), ("fn_ref", "Helper"), ("deref_write", "*int")})
+
+    def test_every_function_has_a_definition_row(self):
+        defined = {row[1] for row in self.rows if row[3] == "function" and row[4] == ""}
+        self.assertEqual(defined, set(self.by_function))
+        self.assertEqual(self.by_function["Empty"], set())
 
     def test_rows_carry_the_marker_address_and_are_sorted(self):
         addresses = {row[1]: row[0] for row in self.rows}
