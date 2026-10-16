@@ -73,7 +73,7 @@ The `modern-compile` CI job compiles the game and `lib/bitexact` with clang-cl
 `cmake/`, `CMakeLists.txt`, `tools/setup_toolchain.sh`, `tools/sources.py`,
 `pyproject.toml` or `uv.lock`. It checks that the
 source still builds with LLVM 22.1.8 against MSVC 5's headers, which
-`tools/setup_toolchain.sh` fetches into a cached `toolchain/`. The job also runs `uv run tools/rwsets.py --check`, which regenerates `data/rwsets.csv` (the globals, struct fields and functions each function reads, writes and calls, from clang's syntax tree) and fails when it differs from the committed file; run `uv run tools/rwsets.py` after a change to `src/` and commit the result.
+`tools/setup_toolchain.sh` fetches into a cached `toolchain/`. The job also runs `uv run tools/rwsets.py --check`, which regenerates `data/rwsets.csv` (the globals, struct fields and functions each function reads, writes and calls, from clang's syntax tree) and fails when it differs from the committed file; run `uv run tools/rwsets.py` after a change to `src/` and commit the result. It also runs `uv run tools/hazards.py --check`, which lists the places in game logic that depend on heap addresses, uninitialised memory, time or other threads (`data/hazards.csv`, with a verdict and note per row that regeneration keeps); run `uv run tools/hazards.py` after a change to `src/` and commit the result.
 It does not
 link: the link needs `orig/TotalA.exe`, which must never be committed, and
 trace runs need the game's data, so both stay local.

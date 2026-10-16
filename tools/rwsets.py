@@ -244,6 +244,8 @@ def first_file(chunk: str) -> str | None:
 class Analyzer:
     """Collects the rows of one translation unit."""
 
+    walker_class: type = None
+
     def __init__(self, root: Path):
         self.root = root
         self.records: dict[str, str] = {}
@@ -311,7 +313,7 @@ class Analyzer:
         rel = self.relative(node["_file"])
         if rel is None:
             return
-        walker = Walker(self, name)
+        walker = (self.walker_class or Walker)(self, name)
         walker.prepare(node)
         for child in node.get("inner", ()):
             if child["kind"].endswith("Stmt") or child["kind"] == "CXXCtorInitializer":
@@ -560,12 +562,19 @@ def callee_hint(callee: dict) -> str:
 
 def analyse(job: tuple[Path, list[str], str]) -> list[list]:
     """Run clang-cl on one file and return its rows: [address, function, file, kind, target]."""
+    unit, _ = analyse_unit(job, Analyzer)
+    return [[fn["address"], fn["function"], fn["file"], kind, target]
+            for fn in unit.functions for kind, target in [("function", "")] + fn["items"]]
+
+
+def analyse_unit(job: tuple[Path, list[str], str], analyzer: type) -> tuple[Analyzer, str]:
+    """Run clang-cl on one file and walk its dump with an analyzer; returns it and clang's stderr."""
     root, argv, directory = job
     run = subprocess.run(argv, cwd=directory, capture_output=True, text=True, errors="replace")
     if run.returncode != 0 and "error:" in run.stderr:
         raise SystemExit("%s: clang-cl failed\n%s" % (argv[-1], run.stderr[-2000:]))
     text = run.stdout
-    unit = Analyzer(root)
+    unit = analyzer(root)
     position = ("", 0)
     start = text.index('"inner": [')
     for m in CHUNK.finditer(text, start):
@@ -580,8 +589,7 @@ def analyse(job: tuple[Path, list[str], str]) -> list[list]:
         position = (tracker.file, tracker.line)
         unit.declare(node, None)
     unit.assign_markers()
-    return [[fn["address"], fn["function"], fn["file"], kind, target]
-            for fn in unit.functions for kind, target in [("function", "")] + fn["items"]]
+    return unit, run.stderr
 
 
 def merge(results: list[list[list]]) -> list[list[str]]:
