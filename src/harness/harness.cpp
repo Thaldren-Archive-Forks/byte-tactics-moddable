@@ -782,6 +782,9 @@ enum {
 
 enum {
     CONDITION_SAVE_SLOT = 16,
+    AI_LAST_TICK = 0xed,
+    MISSION_TYPE = 0x0,
+    MISSION_TYPE_CAMPAIGN = 1,
     VECTOR_FIRST = 0x4,
     VECTOR_LAST = 0x8,
     VECTOR_LIMIT = 1 << 20,
@@ -2215,6 +2218,8 @@ static void VisitPlayerAI()
             continue;
         sprintf(path, "players[%u].ai", i);
         VisitElement(path, (const unsigned char*)ai, &kPlayerAITable);
+        if (ReadU32At(ai, AI_LAST_TICK) != 0)
+            VisitElement(path, (const unsigned char*)ai, &kPlayerAIRefreshedTable);
         sprintf(path, "players[%u].ai.visible", i);
         VisitUnitVector(path, ai + 0x5);
         sprintf(path, "players[%u].ai.known", i);
@@ -2450,6 +2455,8 @@ static void VisitMission()
         unsigned features = ReadU32At(mission, MISSION_FEATURES);
         unsigned featureCount = ReadU32At(mission, MISSION_FEATURE_COUNT);
         VisitElement("mission", (const unsigned char*)mission, &kMissionDataTable);
+        if (ReadU32At(mission, MISSION_TYPE) == MISSION_TYPE_CAMPAIGN)
+            VisitElement("mission", (const unsigned char*)mission, &kMissionStartRestTable);
         if (units == 0 || unitCount > MISSION_LIMIT)
             unitCount = 0;
         if (rules == 0 || ruleCount > MISSION_LIMIT)

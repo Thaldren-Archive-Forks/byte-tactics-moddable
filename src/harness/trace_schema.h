@@ -970,7 +970,6 @@ static const TraceField kPlayerAIFields[] = {
     { "center.y", 0x5f, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "centerPad", 0x61, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "builders", 0x75, 4, TF_SCALAR, TT_NONE, 0x0 },
-    { "hasSpecial", 0x79, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "lastTick", 0xed, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "spacing0.x", 0xf1, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "spacing0.y", 0xf3, 2, TF_SCALAR, TT_NONE, 0x0 },
@@ -990,8 +989,16 @@ static const TraceField kPlayerAIPlan[] = {
     { "", 0x4, 1, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x35, 24, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x5d, 8, TF_BYTES, TT_NONE, 0x0 },
-    { "", 0x75, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x75, 4, TF_BYTES, TT_NONE, 0x0 },
     { "", 0xed, 32, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kPlayerAIRefreshedFields[] = {
+    { "hasSpecial", 0x79, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kPlayerAIRefreshedPlan[] = {
+    { "", 0x79, 4, TF_BYTES, TT_NONE, 0x0 },
 };
 
 static const TraceField kSquadManagerFields[] = {
@@ -1142,8 +1149,8 @@ static const TraceField kMissionDataFields[] = {
     { "waterDamage", 0xd50, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "killMul", 0xd54, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "timeMul", 0xd58, 4, TF_SCALAR, TT_NONE, 0x0 },
-    { "startMetal", 0xd5c, 40, TF_BYTES, TT_NONE, 0x0 },
-    { "startEnergy", 0xd84, 40, TF_BYTES, TT_NONE, 0x0 },
+    { "startMetal", 0xd5c, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "startEnergy", 0xd84, 8, TF_BYTES, TT_NONE, 0x0 },
     { "unitCount", 0xdb0, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "ruleCount", 0xdb8, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "featureCount", 0xdc0, 4, TF_SCALAR, TT_NONE, 0x0 },
@@ -1152,10 +1159,21 @@ static const TraceField kMissionDataFields[] = {
 static const TraceField kMissionDataPlan[] = {
     { "", 0x0, 4, TF_BYTES, TT_NONE, 0x0 },
     { "", 0xd2c, 8, TF_BYTES, TT_NONE, 0x0 },
-    { "", 0xd3c, 112, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd3c, 40, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd84, 8, TF_BYTES, TT_NONE, 0x0 },
     { "", 0xdb0, 4, TF_BYTES, TT_NONE, 0x0 },
     { "", 0xdb8, 4, TF_BYTES, TT_NONE, 0x0 },
     { "", 0xdc0, 4, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionStartRestFields[] = {
+    { "startMetalRest", 0xd64, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "startEnergyRest", 0xd8c, 32, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionStartRestPlan[] = {
+    { "", 0xd64, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd8c, 32, TF_BYTES, TT_NONE, 0x0 },
 };
 
 static const TraceField kWeaponDefDataFields[] = {
@@ -1337,7 +1355,8 @@ static const TraceTable kScriptChannelWaitTable = { kScriptChannelWaitFields, 1,
 static const TraceTable kScriptChannelPieceTable = { kScriptChannelPieceFields, 2, kScriptChannelPiecePlan, 1, 0xa4 };
 static const TraceTable kScriptPieceTable = { kScriptPieceFields, 7, kScriptPiecePlan, 1, 0x4c };
 static const TraceTable kPieceTransformTable = { kPieceTransformFields, 3, kPieceTransformPlan, 2, 0x36 };
-static const TraceTable kPlayerAITable = { kPlayerAIFields, 25, kPlayerAIPlan, 6, 0x10d };
+static const TraceTable kPlayerAITable = { kPlayerAIFields, 24, kPlayerAIPlan, 6, 0x10d };
+static const TraceTable kPlayerAIRefreshedTable = { kPlayerAIRefreshedFields, 1, kPlayerAIRefreshedPlan, 1, 0x10d };
 static const TraceTable kSquadManagerTable = { kSquadManagerFields, 6, kSquadManagerPlan, 3, 0x3d };
 static const TraceTable kSquadTimerTable = { kSquadTimerFields, 2, kSquadTimerPlan, 1, 0x14 };
 static const TraceTable kAssaultTimerTable = { kAssaultTimerFields, 7, kAssaultTimerPlan, 1, 0x28 };
@@ -1349,7 +1368,8 @@ static const TraceTable kMissionConditionsTable = { kMissionConditionsFields, 3,
 static const TraceTable kMissionConditionTable = { kMissionConditionFields, 2, kMissionConditionPlan, 1, 0xc };
 static const TraceTable kConditionNumUnitsTable = { kConditionNumUnitsFields, 1, kConditionNumUnitsPlan, 1, 0x14 };
 static const TraceTable kConditionNumLeftTable = { kConditionNumLeftFields, 1, kConditionNumLeftPlan, 1, 0x30 };
-static const TraceTable kMissionDataTable = { kMissionDataFields, 16, kMissionDataPlan, 6, 0xec4 };
+static const TraceTable kMissionDataTable = { kMissionDataFields, 16, kMissionDataPlan, 7, 0xec4 };
+static const TraceTable kMissionStartRestTable = { kMissionStartRestFields, 2, kMissionStartRestPlan, 2, 0xec4 };
 static const TraceTable kWeaponDefDataTable = { kWeaponDefDataFields, 29, kWeaponDefDataPlan, 7, 0x115 };
 static const TraceTable kUnitDefDataTable = { kUnitDefDataFields, 75, kUnitDefDataPlan, 16, 0x249 };
 

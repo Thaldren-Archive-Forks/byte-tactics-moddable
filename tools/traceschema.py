@@ -161,6 +161,8 @@ SPLITS: dict[str, list[tuple[str, set[str]]]] = {
     "AirManeuverOrder": [("AirManeuverOrderHeading", {"heading"})],
     "Order": [("OrderPosY", {"pos.y"})],
     "PackedGoal": [("LiteGoalState", {"netDirty"})],
+    "PlayerAI": [("PlayerAIRefreshed", {"hasSpecial"})],
+    "MissionData": [("MissionStartRest", {"startMetalRest", "startEnergyRest"})],
     "ScriptChannel": [("ScriptChannelDelay", {"delay"}), ("ScriptChannelWait", {"waiting"}),
                       ("ScriptChannelPiece", {"piece", "axis"})],
 }
@@ -644,8 +646,10 @@ SYNTHETIC.update({
         int waterDamage;              // +0xd50
         float killMul;                // +0xd54
         float timeMul;                // +0xd58
-        float startMetal[10];         // +0xd5c
-        float startEnergy[10];        // +0xd84
+        float startMetal[2];          // +0xd5c
+        char startMetalRest[32];      // +0xd64
+        float startEnergy[2];         // +0xd84
+        char startEnergyRest[32];     // +0xd8c
         char* units;                  // +0xdac
         int unitCount;                // +0xdb0
         char* rules;                  // +0xdb4
