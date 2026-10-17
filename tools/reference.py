@@ -51,7 +51,7 @@ TRACES = ROOT / "reference/traces"
 MAX_PARALLEL = 6
 QUICK = ("eight-full-moon", "eight-greenhaven", "duel-coast-to-coast", "duel-great-divide", "orders-move-attack")
 RUN_SECONDS_BASE = 120
-RUN_TICKS_PER_SECOND = 40
+RUN_TICKS_PER_SECOND = 25
 RUN_ATTEMPTS = 2
 RETRY_DIALOG = "dialog-directx"
 REF_ENV = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
