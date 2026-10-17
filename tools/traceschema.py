@@ -161,7 +161,6 @@ SPLITS: dict[str, list[tuple[str, set[str]]]] = {
     "AirManeuverOrder": [("AirManeuverOrderHeading", {"heading"})],
     "Order": [("OrderPosY", {"pos.y"})],
     "PackedGoal": [("LiteGoalState", {"netDirty"})],
-    "PlayerAI": [("PlayerAIRefreshed", {"hasSpecial"})],
     "MissionData": [("MissionStartRest", {"startMetalRest", "startEnergyRest"})],
     "ScriptChannel": [("ScriptChannelDelay", {"delay"}), ("ScriptChannelWait", {"waiting"}),
                       ("ScriptChannelPiece", {"piece", "axis"})],

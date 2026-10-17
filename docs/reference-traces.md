@@ -87,13 +87,23 @@ one can diverge without a logic bug.
   - `AiSearchGoal` flags bit 2 (the constructor never sets it; only the net
     state serialiser writes it, and the reader runs after that, in net games
     only).
+  - `Mission.startMetal` and `startEnergy` for players 3 to 10 (slots 2 to 9),
+    unless the mission is a campaign mission (`Mission.type` is 1). Only
+    `LoadMission` writes them, and only slots 0 and 1 (map_list.cpp:963-966);
+    the only reader is `InitPlayerResources` (players_464290.cpp:1131-1134),
+    which reads them only for game type 1.
 
-  The code is `OrderPosYUnset`, `FxPosYUnset` and the `PathOrderFollow` visit
-  in `src/harness/harness.cpp`, and the evidence that nothing reads them is on
-  the Order, PathOrder and AiSearchGoal rows of `data/trace_coverage.csv`.
+  The code is `OrderPosYUnset`, `FxPosYUnset`, the `PathOrderFollow` visit and
+  the `MissionStartRest` visit in `src/harness/harness.cpp`, and the evidence
+  that nothing reads them is on the Order, PathOrder, AiSearchGoal and Mission
+  rows of `data/trace_coverage.csv`.
 - These stack locals are zero in test mode, because 3.1c reads them before it
   writes them and the digests keep the result:
   - `pos` in `ScoutTimer::OnTimer` (0x408100).
+- `PlayerAI.hasSpecial` is zero until the first unit list refresh, because the
+  constructor never sets it. `FindCellNearFeatures` can read it in the tick that
+  first assigns the squads, before that tick's refresh, so it is hashed from
+  tick 1.
 
 ## Comparing an engine against the digests
 

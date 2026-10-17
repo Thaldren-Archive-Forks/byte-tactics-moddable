@@ -970,6 +970,7 @@ static const TraceField kPlayerAIFields[] = {
     { "center.y", 0x5f, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "centerPad", 0x61, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "builders", 0x75, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "hasSpecial", 0x79, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "lastTick", 0xed, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "spacing0.x", 0xf1, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "spacing0.y", 0xf3, 2, TF_SCALAR, TT_NONE, 0x0 },
@@ -989,16 +990,8 @@ static const TraceField kPlayerAIPlan[] = {
     { "", 0x4, 1, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x35, 24, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x5d, 8, TF_BYTES, TT_NONE, 0x0 },
-    { "", 0x75, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x75, 8, TF_BYTES, TT_NONE, 0x0 },
     { "", 0xed, 32, TF_BYTES, TT_NONE, 0x0 },
-};
-
-static const TraceField kPlayerAIRefreshedFields[] = {
-    { "hasSpecial", 0x79, 4, TF_SCALAR, TT_NONE, 0x0 },
-};
-
-static const TraceField kPlayerAIRefreshedPlan[] = {
-    { "", 0x79, 4, TF_BYTES, TT_NONE, 0x0 },
 };
 
 static const TraceField kSquadManagerFields[] = {
@@ -1355,8 +1348,7 @@ static const TraceTable kScriptChannelWaitTable = { kScriptChannelWaitFields, 1,
 static const TraceTable kScriptChannelPieceTable = { kScriptChannelPieceFields, 2, kScriptChannelPiecePlan, 1, 0xa4 };
 static const TraceTable kScriptPieceTable = { kScriptPieceFields, 7, kScriptPiecePlan, 1, 0x4c };
 static const TraceTable kPieceTransformTable = { kPieceTransformFields, 3, kPieceTransformPlan, 2, 0x36 };
-static const TraceTable kPlayerAITable = { kPlayerAIFields, 24, kPlayerAIPlan, 6, 0x10d };
-static const TraceTable kPlayerAIRefreshedTable = { kPlayerAIRefreshedFields, 1, kPlayerAIRefreshedPlan, 1, 0x10d };
+static const TraceTable kPlayerAITable = { kPlayerAIFields, 25, kPlayerAIPlan, 6, 0x10d };
 static const TraceTable kSquadManagerTable = { kSquadManagerFields, 6, kSquadManagerPlan, 3, 0x3d };
 static const TraceTable kSquadTimerTable = { kSquadTimerFields, 2, kSquadTimerPlan, 1, 0x14 };
 static const TraceTable kAssaultTimerTable = { kAssaultTimerFields, 7, kAssaultTimerPlan, 1, 0x28 };
