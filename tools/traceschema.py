@@ -95,7 +95,7 @@ PATHFINDER_SEARCH_FIELDS = {
 SPLITS: dict[str, list[tuple[str, set[str]]]] = {
     "Pathfinder": [("PathfinderSearch", PATHFINDER_SEARCH_FIELDS)],
     "PathOrder": [("PathOrderHeading", {"heading"}), ("PathOrderPiece", {"piece"}),
-                  ("PathOrderFollow", {"followOffset"})],
+                  ("PathOrderFollow", {"followOffset"}), ("PathOrderPosY", {"pos.y"})],
     "AirManeuverOrder": [("AirManeuverOrderHeading", {"heading"})],
     "Order": [("OrderPosY", {"pos.y"})],
     "PackedGoal": [("LiteGoalState", {"netDirty"})],

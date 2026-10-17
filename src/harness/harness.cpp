@@ -1695,10 +1695,27 @@ static void NumberUnitHeap(unsigned char* units, unsigned count)
 
 extern Elem_0043c390* g_missionOrderTableBegin;
 
-static int OrderIsBuild(unsigned order)
+static const char* OrderKindName(unsigned order)
 {
-    const char* name = (const char*)ReadU32At((unsigned)g_missionOrderTableBegin + *(const unsigned char*)(order + ORDER_KIND) * ORDER_TABLE_STRIDE, ORDER_TABLE_NAME);
-    return name != NULL && (strcmp(name, "MobileBuild") == 0 || strcmp(name, "VTOL_MobileBuild") == 0);
+    return (const char*)ReadU32At((unsigned)g_missionOrderTableBegin + *(const unsigned char*)(order + ORDER_KIND) * ORDER_TABLE_STRIDE, ORDER_TABLE_NAME);
+}
+
+static int OrderPosYUnset(unsigned order)
+{
+    static const char* const kinds[] = { "MobileBuild", "VTOL_MobileBuild", "Reclaim", "VTOL_Reclaim" };
+    const char* name = OrderKindName(order);
+    for (unsigned i = 0; name != NULL && i < sizeof(kinds) / sizeof(kinds[0]); i++) {
+        if (strcmp(name, kinds[i]) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+static int FxPosYUnset(unsigned fx)
+{
+    unsigned order = ReadU32At(fx, FX_SOURCE);
+    const char* name = order != 0 ? OrderKindName(order) : NULL;
+    return name != NULL && (strcmp(name, "VTOL_MobileBuild") == 0 || strcmp(name, "VTOL_Reclaim") == 0);
 }
 
 static void VisitOrders(unsigned char* units, unsigned count)
@@ -1720,7 +1737,7 @@ static void VisitOrders(unsigned char* units, unsigned count)
                 if (s_dumpNow)
                     sprintf(path, "units[%u].%s[%u]", i, which == 0 ? "list" : "list2", n);
                 VisitElement(path, (const unsigned char*)order, &kOrderTable);
-                if (!OrderIsBuild(order))
+                if (!OrderPosYUnset(order))
                     VisitElement(path, (const unsigned char*)order, &kOrderPosYTable);
                 order = ReadU32At(order, ORDER_NEXT);
             }
@@ -1834,6 +1851,8 @@ static void VisitFx()
         case FX_PATH:
             flags = *(const unsigned short*)(fx + PATHORDER_FLAGS);
             VisitElement(path, (const unsigned char*)fx, &kPathOrderTable);
+            if (!FxPosYUnset(fx))
+                VisitElement(path, (const unsigned char*)fx, &kPathOrderPosYTable);
             if (flags & 0x40)
                 VisitElement(path, (const unsigned char*)fx, &kPathOrderHeadingTable);
             if (flags & 1)

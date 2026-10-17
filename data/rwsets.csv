@@ -39474,9 +39474,13 @@ address,function,file,kind,target
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,CountAlloc
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,CountFree
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,EnterCriticalSection
+0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,FillPattern
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,GetAllocLock
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,GetBlockSize
+0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,GetMemSetValue
+0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,HarnessTestMode
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,IsMemFussy
+0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,IsMemSet
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,LeaveCriticalSection
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,ReallocDebugBlock
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,realloc
@@ -43612,6 +43616,10 @@ address,function,file,kind,target
 ,FxClassOf,src/harness/harness.cpp,global_escape,g_pathOrderVtable
 ,FxClassOf,src/harness/harness.cpp,global_escape,g_pointMarkerVtable
 ,FxClassOf,src/harness/harness.cpp,global_escape,g_ringApproachVtable
+,FxPosYUnset,src/harness/harness.cpp,call,OrderKindName
+,FxPosYUnset,src/harness/harness.cpp,call,ReadU32At
+,FxPosYUnset,src/harness/harness.cpp,call,strcmp
+,FxPosYUnset,src/harness/harness.cpp,function,
 ,GafFrame::Pitch,src/graphics/draw.cpp,field_read,GafFrame::pitch
 ,GafFrame::Pitch,src/graphics/draw.cpp,function,
 ,GainedBits,src/units/unit.cpp,function,
@@ -45881,11 +45889,14 @@ address,function,file,kind,target
 ,OrderFx::OrderFx,src/orders/order_targets.cpp,field_write,OrderFx::vtable
 ,OrderFx::OrderFx,src/orders/order_targets.cpp,function,
 ,OrderFx::OrderFx,src/orders/order_targets.cpp,global_escape,g_orderFxVtable
-,OrderIsBuild,src/harness/harness.cpp,call,ReadU32At
-,OrderIsBuild,src/harness/harness.cpp,call,strcmp
-,OrderIsBuild,src/harness/harness.cpp,deref_read,*unsigned char
-,OrderIsBuild,src/harness/harness.cpp,function,
-,OrderIsBuild,src/harness/harness.cpp,global_read,g_missionOrderTableBegin
+,OrderKindName,src/harness/harness.cpp,call,ReadU32At
+,OrderKindName,src/harness/harness.cpp,deref_read,*unsigned char
+,OrderKindName,src/harness/harness.cpp,function,
+,OrderKindName,src/harness/harness.cpp,global_read,g_missionOrderTableBegin
+,OrderPosYUnset,src/harness/harness.cpp,call,OrderKindName
+,OrderPosYUnset,src/harness/harness.cpp,call,strcmp
+,OrderPosYUnset,src/harness/harness.cpp,function,
+,OrderPosYUnset,src/harness/harness.cpp,global_read,kinds@OrderPosYUnset
 ,OrderTarget,src/orders/vtol_orders.cpp,field_read,Link_004895c0::owner
 ,OrderTarget,src/orders/vtol_orders.cpp,function,
 ,OrderTarget,src/orders/vtol_orders_40fbe0.cpp,field_read,Order::target
@@ -48549,6 +48560,7 @@ address,function,file,kind,target
 ,VisitFieldList,src/harness/harness.cpp,global_read,s_dumpNow@src/harness/harness.cpp
 ,VisitFx,src/harness/harness.cpp,call,EndSection
 ,VisitFx,src/harness/harness.cpp,call,FxClassOf
+,VisitFx,src/harness/harness.cpp,call,FxPosYUnset
 ,VisitFx,src/harness/harness.cpp,call,HashByte
 ,VisitFx,src/harness/harness.cpp,call,HashU32
 ,VisitFx,src/harness/harness.cpp,call,ReadU32At
@@ -48564,6 +48576,7 @@ address,function,file,kind,target
 ,VisitFx,src/harness/harness.cpp,global_read,kPathOrderFollowTable@src/harness/trace_schema.h
 ,VisitFx,src/harness/harness.cpp,global_read,kPathOrderHeadingTable@src/harness/trace_schema.h
 ,VisitFx,src/harness/harness.cpp,global_read,kPathOrderPieceTable@src/harness/trace_schema.h
+,VisitFx,src/harness/harness.cpp,global_read,kPathOrderPosYTable@src/harness/trace_schema.h
 ,VisitFx,src/harness/harness.cpp,global_read,kPathOrderTable@src/harness/trace_schema.h
 ,VisitFx,src/harness/harness.cpp,global_read,kPointMarkerTable@src/harness/trace_schema.h
 ,VisitFx,src/harness/harness.cpp,global_read,kRingApproachTable@src/harness/trace_schema.h
@@ -48654,7 +48667,7 @@ address,function,file,kind,target
 ,VisitOrders,src/harness/harness.cpp,call,EndSection
 ,VisitOrders,src/harness/harness.cpp,call,HashByte
 ,VisitOrders,src/harness/harness.cpp,call,HashU32
-,VisitOrders,src/harness/harness.cpp,call,OrderIsBuild
+,VisitOrders,src/harness/harness.cpp,call,OrderPosYUnset
 ,VisitOrders,src/harness/harness.cpp,call,ReadU32At
 ,VisitOrders,src/harness/harness.cpp,call,UnitIsLive
 ,VisitOrders,src/harness/harness.cpp,call,VisitElement

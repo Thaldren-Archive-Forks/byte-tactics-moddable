@@ -1648,6 +1648,7 @@ kPathGlobalsCount@src/harness/trace_schema.h,,static,platform,platform,platform:
 kPathOrderFollowTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
 kPathOrderHeadingTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
 kPathOrderPieceTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
+kPathOrderPosYTable@src/harness/trace_schema.h,,static,platform,,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
 kPathOrderTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
 kPathfinderSearchTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitPathfinder,Test harness state (src/harness/trace_schema.h:654); read and written only by the trace writer.
 kPathfinderTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitPathfinder,Test harness state (src/harness/trace_schema.h:653); read and written only by the trace writer.
@@ -1674,6 +1675,7 @@ kUnitMotionTable@src/harness/trace_schema.h,,static,platform,platform,platform: 
 kUnitTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitUnits,Trace schema table of the test harness (src/harness/trace_schema.h).
 kWindFieldCount@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,1:VisitWind,Trace schema table of the test harness (src/harness/trace_schema.h).
 kWindFields@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:VisitGlobalList|VisitPointer,6:DumpFields|DumpValue|HashField,Trace schema table of the test harness (src/harness/trace_schema.h).
+kinds@OrderPosYUnset,,static,platform,,platform: only the debug library or the test harness touches it,,,,,,1:OrderPosYUnset,
 s_array@src/game/data_files.cpp,,static,,platform,none: no access found,,,,,,,Unused TdfFile[1] allocated at startup (data_files.cpp:831).
 s_cobScriptCache@src/util/int_map.cpp,,static,sim,sim,"sim: load writes it, a phase reads it (weak writes only)",,0|1|2|4|5,r,yes,1:FreeCobScript?,2:GetCobChecksum|LoadCobScript,"Cache of loaded COB scripts (int_map.cpp), filled at load and read by LoadCobScript/GetCobChecksum; effectively constant after load."
 s_commandTable@src/util/commands.cpp,,static,view,view,"view: load writes it, only presentation uses it (weak writes only)",,,r,yes,4:Find_004b7900?|RegisterCommands?|ClearCommandTable?,,"Console command table (commands.cpp), registered at load, used only by the console."

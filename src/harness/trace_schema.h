@@ -732,7 +732,6 @@ static const TraceField kPathOrderFields[] = {
     { "refNext", 0x1e, 4, TF_POINTER, TT_LINK, 0x0 },
     { "refValue", 0x22, 4, TF_POINTER, TT_ORDER, 0x0 },
     { "pos.x", 0x26, 4, TF_SCALAR, TT_NONE, 0x0 },
-    { "pos.y", 0x2a, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "pos.z", 0x2e, 4, TF_SCALAR, TT_NONE, 0x0 },
 };
 
@@ -743,7 +742,8 @@ static const TraceField kPathOrderPlan[] = {
     { "", 0x1a, 4, TF_POINTER, TT_UNIT, 0x0 },
     { "", 0x1e, 4, TF_POINTER, TT_LINK, 0x0 },
     { "", 0x22, 4, TF_POINTER, TT_ORDER, 0x0 },
-    { "", 0x26, 12, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x26, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x2e, 4, TF_BYTES, TT_NONE, 0x0 },
 };
 
 static const TraceField kPathOrderHeadingFields[] = {
@@ -768,6 +768,14 @@ static const TraceField kPathOrderFollowFields[] = {
 
 static const TraceField kPathOrderFollowPlan[] = {
     { "", 0x32, 4, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kPathOrderPosYFields[] = {
+    { "pos.y", 0x2a, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kPathOrderPosYPlan[] = {
+    { "", 0x2a, 4, TF_BYTES, TT_NONE, 0x0 },
 };
 
 static const TraceField kAirManeuverOrderFields[] = {
@@ -969,10 +977,11 @@ static const TraceTable kOrderPosYTable = { kOrderPosYFields, 1, kOrderPosYPlan,
 static const TraceTable kApproachRadiusTable = { kApproachRadiusFields, 5, kApproachRadiusPlan, 2, 0x14 };
 static const TraceTable kRingApproachTable = { kRingApproachFields, 7, kRingApproachPlan, 2, 0x1c };
 static const TraceTable kPointMarkerTable = { kPointMarkerFields, 5, kPointMarkerPlan, 2, 0x18 };
-static const TraceTable kPathOrderTable = { kPathOrderFields, 11, kPathOrderPlan, 7, 0x36 };
+static const TraceTable kPathOrderTable = { kPathOrderFields, 10, kPathOrderPlan, 8, 0x36 };
 static const TraceTable kPathOrderHeadingTable = { kPathOrderHeadingFields, 1, kPathOrderHeadingPlan, 1, 0x36 };
 static const TraceTable kPathOrderPieceTable = { kPathOrderPieceFields, 1, kPathOrderPiecePlan, 1, 0x36 };
 static const TraceTable kPathOrderFollowTable = { kPathOrderFollowFields, 1, kPathOrderFollowPlan, 1, 0x36 };
+static const TraceTable kPathOrderPosYTable = { kPathOrderPosYFields, 1, kPathOrderPosYPlan, 1, 0x36 };
 static const TraceTable kAirManeuverOrderTable = { kAirManeuverOrderFields, 9, kAirManeuverOrderPlan, 3, 0x2c };
 static const TraceTable kAirManeuverOrderHeadingTable = { kAirManeuverOrderHeadingFields, 1, kAirManeuverOrderHeadingPlan, 1, 0x2c };
 static const TraceTable kUnitMotionTable = { kUnitMotionFields, 11, kUnitMotionPlan, 2, 0x2f };
