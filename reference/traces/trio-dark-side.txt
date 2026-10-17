@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/trio-dark-side.txt
 game_seed 135
 crt_seed 1135
 view_seed 2135
 fpu_control_word 0xD001F
-1 4eda3b4d402a5be6
+1 d35d75eb1d774d54
 2 d5ec448dfc72539b
 3 e11c88879fb9b992
 4 e0d4878ea6818463

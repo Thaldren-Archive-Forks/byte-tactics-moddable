@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/eight-pincushion-teams.txt
 game_seed 219
 crt_seed 1219
 view_seed 2219
 fpu_control_word 0xD001F
-1 7f1b301b562b30b9
+1 b5f03cc6fae40f44
 2 7a26f14b24d4de9f
 3 f8a34ca34578a210
 4 be1365c058b40c78

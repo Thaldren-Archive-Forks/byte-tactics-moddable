@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/long-great-divide-2p.txt
 game_seed 240
 crt_seed 1240
 view_seed 2240
 fpu_control_word 0xD001F
-1 4ff43dc09a26387b
+1 c0d8fbc592173edc
 2 6400faaacd0a9cc7
 3 ac9d970bddaaee01
 4 870da2c1d84c00bb

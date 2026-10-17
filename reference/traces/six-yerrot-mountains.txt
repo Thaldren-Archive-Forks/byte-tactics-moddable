@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/six-yerrot-mountains.txt
 game_seed 198
 crt_seed 1198
 view_seed 2198
 fpu_control_word 0xD001F
-1 f763f5d9a139e4bd
+1 efb4f810444449a0
 2 5ffbf604fdf9e72b
 3 9eb9f05e74e65492
 4 853e94d15d28ad6b

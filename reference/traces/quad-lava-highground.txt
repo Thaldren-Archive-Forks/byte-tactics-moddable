@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/quad-lava-highground.txt
 game_seed 170
 crt_seed 1170
 view_seed 2170
 fpu_control_word 0xD001F
-1 355f4ab834e4b7d9
+1 acd8721d49c95577
 2 fc78868f1c6365a7
 3 2f4eccefec7c2c1e
 4 0f086403954b562d

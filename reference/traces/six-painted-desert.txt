@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/six-painted-desert.txt
 game_seed 191
 crt_seed 1191
 view_seed 2191
 fpu_control_word 0xD001F
-1 4c1a7c06bca83d76
+1 050b0792e2e96c4b
 2 578c2839f896d188
 3 1b16eae2ecd9b8ba
 4 82ec4ae6ec54aa0f

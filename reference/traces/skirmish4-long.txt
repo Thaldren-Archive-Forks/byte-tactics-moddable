@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/skirmish4-long.txt
 game_seed 2
 crt_seed 2
 view_seed 1
 fpu_control_word 0xD001F
-1 fdf21d9a76abf05f
+1 7e637c59c047c0d5
 2 5bc6e7fca51c4d9e
 3 e91361a61c8bca75
 4 b172c2f715551537

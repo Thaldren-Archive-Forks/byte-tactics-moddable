@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/orders-build-patrol.txt
 game_seed 202
 crt_seed 1202
 view_seed 2202
 fpu_control_word 0xD001F
-1 a69fa2ff20af8b35
+1 8dfbb31a43007d2c
 2 0f1d383fcfb0cc0d
 3 c158b10279962f6c
 4 ac818cb89b2e0343

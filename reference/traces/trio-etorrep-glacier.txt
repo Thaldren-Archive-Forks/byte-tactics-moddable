@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/trio-etorrep-glacier.txt
 game_seed 142
 crt_seed 1142
 view_seed 2142
 fpu_control_word 0xD001F
-1 9758e3acbb28d606
+1 4e99687277efca33
 2 68c8046eb6b1d639
 3 6eb56c234b3a90f1
 4 9814020c4d08e62a

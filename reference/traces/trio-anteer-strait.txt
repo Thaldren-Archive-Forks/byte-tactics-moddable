@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/trio-anteer-strait.txt
 game_seed 149
 crt_seed 1149
 view_seed 2149
 fpu_control_word 0xD001F
-1 b4349ef6c7f1461a
+1 dc2b7a21108cc4c5
 2 55087f4d93e2ffed
 3 4a78f4c05dc4127b
 4 d1c877d5ad55f012

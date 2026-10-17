@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/quad-king-of-the-hill.txt
 game_seed 163
 crt_seed 1163
 view_seed 2163
 fpu_control_word 0xD001F
-1 09082d4584ce6a1a
+1 ab1cd442cd48fbd2
 2 1d8145c4d73043da
 3 15bf05e470205b0c
 4 93c337eabd598470

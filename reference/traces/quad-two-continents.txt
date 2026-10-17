@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/quad-two-continents.txt
 game_seed 177
 crt_seed 1177
 view_seed 2177
 fpu_control_word 0xD001F
-1 630836f1867124d0
+1 b55219d668189c82
 2 983467d1b5e86dca
 3 e639704ea79c8099
 4 894b1f68402e0259

@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/duel-great-divide.txt
 game_seed 107
 crt_seed 1107
 view_seed 2107
 fpu_control_word 0xD001F
-1 f0bc23312777ecb1
+1 edaad55b7ca55901
 2 f62d284ddc685243
 3 be438d83ec7085cc
 4 14fae930c0ae75f2

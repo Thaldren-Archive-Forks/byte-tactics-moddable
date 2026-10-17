@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/duel-pass-dark.txt
 game_seed 128
 crt_seed 1128
 view_seed 2128
 fpu_control_word 0xD001F
-1 4a2fa8793f7fad31
+1 c0151093d81ccb23
 2 d2ad60c28e255107
 3 122b2e7fbfb8be35
 4 8970808764e17fe9

@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/duel-coast-to-coast.txt
 game_seed 114
 crt_seed 1114
 view_seed 2114
 fpu_control_word 0xD001F
-1 3f77d4dcb29128f8
+1 6ef7ebd502b1a6dd
 2 7a8dd1e649ca0ad7
 3 056127f9b5852e13
 4 9261c1d4f625e2a5

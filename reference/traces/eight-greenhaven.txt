@@ -1,12 +1,12 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 15578105f97d1f34222285a2687e8d7cd9c00190
+commit b36faf537b2f8b263b1181021d4e253f712e76eb
 scenario reference/scenarios/eight-greenhaven.txt
 game_seed 212
 crt_seed 1212
 view_seed 2212
 fpu_control_word 0xD001F
-1 10047c4f11d6cbc6
+1 a0eb4ac19473fc2b
 2 1e7d14c6ccc16ce4
 3 bb29602d1824ee89
 4 910ec0983578ade3
