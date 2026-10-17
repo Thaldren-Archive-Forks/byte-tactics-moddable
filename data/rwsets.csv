@@ -1447,6 +1447,7 @@ address,function,file,kind,target
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,GetBasePosition
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,GetBuilderCount
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,GetOrderType
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,HarnessZeroVec3
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,Length
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,MapRange
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,RandomInt
@@ -44067,6 +44068,9 @@ address,function,file,kind,target
 ,HarnessViewRand,src/harness/harness.cpp,function,
 ,HarnessViewRand,src/harness/harness.cpp,global_read,s_viewState@src/harness/harness.cpp
 ,HarnessViewRand,src/harness/harness.cpp,global_write,s_viewState@src/harness/harness.cpp
+,HarnessZeroVec3,src/harness/harness.cpp,call,memset
+,HarnessZeroVec3,src/harness/harness.cpp,function,
+,HarnessZeroVec3,src/harness/harness.cpp,global_read,s_testMode@src/harness/harness.cpp
 ,HasBit,src/units/unit.cpp,function,
 ,HasNextMission,src/frontend/endgame.cpp,call,Mission::GetGameType
 ,HasNextMission,src/frontend/endgame.cpp,call,Mission::MissionExists

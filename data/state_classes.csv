@@ -1640,7 +1640,7 @@ kMoveClassTable@src/harness/trace_schema.h,,static,platform,platform,platform: o
 kNegHalf@src/game/players_464290.cpp,,static,sim,sim,"sim: a phase reads it, nothing in game logic or presentation writes it",,4,,,,1:UpdatePlayers,Constant read by UpdatePlayers (phase 4).
 kNegSeven@src/game/players_464290.cpp,,static,sim,sim,"sim: a phase reads it, nothing in game logic or presentation writes it",,4,,,,1:UpdatePlayers,Constant read by UpdatePlayers (phase 4).
 kNodeTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitPathNodes,Test harness state (src/harness/trace_schema.h:651); read and written only by the trace writer.
-kOrderPosYTable@src/harness/trace_schema.h,,static,platform,,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitOrders,
+kOrderPosYTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitOrders,Test harness trace table (src/harness/trace_schema.h).
 kOrderTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitOrders,
 kPackedGoalTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitGoal,
 kPathGlobals@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitGlobalList|VisitPathfinder,Test harness state (src/harness/trace_schema.h:734); read and written only by the trace writer.
@@ -1648,7 +1648,7 @@ kPathGlobalsCount@src/harness/trace_schema.h,,static,platform,platform,platform:
 kPathOrderFollowTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
 kPathOrderHeadingTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
 kPathOrderPieceTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
-kPathOrderPosYTable@src/harness/trace_schema.h,,static,platform,,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
+kPathOrderPosYTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,Test harness trace table (src/harness/trace_schema.h).
 kPathOrderTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitFx,
 kPathfinderSearchTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitPathfinder,Test harness state (src/harness/trace_schema.h:654); read and written only by the trace writer.
 kPathfinderTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitPathfinder,Test harness state (src/harness/trace_schema.h:653); read and written only by the trace writer.
@@ -1675,7 +1675,7 @@ kUnitMotionTable@src/harness/trace_schema.h,,static,platform,platform,platform: 
 kUnitTable@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:VisitElement|VisitUnits,Trace schema table of the test harness (src/harness/trace_schema.h).
 kWindFieldCount@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,1:VisitWind,Trace schema table of the test harness (src/harness/trace_schema.h).
 kWindFields@src/harness/trace_schema.h,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:VisitGlobalList|VisitPointer,6:DumpFields|DumpValue|HashField,Trace schema table of the test harness (src/harness/trace_schema.h).
-kinds@OrderPosYUnset,,static,platform,,platform: only the debug library or the test harness touches it,,,,,,1:OrderPosYUnset,
+kinds@OrderPosYUnset,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,1:OrderPosYUnset,Test harness state (src/harness/harness.cpp).
 s_array@src/game/data_files.cpp,,static,,platform,none: no access found,,,,,,,Unused TdfFile[1] allocated at startup (data_files.cpp:831).
 s_cobScriptCache@src/util/int_map.cpp,,static,sim,sim,"sim: load writes it, a phase reads it (weak writes only)",,0|1|2|4|5,r,yes,1:FreeCobScript?,2:GetCobChecksum|LoadCobScript,"Cache of loaded COB scripts (int_map.cpp), filled at load and read by LoadCobScript/GetCobChecksum; effectively constant after load."
 s_commandTable@src/util/commands.cpp,,static,view,view,"view: load writes it, only presentation uses it (weak writes only)",,,r,yes,4:Find_004b7900?|RegisterCommands?|ClearCommandTable?,,"Console command table (commands.cpp), registered at load, used only by the console."
@@ -1695,16 +1695,16 @@ s_fxCountSeen@src/harness/harness.cpp,,static,platform,platform,platform: only t
 s_fxIds@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:RegisterFx?|Resolve?,2:RegisterFx|Resolve,
 s_fxKeys@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,3:NumberUnitHeap|RegisterFx?|Resolve?,2:RegisterFx|Resolve,
 s_fxList@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:RegisterFx,1:VisitFx,
-s_fxUsed@src/harness/harness.cpp,,static,platform,,platform: only the debug library or the test harness touches it,,,,,1:RegisterFx?,1:NumberUnitHeap,
-s_fxUsedCount@src/harness/harness.cpp,,static,platform,,platform: only the debug library or the test harness touches it,,,,,2:NumberUnitHeap|RegisterFx?,1:NumberUnitHeap,
+s_fxUsed@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:RegisterFx?,1:NumberUnitHeap,Test harness state (src/harness/harness.cpp).
+s_fxUsedCount@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:NumberUnitHeap|RegisterFx?,1:NumberUnitHeap,Test harness state (src/harness/harness.cpp).
 s_gameSeed@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:ReadKey,2:HarnessGameSeed|OpenTrace,"Harness seed setting (harness.cpp): scenario input, kept outside the block."
 s_hashHi@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:HarnessPhase|HashBuf,2:HarnessPhase|HashBuf,Test harness state (src/harness/harness.cpp).
 s_hashLo@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:HarnessPhase|HashBuf,2:HarnessPhase|HashBuf,Test harness state (src/harness/harness.cpp).
 s_lineOfSight@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,r,,1:ReadKey,1:SetUpSkirmish,Test harness state (src/harness/harness.cpp).
 s_linkIds@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,3:RegisterFx?|RegisterOrder?|Resolve?,1:Resolve,
 s_linkKeys@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,4:NumberUnitHeap|RegisterFx?|RegisterOrder?,1:Resolve,
-s_linkUsed@src/harness/harness.cpp,,static,platform,,platform: only the debug library or the test harness touches it,,,,,2:RegisterFx?|RegisterOrder?,1:NumberUnitHeap,
-s_linkUsedCount@src/harness/harness.cpp,,static,platform,,platform: only the debug library or the test harness touches it,,,,,3:NumberUnitHeap|RegisterFx?|RegisterOrder?,1:NumberUnitHeap,
+s_linkUsed@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:RegisterFx?|RegisterOrder?,1:NumberUnitHeap,Test harness state (src/harness/harness.cpp).
+s_linkUsedCount@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,3:NumberUnitHeap|RegisterFx?|RegisterOrder?,1:NumberUnitHeap,Test harness state (src/harness/harness.cpp).
 s_localPlayer@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,r,,1:ReadKey,2:SetUpSkirmish|CheckScenario,Test harness state (src/harness/harness.cpp).
 s_localPlayerLine@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:ReadKey,1:CheckScenario,Test harness state (src/harness/harness.cpp).
 s_losType@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,r,,1:ReadKey,1:SetUpSkirmish,Test harness state (src/harness/harness.cpp).
@@ -1722,8 +1722,8 @@ s_orderIds@src/harness/harness.cpp,,static,platform,platform,platform: only the 
 s_orderKeys@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,3:NumberUnitHeap|RegisterOrder?|Resolve?,1:Resolve,
 s_orderList@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:RegisterOrder,,
 s_orderModes@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,2:IssueScriptedOrder|ReadOrder,Test harness state (src/harness/harness.cpp).
-s_orderUsed@src/harness/harness.cpp,,static,platform,,platform: only the debug library or the test harness touches it,,,,,1:RegisterOrder?,1:NumberUnitHeap,
-s_orderUsedCount@src/harness/harness.cpp,,static,platform,,platform: only the debug library or the test harness touches it,,,,,2:NumberUnitHeap|RegisterOrder?,1:NumberUnitHeap,
+s_orderUsed@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:RegisterOrder?,1:NumberUnitHeap,Test harness state (src/harness/harness.cpp).
+s_orderUsedCount@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:NumberUnitHeap|RegisterOrder?,1:NumberUnitHeap,Test harness state (src/harness/harness.cpp).
 s_orders@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,3:CheckOrders?|ParseSelector|ReadOrder,8:CheckOrders|FindDefIndex|FindNth,Test harness state (src/harness/harness.cpp).
 s_passRow@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:VisitPassMaps,1:VisitPassMaps,Test harness state (src/harness/harness.cpp:1453); read and written only by the trace writer.
 s_phaseNames@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,1:HarnessPhase,Test harness state (src/harness/harness.cpp).
@@ -1732,7 +1732,7 @@ s_scenarioPath@src/harness/harness.cpp,,static,platform,platform,platform: only 
 s_started@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,rw,,1:HarnessStartSkirmish,1:HarnessStartSkirmish,Test harness state (src/harness/harness.cpp).
 s_targetNames@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,1:DumpValue,Test harness state (src/harness/harness.cpp).
 s_teleport@src/graphics/particles.cpp,,static,,view,none: no access found,,,,,,,Particle manager object (graphics/particles.cpp): view.
-s_testMode@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,0|1|2|4|5|7,r,,1:HarnessInit,7:HarnessTestMode|HarnessCrtSeed|HarnessGameSeed,Test harness state (src/harness/harness.cpp).
+s_testMode@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,0|1|2|4|5|7,r,,1:HarnessInit,8:HarnessTestMode|HarnessCrtSeed|HarnessGameSeed,Test harness state (src/harness/harness.cpp).
 s_thrust@src/graphics/particles.cpp,,static,,view,none: no access found,,,,,,,Particle manager object (graphics/particles.cpp): view.
 s_ticks@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,1:ReadKey,4:CheckOrders|CheckScenario|HarnessAfterStep,Test harness state (src/harness/harness.cpp).
 s_trace@src/harness/harness.cpp,,static,platform,platform,platform: type FILE,,,,,2:HarnessAfterStep|OpenTrace,3:HarnessAfterStep|HarnessPhase|OpenTrace,Test harness state (src/harness/harness.cpp).

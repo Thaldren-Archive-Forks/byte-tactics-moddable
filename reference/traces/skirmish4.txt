@@ -1,6 +1,6 @@
 bt-digest 3
 trace_format bt-trace 3
-commit 22785680c340e22bb30b1423bc7fbe4d4430b0b9
+commit bf98173e4754ad0d9adbf12514bebfa0eccab019
 scenario reference/scenarios/skirmish4.txt
 game_seed 2
 crt_seed 2
