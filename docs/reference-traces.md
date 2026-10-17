@@ -75,19 +75,25 @@ one can diverge without a logic bug.
   never plays a scenario with uninitialised heap memory.
 - Memory grown by `realloc` is zero from the old size up to the new size
   (the whole block when the old block is null). Shrinking fills nothing.
-- Some fields that 3.1c leaves unset on the stack are skipped from the hash,
-  because their value is whatever the stack held. Do not trace them, and do
-  not rely on them. The list at this tag is:
+- Some fields that 3.1c leaves unset are skipped from the hash, because their
+  value is whatever the memory held. Do not trace them,
+  and do not rely on them. The list at this tag is:
   - `Order.pos.y` of `MobileBuild`, `VTOL_MobileBuild`, `Reclaim` and
     `VTOL_Reclaim` orders.
   - `PathOrder.pos.y` when the order that made it is `VTOL_MobileBuild` or
     `VTOL_Reclaim`.
   - `PathOrder.followOffset` when the order's flags have bit 0x80 set (the
     constructor for these orders never writes it, and nothing reads it then).
+  - `AiSearchGoal` flags bit 2 (the constructor never sets it; only the net
+    state serialiser writes it, and the reader runs after that, in net games
+    only).
 
   The code is `OrderPosYUnset`, `FxPosYUnset` and the `PathOrderFollow` visit
-  in `src/harness/harness.cpp`, and the evidence that nothing reads them is on the Order and PathOrder rows
-  of `data/trace_coverage.csv`.
+  in `src/harness/harness.cpp`, and the evidence that nothing reads them is on
+  the Order, PathOrder and AiSearchGoal rows of `data/trace_coverage.csv`.
+- These stack locals are zero in test mode, because 3.1c reads them before it
+  writes them and the digests keep the result:
+  - `pos` in `ScoutTimer::OnTimer` (0x408100).
 
 ## Comparing an engine against the digests
 
