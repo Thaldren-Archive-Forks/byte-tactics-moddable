@@ -319,7 +319,6 @@ game,ai,shared_write,Unit::flags,10
 game,ai,shared_write,UnitDef::flags1,5
 game,ai,shared_write,Vec3::x,24
 game,ai,shared_write,Vec3::z,24
-game,economy,call,UpdateResourceSharing,1
 game,economy,shared_write,Game::difficulty,4
 game,economy,shared_write,Game::gameTick,2
 game,economy,shared_write,Game::localPlayer,8
@@ -335,7 +334,6 @@ game,features,call,LoadFeatures,1
 game,features,call,NopAfterFeatureEnum,1
 game,features,call,ResolveFeatureLinks,1
 game,features,call,SaveFeatures,1
-game,features,call,UpdateFeatures,1
 game,features,shared_write,Game::difficulty,2
 game,features,shared_write,Game::gameTick,1
 game,features,shared_write,Game::playerIndex,1
@@ -590,7 +588,7 @@ game,players,call,SetupPlayerSlot,2
 game,players,call,TransferEnergy,1
 game,players,call,TransferMetal,1
 game,players,call,UpdateBlink,1
-game,players,call,UpdatePlayers,2
+game,players,call,UpdatePlayers,1
 game,players,shared_write,Game::battleCommanderDeath,2
 game,players,shared_write,Game::difficulty,3
 game,players,shared_write,Game::displayContext,1
@@ -869,6 +867,7 @@ game,presentation,shared_write,Unit::health,1
 game,presentation,shared_write,UnitDef::flags1,2
 game,presentation,shared_write,Vec3::x,30
 game,presentation,shared_write,Vec3::z,29
+game,seams,call,InstallNativeSeams,1
 game,targeting,shared_write,Game::seaLevel,1
 game,targeting,shared_write,Unit::flags,1
 game,targeting,shared_write,UnitDef::flags1,1
@@ -897,7 +896,6 @@ game,units,call,PopUntilNamedLayout,3
 game,units,call,RefreshUnitInfo,1
 game,units,call,ReloadUnitType,1
 game,units,call,SaveUnits,1
-game,units,call,UpdateAllUnits,1
 game,units,shared_write,Angles16::heading,10
 game,units,shared_write,Game::autoFollowTicks,1
 game,units,shared_write,Game::battleCommanderDeath,2
@@ -925,8 +923,6 @@ game,weapons,call,FreeWeaponArray,1
 game,weapons,call,FreeWeaponTypes,1
 game,weapons,call,InitExplosions,1
 game,weapons,call,LoadWeaponTypes,1
-game,weapons,call,UpdateExplosions,1
-game,weapons,call,UpdateProjectiles,1
 game,weapons,shared_write,Game::gameTick,7
 game,weapons,shared_write,Game::localPlayer,3
 game,weapons,shared_write,Game::netGameFlagsWord,4
@@ -943,8 +939,7 @@ game,wind_meteors,call,EmptyShutdownPreCleanup,1
 game,wind_meteors,call,InitMeteors,1
 game,wind_meteors,call,LoadMeteors,1
 game,wind_meteors,call,SaveMeteors,1
-game,wind_meteors,call,UpdateMeteors,1
-game,wind_meteors,call,UpdateWind,2
+game,wind_meteors,call,UpdateWind,1
 game,wind_meteors,shared_write,Game::gameTick,3
 game,wind_meteors,shared_write,Game::windCounter,1
 game,wind_meteors,shared_write,Game::windSpeedDenominator,1
@@ -2918,6 +2913,20 @@ presentation,weapons,shared_write,g_game,53
 presentation,wind_meteors,shared_write,Point16::x,5
 presentation,wind_meteors,shared_write,Point16::y,5
 presentation,wind_meteors,shared_write,g_game,5
+seams,game,shared_write,EconomySeam::UpdateResourceSharing,1
+seams,game,shared_write,FeaturesSeam::UpdateFeatures,1
+seams,game,shared_write,PlayersSeam::UpdatePlayers,1
+seams,game,shared_write,Seams::economy,1
+seams,game,shared_write,Seams::features,1
+seams,game,shared_write,Seams::players,1
+seams,game,shared_write,Seams::units,1
+seams,game,shared_write,Seams::weapons,1
+seams,game,shared_write,Seams::wind_meteors,1
+seams,game,shared_write,UnitsSeam::UpdateAllUnits,1
+seams,game,shared_write,WeaponsSeam::UpdateExplosions,1
+seams,game,shared_write,WeaponsSeam::UpdateProjectiles,1
+seams,game,shared_write,WindMeteorsSeam::UpdateMeteors,1
+seams,game,shared_write,WindMeteorsSeam::UpdateWind,1
 targeting,ai,call,Bits::Test,1
 targeting,ai,call,GetVisibleEnemiesInRadius,1
 targeting,platform,call,RandomInt,1

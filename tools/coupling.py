@@ -3,6 +3,8 @@
     uv run tools/coupling.py                 # writes data/subsystems.csv (keeping override) and data/coupling.csv
     uv run tools/coupling.py --check         # fail if either file differs from what the tool regenerates
     uv run tools/coupling.py --summary [S..] # print entry points, imports and sim state per subsystem
+    uv run tools/coupling.py --seams         # fail on a direct call between sim subsystems missing from data/seam_debt.csv
+    uv run tools/coupling.py --seams --write # write data/seam_debt.csv from data/coupling.csv (once, then it only shrinks)
     uv run tools/test_coupling.py            # tests, on hand-written rows
 
 This is the evidence for #128: each subsystem issue (#9 to #18) starts from a draft
@@ -22,7 +24,7 @@ file) and rewrites the rest; an override that no longer names a function is an e
 
 Rules, first match wins:
 
-  folder        src/harness is harness; src/debug, src/util, src/runtime and src/data are platform
+  folder        src/harness is harness; src/seams is seams; src/debug, src/util, src/runtime and src/data are platform
   draw          a name that starts (after `Class::`) with Draw, Render or Blit is presentation, unless
                 a phase walk reaches it (see phase)
   library       _Construct, _Destroy, operator new and delete, Unguarded_insert and Copy_backward (the
@@ -76,6 +78,17 @@ type (`<anon>::x`) is the same name for unrelated structs and is left out, and s
 the other accesses (deref_*), which name no item. Types shared by everything (Vec3, Point,
 Fixed) give every subsystem that touches them a row: the limit of evidence by type.
 
+Seam debt. The sim subsystems (SIM_SUBSYSTEMS) call each other only through the seams of
+interfaces/seams.h (#8). --seams reads data/coupling.csv, takes every `call` row whose `from` and
+`to` are both sim subsystems, or whose `from` is `game` and whose `to` is a sim subsystem, and
+compares the (from, to, target) triples with data/seam_debt.csv (columns from, to, target,
+sorted, one row each; the call count is not kept, so a changed count passes). A call that is
+not in the file fails, and so does a row whose call is gone: the file only shrinks. An
+`indirect` row, a shared_write row and a call to or from presentation, network, harness,
+seams or platform code is not debt. src/seams holds the code that fills the seam tables; it
+is the `seams` subsystem, so the direct calls it makes into the sim are not debt, and the
+function addresses it takes (`fn_ref` rows) are not `call` rows in any case.
+
 --summary prints, for each subsystem (or the ones named): its entry points (the phase roots
 it holds, and the functions other subsystems call, with the number of callers), its imports
 (the functions it calls in other subsystems, by subsystem), and the sim items it writes and
@@ -102,14 +115,17 @@ STATE_CLASSES = ROOT / "data/state_classes.csv"
 SUBSYSTEMS_CSV = ROOT / "data/subsystems.csv"
 COUPLING_CSV = ROOT / "data/coupling.csv"
 SUBSYSTEM_COLUMNS = ["function", "file", "subsystem", "rule", "override"]
+SEAM_DEBT_CSV = ROOT / "data/seam_debt.csv"
 COUPLING_COLUMNS = ["from", "to", "kind", "target", "count"]
-SUBSYSTEMS = ["wind_meteors", "economy", "features", "ai", "pathfinding", "weapons", "targeting", "los_radar",
-              "orders", "units", "players", "map", "network", "game", "harness", "presentation", "platform"]
+SEAM_DEBT_COLUMNS = ["from", "to", "target"]
+SIM_SUBSYSTEMS = ["wind_meteors", "economy", "features", "ai", "pathfinding", "weapons", "targeting", "los_radar",
+                  "orders", "units", "players", "map"]
+SUBSYSTEMS = SIM_SUBSYSTEMS + ["network", "game", "harness", "seams", "presentation", "platform"]
 PHASE_SUBSYSTEMS = {"UpdateAllUnits": "units", "UpdateProjectiles": "weapons",
                     "UpdateExplosions": "weapons", "UpdatePlayers": "players", "UpdateFeatures": "features",
                     "StepAllGafSequences": "game", "UpdateWind": "wind_meteors", "UpdateMeteors": "wind_meteors",
                     "UpdateResourceSharing": "economy"}
-FOLDER_FIXED = [("src/harness/", "harness"), ("src/debug/", "platform"), ("src/util/", "platform"),
+FOLDER_FIXED = [("src/harness/", "harness"), ("src/seams/", "seams"), ("src/debug/", "platform"), ("src/util/", "platform"),
                 ("src/runtime/", "platform"), ("src/data/", "platform")]
 DISPATCH_ROOTS = {"HandleNetPackets"}
 DRAW = re.compile(r"(^|::)(Draw|Render|Blit)")
@@ -273,6 +289,31 @@ def call_counts(rows: list[list[str]], edges: list[tuple[str, str]], of: dict, n
     return counts
 
 
+def seam_edges(coupling: list[dict]) -> set[tuple[str, str, str]]:
+    """The (from, to, target) of each direct call between sim subsystems, or from `game` into one."""
+    sim = set(SIM_SUBSYSTEMS)
+    return {(r["from"], r["to"], r["target"]) for r in coupling
+            if r["kind"] == "call" and r["to"] in sim and (r["from"] in sim or r["from"] == "game")}
+
+
+def seam_problems(edges: set[tuple[str, str, str]], debt: list[dict]) -> tuple[list[tuple], list[tuple]]:
+    """The sorted edges missing from the debt rows, and the sorted debt rows whose edge is gone."""
+    listed = {(r["from"], r["to"], r["target"]) for r in debt}
+    return sorted(edges - listed), sorted(listed - edges)
+
+
+def check_seams(coupling: list[dict], debt: list[dict]) -> tuple[list[str], str]:
+    """The failure lines, and the one-line summary when there are none."""
+    edges = seam_edges(coupling)
+    new, stale = seam_problems(edges, debt)
+    lines = ["seams: new direct call %s -> %s: %s" % edge for edge in new]
+    if new:
+        lines.append("seams: a call between sim subsystems must go through a seam (interfaces/seams.h)")
+    lines += ["seams: %s -> %s: %s is no longer a direct call; delete its row from data/seam_debt.csv" % row
+              for row in stale]
+    return lines, "seams: %d direct calls between sim subsystems, all in data/seam_debt.csv" % len(edges)
+
+
 def item_accesses(rows: list[list[str]], items: sc.Items) -> tuple[dict, dict]:
     """The accesses by item key: name-level (for the class of a field) and by (function, file) with a write flag."""
     by_name: dict[tuple, sc.Access] = defaultdict(sc.Access)
@@ -414,7 +455,25 @@ def main() -> None:
     parser.add_argument("--check", action="store_true", help="fail if data/subsystems.csv or data/coupling.csv differs")
     parser.add_argument("--summary", nargs="*", metavar="SUBSYSTEM",
                         help="print entry points, imports and sim state of the subsystems (default all)")
+    parser.add_argument("--seams", action="store_true",
+                        help="fail on a direct call between sim subsystems that data/seam_debt.csv does not list")
+    parser.add_argument("--write", action="store_true", help="with --seams: write data/seam_debt.csv")
     args = parser.parse_args()
+    if args.write and not args.seams:
+        parser.error("--write goes with --seams")
+    if args.seams:
+        coupling = read_csv(COUPLING_CSV)
+        if args.write:
+            rows = [dict(zip(SEAM_DEBT_COLUMNS, edge)) for edge in sorted(seam_edges(coupling))]
+            SEAM_DEBT_CSV.write_text(render(SEAM_DEBT_COLUMNS, rows))
+            print("seams: %d rows written to data/seam_debt.csv" % len(rows))
+            return
+        lines, ok = check_seams(coupling, read_csv(SEAM_DEBT_CSV))
+        if lines:
+            print("\n".join(lines))
+            sys.exit(1)
+        print(ok)
+        return
     overrides = read_overrides()
     subsystems, result, rows, _ = generate(overrides)
     bad = stale_overrides(overrides, subsystems)
