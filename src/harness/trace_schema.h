@@ -805,7 +805,7 @@ static const TraceField kAirManeuverOrderHeadingPlan[] = {
 };
 
 static const TraceField kUnitMotionFields[] = {
-    { "movementClass", 0x4, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "movementClass", 0x4, 4, TF_POINTER, TT_MOVECLASS, 0x0 },
     { "velocity.x", 0x8, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "velocity.y", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "velocity.z", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
@@ -819,7 +819,8 @@ static const TraceField kUnitMotionFields[] = {
 };
 
 static const TraceField kUnitMotionPlan[] = {
-    { "", 0x4, 38, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x4, 4, TF_POINTER, TT_MOVECLASS, 0x0 },
+    { "", 0x8, 34, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x2e, 1, TF_SCALAR, TT_NONE, 0x7 },
 };
 
@@ -984,7 +985,7 @@ static const TraceTable kPathOrderFollowTable = { kPathOrderFollowFields, 1, kPa
 static const TraceTable kPathOrderPosYTable = { kPathOrderPosYFields, 1, kPathOrderPosYPlan, 1, 0x36 };
 static const TraceTable kAirManeuverOrderTable = { kAirManeuverOrderFields, 9, kAirManeuverOrderPlan, 3, 0x2c };
 static const TraceTable kAirManeuverOrderHeadingTable = { kAirManeuverOrderHeadingFields, 1, kAirManeuverOrderHeadingPlan, 1, 0x2c };
-static const TraceTable kUnitMotionTable = { kUnitMotionFields, 11, kUnitMotionPlan, 2, 0x2f };
+static const TraceTable kUnitMotionTable = { kUnitMotionFields, 11, kUnitMotionPlan, 3, 0x2f };
 static const TraceTable kPatrolGoalTable = { kPatrolGoalFields, 3, kPatrolGoalPlan, 3, 0x1c };
 static const TraceTable kAiSearchGoalTable = { kAiSearchGoalFields, 5, kAiSearchGoalPlan, 4, 0x65 };
 static const TraceTable kPackedGoalTable = { kPackedGoalFields, 9, kPackedGoalPlan, 3, 0x28 };

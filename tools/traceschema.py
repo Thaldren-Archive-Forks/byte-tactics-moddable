@@ -353,7 +353,7 @@ SYNTHETIC.update({
     """,
     "UnitMotion": """
         char* obj;                    // +0x0
-        int movementClass;            // +0x4
+        MovementClass* movementClass; // +0x4
         Vec3 velocity;                // +0x8
         Vec3 p2;                      // +0x14
         int speed;                    // +0x20
