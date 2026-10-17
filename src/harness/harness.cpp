@@ -1857,7 +1857,7 @@ static void VisitFx()
                 VisitElement(path, (const unsigned char*)fx, &kPathOrderHeadingTable);
             if (flags & 1)
                 VisitElement(path, (const unsigned char*)fx, &kPathOrderPieceTable);
-            if (flags & 2)
+            if ((flags & 0x82) == 2)
                 VisitElement(path, (const unsigned char*)fx, &kPathOrderFollowTable);
             break;
         case FX_AIR:

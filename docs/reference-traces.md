@@ -82,9 +82,11 @@ one can diverge without a logic bug.
     `VTOL_Reclaim` orders.
   - `PathOrder.pos.y` when the order that made it is `VTOL_MobileBuild` or
     `VTOL_Reclaim`.
+  - `PathOrder.followOffset` when the order's flags have bit 0x80 set (the
+    constructor for these orders never writes it, and nothing reads it then).
 
-  The code is `OrderPosYUnset` and `FxPosYUnset` in `src/harness/harness.cpp`,
-  and the evidence that nothing reads them is on the Order and PathOrder rows
+  The code is `OrderPosYUnset`, `FxPosYUnset` and the `PathOrderFollow` visit
+  in `src/harness/harness.cpp`, and the evidence that nothing reads them is on the Order and PathOrder rows
   of `data/trace_coverage.csv`.
 
 ## Comparing an engine against the digests
