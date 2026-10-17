@@ -818,6 +818,12 @@ static unsigned s_linkKeys[TRACE_MAP_SIZE];
 static unsigned s_linkIds[TRACE_MAP_SIZE];
 static unsigned s_orderList[TRACE_OBJECT_LIMIT];
 static unsigned s_fxList[TRACE_OBJECT_LIMIT];
+static unsigned s_orderUsed[TRACE_OBJECT_LIMIT];
+static unsigned s_fxUsed[TRACE_OBJECT_LIMIT];
+static unsigned s_linkUsed[2 * TRACE_OBJECT_LIMIT];
+static unsigned s_orderUsedCount = 0;
+static unsigned s_fxUsedCount = 0;
+static unsigned s_linkUsedCount = 0;
 static unsigned s_orderCountSeen = 0;
 static unsigned s_fxCountSeen = 0;
 
@@ -841,9 +847,11 @@ static int MapFind(const unsigned* keys, const unsigned* ids, unsigned p, unsign
     return 1;
 }
 
-static void MapAdd(unsigned* keys, unsigned* ids, unsigned p, unsigned id)
+static void MapAdd(unsigned* keys, unsigned* ids, unsigned* used, unsigned* usedCount, unsigned p, unsigned id)
 {
     unsigned slot = MapSlot(keys, p);
+    if (keys[slot] == 0)
+        used[(*usedCount)++] = slot;
     keys[slot] = p;
     ids[slot] = id;
 }
@@ -1633,9 +1641,9 @@ static void RegisterFx(unsigned fx)
     if (s_fxCountSeen >= TRACE_OBJECT_LIMIT)
         Fail("testmode: more order objects than the trace can number\n");
     s_fxList[s_fxCountSeen] = fx;
-    MapAdd(s_fxKeys, s_fxIds, fx, s_fxCountSeen);
+    MapAdd(s_fxKeys, s_fxIds, s_fxUsed, &s_fxUsedCount, fx, s_fxCountSeen);
     if (FxClassOf(fx) == FX_PATH)
-        MapAdd(s_linkKeys, s_linkIds, fx + PATHORDER_REF, s_fxCountSeen | LINK_IN_FX);
+        MapAdd(s_linkKeys, s_linkIds, s_linkUsed, &s_linkUsedCount, fx + PATHORDER_REF, s_fxCountSeen | LINK_IN_FX);
     s_fxCountSeen++;
 }
 
@@ -1644,8 +1652,8 @@ static void RegisterOrder(unsigned order)
     if (s_orderCountSeen >= TRACE_OBJECT_LIMIT)
         Fail("testmode: more orders than the trace can number\n");
     s_orderList[s_orderCountSeen] = order;
-    MapAdd(s_orderKeys, s_orderIds, order, s_orderCountSeen);
-    MapAdd(s_linkKeys, s_linkIds, order + ORDER_LINK, s_orderCountSeen);
+    MapAdd(s_orderKeys, s_orderIds, s_orderUsed, &s_orderUsedCount, order, s_orderCountSeen);
+    MapAdd(s_linkKeys, s_linkIds, s_linkUsed, &s_linkUsedCount, order + ORDER_LINK, s_orderCountSeen);
     s_orderCountSeen++;
 }
 
@@ -1656,9 +1664,12 @@ static int UnitIsLive(const unsigned char* u)
 
 static void NumberUnitHeap(unsigned char* units, unsigned count)
 {
-    memset(s_orderKeys, 0, sizeof s_orderKeys);
-    memset(s_fxKeys, 0, sizeof s_fxKeys);
-    memset(s_linkKeys, 0, sizeof s_linkKeys);
+    while (s_orderUsedCount > 0)
+        s_orderKeys[s_orderUsed[--s_orderUsedCount]] = 0;
+    while (s_fxUsedCount > 0)
+        s_fxKeys[s_fxUsed[--s_fxUsedCount]] = 0;
+    while (s_linkUsedCount > 0)
+        s_linkKeys[s_linkUsed[--s_linkUsedCount]] = 0;
     s_orderCountSeen = 0;
     s_fxCountSeen = 0;
     for (unsigned i = 0; units != NULL && i < count; i++) {
@@ -1688,13 +1699,15 @@ static void VisitOrders(unsigned char* units, unsigned count)
         if (!UnitIsLive(u))
             continue;
         HashU32(i);
-        sprintf(path, "units[%u].head", i);
+        if (s_dumpNow)
+            sprintf(path, "units[%u].head", i);
         VisitPointer(path, ReadU32At((unsigned)u, UNIT_HEAD), TT_LINK);
         for (unsigned which = 0; which < 2; which++) {
             unsigned order = ReadU32At((unsigned)u, which == 0 ? UNIT_LIST : UNIT_LIST2);
             HashByte((unsigned char)(which + 1));
             for (unsigned n = 0; order != 0 && n < ORDER_CHAIN_LIMIT; n++) {
-                sprintf(path, "units[%u].%s[%u]", i, which == 0 ? "list" : "list2", n);
+                if (s_dumpNow)
+                    sprintf(path, "units[%u].%s[%u]", i, which == 0 ? "list" : "list2", n);
                 VisitElement(path, (const unsigned char*)order, &kOrderTable);
                 order = ReadU32At(order, ORDER_NEXT);
             }
@@ -1709,7 +1722,8 @@ static void VisitGoal(const char* prefix, unsigned goal)
     char path[112];
     int cls;
     unsigned n;
-    sprintf(path, "%s.class", prefix);
+    if (s_dumpNow)
+        sprintf(path, "%s.class", prefix);
     if (goal == 0) {
         VisitU32(path, 0);
         return;
@@ -1717,7 +1731,8 @@ static void VisitGoal(const char* prefix, unsigned goal)
     cls = GoalClassOf(goal);
     VisitU32(path, (unsigned)cls);
     if (cls == GOAL_UNKNOWN) {
-        sprintf(path, "%s.vtableDelta", prefix);
+        if (s_dumpNow)
+            sprintf(path, "%s.vtableDelta", prefix);
         VisitU32(path, GoalVtableDelta(goal));
         return;
     }
@@ -1727,7 +1742,8 @@ static void VisitGoal(const char* prefix, unsigned goal)
         n = ReadU32At(goal, PATROL_COUNT);
         if (n > PATROL_POINT_LIMIT)
             n = PATROL_POINT_LIMIT;
-        sprintf(path, "%s.points", prefix);
+        if (s_dumpNow)
+            sprintf(path, "%s.points", prefix);
         VisitRaw(path, (const unsigned char*)goal + PATROL_POINTS, n * 4);
         break;
     case GOAL_AISEARCH:
@@ -1735,7 +1751,8 @@ static void VisitGoal(const char* prefix, unsigned goal)
         n = ReadU32At(goal, AISEARCH_COUNT);
         if (n > AISEARCH_POINT_LIMIT)
             n = AISEARCH_POINT_LIMIT;
-        sprintf(path, "%s.points", prefix);
+        if (s_dumpNow)
+            sprintf(path, "%s.points", prefix);
         VisitRaw(path, (const unsigned char*)goal + AISEARCH_POINTS, n * 4);
         break;
     default:
@@ -1760,9 +1777,11 @@ static void VisitMotions(unsigned char* units, unsigned count)
         HashByte(motion != 0);
         if (motion == 0)
             continue;
-        sprintf(path, "units[%u].motion", i);
+        if (s_dumpNow)
+            sprintf(path, "units[%u].motion", i);
         VisitElement(path, (const unsigned char*)motion, &kUnitMotionTable);
-        strcat(path, ".goal");
+        if (s_dumpNow)
+            strcat(path, ".goal");
         VisitGoal(path, ReadU32At(motion, 0));
     }
     EndSection();
@@ -1778,11 +1797,14 @@ static void VisitFx()
         int cls = FxClassOf(fx);
         unsigned flags;
         HashU32(id);
-        sprintf(path, "orderFx[%u]", id);
-        sprintf(field, "%s.class", path);
+        if (s_dumpNow)
+            sprintf(path, "orderFx[%u]", id);
+        if (s_dumpNow)
+            sprintf(field, "%s.class", path);
         VisitU32(field, (unsigned)cls);
         if (cls == FX_UNKNOWN) {
-            sprintf(field, "%s.vtableDelta", path);
+            if (s_dumpNow)
+                sprintf(field, "%s.vtableDelta", path);
             VisitU32(field, ReadU32At(fx, 0) - (unsigned)g_pathOrderVtable);
             continue;
         }
@@ -1824,7 +1846,8 @@ static void VisitChannel(const char* prefix, const unsigned char* channel)
     int sp;
     unsigned live;
     if (state == 0) {
-        sprintf(path, "%s.state", prefix);
+        if (s_dumpNow)
+            sprintf(path, "%s.state", prefix);
         VisitU32(path, 0);
         return;
     }
@@ -1833,7 +1856,8 @@ static void VisitChannel(const char* prefix, const unsigned char* channel)
     live = sp < -1 ? 0 : (unsigned)(sp + 1);
     if (live > SCRIPT_STACK_LIMIT)
         live = SCRIPT_STACK_LIMIT;
-    sprintf(path, "%s.stack", prefix);
+    if (s_dumpNow)
+        sprintf(path, "%s.stack", prefix);
     VisitRaw(path, channel + SCRIPT_STACK, live * 4);
     if ((state & 0xff000000) == 0x2000000) {
         switch (state & 0xf00000) {
@@ -1860,7 +1884,8 @@ static void VisitScript(unsigned i, const unsigned char* script)
     unsigned objectState = ReadU32At((unsigned)script, SCRIPT_OBJECT_STATE);
     unsigned staticCount = 0;
     unsigned pieceCount = 0;
-    sprintf(path, "units[%u].script", i);
+    if (s_dumpNow)
+        sprintf(path, "units[%u].script", i);
     VisitElement(path, script, &kScriptStateTable);
     if (table != 0) {
         staticCount = ReadU32At(table, TABLE_STATIC_COUNT);
@@ -1871,22 +1896,26 @@ static void VisitScript(unsigned i, const unsigned char* script)
     if (pieceCount > SCRIPT_PIECE_LIMIT)
         pieceCount = 0;
     for (unsigned c = 0; c < SCRIPT_CHANNEL_COUNT; c++) {
-        sprintf(path, "units[%u].script.channels[%u]", i, c);
+        if (s_dumpNow)
+            sprintf(path, "units[%u].script.channels[%u]", i, c);
         VisitChannel(path, script + SCRIPT_CHANNELS + c * SCRIPT_CHANNEL_STRIDE);
     }
-    sprintf(path, "units[%u].script.statics", i);
+    if (s_dumpNow)
+        sprintf(path, "units[%u].script.statics", i);
     VisitU32(path, staticCount);
     VisitRaw(path, (const unsigned char*)statics, staticCount * 4);
     if (pieces == 0)
         pieceCount = 0;
     for (unsigned p = 0; p < pieceCount; p++) {
-        sprintf(path, "units[%u].script.pieces[%u]", i, p);
+        if (s_dumpNow)
+            sprintf(path, "units[%u].script.pieces[%u]", i, p);
         VisitElement(path, (const unsigned char*)pieces + p * SCRIPT_PIECE_STRIDE, &kScriptPieceTable);
     }
     if (objectState == 0)
         pieceCount = 0;
     for (unsigned q = 0; q < pieceCount; q++) {
-        sprintf(path, "units[%u].script.transforms[%u]", i, q);
+        if (s_dumpNow)
+            sprintf(path, "units[%u].script.transforms[%u]", i, q);
         VisitElement(path, (const unsigned char*)objectState + OBJECT_STATE_PIECES + q * OBJECT_STATE_STRIDE,
                      &kPieceTransformTable);
     }
