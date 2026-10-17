@@ -957,6 +957,357 @@ static const TraceField kPieceTransformPlan[] = {
     { "", 0x28, 2, TF_SCALAR, TT_NONE, 0x7 },
 };
 
+static const TraceField kPlayerAIFields[] = {
+    { "owner", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "index", 0x4, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "centre.x", 0x35, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "centre.y", 0x39, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "centre.z", 0x3d, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos_41.x", 0x41, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos_41.y", 0x45, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pos_41.z", 0x49, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "center.x", 0x5d, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "center.y", 0x5f, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "centerPad", 0x61, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "builders", 0x75, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "hasSpecial", 0x79, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "lastTick", 0xed, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "spacing0.x", 0xf1, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "spacing0.y", 0xf3, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "offset0.x", 0xf5, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "offset0.y", 0xf7, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "margin0", 0xf9, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "spacing1.x", 0xfd, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "spacing1.y", 0xff, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "offset1.x", 0x101, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "offset1.y", 0x103, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "margin1", 0x105, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "searchRadius", 0x109, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kPlayerAIPlan[] = {
+    { "", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "", 0x4, 1, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x35, 24, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x5d, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x75, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xed, 32, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kSquadManagerFields[] = {
+    { "player", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "index", 0x4, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "countdown", 0x5, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "unused_9", 0x9, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "nextAction", 0xd, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "cursor", 0x39, 4, TF_POINTER, TT_UNIT, 0x0 },
+};
+
+static const TraceField kSquadManagerPlan[] = {
+    { "", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "", 0x4, 13, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x39, 4, TF_POINTER, TT_UNIT, 0x0 },
+};
+
+static const TraceField kSquadTimerFields[] = {
+    { "next", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "player", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kSquadTimerPlan[] = {
+    { "", 0xc, 8, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kAssaultTimerFields[] = {
+    { "next", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "player", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "minimum", 0x14, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "maximum", 0x18, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "limit", 0x1c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "kind", 0x20, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "attacking", 0x24, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kAssaultTimerPlan[] = {
+    { "", 0xc, 28, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kEscortTimerFields[] = {
+    { "next", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "player", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "other", 0x14, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kEscortTimerPlan[] = {
+    { "", 0xc, 12, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kSpatialTimerFields[] = {
+    { "next", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "player", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "best.x", 0x14, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "best.y", 0x18, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "best.z", 0x1c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "probe.x", 0x20, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "probe.y", 0x24, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "probe.z", 0x28, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "step.x", 0x2c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "step.y", 0x30, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "step.z", 0x34, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "bestRating", 0x38, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kSpatialTimerPlan[] = {
+    { "", 0xc, 48, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kSquadFields[] = {
+    { "owner", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "index", 0x4, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "field_8", 0x8, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "field_c", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kSquadPlan[] = {
+    { "", 0x0, 4, TF_POINTER, TT_PLAYER, 0x0 },
+    { "", 0x4, 12, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kUnitResourcesFields[] = {
+    { "energyMake", 0x0, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyUse", 0x4, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyUsePaid", 0x8, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyStall", 0xc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyMakePrev", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyUsePrev", 0x14, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalMake", 0x18, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalUse", 0x1c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalUsePaid", 0x20, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalStall", 0x24, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalMakePrev", 0x28, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalUsePrev", 0x2c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "player", 0x30, 4, TF_POINTER, TT_PLAYER, 0x0 },
+};
+
+static const TraceField kUnitResourcesPlan[] = {
+    { "", 0x0, 48, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x30, 4, TF_POINTER, TT_PLAYER, 0x0 },
+};
+
+static const TraceField kMissionConditionsFields[] = {
+    { "victoryCount", 0x40, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "defeatCount", 0x84, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "active", 0x88, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionConditionsPlan[] = {
+    { "", 0x40, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x84, 8, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionConditionFields[] = {
+    { "satisfied", 0x4, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "celebrated", 0x8, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionConditionPlan[] = {
+    { "", 0x4, 8, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kConditionNumUnitsFields[] = {
+    { "numUnits", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kConditionNumUnitsPlan[] = {
+    { "", 0x10, 4, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kConditionNumLeftFields[] = {
+    { "numLeftToKill", 0x2c, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kConditionNumLeftPlan[] = {
+    { "", 0x2c, 4, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionDataFields[] = {
+    { "type", 0x0, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "multi", 0xd2c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "threshold", 0xd30, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "gravity", 0xd3c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "tidalStrength", 0xd40, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "lavaWorld", 0xd44, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "noSeaLevelTrigger", 0xd48, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "waterDoesDamage", 0xd4c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "waterDamage", 0xd50, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "killMul", 0xd54, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "timeMul", 0xd58, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "startMetal", 0xd5c, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "startEnergy", 0xd84, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "unitCount", 0xdb0, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "ruleCount", 0xdb8, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "featureCount", 0xdc0, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionDataPlan[] = {
+    { "", 0x0, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd2c, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd3c, 40, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd84, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xdb0, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xdb8, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xdc0, 4, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionStartRestFields[] = {
+    { "startMetalRest", 0xd64, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "startEnergyRest", 0xd8c, 32, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kMissionStartRestPlan[] = {
+    { "", 0xd64, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd8c, 32, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kWeaponDefDataFields[] = {
+    { "name", 0x0, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "speed", 0x68, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "startSpeed", 0x6c, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "acceleration", 0x70, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyPerShot", 0xc0, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalPerShot", 0xc4, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pitch", 0xc8, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "damage", 0xd4, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "areaOfEffect", 0xd6, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "edgeDamage", 0xd8, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "range", 0xdc, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "coverage", 0xe0, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "reloadTime", 0xe4, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "lifetime", 0xe6, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "turnRate", 0xe8, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "burst", 0xea, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "burstRate", 0xec, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "spread", 0xee, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "duration", 0xf0, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "lifeRand", 0xf2, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "smokeRate", 0xfa, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "flightTime", 0xfc, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "holdTime", 0xfe, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "accuracy", 0x104, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "tolerance", 0x106, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "pitchTolerance", 0x108, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "index", 0x10a, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "fireStarter", 0x10b, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "flags", 0x111, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kWeaponDefDataPlan[] = {
+    { "", 0x0, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x68, 12, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xc0, 12, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xd4, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0xfa, 6, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x104, 8, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x111, 4, TF_BYTES, TT_NONE, 0x0 },
+};
+
+static const TraceField kUnitDefDataFields[] = {
+    { "name", 0x0, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "unitname", 0x20, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "objectname", 0x80, 32, TF_BYTES, TT_NONE, 0x0 },
+    { "side", 0xa0, 30, TF_BYTES, TT_NONE, 0x0 },
+    { "aiWeight", 0xbe, 64, TF_BYTES, TT_NONE, 0x0 },
+    { "aiLimit", 0xfe, 64, TF_BYTES, TT_NONE, 0x0 },
+    { "fbiChecksum", 0x13e, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "scriptChecksum", 0x142, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "weaponHashXor", 0x146, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "footprintx", 0x14a, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "footprintz", 0x14c, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "count", 0x152, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxThisUnit", 0x15a, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "modelBox", 0x15e, 36, TF_BYTES, TT_NONE, 0x0 },
+    { "radius", 0x182, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyCost", 0x186, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalCost", 0x18a, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxvelocity", 0x192, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxslopevelocity", 0x196, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "brakerate", 0x19a, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "acceleration", 0x19e, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "bankscale", 0x1a2, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "pitchscale", 0x1a6, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "damagemodifier", 0x1aa, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "moverate1", 0x1ae, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "moverate2", 0x1b2, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "movementclass", 0x1b6, 4, TF_POINTER, TT_MOVECLASS, 0x0 },
+    { "turnrate", 0x1ba, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "corpse", 0x1bc, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxwaterdepth", 0x1be, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "minwaterdepth", 0x1c0, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "energymake", 0x1c2, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energyuse", 0x1c6, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalmake", 0x1ca, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "extractsMetal", 0x1ce, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "windgenerator", 0x1d2, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "tidalgenerator", 0x1d6, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "cloakcost", 0x1da, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "cloakcostmoving", 0x1de, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "energystorage", 0x1e2, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "metalstorage", 0x1e6, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "buildtime", 0x1ea, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "weapons[0]", 0x1ee, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "weapons[1]", 0x1f2, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "weapons[2]", 0x1f6, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "maxHealth", 0x1fa, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "buildRate", 0x1fe, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "healtime", 0x200, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "range", 0x202, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "radardistance", 0x204, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "sonardistance", 0x206, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "mincloakdistance", 0x208, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "radardistancejam", 0x20a, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "sonardistancejam", 0x20c, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "buildangle", 0x210, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "buildRange", 0x212, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "maneuverleashlength", 0x214, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "attackrunlength", 0x216, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "kamikazedistance", 0x218, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "sortbias", 0x21a, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "altitude", 0x21c, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "id", 0x21e, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "explodeas", 0x220, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "selfdestructas", 0x224, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "maxslope", 0x228, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "maxwaterslope", 0x229, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "capacity", 0x22a, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "transportcapacity", 0x22b, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "draft", 0x22c, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "makesMetal", 0x22d, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "buildMenuPageCount", 0x22e, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "mobile", 0x22f, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "defaultmissiontype", 0x230, 1, TF_SCALAR, TT_NONE, 0x0 },
+    { "flags1", 0x241, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "flags2", 0x245, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kUnitDefDataPlan[] = {
+    { "", 0x0, 64, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x80, 206, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x152, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x15a, 52, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x192, 36, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x1b6, 4, TF_POINTER, TT_MOVECLASS, 0x0 },
+    { "", 0x1ba, 52, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x1ee, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "", 0x1f2, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "", 0x1f6, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "", 0x1fa, 20, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x210, 16, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x220, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "", 0x224, 4, TF_POINTER, TT_WEAPONDEF, 0x0 },
+    { "", 0x228, 9, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x241, 8, TF_BYTES, TT_NONE, 0x0 },
+};
+
 static const TraceTable kUnitTable = { kUnitFields, 87, kUnitPlan, 30, 0x118 };
 static const TraceTable kProjectileTable = { kProjectileFields, 33, kProjectilePlan, 5, 0x6b };
 static const TraceTable kPlayerTable = { kPlayerFields, 76, kPlayerPlan, 12, 0x14b };
@@ -997,6 +1348,22 @@ static const TraceTable kScriptChannelWaitTable = { kScriptChannelWaitFields, 1,
 static const TraceTable kScriptChannelPieceTable = { kScriptChannelPieceFields, 2, kScriptChannelPiecePlan, 1, 0xa4 };
 static const TraceTable kScriptPieceTable = { kScriptPieceFields, 7, kScriptPiecePlan, 1, 0x4c };
 static const TraceTable kPieceTransformTable = { kPieceTransformFields, 3, kPieceTransformPlan, 2, 0x36 };
+static const TraceTable kPlayerAITable = { kPlayerAIFields, 25, kPlayerAIPlan, 6, 0x10d };
+static const TraceTable kSquadManagerTable = { kSquadManagerFields, 6, kSquadManagerPlan, 3, 0x3d };
+static const TraceTable kSquadTimerTable = { kSquadTimerFields, 2, kSquadTimerPlan, 1, 0x14 };
+static const TraceTable kAssaultTimerTable = { kAssaultTimerFields, 7, kAssaultTimerPlan, 1, 0x28 };
+static const TraceTable kEscortTimerTable = { kEscortTimerFields, 3, kEscortTimerPlan, 1, 0x18 };
+static const TraceTable kSpatialTimerTable = { kSpatialTimerFields, 12, kSpatialTimerPlan, 1, 0x3c };
+static const TraceTable kSquadTable = { kSquadFields, 4, kSquadPlan, 2, 0x20 };
+static const TraceTable kUnitResourcesTable = { kUnitResourcesFields, 13, kUnitResourcesPlan, 2, 0x34 };
+static const TraceTable kMissionConditionsTable = { kMissionConditionsFields, 3, kMissionConditionsPlan, 2, 0x8c };
+static const TraceTable kMissionConditionTable = { kMissionConditionFields, 2, kMissionConditionPlan, 1, 0xc };
+static const TraceTable kConditionNumUnitsTable = { kConditionNumUnitsFields, 1, kConditionNumUnitsPlan, 1, 0x14 };
+static const TraceTable kConditionNumLeftTable = { kConditionNumLeftFields, 1, kConditionNumLeftPlan, 1, 0x30 };
+static const TraceTable kMissionDataTable = { kMissionDataFields, 16, kMissionDataPlan, 7, 0xec4 };
+static const TraceTable kMissionStartRestTable = { kMissionStartRestFields, 2, kMissionStartRestPlan, 2, 0xec4 };
+static const TraceTable kWeaponDefDataTable = { kWeaponDefDataFields, 29, kWeaponDefDataPlan, 7, 0x115 };
+static const TraceTable kUnitDefDataTable = { kUnitDefDataFields, 75, kUnitDefDataPlan, 16, 0x249 };
 
 static const TraceField kWindFields[] = {
     { "windCounter", 0x37ec4, 4, TF_SCALAR, TT_NONE, 0x0 },
@@ -1028,9 +1395,10 @@ static const TraceField kGameScalarFields[] = {
     { "mapFlags", 0x14281, 2, TF_SCALAR, TT_NONE, 0xfff7 },
     { "endGameCountdown", 0x39239, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "endGameFlags", 0x3923b, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "uiOptionFlags", 0x37f2f, 2, TF_SCALAR, TT_NONE, 0x788 },
 };
 
-static const unsigned kGameScalarFieldCount = 13;
+static const unsigned kGameScalarFieldCount = 14;
 
 extern int g_meteorNextStrikeTime;
 extern char g_meteorWeaponName[32];
