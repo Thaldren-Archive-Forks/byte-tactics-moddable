@@ -777,7 +777,7 @@ enum {
     OBJECT_STATE_STRIDE = 0x36,
     ORDER_CHAIN_LIMIT = 4096,
     TRACE_OBJECT_LIMIT = 1 << 16,
-    TRACE_MAP_SIZE = 1 << 17
+    TRACE_MAP_SIZE = 1 << 18
 };
 
 #define LINK_IN_FX 0x80000000u
@@ -838,7 +838,7 @@ static unsigned s_fxCountSeen = 0;
 
 static unsigned MapSlot(const unsigned* keys, unsigned p)
 {
-    unsigned slot = (p >> 2) * 2654435761u >> 15;
+    unsigned slot = (p >> 2) * 2654435761u >> 14;
     while (keys[slot] != 0 && keys[slot] != p)
         slot = (slot + 1) & (TRACE_MAP_SIZE - 1);
     return slot;
