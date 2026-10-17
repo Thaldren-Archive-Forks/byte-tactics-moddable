@@ -971,6 +971,7 @@ harness,orders,shared_write,Game::localPlayer,2
 harness,orders,shared_write,Game::playerIndex,1
 harness,platform,call,GetMemSetValue,1
 harness,platform,call,IsMemSet,1
+harness,players,call,HarnessConditionClass,1
 harness,players,call,ResetPlayerSlots,1
 harness,players,shared_write,Game::difficulty,3
 harness,players,shared_write,Game::localPlayer,8

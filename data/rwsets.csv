@@ -42326,11 +42326,8 @@ address,function,file,kind,target
 ,CompactActivePlayerSlots,src/frontend/multi_44a680.cpp,field_read,Player::type
 ,CompactActivePlayerSlots,src/frontend/multi_44a680.cpp,function,
 ,CompactActivePlayerSlots,src/frontend/multi_44a680.cpp,global_read,g_game
-,ConditionClassOf,src/harness/harness.cpp,call,ConditionSaveDistance
+,ConditionClassOf,src/harness/harness.cpp,call,HarnessConditionClass
 ,ConditionClassOf,src/harness/harness.cpp,function,
-,ConditionSaveDistance,src/harness/harness.cpp,call,LoadConditionsAddress
-,ConditionSaveDistance,src/harness/harness.cpp,call,ReadU32At
-,ConditionSaveDistance,src/harness/harness.cpp,function,
 ,ConstIter_004dbd00::ConstIter_004dbd00,src/debug/debug_lib.cpp,function,
 ,Contains,src/ai/ai_player.cpp,deref_read,*unsigned int
 ,Contains,src/ai/ai_player.cpp,function,
@@ -43998,6 +43995,8 @@ address,function,file,kind,target
 ,HarnessBeforeStep,src/harness/harness.cpp,global_read,s_orderCount@src/harness/harness.cpp
 ,HarnessBeforeStep,src/harness/harness.cpp,global_read,s_orders@src/harness/harness.cpp
 ,HarnessBeforeStep,src/harness/harness.cpp,global_read,s_testMode@src/harness/harness.cpp
+,HarnessConditionClass,src/game/victory.cpp,deref_read,*void
+,HarnessConditionClass,src/game/victory.cpp,function,
 ,HarnessCrtSeed,src/harness/harness.cpp,function,
 ,HarnessCrtSeed,src/harness/harness.cpp,global_read,s_crtSeed@src/harness/harness.cpp
 ,HarnessCrtSeed,src/harness/harness.cpp,global_read,s_testMode@src/harness/harness.cpp
@@ -44921,8 +44920,6 @@ address,function,file,kind,target
 ,LoadAccount_00442a30,src/frontend/multi.cpp,function,
 ,LoadAccount_00442a30,src/frontend/multi.cpp,global_read,g_game
 ,LoadAccount_00442a30,src/frontend/multi.cpp,global_read,g_modemAccounts
-,LoadConditionsAddress,src/harness/harness.cpp,call,memcpy
-,LoadConditionsAddress,src/harness/harness.cpp,function,
 ,LoadConfigFile,src/network/online_45b670.cpp,call,GetProcAddress
 ,LoadConfigFile,src/network/online_45b670.cpp,function,
 ,LoadConfigFile,src/network/online_45b670.cpp,global_read,g_onlineDll
@@ -48508,7 +48505,8 @@ address,function,file,kind,target
 ,VisitChannel,src/harness/harness.cpp,global_read,kScriptChannelWaitTable@src/harness/trace_schema.h
 ,VisitChannel,src/harness/harness.cpp,global_read,s_dumpNow@src/harness/harness.cpp
 ,VisitCondition,src/harness/harness.cpp,call,ConditionClassOf
-,VisitCondition,src/harness/harness.cpp,call,ConditionSaveDistance
+,VisitCondition,src/harness/harness.cpp,call,Fail
+,VisitCondition,src/harness/harness.cpp,call,ReadU32At
 ,VisitCondition,src/harness/harness.cpp,call,VisitElement
 ,VisitCondition,src/harness/harness.cpp,call,VisitU32
 ,VisitCondition,src/harness/harness.cpp,call,sprintf

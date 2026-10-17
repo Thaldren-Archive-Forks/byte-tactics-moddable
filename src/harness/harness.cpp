@@ -14,6 +14,7 @@
 #undef TdfRecord
 #undef TdfFile
 #include "../map/mission.h"
+#include "condition_class.h"
 
 extern Game* g_game;
 
@@ -781,7 +782,6 @@ enum {
 };
 
 enum {
-    CONDITION_SAVE_SLOT = 16,
     MISSION_TYPE = 0x0,
     MISSION_TYPE_CAMPAIGN = 1,
     VECTOR_FIRST = 0x4,
@@ -2052,27 +2052,6 @@ enum TimerClass {
     TIMER_BUILD
 };
 
-enum ConditionClass {
-    COND_UNKNOWN,
-    COND_DEFEAT_PASSES_Z,
-    COND_DEFEAT_PASSES_X,
-    COND_DEFEAT_DEATH_TIMER,
-    COND_DEFEAT_TYPE_KILLED,
-    COND_DEFEAT_ALL_OF_TYPE,
-    COND_DEFEAT_ALL_KILLED,
-    COND_DEFEAT_COMMANDER,
-    COND_VICTORY_TIMER,
-    COND_VICTORY_PASSES_Z,
-    COND_VICTORY_PASSES_X,
-    COND_VICTORY_MOVE_TO_RADIUS,
-    COND_VICTORY_KILL_TYPE,
-    COND_VICTORY_KILL_ALL_OF_TYPE,
-    COND_VICTORY_CAPTURE,
-    COND_VICTORY_BUILD,
-    COND_VICTORY_KILL_MOBILE,
-    COND_VICTORY_DESTROY_ALL,
-    COND_VICTORY_KILL_COMMANDER
-};
 
 static int TimerClassOf(unsigned slot)
 {
@@ -2083,60 +2062,11 @@ static int TimerClassOf(unsigned slot)
     return classes[slot];
 }
 
-static unsigned LoadConditionsAddress()
-{
-    void (MissionConditions::*method)(HapiBank*) = &MissionConditions::LoadConditions;
-    unsigned address;
-    memcpy(&address, &method, sizeof address);
-    return address;
-}
-
-static unsigned ConditionSaveDistance(unsigned condition)
-{
-    return ReadU32At(ReadU32At(condition, 0), CONDITION_SAVE_SLOT) - LoadConditionsAddress();
-}
+int HarnessConditionClass(void* condition);
 
 static int ConditionClassOf(unsigned condition)
 {
-    switch (ConditionSaveDistance(condition)) {
-    case 0xffffec60:
-        return COND_VICTORY_KILL_COMMANDER;
-    case 0xffffed20:
-        return COND_VICTORY_DESTROY_ALL;
-    case 0xffffee50:
-        return COND_VICTORY_KILL_MOBILE;
-    case 0xffffefd0:
-        return COND_VICTORY_BUILD;
-    case 0xfffff0a0:
-        return COND_VICTORY_CAPTURE;
-    case 0xfffff210:
-        return COND_VICTORY_KILL_ALL_OF_TYPE;
-    case 0xfffff300:
-        return COND_VICTORY_KILL_TYPE;
-    case 0xfffff490:
-        return COND_VICTORY_MOVE_TO_RADIUS;
-    case 0xfffff5e0:
-        return COND_VICTORY_PASSES_X;
-    case 0xfffff730:
-        return COND_VICTORY_PASSES_Z;
-    case 0xfffff7d0:
-        return COND_VICTORY_TIMER;
-    case 0xfffff8b0:
-        return COND_DEFEAT_COMMANDER;
-    case 0xfffff9e0:
-        return COND_DEFEAT_ALL_KILLED;
-    case 0xfffffaa0:
-        return COND_DEFEAT_TYPE_KILLED;
-    case 0xfffffc50:
-        return COND_DEFEAT_ALL_OF_TYPE;
-    case 0xfffffd60:
-        return COND_DEFEAT_PASSES_X;
-    case 0xfffffe70:
-        return COND_DEFEAT_PASSES_Z;
-    case 0xffffff10:
-        return COND_DEFEAT_DEATH_TIMER;
-    }
-    return COND_UNKNOWN;
+    return HarnessConditionClass((void*)condition);
 }
 
 static unsigned VectorCount(unsigned vec, unsigned elem, const unsigned char** first)
@@ -2322,9 +2252,10 @@ static void VisitCondition(const char* path, unsigned condition)
     sprintf(field, "%s.class", path);
     VisitU32(field, (unsigned)cls);
     if (cls == COND_UNKNOWN) {
-        sprintf(field, "%s.vtableDelta", path);
-        VisitU32(field, ConditionSaveDistance(condition));
-        return;
+        char msg[160];
+        sprintf(msg, "testmode: unknown mission condition at %08x (vtable %08x) at %s\n", condition,
+                ReadU32At(condition, 0), path);
+        Fail(msg);
     }
     VisitElement(path, (const unsigned char*)condition, &kMissionConditionTable);
     if (cls == COND_VICTORY_KILL_MOBILE)

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <windows.h>
 #include "../util/hapi_bank.h"
+#include "../harness/condition_class.h"
 
 extern void* DAT_005119b8;
 
@@ -1895,4 +1896,35 @@ void QueryGlobalMemoryStatus(void)
     MEMORYSTATUS mem;
     mem.dwLength = 0x20;
     GlobalMemoryStatus(&mem);
+}
+
+#define CONDITION_PROBE(cls, probe)                 \
+    {                                               \
+        probe;                                      \
+        if (*(void**)&p == vtable)                  \
+            return cls;                             \
+    }
+
+int HarnessConditionClass(void* condition)
+{
+    void* vtable = *(void**)condition;
+    CONDITION_PROBE(COND_VICTORY_KILL_COMMANDER, VictoryKillEnemyCommander p);
+    CONDITION_PROBE(COND_VICTORY_DESTROY_ALL, VictoryDestroyAllUnits p);
+    CONDITION_PROBE(COND_VICTORY_KILL_MOBILE, VictoryKillAllMobileUnits p);
+    CONDITION_PROBE(COND_VICTORY_BUILD, VictoryBuildUnitType p(""));
+    CONDITION_PROBE(COND_VICTORY_CAPTURE, VictoryCaptureUnitType p(""));
+    CONDITION_PROBE(COND_VICTORY_KILL_ALL_OF_TYPE, VictoryKillAllOfType p(""));
+    CONDITION_PROBE(COND_VICTORY_KILL_TYPE, VictoryKillUnitType p("", 0));
+    CONDITION_PROBE(COND_VICTORY_MOVE_TO_RADIUS, VictoryMoveUnitToRadius p("", 0, 0, 0));
+    CONDITION_PROBE(COND_VICTORY_PASSES_X, VictoryUnitTypePassesX p("", 0));
+    CONDITION_PROBE(COND_VICTORY_PASSES_Z, VictoryUnitTypePassesZ p("", 0));
+    CONDITION_PROBE(COND_VICTORY_TIMER, VictoryTimerRunsOut p(0));
+    CONDITION_PROBE(COND_DEFEAT_COMMANDER, DefeatCommanderKilled p);
+    CONDITION_PROBE(COND_DEFEAT_ALL_KILLED, DefeatAllUnitsKilled p);
+    CONDITION_PROBE(COND_DEFEAT_ALL_OF_TYPE, DefeatAllUnitsKilledOfType p(""));
+    CONDITION_PROBE(COND_DEFEAT_TYPE_KILLED, DefeatUnitTypeKilled p("", 0));
+    CONDITION_PROBE(COND_DEFEAT_DEATH_TIMER, DefeatDeathTimerRunsOut p(0));
+    CONDITION_PROBE(COND_DEFEAT_PASSES_X, DefeatAnyUnitPassesX p(0));
+    CONDITION_PROBE(COND_DEFEAT_PASSES_Z, DefeatAnyUnitPassesZ p(0));
+    return COND_UNKNOWN;
 }
