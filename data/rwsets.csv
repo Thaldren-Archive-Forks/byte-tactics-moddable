@@ -29881,11 +29881,11 @@ address,function,file,kind,target
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,DrawModel3doProjected
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,GetGafFrame
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,GetGafFrameCount
+0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,HarnessViewRand
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,IsPointVisible
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,MapSize_0049be60::Contains
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,PointInRect
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,abs
-0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,bx_game_rand
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,bx_sqrt
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,call,operator=
 0x49be60,DrawProjectiles,src/weapons/weapons.cpp,deref_read,*Vec3
