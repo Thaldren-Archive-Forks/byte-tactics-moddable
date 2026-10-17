@@ -781,6 +781,7 @@ enum {
 };
 
 enum {
+    CONDITION_SAVE_SLOT = 16,
     VECTOR_FIRST = 0x4,
     VECTOR_LAST = 0x8,
     VECTOR_LIMIT = 1 << 20,
@@ -2071,71 +2072,67 @@ enum ConditionClass {
     COND_VICTORY_KILL_COMMANDER
 };
 
-static unsigned VtableDelta(unsigned object)
+static int TimerClassOf(unsigned slot)
 {
-    return ReadU32At(object, 0) - (unsigned)g_patrolGoalVtable;
+    static const unsigned char classes[SQUAD_TIMERS] = {
+        TIMER_UNKNOWN, TIMER_BUILD, TIMER_ASSAULT, TIMER_ESCORT, TIMER_SCOUT,
+        TIMER_SQUAD, TIMER_ASSAULT, TIMER_ESCORT, TIMER_SQUADSCOUT, TIMER_SPATIAL
+    };
+    return classes[slot];
 }
 
-static int TimerClassOf(unsigned timer)
+static unsigned LoadConditionsAddress()
 {
-    switch (VtableDelta(timer)) {
-    case 0xfffff4f8:
-        return TIMER_SQUAD;
-    case 0xfffff500:
-        return TIMER_ASSAULT;
-    case 0xfffff508:
-        return TIMER_ESCORT;
-    case 0xfffff510:
-        return TIMER_SQUADSCOUT;
-    case 0xfffff518:
-        return TIMER_SPATIAL;
-    case 0xfffff520:
-        return TIMER_SCOUT;
-    case 0xfffff528:
-        return TIMER_BUILD;
-    }
-    return TIMER_UNKNOWN;
+    void (MissionConditions::*method)(HapiBank*) = &MissionConditions::LoadConditions;
+    unsigned address;
+    memcpy(&address, &method, sizeof address);
+    return address;
+}
+
+static unsigned ConditionSaveDistance(unsigned condition)
+{
+    return ReadU32At(ReadU32At(condition, 0), CONDITION_SAVE_SLOT) - LoadConditionsAddress();
 }
 
 static int ConditionClassOf(unsigned condition)
 {
-    switch (VtableDelta(condition)) {
-    case 0x2e8:
-        return COND_DEFEAT_PASSES_Z;
-    case 0x308:
-        return COND_DEFEAT_PASSES_X;
-    case 0x320:
-        return COND_DEFEAT_DEATH_TIMER;
-    case 0x338:
-        return COND_DEFEAT_TYPE_KILLED;
-    case 0x358:
-        return COND_DEFEAT_ALL_OF_TYPE;
-    case 0x378:
-        return COND_DEFEAT_ALL_KILLED;
-    case 0x390:
-        return COND_DEFEAT_COMMANDER;
-    case 0x3a8:
-        return COND_VICTORY_TIMER;
-    case 0x3c8:
-        return COND_VICTORY_PASSES_Z;
-    case 0x3e8:
-        return COND_VICTORY_PASSES_X;
-    case 0x408:
-        return COND_VICTORY_MOVE_TO_RADIUS;
-    case 0x428:
-        return COND_VICTORY_KILL_TYPE;
-    case 0x448:
-        return COND_VICTORY_KILL_ALL_OF_TYPE;
-    case 0x460:
-        return COND_VICTORY_CAPTURE;
-    case 0x480:
-        return COND_VICTORY_BUILD;
-    case 0x4a0:
-        return COND_VICTORY_KILL_MOBILE;
-    case 0x4c0:
-        return COND_VICTORY_DESTROY_ALL;
-    case 0x4d8:
+    switch (ConditionSaveDistance(condition)) {
+    case 0xffffec60:
         return COND_VICTORY_KILL_COMMANDER;
+    case 0xffffed20:
+        return COND_VICTORY_DESTROY_ALL;
+    case 0xffffee50:
+        return COND_VICTORY_KILL_MOBILE;
+    case 0xffffefd0:
+        return COND_VICTORY_BUILD;
+    case 0xfffff0a0:
+        return COND_VICTORY_CAPTURE;
+    case 0xfffff210:
+        return COND_VICTORY_KILL_ALL_OF_TYPE;
+    case 0xfffff300:
+        return COND_VICTORY_KILL_TYPE;
+    case 0xfffff490:
+        return COND_VICTORY_MOVE_TO_RADIUS;
+    case 0xfffff5e0:
+        return COND_VICTORY_PASSES_X;
+    case 0xfffff730:
+        return COND_VICTORY_PASSES_Z;
+    case 0xfffff7d0:
+        return COND_VICTORY_TIMER;
+    case 0xfffff8b0:
+        return COND_DEFEAT_COMMANDER;
+    case 0xfffff9e0:
+        return COND_DEFEAT_ALL_KILLED;
+    case 0xfffffaa0:
+        return COND_DEFEAT_TYPE_KILLED;
+    case 0xfffffc50:
+        return COND_DEFEAT_ALL_OF_TYPE;
+    case 0xfffffd60:
+        return COND_DEFEAT_PASSES_X;
+    case 0xfffffe70:
+        return COND_DEFEAT_PASSES_Z;
+    case 0xffffff10:
+        return COND_DEFEAT_DEATH_TIMER;
     }
     return COND_UNKNOWN;
 }
@@ -2232,17 +2229,13 @@ static void VisitPlayerAI()
     EndSection();
 }
 
-static void VisitTimer(const char* path, unsigned timer)
+static void VisitTimer(const char* path, unsigned slot, unsigned timer)
 {
     char field[128];
-    int cls = TimerClassOf(timer);
+    int cls = TimerClassOf(slot);
     sprintf(field, "%s.class", path);
     VisitU32(field, (unsigned)cls);
     switch (cls) {
-    case TIMER_UNKNOWN:
-        sprintf(field, "%s.vtableDelta", path);
-        VisitU32(field, VtableDelta(timer));
-        break;
     case TIMER_ASSAULT:
         VisitElement(path, (const unsigned char*)timer, &kAssaultTimerTable);
         break;
@@ -2277,7 +2270,7 @@ static void VisitSquadManagers()
             if (timer == 0)
                 continue;
             sprintf(path, "players[%u].squadManager.timers[%u]", i, t);
-            VisitTimer(path, timer);
+            VisitTimer(path, t, timer);
         }
     }
     EndSection();
@@ -2328,7 +2321,7 @@ static void VisitCondition(const char* path, unsigned condition)
     VisitU32(field, (unsigned)cls);
     if (cls == COND_UNKNOWN) {
         sprintf(field, "%s.vtableDelta", path);
-        VisitU32(field, VtableDelta(condition));
+        VisitU32(field, ConditionSaveDistance(condition));
         return;
     }
     VisitElement(path, (const unsigned char*)condition, &kMissionConditionTable);
