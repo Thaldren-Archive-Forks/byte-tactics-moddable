@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TRACE_FORMAT = 2
+TRACE_FORMAT = 3
 TYPES = ROOT / "include/ta_types.h"
 OUT = ROOT / "src/harness/trace_schema.h"
 
@@ -31,6 +31,7 @@ POINTER_TARGETS: dict[str, str] = {
     "Def_0049d270": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Obj_00406f50": "PROJECTILE",
     "Feature": "FEATURE", "Object3do": "PIECE", "Object3D": "PIECE",
     "Rec": "REC", "Node": "NODE", "MovementClass": "MOVECLASS",
+    "OrderRef": "ORDER", "OrderFxRef": "ORDERFX", "LinkRef": "LINK",
 }
 
 NAMES: dict[str, dict[int, str]] = {
@@ -39,7 +40,7 @@ NAMES: dict[str, dict[int, str]] = {
 }
 
 POINTERS: dict[str, dict[int, str]] = {
-    "Unit": {0x0: "HEAP", 0x8: "HEAP", 0x24: "HEAP", 0x40: "HEAP", 0x82: "REC", 0x86: "HEAP"},
+    "Unit": {0x0: "HEAP", 0x8: "HEAP", 0x24: "HEAP", 0x40: "HEAP", 0x82: "REC", 0x86: "UNIT"},
     "Player": {0x74: "HEAP"},
     "Projectile": {0x4E: "HEAP"},
     "Debris": {0x0: "PIECE"},
@@ -54,14 +55,78 @@ EXCLUSIONS: list[tuple[str, str, str]] = [
     ("Pathfinder", "capacity", "an allocation size, not behaviour: nothing reads it but the growth of the pool"),
     ("Pathfinder", "found_x", "written only when a search reaches its goal, read right after"),
     ("Pathfinder", "found_y", "written only when a search reaches its goal, read right after"),
+    ("Order", "vptr", "the vtable, the same for every order"),
+    ("Order", "linkVptr", "the vtable of the embedded PathOrderAttach"),
+    ("Order", "cached", "written only by DrawWeaponCoverage (markers.cpp:563) and read only there (markers.cpp:557)"),
+    ("Order", "next", "the chain: the visit walks it, so the order of the records carries it"),
+    ("ApproachRadius", "vptr", "the class is hashed as a tag"),
+    ("RingApproach", "vptr", "the class is hashed as a tag"),
+    ("PointMarker", "vptr", "the class is hashed as a tag"),
+    ("PathOrder", "vptr", "the class is hashed as a tag"),
+    ("PathOrder", "refVptr", "the vtable of the embedded PathOrderAttach"),
+    ("AirManeuverOrder", "vptr", "the class is hashed as a tag"),
+    ("AirManeuverOrder", "saveOnly22", "set to 0 by the constructor and read only by SerializeToSave"),
+    ("AirManeuverOrder", "value26", "set only by the loading constructors and read only by SerializeToSave"),
+    ("UnitMotion", "obj", "the goal object: the visit hashes its class and fields"),
+    ("UnitMotion", "lastMoveTick", "written by UpdatePosition (order_list.cpp:2001) and read by nothing"),
+    ("PatrolGoal", "vptr", "the class is hashed as a tag"),
+    ("PatrolGoal", "points", "only the first count points are live: the visit hashes those"),
+    ("AiSearchGoal", "vptr", "the class is hashed as a tag"),
+    ("AiSearchGoal", "points", "only the first count points are live: the visit hashes those"),
+    ("PackedGoal", "vptr", "the class is hashed as a tag"),
+    ("PackedGoal", "field26", "padding byte no constructor or method writes or reads"),
+    ("ScriptState", "vptr", "the vtable of UnitScript"),
+    ("ScriptState", "statics", "the visit hashes the staticCount ints it points at"),
+    ("ScriptState", "pieces", "the visit hashes the pieceCount records it points at"),
+    ("ScriptState", "channels", "the visit hashes the channels that are not idle"),
+    ("ScriptState", "state", "the visit hashes the piece transforms it points at"),
+    ("ScriptChannel", "stack", "only the words up to sp are live: the visit hashes those"),
+    ("PieceTransform", "object", "the model piece, fixed when the state is built"),
+    ("PieceTransform", "pos", "the world position UpdateObjectState derives from the transforms"),
+    ("PieceTransform", "sfxOffset", "points at constant model data"),
+    ("PieceTransform", "value", "a cache cleared when the piece changes"),
+    ("PieceTransform", "rest", "bytes 0x2a to 0x35, which nothing in the script or the sim writes"),
 ]
 
 PATHFINDER_SEARCH_FIELDS = {
     "start_x", "start_y", "goalX", "goalY", "probe", "range", "path", "target", "owner", "turnCost", "stepCost",
 }
 
+SPLITS: dict[str, list[tuple[str, set[str]]]] = {
+    "Pathfinder": [("PathfinderSearch", PATHFINDER_SEARCH_FIELDS)],
+    "PathOrder": [("PathOrderHeading", {"heading"}), ("PathOrderPiece", {"piece"}),
+                  ("PathOrderFollow", {"followOffset"}), ("PathOrderPosY", {"pos.y"})],
+    "AirManeuverOrder": [("AirManeuverOrderHeading", {"heading"})],
+    "Order": [("OrderPosY", {"pos.y"})],
+    "PackedGoal": [("LiteGoalState", {"netDirty"})],
+    "ScriptChannel": [("ScriptChannelDelay", {"delay"}), ("ScriptChannelWait", {"waiting"}),
+                      ("ScriptChannelPiece", {"piece", "axis"})],
+}
+
+HEAP_TYPES: list[tuple[str, str]] = [
+    ("Order", "Order"),
+    ("ApproachRadius", "ApproachRadius"),
+    ("RingApproach", "RingApproach"),
+    ("PointMarker", "PointMarker"),
+    ("PathOrder", "PathOrder"),
+    ("AirManeuverOrder", "AirManeuverOrder"),
+    ("UnitMotion", "UnitMotion"),
+    ("PatrolGoal", "PatrolGoal"),
+    ("AiSearchGoal", "AiSearchGoal"),
+    ("PackedGoal", "PackedGoal"),
+    ("ScriptState", "ScriptState"),
+    ("ScriptChannel", "ScriptChannel"),
+    ("ScriptPiece", "ScriptPiece"),
+    ("PieceTransform", "PieceTransform"),
+]
+
 MASKS: dict[tuple[str, int], tuple[int, str]] = {
     ("ExplodedPiece", 0x28): (0x3F, "bits 6 to 31 are never written; StartExplodePiece copies them from an uninitialised stack header"),
+    ("Order", 0x42): (0xFFDFFFFF, "bit 0x200000 is set by DrawWeaponCoverage (markers.cpp:564) and read only there (markers.cpp:556)"),
+    ("UnitMotion", 0x2E): (0x07, "bits 3 to 7 are never written; the constructor sets mode and flag (order_list.cpp:2096)"),
+    ("AiSearchGoal", 0x64): (0x0B, "bits 4 to 7 are never written; bit 2 is unset by the constructor and read only after SerializeNetUnitState writes it"),
+    ("PackedGoal", 0x27): (0x07, "bits 3 to 7 are never written"),
+    ("PieceTransform", 0x28): (0x07, "bits 3 to 15 are never written; SaveScriptState saves visible, cached and shaded"),
 }
 
 SYNTHETIC: dict[str, str] = {
@@ -211,7 +276,166 @@ SYNTHETIC.update({
         int budget[10];
     """,
 })
+SYNTHETIC.update({
+    "Order": """
+        char vptr[4];                 // +0x0
+        unsigned char kind;           // +0x4
+        unsigned char state;          // +0x5
+        unsigned int flags6;          // +0x6
+        unsigned int wakeFrame;       // +0xa
+        Unit* unit;                   // +0xe
+        char linkVptr[4];             // +0x12
+        Unit* linkOwner;              // +0x16
+        LinkRef* linkNext;            // +0x1a
+        OrderRef* linkValue;          // +0x1e
+        Vec3 pos;                     // +0x22
+        Point16 start;                // +0x2e
+        Point16 cached;               // +0x32
+        int arg0;                     // +0x36
+        int arg1;                     // +0x3a
+        int arg2;                     // +0x3e
+        unsigned int flags;           // +0x42
+        unsigned int created;         // +0x46
+        OrderRef* next;               // +0x4a
+        unsigned int subFlags;        // +0x4e
+        OrderFxRef* attached;         // +0x52
+    """,
+    "ApproachRadius": """
+        char vptr[4];                 // +0x0
+        OrderRef* source;             // +0x4
+        Point16 pos;                  // +0x8
+        int radius;                   // +0xc
+        int radiusSq;                 // +0x10
+    """,
+    "RingApproach": """
+        char vptr[4];                 // +0x0
+        OrderRef* source;             // +0x4
+        Point16 pos;                  // +0x8
+        int radius2;                  // +0xc
+        int radius1;                  // +0x10
+        int radius2Sq;                // +0x14
+        int radius1Sq;                // +0x18
+    """,
+    "PointMarker": """
+        char vptr[4];                 // +0x0
+        OrderRef* source;             // +0x4
+        int x1;                       // +0x8
+        int x2;                       // +0xc
+        int y1;                       // +0x10
+        int y2;                       // +0x14
+    """,
+    "PathOrder": """
+        char vptr[4];                 // +0x0
+        OrderRef* source;             // +0x4
+        unsigned short flags;         // +0x8
+        short approachRadius;         // +0xa
+        short altitude;               // +0xc
+        short heading;                // +0xe
+        short piece;                  // +0x10
+        Unit* unit;                   // +0x12
+        char refVptr[4];              // +0x16
+        Unit* refOwner;               // +0x1a
+        LinkRef* refNext;             // +0x1e
+        OrderRef* refValue;           // +0x22
+        Vec3 pos;                     // +0x26
+        int followOffset;             // +0x32
+    """,
+    "AirManeuverOrder": """
+        char vptr[4];                 // +0x0
+        OrderRef* source;             // +0x4
+        unsigned short flags;         // +0x8
+        Vec3 target;                  // +0xa
+        Vec3 other;                   // +0x16
+        short saveOnly22;             // +0x22
+        unsigned short heading;       // +0x24
+        unsigned short value26;       // +0x26
+        Unit* self;                   // +0x28
+    """,
+    "UnitMotion": """
+        char* obj;                    // +0x0
+        MovementClass* movementClass; // +0x4
+        Vec3 velocity;                // +0x8
+        Vec3 p2;                      // +0x14
+        int speed;                    // +0x20
+        short turn;                   // +0x24
+        int pathLockStamp;            // +0x26
+        int lastMoveTick;             // +0x2a
+        unsigned char flags;          // +0x2e
+    """,
+    "PatrolGoal": """
+        char vptr[4];                 // +0x0
+        OrderFxRef* target;           // +0x4
+        Unit* owner;                  // +0x8
+        char points[12];              // +0xc
+        int count;                    // +0x18
+    """,
+    "AiSearchGoal": """
+        char vptr[4];                 // +0x0
+        OrderFxRef* target;           // +0x4
+        Unit* owner;                  // +0x8
+        char points[80];              // +0xc
+        int count;                    // +0x5c
+        unsigned int repathClaimTick; // +0x60
+        unsigned char flags;          // +0x64
+    """,
+    "PackedGoal": """
+        char vptr[4];                 // +0x0
+        OrderFxRef* target;           // +0x4
+        Unit* owner;                  // +0x8
+        Vec3 pos;                     // +0xc
+        Vec3 vel;                     // +0x18
+        short heading;                // +0x24
+        char field26;                 // +0x26
+        unsigned char netDirty;       // +0x27
+    """,
+    "ScriptState": """
+        char vptr[4];                 // +0x0
+        int scale;                    // +0x4
+        char* table;                  // +0x8
+        int checksum;                 // +0xc
+        char* statics;                // +0x10
+        char* pieces;                 // +0x14
+        int changed;                  // +0x18
+        char channels[0x520];         // +0x1c
+        int activeCount;              // +0x53c
+        char* state;                  // +0x540
+    """,
+    "ScriptChannel": """
+        unsigned int state;           // +0x0
+        int pc;                       // +0x4
+        int sp;                       // +0x8
+        int delay;                    // +0xc
+        int piece;                    // +0x10
+        int axis;                     // +0x14
+        int waiting;                  // +0x18
+        int signal;                   // +0x1c
+        char* callback;               // +0x20
+        char stack[0x80];             // +0x24
+    """,
+    "ScriptPiece": """
+        int active;                   // +0x0
+        int move[3];                  // +0x4
+        int moveSpeed[3];             // +0x10
+        int turn[3];                  // +0x1c
+        int turnSpeed[3];             // +0x28
+        int spin[3];                  // +0x34
+        int acceleration[3];          // +0x40
+    """,
+    "PieceTransform": """
+        int object;                   // +0x0
+        int translation[3];           // +0x4
+        unsigned short rotation[3];   // +0x10
+        Vec3 pos;                     // +0x16
+        int* sfxOffset;               // +0x22
+        short value;                  // +0x26
+        unsigned short flags;         // +0x28
+        char rest[12];                // +0x2a
+    """,
+})
 SYNTHETIC_SIZES: dict[str, int] = {
+    "Order": 0x56, "ApproachRadius": 0x14, "RingApproach": 0x1C, "PointMarker": 0x18, "PathOrder": 0x36,
+    "AirManeuverOrder": 0x2C, "UnitMotion": 0x2F, "PatrolGoal": 0x1C, "AiSearchGoal": 0x65, "PackedGoal": 0x28,
+    "ScriptState": 0x544, "ScriptChannel": 0xA4, "ScriptPiece": 0x4C, "PieceTransform": 0x36,
     "ExplodedPiece": 0x30, "PieceRec": 0x36, "Face": 0x20, "SpotObject": 0x30, "SpotAnim": 0x30,
     "Rec": 0xA, "Eye": 0x24, "Node": 0x14, "MovementClass": 0x20, "Pathfinder": 0xC9,
 }
@@ -468,7 +692,7 @@ def finish(schema, ctype, key):
         if mask:
             leaf["mask"] = mask[0]
         label = leaf["name"] or "+0x%x" % leaf["offset"]
-        if (key, label) in excluded or (key, "+0x%x" % leaf["offset"]) in excluded:
+        if (key, label) in excluded or (key, base_name(leaf)) in excluded or (key, "+0x%x" % leaf["offset"]) in excluded:
             continue
         out.append(leaf)
     return out, size
@@ -476,6 +700,10 @@ def finish(schema, ctype, key):
 
 def c_string(text):
     return '"%s"' % text
+
+
+def base_name(leaf):
+    return leaf["name"].split(".")[0].split("[")[0]
 
 
 def plan_of(fields):
@@ -513,7 +741,7 @@ def generate():
         "",
         "enum TraceKind { TF_SCALAR, TF_BYTES, TF_POINTER };",
         "enum TraceTarget { TT_NONE, TT_HEAP, TT_UNIT, TT_PLAYER, TT_UNITDEF, TT_WEAPONDEF, TT_PROJECTILE,",
-        "                   TT_FEATURE, TT_PIECE, TT_REC, TT_NODE, TT_MOVECLASS };",
+        "                   TT_FEATURE, TT_PIECE, TT_REC, TT_NODE, TT_MOVECLASS, TT_ORDER, TT_ORDERFX, TT_LINK };",
         "",
         "struct TraceField {",
         "    const char* name;",
@@ -548,13 +776,17 @@ def generate():
         emit_table(lines, "k%sFields" % key, fields, True)
         emit_table(lines, "k%sPlan" % key, plan, False)
         tables.append((key, len(fields), len(plan), size))
-    fields, size = finish(schema, "Pathfinder", "Pathfinder")
-    for key, part in (("Pathfinder", [f for f in fields if f["name"].split("[")[0] not in PATHFINDER_SEARCH_FIELDS]),
-                      ("PathfinderSearch", [f for f in fields if f["name"].split("[")[0] in PATHFINDER_SEARCH_FIELDS])):
-        plan = plan_of(part)
-        emit_table(lines, "k%sFields" % key, part, True)
-        emit_table(lines, "k%sPlan" % key, plan, False)
-        tables.append((key, len(part), len(plan), size))
+    for ctype, key in [("Pathfinder", "Pathfinder")] + HEAP_TYPES:
+        fields, size = finish(schema, ctype, key)
+        parts = SPLITS.get(key, [])
+        taken = set().union(*[names for _, names in parts]) if parts else set()
+        pieces = [(key, [f for f in fields if base_name(f) not in taken and f["name"] not in taken])]
+        pieces += [(part, [f for f in fields if base_name(f) in names or f["name"] in names]) for part, names in parts]
+        for part_key, part in pieces:
+            plan = plan_of(part)
+            emit_table(lines, "k%sFields" % part_key, part, True)
+            emit_table(lines, "k%sPlan" % part_key, plan, False)
+            tables.append((part_key, len(part), len(plan), size))
     for key, nf, npl, size in tables:
         lines.append("static const TraceTable k%sTable = { k%sFields, %d, k%sPlan, %d, 0x%x };"
                      % (key, key, nf, key, npl, size))

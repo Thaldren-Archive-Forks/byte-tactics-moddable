@@ -279,6 +279,7 @@ void __cdecl GameReallocTagged(void* block, int unused_param_2, unsigned int siz
 
 void* __cdecl ReallocDebugBlock(void* p, unsigned int size, int flags);
 void __cdecl CountFree(int size);
+int HarnessTestMode();
 
 // The original calls this out of line from GameReallocTagged.
 #pragma auto_inline(off)
@@ -287,6 +288,9 @@ void* __cdecl GameRealloc(void* block, unsigned int size)
 {
     CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
     EnterCriticalSection(cs);
+    size_t grownFrom = 0;
+    if (HarnessTestMode())
+        grownFrom = GetBlockSize(block);
     void* p;
     do {
         if (IsMemFussy()) {
@@ -307,6 +311,8 @@ void* __cdecl GameRealloc(void* block, unsigned int size)
         if (p == 0 && size != 0 && g_outOfMemoryHandler != 0)
             g_outOfMemoryHandler();
     } while (p == 0 && size != 0 && g_outOfMemoryHandler != 0);
+    if (HarnessTestMode() && p != 0 && IsMemSet() && size > grownFrom)
+        FillPattern((char*)p + grownFrom, GetMemSetValue(), size - grownFrom);
     LeaveCriticalSection(cs);
     return p;
 }

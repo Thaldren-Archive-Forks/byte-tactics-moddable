@@ -9,6 +9,7 @@ ai,features,shared_write,Vec3::z,7
 ai,game,shared_write,Unit::flags,3
 ai,game,shared_write,Vec3::x,2
 ai,game,shared_write,Vec3::z,2
+ai,harness,call,HarnessZeroVec3,1
 ai,los_radar,call,GetMapCell,1
 ai,los_radar,call,IsUnitVisibleToPlayer,1
 ai,los_radar,shared_write,Unit::flags,5
@@ -1966,6 +1967,7 @@ platform,game,indirect,OutOfMemoryHandler,6
 platform,game,shared_write,Game::animplayCursorCount,1
 platform,game,shared_write,Game::animplayCursors,1
 platform,game,shared_write,_MEMORYSTATUS::dwLength,1
+platform,harness,call,HarnessTestMode,1
 platform,harness,shared_write,g_randomSeed,1
 platform,los_radar,call,DestroyLine,1
 platform,los_radar,call,DestroyPoint,1

@@ -94,7 +94,7 @@ game state after each phase of each tick, then a hash of the world tables, flush
 every tick. LF line endings.
 
 ```
-bt-trace 2
+bt-trace 3
 commit <40-hex sha from commit.txt beside the exe, or unknown>
 scenario <path as given to -testmode>
 game_seed <n>
@@ -118,7 +118,23 @@ per phase, because they are large and no phase owns them:
 - the pathfinder: the object, its node pool (used nodes only, in pool order, with the
   open heap as node IDs), the `PathCell` groups whose dirty bit is set, and the per-player
   budget globals;
-- the movement classes and their pass maps.
+- the movement classes and their pass maps;
+- the heap objects of the units (format 3), walked in unit index order and numbered as the
+  walk meets them:
+  - each unit's order chains (`Unit.list`, then `list2`), every order with all its fields
+    except the vtables, `cached` and bit `0x200000` of its flags (only the draw path writes
+    and reads them), and the head of the unit's link list;
+  - each unit's `UnitMotion` and its goal object (`PatrolGoal`, `AiSearchGoal`, `LiteGoal` or
+    `PackedPosGoal`, with the live waypoints only);
+  - the order effects (`ApproachRadius`, `RingApproach`, `PointMarker`, `PathOrder` and
+    `AirManeuverOrder`) that orders and goals point at, once each, with the fields the
+    class reads in its current state;
+  - each unit's `UnitScript`: the header, every channel that is not idle with its stack up
+    to `sp`, the statics, the script piece records, and the piece transforms of `Unit.state`
+    (translation, rotation, visible, cached, shaded).
+
+  They are in the world row, not the per-phase tables, because a script alone is over a
+  kilobyte, and a divergence there names the tick and the section, not the phase.
 
 The hash is 64-bit FNV-1a over a canonical serialisation of that state: 8-byte
 little-endian words first, then the remaining bytes one at a time (so the result does not
@@ -144,7 +160,7 @@ A dump of a large map is large: the cells, the explored grids and the pass maps
 are one line per record.
 
 ```
-bt-dump 2
+bt-dump 3
 <tick> <phase> <path> <value>
 ```
 
@@ -156,7 +172,14 @@ Paths are `gameTick`, `rng.parkMiller`, `rng.crtHoldrand`, `units[i].<field>`,
 `players[i].explored[k]`, `spatial[i].<field>`, `eyes[i].<field>`,
 `pathfinder.<field>` (with `.pool[k]`, `.heap[k]`, `.dirty[w]`, `.cells[k].flags`),
 `pathfinder.playerTickLoad` and the other budget globals, `moveClasses[i].<field>` and
-`moveClasses[i].passMap[k]`. Every phase dumps all of them, not only its own subsystem's.
+`moveClasses[i].passMap[k]`, and for the unit heap objects `units[i].head`,
+`units[i].list[k].<field>` and `units[i].list2[k].<field>`, `units[i].motion.<field>` with
+`units[i].motion.goal.class` (0 none, 1 patrol, 2 AI search, 3 packed, 4 lite, 5 packed
+position, any other value is an unknown class, dumped as `vtableDelta`) and `.goal.<field>`
+and `.goal.points`, `orderFx[id].<field>` with `orderFx[id].class` (1 approach radius, 2 ring
+approach, 3 point marker, 4 path order, 5 air maneuver), and `units[i].script.<field>`,
+`.channels[c].<field>` and `.channels[c].stack`, `.statics`, `.pieces[p].<field>` and
+`.transforms[p].<field>`. Every phase dumps all of them, not only its own subsystem's.
 
 A field that differs between two builds is the same `<tick> <phase> <path>`
 with another `<value>`. Scalars are `0x` and the field's bytes as one hex
@@ -168,8 +191,10 @@ A pointer is dumped as an ID, never an address: `null`, `<array>:<index>`
 (`unit:12`, `player:3`, `unitdef:41`, `weapondef:7`, `projectile:5`,
 `feature:9`, `piece:20`, `rec:17` for a cell of the spatial grid (`rec:overflow` for the
 overflow record), `node:3` for a pathfinder node's pool index, `moveclass:2` for an
-entry of the movement class table), or `heap` for a non-null pointer into no array that
-has stable indexes. Indexes are the stable ones: unit pool index, projectile
+entry of the movement class table, `order:5`, `orderfx:2` and `link:5` for the order, order
+effect and link IDs of the unit heap objects, numbered as the walk of the units meets them
+(a `link` ID above `2147483648` is the link inside order effect `ID - 2147483648`)), or `heap`
+for a non-null pointer into no array that has stable indexes. Indexes are the stable ones: unit pool index, projectile
 array index, and so on.
 
 ## Comparing two builds
@@ -250,8 +275,8 @@ per tick (the 7 phases `units` to `meteors`, since `net` does not run, then `wor
 The file:
 
 ```
-bt-digest 2
-trace_format bt-trace 2
+bt-digest 3
+trace_format bt-trace 3
 commit <sha of the build that produced it>
 scenario reference/scenarios/<name>.txt
 game_seed <n>

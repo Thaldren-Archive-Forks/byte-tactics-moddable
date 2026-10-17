@@ -7,8 +7,8 @@ trace order (the phases, then `world`), each hash as 8 little-endian bytes. The 
 the trace (the trace format, commit, scenario, seeds and fpu_control_word), then
 one `<tick> <digest>` line per tick, the digest in 16 lowercase hex digits.
 
-    bt-digest 2
-    trace_format bt-trace 2
+    bt-digest 3
+    trace_format bt-trace 3
     commit <sha>
     scenario reference/scenarios/skirmish2.txt
     game_seed 1
