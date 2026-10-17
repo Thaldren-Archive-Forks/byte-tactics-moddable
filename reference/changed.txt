@@ -1,3 +1,4 @@
+0x408100 ScoutTimer::OnTimer
 0x418310 DrawMapDebugOverlay
 0x41c6f0 UpdateScreenShake
 0x421620 StartExplodePiece
