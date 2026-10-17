@@ -646,7 +646,6 @@ static const TraceField kOrderFields[] = {
     { "linkNext", 0x1a, 4, TF_POINTER, TT_LINK, 0x0 },
     { "linkValue", 0x1e, 4, TF_POINTER, TT_ORDER, 0x0 },
     { "pos.x", 0x22, 4, TF_SCALAR, TT_NONE, 0x0 },
-    { "pos.y", 0x26, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "pos.z", 0x2a, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "start.x", 0x2e, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "start.y", 0x30, 2, TF_SCALAR, TT_NONE, 0x0 },
@@ -665,12 +664,21 @@ static const TraceField kOrderPlan[] = {
     { "", 0x16, 4, TF_POINTER, TT_UNIT, 0x0 },
     { "", 0x1a, 4, TF_POINTER, TT_LINK, 0x0 },
     { "", 0x1e, 4, TF_POINTER, TT_ORDER, 0x0 },
-    { "", 0x22, 16, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x22, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "", 0x2a, 8, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x36, 12, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x42, 4, TF_SCALAR, TT_NONE, 0xffdfffff },
     { "", 0x46, 4, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x4e, 4, TF_BYTES, TT_NONE, 0x0 },
     { "", 0x52, 4, TF_POINTER, TT_ORDERFX, 0x0 },
+};
+
+static const TraceField kOrderPosYFields[] = {
+    { "pos.y", 0x26, 4, TF_SCALAR, TT_NONE, 0x0 },
+};
+
+static const TraceField kOrderPosYPlan[] = {
+    { "", 0x26, 4, TF_BYTES, TT_NONE, 0x0 },
 };
 
 static const TraceField kApproachRadiusFields[] = {
@@ -956,7 +964,8 @@ static const TraceTable kNodeTable = { kNodeFields, 6, kNodePlan, 2, 0x14 };
 static const TraceTable kMoveClassTable = { kMoveClassFields, 13, kMoveClassPlan, 4, 0x20 };
 static const TraceTable kPathfinderTable = { kPathfinderFields, 28, kPathfinderPlan, 21, 0xc9 };
 static const TraceTable kPathfinderSearchTable = { kPathfinderSearchFields, 11, kPathfinderSearchPlan, 6, 0xc9 };
-static const TraceTable kOrderTable = { kOrderFields, 20, kOrderPlan, 11, 0x56 };
+static const TraceTable kOrderTable = { kOrderFields, 19, kOrderPlan, 12, 0x56 };
+static const TraceTable kOrderPosYTable = { kOrderPosYFields, 1, kOrderPosYPlan, 1, 0x56 };
 static const TraceTable kApproachRadiusTable = { kApproachRadiusFields, 5, kApproachRadiusPlan, 2, 0x14 };
 static const TraceTable kRingApproachTable = { kRingApproachFields, 7, kRingApproachPlan, 2, 0x1c };
 static const TraceTable kPointMarkerTable = { kPointMarkerFields, 5, kPointMarkerPlan, 2, 0x18 };

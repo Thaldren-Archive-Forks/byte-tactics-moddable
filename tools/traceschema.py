@@ -97,6 +97,7 @@ SPLITS: dict[str, list[tuple[str, set[str]]]] = {
     "PathOrder": [("PathOrderHeading", {"heading"}), ("PathOrderPiece", {"piece"}),
                   ("PathOrderFollow", {"followOffset"})],
     "AirManeuverOrder": [("AirManeuverOrderHeading", {"heading"})],
+    "Order": [("OrderPosY", {"pos.y"})],
     "PackedGoal": [("LiteGoalState", {"netDirty"})],
     "ScriptChannel": [("ScriptChannelDelay", {"delay"}), ("ScriptChannelWait", {"waiting"}),
                       ("ScriptChannelPiece", {"piece", "axis"})],
@@ -779,8 +780,8 @@ def generate():
         fields, size = finish(schema, ctype, key)
         parts = SPLITS.get(key, [])
         taken = set().union(*[names for _, names in parts]) if parts else set()
-        pieces = [(key, [f for f in fields if base_name(f) not in taken])]
-        pieces += [(part, [f for f in fields if base_name(f) in names]) for part, names in parts]
+        pieces = [(key, [f for f in fields if base_name(f) not in taken and f["name"] not in taken])]
+        pieces += [(part, [f for f in fields if base_name(f) in names or f["name"] in names]) for part, names in parts]
         for part_key, part in pieces:
             plan = plan_of(part)
             emit_table(lines, "k%sFields" % part_key, part, True)

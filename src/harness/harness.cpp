@@ -736,6 +736,9 @@ enum {
     UNIT_SCRIPT = 0x9a,
     UNIT_STATE = 0x9e,
     UNIT_HEAD = 0xa2,
+    ORDER_KIND = 0x4,
+    ORDER_TABLE_STRIDE = 0x19,
+    ORDER_TABLE_NAME = 0x15,
     ORDER_LINK = 0x12,
     ORDER_NEXT = 0x4a,
     ORDER_ATTACHED = 0x52,
@@ -1690,6 +1693,14 @@ static void NumberUnitHeap(unsigned char* units, unsigned count)
     }
 }
 
+extern Elem_0043c390* g_missionOrderTableBegin;
+
+static int OrderIsBuild(unsigned order)
+{
+    const char* name = (const char*)ReadU32At((unsigned)g_missionOrderTableBegin + *(const unsigned char*)(order + ORDER_KIND) * ORDER_TABLE_STRIDE, ORDER_TABLE_NAME);
+    return name != NULL && (strcmp(name, "MobileBuild") == 0 || strcmp(name, "VTOL_MobileBuild") == 0);
+}
+
 static void VisitOrders(unsigned char* units, unsigned count)
 {
     char path[96];
@@ -1709,6 +1720,8 @@ static void VisitOrders(unsigned char* units, unsigned count)
                 if (s_dumpNow)
                     sprintf(path, "units[%u].%s[%u]", i, which == 0 ? "list" : "list2", n);
                 VisitElement(path, (const unsigned char*)order, &kOrderTable);
+                if (!OrderIsBuild(order))
+                    VisitElement(path, (const unsigned char*)order, &kOrderPosYTable);
                 order = ReadU32At(order, ORDER_NEXT);
             }
             HashByte(0);

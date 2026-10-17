@@ -45881,6 +45881,11 @@ address,function,file,kind,target
 ,OrderFx::OrderFx,src/orders/order_targets.cpp,field_write,OrderFx::vtable
 ,OrderFx::OrderFx,src/orders/order_targets.cpp,function,
 ,OrderFx::OrderFx,src/orders/order_targets.cpp,global_escape,g_orderFxVtable
+,OrderIsBuild,src/harness/harness.cpp,call,ReadU32At
+,OrderIsBuild,src/harness/harness.cpp,call,strcmp
+,OrderIsBuild,src/harness/harness.cpp,deref_read,*unsigned char
+,OrderIsBuild,src/harness/harness.cpp,function,
+,OrderIsBuild,src/harness/harness.cpp,global_read,g_missionOrderTableBegin
 ,OrderTarget,src/orders/vtol_orders.cpp,field_read,Link_004895c0::owner
 ,OrderTarget,src/orders/vtol_orders.cpp,function,
 ,OrderTarget,src/orders/vtol_orders_40fbe0.cpp,field_read,Order::target
@@ -48649,12 +48654,14 @@ address,function,file,kind,target
 ,VisitOrders,src/harness/harness.cpp,call,EndSection
 ,VisitOrders,src/harness/harness.cpp,call,HashByte
 ,VisitOrders,src/harness/harness.cpp,call,HashU32
+,VisitOrders,src/harness/harness.cpp,call,OrderIsBuild
 ,VisitOrders,src/harness/harness.cpp,call,ReadU32At
 ,VisitOrders,src/harness/harness.cpp,call,UnitIsLive
 ,VisitOrders,src/harness/harness.cpp,call,VisitElement
 ,VisitOrders,src/harness/harness.cpp,call,VisitPointer
 ,VisitOrders,src/harness/harness.cpp,call,sprintf
 ,VisitOrders,src/harness/harness.cpp,function,
+,VisitOrders,src/harness/harness.cpp,global_read,kOrderPosYTable@src/harness/trace_schema.h
 ,VisitOrders,src/harness/harness.cpp,global_read,kOrderTable@src/harness/trace_schema.h
 ,VisitOrders,src/harness/harness.cpp,global_read,s_dumpNow@src/harness/harness.cpp
 ,VisitPassMaps,src/harness/harness.cpp,call,EndSection
