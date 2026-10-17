@@ -88,6 +88,7 @@ ALLOWLIST: dict[tuple[int, str], str] = {
     (0x4948e0, "GetTicks"): UI_TIME,
     (0x497180, "QueryPerformanceCounter"): LOAD_TIME,
     (0x497180, "time"): LOAD_TIME,
+    (0x49be60, "HarnessViewRand"): VIEW_ONLY,
     (0x4a2e40, "GetTicks"): UI_TIME,
     (0x4a3780, "GetTicks"): UI_TIME,
     (0x4a4440, "GetTicks"): UI_TIME,

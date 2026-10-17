@@ -26,6 +26,7 @@
 0x495230 UpdateFramePacing
 0x495490 RunGameSteps
 0x497180 LoadMatch
+0x49be60 DrawProjectiles
 0x49e830 GameMain
 0x4cdb40 Sound::PlayNextTrack
 0x4d84c0 GameRealloc

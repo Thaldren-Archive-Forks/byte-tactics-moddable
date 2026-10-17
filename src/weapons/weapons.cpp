@@ -3120,6 +3120,7 @@ void __stdcall DrawLens(void* dest, void* src, int x, int y);
 void __stdcall DrawLine(void* dest, int x1, int y1, int x2, int y2, unsigned int color);
 int __stdcall GetGafFrameCount(void* gaf);
 int __stdcall IsPointVisible(PlayerInfo_0049be60* pi, Vec3* pos);
+int HarnessViewRand();
 
 // The projectile render pass: it walks the projectile array and draws every
 // live projectile (counter 0) that the local player can see, by the shot kind
@@ -3313,11 +3314,11 @@ void __stdcall DrawProjectiles(void* surface)
                                         sp.z += d.z;
                                         pt = sp;
                                         *(short*)((char*)&pt + 2) +=
-                                            (short)((int)(((__int64)rand() * 11) / 0x8000) - 5);
+                                            (short)((int)(((__int64)HarnessViewRand() * 11) / 0x8000) - 5);
                                         *(short*)((char*)&pt + 6) +=
-                                            (short)((int)(((__int64)rand() * 11) / 0x8000) - 5);
+                                            (short)((int)(((__int64)HarnessViewRand() * 11) / 0x8000) - 5);
                                         *(short*)((char*)&pt + 10) +=
-                                            (short)((int)(((__int64)rand() * 11) / 0x8000) - 5);
+                                            (short)((int)(((__int64)HarnessViewRand() * 11) / 0x8000) - 5);
                                         DrawLine(surface,
                                             (int)*(short*)(2 + (char*)&prev) - (short)g_game->scrollX + 0x80,
                                             ((int)*(short*)(10 + (char*)&prev)
