@@ -10,6 +10,7 @@ ai,game,shared_write,Unit::flags,3
 ai,game,shared_write,Vec3::x,2
 ai,game,shared_write,Vec3::z,2
 ai,harness,call,HarnessZeroVec3,1
+ai,harness,shared_write,g_playerAI,1
 ai,los_radar,call,GetMapCell,1
 ai,los_radar,call,IsUnitVisibleToPlayer,1
 ai,los_radar,shared_write,Unit::flags,5
