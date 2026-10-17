@@ -840,14 +840,14 @@ static const TraceField kAiSearchGoalFields[] = {
     { "owner", 0x8, 4, TF_POINTER, TT_UNIT, 0x0 },
     { "count", 0x5c, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "repathClaimTick", 0x60, 4, TF_SCALAR, TT_NONE, 0x0 },
-    { "flags", 0x64, 1, TF_SCALAR, TT_NONE, 0xf },
+    { "flags", 0x64, 1, TF_SCALAR, TT_NONE, 0xb },
 };
 
 static const TraceField kAiSearchGoalPlan[] = {
     { "", 0x4, 4, TF_POINTER, TT_ORDERFX, 0x0 },
     { "", 0x8, 4, TF_POINTER, TT_UNIT, 0x0 },
     { "", 0x5c, 8, TF_BYTES, TT_NONE, 0x0 },
-    { "", 0x64, 1, TF_SCALAR, TT_NONE, 0xf },
+    { "", 0x64, 1, TF_SCALAR, TT_NONE, 0xb },
 };
 
 static const TraceField kPackedGoalFields[] = {

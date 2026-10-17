@@ -124,7 +124,7 @@ MASKS: dict[tuple[str, int], tuple[int, str]] = {
     ("ExplodedPiece", 0x28): (0x3F, "bits 6 to 31 are never written; StartExplodePiece copies them from an uninitialised stack header"),
     ("Order", 0x42): (0xFFDFFFFF, "bit 0x200000 is set by DrawWeaponCoverage (markers.cpp:564) and read only there (markers.cpp:556)"),
     ("UnitMotion", 0x2E): (0x07, "bits 3 to 7 are never written; the constructor sets mode and flag (order_list.cpp:2096)"),
-    ("AiSearchGoal", 0x64): (0x0F, "bits 4 to 7 are never written"),
+    ("AiSearchGoal", 0x64): (0x0B, "bits 4 to 7 are never written; bit 2 is unset by the constructor and read only after SerializeNetUnitState writes it"),
     ("PackedGoal", 0x27): (0x07, "bits 3 to 7 are never written"),
     ("PieceTransform", 0x28): (0x07, "bits 3 to 15 are never written; SaveScriptState saves visible, cached and shaded"),
 }
