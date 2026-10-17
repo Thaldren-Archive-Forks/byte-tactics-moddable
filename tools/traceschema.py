@@ -86,6 +86,68 @@ EXCLUSIONS: list[tuple[str, str, str]] = [
     ("PieceTransform", "sfxOffset", "points at constant model data"),
     ("PieceTransform", "value", "a cache cleared when the piece changes"),
     ("PieceTransform", "rest", "bytes 0x2a to 0x35, which nothing in the script or the sim writes"),
+    ("PlayerAI", "visible", "the visit hashes the size and the unit IDs it holds"),
+    ("PlayerAI", "known", "the visit hashes the size and the unit IDs it holds"),
+    ("PlayerAI", "factories", "the visit hashes the size and the unit IDs it holds"),
+    ("PlayerAI", "cells", "the visit hashes the size and the elements it holds, never the begin and end pointers"),
+    ("PlayerAI", "vec_65", "the visit hashes the size and the elements it holds"),
+    ("PlayerAI", "counts", "the visit hashes the size and the elements it holds"),
+    ("PlayerAI", "vec_8d", "the visit hashes the size and the elements it holds"),
+    ("PlayerAI", "weights", "the visit hashes the size and the elements it holds"),
+    ("PlayerAI", "vec_ad", "the visit hashes the size and the elements it holds"),
+    ("PlayerAI", "vec_bd", "the visit hashes the size and the elements it holds"),
+    ("PlayerAI", "values", "the visit hashes the size and the elements it holds"),
+    ("PlayerAI", "locked", "the visit hashes the size and the elements it holds"),
+    ("SquadManager", "timers", "the visit hashes the class and the fields of each timer"),
+    ("SquadTimer", "vptr", "the class is hashed as a tag"),
+    ("SquadTimer", "manager", "points back at the SquadManager that owns the timer"),
+    ("SquadTimer", "group", "points into the Player's own groups, which the Player table hashes"),
+    ("AssaultTimer", "vptr", "the class is hashed as a tag"),
+    ("AssaultTimer", "manager", "points back at the SquadManager that owns the timer"),
+    ("AssaultTimer", "group", "points into the Player's own groups, which the Player table hashes"),
+    ("EscortTimer", "vptr", "the class is hashed as a tag"),
+    ("EscortTimer", "manager", "points back at the SquadManager that owns the timer"),
+    ("EscortTimer", "group", "points into the Player's own groups, which the Player table hashes"),
+    ("SpatialTimer", "vptr", "the class is hashed as a tag"),
+    ("SpatialTimer", "manager", "points back at the SquadManager that owns the timer"),
+    ("SpatialTimer", "group", "points into the Player's own groups, which the Player table hashes"),
+    ("Squad", "items", "the visit hashes the size and the unit IDs it holds, never the begin and end pointers"),
+    ("MissionConditions", "victory", "the visit walks the condition objects"),
+    ("MissionConditions", "defeat", "the visit walks the condition objects"),
+    ("MissionCondition", "vptr", "the class is hashed as a tag"),
+    ("ConditionNumUnits", "head", "the MissionCondition table hashes these bytes"),
+    ("ConditionNumLeft", "head", "the MissionCondition table hashes these bytes"),
+    ("MissionData", "text", "campaign, map names, descriptions and file names: nothing in a phase reads them"),
+    ("MissionData", "minWindSpeed", "Game.windSpeedMin is the traced copy"),
+    ("MissionData", "maxWindSpeed", "Game.windSpeedMax is the traced copy"),
+    ("MissionData", "units", "the visit hashes the unit records and their names"),
+    ("MissionData", "rules", "the visit hashes the rule records"),
+    ("MissionData", "features", "the visit hashes the feature records and their names"),
+    ("MissionData", "tail", "the memory and player count strings of the lobby: nothing in a phase reads them"),
+    ("WeaponDefData", "description", "text shown to the player"),
+    ("WeaponDefData", "fire", "SetWeaponFireHandler derives it from the flags"),
+    ("WeaponDefData", "table", "the visit hashes the damage entries it points at"),
+    ("WeaponDefData", "model", "render asset pointer"),
+    ("WeaponDefData", "explosionSeq", "render asset pointer"),
+    ("WeaponDefData", "splash", "render asset pointer"),
+    ("WeaponDefData", "modelName", "name of the render model"),
+    ("WeaponDefData", "shakeMagnitude", "screen shake, read only by drawing"),
+    ("WeaponDefData", "shakeDuration", "screen shake, read only by drawing"),
+    ("WeaponDefData", "sound", "sound index, read only by sound playback"),
+    ("WeaponDefData", "soundHit", "sound index, read only by sound playback"),
+    ("WeaponDefData", "soundWater", "sound index, read only by sound playback"),
+    ("WeaponDefData", "pad100", "unnamed bytes no code reads or writes"),
+    ("WeaponDefData", "shotKind", "how the shot is drawn"),
+    ("WeaponDefData", "colour", "palette index of the line"),
+    ("WeaponDefData", "colour2", "palette index of the second line"),
+    ("WeaponDefData", "pad10f", "unnamed bytes no code reads or writes"),
+    ("UnitDefData", "description", "text shown to the player"),
+    ("UnitDefData", "data", "the loaded COB script: constant, read from the files"),
+    ("UnitDefData", "soundcategory", "sound selection, read only by sound playback"),
+    ("UnitDefData", "yardmap", "the visit hashes the footprint it points at"),
+    ("UnitDefData", "ids", "the visit hashes the build list it points at"),
+    ("UnitDefData", "weaponCategories", "the visit hashes the masks they point at"),
+    ("UnitDefData", "categories", "the visit hashes the mask it points at"),
 ]
 
 PATHFINDER_SEARCH_FIELDS = {
@@ -99,6 +161,7 @@ SPLITS: dict[str, list[tuple[str, set[str]]]] = {
     "AirManeuverOrder": [("AirManeuverOrderHeading", {"heading"})],
     "Order": [("OrderPosY", {"pos.y"})],
     "PackedGoal": [("LiteGoalState", {"netDirty"})],
+    "MissionData": [("MissionStartRest", {"startMetalRest", "startEnergyRest"})],
     "ScriptChannel": [("ScriptChannelDelay", {"delay"}), ("ScriptChannelWait", {"waiting"}),
                       ("ScriptChannelPiece", {"piece", "axis"})],
 }
@@ -118,6 +181,21 @@ HEAP_TYPES: list[tuple[str, str]] = [
     ("ScriptChannel", "ScriptChannel"),
     ("ScriptPiece", "ScriptPiece"),
     ("PieceTransform", "PieceTransform"),
+    ("PlayerAI", "PlayerAI"),
+    ("SquadManager", "SquadManager"),
+    ("SquadTimer", "SquadTimer"),
+    ("AssaultTimer", "AssaultTimer"),
+    ("EscortTimer", "EscortTimer"),
+    ("SpatialTimer", "SpatialTimer"),
+    ("Squad", "Squad"),
+    ("UnitResources", "UnitResources"),
+    ("MissionConditions", "MissionConditions"),
+    ("MissionCondition", "MissionCondition"),
+    ("ConditionNumUnits", "ConditionNumUnits"),
+    ("ConditionNumLeft", "ConditionNumLeft"),
+    ("MissionData", "MissionData"),
+    ("WeaponDefData", "WeaponDefData"),
+    ("UnitDefData", "UnitDefData"),
 ]
 
 MASKS: dict[tuple[str, int], tuple[int, str]] = {
@@ -432,7 +510,289 @@ SYNTHETIC.update({
         char rest[12];                // +0x2a
     """,
 })
+SYNTHETIC.update({
+    "PlayerAI": """
+        Player* owner;                // +0x0
+        unsigned char index;          // +0x4
+        char visible[16];             // +0x5
+        char known[16];               // +0x15
+        char factories[16];           // +0x25
+        Vec3 centre;                  // +0x35
+        Vec3 pos_41;                  // +0x41
+        char cells[16];               // +0x4d
+        Point16 center;               // +0x5d
+        int centerPad;                // +0x61
+        char vec_65[16];              // +0x65
+        int builders;                 // +0x75
+        int hasSpecial;               // +0x79
+        char counts[16];              // +0x7d
+        char vec_8d[16];              // +0x8d
+        char weights[16];             // +0x9d
+        char vec_ad[16];              // +0xad
+        char vec_bd[16];              // +0xbd
+        char values[16];              // +0xcd
+        char locked[16];              // +0xdd
+        unsigned int lastTick;        // +0xed
+        Point16 spacing0;             // +0xf1
+        Point16 offset0;              // +0xf5
+        int margin0;                  // +0xf9
+        Point16 spacing1;             // +0xfd
+        Point16 offset1;              // +0x101
+        int margin1;                  // +0x105
+        int searchRadius;             // +0x109
+    """,
+    "SquadManager": """
+        Player* player;               // +0x0
+        unsigned char index;          // +0x4
+        int countdown;                // +0x5
+        int unused_9;                 // +0x9
+        int nextAction;               // +0xd
+        char timers[0x28];            // +0x11
+        Unit* cursor;                 // +0x39
+    """,
+    "SquadTimer": """
+        char vptr[4];                 // +0x0
+        char manager[4];              // +0x4
+        char group[4];                // +0x8
+        int next;                     // +0xc
+        unsigned int player;          // +0x10
+    """,
+    "AssaultTimer": """
+        char vptr[4];                 // +0x0
+        char manager[4];              // +0x4
+        char group[4];                // +0x8
+        int next;                     // +0xc
+        unsigned int player;          // +0x10
+        int minimum;                  // +0x14
+        int maximum;                  // +0x18
+        int limit;                    // +0x1c
+        int kind;                     // +0x20
+        int attacking;                // +0x24
+    """,
+    "EscortTimer": """
+        char vptr[4];                 // +0x0
+        char manager[4];              // +0x4
+        char group[4];                // +0x8
+        int next;                     // +0xc
+        unsigned int player;          // +0x10
+        int other;                    // +0x14
+    """,
+    "SpatialTimer": """
+        char vptr[4];                 // +0x0
+        char manager[4];              // +0x4
+        char group[4];                // +0x8
+        int next;                     // +0xc
+        unsigned int player;          // +0x10
+        Vec3 best;                    // +0x14
+        Vec3 probe;                   // +0x20
+        Vec3 step;                    // +0x2c
+        int bestRating;               // +0x38
+    """,
+    "Squad": """
+        Player* owner;                // +0x0
+        int index;                    // +0x4
+        int field_8;                  // +0x8
+        int field_c;                  // +0xc
+        char items[16];               // +0x10
+    """,
+    "UnitResources": """
+        float energyMake;             // +0x0
+        float energyUse;              // +0x4
+        float energyUsePaid;          // +0x8
+        float energyStall;            // +0xc
+        float energyMakePrev;         // +0x10
+        float energyUsePrev;          // +0x14
+        float metalMake;              // +0x18
+        float metalUse;               // +0x1c
+        float metalUsePaid;           // +0x20
+        float metalStall;             // +0x24
+        float metalMakePrev;          // +0x28
+        float metalUsePrev;           // +0x2c
+        Player* player;               // +0x30
+    """,
+    "MissionConditions": """
+        char victory[0x40];           // +0x0
+        int victoryCount;             // +0x40
+        char defeat[0x40];            // +0x44
+        int defeatCount;              // +0x84
+        int active;                   // +0x88
+    """,
+    "MissionCondition": """
+        char vptr[4];                 // +0x0
+        int satisfied;                // +0x4
+        int celebrated;               // +0x8
+    """,
+    "ConditionNumUnits": """
+        char head[0x10];              // +0x0
+        int numUnits;                 // +0x10
+    """,
+    "ConditionNumLeft": """
+        char head[0x2c];              // +0x0
+        int numLeftToKill;            // +0x2c
+    """,
+    "MissionData": """
+        int type;                     // +0x0
+        char text[0xd28];             // +0x4
+        int multi;                    // +0xd2c
+        int threshold;                // +0xd30
+        int minWindSpeed;             // +0xd34
+        int maxWindSpeed;             // +0xd38
+        int gravity;                  // +0xd3c
+        float tidalStrength;          // +0xd40
+        int lavaWorld;                // +0xd44
+        int noSeaLevelTrigger;        // +0xd48
+        int waterDoesDamage;          // +0xd4c
+        int waterDamage;              // +0xd50
+        float killMul;                // +0xd54
+        float timeMul;                // +0xd58
+        float startMetal[2];          // +0xd5c
+        char startMetalRest[32];      // +0xd64
+        float startEnergy[2];         // +0xd84
+        char startEnergyRest[32];     // +0xd8c
+        char* units;                  // +0xdac
+        int unitCount;                // +0xdb0
+        char* rules;                  // +0xdb4
+        int ruleCount;                // +0xdb8
+        char* features;               // +0xdbc
+        int featureCount;             // +0xdc0
+        char tail[0x100];             // +0xdc4
+    """,
+    "WeaponDefData": """
+        char name[0x20];              // +0x0
+        char description[0x40];       // +0x20
+        char* fire;                   // +0x60
+        char* table;                  // +0x64
+        int speed;                    // +0x68
+        int startSpeed;               // +0x6c
+        int acceleration;             // +0x70
+        char* model;                  // +0x74
+        char* explosionSeq;           // +0x78
+        char* splash;                 // +0x7c
+        char modelName[0x40];         // +0x80
+        float energyPerShot;          // +0xc0
+        float metalPerShot;           // +0xc4
+        float pitch;                  // +0xc8
+        int shakeMagnitude;           // +0xcc
+        int shakeDuration;            // +0xd0
+        unsigned short damage;        // +0xd4
+        unsigned short areaOfEffect;  // +0xd6
+        float edgeDamage;             // +0xd8
+        int range;                    // +0xdc
+        int coverage;                 // +0xe0
+        unsigned short reloadTime;    // +0xe4
+        unsigned short lifetime;      // +0xe6
+        unsigned short turnRate;      // +0xe8
+        unsigned short burst;         // +0xea
+        unsigned short burstRate;     // +0xec
+        unsigned short spread;        // +0xee
+        unsigned short duration;      // +0xf0
+        unsigned short lifeRand;      // +0xf2
+        unsigned short sound;         // +0xf4
+        unsigned short soundHit;      // +0xf6
+        unsigned short soundWater;    // +0xf8
+        unsigned short smokeRate;     // +0xfa
+        unsigned short flightTime;    // +0xfc
+        unsigned short holdTime;      // +0xfe
+        char pad100[4];               // +0x100
+        short accuracy;               // +0x104
+        unsigned short tolerance;     // +0x106
+        unsigned short pitchTolerance; // +0x108
+        unsigned char index;          // +0x10a
+        unsigned char fireStarter;    // +0x10b
+        unsigned char shotKind;       // +0x10c
+        unsigned char colour;         // +0x10d
+        unsigned char colour2;        // +0x10e
+        char pad10f[2];               // +0x10f
+        unsigned int flags;           // +0x111
+    """,
+    "UnitDefData": """
+        char name[0x20];              // +0x0
+        char unitname[0x20];          // +0x20
+        char description[0x40];       // +0x40
+        char objectname[0x20];        // +0x80
+        char side[0x1e];              // +0xa0
+        char aiWeight[0x40];          // +0xbe
+        char aiLimit[0x40];           // +0xfe
+        unsigned int fbiChecksum;     // +0x13e
+        int scriptChecksum;           // +0x142
+        int weaponHashXor;            // +0x146
+        short footprintx;             // +0x14a
+        short footprintz;             // +0x14c
+        char* yardmap;                // +0x14e
+        int count;                    // +0x152
+        char* ids;                    // +0x156
+        int maxThisUnit;              // +0x15a
+        int modelBox[9];              // +0x15e
+        int radius;                   // +0x182
+        float energyCost;             // +0x186
+        float metalCost;              // +0x18a
+        char* data;                   // +0x18e
+        int maxvelocity;              // +0x192
+        int maxslopevelocity;         // +0x196
+        int brakerate;                // +0x19a
+        int acceleration;             // +0x19e
+        int bankscale;                // +0x1a2
+        int pitchscale;               // +0x1a6
+        int damagemodifier;           // +0x1aa
+        int moverate1;                // +0x1ae
+        int moverate2;                // +0x1b2
+        MovementClass* movementclass; // +0x1b6
+        short turnrate;               // +0x1ba
+        short corpse;                 // +0x1bc
+        short maxwaterdepth;          // +0x1be
+        short minwaterdepth;          // +0x1c0
+        float energymake;             // +0x1c2
+        float energyuse;              // +0x1c6
+        float metalmake;              // +0x1ca
+        float extractsMetal;          // +0x1ce
+        float windgenerator;          // +0x1d2
+        float tidalgenerator;         // +0x1d6
+        float cloakcost;              // +0x1da
+        float cloakcostmoving;        // +0x1de
+        float energystorage;          // +0x1e2
+        float metalstorage;           // +0x1e6
+        int buildtime;                // +0x1ea
+        WeaponDef* weapons[3];        // +0x1ee
+        unsigned int maxHealth;       // +0x1fa
+        unsigned short buildRate;     // +0x1fe
+        short healtime;               // +0x200
+        short range;                  // +0x202
+        short radardistance;          // +0x204
+        short sonardistance;          // +0x206
+        short mincloakdistance;       // +0x208
+        short radardistancejam;       // +0x20a
+        short sonardistancejam;       // +0x20c
+        short soundcategory;          // +0x20e
+        short buildangle;             // +0x210
+        unsigned short buildRange;    // +0x212
+        short maneuverleashlength;    // +0x214
+        unsigned short attackrunlength; // +0x216
+        short kamikazedistance;       // +0x218
+        short sortbias;               // +0x21a
+        short altitude;               // +0x21c
+        unsigned short id;            // +0x21e
+        WeaponDef* explodeas;         // +0x220
+        WeaponDef* selfdestructas;    // +0x224
+        unsigned char maxslope;       // +0x228
+        unsigned char maxwaterslope;  // +0x229
+        unsigned char capacity;       // +0x22a
+        char transportcapacity;       // +0x22b
+        unsigned char draft;          // +0x22c
+        unsigned char makesMetal;     // +0x22d
+        unsigned char buildMenuPageCount; // +0x22e
+        unsigned char mobile;         // +0x22f
+        char defaultmissiontype;      // +0x230
+        UnitTypeSet* weaponCategories[3]; // +0x231
+        UnitTypeSet* categories;      // +0x23d
+        unsigned int flags1;          // +0x241
+        unsigned int flags2;          // +0x245
+    """,
+})
 SYNTHETIC_SIZES: dict[str, int] = {
+    "PlayerAI": 0x10D, "SquadManager": 0x3D, "SquadTimer": 0x14, "AssaultTimer": 0x28, "EscortTimer": 0x18,
+    "SpatialTimer": 0x3C, "Squad": 0x20, "UnitResources": 0x34, "MissionConditions": 0x8C,
+    "MissionCondition": 0xC, "ConditionNumUnits": 0x14, "ConditionNumLeft": 0x30, "MissionData": 0xEC4,
+    "WeaponDefData": 0x115, "UnitDefData": 0x249,
     "Order": 0x56, "ApproachRadius": 0x14, "RingApproach": 0x1C, "PointMarker": 0x18, "PathOrder": 0x36,
     "AirManeuverOrder": 0x2C, "UnitMotion": 0x2F, "PatrolGoal": 0x1C, "AiSearchGoal": 0x65, "PackedGoal": 0x28,
     "ScriptState": 0x544, "ScriptChannel": 0xA4, "ScriptPiece": 0x4C, "PieceTransform": 0x36,
@@ -471,6 +831,7 @@ GAME_SCALARS: list[tuple[str, int, int, str | None, int]] = [
     ("mapFlags", 0x14281, 2, None, 0xFFF7),
     ("endGameCountdown", 0x39239, 2, None, 0),
     ("endGameFlags", 0x3923B, 2, None, 0),
+    ("uiOptionFlags", 0x37F2F, 2, None, 0x788),
 ]
 
 SCALAR_GLOBALS: list[tuple[str, str, int, str | None]] = [
