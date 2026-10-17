@@ -1,6 +1,6 @@
 bt-digest 3
 trace_format bt-trace 3
-commit e8eb21b89a83e537e7ae5b8bd451d7d8ad127c0c
+commit e30d2f42f76c3395ec8247243e7b02645c242f80
 scenario reference/scenarios/quad-fox-holes.txt
 game_seed 156
 crt_seed 1156
