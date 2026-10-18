@@ -46,35 +46,8 @@ void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 void* __cdecl GameAllocIgnoreTag(char* name, int size);
 
-#pragma pack(push, 1)
-class TdfRecord {
-public:
-    int* name;                                 // +0x0
-    std::vector<TdfRecord*> children;        // +0x4 (_First at +0x8)
-    char unknown_14;                           // +0x14
-    std::vector<Elem_004c2f60> entries;        // +0x15 (_First at +0x19)
-
-    TdfRecord(char* name, char* text, char** nextblock, char* path);
-
-    ~TdfRecord()
-    {
-        if (name)
-            GameFreeThunk(name);
-        for (TdfRecord** p = children.begin(); p < children.end(); p++)
-            delete *p;
-    }
-};
-#pragma pack(pop)
-
-class TdfFile {
-public:
-    TdfRecord* root;                     // +0x0
-    int current;                         // +0x4
-    int flags;                           // +0x8
-
-    int LoadFile(char* path);
-    void StripComments(char* p);
-};
+#include <new>
+#include "tdf.h"
 
 char* __stdcall HAPI_OpenFileRead(char* path);
 int __stdcall HAPI_CloseFile(char* file);

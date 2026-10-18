@@ -35,42 +35,8 @@ void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 void* __cdecl GameAllocIgnoreTag(char* name, int size);
 
-#pragma pack(push, 1)
-struct Inner_004c51b0 {
-    std::vector<TdfField> v;
-};
-
-struct Entries_004c51b0 {
-    Inner_004c51b0 v;
-};
-
-class TdfRecord {
-public:
-    int* name;                                 // +0x0
-    std::vector<TdfRecord*> children;        // +0x4
-    char unknown_14;                           // +0x14
-    Entries_004c51b0 entries;                  // +0x15
-
-    TdfRecord(char* name, char* text, char** nextblock, char* path);
-
-    ~TdfRecord()
-    {
-        if (name)
-            GameFreeThunk(name);
-        for (TdfRecord** p = children.begin(); p < children.end(); p++)
-            delete *p;
-    }
-};
-#pragma pack(pop)
-
-class TdfFile {
-public:
-    TdfRecord* root;                     // +0x0
-    int current;                           // +0x4
-    int flags;                             // +0x8
-    void LoadBuffer(char* data, int size, int flag, char* path);
-    void StripComments(char* p);
-};
+#include <new>
+#include "tdf.h"
 
 // Own file: needs its own view of TdfRecord (see the note in TdfFile, tdf.cpp).
 // FUNCTION: 0x4c3120

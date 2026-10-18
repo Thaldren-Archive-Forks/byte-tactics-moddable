@@ -7,8 +7,46 @@
 #ifndef TDF_H
 #define TDF_H
 
+#include <string.h>
+
+struct TdfField;
+class StringRef;
+class TdfRecord;
+
+#pragma pack(push, 1)
+struct TdfRecordList {
+    char unknown_0[4];
+    TdfRecord** first;                 // +0x4
+    TdfRecord** last;                  // +0x8
+    TdfRecord** end;                   // +0xc
+};
+
+struct TdfFieldList {
+    char unknown_0[4];
+    TdfField* first;                   // +0x4
+    TdfField* last;                    // +0x8
+    TdfField* end;                     // +0xc
+};
+
+struct TdfEntries {
+    char less;                         // +0x0
+    TdfFieldList v;                    // +0x1
+};
+
 class TdfRecord {
 public:
+    char* name;                             // +0x00
+    TdfRecordList children;                 // +0x04
+    TdfEntries entries;                     // +0x14
+    char* text;                             // +0x25
+
+    TdfRecord(char* name, char* text, char** nextblock, char* filename);
+    ~TdfRecord();
+
+    StringRef MakeTrimmedString(char* start, char* end);
+    TdfRecord* FindChild(char* key);
+    TdfRecord* GetChild(int index);
+    void ComputeRecordChecksum(char* start, char* end);
     TdfRecord* FindSubRecord(const char* name);
     int GetRecordName();
     char* GetFieldName(int index);
@@ -16,11 +54,13 @@ public:
     int* GetFieldFixed(int* dst, char* key, int def);
     int GetFieldInt(const char* name, int def);
     double GetFieldDouble(const char* name, double def);
-    int GetFieldString(char* dst, char* key, unsigned int size, char* def);
-    void CopyRecordName(char* dest, unsigned int count);
+    int GetFieldString(char* dst, char* key, size_t size, char* def);
+    void CopyRecordName(char* dest, size_t count);
     int GetSubRecordCount();
     TdfRecord* GetSubRecord(int index);
+    int GetFieldCount();
 };
+#pragma pack(pop)
 
 class TdfFile {
 public:
@@ -30,7 +70,16 @@ public:
 
     TdfFile();
     ~TdfFile();
+    int GetString(char* dst, char* key, int size, char* def)
+    {
+        return current->GetFieldString(dst, key, size, def);
+    }
+    int GetInt(char* key, int def) { return current->GetFieldInt(key, def); }
+    double GetDouble(char* key, double def) { return current->GetFieldDouble(key, def); }
+    char* GetValue(char* key) { return (char*)current->FindFieldValue(key); }
     int LoadFile(char* path);
+    void StripComments(char* p);
+    void LoadBuffer(char* data, int size, int flag, char* path);
     void Unload();
     int SelectRecord(char* name);
     int SelectRecordAt(int index);

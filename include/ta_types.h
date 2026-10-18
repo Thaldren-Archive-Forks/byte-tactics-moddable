@@ -671,7 +671,7 @@ struct Class_004bbd00_File;
 struct Class_004bbd00_Other;
 struct Class_004bce10;
 struct Class_004be010;
-class TdfFile;
+#include "../src/util/tdf.h"
 class Class_004c2f60;
 class Class_004c3240;
 class Class_004c33a0;
@@ -693,7 +693,6 @@ class Class_004c45e0;
 class Class_004c4630;
 class Class_004c4760;
 class Class_004c4800;
-class TdfRecord;
 class Class_004c5470;
 class Class_004c54a0;
 class Class_004c54d0;
@@ -4471,20 +4470,6 @@ public:
     void LoadBuffer(char*, int, int, char*);
 };
 
-class TdfRecord {       // 0x21 bytes, 66 views
-public:
-    char* name;  // +0x0
-    int unknown_4;  // +0x4
-    TdfRecord** first;       // +0x8
-    TdfRecord** last;       // +0xc
-    char unknown_10[9];
-    Entry* first_19;  // +0x19
-    Entry* last_1d;  // +0x1d
-    TdfRecord* FindChild(char*);
-    int GetFieldInt(char*, int);
-    int GetFieldString(char*, char*, unsigned int, char*);
-    void CopyRecordName(char*, unsigned int);
-};
 
 struct Grid {  // 0x10 bytes, 9 views
     unsigned char* cells;  // +0x0
@@ -5944,14 +5929,6 @@ struct Elem_00434a60 {  // 0x8 bytes, 1 view
     ~Elem_00434a60(void);
 };
 
-class TdfFile {         // 0xc bytes, 9 views
-public:
-    int field_0;  // +0x0
-    void* current;  // +0x4
-    int field_8;  // +0x8
-    TdfFile(void);
-    ~TdfFile(void);
-};
 
 class Class_00434f70 {  // 0xdc4 bytes, 1 view
 public:
@@ -5981,63 +5958,7 @@ struct Buffer_00434ff0 {  // 0x8 bytes, 3 views
     int size;  // +0x4
 };
 
-class Mission {  // 0xec4 bytes, 139 views
-public:
-    int unknown_0;  // +0x0
-    char campaign[256];  // +0x4
-    char names[9][256];  // +0x104
-    int field_a04;  // +0xa04
-    TdfFile list;         // +0xa08
-    char text_a14[256];  // +0xa14
-    char text_b14[256];  // +0xb14
-    int field_c14;  // +0xc14
-    int field_c18;  // +0xc18
-    int field_c1c;  // +0xc1c
-    int field_c20;  // +0xc20
-    char description[128];  // +0xc24
-    char planet[128];  // +0xca4
-    int* field_d24;  // +0xd24
-    int field_d28;  // +0xd28
-    int field_d2c;  // +0xd2c
-    int threshold;  // +0xd30
-    int minWindSpeed;  // +0xd34
-    int maxWindSpeed;  // +0xd38
-    int field_d3c;  // +0xd3c
-    float tidalStrength;  // +0xd40
-    int field_d44;  // +0xd44
-    int f_d48;  // +0xd48
-    int waterDoesDamage;  // +0xd4c
-    int waterDamage;  // +0xd50
-    float killMul;  // +0xd54
-    float timeMul;  // +0xd58
-    float pos_x[10];  // +0xd5c
-    float pos_y[10];  // +0xd84
-    Entry_00487af0* list_dac;  // +0xdac
-    int count;  // +0xdb0
-    Entry* entries;  // +0xdb4
-    int entry_count;  // +0xdb8
-    Buffer_00434ff0 buffer2;  // +0xdbc
-    char memory[128];  // +0xdc4
-    char numPlayers[128];  // +0xe44
-    Mission(int);
-    ~Mission(void);
-    char* GetMissionName(int);
-    char* GetName(int);
-    int GetGameType(void);
-    int GetBriefing(void);
-    int GetNameSlot(int);
-    int GetTerrainLength(void);
-    int LoadMissionByName(char*);
-    int GetMissionName(void);
-    int AdvanceMission(void);
-    int SelectSchema(int, Unit*, char*);
-    int GetStartPosition(Vec3*, int);
-    void LoadCampaign(char*);
-    void SelectMission(int);
-    int LoadMission(char*);
-    void LoadBriefing(void);
-    void BuildCampaignFilePath(int, char*, char*, char*);
-};
+#include "../src/map/mission.h"
 
 class Class_0048dfb0 {  // 0x88 bytes, 3 views
 public:

@@ -105,79 +105,53 @@ static inline TdfField MakePair(const StringRef& a, const StringRef& b)
     return TdfField(a, b);
 }
 
-#pragma pack(push, 1)
-// The entries of a section, kept sorted by key.
-class Map_004c3e40 {
-public:
-    char less;                             // +0x0
-    std::vector<TdfField> v;         // +0x1
+#include "tdf.h"
 
-    TdfField* LowerBound(const char* key)
-    {
-        TdfField* first = v.begin();
-        TdfField* last = v.end();
-        while (first != last) {
-            TdfField* mid = first + (last - first) / 2;
-            if (Less(mid->key.ptr, key))
-                first = mid + 1;
-            else
-                last = mid;
-        }
-        return first;
+typedef char TdfRecordListSize[sizeof(std::vector<TdfRecord*>) == sizeof(TdfRecordList) ? 1 : -1];
+typedef char TdfFieldListSize[sizeof(std::vector<TdfField>) == sizeof(TdfFieldList) ? 1 : -1];
+
+static inline std::vector<TdfRecord*>& Kids(TdfRecord* r)
+{
+    return *(std::vector<TdfRecord*>*)&r->children;
+}
+
+static inline std::vector<TdfField>& Rows(TdfRecord* r)
+{
+    return *(std::vector<TdfField>*)&r->entries.v;
+}
+
+static inline TdfField* EntriesLowerBound(TdfRecord* r, const char* key)
+{
+    TdfField* first = Rows(r).begin();
+    TdfField* last = Rows(r).end();
+    while (first != last) {
+        TdfField* mid = first + (last - first) / 2;
+        if (Less(mid->key.ptr, key))
+            first = mid + 1;
+        else
+            last = mid;
     }
+    return first;
+}
 
-    StringRef* InsertNew(TdfField* e, const StringRef& key)
-    {
-        return &v.insert(e, MakePair(key, StringRef()))->value;
+static inline StringRef* EntriesInsertNew(TdfRecord* r, TdfField* e, const StringRef& key)
+{
+    return &Rows(r).insert(e, MakePair(key, StringRef()))->value;
+}
+
+inline TdfRecord* TdfRecord::FindChild(char* key)
+{
+    for (TdfRecord** p = Kids(this).begin(); p < Kids(this).end(); p++) {
+        if (_strcmpi((*p)->name, key) == 0)
+            return *p;
     }
-};
+    return 0;
+}
 
-// A .TDF section: `name = value;` entries kept sorted by name
-// (case-insensitively) and `[name] { ... }` sub-sections.
-class TdfRecord {
-public:
-    char* name;                             // +0x00
-    std::vector<TdfRecord*> children;       // +0x04
-    Map_004c3e40 entries;                   // +0x14
-    char* text;                             // +0x25
-
-    TdfRecord(char* name, char* text, char** nextblock, char* filename);
-
-    ~TdfRecord();
-
-    StringRef MakeTrimmedString(char* start, char* end);
-
-    // TdfRecord::FindSubRecord (0x4c4470), inlined.
-    TdfRecord* FindChild(char* key)
-    {
-        for (TdfRecord** p = children.begin(); p < children.end(); p++) {
-            if (_strcmpi((*p)->name, key) == 0)
-                return *p;
-        }
-        return 0;
-    }
-
-    // The extra inline level keeps logic_error's constructor out of line.
-    TdfRecord* GetChild(int index)
-    {
-        return index >= children.size() ? 0 : children.at(index);
-    }
-
-    void ComputeRecordChecksum(char* start, char* end);
-    void CopyRecordName(char* dest, size_t count);
-    int GetRecordName();
-    TdfRecord* FindSubRecord(const char* name);
-    int GetSubRecordCount();
-    TdfRecord* GetSubRecord(int index);
-    int GetFieldCount();
-    char* GetFieldName(int index);
-    int FindFieldValue(char* name);
-    int GetFieldInt(const char* name, int def);
-    double GetFieldDouble(const char* name, double def);
-    int* GetFieldFixed(int* dst, char* key, int def);
-    int GetFieldString(char* dst, char* key, size_t size, char* def);
-};
-#pragma pack(pop)
+inline TdfRecord* TdfRecord::GetChild(int index)
+{
+    return index >= Kids(this).size() ? 0 : Kids(this).at(index);
+}
 
 // Defined ahead of its place in the address order so that the deleting
 // destructor in Unload can inline it.
@@ -202,8 +176,10 @@ TdfRecord::~TdfRecord()
 {
     if (name)
         GameFreeThunk(name);
-    for (std::vector<TdfRecord*>::iterator p = children.begin(); p < children.end(); p++)
+    for (std::vector<TdfRecord*>::iterator p = Kids(this).begin(); p < Kids(this).end(); p++)
         delete *p;
+    Rows(this).~vector();
+    Kids(this).~vector();
 }
 
 // Handles the text at p (a // comment, a /* */ comment, or one ordinary
@@ -238,32 +214,6 @@ static inline char* SkipComment(char* p)
     }
     return p;
 }
-
-class TdfFile {
-public:
-    TdfRecord* root;                   // +0x0
-    TdfRecord* current;                // +0x4
-    int flags;                         // +0x8
-
-    // The functions that delete the root section each destroy its entries a
-    // different way (inline, through ReleasePair, ~TdfField or
-    // ??_GTdfField, as the inline budget runs out), and no one view of the
-    // section gives all of them: those stay in files of their own with the
-    // view each needs. They are the destructor (0x4c2eb0, with ??_GTdfField
-    // in tdf_4c51b0.cpp), LoadFile (tdf_4c2f60.cpp), LoadBuffer
-    // (tdf_4c3120.cpp) and ??_ETdfFile (data_files_42a870.cpp).
-    TdfFile();
-    ~TdfFile();
-    int LoadFile(char* path);
-    void StripComments(char* p);
-    void LoadBuffer(char* data, int size, int flag, char* path);
-    void Unload();
-    int SelectRecord(char* name);
-    int SelectRecordAt(int index);
-    void ResetCurrentRecord();
-    int GetCurrentRecord();
-    void SetCurrentRecord(int val);
-};
 
 // Default constructor of a 12-byte class; its destructor is 0x4c2eb0.
 // FUNCTION: 0x4c2ea0
@@ -373,7 +323,7 @@ static inline char* SkipSpace(char* p)
 // rewritten on the real <vector> instead of a hand-made one.
 //  * Both vectors are constructed by the header's own constructor, which is
 //    the hoisted `mov al, [esp+7]` copy of the allocator temporary, and the
-//    sub-section is added with children.push_back(), whose inlined
+//    sub-section is added with Kids(this).push_back(), whose inlined
 //    insert(end(), x) keeps &children in ebx for the whole function.
 //  * The entries are a sorted vector of key/value handle pairs behind a byte
 //    at +0x14 (the same shape as the global map in 0x4c54f0, whose lookup is
@@ -393,6 +343,12 @@ static inline char* SkipSpace(char* p)
 // FUNCTION: 0x4c3e40
 TdfRecord::TdfRecord(char* name, char* text, char** nextblock, char* filename)
 {
+    children.first = 0;
+    children.last = 0;
+    children.end = 0;
+    entries.v.first = 0;
+    entries.v.last = 0;
+    entries.v.end = 0;
     char error[2000] = "Parse error in .TDF File! ";
     this->name = GameStrdup(name);
     char* current = text;
@@ -411,7 +367,7 @@ TdfRecord::TdfRecord(char* name, char* text, char** nextblock, char* filename)
                 strcat(error, "Sub-record - opening '{' not found");
                 goto fail;
             }
-            children.push_back(new TdfRecord(subname.ptr, current + 1, &current, filename));
+            Kids(this).push_back(new TdfRecord(subname.ptr, current + 1, &current, filename));
             break;
         }
         case '}': {
@@ -451,10 +407,10 @@ TdfRecord::TdfRecord(char* name, char* text, char** nextblock, char* filename)
             }
             StringRef value = MakeTrimmedString(current, semi);
             current = semi + 1;
-            TdfField* e = entries.LowerBound(key.ptr);
+            TdfField* e = EntriesLowerBound(this, key.ptr);
             StringRef* r;
-            if (e == entries.v.end() || Ne(e->key, key))
-                r = entries.InsertNew(e, key);
+            if (e == Rows(this).end() || Ne(e->key, key))
+                r = EntriesInsertNew(this, e, key);
             else
                 r = &e->value;
             *r = value;
@@ -540,13 +496,13 @@ void ShowSoftwareCursor();
 // FUNCTION: 0x4c4450
 int TdfRecord::GetSubRecordCount()
 {
-    return children.size();
+    return Kids(this).size();
 }
 
 // FUNCTION: 0x4c4470
 TdfRecord* TdfRecord::FindSubRecord(const char* name)
 {
-    for (std::vector<TdfRecord*>::iterator p = children.begin(); p < children.end(); p++) {
+    for (std::vector<TdfRecord*>::iterator p = Kids(this).begin(); p < Kids(this).end(); p++) {
         if (_strcmpi((*p)->name, name) == 0)
             return *p;
     }
@@ -559,24 +515,24 @@ TdfRecord* TdfRecord::FindSubRecord(const char* name)
 // FUNCTION: 0x4c44c0
 TdfRecord* TdfRecord::GetSubRecord(int index)
 {
-    if ((unsigned int)index >= children.size())
+    if ((unsigned int)index >= Kids(this).size())
         return 0;
-    return children.at(index);
+    return Kids(this).at(index);
 }
 
 // FUNCTION: 0x4c45c0
 int TdfRecord::GetFieldCount()
 {
-    return entries.v.size();
+    return Rows(this).size();
 }
 
 // FUNCTION: 0x4c45e0
 char* TdfRecord::GetFieldName(int index)
 {
-    if (index < 0 || (unsigned int)index >= entries.v.size())
+    if (index < 0 || (unsigned int)index >= Rows(this).size())
         return 0;
     unsigned int i = 0;
-    for (std::vector<TdfField>::iterator p = entries.v.begin(); p < entries.v.end(); p++, i++) {
+    for (std::vector<TdfField>::iterator p = Rows(this).begin(); p < Rows(this).end(); p++, i++) {
         if (i == (unsigned int)index)
             return p->key.ptr;
     }
@@ -606,8 +562,8 @@ static inline TdfField* LowerBound(TdfField* first, TdfField* last, const char* 
 static inline char** Find(TdfRecord* table, const char* name)
 {
     NameLess less;
-    TdfField* it = LowerBound(table->entries.v.begin(), table->entries.v.end(), name);
-    if (it == table->entries.v.end() || less(name, it->key.ptr))
+    TdfField* it = LowerBound(Rows(table).begin(), Rows(table).end(), name);
+    if (it == Rows(table).end() || less(name, it->key.ptr))
         return 0;
     return &it->value.ptr;
 }
@@ -652,8 +608,8 @@ double TdfRecord::GetFieldDouble(const char* name, double def)
 // FUNCTION: 0x4c4800
 int* TdfRecord::GetFieldFixed(int* dst, char* key, int def)
 {
-    TdfField* lo = entries.v.begin();
-    TdfField* hi = entries.v.end();
+    TdfField* lo = Rows(this).begin();
+    TdfField* hi = Rows(this).end();
     while (lo != hi) {
         TdfField* mid = lo + (hi - lo) / 2;
         if (Less(mid->key.ptr, key)) {
@@ -663,7 +619,7 @@ int* TdfRecord::GetFieldFixed(int* dst, char* key, int def)
         }
     }
     char** p;
-    if (lo == entries.v.end() || Less(key, lo->key.ptr)) {
+    if (lo == Rows(this).end() || Less(key, lo->key.ptr)) {
         p = 0;
     } else {
         p = &lo->value.ptr;
@@ -680,8 +636,8 @@ int* TdfRecord::GetFieldFixed(int* dst, char* key, int def)
 // FUNCTION: 0x4c48c0
 int TdfRecord::GetFieldString(char* dst, char* key, size_t size, char* def)
 {
-    TdfField* lo = entries.v.begin();
-    TdfField* hi = entries.v.end();
+    TdfField* lo = Rows(this).begin();
+    TdfField* hi = Rows(this).end();
     while (lo != hi) {
         TdfField* mid = lo + (hi - lo) / 2;
         if (Less(mid->key.ptr, key)) {
@@ -691,7 +647,7 @@ int TdfRecord::GetFieldString(char* dst, char* key, size_t size, char* def)
         }
     }
     char** p;
-    if (lo == entries.v.end() || Less(key, lo->key.ptr)) {
+    if (lo == Rows(this).end() || Less(key, lo->key.ptr)) {
         p = 0;
     } else {
         p = &lo->value.ptr;
