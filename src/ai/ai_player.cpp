@@ -26,6 +26,7 @@
 //   0x40b530  ai_player_40b530.cpp (its std::_Construct hook, declared before
 //     <vector>, changes every vector<Unit*> copy in the file)
 #include <stdio.h>
+#include "../state/block.h"
 #include <string.h>
 #include <stdlib.h>
 #include <minmax.h>
@@ -1318,15 +1319,15 @@ SquadManager::SquadManager(Player* p)
     nextAction = 0;
     for (int i = 0; i < 10; i++)
         timers[i] = 0;
-    timers[1] = new BuildTimer(this, &player->groups[1]);
-    timers[4] = new ScoutTimer(this, &player->groups[4]);
-    timers[5] = new SquadTimer(this, &player->groups[5]);
-    timers[2] = new AssaultTimer(this, &player->groups[2], 3, 20000);
-    timers[3] = new EscortTimer(this, &player->groups[3], 2);
-    timers[6] = new AssaultTimer(this, &player->groups[6], 7, 50000);
-    timers[7] = new EscortTimer(this, &player->groups[7], 6);
-    timers[8] = new SquadScoutTimer(this, &player->groups[8]);
-    timers[9] = new SpatialTimer(this, &player->groups[9]);
+    timers[1] = new (kSim) BuildTimer(this, &player->groups[1]);
+    timers[4] = new (kSim) ScoutTimer(this, &player->groups[4]);
+    timers[5] = new (kSim) SquadTimer(this, &player->groups[5]);
+    timers[2] = new (kSim) AssaultTimer(this, &player->groups[2], 3, 20000);
+    timers[3] = new (kSim) EscortTimer(this, &player->groups[3], 2);
+    timers[6] = new (kSim) AssaultTimer(this, &player->groups[6], 7, 50000);
+    timers[7] = new (kSim) EscortTimer(this, &player->groups[7], 6);
+    timers[8] = new (kSim) SquadScoutTimer(this, &player->groups[8]);
+    timers[9] = new (kSim) SpatialTimer(this, &player->groups[9]);
 }
 
 // FUNCTION: 0x408f10
@@ -1777,7 +1778,7 @@ void __stdcall UpdatePlayerAI(int player)
 void __stdcall CreatePlayerAI(int player)
 {
     PlayerAI*& slot = g_playerAI[player];
-    slot = new PlayerAI(player);
+    slot = new (kSim) PlayerAI(player);
     slot->ComputeBaseWeights();
 }
 

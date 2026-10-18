@@ -2,6 +2,7 @@
 // Stays in its own file: in unit_orders.cpp the weapon slot loop keeps its counter in a register, where the original keeps it in memory.
 
 #include <stdio.h>
+#include "../state/block.h"
 #include "../util/vec3.h"
 static inline Vec3 operator+(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
@@ -85,7 +86,7 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
             MissionType kind=GetOrderType(8,unit,order->target,0);
             if(kind.index) {
                 order->SetAttachedFx(0);
-                AppendOrder(unit,new Order(kind,order->target,0,0,0,0));
+                AppendOrder(unit,new (kSim) Order(kind,order->target,0,0,0,0));
                 order->flags=0; return 3;
             }
         }
@@ -101,13 +102,13 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
                 order->SetAttachedFx(0);
                 kind=order->target->list->kind;
                 // Target() and Position() on the base: keeps the two order->order loads from merging.
-                AppendOrder(unit,new Order(kind,order->Target()->list->target,order->Target()->list->Position(),0,0,0));
+                AppendOrder(unit,new (kSim) Order(kind,order->Target()->list->target,order->Target()->list->Position(),0,0,0));
                 order->flags=0; return 3;
             }
             if (building && other->target) {
                 order->SetAttachedFx(0);
                 kind=MissionType("HelpBuild");
-                AppendOrder(unit,new Order(kind,order->Target()->list->target,order->Target()->list->Position(),0,0,0));
+                AppendOrder(unit,new (kSim) Order(kind,order->Target()->list->target,order->Target()->list->Position(),0,0,0));
                 order->flags=0; return 3;
             }
         }

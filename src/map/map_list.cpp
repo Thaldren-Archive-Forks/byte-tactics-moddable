@@ -1,6 +1,7 @@
 // Decompiled by Opus, Space Bunny Free, deepseek-v4.1-flash, deepseek-v4.1, Haiku, DeepSeek V4.1 Flash, Claude Opus 5.5, Sonnet and GPT-6.1-sol. Names are provisional.
 
 #include <windows.h>
+#include "../state/block.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -248,7 +249,7 @@ void __stdcall SetMissionType(int owner)
         // Re-read the global here, not through a local: keeps the delete's null check.
         delete g_game->mapInfo;
     }
-    g_game->mapInfo = new Mission(owner);
+    g_game->mapInfo = new (kSim) Mission(owner);
 }
 
 // Frees a global buffer, clears three globals and deletes the object at
@@ -817,7 +818,7 @@ int Mission::LoadMission(char* map)
     char lower[0x80];
 
     delete g_game->victoryConditions;
-    g_game->victoryConditions = new MissionConditions;
+    g_game->victoryConditions = new (kSim) MissionConditions;
     surfaceMetal = -1;
     minWindSpeed = -1;
     maxWindSpeed = -1;
@@ -1144,7 +1145,8 @@ void Mission::LoadMissionData(char* name, TdfFile* parser)
     // Own local, computed before unitCount is stored: keeps the count in ecx.
     int unitBytes = count * sizeof(MissionUnit);
     unitCount = count;
-    units = (MissionUnit*)GameAllocIgnoreTag("MISSIONUNIT DATA",
+    units = (MissionUnit*)SimAllocTagged(
+        "MISSIONUNIT DATA",
         (total / 0x400 + 2) * 0x400 + unitBytes);
     char* strings = (char*)units + unitBytes;
     for (i = 0; i < count; i++) {
@@ -1191,7 +1193,7 @@ void Mission::LoadMissionData(char* name, TdfFile* parser)
     else
         count = 0;
     ruleCount = count;
-    rules = (MissionRule*)GameAllocIgnoreTag("MISSIONRULE DATA", count * sizeof(MissionRule));
+    rules = (MissionRule*)SimAllocTagged("MISSIONRULE DATA", count * sizeof(MissionRule));
     int startPos = 0;
     for (i = 0; i < count; i++) {
         MissionRule* r = &rules[i];
@@ -1223,7 +1225,7 @@ void Mission::LoadMissionData(char* name, TdfFile* parser)
     featureCount = count;
     if (features)
         GameFreeThunk(features);
-    features = (MissionFeature*)GameAllocIgnoreTag("MISSIONFEATURE DATA", count * sizeof(MissionFeature));
+    features = (MissionFeature*)SimAllocTagged("MISSIONFEATURE DATA", count * sizeof(MissionFeature));
     for (i = 0; i < count; i++) {
         MissionFeature* f = &features[i];
         TdfRecord* s = list->GetSubRecord(i);

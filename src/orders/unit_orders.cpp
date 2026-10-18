@@ -28,6 +28,7 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 
 #include <vector>
 
+#include "../state/block.h"
 #include "../util/vec3.h"
 
 // The whole part (high 16 bits) of a 16.16 coordinate: the fractional half the
@@ -443,7 +444,7 @@ int __stdcall StopOrder(Unit* unit, Order* order, int unused)
     g_seams.targeting->ClearWeaponTarget(unit, 1);
     g_seams.targeting->ClearWeaponTarget(unit, 2);
     if ((unit->flags & 3) == 2 && (unit->def->flags & 0x800)) {
-        AppendOrder(unit, new Order("VTOL_LANDIFCAN", 0, &unit->pos, 0, 0, 0));
+        AppendOrder(unit, new (kSim) Order("VTOL_LANDIFCAN", 0, &unit->pos, 0, 0, 0));
     }
     return 5;
 }
@@ -1106,7 +1107,7 @@ int __stdcall AttackKamikazeOrder(Unit* unit, Order* order, unsigned flags)
     case 1:
         if(flags&0x20) {
             QueueUnitSpeech(unit,6,0);
-            AppendOrder(unit,new Order("SELFDESTRUCT",0,0,1,0,0));
+            AppendOrder(unit,new (kSim) Order("SELFDESTRUCT",0,0,1,0,0));
             return 5;
         }
         if(flags&0x40) return 8;
@@ -1760,7 +1761,7 @@ int __stdcall StandbyMineOrder(Unit* unit, Order* order, int unused)
         {
             Unit* other = g_seams.targeting->FindBestTargetIfFireAtWill(unit);
             if (other && other->bits.mode == 1 && (unit->flags & 0x300000)) {
-                AppendOrder(unit, new Order("SELFDESTRUCT", 0, 0, 1, 0, 0));
+                AppendOrder(unit, new (kSim) Order("SELFDESTRUCT", 0, 0, 1, 0, 0));
                 return 5;
             }
             order->flags |= 0x10000;
@@ -1958,7 +1959,7 @@ int __stdcall AttackUTypeOrder(Unit* unit, Order* order, int unused)
         }
         if (best) {
             MissionType kind = GetOrderType(3, unit, best, 0);
-            AppendOrder(unit, new Order(kind, best, 0, 0, 0, 0));
+            AppendOrder(unit, new (kSim) Order(kind, best, 0, 0, 0, 0));
             return 0;
         }
         return 5;

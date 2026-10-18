@@ -18,6 +18,7 @@
 namespace ta {
 #include <ta_types.h>
 }
+#include "../state/block.h"
 #include "../util/vec3.h"
 struct Unit;
 struct Order;
@@ -108,7 +109,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad=pads[RandomInt(pads.size())];
-            AppendOrder(unit,new Order("VTOL_LANDING",pad,0,0,0,0));
+            AppendOrder(unit,new (kSim) Order("VTOL_LANDING",pad,0,0,0,0));
             order->flags=0;
             return 0;
         }
@@ -120,13 +121,13 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     if (!units.empty()) {
         order->SetAttachedFx(0);
         MissionType kind=GetOrderType(7,unit,units[0],0);
-        AppendOrder(unit,new Order(kind,units[0],0,0,0,0));
+        AppendOrder(unit,new (kSim) Order(kind,units[0],0,0,0,0));
         order->flags=0;
         return 3;
     }
     if (flags&0xe0) order->angle+=-RandomInt(0x2000)-0x4000;
     Vec3 pos=order->pos+Offset((short)order->angle,(unit->weapons[0].def->range+160)<<16);
-    Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+    Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
     move->SetApproachRadius(128);
     order->SetAttachedFx((int)move);
     order->SetDeadlineTicks(30);
@@ -144,7 +145,7 @@ int __stdcall VtolSeekGuardOrder(Unit* unit, Order* order, int flags)
         center.z=(g_game->height/2)<<16;
         short angle=GetHeadingBetween(&unit->pos,&center);
         Vec3 pos=AddVec3(unit->pos,Direction(angle,0x3200000));
-        Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         move->SetApproachRadius(128);
         order->flags|=0xe0;
         order->SetAttachedFx((int)move);

@@ -1,6 +1,7 @@
 // Decompiled by Claude Opus 5.5, finished by GPT-6, verified by GPT-6.1-sol, edited by deepseek-v4.1, gate polarity checked by space-bunny-free, gate spelling changed by space-bunny-free, finished by Claude Sonnet 5.5, finished by Claude Opus 5.5. Names are provisional.
 // Stays in its own file: in unit_orders.cpp the stack address setup for the reclaim search arguments is scheduled differently.
 #include <vector>
+#include "../state/block.h"
 #include "../util/vec3.h"
 struct Unit;
 #include "mission_type.h"
@@ -71,26 +72,26 @@ int __stdcall RepairPatrolOrder(Unit* unit, Order* order, int flags)
                 if (PickRandomReclaimableResourcesInRadius(&unit->pos, range2, &energy, &energyAmount, &metal, &metalAmount)) {
                     if (metal && unit->player->metal < unit->player->metalCapacity * 0.2) {
                         order->SetAttachedFx(0);
-                        AppendOrder(unit, new Order("RECLAIM", 0, metal, 0, 0, 0));
+                        AppendOrder(unit, new (kSim) Order("RECLAIM", 0, metal, 0, 0, 0));
                         order->SetAttachedFx(0);
                         order->flags = 0;
                         return 3;
                     }
                     if (energy && unit->player->energy < unit->player->energyCapacity * 0.2) {
                         order->SetAttachedFx(0);
-                        AppendOrder(unit, new Order("RECLAIM", 0, energy, 0, 0, 0));
+                        AppendOrder(unit, new (kSim) Order("RECLAIM", 0, energy, 0, 0, 0));
                         order->flags = 0;
                         return 3;
                     }
                     if (metal && unit->player->metal + metalAmount <= unit->player->metalCapacity) {
                         order->SetAttachedFx(0);
-                        AppendOrder(unit, new Order("RECLAIM", 0, metal, 0, 0, 0));
+                        AppendOrder(unit, new (kSim) Order("RECLAIM", 0, metal, 0, 0, 0));
                         order->flags = 0;
                         return 3;
                     }
                     if (energy && unit->player->energy + energyAmount <= unit->player->energyCapacity) {
                         order->SetAttachedFx(0);
-                        AppendOrder(unit, new Order("RECLAIM", 0, energy, 0, 0, 0));
+                        AppendOrder(unit, new (kSim) Order("RECLAIM", 0, energy, 0, 0, 0));
                         order->flags = 0;
                         return 3;
                     }

@@ -14,6 +14,7 @@
 // order: their register plans follow their symbol ids (docs/c2-regalloc.md).
 
 #include "../util/vec3.h"
+#include "../state/block.h"
 
 typedef Vec3 Vec3_0049e1a0;
 
@@ -412,13 +413,12 @@ struct Cell;
 
 extern Game* g_game;
 
-void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 
 // Allocates and clears the 0x7d64-byte weapon array, then resets its count.
 // FUNCTION: 0x499a30
 void AllocWeaponArray(void)
 {
-    g_game->projectiles = GameAllocIgnoreTag("WEAPON ARRAY", 0x7d64);
+    g_game->projectiles = SimAllocTagged("WEAPON ARRAY", 0x7d64);
     memset(g_game->projectiles, 0, 0x7d64);
     g_game->projectileCount = 0;
 }

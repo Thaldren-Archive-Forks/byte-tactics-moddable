@@ -3,6 +3,7 @@
 // weapon target entries (set, clear, query), the links in a unit's owner list
 // (head at +0xa2), and the damage and paralyze events.
 #include <windows.h>
+#include "../state/block.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -550,7 +551,7 @@ void __stdcall ApplyUnitDamage(UnitDamagePacket* ev)
                             e->ticks += ticks;
                             return;
                         }
-                        AppendOrder(unit, new Order(kind, 0, 0, ticks, 0, 0));
+                        AppendOrder(unit, new (kSim) Order(kind, 0, 0, ticks, 0, 0));
                         return;
                     }
                 }
@@ -603,7 +604,7 @@ void __stdcall ParalyzeUnit(Unit* unit, int ticks)
                 effect->ticks += ticks;
                 return;
             }
-            AppendOrder(unit, new Order(kind, 0, 0, ticks, 0, 0));
+            AppendOrder(unit, new (kSim) Order(kind, 0, 0, ticks, 0, 0));
         }
     }
 }
