@@ -146,7 +146,17 @@ struct Unit {
             char unknown_10b[3];
         };
     };
-    unsigned char activateFlags;
+    union {
+        unsigned char activateFlags;
+        struct {
+            unsigned char activate_bit0 : 1;
+            unsigned char activate_bit1 : 1;
+            unsigned char activate_bit2 : 1;
+            unsigned char activate_bit3 : 1;
+            unsigned char activate_bit4 : 1;
+            unsigned char unknown_10e : 3;
+        };
+    };
     union {
         struct {
             unsigned char bit0 : 1;
@@ -157,12 +167,23 @@ struct Unit {
         };
         char cobStateFlags;
     };
-    unsigned int flags;
+    union {
+        unsigned int flags;
+        struct {
+            unsigned int mode : 2;
+            unsigned int unknown_110_2 : 30;
+        };
+        struct {
+            unsigned int bits_110 : 14;
+            unsigned int flag_110 : 1;
+            unsigned int unknown_110_15 : 17;
+        } panel;
+    };
     int zBufferFlag;
     Unit(void);
     ~Unit(void);
     int SelectRecord(char*);
-    int Ready(void);
+    int Ready(void) { return (flags & 0x10000000) && !(flags & 0x4000); }
     unsigned char GetState(void);
     unsigned char PlayerIndex(void);
     void SetStateBits(int, int);

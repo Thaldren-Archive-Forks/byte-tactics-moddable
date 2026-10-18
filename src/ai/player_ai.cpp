@@ -15,7 +15,8 @@
 #pragma pack(push,1)
 struct Player { char pad[0x108]; unsigned char allied[0x3e]; unsigned char index; int IsAllied(unsigned char p) const { return allied[p]; } };
 struct Def { char pad[0x156]; int builder; char pad15a[0x22f-0x15a]; char mobile; char pad230[0x241-0x230]; unsigned flags; char pad245[0x249-0x245]; };
-struct Unit { char pad[0x6a]; Vec3 pos; char pad76[0x92-0x76]; Def* def; Player* player; char pad9a[12]; unsigned short unitDefIndex; char pada8[0x104-0xa8]; float buildLeft; char pad108[6]; unsigned char activateFlags; char pad10f; unsigned flags; int pad114; unsigned char PlayerIndex() const { return player->index; } int Ready() const { return (flags&0x10000000) && !(flags&0x4000); } };
+#include "../units/unit.h"
+inline unsigned char Unit::PlayerIndex() { return ((Player*)player)->index; }
 
 #include "../units/unit_def.h"
 
@@ -109,9 +110,9 @@ void PlayerAI::RefreshUnitLists()
                 if((unsigned char)(u->flags>>8)&1) known.units.push_back(u);
             } else if(u->PlayerIndex()==owner->index && u->buildLeft==0.0) {
                 ++counts[u->unitDefIndex];
-                if(u->def->builder) ++builders;
-                if((u->def->flags&0x40) && (u->def->flags&0x200) && (u->activateFlags&1)) factories.list.units.push_back(u);
-                if((u->def->flags&0x400) && (u->activateFlags&1)) hasSpecial=1;
+                if(((Def*)u->def)->builder) ++builders;
+                if((((Def*)u->def)->flags&0x40) && (((Def*)u->def)->flags&0x200) && (u->activateFlags&1)) factories.list.units.push_back(u);
+                if((((Def*)u->def)->flags&0x400) && (u->activateFlags&1)) hasSpecial=1;
                 // The table holds signed bytes: the cast gives the sign-extending load.
                 float weight=(char)weights[u->unitDefIndex];
                 sum.total+=weight;

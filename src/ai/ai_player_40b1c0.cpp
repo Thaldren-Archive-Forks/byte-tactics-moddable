@@ -10,12 +10,7 @@ struct Vec_0040b1c0 {
     int z;
 };
 
-struct Unit {
-    char unknown_0[0x6a];
-    Vec_0040b1c0 pos;                  // +0x6a
-    char unknown_76[0xa6 - 0x76];
-    unsigned short unitDefIndex;       // +0xa6
-};
+#include "../units/unit.h"
 
 #include "../util/vec3.h"
 #include "player_ai.h"
