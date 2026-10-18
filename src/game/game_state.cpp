@@ -9,6 +9,7 @@
 #include <windows.h>
 
 #include "../map/mission.h"
+#include "../../interfaces/seams.h"
 
 struct Display_00491a70;
 struct Src_004ab400;
@@ -718,7 +719,6 @@ void AllocateUnitMemory();
 void ResolveFeatureLinks();
 void FreeFeatureFileList();
 void BuildAllPassMaps();
-void InitMeteors();
 void InitRadar();
 void InitPlayers();
 void CreatePathfinder();
@@ -761,7 +761,7 @@ void LoadBattleAssets()
     BuildAllPassMaps();
     g_game->windSpeedDenominator = 5000;
     g_game->windCounter = 0;
-    UpdateWind();
+    g_seams.wind_meteors->UpdateWind();
     g_game->tempXformPts = GameAllocIgnoreTag("TEMP XFORM PTS", 0x960);
     g_game->tempProjectedPts = GameAllocIgnoreTag("TEMP PROJECTED PTS", 0x640);
     g_game->assemPts = GameAllocIgnoreTag("ASSEM PTS", 0xa0);
@@ -772,7 +772,7 @@ void LoadBattleAssets()
         g_game->effectiveGameSpeed = 10;
     }
     g_game->carry = 0;
-    InitMeteors();
+    g_seams.wind_meteors->InitMeteors();
     InitRadar();
     InitPlayers();
     CreatePathfinder();
@@ -818,7 +818,6 @@ void Force640x480Surfaces()
 }
 
 void __cdecl CollectEndGameStats();
-void EmptyShutdownPreCleanup();
 void FreeUnitMemory();
 void DestroyParticleLists();
 void FreeExplosions();
@@ -842,7 +841,7 @@ void ShutdownIngameSystems()
     g_game->sound->StopCdAudio();
     g_game->sound->SetTrackCategory(4);
     CollectEndGameStats();
-    EmptyShutdownPreCleanup();
+    g_seams.wind_meteors->EmptyShutdownPreCleanup();
     FreeUnitMemory();
     DestroyParticleLists();
     FreeExplosions();
