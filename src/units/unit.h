@@ -174,8 +174,8 @@ struct Unit {
             unsigned int unknown_110_2 : 14;
             unsigned int moved : 1;
             unsigned int unknown_110_17 : 1;
-            unsigned int fire : 2;
-            unsigned int move : 2;
+            unsigned int moveOrder : 2;
+            unsigned int fireOrder : 2;
             unsigned int f22_23 : 2;
             unsigned int f24_25 : 2;
             unsigned int f26_27 : 2;

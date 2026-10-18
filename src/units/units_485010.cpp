@@ -586,8 +586,8 @@ void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
     unit->killCount = 0;
     unit->attacker = 0;
     unit->lastAttackerSlot = 0xa;
-    unit->fire = ((UnitType*)unit->def)->flags.bits.movOrder;
-    unit->move = ((UnitType*)unit->def)->flags.bits.fireOrder;
+    unit->moveOrder = ((UnitType*)unit->def)->flags.bits.movOrder;
+    unit->fireOrder = ((UnitType*)unit->def)->flags.bits.fireOrder;
     unit->f110.b11 = ((UnitType*)unit->def)->flags.bits.canAttack;
     unit->f26_27 = 0;
     if (((UnitType*)unit->def)->buildMenuPageCount > 1) {
