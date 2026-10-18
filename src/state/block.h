@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 // The size of the block every sim allocation comes from, in bytes.
-const unsigned int kSimBlockBytes = 64u << 20;
+const unsigned int kSimBlockBytes = 32u << 20;
 
 // Allocates size zeroed bytes from the sim block, 8-byte aligned.
 void* __cdecl SimAlloc(unsigned int size);
