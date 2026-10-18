@@ -172,11 +172,11 @@ CloseTopScreen,HandleUnitInfoDialogEvent,Layer::handler assigned at src/ingame/d
 CloseTopScreen,HandleViewMapClick,Layer::handler assigned at src/frontend/multi.cpp:2301
 CloseTopScreen,HandleVisualOptionsClick,Layer::handler assigned at src/frontend/options.cpp:1967
 CloseTopScreen,InputDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1170
-CloseTopScreen,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:667
+CloseTopScreen,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:666
 CloseTopScreen,MessageBoxHandler,Layer::handler assigned at src/gui/dialogs.cpp:1074
 CloseTopScreen,NotExistDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1100
-CloseTopScreen,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:638
-CloseTopScreen,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:684
+CloseTopScreen,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:637
+CloseTopScreen,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:683
 CloseTopScreen,SetSerialBaudFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1605
 CloseTopScreen,SetSerialPortFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1602
 CloseTopScreen,ShowSelectedAccount,Layer::handler assigned at src/frontend/multi.cpp:1902
@@ -225,11 +225,11 @@ CloseTopScreen_inlined,HandleUnitInfoDialogEvent,Layer::handler assigned at src/
 CloseTopScreen_inlined,HandleViewMapClick,Layer::handler assigned at src/frontend/multi.cpp:2301
 CloseTopScreen_inlined,HandleVisualOptionsClick,Layer::handler assigned at src/frontend/options.cpp:1967
 CloseTopScreen_inlined,InputDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1170
-CloseTopScreen_inlined,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:667
+CloseTopScreen_inlined,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:666
 CloseTopScreen_inlined,MessageBoxHandler,Layer::handler assigned at src/gui/dialogs.cpp:1074
 CloseTopScreen_inlined,NotExistDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1100
-CloseTopScreen_inlined,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:638
-CloseTopScreen_inlined,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:684
+CloseTopScreen_inlined,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:637
+CloseTopScreen_inlined,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:683
 CloseTopScreen_inlined,SetSerialBaudFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1605
 CloseTopScreen_inlined,SetSerialPortFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1602
 CloseTopScreen_inlined,ShowSelectedAccount,Layer::handler assigned at src/frontend/multi.cpp:1902
@@ -282,10 +282,10 @@ CobScript::SaveScriptState,UnitScript::GetPieceRotation,"overrides; CobScript ha
 CobScript::SaveScriptState,UnitScript::GetPieceTranslation,"overrides; CobScript has the one subclass UnitScript, src/units/unit_script.cpp:137"
 CobScript::StartScriptWithArgsByIndex,WeaponAimCobCb::OnAimCobReturn,"Callback::Complete slot 0; Callback is the weapon aim callback, vtable src/data/vtables.cpp:146"
 ComparePlayers,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/units/units_485010.cpp:585, src/seams/native.cpp"
-CreateMissionUnits,CreateUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::CreateUnit, src/units/unit_commands.cpp:374, src/seams/native.cpp"
-CreateMissionUnits,DeactivateConditionsNative,"seam slot filled by InstallNativeSeams, PlayersSeam::DeactivateConditions, src/units/unit_commands.cpp:389, src/seams/native.cpp"
-CreateMissionUnits,FindUnitType,"seam slot filled by InstallNativeSeams, UnitsSeam::FindUnitType, src/units/unit_commands.cpp:360, src/seams/native.cpp"
-CreateMissionUnits,SnapWorldPosToFootprint,"seam slot filled by InstallNativeSeams, MapSeam::SnapWorldPosToFootprint, src/units/unit_commands.cpp:373, src/seams/native.cpp"
+CreateMissionUnits,CreateUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::CreateUnit, src/units/unit_commands.cpp:370, src/seams/native.cpp"
+CreateMissionUnits,DeactivateConditionsNative,"seam slot filled by InstallNativeSeams, PlayersSeam::DeactivateConditions, src/units/unit_commands.cpp:385, src/seams/native.cpp"
+CreateMissionUnits,FindUnitType,"seam slot filled by InstallNativeSeams, UnitsSeam::FindUnitType, src/units/unit_commands.cpp:356, src/seams/native.cpp"
+CreateMissionUnits,SnapWorldPosToFootprint,"seam slot filled by InstallNativeSeams, MapSeam::SnapWorldPosToFootprint, src/units/unit_commands.cpp:369, src/seams/native.cpp"
 CreateUnit,AddUnitToMap,"seam slot filled by InstallNativeSeams, MapSeam::AddUnitToMap, src/units/units_485010.cpp:918, src/seams/native.cpp"
 CreateUnit,NotifyUnitCreatedNative,"seam slot filled by InstallNativeSeams, PlayersSeam::NotifyUnitCreated, src/units/units_485010.cpp:934, src/seams/native.cpp"
 CreateUnit,RevealNewUnit,"seam slot filled by InstallNativeSeams, LosRadarSeam::RevealNewUnit, src/units/units_485010.cpp:935, src/seams/native.cpp"
@@ -482,9 +482,9 @@ GetWeaponTargetPos,FindScriptNative,"seam slot filled by InstallNativeSeams, Uni
 GetWeaponTargetPos,GetGroundHeightNative,"seam slot filled by InstallNativeSeams, UnitsSeam::GetGroundHeight, src/units/unit_targets.cpp:697, src/seams/native.cpp"
 GetWeaponTargetPos,GetSweetSpotNative,"seam slot filled by InstallNativeSeams, UnitsSeam::GetSweetSpot, src/units/unit_targets.cpp:714, src/seams/native.cpp"
 GetWeaponTargetPos,StartScriptWithArgsNative,"seam slot filled by InstallNativeSeams, UnitsSeam::StartScriptWithArgs, src/units/unit_targets.cpp:648,710, src/seams/native.cpp"
-GiveUnitToPlayer,CreateUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::CreateUnit, src/units/unit_commands.cpp:456, src/seams/native.cpp"
-GiveUnitToPlayer,DamageUnit,"seam slot filled by InstallNativeSeams, WeaponsSeam::DamageUnit, src/units/unit_commands.cpp:449,482, src/seams/native.cpp"
-GiveUnitToPlayer,SetStateBitsNative,"seam slot filled by InstallNativeSeams, UnitsSeam::SetStateBits, src/units/unit_commands.cpp:482,483, src/seams/native.cpp"
+GiveUnitToPlayer,CreateUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::CreateUnit, src/units/unit_commands.cpp:452, src/seams/native.cpp"
+GiveUnitToPlayer,DamageUnit,"seam slot filled by InstallNativeSeams, WeaponsSeam::DamageUnit, src/units/unit_commands.cpp:445,478, src/seams/native.cpp"
+GiveUnitToPlayer,SetStateBitsNative,"seam slot filled by InstallNativeSeams, UnitsSeam::SetStateBits, src/units/unit_commands.cpp:478,479, src/seams/native.cpp"
 GroundPickupOrder,StartScriptWithArgsNative,"seam slot filled by InstallNativeSeams, UnitsSeam::StartScriptWithArgs, src/orders/unit_orders.cpp:1811, src/seams/native.cpp"
 GroundUnloadOrder,StartScriptWithArgsNative,"seam slot filled by InstallNativeSeams, UnitsSeam::StartScriptWithArgs, src/orders/unit_orders.cpp:1844, src/seams/native.cpp"
 GuardNoMoveOrder,ClaimWeaponsNative,"seam slot filled by InstallNativeSeams, WeaponsSeam::ClaimWeapons, src/orders/unit_orders.cpp:575, src/seams/native.cpp"
@@ -509,7 +509,7 @@ HandleGuiCommand,ContinueWatchingCallback,gadget callback assigned at src/game/p
 HandleGuiCommand,DrawUnitInfoImage,gadget callback assigned at src/ingame/dialogs_493340.cpp:766
 HandleGuiCommand,FillMissionList,gadget callback assigned at src/frontend/campaign_menu.cpp:1115
 HandleGuiCommand,HandleTimeoutDialog,gadget callback assigned at src/network/net_game.cpp:2741
-HandleGuiCommand,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:649
+HandleGuiCommand,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:648
 HandleGuiCommand,ShowSelectedSaveGame,gadget callback assigned at src/frontend/multi.cpp:4656
 HandleGuiCommand,ShowSelectedUnitCosts,gadget callback assigned at src/frontend/multi.cpp:4919
 HandleGuiCommand,UpdatePlanet,gadget callback assigned at src/frontend/campaign_menu.cpp:1513
@@ -519,7 +519,7 @@ HandleHotspotInput,ContinueWatchingCallback,gadget callback assigned at src/game
 HandleHotspotInput,DrawUnitInfoImage,gadget callback assigned at src/ingame/dialogs_493340.cpp:766
 HandleHotspotInput,FillMissionList,gadget callback assigned at src/frontend/campaign_menu.cpp:1115
 HandleHotspotInput,HandleTimeoutDialog,gadget callback assigned at src/network/net_game.cpp:2741
-HandleHotspotInput,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:649
+HandleHotspotInput,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:648
 HandleHotspotInput,ShowSelectedSaveGame,gadget callback assigned at src/frontend/multi.cpp:4656
 HandleHotspotInput,ShowSelectedUnitCosts,gadget callback assigned at src/frontend/multi.cpp:4919
 HandleHotspotInput,UpdatePlanet,gadget callback assigned at src/frontend/campaign_menu.cpp:1513
@@ -529,7 +529,7 @@ HandleListBoxInput,ContinueWatchingCallback,gadget callback assigned at src/game
 HandleListBoxInput,DrawUnitInfoImage,gadget callback assigned at src/ingame/dialogs_493340.cpp:766
 HandleListBoxInput,FillMissionList,gadget callback assigned at src/frontend/campaign_menu.cpp:1115
 HandleListBoxInput,HandleTimeoutDialog,gadget callback assigned at src/network/net_game.cpp:2741
-HandleListBoxInput,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:649
+HandleListBoxInput,SavedGameSelectHandler,gadget callback assigned at src/game/savegame.cpp:648
 HandleListBoxInput,ShowSelectedSaveGame,gadget callback assigned at src/frontend/multi.cpp:4656
 HandleListBoxInput,ShowSelectedUnitCosts,gadget callback assigned at src/frontend/multi.cpp:4919
 HandleListBoxInput,UpdatePlanet,gadget callback assigned at src/frontend/campaign_menu.cpp:1513
@@ -602,8 +602,8 @@ IncrementKnobPos,HandleVideoModeSlider,slider callback assigned at src/frontend/
 IncrementKnobPos,UpdateEnergyReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:446
 IncrementKnobPos,UpdateMetalReadout,slider callback assigned at src/ingame/dialogs_493340.cpp:435
 InitFrame,SetMissionType,"seam slot filled by InstallNativeSeams, MapSeam::SetMissionType, src/game/main_loop.cpp:411, src/seams/native.cpp"
-InitGame,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/game_state.cpp:568, src/seams/native.cpp"
-InitGame,SetMissionType,"seam slot filled by InstallNativeSeams, MapSeam::SetMissionType, src/game/game_state.cpp:567, src/seams/native.cpp"
+InitGame,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/game_state.cpp:567, src/seams/native.cpp"
+InitGame,SetMissionType,"seam slot filled by InstallNativeSeams, MapSeam::SetMissionType, src/game/game_state.cpp:566, src/seams/native.cpp"
 InitMeteors,FindWeaponByName,"seam slot filled by InstallNativeSeams, WeaponsSeam::FindWeaponByName, src/map/meteors.cpp:90, src/seams/native.cpp"
 InitMeteors,FindWeaponByNameNative,"seam slot filled by InstallNativeSeams, WeaponsSeam::FindWeaponByName, src/map/meteors.cpp:90, src/seams/native.cpp"
 InitPlayerResources,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/players_464290.cpp:1106, src/seams/native.cpp"
@@ -639,33 +639,34 @@ LiteGoal::SerializeNetUnitState,PathOrder::SerializeToBits,"target->SerializeToB
 LiteGoal::SerializeNetUnitState,PointMarker::GetType,"target->GetType, slot 2 of the OrderFx family, src/data/vtables.cpp:90"
 LiteGoal::SerializeNetUnitState,RingApproach::GetType,"target->GetType, slot 2 of the OrderFx family, src/data/vtables.cpp:90"
 LiteGoal::SetPathOrder,PathGoal::SetPathOrder,"qualified call of the base method, src/game/victory.cpp:1793"
-LoadBattleAssets,AllocWeaponArray,"seam slot filled by InstallNativeSeams, WeaponsSeam::AllocWeaponArray, src/game/game_state.cpp:745, src/seams/native.cpp"
-LoadBattleAssets,AllocateUnitMemory,"seam slot filled by InstallNativeSeams, UnitsSeam::AllocateUnitMemory, src/game/game_state.cpp:742, src/seams/native.cpp"
-LoadBattleAssets,BuildAllPassMaps,"seam slot filled by InstallNativeSeams, MapSeam::BuildAllPassMaps, src/game/game_state.cpp:745, src/seams/native.cpp"
-LoadBattleAssets,FreeFeatureFileList,"seam slot filled by InstallNativeSeams, FeaturesSeam::FreeFeatureFileList, src/game/game_state.cpp:758, src/seams/native.cpp"
-LoadBattleAssets,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/game_state.cpp:754, src/seams/native.cpp"
-LoadBattleAssets,InitExplosions,"seam slot filled by InstallNativeSeams, WeaponsSeam::InitExplosions, src/game/game_state.cpp:772, src/seams/native.cpp"
-LoadBattleAssets,InitMeteors,"seam slot filled by InstallNativeSeams, WindMeteorsSeam::InitMeteors, src/game/game_state.cpp:775, src/seams/native.cpp"
-LoadBattleAssets,InitPlayers,"seam slot filled by InstallNativeSeams, PlayersSeam::InitPlayers, src/game/game_state.cpp:761, src/seams/native.cpp"
-LoadBattleAssets,InitRadar,"seam slot filled by InstallNativeSeams, LosRadarSeam::InitRadar, src/game/game_state.cpp:772, src/seams/native.cpp"
-LoadBattleAssets,InitUnitCategories,"seam slot filled by InstallNativeSeams, UnitsSeam::InitUnitCategories, src/game/game_state.cpp:733, src/seams/native.cpp"
-LoadBattleAssets,LoadDownloadMenus,"seam slot filled by InstallNativeSeams, UnitsSeam::LoadDownloadMenus, src/game/game_state.cpp:741, src/seams/native.cpp"
-LoadBattleAssets,LoadFeatureFileList,"seam slot filled by InstallNativeSeams, FeaturesSeam::LoadFeatureFileList, src/game/game_state.cpp:746, src/seams/native.cpp"
-LoadBattleAssets,LoadTntMap,"seam slot filled by InstallNativeSeams, LosRadarSeam::LoadTntMap, src/game/game_state.cpp:750, src/seams/native.cpp"
-LoadBattleAssets,LoadUnitTypes,"seam slot filled by InstallNativeSeams, UnitsSeam::LoadUnitTypes, src/game/game_state.cpp:740, src/seams/native.cpp"
-LoadBattleAssets,LoadWeaponTypes,"seam slot filled by InstallNativeSeams, WeaponsSeam::LoadWeaponTypes, src/game/game_state.cpp:746, src/seams/native.cpp"
-LoadBattleAssets,NopAfterFeatureEnum,"seam slot filled by InstallNativeSeams, FeaturesSeam::NopAfterFeatureEnum, src/game/game_state.cpp:748, src/seams/native.cpp"
-LoadBattleAssets,ResolveFeatureLinks,"seam slot filled by InstallNativeSeams, FeaturesSeam::ResolveFeatureLinks, src/game/game_state.cpp:757, src/seams/native.cpp"
-LoadBattleAssets,UpdateWind,"seam slot filled by InstallNativeSeams, WindMeteorsSeam::UpdateWind, src/game/game_state.cpp:764, src/seams/native.cpp"
+LoadBattleAssets,AllocWeaponArray,"seam slot filled by InstallNativeSeams, WeaponsSeam::AllocWeaponArray, src/game/game_state.cpp:742, src/seams/native.cpp"
+LoadBattleAssets,AllocateUnitMemory,"seam slot filled by InstallNativeSeams, UnitsSeam::AllocateUnitMemory, src/game/game_state.cpp:739, src/seams/native.cpp"
+LoadBattleAssets,BuildAllPassMaps,"seam slot filled by InstallNativeSeams, MapSeam::BuildAllPassMaps, src/game/game_state.cpp:742, src/seams/native.cpp"
+LoadBattleAssets,CreatePathfinder,"seam slot filled by InstallNativeSeams, OrdersSeam::CreatePathfinder, src/game/game_state.cpp:759, src/seams/native.cpp"
+LoadBattleAssets,FreeFeatureFileList,"seam slot filled by InstallNativeSeams, FeaturesSeam::FreeFeatureFileList, src/game/game_state.cpp:755, src/seams/native.cpp"
+LoadBattleAssets,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/game_state.cpp:751, src/seams/native.cpp"
+LoadBattleAssets,InitExplosions,"seam slot filled by InstallNativeSeams, WeaponsSeam::InitExplosions, src/game/game_state.cpp:769, src/seams/native.cpp"
+LoadBattleAssets,InitMeteors,"seam slot filled by InstallNativeSeams, WindMeteorsSeam::InitMeteors, src/game/game_state.cpp:772, src/seams/native.cpp"
+LoadBattleAssets,InitPlayers,"seam slot filled by InstallNativeSeams, PlayersSeam::InitPlayers, src/game/game_state.cpp:758, src/seams/native.cpp"
+LoadBattleAssets,InitRadar,"seam slot filled by InstallNativeSeams, LosRadarSeam::InitRadar, src/game/game_state.cpp:769, src/seams/native.cpp"
+LoadBattleAssets,InitUnitCategories,"seam slot filled by InstallNativeSeams, UnitsSeam::InitUnitCategories, src/game/game_state.cpp:730, src/seams/native.cpp"
+LoadBattleAssets,LoadDownloadMenus,"seam slot filled by InstallNativeSeams, UnitsSeam::LoadDownloadMenus, src/game/game_state.cpp:738, src/seams/native.cpp"
+LoadBattleAssets,LoadFeatureFileList,"seam slot filled by InstallNativeSeams, FeaturesSeam::LoadFeatureFileList, src/game/game_state.cpp:743, src/seams/native.cpp"
+LoadBattleAssets,LoadTntMap,"seam slot filled by InstallNativeSeams, LosRadarSeam::LoadTntMap, src/game/game_state.cpp:747, src/seams/native.cpp"
+LoadBattleAssets,LoadUnitTypes,"seam slot filled by InstallNativeSeams, UnitsSeam::LoadUnitTypes, src/game/game_state.cpp:737, src/seams/native.cpp"
+LoadBattleAssets,LoadWeaponTypes,"seam slot filled by InstallNativeSeams, WeaponsSeam::LoadWeaponTypes, src/game/game_state.cpp:743, src/seams/native.cpp"
+LoadBattleAssets,NopAfterFeatureEnum,"seam slot filled by InstallNativeSeams, FeaturesSeam::NopAfterFeatureEnum, src/game/game_state.cpp:745, src/seams/native.cpp"
+LoadBattleAssets,ResolveFeatureLinks,"seam slot filled by InstallNativeSeams, FeaturesSeam::ResolveFeatureLinks, src/game/game_state.cpp:754, src/seams/native.cpp"
+LoadBattleAssets,UpdateWind,"seam slot filled by InstallNativeSeams, WindMeteorsSeam::UpdateWind, src/game/game_state.cpp:761, src/seams/native.cpp"
 LoadDefaultAIScript,GetNameSlotNative,"seam slot filled by InstallNativeSeams, MapSeam::GetNameSlot, src/game/players_464290.cpp:437, src/seams/native.cpp"
 LoadDefaultAIScript,ParseDownloadableAiWeightScripts,"seam slot filled by InstallNativeSeams, AiSeam::ParseDownloadableAiWeightScripts, src/game/players_464290.cpp:451, src/seams/native.cpp"
 LoadDefaultAIScript,ReparseAiWeightScriptsIfLimitNotSticky,"seam slot filled by InstallNativeSeams, AiSeam::ReparseAiWeightScriptsIfLimitNotSticky, src/game/players_464290.cpp:452, src/seams/native.cpp"
 LoadFeatureType,FindWeaponByNameNative,"seam slot filled by InstallNativeSeams, WeaponsSeam::FindWeaponByName, src/map/features_4224b0.cpp:238, src/seams/native.cpp"
 LoadFeatures,GetMapCell,"seam slot filled by InstallNativeSeams, LosRadarSeam::GetMapCell, src/map/features_424c00.cpp:153,167,196, src/seams/native.cpp"
-LoadGameScreenHandler,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/savegame.cpp:428,449,481, src/seams/native.cpp"
-LoadGameScreenHandler,LoadCampaignNative,"seam slot filled by InstallNativeSeams, MapSeam::LoadCampaign, src/game/savegame.cpp:425, src/seams/native.cpp"
-LoadGameScreenHandler,LoadMissionByNameNative,"seam slot filled by InstallNativeSeams, MapSeam::LoadMissionByName, src/game/savegame.cpp:442, src/seams/native.cpp"
-LoadGameScreenHandler,SetMissionType,"seam slot filled by InstallNativeSeams, MapSeam::SetMissionType, src/game/savegame.cpp:422, src/seams/native.cpp"
+LoadGameScreenHandler,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/savegame.cpp:427,448,480, src/seams/native.cpp"
+LoadGameScreenHandler,LoadCampaignNative,"seam slot filled by InstallNativeSeams, MapSeam::LoadCampaign, src/game/savegame.cpp:424, src/seams/native.cpp"
+LoadGameScreenHandler,LoadMissionByNameNative,"seam slot filled by InstallNativeSeams, MapSeam::LoadMissionByName, src/game/savegame.cpp:441, src/seams/native.cpp"
+LoadGameScreenHandler,SetMissionType,"seam slot filled by InstallNativeSeams, MapSeam::SetMissionType, src/game/savegame.cpp:421, src/seams/native.cpp"
 LoadMatch,CreateUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::CreateUnit, src/game/game_load.cpp:673, src/seams/native.cpp"
 LoadMatch,FindUnitTypeId,"seam slot filled by InstallNativeSeams, UnitsSeam::FindUnitTypeId, src/game/game_load.cpp:672, src/seams/native.cpp"
 LoadMatch,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/game_load.cpp:561,620,641,642,696,753, src/seams/native.cpp"
@@ -1093,9 +1094,11 @@ RunGameSteps,UpdateFeatures,"seam slot filled by InstallNativeSeams, FeaturesSea
 RunGameSteps,UpdatePlayers,"seam slot filled by InstallNativeSeams, PlayersSeam::UpdatePlayers, src/ingame/dialogs_493340.cpp:1282, src/seams/native.cpp"
 RunGameSteps,UpdateProjectiles,"seam slot filled by InstallNativeSeams, WeaponsSeam::UpdateProjectiles, src/ingame/dialogs_493340.cpp:1276, src/seams/native.cpp"
 RunGameSteps,UpdateResourceSharing,"seam slot filled by InstallNativeSeams, EconomySeam::UpdateResourceSharing, src/ingame/dialogs_493340.cpp:1302, src/seams/native.cpp"
-RunInitialMission,AttachUnitToPiece,"seam slot filled by InstallNativeSeams, UnitsSeam::AttachUnitToPiece, src/units/unit_commands.cpp:250, src/seams/native.cpp"
-RunInitialMission,FindMissionUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::FindMissionUnit, src/units/unit_commands.cpp:144,218,248, src/seams/native.cpp"
-RunInitialMission,FindUnitTypeId,"seam slot filled by InstallNativeSeams, UnitsSeam::FindUnitTypeId, src/units/unit_commands.cpp:178,198, src/seams/native.cpp"
+RunInitialMission,AddOrder,"seam slot filled by InstallNativeSeams, OrdersSeam::AddOrder, src/units/unit_commands.cpp:122,133,143,157,169,177,188,197,200,217,224,230,237,254, src/seams/native.cpp"
+RunInitialMission,AttachUnitToPiece,"seam slot filled by InstallNativeSeams, UnitsSeam::AttachUnitToPiece, src/units/unit_commands.cpp:246, src/seams/native.cpp"
+RunInitialMission,FindMissionUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::FindMissionUnit, src/units/unit_commands.cpp:140,214,244, src/seams/native.cpp"
+RunInitialMission,FindUnitTypeId,"seam slot filled by InstallNativeSeams, UnitsSeam::FindUnitTypeId, src/units/unit_commands.cpp:174,194, src/seams/native.cpp"
+RunInitialMission,GetOrderType,"seam slot filled by InstallNativeSeams, OrdersSeam::GetOrderType, src/units/unit_commands.cpp:121,132,142,155,168, src/seams/native.cpp"
 RunOrders,ActivateOrder,"order type table entry, src/orders/unit_orders.cpp:2149"
 RunOrders,AirStrikeOrder,"order type table entry, src/orders/unit_orders.cpp:2209"
 RunOrders,AirToAirOrder,"order type table entry, src/orders/unit_orders.cpp:2210"
@@ -1258,21 +1261,22 @@ SetUnitPosition,AddUnitToMap,"seam slot filled by InstallNativeSeams, MapSeam::A
 SetUnitPosition,RemoveUnitFromMap,"seam slot filled by InstallNativeSeams, MapSeam::RemoveUnitFromMap, src/units/unit_position.cpp:379, src/seams/native.cpp"
 SetUnitPosition,UpdateUnitLineOfSight,"seam slot filled by InstallNativeSeams, LosRadarSeam::UpdateUnitLineOfSight, src/units/unit_position.cpp:397, src/seams/native.cpp"
 SetupPlayerSlot,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/players_464290.cpp:262,276, src/seams/native.cpp"
-ShutdownGame,FreeOtaEnumCacheAndMission,"seam slot filled by InstallNativeSeams, MapSeam::FreeOtaEnumCacheAndMission, src/game/game_state.cpp:690, src/seams/native.cpp"
-ShutdownGame,FreeUnitInfo,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitInfo, src/game/game_state.cpp:688, src/seams/native.cpp"
-ShutdownIngameSystems,EmptyShutdownPreCleanup,"seam slot filled by InstallNativeSeams, WindMeteorsSeam::EmptyShutdownPreCleanup, src/game/game_state.cpp:844, src/seams/native.cpp"
-ShutdownIngameSystems,FreeDownloadMenus,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeDownloadMenus, src/game/game_state.cpp:831, src/seams/native.cpp"
-ShutdownIngameSystems,FreeExplosions,"seam slot filled by InstallNativeSeams, WeaponsSeam::FreeExplosions, src/game/game_state.cpp:835, src/seams/native.cpp"
-ShutdownIngameSystems,FreeMapResources,"seam slot filled by InstallNativeSeams, LosRadarSeam::FreeMapResources, src/game/game_state.cpp:845, src/seams/native.cpp"
-ShutdownIngameSystems,FreeMovementClasses,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeMovementClasses, src/game/game_state.cpp:836, src/seams/native.cpp"
-ShutdownIngameSystems,FreePlayers,"seam slot filled by InstallNativeSeams, PlayersSeam::FreePlayers, src/game/game_state.cpp:822, src/seams/native.cpp"
-ShutdownIngameSystems,FreeRadar,"seam slot filled by InstallNativeSeams, LosRadarSeam::FreeRadar, src/game/game_state.cpp:844, src/seams/native.cpp"
-ShutdownIngameSystems,FreeUnitCategories,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitCategories, src/game/game_state.cpp:837, src/seams/native.cpp"
-ShutdownIngameSystems,FreeUnitMemory,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitMemory, src/game/game_state.cpp:818, src/seams/native.cpp"
-ShutdownIngameSystems,FreeUnitTypes,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitTypes, src/game/game_state.cpp:832, src/seams/native.cpp"
-ShutdownIngameSystems,FreeWeaponArray,"seam slot filled by InstallNativeSeams, WeaponsSeam::FreeWeaponArray, src/game/game_state.cpp:850, src/seams/native.cpp"
-ShutdownIngameSystems,FreeWeaponTypes,"seam slot filled by InstallNativeSeams, WeaponsSeam::FreeWeaponTypes, src/game/game_state.cpp:848, src/seams/native.cpp"
-ShutdownIngameSystems,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/game_state.cpp:838, src/seams/native.cpp"
+ShutdownGame,FreeOtaEnumCacheAndMission,"seam slot filled by InstallNativeSeams, MapSeam::FreeOtaEnumCacheAndMission, src/game/game_state.cpp:688, src/seams/native.cpp"
+ShutdownGame,FreeUnitInfo,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitInfo, src/game/game_state.cpp:686, src/seams/native.cpp"
+ShutdownIngameSystems,DestroyPathfinder,"seam slot filled by InstallNativeSeams, OrdersSeam::DestroyPathfinder, src/game/game_state.cpp:817, src/seams/native.cpp"
+ShutdownIngameSystems,EmptyShutdownPreCleanup,"seam slot filled by InstallNativeSeams, WindMeteorsSeam::EmptyShutdownPreCleanup, src/game/game_state.cpp:840, src/seams/native.cpp"
+ShutdownIngameSystems,FreeDownloadMenus,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeDownloadMenus, src/game/game_state.cpp:827, src/seams/native.cpp"
+ShutdownIngameSystems,FreeExplosions,"seam slot filled by InstallNativeSeams, WeaponsSeam::FreeExplosions, src/game/game_state.cpp:831, src/seams/native.cpp"
+ShutdownIngameSystems,FreeMapResources,"seam slot filled by InstallNativeSeams, LosRadarSeam::FreeMapResources, src/game/game_state.cpp:841, src/seams/native.cpp"
+ShutdownIngameSystems,FreeMovementClasses,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeMovementClasses, src/game/game_state.cpp:832, src/seams/native.cpp"
+ShutdownIngameSystems,FreePlayers,"seam slot filled by InstallNativeSeams, PlayersSeam::FreePlayers, src/game/game_state.cpp:818, src/seams/native.cpp"
+ShutdownIngameSystems,FreeRadar,"seam slot filled by InstallNativeSeams, LosRadarSeam::FreeRadar, src/game/game_state.cpp:840, src/seams/native.cpp"
+ShutdownIngameSystems,FreeUnitCategories,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitCategories, src/game/game_state.cpp:833, src/seams/native.cpp"
+ShutdownIngameSystems,FreeUnitMemory,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitMemory, src/game/game_state.cpp:814, src/seams/native.cpp"
+ShutdownIngameSystems,FreeUnitTypes,"seam slot filled by InstallNativeSeams, UnitsSeam::FreeUnitTypes, src/game/game_state.cpp:828, src/seams/native.cpp"
+ShutdownIngameSystems,FreeWeaponArray,"seam slot filled by InstallNativeSeams, WeaponsSeam::FreeWeaponArray, src/game/game_state.cpp:846, src/seams/native.cpp"
+ShutdownIngameSystems,FreeWeaponTypes,"seam slot filled by InstallNativeSeams, WeaponsSeam::FreeWeaponTypes, src/game/game_state.cpp:844, src/seams/native.cpp"
+ShutdownIngameSystems,GetGameTypeNative,"seam slot filled by InstallNativeSeams, MapSeam::GetGameType, src/game/game_state.cpp:834, src/seams/native.cpp"
 SmokeParticles::Init,SmokeParticles::Emit,"Emit() on this, SmokeParticles has no subclass, src/graphics/particles_472630.cpp:276"
 SpawnCommanderAtStartPos,CreateUnit,"seam slot filled by InstallNativeSeams, UnitsSeam::CreateUnit, src/game/main_loop.cpp:587, src/seams/native.cpp"
 SpawnCommanderAtStartPos,FindUnitTypeId,"seam slot filled by InstallNativeSeams, UnitsSeam::FindUnitTypeId, src/game/main_loop.cpp:585, src/seams/native.cpp"
@@ -1401,12 +1405,12 @@ UpdateMenu,HandleUnitInfoDialogEvent,Layer::handler assigned at src/ingame/dialo
 UpdateMenu,HandleViewMapClick,Layer::handler assigned at src/frontend/multi.cpp:2301
 UpdateMenu,HandleVisualOptionsClick,Layer::handler assigned at src/frontend/options.cpp:1967
 UpdateMenu,InputDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1170
-UpdateMenu,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:667
+UpdateMenu,LoadGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:666
 UpdateMenu,MessageBoxHandler,Layer::handler assigned at src/gui/dialogs.cpp:1074
 UpdateMenu,NotExistDialogHandler,Layer::handler assigned at src/gui/dialogs.cpp:1100
 UpdateMenu,ReportDialogFrame,Layer::cb1c assigned at src/frontend/multi.cpp:1966
-UpdateMenu,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:638
-UpdateMenu,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:684
+UpdateMenu,SaveGameScreenHandler,Layer::handler assigned at src/game/savegame.cpp:637
+UpdateMenu,SavedGameSelectHandler,Layer::handler assigned at src/game/savegame.cpp:683
 UpdateMenu,SetSerialBaudFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1605
 UpdateMenu,SetSerialPortFromGadget,Layer::handler assigned at src/frontend/multi.cpp:1602
 UpdateMenu,ShowSelectedAccount,Layer::handler assigned at src/frontend/multi.cpp:1902

@@ -14,7 +14,7 @@ class MissionType;
 // Major version of the orders interface, changed when a slot is removed or its signature changes.
 #define ORDERS_VERSION_MAJOR 1
 // Minor version of the orders interface, changed when a slot is added.
-#define ORDERS_VERSION_MINOR 4
+#define ORDERS_VERSION_MINOR 5
 
 // Unit orders and command queues.
 struct OrdersSeam {
@@ -52,6 +52,14 @@ struct OrdersSeam {
     void (__fastcall* SaveMotion)(UnitMotion* motion, int unusedEdx, Unit* unit, HapiBank* file);
     // Steers a unit, moves it and updates its move rate for one tick (thiscall in 3.1c: this in ecx). Hooks: none.
     void (__fastcall* UpdateMotion)(UnitMotion* motion, int unusedEdx, Unit* unit);
+    // Registers the order types of every module in the order type table. Hooks: none.
+    void (__stdcall* RegisterAllOrderTypes)(void);
+    // Empties the order type table. Hooks: none.
+    void (__stdcall* ClearOrderTypeTable)(void);
+    // Creates the pathfinder of a game and stores it in the game state. Hooks: none.
+    void (__stdcall* CreatePathfinder)(void);
+    // Destroys the pathfinder of a game and clears it in the game state. Hooks: none.
+    void (__stdcall* DestroyPathfinder)(void);
 };
 
 #endif
