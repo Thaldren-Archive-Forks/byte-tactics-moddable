@@ -2216,6 +2216,16 @@ int __stdcall FireTurretWeapon(Unit* fire, UnitWeaponSlot* unit,
     return 0;
 }
 
+// SUSPECTED ORIGINAL BUG (kept from an earlier pass, still worth reporting):
+// the ballistic path (weapon flag bit 1) stores its heading into argument one's
+// home slot, the shooter's pointer, and that slot is what the call to AimWithinTolerance
+// at 0x49d681 then reads as its angle1 (`mov edx, dword ptr [esp + 0x58]`). The edi
+// register still holds the real shooter pointer, so the first angle checked is the
+// low 16 bits of a pointer. Worse, the third argument, the target unit, is read back
+// at 0x49d745 from that same clobbered slot, so on this path the `target->f_a8` at
+// 0x49d812 and the target handed to FireLineOfSightProjectile at 0x49d77d can both be a pointer's
+// low half. `test al, 1` at 0x49d58e means the path is only taken when f_1b bit 0 is
+// set, so this is the laser (flags bit 1) aiming path.
 
 #include <stdlib.h>
 
