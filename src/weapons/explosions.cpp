@@ -122,7 +122,7 @@ struct Object3D {
     char unknown_10[12];
     const char* name;                  // +0x1c
     int active;                        // +0x20
-    PosVec3* verts;                       // +0x24
+    PosVec3* verts;
     Face* faces;                       // +0x28
     char unknown_2c[8];
 };
@@ -153,7 +153,7 @@ struct Cell {
 
 struct Feature {
     char unknown_0[0x94];
-    PointXZ footprint;                 // +0x94
+    PointXZ footprint;
     char unknown_98[0x100 - 0x98];
 };
 
@@ -191,8 +191,8 @@ struct PieceRec {
     short angle_10;                    // +0x10
     short angle_12;                    // +0x12
     short angle_14;                    // +0x14
-    PosVec3 pos;                          // +0x16
-    PosVec3* verts;                       // +0x22
+    PosVec3 pos;
+    PosVec3* verts;
     char unknown_26[2];
     unsigned short flags;              // +0x28
     char unknown_2a[0x36 - 0x2a];
@@ -229,10 +229,10 @@ struct Debris {
     Object3D* obj;                     // +0x00
     GafRef ref1;                       // +0x04
     GafRef ref2;                       // +0x10
-    PosVec3 pos;                          // +0x1c
-    PosVec3 size;                         // +0x28
-    PosVec3 vel;                          // +0x34
-    PosVec3 spin;                         // +0x40
+    PosVec3 pos;
+    PosVec3 size;
+    PosVec3 vel;
+    PosVec3 spin;
     short angle_x;                     // +0x4c
     short angle_y;                     // +0x4e
     short angle_z;                     // +0x50
