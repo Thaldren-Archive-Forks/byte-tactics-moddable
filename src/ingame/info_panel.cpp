@@ -82,57 +82,7 @@ struct Unit_00467960 {
 
 struct Object_004cb650;
 
-struct Unit {
-    char unknown_0[0x1f];
-    unsigned char f_1f;                // +0x1f
-    char unknown_20[0x3b - 0x20];
-    unsigned char f_3b;                // +0x3b
-    char unknown_3c[0x57 - 0x3c];
-    unsigned char f_57;                // +0x57
-    char unknown_58[0x5c - 0x58];
-    void* list;                        // +0x5c, the mission queue
-    void* list2;                       // +0x60, the background mission queue
-    Angles16 angles;                   // +0x64
-    Vec3 pos;                          // +0x6a
-    char unknown_76[0x92 - 0x76];
-    // The unit definition; 0x46a530 indexes the model table with the short at
-    // the same offset, 0x467e50 reads it as a string pointer.
-    union {
-        UnitDef* def;                  // +0x92
-        UnitType_004685a0* type;
-        char* f_92;
-    };
-    union {
-        Owner_00467440* field_96;      // +0x96
-        PlayerInfo_004685a0* player;
-        int* f_96;
-    };
-    char unknown_9a[0x9e - 0x9a];
-    SpotState* state;                  // +0x9e
-    char unknown_a2[0xa6 - 0xa2];
-    unsigned short unitDefIndex;           // +0xa6
-    unsigned short id;                 // +0xa8
-    char unknown_aa[0xb0 - 0xaa];
-    int workTime;                      // +0xb0
-    char unknown_b4[0xb8 - 0xb4];
-    unsigned short killCount;          // +0xb8
-    char unknown_ba[0xff - 0xba];
-    unsigned char playerIndex;            // +0xff
-    char unknown_100[0x104 - 0x100];
-    float buildLeft;                   // +0x104
-    union {
-        short health;                  // +0x108
-        short f_108;
-    };
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char activateFlags;           // +0x10e
-    char unknown_10f[0x110 - 0x10f];
-    union {
-        unsigned int flags;            // +0x110
-        int f_110;
-    };
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 struct MapSize_00467440 {
     unsigned int width;                // +0x0
@@ -713,7 +663,7 @@ int __stdcall DrawUnitStateProbe(void* surface)
         return 0;
     unit = (Unit*)(*(int*)((char*)g_game + 0x14357)
                             + g_game->unitInfoHoverUnitId * 0x118);
-    if ((unit->f_110 & 0x10000000) == 0 || (unit->f_110 & 0x4000) != 0) {
+    if ((((int)unit->flags) & 0x10000000) == 0 || (((int)unit->flags) & 0x4000) != 0) {
         g_game->unitInfoHoverTrack = 0;
         g_game->unitInfoHoverUnitId = 0;
     }
@@ -737,47 +687,47 @@ int __stdcall DrawUnitStateProbe(void* surface)
     y += lineH;
     DrawString(surface, "================", 0x86, y, -1);
     y += lineH;
-    sprintf(buf, "uid: %03d/%04x '%s'\n", unit->id, unit->id, unit->f_92);
+    sprintf(buf, "uid: %03d/%04x '%s'\n", unit->id, unit->id, ((char *)unit->def));
     DrawString(surface, buf, 0x86, y, -1);
     y += lineH;
     sprintf(buf, "playerno: %d '%s' %s - %s\n",
-            *(unsigned char*)((char*)unit->f_96 + 0x146),
-            (char*)unit->f_96 + 0x2b,
-            (*unit->f_96 != 0
-             && (*(unsigned char*)((char*)unit->f_96 + 0x73) == 1
-                 || *(unsigned char*)((char*)unit->f_96 + 0x73) == 2))
+            *(unsigned char*)((char*)((int *)unit->player) + 0x146),
+            (char*)((int *)unit->player) + 0x2b,
+            (*((int *)unit->player) != 0
+             && (*(unsigned char*)((char*)((int *)unit->player) + 0x73) == 1
+                 || *(unsigned char*)((char*)((int *)unit->player) + 0x73) == 2))
                 ? "LOCAL" : "REMOTE",
-            *(unsigned char*)(unit->f_92 + 0x22f) != 0 ? "MOBILE" : "BUILDING");
+            *(unsigned char*)(((char *)unit->def) + 0x22f) != 0 ? "MOBILE" : "BUILDING");
     DrawString(surface, buf, 0x86, y, -1);
     y += lineH;
-    sprintf(buf, "controller: %d\n", *(unsigned char*)((char*)unit->f_96 + 0x73));
+    sprintf(buf, "controller: %d\n", *(unsigned char*)((char*)((int *)unit->player) + 0x73));
     DrawString(surface, buf, 0x86, y, -1);
     y += lineH;
     sprintf(buf, "buildtimeleft: %1.3f\n", unit->buildLeft);
     DrawString(surface, buf, 0x86, y, -1);
     y += lineH;
-    sprintf(buf, "damage: %d\n", unit->f_108);
+    sprintf(buf, "damage: %d\n", unit->health);
     DrawString(surface, buf, 0x86, y, -1);
     y += lineH;
     names[0] = "NONE";
     names[1] = "GROUND";
     names[2] = "AIR";
-    sprintf(buf, "occupy: %s\n", names[unit->f_110 & 3]);
+    sprintf(buf, "occupy: %s\n", names[((int)unit->flags) & 3]);
     DrawString(surface, buf, 0x86, y, -1);
     y += lineH;
-    if (*unit->f_96 != 0
-        && (*(unsigned char*)((char*)unit->f_96 + 0x73) == 1
-            || *(unsigned char*)((char*)unit->f_96 + 0x73) == 2)) {
+    if (*((int *)unit->player) != 0
+        && (*(unsigned char*)((char*)((int *)unit->player) + 0x73) == 1
+            || *(unsigned char*)((char*)((int *)unit->player) + 0x73) == 2)) {
         sprintf(buf, "autotarget w[pri:sec:spe]: w[%c:%c:%c]\n",
                 (unit->f_1f & 0x10) ? 'X' : '-',
                 (unit->f_3b & 0x10) ? 'X' : '-',
                 (unit->f_57 & 0x10) ? 'X' : '-');
         DrawString(surface, buf, 0x86, y, -1);
         y += lineH;
-        if (unit->list != 0) {
+        if (((void *)unit->list) != 0) {
             DrawString(surface, "Mission Q:", 0x86, y, -1);
             y += lineH;
-            for (m = (Mission_00467e50*)unit->list; m != 0;
+            for (m = (Mission_00467e50*)((void *)unit->list); m != 0;
                  m = (Mission_00467e50*)m->next) {
                 if (m->target != 0)
                     sprintf(buf, "    '%s' state: %d  tgt: '%s'\n",
@@ -791,10 +741,10 @@ int __stdcall DrawUnitStateProbe(void* surface)
                 y += lineH;
             }
         }
-        if (unit->list2 != 0) {
+        if (((void *)unit->list2) != 0) {
             DrawString(surface, "Background Mission Q:", 0x86, y, -1);
             y += lineH;
-            for (m = (Mission_00467e50*)unit->list2; m != 0;
+            for (m = (Mission_00467e50*)((void *)unit->list2); m != 0;
                  m = (Mission_00467e50*)m->next) {
                 if (m->target != 0)
                     sprintf(buf, "    '%s' state: %d  tgt: '%s'\n",
@@ -894,8 +844,8 @@ int __stdcall DrawUnitBuilderProbe(void* surface)
     if (g_game->unitBuilderHoverTrack == 0 || g_game->unitBuilderHoverUnitId == 0)
         return 0;
     Unit* unit = &g_game->units[g_game->unitBuilderHoverUnitId];
-    if ((unit->f_110 & 0x10000000) == 0 || (unit->f_110 & 0x4000) != 0
-            || unit->type->ids == 0) {
+    if ((((int)unit->flags) & 0x10000000) == 0 || (((int)unit->flags) & 0x4000) != 0
+            || ((UnitType_004685a0 *)unit->def)->ids == 0) {
         g_game->unitInfoHoverTrack = 0;
         g_game->unitInfoHoverUnitId = 0;
     }
@@ -923,22 +873,22 @@ int __stdcall DrawUnitBuilderProbe(void* surface)
     y += lineHeight;
     DrawString(surface, "==================", 0x86, y, -1);
     y += lineHeight;
-    sprintf(buf, "uid: %03d '%s'\n", unit->id, (char*)unit->type);
+    sprintf(buf, "uid: %03d '%s'\n", unit->id, (char*)((UnitType_004685a0 *)unit->def));
     DrawString(surface, buf, 0x86, y, -1);
     y += lineHeight;
-    char* mobile = (char*)(unit->type->mobile ? "MOBILE" : "BUILDING");
+    char* mobile = (char*)(((UnitType_004685a0 *)unit->def)->mobile ? "MOBILE" : "BUILDING");
     char* remote;
-    if (unit->player->f_0 != 0 && (unit->player->controller == 1 || unit->player->controller == 2))
+    if (((PlayerInfo_004685a0 *)unit->player)->f_0 != 0 && (((PlayerInfo_004685a0 *)unit->player)->controller == 1 || ((PlayerInfo_004685a0 *)unit->player)->controller == 2))
         remote = "LOCAL";
     else
         remote = "REMOTE";
-    sprintf(buf, "playerno: %d '%s' %s - %s\n", unit->player->player, unit->player->name, remote, mobile);
+    sprintf(buf, "playerno: %d '%s' %s - %s\n", ((PlayerInfo_004685a0 *)unit->player)->player, ((PlayerInfo_004685a0 *)unit->player)->name, remote, mobile);
     DrawString(surface, buf, 0x86, y, -1);
     y += lineHeight;
-    sprintf(buf, "controller: %d\n\n", unit->player->controller);
+    sprintf(buf, "controller: %d\n\n", ((PlayerInfo_004685a0 *)unit->player)->controller);
     DrawString(surface, buf, 0x86, y, -1);
     y += lineHeight;
-    if (unit->player->f_0 != 0 && (unit->player->controller == 1 || unit->player->controller == 2)) {
+    if (((PlayerInfo_004685a0 *)unit->player)->f_0 != 0 && (((PlayerInfo_004685a0 *)unit->player)->controller == 1 || ((PlayerInfo_004685a0 *)unit->player)->controller == 2)) {
         sprintf(buf, "Units I can build, and the probabilities:\n",
                 ((unit->f_1f & 0x10) ? 'X' : '-'),
                 ((unit->f_3b & 0x10) ? 'X' : '-'),
@@ -946,9 +896,9 @@ int __stdcall DrawUnitBuilderProbe(void* surface)
         DrawString(surface, buf, 0x86, y, -1);
         int i = 0;
         y += lineHeight;
-        if (unit->type->count > 0) {
+        if (((UnitType_004685a0 *)unit->def)->count > 0) {
             do {
-                unsigned short id = unit->type->ids[i];
+                unsigned short id = ((UnitType_004685a0 *)unit->def)->ids[i];
                 int prob = GetBuildRating(unit->playerIndex, id);
                 Def_004685a0* def = &g_game->unitDefs[id];
                 Rect bar;
@@ -962,7 +912,7 @@ int __stdcall DrawUnitBuilderProbe(void* surface)
                 DrawString(surface, buf, 0x86, y, -1);
                 y += lineHeight;
                 i++;
-            } while (i < unit->type->count);
+            } while (i < ((UnitType_004685a0 *)unit->def)->count);
         }
     }
     g_probePanelBottom = y;
