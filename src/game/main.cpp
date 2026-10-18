@@ -28,12 +28,12 @@ void __stdcall AppendToDebugFile(char* text)
 }
 
 void OutOfMemoryHandler();
-void __cdecl SetOutOfMemoryHandler(void (*param_1)());
+int __cdecl SetOutOfMemoryHandler(int param_1);
 
 // FUNCTION: 0x49e6f0
 void InstallOutOfMemoryHandler()
 {
-    SetOutOfMemoryHandler(OutOfMemoryHandler);
+    SetOutOfMemoryHandler((int)OutOfMemoryHandler);
 }
 
 // Out of memory handler: appends a note to ErrorLog.txt beside the
@@ -198,7 +198,7 @@ extern const char g_cdShellValueName[];
 extern const char g_defaultLanguage[];
 
 void AtexitNoOp();
-void __cdecl InitDebugSupport(int param_1);
+void __cdecl InitDebugSupport(unsigned int param_1);
 void CreateGameObject();
 void RegisterDataArchives();
 void EmptyPreFrontendInitHook();
@@ -239,7 +239,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     (void)hPrevInstance;
 
     InitDebugSupport(8);
-    SetOutOfMemoryHandler(OutOfMemoryHandler);
+    SetOutOfMemoryHandler((int)OutOfMemoryHandler);
     if ((g_atexitRegistered & 1) == 0) {
         g_atexitRegistered |= 1;
         // atexit wants a __cdecl handler; /Gz makes AtexitNoOp __stdcall.
