@@ -112,16 +112,7 @@ struct Owner_0040eb70 {
     void* owner;                       // +0x4, the movement class
 };
 
-struct Unit {                          // 0x118 bytes
-    Owner_0040eb70* motion;            // +0x0
-    char unknown_4[0x66 - 0x4];
-    unsigned short heading;            // +0x66
-    char unknown_68[0x76 - 0x68];
-    Point16 cell;                      // +0x76
-    char unknown_7a[0xa6 - 0x7a];
-    short unitDefIndex;                    // +0xa6
-    char unknown_a8[0x118 - 0xa8];
-};
+#include "../units/unit.h"
 
 #include "../network/player.h"
 
@@ -516,7 +507,7 @@ greedy:
 // FUNCTION: 0x40e630
 void Pathfinder::StartSearch(Target* t)
 {
-    owner = (MovementClass*)object->motion->owner;
+    owner = (MovementClass*)((Owner_0040eb70 *)object->motion)->owner;
     target = t;
     start = object->cell;
     g_seams.units->RefreshMovedUnits(owner, object);
@@ -565,7 +556,7 @@ void Pathfinder::StartSearch(Target* t)
     unsigned int i = grid.Index(start.x, start.y);
     grid.dirty[i >> 8] |= 1 << ((i >> 3) & 0x1f);
     grid.cells[i].flags |= 1;
-    grid.cells[i].dir = ((object->heading + 0x1000) >> 13) & 7;
+    grid.cells[i].dir = ((((unsigned short)object->heading) + 0x1000) >> 13) & 7;
     grid.cells[i].node = Push(d);
     range = 4;
 }
@@ -701,8 +692,8 @@ void Pathfinder::RunSearches()
             else
                 (*c)++;
             Unit* u = cursor[player];
-            if (u->unitDefIndex != 0 && u->motion != 0 && u->motion->owner != 0) {
-                path = u->motion->planner->GetPath();
+            if (((short)u->unitDefIndex) != 0 && ((Owner_0040eb70 *)u->motion) != 0 && ((Owner_0040eb70 *)u->motion)->owner != 0) {
+                path = ((Owner_0040eb70 *)u->motion)->planner->GetPath();
                 if (path != 0) {
                     object = u;
                     steps += 100;

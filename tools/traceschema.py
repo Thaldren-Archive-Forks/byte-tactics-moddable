@@ -916,7 +916,38 @@ class Schema:
         self.cache[name] = result
         return result
 
+    def flatten_unions(self, body):
+        """Keep the first member of each multi-line anonymous union, the fine view of the bytes."""
+        lines = body.split("\n")
+        out = []
+        i = 0
+
+        def block(start):
+            depth = 0
+            j = start
+            while True:
+                depth += lines[j].count("{") - lines[j].count("}")
+                if depth == 0:
+                    return j
+                j += 1
+        while i < len(lines):
+            if lines[i].strip() == "union {":
+                end = block(i)
+                first = i + 1
+                if lines[first].strip() == "struct {":
+                    last = block(first)
+                    out += self.flatten_unions("\n".join(lines[first + 1:last])).split("\n")
+                else:
+                    out.append(lines[first])
+                i = end + 1
+                continue
+            out.append(lines[i])
+            i += 1
+        return "\n".join(out)
+
     def parse(self, name, body, declared):
+        if name == "Unit":
+            body = self.flatten_unions(body)
         leaves = []
         pos = 0
         group = None

@@ -12,6 +12,8 @@
 #include <vector>
 #include <list>
 #include <map>
+#include "../src/game/unit_resources.h"
+#include "../src/weapons/unit_weapon_slot.h"
 
 #pragma pack(push, 1)
 
@@ -498,7 +500,6 @@ class Class_00481340;
 class Class_004813b0;
 class Class_00481430;
 class Class_00481470;
-struct WeaponAimCobCb;
 struct Eye;
 class UnitScript;
 class Class_00488c50;
@@ -2142,18 +2143,6 @@ struct Holder_00401000 {  // 0x10 bytes, 1 view
 class Obj_2 {  // 0x1 bytes, 1 view
 public:
     char unknown_0[1];
-};
-
-class UnitResources {  // 0x34 bytes, 10 views
-public:
-    int unknown[12];  // +0x0
-    Player* store;  // +0x30
-    int RequestEnergy(UnitResources*, float);
-    int SpendEnergy(float);
-    int SpendMetal(float);
-    int SpendEnergyAndMetal(float, float);
-    void Reset(unsigned char);
-    int RequestEnergyAndMetal(float, float);
 };
 
 class Class_004010b0 {  // 0x30 bytes, 2 views
@@ -12097,13 +12086,6 @@ public:
     char unknown_0[1344];
     void* ptr_540;  // +0x540
     unsigned short FUN_00481470(void);
-};
-
-struct WeaponAimCobCb {  // 0x1c bytes, 4 views
-    void* vtable;  // +0x0
-    int field_4;  // +0x4
-    char unknown_8[20];
-    void OnAimCobReturn(int);
 };
 
 struct FrameTable {     // 0x2c bytes, 6 views

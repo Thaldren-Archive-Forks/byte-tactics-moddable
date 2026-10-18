@@ -41,17 +41,7 @@ struct UnitDef_0048cf30 {
 };
 
 // pos stays as x and z: util/vec3.h adds 14 symbol ids and 0x48cf30 matches only within 5 of this count.
-struct Unit {
-    char unknown_0[0x6a];
-    int x;                              // +0x6a
-    char unknown_6e[0x72 - 0x6e];
-    int z;                              // +0x72
-    char unknown_76[0x92 - 0x76];
-    UnitDef_0048cf30* def;              // +0x92
-    char unknown_96[0x110 - 0x96];
-    unsigned char flags;                // +0x110
-    char unknown_111[0x118 - 0x111];
-};
+#include "../units/unit.h"
 
 // Kept a view of its own at this file's symbol count; the header's names.
 struct Player {
@@ -108,10 +98,10 @@ void __stdcall IssueOrderToSelection(OrderTypeEntry* entry, unsigned char mode,
     int sum_z = 0;
     Unit* u;
     for (u = p->unitsBegin; u <= p->unitsEnd; u++) {
-        if ((u->flags & 0x10) && u != except) {
+        if ((((unsigned char)u->flags) & 0x10) && u != except) {
             count++;
-            sum_x += (short)(u->x >> 16);
-            sum_z += (short)(u->z >> 16);
+            sum_x += (short)(u->pos.x >> 16);
+            sum_z += (short)(u->pos.z >> 16);
         }
     }
     if (!count)
@@ -122,7 +112,7 @@ void __stdcall IssueOrderToSelection(OrderTypeEntry* entry, unsigned char mode,
     avg[2] = (sum_z / count) * 65536.0;
     int range = count * 3000;
     for (u = p->unitsBegin; u <= p->unitsEnd; u++) {
-        if (!(u->flags & 0x10) || u == except)
+        if (!(((unsigned char)u->flags) & 0x10) || u == except)
             continue;
         if (mode)
             kind.index = GetOrderType(mode, u, except, &g_game->pos).index;
@@ -131,21 +121,21 @@ void __stdcall IssueOrderToSelection(OrderTypeEntry* entry, unsigned char mode,
         // fire and move are named locals from the Order() wrapper, not constructed
         // directly: that decides their frame slots.
         MissionType fire = Order("Standing_FireOrder");
-        if (kind.index != fire.index || (u->def->flags & 2)) {
+        if (kind.index != fire.index || (((UnitDef_0048cf30 *)u->def)->flags & 2)) {
             MissionType move = Order("Standing_MoveOrder");
-            if (kind.index != move.index || (u->def->flags & 1)) {
+            if (kind.index != move.index || (((UnitDef_0048cf30 *)u->def)->flags & 1)) {
                 if (pos && (kind.GetTableEntry()->flags & 2)) {
                     // Two-step deltas, z first then x: one-step avoids a CSE across the branch.
-                    int dz = u->z;
+                    int dz = u->pos.z;
                     dz -= avg[2];
-                    int dx = u->x;
+                    int dx = u->pos.x;
                     dx -= avg[0];
                     if ((int)(((__int64)dx * dx) >> 32)
                         + (int)(((__int64)dz * dz) >> 32) <= range) {
                         int here[3];
-                        here[0] = pos[0] + u->x - avg[0];
+                        here[0] = pos[0] + u->pos.x - avg[0];
                         here[1] = pos[1];
-                        here[2] = pos[2] + u->z - avg[2];
+                        here[2] = pos[2] + u->pos.z - avg[2];
                         IssueOrCancelOrder(kind, flag_a, u, except, here, typeId, amount);
                         continue;
                     }
