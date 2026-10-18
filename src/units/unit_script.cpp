@@ -556,7 +556,7 @@ void UnitScript::DropUnit(unsigned short id)
 {
     Unit* u = GetUnit(id);
     if (u != 0 && (u->flags & 0x10000000) && u->carrier == state->unit) {
-        if (g_seams.map->CanPlaceUnitFootprint(u->def, (UnitDef*)(int)u->id, *(Point16*)&u->cell, 1)) {
+        if (g_seams.map->CanPlaceUnitFootprint(u->def, (unsigned short)u->id, *(Point16*)&u->cell, 1)) {
             AttachUnitToPiece(u, 0, -1, 1);
         }
     }

@@ -692,7 +692,7 @@ static inline int SteepCell(Cell* c)
 }
 
 // FUNCTION: 0x47db70
-int __stdcall CanPlaceUnitFootprint(UnitDef* unit, UnitDef* other, Point16 cell, int flags)
+int __stdcall CanPlaceUnitFootprint(UnitDef* unit, unsigned short otherTypeId, Point16 cell, int flags)
 {
     Point16 fp = unit->origin;
     if (cell.x < 0 || cell.y < 0)
@@ -718,7 +718,7 @@ int __stdcall CanPlaceUnitFootprint(UnitDef* unit, UnitDef* other, Point16 cell,
         for (int col = 0; col < fx; col++, c++) {
             if (SteepCell(c))
                 return 0;
-            if (c->unit != 0 && c->unit != (unsigned short)other)
+            if (c->unit != 0 && c->unit != otherTypeId)
                 return 0;
             if (c->low < minHeight)
                 return 0;

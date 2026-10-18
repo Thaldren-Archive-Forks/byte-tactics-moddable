@@ -14,7 +14,7 @@ class SpatialBucket;
 // Major version of the map interface, changed when a slot is removed or its signature changes.
 #define MAP_VERSION_MAJOR 2
 // Minor version of the map interface, changed when a slot is added.
-#define MAP_VERSION_MINOR 0
+#define MAP_VERSION_MINOR 1
 
 // Visits each unit VisitObjectsInRange finds. Implementations keep the vtable pointer first and this method in the first slot.
 class UnitVisitor {
@@ -38,7 +38,7 @@ struct MapSeam {
     // Returns 1 when a unit type can be built at a cell, with a visibility check when los is given. Hooks: none.
     int (__stdcall* CanBuildAt)(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* los);
     // Returns 1 when the footprint of a unit type fits at a cell (flags 2 counts a cell off the map as a fit). Hooks: none.
-    int (__stdcall* CanPlaceUnitFootprint)(UnitDef* unit, UnitDef* other, Point16 cell, int flags);
+    int (__stdcall* CanPlaceUnitFootprint)(UnitDef* unit, unsigned short otherTypeId, Point16 cell, int flags);
     // Builds the pass map of every movement class for the loaded terrain. Hooks: none.
     void (__stdcall* BuildAllPassMaps)(void);
     // Frees the cache of mission names and the mission object. Hooks: none.

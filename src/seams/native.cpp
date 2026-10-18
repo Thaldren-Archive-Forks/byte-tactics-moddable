@@ -76,7 +76,7 @@ void __stdcall CreateSquads(Player* player);
 void __stdcall FreeSquads(Player* player);
 void __stdcall SetUnitSquad(Unit* unit, int index);
 int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* los);
-int __stdcall CanPlaceUnitFootprint(UnitDef* unit, UnitDef* other, Point16 cell, int flags);
+int __stdcall CanPlaceUnitFootprint(UnitDef* unit, unsigned short otherTypeId, Point16 cell, int flags);
 void __stdcall AddOrder(MissionType kind, int remove, Unit* owner, Unit* target, Vec3* pos, int param_6, int param_7);
 void __stdcall DeleteOrders(Unit* owner, int all);
 int __stdcall GetOrderFlags(Unit* unit);
