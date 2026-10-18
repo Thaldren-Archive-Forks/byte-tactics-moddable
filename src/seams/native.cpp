@@ -2,8 +2,23 @@
 
 struct Player;
 
+class MeteorParams {
+public:
+    void LoadMeteorDefaults();
+};
+
 void __cdecl UpdateWind(void);
 void __stdcall UpdateMeteors(void);
+void __stdcall InitMeteors(void);
+void __stdcall EmptyShutdownPreCleanup(void);
+void __stdcall EnableMeteors(void);
+void __stdcall DisableMeteors(void);
+void __stdcall SetMeteorParams(MeteorParams* params);
+void __stdcall SaveMeteors(HapiBank* file);
+void __stdcall LoadMeteors(HapiBank* file);
+void __stdcall CmdMeteor(CommandArgs* args);
+int __stdcall SpawnProjectile(WeaponDef* weapon, Vec3* pos, Vec3* vel, int flag);
+char* __stdcall FindWeaponByName(char* name);
 void __stdcall UpdateResourceSharing(Player* player);
 void __stdcall UpdateFeatures(void);
 void __stdcall UpdateProjectiles(void);
@@ -28,12 +43,29 @@ static MapSeam s_map;
 
 void InstallNativeSeams()
 {
+    union {
+        void (MeteorParams::*member)();
+        void (__fastcall* function)(MeteorParams*);
+    } loadMeteorDefaults;
+    loadMeteorDefaults.member = &MeteorParams::LoadMeteorDefaults;
+
     s_wind_meteors.UpdateWind = UpdateWind;
     s_wind_meteors.UpdateMeteors = UpdateMeteors;
+    s_wind_meteors.InitMeteors = InitMeteors;
+    s_wind_meteors.EmptyShutdownPreCleanup = EmptyShutdownPreCleanup;
+    s_wind_meteors.EnableMeteors = EnableMeteors;
+    s_wind_meteors.DisableMeteors = DisableMeteors;
+    s_wind_meteors.SetMeteorParams = SetMeteorParams;
+    s_wind_meteors.LoadMeteorDefaults = loadMeteorDefaults.function;
+    s_wind_meteors.SaveMeteors = SaveMeteors;
+    s_wind_meteors.LoadMeteors = LoadMeteors;
+    s_wind_meteors.CmdMeteor = CmdMeteor;
     s_economy.UpdateResourceSharing = UpdateResourceSharing;
     s_features.UpdateFeatures = UpdateFeatures;
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
+    s_weapons.SpawnProjectile = SpawnProjectile;
+    s_weapons.FindWeaponByName = FindWeaponByName;
     s_units.UpdateAllUnits = UpdateAllUnits;
     s_players.UpdatePlayers = UpdatePlayers;
     g_seams.wind_meteors = &s_wind_meteors;
