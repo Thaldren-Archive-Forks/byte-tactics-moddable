@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <new>
 
-extern char g_language[256];
+extern char g_language[64];
 extern char DAT_005119b8[];
 
 void __cdecl AllocNotifyNop(int);
@@ -153,6 +153,7 @@ void __stdcall LoadTranslations(char* filename, char* section)
     }
     g_translations = new TranslationTable(alloc);
     AllocNotifyNop((int)g_translations);
+    // TODO(#40): copies section unbounded into the 0x40-byte g_language, over the screen-lock and edge-list globals after it
     strcpy(g_language, section);
     {
         TdfFile f;
