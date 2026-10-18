@@ -6,11 +6,12 @@ struct Vec3;
 struct Callback;
 class CobScript;
 class MovementClass;
+class UnitTypeSet;
 
 // Major version of the units interface, changed when a slot is removed or its signature changes.
 #define UNITS_VERSION_MAJOR 1
 // Minor version of the units interface, changed when a slot is added.
-#define UNITS_VERSION_MINOR 3
+#define UNITS_VERSION_MINOR 4
 
 // Unit simulation.
 struct UnitsSeam {
@@ -46,6 +47,10 @@ struct UnitsSeam {
     Vec3 (__stdcall* GetPiecePosition)(Unit* unit, int piece);
     // Marks a unit as recently damaged, for its health bar. Hooks: none.
     void (__stdcall* MarkRecentlyDamaged)(Unit* unit);
+    // Notifies everything that holds a reference to a unit of an event. Hooks: none.
+    void (__stdcall* NotifyUnitRefs)(Unit* unit, int event);
+    // Adds a unit type, or the unit types of a category, to a set by name, and writes 1 to out for a type and 0 for a category (thiscall in 3.1c, this first). Hooks: none.
+    void (__stdcall* UnitTypeSetAddTypeOrCategory)(UnitTypeSet* self, char* text, int* out);
 };
 
 #endif

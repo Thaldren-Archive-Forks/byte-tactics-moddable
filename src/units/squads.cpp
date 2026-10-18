@@ -45,9 +45,7 @@ public:
 };
 
 void __cdecl GameFreeThunk(int* p);
-MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit,
-                                       Unit* target, int flags);
-void __stdcall AddOrder(MissionType kind, int remove, Unit* owner, Unit* id, int flags, int param_6, int param_7);
+#include "../../interfaces/seams.h"
 
 // Allocates the owner's ten squads and constructs each in place with the
 // owner and its index (Squad's constructor, inlined here).
@@ -113,8 +111,8 @@ void __stdcall OrderSquad(PlayerView* owner, int key, unsigned char mode, int re
 {
     for (Unit* u = owner->first; u <= owner->last; u++) {
         if (u->unitDefIndex != 0 && u->group == key) {
-            MissionType kind = GetOrderType(mode, u, target, flags);
-            AddOrder(kind, remove, u, target, flags, param_7, param_8);
+            MissionType kind = g_seams.orders->GetOrderType(mode, u, target, (Vec3*)flags);
+            g_seams.orders->AddOrder(kind, remove, u, target, (Vec3*)flags, param_7, param_8);
         }
     }
 }

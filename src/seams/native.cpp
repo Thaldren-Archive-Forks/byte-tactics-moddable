@@ -11,6 +11,7 @@
 #include "../ai/ai_search_goal.h"
 #include "../orders/order_fx.h"
 #include "../ai/squad_manager.h"
+#include "../units/unit_type_set.h"
 
 struct Player;
 
@@ -51,6 +52,8 @@ struct Callback;
 
 struct Order;
 struct _iobuf;
+struct Los_0047d2e0;
+class MissionType;
 
 void __stdcall DumpPlayerAI(int player, _iobuf* file);
 void __stdcall ResetAIPlayers(void);
@@ -65,6 +68,19 @@ void __stdcall ReparseAiWeightScriptsIfLimitNotSticky(int player);
 void __stdcall CreateSquads(Player* player);
 void __stdcall FreeSquads(Player* player);
 void __stdcall SetUnitSquad(Unit* unit, int index);
+int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* los);
+int __stdcall CanPlaceUnitFootprint(UnitDef* unit, UnitDef* other, Point16 cell, int flags);
+void __stdcall AddOrder(MissionType kind, int remove, Unit* owner, Unit* target, Vec3* pos, int param_6, int param_7);
+void __stdcall DeleteOrders(Unit* owner, int all);
+int __stdcall GetOrderFlags(Unit* unit);
+MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, Vec3* pos);
+int __stdcall IssueAttackOrder(Unit* unit, Unit* target, int param_3);
+float __stdcall GetEnergyIncome(Player* player);
+float __stdcall GetMetalIncome(Player* player);
+float __stdcall GetNetEnergy(Player* player);
+float __stdcall GetNetMetal(Player* player);
+void __stdcall LoadDefaultAIScript(void);
+void __stdcall NotifyUnitRefs(Unit* unit, int event);
 
 int* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
 int __stdcall WeaponCanReachPos(Unit* unit, Vec3* from, Vec3* to, int flags);
@@ -242,6 +258,11 @@ static void __fastcall SquadManagerTickIfActiveNative(SquadManager* self, int un
 static void __fastcall SquadManagerDeleteTimersNative(SquadManager* self, int unusedEdx)
 {
     self->DeleteTimers();
+}
+
+static void __stdcall UnitTypeSetAddTypeOrCategoryNative(UnitTypeSet* self, char* text, int* out)
+{
+    self->AddTypeOrCategory(text, out);
 }
 
 static void __stdcall GetFactoriesInRadiusNative(int player, const Vec3* pos, int radius, std::vector<Unit*>* out)
@@ -539,6 +560,20 @@ void InstallNativeSeams()
     s_ai.SetUnitSquad = SetUnitSquad;
     s_ai.SquadManagerTickIfActive = SquadManagerTickIfActiveNative;
     s_ai.SquadManagerDeleteTimers = SquadManagerDeleteTimersNative;
+    s_map.CanBuildAt = CanBuildAt;
+    s_map.CanPlaceUnitFootprint = CanPlaceUnitFootprint;
+    s_orders.AddOrder = AddOrder;
+    s_orders.DeleteOrders = DeleteOrders;
+    s_orders.GetOrderFlags = GetOrderFlags;
+    s_orders.GetOrderType = GetOrderType;
+    s_orders.IssueAttackOrder = IssueAttackOrder;
+    s_players.GetEnergyIncome = GetEnergyIncome;
+    s_players.GetMetalIncome = GetMetalIncome;
+    s_players.GetNetEnergy = GetNetEnergy;
+    s_players.GetNetMetal = GetNetMetal;
+    s_players.LoadDefaultAIScript = LoadDefaultAIScript;
+    s_units.NotifyUnitRefs = NotifyUnitRefs;
+    s_units.UnitTypeSetAddTypeOrCategory = UnitTypeSetAddTypeOrCategoryNative;
     s_units.StartScript = StartScriptNative;
     s_units.QueryScript = QueryScriptNative;
     s_units.GetAimFromPosition = GetAimFromPosition;

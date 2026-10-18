@@ -76,8 +76,7 @@ void __stdcall GetBasePosition(int index, Vec3* out);
 unsigned short __stdcall ChooseBuildOption(unsigned int player, Unit_00408100* unit);
 int __stdcall FindBuildPosition(unsigned int player, Vec3* from, Item_00408100* item, Vec3* out);
 int __stdcall GetBuilderCount(unsigned int player);
-MissionType __stdcall GetOrderType(unsigned char mode, Unit_00408100* unit, Unit_00408100* target, Vec3* pos);
-void __stdcall AddOrder(MissionType kind, int remove, Unit_00408100* unit, Unit_00408100* target, Vec3* pos, int param_6, int param_7);
+#include "../../interfaces/seams.h"
 int __stdcall RandomInt(int range);
 
 // Fixed-point trig helpers written in assembly.
@@ -151,8 +150,8 @@ void ScoutTimer::OnTimer()
                         ok = 0;
                 }
                 if (ok) {
-                    MissionType kind = GetOrderType(0xe, u, 0, &pos);
-                    AddOrder(kind, 0, u, 0, &pos, idx, 1);
+                    MissionType kind = g_seams.orders->GetOrderType(0xe, (Unit*)u, 0, &pos);
+                    g_seams.orders->AddOrder(kind, 0, (Unit*)u, 0, &pos, idx, 1);
                 }
             }
         }
@@ -172,10 +171,10 @@ void ScoutTimer::OnTimer()
                 // operator+ builds all three sums before storing; named sums differ.
                 target = origin + d;
                 MissionType kind;
-                kind = GetOrderType(2, u, 0, &target);
-                AddOrder(kind, 0, u, 0, &target, 0, 0);
-                kind = GetOrderType(9, u, 0, &origin);
-                AddOrder(kind, 1, u, 0, &origin, 0, 0);
+                kind = g_seams.orders->GetOrderType(2, (Unit*)u, 0, &target);
+                g_seams.orders->AddOrder(kind, 0, (Unit*)u, 0, &target, 0, 0);
+                kind = g_seams.orders->GetOrderType(9, (Unit*)u, 0, &origin);
+                g_seams.orders->AddOrder(kind, 1, (Unit*)u, 0, &origin, 0, 0);
             } else {
                 Vec3 d = origin - u->pos;
                 int len = Length(d);
@@ -191,8 +190,8 @@ void ScoutTimer::OnTimer()
                     }
                     target = u->pos + d;
                 }
-                MissionType kind = GetOrderType(9, u, 0, &target);
-                AddOrder(kind, 0, u, 0, &target, 0, 0);
+                MissionType kind = g_seams.orders->GetOrderType(9, (Unit*)u, 0, &target);
+                g_seams.orders->AddOrder(kind, 0, (Unit*)u, 0, &target, 0, 0);
             }
         }
     }

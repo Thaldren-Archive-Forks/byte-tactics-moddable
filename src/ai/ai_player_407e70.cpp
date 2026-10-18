@@ -159,10 +159,6 @@ static inline Vec3_00407d40 Offset(int angle, int distance)
 
 int __stdcall SumUnitRatingsInRange(int index, Vec3_00407d40* pos, int range);
 #include "../../interfaces/seams.h"
-MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit,
-                                      Unit* target, Vec3_00407d40* pos);
-void __stdcall AddOrder(MissionType kind, int remove, Unit* unit,
-                            Unit* target, Vec3_00407d40* pos, int a, int b);
 
 // Constructor 0x407d40 defined again, unannotated: emits the vtable and the
 // scalar deleting destructor.
@@ -210,9 +206,9 @@ void SpatialTimer::OnTimer()
         Unit* u = *it;
         if (((UnitDefFlags_00407e90*)u->def)->flag4) {
             if (u->motion || g_seams.weapons->WeaponCanReachPos(u, (Vec3*)&u->pos, (Vec3*)&best, 0)) {
-                MissionType kind = GetOrderType(3, u, 0, &best);
+                MissionType kind = g_seams.orders->GetOrderType(3, u, 0, (Vec3*)&best);
                 if (kind.index)
-                    AddOrder(kind, 0, u, 0, &best, 0, 0);
+                    g_seams.orders->AddOrder(kind, 0, u, 0, (Vec3*)&best, 0, 0);
             }
         }
     }

@@ -722,14 +722,7 @@ void FreeUnitCategories()
     g_mapLoadFlag = 0;
 }
 
-// 0x40-byte set (512 bits), as in the callers 0x406db0 and 0x406e40.
-class UnitTypeSet {
-public:
-    int bits[16];                      // the object is 0x40 bytes
-
-    UnitTypeSet() { memset(this, 0, sizeof(UnitTypeSet)); }
-    void AddTypeOrCategory(char* text, int* out);
-};
+#include "unit_type_set.h"
 
 // Looks a name up in the global vector of unit categories and, if the name is
 // not there, allocates a zeroed 0x40-byte object and inserts a (name, object)

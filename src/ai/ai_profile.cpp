@@ -6,6 +6,7 @@
 #include <ctype.h>
 
 #include "../map/mission.h"
+#include "../../interfaces/seams.h"
 
 #pragma pack(push, 1)
 struct Game {
@@ -139,7 +140,7 @@ int AIProfileParser::ReadInt()
     if (token != 0x101) {
         if (errorReported == 0) {
             sprintf(buffer, "parse error reading AI profile %s\n%s\nlast string =",
-                    (char*)g_game->mapInfo->GetNameSlot(7),
+                    (char*)g_seams.map->GetNameSlot(g_game->mapInfo, 7),
                     "expecting int", this);
         }
         errorReported = 1;
@@ -163,7 +164,7 @@ void AIProfileParser::ReportParseError(char* text)
     char buffer[256];
     if (!errorReported) {
         sprintf(buffer, "parse error reading AI profile %s\n%s\nlast string =",
-                (char*)g_game->mapInfo->GetNameSlot(7), text, this);
+                (char*)g_seams.map->GetNameSlot(g_game->mapInfo, 7), text, this);
     }
     errorReported = 1;
 }
