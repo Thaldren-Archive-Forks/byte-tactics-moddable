@@ -90,7 +90,7 @@ struct UnitType {                      // 0x249 bytes
     char unknown_0[0x20];
     char name[0x20];                   // +0x20
     char unknown_40[0x14a - 0x40];
-    Point16 offset;           // +0x14a
+    Point16 offset;
     char unknown_14e[0x15a - 0x14e];
     int limit;                         // +0x15a
     char unknown_15e[0x16e - 0x15e];
@@ -674,7 +674,7 @@ void __stdcall InitUnitScript(Unit* self)
     if (((UnitType*)self->def)->data) {
         self->script = (Class_004b0a70*)new (kSim) UnitScript;
         ((CobScript*)self->script)->SetCob(((UnitType*)self->def)->data);
-        self->state = (SpotState*)CreatePlayerObjectState(obj, ((UnitType*)self->def)->data, (int)self);  // the owner, as an int
+        self->state = (SpotState*)CreatePlayerObjectState(obj, ((UnitType*)self->def)->data, (int)self);
         ((UnitScript*)self->script)->SetObjectState((ObjectState_00485d40*)self->state);
         ((CobScript*)self->script)->StartScript("Create", 0, 1);
     } else {
@@ -853,7 +853,7 @@ struct Spawn_004861d0 {                  // 0x11 bytes
     unsigned char player;                // +0x0
     unsigned short type;                 // +0x1
     unsigned short id;                   // +0x3
-    Vec3 pos;                    // +0x5
+    Vec3 pos;
 };
 #pragma pack(pop)
 
