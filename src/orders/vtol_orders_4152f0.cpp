@@ -27,18 +27,7 @@ struct PlayerView {
     char pad9c[8]; float energyCapacity, metalCapacity;
     char padac[0x146 - 0xac]; unsigned char index;
 };
-struct Unit {
-    UnitMotion* motion;
-    char pad4[0x6a - 4]; Vec3 pos;
-    char pad76[0x86 - 0x76]; int carrier;
-    char pad8a[8]; UnitDef* def;
-    PlayerView* player;
-    char pad9a[0x104 - 0x9a]; float buildLeft;
-    short health;
-    void ClaimWeapons(int);
-    void SetStateBits(int, int);
-    int CanRepair(Unit*);
-};
+#include "../units/unit.h"
 #include "order.h"
 class Class_0044e2d0 {
 public:
@@ -70,8 +59,8 @@ inline void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0((Order*)order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((OrderFx*)obj);
@@ -83,7 +72,7 @@ static inline int Land(Unit* unit, Order* order)
 {
     if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
         LandingPadList pads;
-        g_seams.ai->GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &pads);
+        g_seams.ai->GetFactoriesInRadius(((PlayerView*)unit->player)->index, &unit->pos, 0xf00, &pads);
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad = pads[RandomInt(pads.size())];
@@ -136,10 +125,10 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
             order->flags |= 0xe0;
             if (Land(unit, order))
                 return 0;
-            if (unit->player->energy >= unit->player->energyCapacity * 0.2) {
+            if (((PlayerView*)unit->player)->energy >= ((PlayerView*)unit->player)->energyCapacity * 0.2) {
                 std::vector<Unit*> units;
                 int range = unit->def->range << 16;
-                RepairableUnitVisitor collector(unit->player, &units, unit);
+                RepairableUnitVisitor collector((PlayerView*)unit->player, &units, unit);
                 g_seams.map->VisitObjectsInRange(&unit->pos, range, (UnitVisitor*)&collector);
                 if (!units.empty()) {
                     Unit* target = units[RandomInt(units.size())];
@@ -164,25 +153,25 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
             range.v = 0xf00000;
             if (g_seams.map->PickRandomReclaimableResourcesInRadius(&unit->pos, range.v, &energy, &energyAmount, &metal, &metalAmount)) {
                 // Amounts read through GetEnergy/GetMetal and Total: gives the x87 load order.
-                if (unit->player->GetMetal() < unit->player->metalCapacity * 0.2 && metal) {
+                if (((PlayerView*)unit->player)->GetMetal() < ((PlayerView*)unit->player)->metalCapacity * 0.2 && metal) {
                     order->SetAttachedFx(0);
                     AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, metal, 0, 0, 0));
                     order->flags = 0;
                     return 3;
                 }
-                if (unit->player->GetEnergy() < unit->player->energyCapacity * 0.2 && energy) {
+                if (((PlayerView*)unit->player)->GetEnergy() < ((PlayerView*)unit->player)->energyCapacity * 0.2 && energy) {
                     order->SetAttachedFx(0);
                     AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, energy, 0, 0, 0));
                     order->flags = 0;
                     return 3;
                 }
-                if (metal && Total(unit->player->GetMetal(), metalAmount) <= unit->player->metalCapacity) {
+                if (metal && Total(((PlayerView*)unit->player)->GetMetal(), metalAmount) <= ((PlayerView*)unit->player)->metalCapacity) {
                     order->SetAttachedFx(0);
                     AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, metal, 0, 0, 0));
                     order->flags = 0;
                     return 3;
                 }
-                if (energy && Total(unit->player->GetEnergy(), energyAmount) <= unit->player->energyCapacity) {
+                if (energy && Total(((PlayerView*)unit->player)->GetEnergy(), energyAmount) <= ((PlayerView*)unit->player)->energyCapacity) {
                     order->SetAttachedFx(0);
                     AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, energy, 0, 0, 0));
                     order->flags = 0;

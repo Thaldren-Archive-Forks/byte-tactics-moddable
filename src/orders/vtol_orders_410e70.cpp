@@ -9,10 +9,7 @@
 #include <windows.h>
 #include <vector>
 
-// Kept local, not util/vec3.h: the header's symbol ids change this function's registers.
-struct Vec3 {
-    int x, y, z;
-};
+#include "../util/vec3.h"
 
 #include "../state/block.h"
 #include "mission_type.h"
@@ -31,17 +28,7 @@ class Class_0044e730 { public: void SetApproachRadius(short); };
 #pragma pack(push, 1)
 #include "../units/unit_def.h"
 #include "../network/player.h"
-struct Unit {
-    UnitMotion* motion;
-    char pad4[0x6a - 4]; Vec3 pos;
-    char pad76[0x86 - 0x76]; int carrier;
-    char pad8a[8]; UnitDef* def;
-    Player* player;
-    char pad9a[0x108 - 0x9a]; short health;
-    void ClaimWeapons(int);
-    void ReleaseWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 struct Order {
     char pad0[5]; unsigned char state; unsigned int flags;
     char padA[0x22 - 0xa]; Vec3 pos;
@@ -109,8 +96,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);

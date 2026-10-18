@@ -15,9 +15,6 @@
 #include <tchar.h>
 #include <time.h>
 #include <float.h>
-namespace ta {
-#include <ta_types.h>
-}
 #include "../state/block.h"
 #include "../util/vec3.h"
 struct Unit;
@@ -26,18 +23,10 @@ struct Order;
 
 #pragma pack(push, 1)
 struct WeaponDef { char pad0[0xdc]; int range; char pade0[0x111-0xe0]; unsigned int flags; };
-struct Weapon { char pad0[8]; WeaponDef* def; char padc[11]; unsigned char flags; char pad18[4]; };
 #include "../units/unit_def.h"
 struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index; };
 class UnitMotion { public: char pad0[0x2e]; unsigned char flags; void SetFlightMode(Unit*, int); };
-struct Unit {
-    UnitMotion* motion; char pad4[4]; Weapon weapons[3]; Order* list;
-    char pad60[10]; Vec3 pos; char pad76[8]; short width; short depth; int spatialBucket; int carrier;
-    char pad8a[8]; UnitDef* def; Owner* player; char pad9a[12]; unsigned short unitDefIndex;
-    char pada8[0xf0-0xa8]; Unit* attacker; char padf4[0x108-0xf4]; short health;
-    char pad10a[6]; unsigned int flags;
-    void ReleaseWeapons(int);
-};
+#include "../units/unit.h"
 struct Order { char pad0[4]; MissionType kind; unsigned char state; unsigned int flags; char pada[12]; Unit* target; char pad1a[8]; Vec3 pos; char pad2e[8]; int angle, parity; char pad3e[4]; unsigned int capabilities; char pad46[4]; int next; void AnnounceStatusIfFlagged(const char*); void SetAttachedFx(int); void AttachApproachRadiusGoal(Vec3*, int); void SetDeadlineTicks(int); Order(MissionType, Unit*, Vec3*, int, int, int); char unknown_4e[0x8];           // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
     void ReattachFxToUnit();
     void MergeFlagsFromTable(int k);
@@ -98,7 +87,7 @@ public:
 // IsDamaged, FindPads and SearchRange stay small helpers: the vector calls
 // inline or not according to the original.
 static inline int IsDamaged(Unit* u) { return (unsigned int)u->health < (u->def->maxHealth>>2)*3; }
-static inline void FindPads(Unit* u, std::vector<Unit*>* pads) { g_seams.ai->GetFactoriesInRadius(u->player->index,&u->pos,0xf00,pads); }
+static inline void FindPads(Unit* u, std::vector<Unit*>* pads) { g_seams.ai->GetFactoriesInRadius(((Owner*)u->player)->index,&u->pos,0xf00,pads); }
 static inline int SearchRange(Unit* u) { return u->def->range<<16; }
 static inline int Patrol(Unit* unit, Order* order, int flags)
 {
@@ -115,7 +104,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     }
     UnitList units;
     int range=SearchRange(unit);
-    GroundAllyVisitor visitor(unit->player,&units,unit);
+    GroundAllyVisitor visitor((Owner*)unit->player,&units,unit);
     g_seams.map->VisitObjectsInRange(&unit->pos,range,(UnitVisitor*)&visitor);
     if (!units.empty()) {
         order->SetAttachedFx(0);
@@ -125,7 +114,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
         return 3;
     }
     if (flags&0xe0) order->angle+=-RandomInt(0x2000)-0x4000;
-    Vec3 pos=order->pos+Offset((short)order->angle,(unit->weapons[0].def->range+160)<<16);
+    Vec3 pos=order->pos+Offset((short)order->angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16);
     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
     move->SetApproachRadius(128);
     order->SetAttachedFx((int)move);

@@ -13,21 +13,10 @@ struct Order;
 
 #pragma pack(push, 1)
 struct WeaponDef { char pad0[0xdc]; int range; char pade0[0x111-0xe0]; unsigned int flags; };
-struct Weapon { char pad0[8]; WeaponDef* def; char padc[11]; unsigned char flags; char pad18[4]; };
 #include "../units/unit_def.h"
 struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index; };
 class UnitMotion { public: char pad0[0x2e]; unsigned char flags; void SetFlightMode(Unit*, int); };
-struct Unit {
-    UnitMotion* motion; char pad4[4]; Weapon weapons[3]; Order* list;
-    char pad60[10]; Vec3 pos; char pad76[8]; short width; short depth; int spatialBucket; int carrier;
-    char pad8a[8]; UnitDef* def; Owner* player; char pad9a[12]; unsigned short unitDefIndex;
-    char pada8[0xf0-0xa8]; Unit* attacker; char padf4[0x108-0xf4]; short health;
-    char pad10a[6]; unsigned int flags;
-    void ReleaseWeapons(int);
-    int CanRepair(Unit*);
-    void ClaimWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 struct Order { char pad0[4]; MissionType kind; unsigned char state; unsigned int flags; char pada[12]; Unit* target; char pad1a[8]; Vec3 pos; char pad2e[8]; int angle, parity; char pad3e[4]; unsigned int capabilities; char pad46[4]; int next; void AnnounceStatusIfFlagged(const char*); void SetAttachedFx(int); void AttachApproachRadiusGoal(Vec3*, int); void SetDeadlineTicks(int); Order(MissionType, Unit*, Vec3*, int, int, int); char unknown_4e[0x8];           // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
     void ReattachFxToUnit();
     void MergeFlagsFromTable(int k);
@@ -99,8 +88,8 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
                 if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
                 g_seams.units->SetStateBits(unit, 1,1);
-                if ((unit->motion->flags&3)==1) {
-                    unit->motion->SetFlightMode(unit,2);
+                if ((((UnitMotion*)unit->motion)->flags&3)==1) {
+                    ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     move->SetAltitude(unit->def->altitude/2);
                     order->SetAttachedFx((int)move);
@@ -116,18 +105,18 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             return 1;
         case 2: {
             Unit* attacker=order->target->attacker;
-            if (attacker && !attacker->player->allied[unit->player->index]) {
+            if (attacker && !((Owner*)attacker->player)->allied[((Owner*)unit->player)->index]) {
                 if (flags & 0x10) {
                     if (!Contains(unit->def->categories,attacker->unitDefIndex)) {
                         if (IssueAttackOrder(unit,attacker,1)) { order->flags=0; return 3; }
                         if (unit->flags & 0x300000) {
                             unsigned char i=0;
-                            Weapon* weapon=unit->weapons;
+                            UnitWeaponSlot* weapon=unit->weapons;
                             do {
                                 // the test is in this sense on purpose: it is what
                                 // gives the loop the original's jump polarity, its
                                 // register for the pointer and its stack slots
-                                if (!((weapon->flags&2) && weapon->flags&0x10 && ((unsigned char)(weapon->def->flags >> 26)&1) == 0)) {
+                                if (!((weapon->flags&2) && weapon->flags&0x10 && ((unsigned char)(((WeaponDef*)weapon->weapon)->flags >> 26)&1) == 0)) {
                                 } else {
                                     Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
                                     if (!target || !g_seams.weapons->WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
@@ -180,7 +169,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             short angle=order->angle;
             Vec3 pos;
             if ((unsigned char)(unit->flags>>31)&1)
-                pos=order->target->pos+Offset(angle,(unit->weapons[0].def->range+160)<<16);
+                pos=order->target->pos+Offset(angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16);
             else pos=order->target->pos+Offset(angle,0x1400000);
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
