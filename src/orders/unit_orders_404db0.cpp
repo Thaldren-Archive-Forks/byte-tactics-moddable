@@ -222,7 +222,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         if (spot)
             order->target.owner->angles = spot->rot;
         g_seams.features->RemoveFeature(g_seams.los_radar->GetMapCellAtPosition(&order->pos), 0);
-        if (g_game->mapInfo->GetGameType() == 3) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
             FeatureDamagePacket packet;
             int n = c - g_game->heightMap;
             int w = g_game->mapWidthTiles;

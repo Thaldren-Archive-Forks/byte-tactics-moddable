@@ -95,7 +95,6 @@ public:
     GroundAllyVisitor(Owner* o, std::vector<Unit*>* u, Unit* s) : owner(o), units(u), self(s) {}
     Owner* owner; std::vector<Unit*>* units; Unit* self;
 };
-void __stdcall VisitObjectsInRange(Vec3*, int, const GroundAllyVisitor&);
 // IsDamaged, FindPads and SearchRange stay small helpers: the vector calls
 // inline or not according to the original.
 static inline int IsDamaged(Unit* u) { return (unsigned int)u->health < (u->def->maxHealth>>2)*3; }
@@ -117,7 +116,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     UnitList units;
     int range=SearchRange(unit);
     GroundAllyVisitor visitor(unit->player,&units,unit);
-    VisitObjectsInRange(&unit->pos,range,visitor);
+    g_seams.map->VisitObjectsInRange(&unit->pos,range,(UnitVisitor*)&visitor);
     if (!units.empty()) {
         order->SetAttachedFx(0);
         MissionType kind=GetOrderType(7,unit,units[0],0);

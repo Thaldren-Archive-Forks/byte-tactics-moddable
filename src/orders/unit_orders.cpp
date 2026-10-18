@@ -734,7 +734,7 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         order->pos = GetPiecePosition(unit, piece);
         UnitDef* ut = &g_game->unitDefs[order->unitType];
         Point16 cell = GridCell(order->pos, ut->footprint);
-        if (!CanPlaceUnitFootprint(ut, 0, cell, unit->flags & 3)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(ut, 0, cell, unit->flags & 3)) {
             order->SetDeadlineTicks(15);
             order->flags |= 2;
             return 2;
@@ -1222,7 +1222,6 @@ unsigned short __stdcall GetCellFeature(Cell* cell);
 Cell* __stdcall GetMapCellAtPosition(Vec3* pos);
 void __stdcall RemoveFeature(void* target, int flag);
 int __stdcall BroadcastPacket(int player, void* data, int size);
-void __stdcall VisitObjectsInRange(Vec3* pos, int range, const DamagedAllyCollector& visitor);
 int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* pos, int range, Vec3** energy, float* energyAmount,
                            Vec3** metal, float* metalAmount);
 int __cdecl FUN_004b70ef(int angle, int distance);

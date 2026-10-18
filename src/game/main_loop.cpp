@@ -90,6 +90,7 @@ struct Vec3_00437320 {
 };
 
 #include "../map/mission.h"
+#include "../../interfaces/seams.h"
 
 union Fixed_00496ee0 {
     int i;                              // 16.16
@@ -410,7 +411,7 @@ void InitFrame()
     g_game->bit2 = 0;
     g_game->bit3 = 0;
     g_game->bit0 = 0;
-    SetMissionType(0);
+    g_seams.map->SetMissionType(0);
     g_game->flag4_3923b = 0;
     g_game->flag2_3923b = 0;
     ClearKeyQueue();
@@ -426,7 +427,7 @@ void ReturnToMainMenuFrame()
     g_game->bit2 = 0;
     g_game->bit3 = 0;
     g_game->bit0 = 0;
-    SetMissionType(0);
+    g_seams.map->SetMissionType(0);
     g_game->flag4_3923b = 0;
     g_game->flag2_3923b = 0;
     ClearKeyQueue();
@@ -445,12 +446,12 @@ void MenuFrame()
     RefreshUnitInfo();
     HarnessStartSkirmish();
     RunFrontendStateMachine();
-    if (g_game->bit2 && g_game->mapInfo->GetGameType() == 1) {
+    if (g_game->bit2 && g_seams.map->GetGameType(g_game->mapInfo) == 1) {
         HideSoftwareCursor();
         g_game->frontendState = 4;
         g_game->handler = CampaignSetupFrame;
         SetCloseHandler(LeaveNetGameCallback, 0);
-    } else if (g_game->bit2 && g_game->mapInfo->GetGameType() == 2) {
+    } else if (g_game->bit2 && g_seams.map->GetGameType(g_game->mapInfo) == 2) {
         HideSoftwareCursor();
         g_game->frontendState = 5;
         g_game->handler = LoadingScreenFrame;
@@ -583,7 +584,7 @@ void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
     p->size2 = (float)(v >= 200 ? v : 200);
 
     FixedPos_00496ee0 pos;
-    if (g_game->net->GetStartPosition((Vec3_00437320*)&pos, startpos)) {
+    if (g_seams.map->GetStartPosition(g_game->net, 0, (Vec3*)&pos, startpos)) {
         unsigned short id = FindUnitTypeId(
             g_game->names[g_game->players[team].info->side].name);
         CreateUnit(team, id, pos, 1, 1, 0);

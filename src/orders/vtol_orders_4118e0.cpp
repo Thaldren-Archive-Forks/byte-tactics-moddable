@@ -147,7 +147,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 // 0x411840, matched in 0x411840.cpp; inlined into the cases below.
 int __stdcall FindLandingPad(Unit* unit, int pad)
 {
-    if (pad != -1 && IsPadSlotFree(unit, pad)) {
+    if (pad != -1 && g_seams.map->IsPadSlotFree(unit, pad)) {
         return pad;
     }
     int pads[4];
@@ -157,7 +157,7 @@ int __stdcall FindLandingPad(Unit* unit, int pad)
     pads[3] = -1;
     unit->script->QueryScript("QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
     for (int i = 0; i < 4; i++) {
-        if (pads[i] != -1 && IsPadSlotFree(unit, pads[i])) {
+        if (pads[i] != -1 && g_seams.map->IsPadSlotFree(unit, pads[i])) {
             return pads[i];
         }
     }
@@ -247,7 +247,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         int dropped = 0;
         if (flags & 0x40)
             return 8;
-        if (!IsPadSlotFree(host, order->angle)) {
+        if (!g_seams.map->IsPadSlotFree(host, order->angle)) {
             QueueUnitSpeech(unit, 7, "Landing aborted: no pads available");
             return 0;
         }

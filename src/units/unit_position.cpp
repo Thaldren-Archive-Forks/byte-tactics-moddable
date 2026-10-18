@@ -381,12 +381,12 @@ int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param_5)
     if (cell.x == unit->cell.x && cell.y == unit->cell.y && param_5 == (unit->flags & 3)) {
         unit->pos = pos;
     } else {
-        RemoveUnitFromMap(unit);
+        g_seams.map->RemoveUnitFromMap(unit);
         unit->pos = pos;
         unit->cell = cell;
         // The (short) cast gives the in-place two-bit mask.
         unit->flags = (unit->flags & 0xfffffffc) | (short)(param_5 & 3);
-        AddUnitToMap(unit);
+        g_seams.map->AddUnitToMap(unit);
         g_seams.los_radar->UpdateUnitLineOfSight(unit);
     }
     unit->flags |= 0x10000;
@@ -460,7 +460,7 @@ void __stdcall ApplyAttachUnit(Order* order)
                             }
                             *link = u->cargoNext;
                         } else {
-                            u->spatialBucket->UnlinkUnit(u);
+                            g_seams.map->SpatialBucketUnlinkUnit(u->spatialBucket, 0, u);
                         }
                         u->transportPiece = order->param;
                         if (t) {
@@ -474,7 +474,7 @@ void __stdcall ApplyAttachUnit(Order* order)
                             u->cargoNext = 0;
                             u->f110.bits.b17 = 0;
                             u->carrier = 0;
-                            u->spatialBucket->PrependUnit((int)u);
+                            g_seams.map->SpatialBucketPrependUnit(u->spatialBucket, 0, u);
                         }
                         u->motion->bits_2e = order->param2;
                         if (u->player->active) {
@@ -753,12 +753,12 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     if (np.x == u->cell.x && np.y == u->cell.y && colour == (u->f110.all & 3)) {
         u->pos = pos;
     } else {
-        RemoveUnitFromMap(u);
+        g_seams.map->RemoveUnitFromMap(u);
         u->pos = pos;
         u->cell = np;
         // The (unsigned short) cast stops the int colour getting a frame home.
         u->f110.bits.colour = (unsigned int)(unsigned short)colour;
-        AddUnitToMap(u);
+        g_seams.map->AddUnitToMap(u);
         g_seams.los_radar->UpdateUnitLineOfSight(u);
     }
     u->f110.bits.b16 = 1;

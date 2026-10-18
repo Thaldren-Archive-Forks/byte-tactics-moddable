@@ -369,7 +369,7 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
     }
 
     if (unit->b_10f & 4)
-        ForceNeighborFootprintReclaim(unit);
+        g_seams.map->ForceNeighborFootprintReclaim(unit);
     return unit;
     }
     return 0;

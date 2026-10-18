@@ -563,7 +563,7 @@ void __cdecl LoadMatch(void*)
     // Six of these casts stay: taking more than two out in this function moves
     // the symbol state that LoadingScreenFrame's allocation depends on
     // (docs/c2-regalloc.md).
-    switch (((Mission*)g_game->mapInfo)->GetGameType()) {
+    switch (g_seams.map->GetGameType(((Mission*)g_game->mapInfo))) {
     case 1:
         g_nonCampaignGame = 0;
         ApplyMissionOptionFlags(&g_game->singleSettings);
@@ -600,7 +600,7 @@ void __cdecl LoadMatch(void*)
             SleepMilliseconds(0x32);
         }
 
-        ((Mission*)g_game->mapInfo)->LoadMissionByName((char*)g_game->players[sel].data);
+        g_seams.map->LoadMissionByName(((Mission*)g_game->mapInfo), 0, (char*)g_game->players[sel].data);
         if (FindHostSlot() == 10)
             break;
 
@@ -622,7 +622,7 @@ void __cdecl LoadMatch(void*)
         g_game->pendingSaveStore->OpenAccount("summary");
         if (g_game->pendingSaveStore->HasItem("BetweenMissions") == 0) {
             LoadPlayerControllers(g_game->pendingSaveStore);
-            if (((Mission*)g_game->mapInfo)->GetGameType() == 2) {
+            if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) == 2) {
                 int count = 0;
                 Slot_00497180* def = g_game->options->slots;
                 int i = 0;
@@ -643,8 +643,8 @@ void __cdecl LoadMatch(void*)
 
     LoadBattleAssets();
 
-    if (g_game->mapInfo->GetGameType() != 1) {
-        if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) != 1) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
             g_game->loadingFlags.value |= 4;
             while ((g_game->loadingFlags.value & 8) == 0)
                 SleepMilliseconds(0x32);
@@ -671,7 +671,7 @@ void __cdecl LoadMatch(void*)
                 PlayerInfo* pl2 = rec->data;
                 int side = pl2->side;
                 int which = rec->startPos;
-                ((Mission*)g_game->mapInfo)->GetStartPosition((Vec3_00437320*)&pos, which);
+                g_seams.map->GetStartPosition(((Mission*)g_game->mapInfo), 0, (Vec3*)&pos, which);
                 if (rec->active != 0 && rec->team == 1)
                     start = pos;
                 unsigned short id = FindUnitTypeId(g_game->sideNames[side].name + 4);
@@ -698,7 +698,7 @@ void __cdecl LoadMatch(void*)
             }
             SetCameraPosition(cx, cz, 0);
             ReportGameEvent(6);
-        } else if (((Mission*)g_game->mapInfo)->GetGameType() == 2 &&
+        } else if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) == 2 &&
             g_game->pendingSaveStore == 0) {
             if (g_game->options->fixedloc != 0) {
                 for (int i1 = 0; i1 < 10; i1++) {
@@ -755,7 +755,7 @@ void __cdecl LoadMatch(void*)
             LoadSavedGameState(g_game->pendingSaveStore);
             goto tail;
         }
-    } else if (((Mission*)g_game->mapInfo)->GetGameType() != 1) {
+    } else if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) != 1) {
         goto tail;
     }
     CreateMissionUnits();
@@ -931,7 +931,7 @@ void LoadingScreenFrame(void)
         }
         SetFont(g_game->fontComix);
         SetPaletteColors(g_game->paletteRgba, 0, 0x100);
-        if (g_game->mapInfo->GetGameType() != 2) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) != 2) {
             SaveSettings();
         }
         while (g_game->field_531 != 0) {
@@ -1061,10 +1061,10 @@ void LoadingScreenFrame(void)
         }
         SetFont(g_game->fontComix);
         DrawSurface(&gadget, (void*)g_game->surface, 0, 0);
-        if (g_game->mapInfo->GetGameType() != 1) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) != 1) {
             SetTextColors(color, 0xfe);
             // Local for the strncpy source: the call comes before the length push.
-            char* name = g_game->mapInfo->GetMissionName();
+            char* name = g_seams.map->GetMissionName(g_game->mapInfo);
             strncpy(namebuf, name, 100);
             namebuf[99] = 0;
             if (GetPreferredLanguage() != 0 && _strcmpi((const char*)GetPreferredLanguage(), "english") != 0) {
@@ -1092,7 +1092,7 @@ void LoadingScreenFrame(void)
                          rect[1] + *((short*)lightbar + 3));
             DrawLoadingBar(&gadget, lightbar, 5, &DAT_0051e825, (unsigned char*)&DAT_0051e6cc, 1, "Explosions", 0x15b, rect);
         }
-        if (g_game->mapInfo->GetGameType() == 3) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
             DrawSyncStatus(&gadget);
             SendLoadProgress();
         }

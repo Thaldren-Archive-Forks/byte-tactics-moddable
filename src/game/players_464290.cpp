@@ -44,6 +44,7 @@ struct Unit {
 };
 
 #include "../network/player_info.h"
+#include "../../interfaces/seams.h"
 
 // Keeps its own view: InitPlayerSlot clears the halves of the energy and metal totals apart, which player.h's doubles do not.
 struct Player {
@@ -258,7 +259,7 @@ void __stdcall SetupPlayerSlot(int player, char type)
         p->info->memory = g_game->displayContext->field_620 / 0x100000 + 1;
     }
 
-    if (g_game->mapInfo->GetGameType() == 1) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
         if (type == 1) {
             sprintf(p->name, Translate("Player"));
         } else if (type == 2) {
@@ -272,7 +273,7 @@ void __stdcall SetupPlayerSlot(int player, char type)
         strcpy(p->fullName, p->name);
     }
 
-    if (g_game->mapInfo->GetGameType() == 2) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 2) {
         if (type == 1) {
             sprintf(p->name, Translate("Player"));
         } else if (type == 2) {
@@ -343,7 +344,6 @@ void ResetPlayerSlots()
     g_game->chatHudReadIdx = 0;
 }
 
-#include "../../interfaces/seams.h"
 
 void __cdecl operator delete(void* p);
 
@@ -434,7 +434,7 @@ void __cdecl GameFreeThunk(char* text);
 void LoadDefaultAIScript()
 {
     int size;
-    char* name = g_game->mapInfo->GetNameSlot(7);
+    char* name = g_seams.map->GetNameSlot(g_game->mapInfo, 7);
     char* text = HAPI_LoadFile(name, &size);
     if (text == 0) {
         text = HAPI_LoadFile("ai\\default.txt", &size);
@@ -832,7 +832,7 @@ void __stdcall UpdatePlayers()
         pi->updateTime += 0x1e;
 
         if (bl == g_game->localPlayer) {
-            if (g_game->mapInfo->GetGameType() == 1) {
+            if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
                 if (g_game->victoryConditions->CheckVictory() == 0) {
                     if (g_game->victoryConditions->CheckDefeat() != 0) {
                         if (g_game->endGameCountdown < 0) {
@@ -906,7 +906,7 @@ void __stdcall UpdatePlayers()
                                     cell.y = zacc >> 20;
                                     do {
                                         cell.x = xacc >> 20;
-                                        if (CanPlaceUnitFootprint(
+                                        if (g_seams.map->CanPlaceUnitFootprint(
                                                 (UnitDef*)((char*)g_game->unitDefs + typeOff),
                                                 0, cell, 1) != 0)
                                             hits++;
@@ -917,7 +917,7 @@ void __stdcall UpdatePlayers()
                                 if (hits >= 9 && (short)g_seams.weapons->FindFeatureAtPos(&pos, 0, 0) == -1) {
                                     if (g_game->mapInfo->lavaWorld == 0)
                                         break;
-                                    if (GetCellMeanHeight(&pos) >
+                                    if (g_seams.map->GetCellMeanHeight(&pos) >
                                         (int)g_game->seaLevel)
                                         break;
                                 }
@@ -997,7 +997,7 @@ void __stdcall UpdatePlayers()
         if (bl == g_game->playerIndex) {
             g_seams.los_radar->UpdateSensorRadarAndCloak();
             g_seams.los_radar->UpdateRadarMapped();
-            if (g_game->mapInfo->GetGameType() == 3) {
+            if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
                 g_economyPacketTick++;
                 if ((g_economyPacketTick & 3) == 0)
                     SendPlayerEconomy(pi, 0, 0);
@@ -1006,7 +1006,7 @@ void __stdcall UpdatePlayers()
         goto next_bl;
 
     watch_check:
-        if (g_game->mapInfo->GetGameType() == 3 &&
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3 &&
             pi->rejectReason == 0) {
             if ((g_game->players[FindHostSlot()].info->flags_9b & 0x80) != 0 ||
                 CountActiveAIPlayers() > 0) {
@@ -1074,7 +1074,7 @@ void __stdcall UpdatePlayers()
             break;
     }
 
-    if (g_game->mapInfo->GetGameType() == 3 &&
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3 &&
         g_game->battleCommanderDeath != 2 &&
         CountCombatPlayers() == 0) {
         if (g_game->endGameCountdown < 0) {
@@ -1106,7 +1106,7 @@ void InitPlayerResources()
     for (int i = 0; i < 10; i++) {
         Player* player = &g_game->players[i];
         if (g_game->pendingSaveStore == 0) {
-            switch (g_game->mapInfo->GetGameType()) {
+            switch (g_seams.map->GetGameType(g_game->mapInfo)) {
             case 1:
                 SetStartingStorageBonus(player, (int)g_game->mapInfo->startMetal[i],
                              (int)g_game->mapInfo->startEnergy[i]);

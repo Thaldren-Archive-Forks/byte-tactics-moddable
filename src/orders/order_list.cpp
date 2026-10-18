@@ -114,6 +114,7 @@ struct Point {
     Point() {}
     Point(int a, int b) : x(a), y(b) {}
 };
+struct Point16 { short x, y; };
 
 // A 4-byte point of two shorts, and the temporary the constructor builds it
 // through (the derived type is what makes the compiler keep the temporary).
@@ -2016,7 +2017,7 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     if (u->target->active != 0) {
         if (u->target->type == 1 || u->target->type == 2)
-            flag = CanPlaceUnitFootprint(u->def, u->id, cell, m) == 0;
+            flag = g_seams.map->CanPlaceUnitFootprint((UnitDef*)u->def, (UnitDef*)(int)u->id, *(Point16*)&cell, m) == 0;
     }
 
     if (flag) {
@@ -2040,12 +2041,12 @@ void UnitMotion::UpdatePosition(Unit* u)
         return;
     }
 
-    RemoveUnitFromMap(u);
+    g_seams.map->RemoveUnitFromMap(u);
     u->pos = pos;
     u->cell = cell;
     // The (short) cast gives the and/and/or store of the 2-bit field.
     u->mode = (short)m;
-    AddUnitToMap(u);
+    g_seams.map->AddUnitToMap(u);
     u->moved = 1;
     g_seams.los_radar->UpdateUnitLineOfSight(u);
 }

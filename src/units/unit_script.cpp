@@ -272,7 +272,7 @@ void UnitScript::SetUnitValue(int which, int value)
         unit->bit1 = value;
         break;
     case 18:
-        SetYardOpen(unit, value);
+        g_seams.map->SetYardOpen(unit, value);
         break;
     case 19:
         unit->bit3 = value;
@@ -558,7 +558,7 @@ void UnitScript::DropUnit(unsigned short id)
 {
     Unit* u = GetUnit(id);
     if (u != 0 && (u->flags & 0x10000000) && u->carrier == state->unit) {
-        if (CanPlaceUnitFootprint(u->def, u->id, u->cell, 1)) {
+        if (g_seams.map->CanPlaceUnitFootprint(u->def, (UnitDef*)(int)u->id, *(Point16*)&u->cell, 1)) {
             AttachUnitToPiece(u, 0, -1, 1);
         }
     }

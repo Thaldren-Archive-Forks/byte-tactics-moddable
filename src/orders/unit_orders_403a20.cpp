@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <math.h>
 struct Point { short x, y; };
+struct Point16 { short x, y; };
 // Kept local, not util/vec3.h: its free operators inline differently from these members and the code size changes.
 struct Vec3 {
     int x, y, z;
@@ -85,6 +86,13 @@ static inline Point WorldToCell(Vec3 v, Point origin)
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
+static inline Point16 ToPoint16(Point p)
+{
+    Point16 r;
+    r.x = p.x;
+    r.y = p.y;
+    return r;
+}
 static inline void CellToWorld(Point origin, Point c, Vec3* v)
 {
     v->x = (origin.x + c.x * 2) << 19;
@@ -130,7 +138,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
                 return 8;
             }
         }
-        if (!CanPlaceUnitFootprint(def, 0, WorldToCell(order->pos, Definitions()[order->type].origin), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, ToPoint16(WorldToCell(order->pos, Definitions()[order->type].origin)), 1)) {
             if (!order->retries)
                 QueueUnitSpeech(unit, 7, "Waiting for target area to clear");
             else if (order->retries > 10) {
@@ -142,7 +150,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
             return 2;
         }
         g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
-        SnapWorldPosToFootprint(def, &order->pos);
+        g_seams.map->SnapWorldPosToFootprint(def, &order->pos);
         ((PathOrderAttach*)((char*)order + 0x12))->SetUnit(
             CreateUnit(unit->playerIndex, (short)order->type, order->pos, 0, 1, 0));
         if (!order->target) {

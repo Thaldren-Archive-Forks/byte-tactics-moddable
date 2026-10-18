@@ -492,8 +492,6 @@ void __stdcall DamageUnit(Unit*, Unit*, int, int, int);
 void __stdcall MarkSelectionOrdersDirty(Unit*);
 int __stdcall AddRepairProgress(Unit*, Unit*, float);
 int __stdcall PickRandomReclaimableResourcesInRadius(Vec3*, Fixed, Vec3**, float*, Vec3**, float*);
-void __stdcall VisitObjectsInRange(Vec3*, int, const GroundAllyVisitor&);
-void __stdcall VisitObjectsInRange(Vec3*, int, const RepairableUnitVisitor&);
 int __stdcall SendScriptCallByName(Unit*, char*, char, int, int, int, int);
 Vec3 __stdcall GetPieceOffset(Unit*, int);
 // Unused here: the symbol ids these declarations take keep the allocation
@@ -570,6 +568,14 @@ static inline Point WorldToCell(Vec3 v, Point origin)
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
+}
+
+static inline Point16 ToPoint16(Point p)
+{
+    Point16 r;
+    r.x = p.x;
+    r.z = p.y;
+    return r;
 }
 
 // The multiply, not a shift by 19: the shift changes the register use.
@@ -720,7 +726,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1: {
-        if (CanPlaceFootprintAt(unit, &unit->pos)) {
+        if (g_seams.map->CanPlaceFootprintAt(unit, &unit->pos)) {
             unit->script->StartScript("EndTransport", 0, 1);
             Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
             int h = max(GetGroundHeight(&unit->pos), g_game->seaLevel);
@@ -737,7 +743,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
             Point fp = unit->footprint;
             Point cell = WorldToCellMul(p, fp);
             CellToWorld(fp, cell, &p);
-            if (CanPlaceFootprintAt(unit, &p)) {
+            if (g_seams.map->CanPlaceFootprintAt(unit, &p)) {
                 order->SetAttachedFx((int)new (kSim) Class_0044e2d0(order, p));
                 order->flags = 0xe0;
                 return 2;
@@ -930,7 +936,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     UnitList units;
     int range=SearchRange(unit);
     GroundAllyVisitor visitor(unit->player,&units,unit);
-    VisitObjectsInRange(&unit->pos,range,visitor);
+    g_seams.map->VisitObjectsInRange(&unit->pos,range,(UnitVisitor*)&visitor);
     if (!units.empty()) {
         order->SetAttachedFx(0);
         MissionType kind=GetOrderType(7,unit,units[0],0);
@@ -993,7 +999,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         break;
     case 1: {
         Unit* cargo = order->target.owner;
-        if (CanPlaceUnitFootprint(cargo->def, 0, WorldToCell(order->pos, cargo->footprint), 1)) {
+        if (g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, cargo->footprint)), 1)) {
             Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
             // Through an int local: passing the expression straight sign-extends differently.
             int h = unit->cargo->def->field_170;
@@ -1009,7 +1015,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         if (flags & 0x40)
             return 9;
         Unit* cargo = order->target.owner;
-        if (!CanPlaceUnitFootprint(cargo->def, 0, WorldToCell(order->pos, cargo->footprint), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, cargo->footprint)), 1)) {
             QueueUnitSpeech(unit, 7, "Unable to unload unit");
             return 9;
         }
@@ -1033,7 +1039,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
 // FUNCTION: 0x411840
 int __stdcall FindLandingPad(Unit* unit, int pad)
 {
-    if (pad != -1 && IsPadSlotFree(unit, pad)) {
+    if (pad != -1 && g_seams.map->IsPadSlotFree(unit, pad)) {
         return pad;
     }
     int pads[4];
@@ -1043,7 +1049,7 @@ int __stdcall FindLandingPad(Unit* unit, int pad)
     pads[3] = -1;
     unit->script->QueryScript("QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
     for (int i = 0; i < 4; i++) {
-        if (pads[i] != -1 && IsPadSlotFree(unit, pads[i])) {
+        if (pads[i] != -1 && g_seams.map->IsPadSlotFree(unit, pads[i])) {
             return pads[i];
         }
     }
@@ -1127,14 +1133,14 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     case 2: {
         if (flags&0x40) return 8;
         UnitDef* def=&g_game->unitDefs[order->type];
-        if (!CanPlaceUnitFootprint(def,0,WorldToCell(order->pos,g_game->unitDefs[order->type].origin),1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def,0,ToPoint16(WorldToCell(order->pos,g_game->unitDefs[order->type].origin)),1)) {
             if (!order->retries) QueueUnitSpeech(unit,7,"Waiting for target area to clear");
             else if (order->retries>10) { QueueUnitSpeech(unit,7,"Target area was blocked"); return 8; }
             ++order->retries;
             order->SetDeadlineTicks(30);
             return 2;
         }
-        SnapWorldPosToFootprint(def,&order->pos);
+        g_seams.map->SnapWorldPosToFootprint(def,&order->pos);
         ((PathOrderAttach*)&order->target)->SetUnit(CreateUnit(unit->playerIndex,(short)order->type,order->pos,0,1,0));
         if (!order->targetUnit) { QueueUnitSpeech(unit,7,"Unable to create any more units"); return 8; }
         QueueUnitSpeech(unit,9,"Starting construction");

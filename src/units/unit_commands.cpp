@@ -313,6 +313,7 @@ void __stdcall FatalError(char* message);
 // Included only for its declarations, which the symbol counter of CreateMissionUnits needs.
 #include <memory.h>
 #include <vector>
+#include "../../interfaces/seams.h"
 
 // std::vector<Unit*> is specialised here rather than taken from <vector>
 // because MSVC 5 inlines _Ufill's body into the real (count, value)
@@ -371,7 +372,7 @@ void __cdecl CreateMissionUnits()
             sprintf(buf, "Player number %d invalid for unit %s", e->player, e->name);
             FatalError(buf);
         }
-        SnapWorldPosToFootprint(item, &e->pos);
+        g_seams.map->SnapWorldPosToFootprint((UnitDef*)item, (Vec3*)&e->pos);
         Unit* u = CreateUnit((unsigned char)(e->player - 1), item->id, e->pos, 1, 1, 0);
         if (u) {
             // The mask is 0xffffff80, not 0x80: keeps the byte zero-extension.
@@ -414,7 +415,6 @@ struct OwnershipTransferPacket {       // 0x18 bytes
 
 int __stdcall GetPlayerDpid(Player* player);
 void __stdcall BroadcastPacket(int who, OwnershipTransferPacket* packet, int size);
-#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x488570
 void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPacket* p)

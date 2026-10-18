@@ -179,9 +179,9 @@ int __stdcall LoadSavedGameState(HapiBank* file)
     LoadPlayers(file);
     ReadCameraPosition(file);
     g_seams.features->LoadFeatures(file);
-    LoadMetalPlotmap(file);
-    LoadPlayerFeaturesPlotmap(file);
-    LoadMappingData(file);
+    g_seams.map->LoadMetalPlotmap(file);
+    g_seams.map->LoadPlayerFeaturesPlotmap(file);
+    g_seams.map->LoadMappingData(file);
     LoadUnits(file);
     g_seams.wind_meteors->LoadMeteors(file);
     g_game->victoryConditions->LoadConditions(file);
@@ -209,18 +209,18 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
     sprintf(buf, g_buildTimeFormat, g_game->buildTime);
     (&file)->SetIntegerItem(buf, 0);
     (&file)->SetIntegerItem(g_maxUnitsKey, g_game->unitLimitIni);
-    (&file)->SetStringItem(g_campaignKey, g_game->mapInfo->GetCampaignName());
+    (&file)->SetStringItem(g_campaignKey, g_seams.map->GetCampaignName(g_game->mapInfo));
     if (g_game->frontendState != 6) {
-        g_game->mapInfo->AdvanceMission();
+        g_seams.map->AdvanceMission(g_game->mapInfo);
     }
-    (&file)->SetStringItem(g_missionKey, g_game->mapInfo->GetMissionName());
-    (&file)->SetStringItem(g_mapKey, g_game->mapInfo->GetMissionName());
+    (&file)->SetStringItem(g_missionKey, g_seams.map->GetMissionName(g_game->mapInfo));
+    (&file)->SetStringItem(g_mapKey, g_seams.map->GetMissionName(g_game->mapInfo));
     (&file)->SetIntegerItem(g_difficultyKey, g_game->difficulty);
     (&file)->SetIntegerItem(g_sideKey, g_game->players[g_game->localPlayer].info->side);
     (&file)->SetIntegerItem(g_playersKey, g_game->numPlayers);
-    (&file)->SetIntegerItem(g_gameTypeKey, g_game->mapInfo->GetGameType());
+    (&file)->SetIntegerItem(g_gameTypeKey, g_seams.map->GetGameType(g_game->mapInfo));
     (&file)->SetStringItem(g_thumbsKey, g_game->campaignMissionStatus);
-    if (g_game->mapInfo->GetGameType() == 2) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 2) {
         (&file)->SetIntegerItem(g_commanderDeathKey, g_game->options->commanderDeath);
         (&file)->SetIntegerItem(g_locationKey, g_game->options->location);
         (&file)->SetIntegerItem(g_mappingKey, g_game->options->mapping);
@@ -229,7 +229,7 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
     }
     if (g_game->frontendState != 6) {
         (&file)->SetIntegerItem(g_betweenMissionsKey, 1);
-        g_game->mapInfo->SelectMission(g_game->mission);
+        g_seams.map->SelectMission(g_game->mapInfo, 0, g_game->mission);
     }
     if (description != 0) {
         (&file)->SetStringItem(g_descriptionKey, description);
@@ -242,10 +242,10 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
         WriteCameraPosition(&file);
         SavePlayers(&file);
         SaveUnits(&file);
-        SaveMappingData(&file);
+        g_seams.map->SaveMappingData(&file);
         g_seams.features->SaveFeatures(&file);
-        SavePlayerFeaturesPlotmap(&file);
-        SaveMetalPlotmap(&file);
+        g_seams.map->SavePlayerFeaturesPlotmap(&file);
+        g_seams.map->SaveMetalPlotmap(&file);
         g_seams.wind_meteors->SaveMeteors(&file);
         g_game->victoryConditions->SaveConditions(&file);
     }

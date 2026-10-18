@@ -71,6 +71,7 @@ struct MissionFlags_0042f9a0 {
 #include "../units/unit_def.h"
 
 #include "../sound/sound.h"
+#include "../../interfaces/seams.h"
 
 struct Game {
     char unknown_0[0xc];
@@ -480,11 +481,11 @@ void LoadSettings()
     value = 0x100;
     if (ReadRegistryData((void*)"Total Annihilation", (void*)"SkirmishMap",
                      g_game->options->skirmishMap, &value) == 0) {
-        SetMissionType(2);
-        g_game->mapInfo->RefreshMapList(0);
+        g_seams.map->SetMissionType(2);
+        g_seams.map->RefreshMapList(g_game->mapInfo, 0, 0);
         strncpy(g_game->options->skirmishMap,
-                g_game->mapInfo->GetMissionName(), 0x100);
-        SetMissionType(0);
+                g_seams.map->GetMissionName(g_game->mapInfo), 0x100);
+        g_seams.map->SetMissionType(0);
         WriteRegistryString((void*)"Total Annihilation", (void*)"SkirmishMap", g_game->options->skirmishMap);
     }
     for (i = 0; i < g_game->numSkirmishPlayers; i++) {
@@ -638,7 +639,7 @@ void ApplyUseOnlyUnits()
 {
     TdfFile parser;
     char name[256];
-    char* file = g_game->mapInfo->GetNameSlot(6);
+    char* file = g_seams.map->GetNameSlot(g_game->mapInfo, 6);
     if (file == 0)
         return;
     if (!parser.LoadFile(file))

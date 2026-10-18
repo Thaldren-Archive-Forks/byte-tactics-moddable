@@ -6,6 +6,7 @@
 #include "../units/cob_script.h"
 #include "../util/vec3.h"
 #include "../map/mission.h"
+#include "../map/spatial_bucket.h"
 #include "../units/unit.h"
 #include "../ai/pathfinder.h"
 #include "../ai/ai_search_goal.h"
@@ -169,6 +170,26 @@ void __stdcall AddEyeball(Vec3* src, int a, int b, int c);
 void __stdcall DrawRadarUnits(void);
 void __stdcall UpdateRadarMapped(void);
 void __stdcall UpdateSensorRadarAndCloak(void);
+
+class HapiBank;
+void __stdcall BuildAllPassMaps(void);
+void __stdcall FreeOtaEnumCacheAndMission(void);
+void __stdcall LoadMappingData(HapiBank* file);
+void __stdcall LoadMetalPlotmap(HapiBank* file);
+void __stdcall LoadPlayerFeaturesPlotmap(HapiBank* file);
+void __stdcall SaveMappingData(HapiBank* file);
+void __stdcall SaveMetalPlotmap(HapiBank* file);
+void __stdcall SavePlayerFeaturesPlotmap(HapiBank* file);
+void __stdcall SetMissionType(int type);
+void __stdcall SnapWorldPosToFootprint(UnitDef* unit, Vec3* pos);
+void __stdcall AddUnitToMap(Unit* unit);
+void __stdcall RemoveUnitFromMap(Unit* unit);
+int __stdcall CanPlaceFootprintAt(Unit* unit, Vec3* pos);
+int __stdcall IsPadSlotFree(Unit* pad, int id);
+int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* pos, int range, Vec3** energy, float* energyAmount, Vec3** metal, float* metalAmount);
+void __stdcall ClearFootprintAndUnlink(Unit* unit);
+void __stdcall ForceNeighborFootprintReclaim(Unit* unit);
+void __stdcall SetYardOpen(Unit* unit, int open);
 
 struct DamagedAllyCollector;
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
@@ -355,9 +376,84 @@ static char* __stdcall GetNameSlotNative(Mission* mission, int index)
     return mission->GetNameSlot(index);
 }
 
-static void __stdcall VisitObjectsInRangeNative(Vec3* pos, int range, void* visitor)
+static void __stdcall VisitObjectsInRangeNative(Vec3* pos, int range, UnitVisitor* visitor)
 {
     VisitObjectsInRange(pos, range, *(DamagedAllyCollector*)visitor);
+}
+
+static void __fastcall SpatialBucketPrependUnitNative(SpatialBucket* self, int unusedEdx, Unit* unit)
+{
+    self->PrependUnit((int)unit);
+}
+
+static void __fastcall SpatialBucketUnlinkUnitNative(SpatialBucket* self, int unusedEdx, Unit* unit)
+{
+    self->UnlinkUnit(unit);
+}
+
+static void __fastcall RefreshPassMapNative(MovementClass* self, int unusedEdx, Point16 a, Point16 b)
+{
+    self->RefreshPassMap(a, b);
+}
+
+static int __fastcall AdvanceMissionNative(Mission* self)
+{
+    return self->AdvanceMission();
+}
+
+static char* __fastcall GetCampaignNameNative(Mission* self)
+{
+    return self->GetCampaignName();
+}
+
+static int __fastcall GetMissionIndexNative(Mission* self)
+{
+    return self->GetMissionIndex();
+}
+
+static char* __fastcall GetMissionNameNative(Mission* self)
+{
+    return self->GetMissionName();
+}
+
+static int __fastcall GetStartPositionNative(Mission* self, int unusedEdx, Vec3* out, int id)
+{
+    return self->GetStartPosition((Vec3_00437320*)out, id);
+}
+
+static void __fastcall LoadCampaignNative(Mission* self, int unusedEdx, char* file)
+{
+    self->LoadCampaign(file);
+}
+
+static int __fastcall LoadMissionByNameNative(Mission* self, int unusedEdx, char* name)
+{
+    return self->LoadMissionByName(name);
+}
+
+static int __fastcall MissionExistsNative(Mission* self, int unusedEdx, int index)
+{
+    return self->MissionExists(index);
+}
+
+static void __fastcall RefreshMapListNative(Mission* self, int unusedEdx, int multiplayer)
+{
+    self->RefreshMapList(multiplayer);
+}
+
+static int __fastcall SelectMissionNative(Mission* self, int unusedEdx, int index)
+{
+    return self->SelectMission(index);
+}
+
+static int __fastcall ComputeMapChecksumNative(Mission* self)
+{
+    return self->ComputeMapChecksum();
+}
+
+static int __fastcall GetTerrainLengthNative(Mission* self)
+{
+    return self->GetTerrainLength();
 }
 
 static int __stdcall MovementClassGetNative(MovementClass* self, int x, int y)
@@ -580,6 +676,39 @@ void InstallNativeSeams()
     s_units.GetPieceOffset = GetPieceOffset;
     s_units.GetPiecePosition = GetPiecePosition;
     s_units.MarkRecentlyDamaged = MarkRecentlyDamaged;
+    s_map.BuildAllPassMaps = BuildAllPassMaps;
+    s_map.FreeOtaEnumCacheAndMission = FreeOtaEnumCacheAndMission;
+    s_map.LoadMappingData = LoadMappingData;
+    s_map.LoadMetalPlotmap = LoadMetalPlotmap;
+    s_map.LoadPlayerFeaturesPlotmap = LoadPlayerFeaturesPlotmap;
+    s_map.SaveMappingData = SaveMappingData;
+    s_map.SaveMetalPlotmap = SaveMetalPlotmap;
+    s_map.SavePlayerFeaturesPlotmap = SavePlayerFeaturesPlotmap;
+    s_map.SetMissionType = SetMissionType;
+    s_map.SnapWorldPosToFootprint = SnapWorldPosToFootprint;
+    s_map.AddUnitToMap = AddUnitToMap;
+    s_map.RemoveUnitFromMap = RemoveUnitFromMap;
+    s_map.CanPlaceFootprintAt = CanPlaceFootprintAt;
+    s_map.IsPadSlotFree = IsPadSlotFree;
+    s_map.PickRandomReclaimableResourcesInRadius = PickRandomReclaimableResourcesInRadius;
+    s_map.ClearFootprintAndUnlink = ClearFootprintAndUnlink;
+    s_map.ForceNeighborFootprintReclaim = ForceNeighborFootprintReclaim;
+    s_map.SetYardOpen = SetYardOpen;
+    s_map.SpatialBucketPrependUnit = SpatialBucketPrependUnitNative;
+    s_map.SpatialBucketUnlinkUnit = SpatialBucketUnlinkUnitNative;
+    s_map.RefreshPassMap = RefreshPassMapNative;
+    s_map.AdvanceMission = AdvanceMissionNative;
+    s_map.GetCampaignName = GetCampaignNameNative;
+    s_map.GetMissionIndex = GetMissionIndexNative;
+    s_map.GetMissionName = GetMissionNameNative;
+    s_map.GetStartPosition = GetStartPositionNative;
+    s_map.LoadCampaign = LoadCampaignNative;
+    s_map.LoadMissionByName = LoadMissionByNameNative;
+    s_map.MissionExists = MissionExistsNative;
+    s_map.RefreshMapList = RefreshMapListNative;
+    s_map.SelectMission = SelectMissionNative;
+    s_map.ComputeMapChecksum = ComputeMapChecksumNative;
+    s_map.GetTerrainLength = GetTerrainLengthNative;
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
     s_weapons.SpawnProjectile = SpawnProjectile;

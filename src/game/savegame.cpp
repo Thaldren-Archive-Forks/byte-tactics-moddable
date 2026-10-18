@@ -15,6 +15,7 @@ class Mission;
 #include "../gui/gadget.h"
 #include "../gui/gui.h"
 #include "../gui/layer.h"
+#include "../../interfaces/seams.h"
 
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int DrawTriangleContours(int, int, int, int, int, int, int);
@@ -419,13 +420,13 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
         if (g_game->pendingSaveStore == 0)
             goto invalid;
         (g_game->pendingSaveStore)->OpenAccount("summary");
-        SetMissionType((g_game->pendingSaveStore)->GetIntegerItem("Gametype", 0));
+        g_seams.map->SetMissionType((g_game->pendingSaveStore)->GetIntegerItem("Gametype", 0));
         char* campaign = (g_game->pendingSaveStore)->GetStringItem("Campaign", 0);
         if (campaign != 0)
-            g_game->mapInfo->LoadCampaign(campaign);
+            g_seams.map->LoadCampaign(g_game->mapInfo, 0, campaign);
         g_game->side = (g_game->pendingSaveStore)->GetIntegerItem("Side", 0);
         g_game->difficulty = (g_game->pendingSaveStore)->GetIntegerItem("Difficulty", 0);
-        if (g_game->mapInfo->GetGameType() == 1) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
             if (g_game->side == 0) {
                 g_game->p1b8a->bSideId = 0;
                 g_game->p1cd5->bSideId = 1;
@@ -439,14 +440,14 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
             goto invalid;
         if (strlen(mission) == 0)
             goto invalid;
-        if (g_game->mapInfo->LoadMissionByName(mission) == 0)
+        if (g_seams.map->LoadMissionByName(g_game->mapInfo, 0, mission) == 0)
             goto invalid;
         strcpy((char*)&g_game->options->aMapName[0], mission);
         char* thumbs = (g_game->pendingSaveStore)->GetStringItem("Thumbs", 0);
         strncpy(g_game->campaignMissionStatus, thumbs, 0x19);
         if (strlen(g_game->campaignMissionStatus) != 0x19)
             InitMissionStatus();
-        if (g_game->mapInfo->GetGameType() == 2) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 2) {
             (g_game->pendingSaveStore)->OpenAccount("summary");
             g_game->numPlayers =
                 (short)(g_game->pendingSaveStore)->GetIntegerItem("Players", 0);
@@ -478,7 +479,7 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
             GameFreeThunk(g_savegameRadarPreview);
         g_savegameRadarPreview = 0;
         PopUntilNamedLayout(1);
-        if (g_game->mapInfo->GetGameType() == 1 &&
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 1 &&
             (g_game->pendingSaveStore)->HasItem("BetweenMissions")) {
             g_game->netGameFlags.b3 = 1;
             if (g_game->pendingSaveStore) {

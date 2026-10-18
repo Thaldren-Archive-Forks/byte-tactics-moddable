@@ -12,6 +12,7 @@ struct Unit;
 struct Unit { char pad0[0x6a]; Vec3 pos; char pad76[0x92-0x76]; UnitDef* def; Player* player; };
 #include "order.h"
 #pragma pack(pop)
+#include "../../interfaces/seams.h"
 class DamagedAllyCollector {
 public:
     Player* owner;
@@ -21,7 +22,6 @@ public:
     virtual void CollectDamagedAlly(Unit*);
 };
 void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
-void __stdcall VisitObjectsInRange(Vec3*, int, const DamagedAllyCollector&);
 int __stdcall RandomInt(int);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 int __stdcall IssueRepairOrder(Unit*, Unit*, int);
@@ -46,7 +46,8 @@ int __stdcall RepairPatrolOrder(Unit* unit, Order* order, int flags)
             if (unit->player->energy >= unit->player->energyCapacity * 0.2) {
                 std::vector<Unit*> units;
                 int range = unit->def->range << 16;
-                VisitObjectsInRange(&unit->pos, range, DamagedAllyCollector(unit->player, &units, unit));
+                DamagedAllyCollector collector(unit->player, &units, unit);
+                g_seams.map->VisitObjectsInRange(&unit->pos, range, (UnitVisitor*)&collector);
                 if (!units.empty()) {
                     Unit* target = units[RandomInt(units.size())];
                     if (unit->player->allied[target->player->index]) {
@@ -69,7 +70,7 @@ int __stdcall RepairPatrolOrder(Unit* unit, Order* order, int flags)
                 // Empty statement stops range2 being folded into the call.
                 do {} while (0); // emits no code; keeps range2 out of the call (see top)
                 float energyAmount, metalAmount;
-                if (PickRandomReclaimableResourcesInRadius(&unit->pos, range2, &energy, &energyAmount, &metal, &metalAmount)) {
+                if (g_seams.map->PickRandomReclaimableResourcesInRadius(&unit->pos, range2, &energy, &energyAmount, &metal, &metalAmount)) {
                     if (metal && unit->player->metal < unit->player->metalCapacity * 0.2) {
                         order->SetAttachedFx(0);
                         AppendOrder(unit, new (kSim) Order("RECLAIM", 0, metal, 0, 0, 0));

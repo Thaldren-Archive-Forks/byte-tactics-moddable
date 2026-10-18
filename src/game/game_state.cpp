@@ -316,7 +316,7 @@ void __cdecl UpdateWind()
 // FUNCTION: 0x490da0
 void ResetGameSpeed()
 {
-    if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         g_game->gameSpeed = 10;
         g_game->effectiveGameSpeed = 10;
     }
@@ -565,8 +565,8 @@ void InitGame()
     g_game->endGameFlags &= 0xfffe;
     g_game->endGameFlags &= 0xfffd;
     g_game->restartMissionRequest = 0;
-    SetMissionType(0);
-    if (g_game->mapInfo->GetGameType() == 3) {
+    g_seams.map->SetMissionType(0);
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         g_game->gameSpeed = 10;
         g_game->effectiveGameSpeed = 10;
     }
@@ -690,7 +690,7 @@ void ShutdownGame(void)
     g_game->options = 0;
     FreeUnitInfo();
     ReleasePacketData((Class_00452370*)g_game->chatHudRing);
-    FreeOtaEnumCacheAndMission();
+    g_seams.map->FreeOtaEnumCacheAndMission();
 }
 
 #include "../../interfaces/seams.h"
@@ -751,7 +751,7 @@ void LoadBattleAssets()
     AllocateUnitMemory();
     g_seams.features->ResolveFeatureLinks();
     g_seams.features->FreeFeatureFileList();
-    BuildAllPassMaps();
+    g_seams.map->BuildAllPassMaps();
     g_game->windSpeedDenominator = 5000;
     g_game->windCounter = 0;
     g_seams.wind_meteors->UpdateWind();
@@ -760,7 +760,7 @@ void LoadBattleAssets()
     g_game->assemPts = GameAllocIgnoreTag("ASSEM PTS", 0xa0);
     g_game->lastSimBudgetTick = GetTicks();
     g_game->gameTick = 0;
-    if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         g_game->gameSpeed = 10;
         g_game->effectiveGameSpeed = 10;
     }
@@ -850,7 +850,7 @@ void ShutdownIngameSystems()
     g_seams.weapons->FreeWeaponArray();
     FreeMovementClasses();
     FreeUnitCategories();
-    if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         CloseNetSession();
     }
 }

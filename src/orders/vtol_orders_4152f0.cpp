@@ -61,10 +61,8 @@ int __stdcall RandomInt(int);
 void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrder(Unit*, Order*);
-void __stdcall VisitObjectsInRange(Vec3*, int, const RepairableUnitVisitor&);
 int __stdcall IssueRepairOrder(Unit*, Unit*, int);
 union Fixed { int v; struct { unsigned short frac; short whole; } p; };
-int __stdcall PickRandomReclaimableResourcesInRadius(Vec3*, Fixed, Vec3**, float*, Vec3**, float*);
 
 // inline: no function may be compiled before VtolRepairPatrolOrder, or the landed test returns.
 inline void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
@@ -142,7 +140,8 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
             if (unit->player->energy >= unit->player->energyCapacity * 0.2) {
                 std::vector<Unit*> units;
                 int range = unit->def->range << 16;
-                VisitObjectsInRange(&unit->pos, range, RepairableUnitVisitor(unit->player, &units, unit));
+                RepairableUnitVisitor collector(unit->player, &units, unit);
+                g_seams.map->VisitObjectsInRange(&unit->pos, range, (UnitVisitor*)&collector);
                 if (!units.empty()) {
                     Unit* target = units[RandomInt(units.size())];
                     if (unit->CanRepair(target) && target->buildLeft == 0.0f) {
@@ -164,7 +163,7 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
             float energyAmount, metalAmount;
             Fixed range;
             range.v = 0xf00000;
-            if (PickRandomReclaimableResourcesInRadius(&unit->pos, range, &energy, &energyAmount, &metal, &metalAmount)) {
+            if (g_seams.map->PickRandomReclaimableResourcesInRadius(&unit->pos, range.v, &energy, &energyAmount, &metal, &metalAmount)) {
                 // Amounts read through GetEnergy/GetMetal and Total: gives the x87 load order.
                 if (unit->player->GetMetal() < unit->player->metalCapacity * 0.2 && metal) {
                     order->SetAttachedFx(0);

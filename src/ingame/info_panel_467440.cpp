@@ -181,7 +181,7 @@ void UpdateSensorRadarAndCloak(void)
                 v.radarRangeSq = t;
                 v.sonarRangeSq = s;
                 v.pos = u->pos.vec;
-                g_seams.map->VisitObjectsInRange((Vec3*)pp, (int)a << 16, &v);
+                g_seams.map->VisitObjectsInRange((Vec3*)pp, (int)a << 16, (UnitVisitor*)&v);
             }
         }
     }
@@ -194,13 +194,13 @@ void UpdateSensorRadarAndCloak(void)
                 int r = (int)u->def->radardistancejam << 16;
                 Vec3_00467440* pp = &u->pos.vec;
                 RadarJamVisitor v;
-                g_seams.map->VisitObjectsInRange((Vec3*)pp, r, &v);
+                g_seams.map->VisitObjectsInRange((Vec3*)pp, r, (UnitVisitor*)&v);
             }
             if (u->def->sonardistancejam != 0) {
                 int r2 = (int)u->def->sonardistancejam << 16;
                 Vec3_00467440* pp2 = &u->pos.vec;
                 SonarJamVisitor v;
-                g_seams.map->VisitObjectsInRange((Vec3*)pp2, r2, &v);
+                g_seams.map->VisitObjectsInRange((Vec3*)pp2, r2, (UnitVisitor*)&v);
             }
         }
     }

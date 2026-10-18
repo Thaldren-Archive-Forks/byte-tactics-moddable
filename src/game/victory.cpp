@@ -172,7 +172,6 @@ extern Game* g_game;
 void __stdcall PlaySoundByName(char* str, int flag);
 short __stdcall FindUnitTypeId(char* name);
 #include "../../interfaces/seams.h"
-void __stdcall VisitObjectsInRange(Vec3* pos, int radius, Listener_0048f250* visitor);
 
 // KillEnemyCommander (vtable 0x4fd960).
 class VictoryKillEnemyCommander : public MissionCondition {
@@ -911,7 +910,7 @@ int VictoryMoveUnitToRadius::IsSatisfied()
     if (pos.y == 0x12345678) {
         g_seams.los_radar->ClampWorldPosToTerrain(pos.x, pos.z, &pos);
     }
-    VisitObjectsInRange(&pos, radius, this);
+    g_seams.map->VisitObjectsInRange(&pos, radius, (UnitVisitor*)(Listener_0048f250*)this);
     return satisfied;
 }
 
@@ -1365,7 +1364,7 @@ void DefeatDeathTimerRunsOut::LoadState(HapiBank* obj)
 // FUNCTION: 0x48fdf0
 void MissionConditions::SaveConditions(HapiBank* file)
 {
-    if (g_game->mapInfo->GetGameType() == 1) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
         int i;
         for (i = 0; i < victoryCount; i++) {
             victory[i]->SaveState(file);
@@ -1379,7 +1378,7 @@ void MissionConditions::SaveConditions(HapiBank* file)
 // FUNCTION: 0x48fe60
 void MissionConditions::LoadConditions(HapiBank* file)
 {
-    if (g_game->mapInfo->GetGameType() == 1) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
         int i;
         for (i = 0; i < victoryCount; i++) {
             victory[i]->LoadState(file);
@@ -1533,7 +1532,7 @@ int MissionConditions::CheckDefeat()
         }
         // The two mode cases share one body, but writing them out separately
         // is what makes MSVC lower the switch to the dec/je chain.
-        switch (g_game->mapInfo->GetGameType()) {
+        switch (g_seams.map->GetGameType(g_game->mapInfo)) {
         case 1:
             return AnyDefeatConditionMet();
         case 2:
