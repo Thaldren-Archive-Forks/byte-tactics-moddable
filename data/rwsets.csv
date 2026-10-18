@@ -10791,6 +10791,7 @@ address,function,file,kind,target
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,UnitMotion::speed
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,UnitMotion::turn
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,UnitMotion::velocity
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Vec3::x
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Vec3::y
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,function,
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,global_read,g_game

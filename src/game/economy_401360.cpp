@@ -347,21 +347,21 @@ void __stdcall UpdatePlayerEconomy(Player* p)
         usedA[1] += u->resourceSlot.res[1].used;
         demandA[1] += u->resourceSlot.res[1].demand;
         backlogA[1] += u->resourceSlot.res[1].backlog;
-    }
 #ifdef __clang__
-    {
-        volatile float roundedSums[8] = {producedA[0], producedA[1], usedA[0], usedA[1],
-                                         demandA[0], demandA[1], backlogA[0], backlogA[1]};
-        producedA[0] = roundedSums[0];
-        producedA[1] = roundedSums[1];
-        usedA[0] = roundedSums[2];
-        usedA[1] = roundedSums[3];
-        demandA[0] = roundedSums[4];
-        demandA[1] = roundedSums[5];
-        backlogA[0] = roundedSums[6];
-        backlogA[1] = roundedSums[7];
-    }
+        {
+            volatile float roundedSums[8] = {producedA[0], producedA[1], usedA[0], usedA[1],
+                                             demandA[0], demandA[1], backlogA[0], backlogA[1]};
+            producedA[0] = roundedSums[0];
+            producedA[1] = roundedSums[1];
+            usedA[0] = roundedSums[2];
+            usedA[1] = roundedSums[3];
+            demandA[0] = roundedSums[4];
+            demandA[1] = roundedSums[5];
+            backlogA[0] = roundedSums[6];
+            backlogA[1] = roundedSums[7];
+        }
 #endif
+    }
     Econ_00401360* e = (Econ_00401360*)p->econ;
 #ifdef __clang__
     double energyProduced = (double)producedA[0] + e->res[0].produced;
@@ -419,6 +419,27 @@ void __stdcall UpdatePlayerEconomy(Player* p)
 #else
     avail[1] = producedA[1] + p->metal;
 #endif
+#ifdef __clang__
+    for (i = 0; i < 2; i++) {
+        double take;
+        if (backlogA[i] <= avail[i]) {
+            take = backlogA[i];
+            ratioA[i] = 1.0f;
+        } else {
+            take = avail[i];
+            ratioA[i] = (double)avail[i] / backlogA[i];
+        }
+        double left = (double)avail[i] - take;
+        if (demandA[i] <= left) {
+            take = demandA[i];
+            demandRatio[i] = 1.0f;
+        } else {
+            take = left;
+            demandRatio[i] = left / demandA[i];
+        }
+        avail[i] = left - take;
+    }
+#else
     for (i = 0; i < 2; i++) {
         float take;
         if (backlogA[i] <= avail[i]) {
@@ -440,6 +461,7 @@ void __stdcall UpdatePlayerEconomy(Player* p)
         }
         avail[i] = left - take;
     }
+#endif
 #ifdef __clang__
     volatile float roundedAvail[2] = {avail[0], avail[1]};
     avail[0] = roundedAvail[0];
