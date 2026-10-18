@@ -9803,7 +9803,7 @@ address,function,file,kind,target
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_write,g_meteorActive
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_write,g_meteorNextStrikeTime
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_write,g_meteorWeapon
-0x437cd0,InitMeteors,src/map/meteors.cpp,indirect_call,indirect via char *(*)(char *) __attribute__((stdcall)) [WeaponsSeam::FindWeaponByName]
+0x437cd0,InitMeteors,src/map/meteors.cpp,indirect_call,indirect via WeaponDef *(*)(char *) __attribute__((stdcall)) [WeaponsSeam::FindWeaponByName]
 0x437d30,EmptyShutdownPreCleanup,src/map/meteors.cpp,function,
 0x437d40,EnableMeteors,src/map/meteors.cpp,function,
 0x437d40,EnableMeteors,src/map/meteors.cpp,global_write,g_meteorsEnabled
@@ -43253,6 +43253,8 @@ address,function,file,kind,target
 ,FindWeapon,src/units/unit_types_42a8d0.cpp,function,
 ,FindWeapon,src/units/unit_types_42a8d0.cpp,global_read,s_weaponTdfLoadedCount@src/units/unit_types_42a8d0.cpp
 ,FindWeapon,src/units/unit_types_42a8d0.cpp,global_read,s_weaponTdfParsers@src/units/unit_types_42a8d0.cpp
+,FindWeaponByNameNative,src/seams/native.cpp,call,FindWeaponByName
+,FindWeaponByNameNative,src/seams/native.cpp,function,
 ,Find_00499cd0,src/weapons/weapons.cpp,call,operator()
 ,Find_00499cd0,src/weapons/weapons.cpp,field_escape,Pair_00499cd0::value
 ,Find_00499cd0,src/weapons/weapons.cpp,field_read,Pair_00499cd0::name
@@ -44291,8 +44293,6 @@ address,function,file,kind,target
 ,InsideExplored,src/graphics/particles.cpp,field_read,Player::exploredHeight
 ,InsideExplored,src/graphics/particles.cpp,field_read,Player::exploredWidth
 ,InsideExplored,src/graphics/particles.cpp,function,
-,InstallNativeSeams,src/seams/native.cpp,field_read,<anon>::function
-,InstallNativeSeams,src/seams/native.cpp,field_write,<anon>::member
 ,InstallNativeSeams,src/seams/native.cpp,field_write,EconomySeam::UpdateResourceSharing
 ,InstallNativeSeams,src/seams/native.cpp,field_write,FeaturesSeam::UpdateFeatures
 ,InstallNativeSeams,src/seams/native.cpp,field_write,PlayersSeam::UpdatePlayers
@@ -44328,8 +44328,9 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,DisableMeteors
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,EmptyShutdownPreCleanup
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,EnableMeteors
-,InstallNativeSeams,src/seams/native.cpp,fn_ref,FindWeaponByName
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,FindWeaponByNameNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,InitMeteors
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,LoadMeteorDefaultsNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,LoadMeteors
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,SaveMeteors
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,SetMeteorParams
@@ -45051,6 +45052,8 @@ address,function,file,kind,target
 ,LoadFeatureSeqOnce,src/map/features_4224b0.cpp,field_write,Seq_004224b0::kind
 ,LoadFeatureSeqOnce,src/map/features_4224b0.cpp,function,
 ,LoadFeatureSeqOnce,src/map/features_4224b0.cpp,global_maybe_written,DAT_005119b8
+,LoadMeteorDefaultsNative,src/seams/native.cpp,call,MeteorParams::LoadMeteorDefaults
+,LoadMeteorDefaultsNative,src/seams/native.cpp,function,
 ,LoadOnline,src/network/online_45b250.cpp,call,GetModuleFileNameA
 ,LoadOnline,src/network/online_45b250.cpp,call,LoadLibraryA
 ,LoadOnline,src/network/online_45b250.cpp,call,strchr

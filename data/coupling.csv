@@ -2951,6 +2951,8 @@ seams,game,shared_write,WeaponsSeam::UpdateProjectiles,1
 seams,game,shared_write,WindMeteorsSeam::UpdateMeteors,1
 seams,game,shared_write,WindMeteorsSeam::UpdateWind,2
 seams,map,shared_write,Seams::wind_meteors,1
+seams,weapons,call,FindWeaponByName,1
+seams,wind_meteors,call,MeteorParams::LoadMeteorDefaults,1
 seams,wind_meteors,shared_write,Seams::weapons,2
 seams,wind_meteors,shared_write,WeaponsSeam::SpawnProjectile,1
 targeting,ai,call,Bits::Test,1
