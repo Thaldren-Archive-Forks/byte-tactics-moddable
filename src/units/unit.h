@@ -221,7 +221,13 @@ struct Unit {
             unsigned int b31 : 1;
         } f110;
     };
-    int zBufferFlag;
+    union {
+        int zBufferFlag;
+        struct {
+            unsigned int zBufferBit0 : 1;
+            unsigned int unknown_114_1 : 31;
+        };
+    };
     Unit(void);
     ~Unit(void);
     int SelectRecord(char*);
