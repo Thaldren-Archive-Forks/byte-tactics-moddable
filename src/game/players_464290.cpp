@@ -346,6 +346,8 @@ void ResetPlayerSlots()
     g_game->chatHudReadIdx = 0;
 }
 
+#include "../../interfaces/seams.h"
+
 void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 void __stdcall CreateSquads(Player* p);
@@ -389,7 +391,7 @@ guard:
     if (!p->econ) {
         p->econ = new UnitResources;
     }
-    p->econ->Reset(p->team);
+    g_seams.economy->Reset(p->econ, p->team);
     p->flags &= 0xfffe;
     p->kills = 0;
     p->losses = 0;
@@ -594,7 +596,7 @@ void __stdcall TransferMetal(unsigned char from, unsigned char to, float amount,
         return;
     Player* player;
     // Receiver read inside both arms of the flag test: homes `to` in ebx.
-    player = flag ? (g_game->players[from].econ->SpendEnergy(amount),
+    player = flag ? (g_seams.economy->SpendEnergy(g_game->players[from].econ, amount),
                      g_game->players[to].econ->player)
                   : g_game->players[to].econ->player;
     if (player->active != 0 && player->type == 2) {
@@ -648,7 +650,7 @@ void __stdcall TransferEnergy(unsigned char from, unsigned char to, float amount
         return;
     Player* player;
     // Receiver read inside both arms of the flag test: homes `to` in ebx.
-    player = flag ? (g_game->players[from].econ->SpendMetal(amount), g_game->players[to].econ->player)
+    player = flag ? (g_seams.economy->SpendMetal(g_game->players[from].econ, amount), g_game->players[to].econ->player)
                   : g_game->players[to].econ->player;
     if (player->active != 0 && player->type == 2) {
         switch (g_game->difficulty) {
@@ -759,7 +761,6 @@ Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId,
 void __stdcall SetStartingStorageBonus(Player* player, int height, int width);
 void __stdcall RecalculateLineOfSight(int on);
 void __stdcall FocusCommander(int on);
-void __stdcall UpdatePlayerEconomy(Player* player);
 void __stdcall SendPlayerEconomy(Player* player, int a, int b);
 int __stdcall CountCombatPlayers();
 int __stdcall CountActiveAIPlayers();
@@ -1008,7 +1009,7 @@ void __stdcall UpdatePlayers()
                     (t == 1 || t == 2)) {
                     if ((g_game->endGameFlags.w & 4) == 0 &&
                         g_game->endGameCountdown < 0) {
-                        UpdatePlayerEconomy(pi);
+                        g_seams.economy->UpdatePlayerEconomy(pi);
                     }
                 }
             }

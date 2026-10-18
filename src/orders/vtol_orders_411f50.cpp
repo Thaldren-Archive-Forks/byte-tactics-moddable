@@ -129,8 +129,6 @@ int __stdcall RandomInt(int);
 int __cdecl FUN_004b70ef(short, int);
 int __cdecl FUN_004b7123(short, int);
 int __stdcall GetHeadingBetween(Vec3*, Vec3*);
-void __stdcall SetWeaponTargetPos(Unit*, Vec3*, int);
-void __stdcall ClearWeaponTarget(Unit*, int);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrder(Unit*, Order*);
 void __stdcall AppendOrderToTail(Unit*, Order*);
@@ -165,6 +163,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         order->flags |= flags | 0xe0;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // Stays in a file of its own: it matches only in this file's symbol context.
 // FUNCTION: 0x411f50
@@ -255,7 +255,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
     }
     case 5: {
         unit->ClaimWeapons(0);
-        SetWeaponTargetPos(unit, &order->pos, 0);
+        g_seams.targeting->SetWeaponTargetPos(unit, &order->pos, 0);
         int angle = GetHeadingBetween(&unit->pos, &order->pos);
         Vec3 dest = unit->pos + Offset(angle, (unit->def->attackrunlength + 0x3c0) << 16);
         AttachMove(order, dest, 0x3c0);
@@ -263,7 +263,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         return 1;
     }
     case 6: {
-        ClearWeaponTarget(unit, 0);
+        g_seams.targeting->ClearWeaponTarget(unit, 0);
         Vec3 dest = unit->pos + Offset(unit->heading, 0x5a00000);
         AttachMove(order, dest, 0x80);
         order->flags = 0xe2;

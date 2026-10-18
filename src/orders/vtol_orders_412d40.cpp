@@ -102,7 +102,6 @@ int __cdecl FUN_004b70ef(short, int);
 int __cdecl FUN_004b7123(short, int);
 int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
-void __stdcall SetWeaponTargetUnit(Unit*, Unit*, int);
 void __stdcall AppendOrderToTail(Unit*, Order*);
 void __stdcall AppendOrder(Unit*, Order*);
 
@@ -154,6 +153,8 @@ static inline int IsAhead(Unit* unit, Order* order)
     return (short)(Whole(toward.x) * Whole(facing.x) + Whole(toward.z) * Whole(facing.z)) > 0;
 }
 
+#include "../../interfaces/seams.h"
+
 // Stays in a file of its own: it matches only in this file's symbol context.
 // FUNCTION: 0x412d40
 int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
@@ -195,7 +196,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
     case 1:
         unit->ReleaseWeapons(3);
         unit->ClaimWeapons(0);
-        SetWeaponTargetUnit(unit, order->target, 0);
+        g_seams.targeting->SetWeaponTargetUnit(unit, order->target, 0);
         if (flags & 0xe0) {
             if (IsAhead(unit, order)) {
                 Vec3 from = Add(unit->pos, Offset(unit->heading, unit->def->maxvelocity * 30));

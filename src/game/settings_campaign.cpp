@@ -94,7 +94,6 @@ extern char g_radarImageBoxName[];    // "Radar Image"
 
 void __stdcall LoadPlayers(HapiBank* file);
 void __stdcall ReadCameraPosition(HapiBank* file);
-void __stdcall LoadFeatures(HapiBank* file);
 void __stdcall LoadMetalPlotmap(HapiBank* file);
 void __stdcall LoadPlayerFeaturesPlotmap(HapiBank* file);
 void __stdcall LoadMappingData(HapiBank* file);
@@ -105,7 +104,6 @@ void __stdcall WriteCameraPosition(void* file);
 void __stdcall SavePlayers(void* file);
 void __stdcall SaveUnits(void* file);
 void __stdcall SaveMappingData(void* file);
-void __stdcall SaveFeatures(void* file);
 void __stdcall SavePlayerFeaturesPlotmap(void* file);
 void __stdcall SaveMetalPlotmap(void* file);
 
@@ -169,6 +167,8 @@ HapiBank* __stdcall OpenHapiBank(char* name)
     return obj;
 }
 
+#include "../../interfaces/seams.h"
+
 // Reads the game summary section and every subsystem's saved state.
 // FUNCTION: 0x432610
 int __stdcall LoadSavedGameState(HapiBank* file)
@@ -178,7 +178,7 @@ int __stdcall LoadSavedGameState(HapiBank* file)
         g_game->unitLimitIni = file->GetIntegerItem("maxunits", 0);
     LoadPlayers(file);
     ReadCameraPosition(file);
-    LoadFeatures(file);
+    g_seams.features->LoadFeatures(file);
     LoadMetalPlotmap(file);
     LoadPlayerFeaturesPlotmap(file);
     LoadMappingData(file);
@@ -243,7 +243,7 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
         SavePlayers(&file);
         SaveUnits(&file);
         SaveMappingData(&file);
-        SaveFeatures(&file);
+        g_seams.features->SaveFeatures(&file);
         SavePlayerFeaturesPlotmap(&file);
         SaveMetalPlotmap(&file);
         g_seams.wind_meteors->SaveMeteors(&file);

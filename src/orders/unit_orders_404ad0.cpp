@@ -35,6 +35,8 @@ struct Game {
     char unknown_14273[0x38a47 - 0x14273];
     int gameTick;                      // +0x38a47
 };
+
+#include "../../interfaces/seams.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -48,7 +50,6 @@ void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
 void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
-void __stdcall ReclaimFeature(Unit* unit, Vec3* pos);
 // Unused here: the symbol ids this declaration takes keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int typeId, int amount);
 
@@ -112,7 +113,7 @@ int __stdcall ReclaimOrder(Unit* unit, Order* order, int flags)
         }
         return 2;
     case 5:
-        ReclaimFeature(unit, &order->pos);
+        g_seams.features->ReclaimFeature(unit, &order->pos);
         return 5;
     }
     return 7;

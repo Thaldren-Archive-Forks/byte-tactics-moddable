@@ -504,8 +504,6 @@ void __stdcall FreeObjectState(void* obj);
 AnimSrc* __stdcall FindGafEntry(void* list, const char* name);
 void __stdcall InitGafSequence(Anim* ref, AnimSrc* src, int index);
 int __stdcall LoadFeatureType(char* name);
-int __stdcall GetGroundHeight(Vec3* pos);
-Cell* __stdcall GetMapCell(int x, int y);
 Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature, Vec3* pos, Rot16* rot,
                              unsigned char owner);
 int __stdcall RemoveFeature(Cell* cell, int flag);
@@ -521,13 +519,10 @@ void __stdcall KillFeature(int x, int z, int flag);
 void __stdcall ReplaceFeatureWithDead(int x, int y, int flag);
 void __stdcall SpreadFire(Feature* f, Point16* cell);
 int __stdcall StepGafSequence(Anim* anim);
-int __stdcall GetCellMeanHeight(Vec3* pos);
 GafFrame* __stdcall GetGafSequenceFrame(Anim* anim);
 void __stdcall EmitWhiteSmoke(SmokePos* pos, short index);
-void __stdcall ApplyAreaDamageAt(void* owner, Vec3* pos);
 void* __stdcall CreateObjectState(void* obj);
 void __stdcall EmitTimedSubParticles(Vec3* p, short index);
-void __stdcall RefreshAllPassMaps(Point16 a, Point16 b);
 void __stdcall FindFilesRecursive(char* dir, char* pattern, void* list, int flags, char recurse);
 
 // Reading the field directly each time (no local) gives `or ax, 0xffff` for
@@ -543,6 +538,8 @@ unsigned short __stdcall GetCellFeature(Cell* cell)
     return cell->feature;
 }
 
+#include "../../interfaces/seams.h"
+
 // FUNCTION: 0x421eb0
 Vec3 __stdcall GetFootprintCentre(Point16* cell, Feature* def)
 {
@@ -551,7 +548,7 @@ Vec3 __stdcall GetFootprintCentre(Point16* cell, Feature* def)
     Vec3 p;
     p.x = (f.x + c.x * 2) << 19;
     p.z = (f.z + c.z * 2) << 19;
-    p.y = GetGroundHeight(&p) << 16;
+    p.y = g_seams.units->GetGroundHeight(&p) << 16;
     return p;
 }
 
@@ -567,7 +564,7 @@ void StampFeatureMetal(void)
                 int y0 = i / g_game->mapWidthTiles;
                 for (int y = y0; y < y0 + f->footprintz; y++) {
                     for (int x = x0; x < x0 + f->footprintx; x++) {
-                        Cell* cc = GetMapCell(x, y);
+                        Cell* cc = g_seams.los_radar->GetMapCell(x, y);
                         if (cc != 0)
                             cc->field7 = (char)f->value;
                     }
@@ -719,9 +716,9 @@ void PlaceMissionFeatures(void)
         // A cell local with one GetMapCell call per branch, not x/y locals and one call.
         Cell* cell;
         if (f->flags16 & 1)
-            cell = GetMapCell(p->x, p->y);
+            cell = g_seams.los_radar->GetMapCell(p->x, p->y);
         else
-            cell = GetMapCell(p->x - f->footprint.x / 2, p->y - f->footprint.z / 2);
+            cell = g_seams.los_radar->GetMapCell(p->x - f->footprint.x / 2, p->y - f->footprint.z / 2);
         PlaceFeature(cell, id, 0, 0, 10);
     }
 }
@@ -778,7 +775,7 @@ static inline int AllocSpot()
 // FUNCTION: 0x4233a0
 void __stdcall StartFeatureBurning(int x, int z, int flag)
 {
-    Cell* cell = GetMapCell(x, z);
+    Cell* cell = g_seams.los_radar->GetMapCell(x, z);
     if (cell == 0)
         return;
     if (cell->feature >= 0xfffb)
@@ -824,11 +821,11 @@ void __stdcall StartFeatureBurning(int x, int z, int flag)
 // FUNCTION: 0x423550
 void __stdcall KillFeature(int x, int z, int flag)
 {
-    Cell* cell = GetMapCell(x, z);
+    Cell* cell = g_seams.los_radar->GetMapCell(x, z);
     if (cell->feature == 0xfffe) {
         x -= cell->offsetX;
         z -= cell->offsetY;
-        cell = GetMapCell(x, z);
+        cell = g_seams.los_radar->GetMapCell(x, z);
     }
     if (cell->feature >= 0xfffb)
         return;
@@ -873,7 +870,7 @@ void __stdcall KillFeature(int x, int z, int flag)
 // FUNCTION: 0x423710
 void __stdcall ReplaceFeatureWithDead(int x, int y, int flag)
 {
-    Cell* cell = GetMapCell(x, y);
+    Cell* cell = g_seams.los_radar->GetMapCell(x, y);
     if (cell == 0)
         return;
     if (cell->feature >= 0xfffb)
@@ -937,8 +934,8 @@ int __stdcall ReclaimFeature(Unit* unit, Vec3* pos)
 {
     int x = pos->x / 0x100000;
     int z = pos->z / 0x100000;
-    Cell* cell = GetMapCell(x, z);
-    Feature* f = GetFeature(GetMapCell(x, z));
+    Cell* cell = g_seams.los_radar->GetMapCell(x, z);
+    Feature* f = GetFeature(g_seams.los_radar->GetMapCell(x, z));
     if (f == 0)
         return 0;
     if ((cell->flags & 1) && (f->flags & 1))
@@ -961,7 +958,7 @@ int __stdcall ReclaimFeature(Unit* unit, Vec3* pos)
         unit->metal += metal;
     }
     KillFeature(x, z, 1);
-    if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         FeatureDamagePacket packet;
         packet.type = 0xf;
         packet.sub = 0xff;
@@ -981,7 +978,7 @@ static inline Vec3 FootprintCentre(Point16* cell, Feature* def)
     Vec3 p;
     p.x = (f.x + c.x * 2) << 19;
     p.z = (f.z + c.z * 2) << 19;
-    p.y = GetGroundHeight(&p) << 16;
+    p.y = g_seams.units->GetGroundHeight(&p) << 16;
     return p;
 }
 // A burning feature at `cell` sets fire (StartFeatureBurning) to flammable features
@@ -994,7 +991,7 @@ void __stdcall SpreadFire(Feature* f, Point16* cell)
     for (int z = cell->z - 3; z <= cell->z + 3; z++) {
         for (int x = cell->x - 3; x <= cell->x + 3; x++) {
             if (x != cell->x || z != cell->z) {
-                Cell* c = GetMapCell(x, z);
+                Cell* c = g_seams.los_radar->GetMapCell(x, z);
                 if (c && c->feature < 0xfffb && !(c->flags & 1)) {
                     Feature* g = &g_game->features[c->feature];
                     // Its own `if`, not part of the `&&` chain.
@@ -1019,7 +1016,7 @@ void __stdcall SpreadFire(Feature* f, Point16* cell)
         int x = px.f.whole;
         int z = pz.f.whole;
         if (x != lastX || z != lastZ) {
-            Cell* c = GetMapCell(x, z);
+            Cell* c = g_seams.los_radar->GetMapCell(x, z);
             if (c && c->feature < 0xfffb && !(c->flags & 1)) {
                 Feature* g = &g_game->features[c->feature];
                 if (g->flamable) {
@@ -1033,14 +1030,14 @@ void __stdcall SpreadFire(Feature* f, Point16* cell)
     }
     if (f->burnweapon) {
         Vec3 pos = FootprintCentre(cell, f);
-        ApplyAreaDamageAt(f->burnweapon, &pos);
+        g_seams.weapons->ApplyAreaDamageAt(f->burnweapon, &pos);
     }
 }
 
 // FUNCTION: 0x423bf0
 void __stdcall ReplaceFeatureWithBurnt(Obj* obj)
 {
-    Cell* target = GetMapCell(obj->x, obj->y);
+    Cell* target = g_seams.los_radar->GetMapCell(obj->x, obj->y);
     if (target != 0) {
         unsigned short id = g_game->features[obj->entry].burnt;
         RemoveFeature(target, 0);
@@ -1135,7 +1132,7 @@ Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature,
     Point16 p2;
     p2.x = index % g_game->mapWidthTiles;
     p2.z = index / g_game->mapWidthTiles;
-    RefreshAllPassMaps(p2, f->footprint);
+    g_seams.map->RefreshAllPassMaps(p2, f->footprint);
     return spot;
 }
 
@@ -1148,14 +1145,14 @@ static inline SmokePos FootprintCentreSmoke(Point16* cell, Feature* def)
     SmokePos p;
     p.x.value = (f.x + c.x * 2) << 19;
     p.z.value = (f.z + c.z * 2) << 19;
-    p.y.value = GetGroundHeight((Vec3*)&p) << 16;
+    p.y.value = g_seams.units->GetGroundHeight((Vec3*)&p) << 16;
     return p;
 }
 
 // Inlined copy of ReplaceFeatureWithBurnt: replaces a burnt-out feature with its remains.
 static inline void BurnOut(Spot* spot)
 {
-    Cell* target = GetMapCell(spot->cell.x, spot->cell.z);
+    Cell* target = g_seams.los_radar->GetMapCell(spot->cell.x, spot->cell.z);
     if (target != 0) {
         unsigned short id = g_game->features[spot->feature].burnt;
         RemoveFeature(target, 0);
@@ -1212,7 +1209,7 @@ void __stdcall UpdateFeatures()
                 int z = g_game->scanIndex / g_game->mapHeightTiles;
                 x += RandomInt(f->seedSpread) - f->seedSpread / 2;
                 z += RandomInt(f->seedSpread) - f->seedSpread / 2;
-                Cell* t = GetMapCell(x, z);
+                Cell* t = g_seams.los_radar->GetMapCell(x, z);
                 if (t && c->unit == 0 && t->feature == 0xffff)
                     PlaceFeature(t, c->feature, 0, 0, 10);
             }
@@ -1227,7 +1224,7 @@ void __stdcall UpdateFeatures()
         if (!f->noobject) {
             if (spot->vel.NonZero()) {
                 spot->pos += spot->vel;
-                int ground = GetCellMeanHeight(&spot->pos) << 16;
+                int ground = g_seams.map->GetCellMeanHeight(&spot->pos) << 16;
                 if (spot->pos.y <= ground) {
                     spot->pos.y = ground;
                     spot->vel = Vec3(0, 0, 0);
@@ -1278,7 +1275,7 @@ void __stdcall DamageFeature(Cell* cell, int x, int z, Weapon* weapon)
         return;
     FeatureDamagePacket packet;
     int send;
-    if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         if (!(g_game->players[g_game->playerIndex].data->flags & 1)) {
             packet.type = 0xf;
             packet.sub = weapon->kind;
@@ -1360,7 +1357,7 @@ int __stdcall RemoveFeature(Cell* cell, int flag)
     Point16 p;
     p.x = index % g_game->mapWidthTiles;
     p.z = index / g_game->mapWidthTiles;
-    RefreshAllPassMaps(p, f->footprint);
+    g_seams.map->RefreshAllPassMaps(p, f->footprint);
     return 1;
 }
 

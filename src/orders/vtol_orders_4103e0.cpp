@@ -42,6 +42,8 @@ struct Unit {
     void ClaimWeapons(int);
     void SetStateBits(int, int);
 };
+
+#include "../../interfaces/seams.h"
 #include "order.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep
@@ -82,7 +84,6 @@ static inline Vec3 Offset(short angle, int distance) { Vec3 v; v.x=-FUN_004b70ef
 
 class LandingPadList : public std::vector<Unit*> { public: LandingPadList(); };
 void __stdcall GetFactoriesInRadius(int, Vec3*, int, std::vector<Unit*>*);
-Unit* __stdcall FindBestTargetIfFireAtWill(Unit*);
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int param_6, int param_7);
 int __stdcall GetOrderName(Unit* obj);
@@ -141,7 +142,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
                 return 0;
             }
         }
-        Unit* target=FindBestTargetIfFireAtWill(unit);
+        Unit* target=g_seams.targeting->FindBestTargetIfFireAtWill(unit);
         if (target && IssueAttackOrder(unit,target,0)) return 5;
         if (flags&0xe0) order->angle+=-RandomInt(0x2000)-0x5555;
         Vec3 pos=AddVec3(order->pos,Offset((short)order->angle,(unit->weapons[0].def->range+160)<<16));

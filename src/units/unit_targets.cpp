@@ -632,6 +632,8 @@ void __stdcall SetWeaponTargetPos(char* param_1, int* param_2, int param_3)
     *(unsigned short*)(param_1 + 0xba) &= 0x83ff;
 }
 
+#include "../../interfaces/seams.h"
+
 // Clears target entry `index` (the same reset as ResetWeaponTarget) unless it is
 // already clear, then tells the unit's script "StartBuilding" and
 // "TargetCleared".
@@ -642,8 +644,8 @@ void __stdcall ClearWeaponTarget(Unit* unit, int index)
     if (p->a != 0 || p->b != (short)0x8000) {
         p->a = 0;
         p->b = (short)0x8000;
-        unit->script->FindScript("StartBuilding");
-        unit->script->StartScriptWithArgs("TargetCleared", 0, 0, 1, index, 0, 0, 0);
+        g_seams.units->FindScript(unit->script, "StartBuilding");
+        g_seams.units->StartScriptWithArgs(unit->script, "TargetCleared", 0, 0, 1, index, 0, 0, 0);
     }
 }
 
@@ -670,8 +672,6 @@ Unit* __stdcall GetWeaponTargetUnit(Unit* obj, int index)
     return &g_game->units[p->a];
 }
 
-int __stdcall GetGroundHeight(Vec3_0048a1e0* pos);
-void __stdcall GetSweetSpot(Unit* def, int pos);
 
 // The intact tail block: writing the three adds in their natural x,y,z order
 // makes MSVC sink the first product to its use, and z,y,x order orders the
@@ -694,7 +694,7 @@ int __stdcall GetWeaponTargetPos(Unit* unit, Vec3_0048a1e0* pos, int index)
     if (e->point.b != (short)0x8000) {
         pos->x = e->point.a << 16;
         pos->z = e->point.b << 16;
-        pos->y = max(GetGroundHeight(pos), g_game->seaLevel) << 16;
+        pos->y = max(g_seams.units->GetGroundHeight((Vec3*)pos), g_game->seaLevel) << 16;
         return 1;
     }
     if (e->point.a == 0) {
@@ -706,12 +706,12 @@ int __stdcall GetWeaponTargetPos(Unit* unit, Vec3_0048a1e0* pos, int index)
         if (f->point.a != 0 || f->point.b != (short)0x8000) {
             e->point.a = 0;
             e->point.b = (short)0x8000;
-            unit->script->FindScript("StartBuilding");
-            unit->script->StartScriptWithArgs("TargetCleared", 0, 0, 1, index, 0, 0, 0);
+            g_seams.units->FindScript(unit->script, "StartBuilding");
+            g_seams.units->StartScriptWithArgs(unit->script, "TargetCleared", 0, 0, 1, index, 0, 0, 0);
         }
         return 0;
     }
-    GetSweetSpot(def, (int)pos);
+    g_seams.units->GetSweetSpot(def, (Vec3*)pos);
     if ((e->flags & 2) && !(e->target->field_111 & 0x2000000) && def->motion != 0
         && unit->killCount > 5 && e->target->radius != 0) {
         Vec3_0048a1e0 d;

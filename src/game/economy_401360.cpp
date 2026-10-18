@@ -278,6 +278,8 @@ static int UseEnergyD(Unit* u, float v)
     return 0;
 }
 
+#include "../../interfaces/seams.h"
+
 // FUNCTION: 0x401360
 void __stdcall UpdatePlayerEconomy(Player* p)
 {
@@ -333,11 +335,11 @@ void __stdcall UpdatePlayerEconomy(Player* p)
             if (u->bit11) {
                 if (!(u->flags & 0x1000) && u->workTime <= g_game->gameTick) {
                     int cost = (int)((u->flags & 0xc) > 0 ? u->def->cloakcostmoving : u->def->cloakcost);
-                    ((Unit*)u)->SetStateBits(4, u->resourceSlot.SpendEnergy(cost));
+                    g_seams.units->SetStateBits((Unit*)u, 4, u->resourceSlot.SpendEnergy(cost));
                 } else
-                    ((Unit*)u)->SetStateBits(4, 0);
+                    g_seams.units->SetStateBits((Unit*)u, 4, 0);
             } else
-                ((Unit*)u)->SetStateBits(4, 0);
+                g_seams.units->SetStateBits((Unit*)u, 4, 0);
         }
         producedA[0] += u->resourceSlot.res[0].produced;
         usedA[0] += u->resourceSlot.res[0].used;

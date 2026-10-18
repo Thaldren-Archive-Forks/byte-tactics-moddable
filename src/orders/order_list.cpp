@@ -1002,7 +1002,6 @@ void __stdcall UpdateUnitLineOfSight(Unit* unit);
 MissionType __stdcall GetOrderType(unsigned char relation, Unit* unit, Unit* target, Vec3* pos);
 void __stdcall AddOrder(unsigned char kind, int remove, Unit* owner, int id, int* pos, int param_6, int param_7);
 int __stdcall FindWeaponTarget(Unit* unit, int a, int b);
-void __stdcall ClearWeaponTarget(Unit* unit, int index);
 int __stdcall RandomInt(int n);
 int __stdcall CompareOrderTypeNames(const Elem_0043c390& a, const Elem_0043c390& b);
 void RegisterGroundOrders();
@@ -1270,12 +1269,14 @@ static void Wait_0043b7c0(Order* node, int n)
     node->wakeFrame = g_game->frame + when;
 }
 
+#include "../../interfaces/seams.h"
+
 // Clears the unit's three weapon targets.
 static void ClearTargets_0043b7c0(Unit* unit)
 {
     // Char counter: the loop countdown register depends on it.
     for (char i = 0; i < 3; i++)
-        ClearWeaponTarget(unit, i);
+        g_seams.targeting->ClearWeaponTarget(unit, i);
 }
 
 // Per-frame driver of a unit's command list (+0x5c): every node that is due

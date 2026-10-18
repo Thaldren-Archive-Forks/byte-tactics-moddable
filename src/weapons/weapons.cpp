@@ -2341,6 +2341,7 @@ int __stdcall FireTurretWeapon(Unit* fire, Unit* unit,
 
 #include <stdlib.h>
 
+
 struct Aim_0049d880 {
     char unknown_0[0xc];
     WeaponDef* type;                   // +0xc
@@ -2717,13 +2718,13 @@ void __stdcall InitUnitWeaponSlots(Unit* unit)
     unit->script->StartScriptWithArgs("SetMaxReloadTime", 0, 0, 1, frame.maxTime * 1000 / 30, 0, 0, 0);
 }
 
+#include "../../interfaces/seams.h"
+
 // The three aim script names. The original's array has three elements, with
 // the string "AimTertiary" right after it, so a weapon index of 3 would read
 // string bytes as a pointer.
 extern char* g_aimScriptNames[3];
 
-int __stdcall GetWeaponTargetPos(Unit* unit, Vec3* pos, int index);
-Unit* __stdcall GetWeaponTargetUnit(Unit* obj, int index);
 void __stdcall SubtractVec3(Vec3* a, Vec3* b, int* dx, int* dy, int* dz);
 int __stdcall CalcAimAngles(Unit* unit, WeaponDef* target,
                            unsigned short* out_heading, unsigned short* out_pitch,
@@ -2752,7 +2753,7 @@ void __stdcall UpdateUnitWeapons(Unit* unit) {
             continue;
         if (e->f_14 > 0)
             e->f_14--;
-        if (!GetWeaponTargetPos(unit, &pos, i)) {
+        if (!g_seams.targeting->GetWeaponTargetPos(unit, &pos, i)) {
             e->flags &= 0xfe;
             continue;
         }
@@ -2811,7 +2812,7 @@ void __stdcall UpdateUnitWeapons(Unit* unit) {
             }
             if (can == 0)
                 continue;
-            Unit* fired = GetWeaponTargetUnit(unit, i);
+            Unit* fired = g_seams.targeting->GetWeaponTargetUnit(unit, i);
             if (((WeaponFireFn)attached->fire)(unit, &e->point, fired, &pos) == 0)
                 continue;
             if (attached->flags.b.stockpile) {
@@ -2828,7 +2829,7 @@ void __stdcall UpdateUnitWeapons(Unit* unit) {
             int m = (attached->flags.b.commandFire) ? 0x800 : 0x400;
             unit->f_ba.w |= m;
             if (!attached->flags.b.stockpile)
-                unit->resourceSlot.SpendEnergyAndMetal(attached->energyPerShot, attached->metalPerShot);
+                g_seams.economy->SpendEnergyAndMetal(&unit->resourceSlot, attached->energyPerShot, attached->metalPerShot);
         } else {
             unit->f_ba.b[1] |= 0x10;
         }

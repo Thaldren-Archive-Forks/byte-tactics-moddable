@@ -33,6 +33,7 @@
 #include <vector>
 #include <windows.h>
 
+
 #pragma pack(push, 1)
 
 // The AI commands' argument list. 0x406c90 reads count and the Get* helpers;
@@ -574,15 +575,10 @@ int __stdcall RandomInt(int);
 void __stdcall DeleteOrders(Unit*, int);
 int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
-Unit* __stdcall GetWeaponTargetUnit(Unit*, int);
-void __stdcall SetWeaponTargetUnit(Unit*, Unit*, int);
-void __stdcall SetWeaponTargetUnit(Unit*, int, unsigned int);
 unsigned int __stdcall GetOrderFlags(Unit*);
 void __stdcall QueueUnitSpeechIfNotVisible(Unit*, int, int);
 void __stdcall SetUnitSquad(Unit* unit, int squad);
 int* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
-void __stdcall SetWeaponTargetPos(Unit* unit, int* param_2, unsigned int weapon);
-void __stdcall ClearWeaponTarget(Unit* unit, unsigned int weapon);
 void __stdcall GetBasePosition(int index, Vec3* out);
 unsigned short __stdcall ChooseBuildOption(unsigned int player, Unit* unit);
 int __stdcall GetBuilderCount(unsigned int player);
@@ -600,12 +596,10 @@ int __stdcall IsUnitVisibleToPlayer(Player*, Unit*);
 int __stdcall CanPlaceUnitFootprint(UnitDef* type, short a, Point16 cell, int b);
 int __stdcall CanBuildAt(UnitDef* type, Point16 cell, int a, int b);
 int GetBuildSiteMetal(void);
-float __stdcall GetEnergyUse(UnitDef* p);
 
 void EnableAICommands();
 int __stdcall ExecuteCommandText(char* text, int len, CommandArgs* vars, int param_4);
 void LoadDefaultAIScript();
-float __stdcall GetEnergyUse(int);
 int __stdcall GetWeaponRange(Unit*, unsigned char);
 void __stdcall GetVisibleEnemiesInRadius(int player, const Vec* pos, int radius, int flags, std::vector<Unit*>* out);
 float __stdcall GetNetEnergy(Player*);
@@ -614,7 +608,6 @@ float __stdcall GetEnergyIncome(Player*);
 float __stdcall GetMetalIncome(Player*);
 int __stdcall IsCountBelowAiLimit(int, unsigned short, int);
 int __stdcall GetBuildRating(unsigned int player, unsigned short id);
-int __stdcall FindWeaponTarget(Unit* unit, unsigned int weapon, int param_3);
 void __stdcall GetBasePosition(int index, Struct_0040ba80* out);
 
 // The original keeps the four 0.0f comparisons at 0x4fc968, apart from the
@@ -780,6 +773,8 @@ void SquadManager::MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50* obj, int a, in
     }
 }
 
+#include "../../interfaces/seams.h"
+
 // FUNCTION: 0x406f80
 void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
 {
@@ -801,9 +796,9 @@ void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
                 UnitWeaponSlot* weapon=&unit->weapons[i];
                 if ((weapon->flags&2) && (weapon->flags&0x10) && WeaponCanReachUnit(unit,attacker,i) &&
                     !((unsigned char)(weapon->weapon->flags>>26)&1)) {
-                    Unit* target=GetWeaponTargetUnit(unit,i);
+                    Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
                     if (!target || !WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
-                        SetWeaponTargetUnit(unit,attacker,i);
+                        g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);
                 }
             }
         }
@@ -1233,15 +1228,15 @@ void __stdcall RetargetWeapon(Unit* unit, unsigned int weapon)
     if (unit->weapons[weapon].weapon->flag30) {
         int* p = FindTargetableProjectile(unit, weapon);
         if (p)
-            SetWeaponTargetPos(unit, p + 1, weapon);
+            g_seams.targeting->SetWeaponTargetPos(unit, (Vec3*)(p + 1), weapon);
         else
-            ClearWeaponTarget(unit, weapon);
+            g_seams.targeting->ClearWeaponTarget(unit, weapon);
     } else if ((unit->flags & 0x300000) == 0x200000) {
-        int r = FindWeaponTarget(unit, weapon, 1);
+        Unit* r = g_seams.targeting->FindWeaponTarget(unit, weapon, 1);
         if (r)
-            SetWeaponTargetUnit(unit, r, weapon);
+            g_seams.targeting->SetWeaponTargetUnit(unit, r, weapon);
         else
-            ClearWeaponTarget(unit, weapon);
+            g_seams.targeting->ClearWeaponTarget(unit, weapon);
     }
 }
 
@@ -1263,7 +1258,7 @@ void SquadManager::RetargetWeapons(int force)
                 if ((cursor->weapons[w].flags & 2) && (cursor->weapons[w].flags & 0x10)
                     && !(unsigned char)cursor->weapons[w].weapon->flag8
                     && (force || !cursor->weapons[w].weapon->flag26)) {
-                    Unit* target = GetWeaponTargetUnit(cursor, w);
+                    Unit* target = g_seams.targeting->GetWeaponTargetUnit(cursor, w);
                     if (target && (player->allied[target->player->index]
                         || Contains(cursor->def->weaponCategories[w], target->unitDefIndex)
                         || (cursor->weapons[w].weapon->flag7 && (target->activateFlags & 0x10))))
@@ -1442,7 +1437,7 @@ int __stdcall RateUnitType(UnitDef* p)
         result = 0xb;
     if (p->makesMetal != 0)
         result += 10;
-    if (GetEnergyUse(p) < 0.0f)
+    if (g_seams.economy->GetEnergyUse(p) < 0.0f)
         result += 10;
     result = (int)((int)(result - p->metalCost * -0.01f) - p->energyCost * -0.002f);
     int extra = 1;
@@ -1707,7 +1702,7 @@ void PlayerAI::UpdateEveryThirtyTicks()
 // FUNCTION: 0x40ad70
 void __stdcall ProbeUnitDefEnergyRate(int unused1, int unused2, int param_3)
 {
-    GetEnergyUse(param_3);
+    g_seams.economy->GetEnergyUse((UnitDef*)param_3);
 }
 
 // Both loops push_back into the output vector: the first calls insert
@@ -1813,8 +1808,8 @@ Unit* __stdcall FindWeaponTarget(Unit* unit,unsigned char weapon,int useRange)
     int bestDistance=0x7fffffff;
     Unit* best=0;
     std::vector<Unit*> candidates;
-    if(useRange) GetVisibleEnemiesInRadius(unit->playerIndex,(const Vec*)&unit->pos,GetWeaponRange(unit,weapon),0,&candidates);
-    else GetVisibleEnemiesInRadius(unit->playerIndex,(const Vec*)&unit->pos,unit->def->range,0,&candidates);
+    if(useRange) g_seams.ai->GetVisibleEnemiesInRadius(unit->playerIndex,(const Vec3*)&unit->pos,g_seams.weapons->GetWeaponRange(unit,weapon),0,&candidates);
+    else g_seams.ai->GetVisibleEnemiesInRadius(unit->playerIndex,(const Vec3*)&unit->pos,unit->def->range,0,&candidates);
     for(int count=0;count<50;++count) {
         if(candidates.empty()) break;
         std::vector<Unit*>::iterator it=candidates.begin()+RandomInt(candidates.size());
@@ -1822,7 +1817,7 @@ Unit* __stdcall FindWeaponTarget(Unit* unit,unsigned char weapon,int useRange)
         ((Class_004800c0*)&candidates)->EraseSwapBack(it);
         if((target->flags&0x10000000) && !(target->flags&0x4000) &&
            ((target->def->flags1&0x8000) || ai || (g_game->matchFlags&4)) &&
-           ((unit->def->flags1&0x10000000) || WeaponCanReachUnit(unit,target,weapon)) &&
+           ((unit->def->flags1&0x10000000) || g_seams.weapons->WeaponCanReachUnit(unit,target,weapon)) &&
            (useRange || !((Bits*)&unit->def->categories)->Test(target->id)) &&
            (!(unit->weapons[weapon].weapon->flags8&0x80) || !(target->status&0x10))) {
             int dz=unit->pos.z-target->pos.z;
