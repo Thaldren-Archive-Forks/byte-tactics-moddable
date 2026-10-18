@@ -264,13 +264,7 @@ public:
 
 extern Game* g_game;
 
-#include "../../interfaces/economy.h"
-
-struct Seams {
-    void* wind_meteors;
-    EconomySeam* economy;
-};
-extern Seams g_seams;
+#include "../../interfaces/seams.h"
 
 // 0x409520 and 0x4095d0 (matched in their own files): no callers in the
 // exe, both inlined into the loop below.
