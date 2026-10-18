@@ -18,9 +18,10 @@ hooks) that the plan builds on.
 
 ## Words used here
 
-- **Reference:** the matching build (this source compiled with Visual C++ 5.0)
-  plus the test harness from #3. It is 3.1c's game logic, and it is what
-  conformity is measured against.
+- **Reference:** the `reference` branch (cut from `moddable` at 875d19d5),
+  compiled with Visual C++ 5.0 and built by `uv run tools/reference.py
+  --traces`. With the test harness from #3 it is 3.1c's game logic, and it is
+  what conformity is measured against.
 - **Traces:** per-tick, per-phase hashes of the game state from a test-mode run
   (#3). Two builds conform when their traces are identical.
 - **Gate:** the checks a change must pass before it merges. The issue says
