@@ -9,6 +9,7 @@
 #include <setjmp.h>
 
 // Own Vec3, not vec3.h: it has operator+.
+#define VEC3_H
 struct Vec3 {
     int x;
     int y;
@@ -181,15 +182,7 @@ struct PlayerView {
     PlayerInfoView* info;              // +0x27
 };
 
-struct Unit {
-    Size* motion;                      // +0x00
-    char unknown_4[0x6a - 4];
-    Vec3 pos;                          // +0x6a
-    char unknown_76[0x96 - 0x76];
-    PlayerView* player;                // +0x96
-    char unknown_9a[4];
-    PieceList* state;                  // +0x9e
-};
+#include "../units/unit.h"
 
 // A piece of a unit's model, 0x36 bytes each, 0x22 bytes after the count in
 // PieceList.
@@ -484,7 +477,7 @@ void __stdcall ExplodeUnitPieces(Unit* unit)
     s.unit = unit;
     s.ticks = 900;
     s.scale = 1;
-    for (int i = 0; i < unit->state->count; i++) {
+    for (int i = 0; i < ((PieceList*)unit->state)->count; i++) {
         s.b1 = RandomInt(100) & 1;
         s.b2 = 1;
         s.b3 = 1;
@@ -667,7 +660,7 @@ void __stdcall DrawExplodedPieceFaces(void* surface, ExplodedPiece* obj, PieceRe
                 void* pic;
                 if (flags.bits.b) {
                     if (flags.bits.c) {
-                        pic = GetGafFrame(face->tex.src, obj->unit->player->info->color);
+                        pic = GetGafFrame(face->tex.src, ((PlayerView*)obj->unit->player)->info->color);
                     } else {
                         pic = GetGafSequenceFrame(&face->tex);
                     }
@@ -859,9 +852,9 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
                 return;
             d->flag = param->b5;
             if (unit->motion) {
-                d->size.x = unit->motion->x >> 1;
-                d->size.z = unit->motion->z >> 1;
-                d->size.y = unit->motion->y >> 1;
+                d->size.x = ((Size*)unit->motion)->x >> 1;
+                d->size.z = ((Size*)unit->motion)->z >> 1;
+                d->size.y = ((Size*)unit->motion)->y >> 1;
             }
             d->vel.x = (0x50 - RandomInt(0xa0)) << 9;
             d->vel.z = (0x50 - RandomInt(0xa0)) << 9;
@@ -934,7 +927,7 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
                 o->faces[m].color = desc->faces[i].color;
                 int flags = o->faces[m].flags.raw;
                 if (!(flags & 1) && (flags & 2) && (flags & 4)) {
-                    o->faces[m].tex.pic = GetGafFrame(o->faces[m].tex.src, unit->player->info->color);
+                    o->faces[m].tex.pic = GetGafFrame(o->faces[m].tex.src, ((PlayerView*)unit->player)->info->color);
                     o->faces[m].flags.raw &= ~2;
                 }
             }
