@@ -59,10 +59,6 @@ public:
 
 #include "../util/angles.h"
 
-struct Vec3_00456050 {
-    int x, y, z;
-};
-
 struct Ring_00453640 {                 // 0x48 bytes, 30 of them at g_game+0x12ef
     char text[0x40];                   // +0x00
     unsigned int time;                 // +0x40
@@ -185,21 +181,7 @@ struct Player {
 
 // A unit: the player it belongs to, its script and the fields the network
 // game reads. One type for the views of the part files.
-struct Unit {
-    char unknown_0[0x64];
-    Angles16 angles;               // +0x64
-    Vec3_00456050 pos;            // +0x6a
-    char unknown_76[0x96 - 0x76];
-    Player* player;                    // +0x96
-    CobScript* script;                 // +0x9a
-    char unknown_9e[0xa6 - 0x9e];
-    short unitDefIndex;                    // +0xa6
-    short id;                    // +0xa8
-    char unknown_aa[0x110 - 0xaa];
-    unsigned int flags;                // +0x110
-    char unknown_114[4];
-    void SetStateBits(unsigned char, int);
-};
+#include "../units/unit.h"
 
 // The game state, one type for every view. Where the parts read the same
 // bytes differently the union carries both names: the session block at +0x14,
@@ -1271,7 +1253,7 @@ struct UnitCreatePacket {
     unsigned char type;                // +0x0
     short defIndex;                    // +0x1
     short unitId;                      // +0x3
-    Vec3_00456050 pos;                 // +0x5
+    Vec3 pos;                 // +0x5
     Angles16 angles;               // +0x11
 };
 
@@ -2821,8 +2803,8 @@ void __stdcall SendNewUnit(Unit* obj)
 {
     UnitCreatePacket packet;
     packet.type = 9;
-    packet.defIndex = obj->unitDefIndex;
-    packet.unitId = obj->id;
+    packet.defIndex = ((short)obj->unitDefIndex);
+    packet.unitId = ((short)obj->id);
     packet.pos = obj->pos;
     packet.angles = obj->angles;
     BroadcastPacket(obj->player->id, &packet, 0x17);
@@ -2833,8 +2815,8 @@ void __stdcall BroadcastBuilderLink(Unit* obj, Unit* target)
 {
     BuilderLinkPacket packet;
     packet.type = 0x12;
-    packet.constructedUnitId = target->id;
-    packet.builderUnitId = obj->id;
+    packet.constructedUnitId = ((short)target->id);
+    packet.builderUnitId = ((short)obj->id);
     BroadcastPacket(obj->player->id, &packet, 5);
 }
 
@@ -2946,12 +2928,12 @@ void __stdcall SetMissionType(int a);
 int __stdcall SendScriptCallNoArgsByName(Unit* obj, char* name)
 {
     UnitScriptCallPacket packet;
-    int index = obj->script->FindScript(name);
+    int index = ((CobScript *)obj->script)->FindScript(name);
     if (!(g_game->flags_2a44 & 1)) {
         return 0;
     }
     packet.type = 0x10;
-    packet.id = obj->id;
+    packet.id = ((short)obj->id);
     packet.index = index;
     packet.argCount = 0;
     packet.arg0 = 0;
@@ -2969,7 +2951,7 @@ int __stdcall SendScriptCallNoArgs(Unit* obj, short index)
         return 0;
     }
     packet.type = 0x10;
-    packet.id = obj->id;
+    packet.id = ((short)obj->id);
     packet.index = index;
     packet.argCount = 0;
     packet.arg0 = 0;
@@ -2986,12 +2968,12 @@ int __stdcall SendScriptCallByName(Unit* obj, char* name, char argCount,
                            int arg0, int arg1, int arg2, int arg3)
 {
     UnitScriptCallPacket packet;
-    short index = obj->script->FindScript(name);
+    short index = ((CobScript *)obj->script)->FindScript(name);
     if (!(g_game->flags_2a44 & 1)) {
         return 0;
     }
     packet.type = 0x10;
-    packet.id = obj->id;
+    packet.id = ((short)obj->id);
     packet.index = index;
     packet.argCount = argCount;
     packet.arg0 = arg0;
@@ -3012,7 +2994,7 @@ int __stdcall SendScriptCall(Unit* obj, short index, char argCount,
         return 0;
     }
     packet.type = 0x10;
-    packet.id = obj->id;
+    packet.id = ((short)obj->id);
     packet.index = index;
     packet.argCount = argCount;
     packet.arg0 = arg0;

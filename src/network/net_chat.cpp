@@ -29,15 +29,7 @@ struct ChatHudEntry {                  // 0x48 bytes
 
 #include "player.h"
 
-struct Unit {
-    char unknown_0[0x6c];
-    short xWhole;                      // +0x6c, the whole part of pos.x
-    char unknown_6e[0x74 - 0x6e];
-    short zWhole;                      // +0x74, the whole part of pos.z
-    char unknown_76[0x110 - 0x76];
-    unsigned int flags;                // +0x110
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 struct Game {
     char unknown_0[0x519];

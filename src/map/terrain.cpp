@@ -94,44 +94,7 @@ struct Feature {
     };
 };
 
-struct Unit {                           // 0x118 bytes
-    union {
-        Unit* unit;                     // +0x0
-        unsigned char* motion;         // +0x0
-    };
-    char unknown_4[0x26 - 0x4];
-    unsigned int lastTick;              // +0x26, when the unit last moved
-    char unknown_2a[0x6a - 0x2a];
-    union {
-        Vec3 position;                  // +0x6a
-        struct {
-            int x;                      // +0x6a
-            char unknown_6e[4];
-            int y;                      // +0x72
-        };
-    };
-    Point16 pos;                       // +0x76
-    char unknown_7a[4];
-    Point16 footprint;                 // +0x7e, footprint in map cells
-    UnitBucket* spatialBucket;          // +0x82
-    int carrier;                        // +0x86, the unit carrying this one
-    Unit* cargo;                        // +0x8a
-    Unit* cargoNext;                    // +0x8e
-    UnitDef* def;                       // +0x92
-    Player* player;                     // +0x96
-    char unknown_9a[0xa8 - 0x9a];
-    unsigned short id;            // +0xa8, the owner's own id
-    char unknown_aa[0xf9 - 0xaa];
-    char transportPiece;                // +0xf9, the carrier piece this unit sits on
-    char unknown_fa[0xff - 0xfa];
-    unsigned char playerIndex;          // +0xff
-    char unknown_100[0x10f - 0x100];
-    unsigned char bit0 : 1;             // +0x10f
-    unsigned char bit1 : 1;
-    unsigned char bit2 : 1;
-    unsigned int flags;                 // +0x110
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 // Typed cells and no count: grid.h's Grid is 0x10 bytes with a byte pointer.
 struct Grid {
@@ -264,7 +227,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
     obj->flags = f;
     Point16 size = obj->footprint;
     if (f & 0x20000000) {
-        Cell* cell = g_seams.los_radar->GetMapCell(obj->pos.x, obj->pos.y);
+        Cell* cell = g_seams.los_radar->GetMapCell(obj->cell.x, obj->cell.y);
         int index = 0;
         for (int j = size.y; j > 0; j--) {
             for (int i = size.x; i > 0; i--) {
@@ -296,7 +259,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
             cell += g_game->mapWidthTiles - size.x;
         }
     } else if ((obj->flags & 3) == 1) {
-        Cell* cell = g_seams.los_radar->GetMapCell(obj->pos.x, obj->pos.y);
+        Cell* cell = g_seams.los_radar->GetMapCell(obj->cell.x, obj->cell.y);
         for (int j = size.y; j > 0; j--) {
             for (int i = size.x; i > 0; i--) {
                 Unit* rec;
@@ -322,7 +285,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
             cell += g_game->mapWidthTiles - size.x;
         }
     } else {
-        Cell* cell = g_seams.los_radar->GetMapCell(obj->pos.x, obj->pos.y);
+        Cell* cell = g_seams.los_radar->GetMapCell(obj->cell.x, obj->cell.y);
         for (int j = size.y; j > 0; j--) {
             for (int i = size.x; i > 0; i--) {
                 Unit* rec;
@@ -390,7 +353,7 @@ void SpatialBucket::PrependUnit(int node)
 // FUNCTION: 0x47cb60
 void __stdcall SetOwner(Unit* unit, UnitBucket* bucket)
 {
-    UnitBucket* cur = unit->spatialBucket;
+    UnitBucket* cur = ((UnitBucket *)unit->spatialBucket);
     if (bucket != cur) {
         if (unit->carrier == 0) {
             if (cur != 0) {
@@ -403,7 +366,7 @@ void __stdcall SetOwner(Unit* unit, UnitBucket* bucket)
             unit->cargoNext = bucket->first;
             bucket->first = unit;
         }
-        unit->spatialBucket = bucket;
+        unit->spatialBucket = (int)(bucket);
     }
 }
 
@@ -417,7 +380,7 @@ void __stdcall ClearFootprintAndUnlink(Unit* unit)
 {
     RemoveUnitFromMap(unit);
     if (unit->carrier == 0) {
-        UnitBucket* cur = unit->spatialBucket;
+        UnitBucket* cur = ((UnitBucket *)unit->spatialBucket);
         if (cur != 0) {
             Unit** pp = &cur->first;
             while (*pp != unit)
@@ -426,7 +389,7 @@ void __stdcall ClearFootprintAndUnlink(Unit* unit)
             unit->cargoNext = 0;
         }
     }
-    unit->spatialBucket = 0;
+    unit->spatialBucket = (int)(0);
 }
 
 // Can a unit's footprint stand on the map cell `cell`? The guards are the map
@@ -646,13 +609,13 @@ int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* 
 // FUNCTION: 0x47d970
 int __stdcall IsFootprintClear(Unit* obj, int flag)
 {
-    short* pp = &obj->pos.x;                  // x end reads pos.x through the alias
-    Point16* q = &obj->pos;            // y end reads pos.y through this one
+    short* pp = &obj->cell.x;                  // x end reads pos.x through the alias
+    Point16* q = &obj->cell;            // y end reads pos.y through this one
     Point16* r = &obj->footprint;
     short xend = pp[0] + obj->footprint.x;
     short yend = q->y + r->y;
     // Stays a 4-byte Point16 copy, not two short locals.
-    Point16 p = obj->pos;
+    Point16 p = obj->cell;
     if (p.x < 1 || p.y < 1 || xend >= g_game->mapWidthTiles || yend >= g_game->mapHeightTiles)
         return 0;
     int width = g_game->mapWidthTiles;
@@ -680,7 +643,7 @@ void __stdcall SetYardOpen(Unit* obj, int flag)
         obj->bit2 = flag;
         obj->flags |= 0x8000000;
         ClaimFootprintCells(obj);
-        RefreshAllPassMaps(obj->pos, obj->footprint);
+        RefreshAllPassMaps(obj->cell, obj->footprint);
     }
 }
 
@@ -696,9 +659,9 @@ void __stdcall ForceNeighborFootprintReclaim(Unit* obj)
     obj->flags |= 0x8000000;
     ClaimFootprintVisitor visitor;
     Point16 size = obj->footprint;
-    Point16 pos = obj->pos;
+    Point16 pos = obj->cell;
     VisitObjectsInArea(pos, size, &visitor);
-    RefreshAllPassMaps(obj->pos, obj->footprint);
+    RefreshAllPassMaps(obj->cell, obj->footprint);
 }
 
 // Suspected original bug, 0x47dd05: the cell's owner word is compared against
@@ -845,8 +808,8 @@ int __stdcall GetPassMapCellValue(MovementClass* obj, Cell* cell)
         return 0;
     if (cell->unit != 0) {
         // A reference, not a pointer: gives the original's two-step unit load.
-        Unit*& unit = g_game->units[cell->unit].unit;
-        if (!unit || unit->lastTick < obj->lastTick)
+        Unit*& unit = (*(Unit **)&g_game->units[cell->unit].motion);
+        if (!unit || ((unsigned int)unit->lastTick) < obj->lastTick)
             return 0;
     }
     int minHeight = g_game->seaLevel - obj->maxWaterDepth;
@@ -912,8 +875,8 @@ int __stdcall GetPassMapFootprintValue(MovementClass* obj, int x, int y, int w, 
                 return 0;
             if (cell->unit != 0) {
                 // A reference, not a pointer: gives the original's two-step load.
-                Unit*& unit = g_game->units[cell->unit].unit;
-                if (!unit || unit->lastTick < obj->lastTick)
+                Unit*& unit = (*(Unit **)&g_game->units[cell->unit].motion);
+                if (!unit || ((unsigned int)unit->lastTick) < obj->lastTick)
                     return 0;
             }
             // Compared inline via the cast: a named local adds spill/reload pairs.
@@ -979,7 +942,7 @@ int __stdcall IsPadSlotFree(Unit* pad, int id)
         return 0;
     }
     for (Unit* n = pad->cargo; n != 0; n = n->cargoNext) {
-        if (n->transportPiece == id) {
+        if (((char)n->transportPiece) == id) {
             return 0;
         }
     }
@@ -1011,14 +974,14 @@ void __stdcall VisitObjectsInArea(Point16 pos, Point16 size, ClaimFootprintVisit
                 continue;
             }
             for (Unit* o = grid->cells[grid->width * y + x].first; o != 0; o = o->cargoNext) {
-                Point16 op = o->pos;
+                Point16 op = o->cell;
                 Point16 os = o->footprint;
                 if (pos.x < os.x + op.x && sumx > op.x && pos.y < os.y + op.y && sumy > op.y) {
                     visitor->ClaimFootprint(o);
                 }
                 for (Unit* c = o->cargo; c != 0; c = c->cargoNext) {
                     Point16 cs = c->footprint;
-                    Point16 cp = c->pos;
+                    Point16 cp = c->cell;
                     if (pos.x < cs.x + cp.x && sumx > cp.x && pos.y < cp.y + cs.y && sumy > cp.y) {
                         visitor->ClaimFootprint(c);
                     }
@@ -1049,7 +1012,7 @@ void __stdcall VisitObjectsInRect(int x1, int y1, int x2, int y2, Visitor_0047e7
     for (int y = cy1; y <= cy2; y++) {
         for (int x = cx1; x <= cx2; x++) {
             for (Unit* o = g_game->spatialGrid.cells[g_game->spatialGrid.width * y + x].first; o != 0; o = o->cargoNext) {
-                if (o->position.x >= x1 && o->position.x <= x2 && o->position.z >= y1 && o->position.z <= y2) {
+                if (o->pos.x >= x1 && o->pos.x <= x2 && o->pos.z >= y1 && o->pos.z <= y2) {
                     visitor->Visit(o);
                 }
             }
@@ -1114,7 +1077,7 @@ void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& v
     for (int y = cy1; y <= cy2; y++) {
         for (int x = cx1; x <= cx2; x++) {
             for (Unit* o = g_game->spatialGrid.cells[g_game->spatialGrid.width * y + x].first; o != 0; o = o->cargoNext) {
-                if (Dist2_0047e890(pos, &o->position) <= range2) {
+                if (Dist2_0047e890(pos, &o->pos) <= range2) {
                     visitor.CollectDamagedAlly(o);
                 }
             }
