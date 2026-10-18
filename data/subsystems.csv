@@ -1254,7 +1254,7 @@ FreeRadar,src/map/radar.cpp,los_radar,file:src/map/radar,
 DrawRadar,src/map/radar.cpp,presentation,draw,
 CalcRadarViewportRect,src/map/radar.cpp,los_radar,file:src/map/radar,
 UpdateRadarMapped,src/map/radar.cpp,los_radar,file:src/map/radar,
-DrawRadarUnits,src/map/radar.cpp,presentation,draw,
+DrawRadarUnits,src/map/radar.cpp,los_radar,file:src/map/radar,
 UpdateSensorRadarAndCloak,src/ingame/info_panel_467440.cpp,los_radar,presentation,los_radar
 DetectionVisitor::MarkUnitsInRadarOrSonarRadius,src/ingame/info_panel.cpp,los_radar,presentation,los_radar
 MarkRecentlyDamaged,src/ingame/info_panel.cpp,units,presentation,units
