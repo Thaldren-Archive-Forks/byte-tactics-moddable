@@ -10,7 +10,7 @@ class MovementClass;
 // Major version of the units interface, changed when a slot is removed or its signature changes.
 #define UNITS_VERSION_MAJOR 1
 // Minor version of the units interface, changed when a slot is added.
-#define UNITS_VERSION_MINOR 2
+#define UNITS_VERSION_MINOR 3
 
 // Unit simulation.
 struct UnitsSeam {
@@ -34,6 +34,18 @@ struct UnitsSeam {
     void (__stdcall* RefreshMovedUnits)(MovementClass* self, Unit* unit);
     // Refreshes a movement class's pass map for a unit when the map changed since the unit was last updated (thiscall in 3.1c, this first). Hooks: none.
     void (__stdcall* RefreshUnitIfStale)(MovementClass* self, Unit* unit);
+    // Starts a named script with a callback and returns its thread, or a negative number (thiscall in 3.1c, this first). Hooks: none.
+    int (__stdcall* StartScript)(CobScript* script, const char* name, Callback* callback, int update);
+    // Runs a named script that only answers a query and returns its result (thiscall in 3.1c, this first). Hooks: none.
+    int (__stdcall* QueryScript)(CobScript* script, char* name, int* p2, int* p3, int* p4, int* p5);
+    // Writes the world position a unit's weapon aims from. Hooks: none.
+    void (__stdcall* GetAimFromPosition)(Unit* unit, Vec3* out, unsigned char weapon);
+    // Returns the offset of a piece of a unit from its position. Hooks: none.
+    Vec3 (__stdcall* GetPieceOffset)(Unit* unit, int piece);
+    // Returns the world position of a piece of a unit. Hooks: none.
+    Vec3 (__stdcall* GetPiecePosition)(Unit* unit, int piece);
+    // Marks a unit as recently damaged, for its health bar. Hooks: none.
+    void (__stdcall* MarkRecentlyDamaged)(Unit* unit);
 };
 
 #endif

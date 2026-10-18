@@ -471,7 +471,7 @@ void __stdcall AppendOrderToTail(Unit*, Order*);
 void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 Unit* __stdcall GetWeaponTargetUnit(Unit*, int);
-int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
+#include "../../interfaces/seams.h"
 void __stdcall SetWeaponTargetPos(Unit*, Vec3*, int);
 void __stdcall ClearWeaponTarget(Unit*, int);
 int __stdcall IsPadSlotFree(Unit*, int);
@@ -668,7 +668,7 @@ int __stdcall VtolEvadeOrder(Unit* unit,Order* order,int flags)
 // FUNCTION: 0x40f200
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
@@ -769,7 +769,6 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
     return 7;
 }
 
-#include "../../interfaces/seams.h"
 
 // Adds two integer 3-vectors and returns the sum by value.
 #pragma auto_inline(off)
@@ -788,7 +787,7 @@ int __stdcall VtolStandbyOrder(Unit* unit, Order* order, int flags)
     switch (state) {
     case 0:
         if (unit->motion && (unit->def->flags & 0x800)) {
-            unit->ClaimWeapons(3);
+            g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
             order->flags |= 0x10000;
             order->SetDeadlineTicks(1);
             order->x = order->source->pos.xw;
@@ -850,7 +849,7 @@ int __stdcall VtolMoveOrder(Unit* unit, Order* order, int flags)
         break;
     case 1:
         order->AnnounceStatusIfFlagged(0);
-        unit->ReleaseWeapons(3);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
         Snap(&order->pos, unit->footprint);
         order->SetAttachedFx((int)new Class_0044e2d0(order, order->pos));
         order->flags = 0xe0;
@@ -1100,7 +1099,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     case 0:
         if (unit->motion && (unit->def->flags&0x800)) {
             order->AnnounceStatusIfFlagged("Building");
-            unit->ClaimWeapons(3);
+            g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
             if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
             unit->SetStateBits(1,1);
             if ((unit->motion->flags&3)==1) {
@@ -1422,7 +1421,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1: {
-        unit->ReleaseWeapons(3);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
         int dist = (int)_hypot(order->target.owner->pos.x - unit->pos.x, order->target.owner->pos.z - unit->pos.z);
         int angle = GetHeadingBetween(&unit->pos, &order->target.owner->pos);
         Vec3 off = Offset(RandomInt(0x4000) + angle - 0x2000, dist / 2);
@@ -1434,7 +1433,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         return 1;
     }
     case 2: {
-        unit->ClaimWeapons(0);
+        g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 0);
         g_seams.targeting->SetWeaponTargetUnit(unit, order->target.owner, 0);
         Class_0044e2d0* obj = new Class_0044e2d0(order, order->target.owner->pos);
         ((Class_0044e730*)obj)->SetApproachRadius(range);
@@ -1445,7 +1444,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         return 1;
     }
     case 3: {
-        if (!WeaponCanReachUnit(unit, order->target.owner, 0))
+        if (!g_seams.weapons->WeaponCanReachUnit(unit, order->target.owner, 0))
             order->misses++;
         if (order->misses >= 2) {
             order->misses = 0;

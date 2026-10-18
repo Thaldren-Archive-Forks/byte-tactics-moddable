@@ -383,7 +383,6 @@ void* __stdcall LoadCobScript(char* path);
 void __stdcall StripExtension(char* text);
 void __stdcall BindModelTextures(void* obj, char* name);
 MovementClass* __stdcall FindMovementClass(char* name);
-char* __stdcall FindWeaponByName(char* name);
 void LoadUnitInfo();
 
 // The float fields' getter. The outer parentheses matter (note 7 of 0x42bf40).
@@ -830,20 +829,20 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
                                              ((unitdef->maxslope + 1) * 0x10000));
             char* defaultWeapon = (char*)g_game + 0x2cf3;
             parser.current->GetFieldString(weapon, "weapon1", 128, DAT_005119b8);
-            char* weapon1 = FindWeaponByName(weapon);
+            char* weapon1 = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->weapons[0] = weapon1 ? weapon1 : defaultWeapon;
             parser.current->GetFieldString(weapon, "weapon2", 128, DAT_005119b8);
-            char* weapon2 = FindWeaponByName(weapon);
+            char* weapon2 = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->weapons[1] = weapon2 ? weapon2 : defaultWeapon;
             parser.current->GetFieldString(weapon, "weapon3", 128, DAT_005119b8);
-            char* weapon3 = FindWeaponByName(weapon);
+            char* weapon3 = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->weapons[2] = weapon3 ? weapon3 : defaultWeapon;
             parser.current->GetFieldString(weapon, "explodeas", 128, DAT_005119b8);
-            char* explodeas = FindWeaponByName(weapon);
+            char* explodeas = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->explodeas = explodeas ? explodeas : defaultWeapon;
             parser.current
                 ->GetFieldString(weapon, "selfdestructas", 128, DAT_005119b8);
-            char* selfdestructas = FindWeaponByName(weapon);
+            char* selfdestructas = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->selfdestructas = selfdestructas ? selfdestructas : defaultWeapon;
             if (unitdef->weapons[0] == defaultWeapon &&
                 unitdef->weapons[1] == defaultWeapon &&

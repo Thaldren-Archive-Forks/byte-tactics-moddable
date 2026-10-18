@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by Claude Opus 5.5, finished by deepseek-v4.1-flash and GPT-6.1-sol, edited by deepseek-v4.1-flash, finished by space-bunny-free, edited by deepseek-v4.1, finished by deepseek-v4.1-flash, edited by deepseek-v4.1, matched by Claude Opus 5.5. Names are provisional.
 // VTOL attack order handler ("Attacking"). With flags 0x1000a, or with no
 // target and order flag 0x200, it queues VTOL_SEEKATTACK instead; when out of
@@ -152,7 +153,7 @@ static inline int GetSpeed(Unit* unit)
 
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
@@ -165,7 +166,6 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     }
 }
 
-#include "../../interfaces/seams.h"
 
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int param_6, int param_7);
@@ -207,7 +207,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1: {
-        unit->ReleaseWeapons(3);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
         int dist = (int)_hypot(order->pos.x - unit->pos.x, order->pos.z - unit->pos.z);
         int angle = GetHeadingBetween(&unit->pos, &order->pos);
         Vec3 off = Offset(RandomInt(0x4000) + angle - 0x2000, dist / 2);
@@ -219,7 +219,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
         return 1;
     }
     case 2: {
-        unit->ClaimWeapons(0);
+        g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 0);
         if (order->target)
             g_seams.targeting->SetWeaponTargetUnit(unit, order->target, 0);
         else

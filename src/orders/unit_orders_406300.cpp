@@ -35,7 +35,6 @@ struct Order { Unit* Target() { return target; } Vec3* Position() { return &pos;
 
 #pragma pack(pop)
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
-int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 void __stdcall AppendOrder(Unit*, Order*);
 int __stdcall RandomInt(int);
@@ -58,7 +57,7 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
     switch(state) {
     case 0: {
         order->AnnounceStatusIfFlagged("Guarding");
-        unit->ReleaseWeapons(3);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
         order->radius=(unit->width + order->target->width + 2) << 4;
         int distance=order->radius << 16;
         short angle=RandomInt(0x10000);
@@ -75,7 +74,7 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
                     Weapon* weapon=&unit->weapons[i];
                     if ((weapon->flags&2) && (weapon->flags&0x10) && !((unsigned char)(weapon->def->flags >> 26)&1)) {
                         Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
-                        if (!target || !WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
+                        if (!target || !g_seams.weapons->WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
                             g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);
                     }
                 }

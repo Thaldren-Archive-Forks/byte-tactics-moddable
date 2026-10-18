@@ -279,12 +279,10 @@ void __stdcall ApplyAttachUnit(Order* order);
 void __stdcall AddBeCarriedOrder(Beacon* beacon);
 void __stdcall DeselectIfIneligible(Unit* u);
 void __stdcall UpdateWindGenerator(Unit* u);
-void __stdcall UpdateUnitWeapons(Unit* u);
 void __stdcall RunOrders(Unit* u);
 void __stdcall RunSecondaryOrders(Unit* u);
 void __stdcall UpdateUnitHeight(Unit* u);
 void __stdcall KillUnit(Unit* u, int n);
-void __stdcall DamageUnit(int a, Unit* u, int damage, int kind, int flag);
 int __stdcall AddRepairProgress(Unit* u, Unit* u2, float f);
 void __stdcall SendUnitStates(Player* p);
 void __stdcall CycleSelection(void);
@@ -535,7 +533,7 @@ void __stdcall UpdateAllUnits(void)
                         if (p->active != 0) {
                             unsigned char k2 = p->type;
                             if (k2 == 1 || k2 == 2) {
-                                UpdateUnitWeapons(u);
+                                g_seams.weapons->UpdateUnitWeapons(u);
                             }
                         }
                         if (u->script != 0) {
@@ -573,7 +571,7 @@ void __stdcall UpdateAllUnits(void)
                                     && g_game->mapInfo->waterDamage != 0
                                     && (unsigned int)g_game->gameTick % 30 == 0 && u->pos.y.whole <= g_game->seaLevel
                                     && !u->def->f241.bits.floats) {
-                                    DamageUnit(0, u, g_game->mapInfo->waterDamage, 0xb, 0);
+                                    g_seams.weapons->DamageUnit(0, u, g_game->mapInfo->waterDamage, 0xb, 0);
                                 }
                                 if (u->def->f200 != 0 && u->health < u->def->f1fa
                                     && (g_game->gameTick & 7) == 0) {

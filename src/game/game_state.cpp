@@ -709,8 +709,6 @@ void ResetSpeech();
 void LoadTextureGafs();
 void InitUnitCategories();
 void CreateParticleLists();
-void AllocWeaponArray();
-void LoadWeaponTypes();
 void ResetCameraState();
 void LoadUnitTypes();
 void LoadDownloadMenus();
@@ -718,7 +716,6 @@ void AllocateUnitMemory();
 void BuildAllPassMaps();
 void InitPlayers();
 void CreatePathfinder();
-void InitExplosions();
 void InitCommands();
 unsigned int GetTicks();
 
@@ -745,8 +742,8 @@ void LoadBattleAssets()
     InitUnitCategories();
     g_seams.features->NopAfterFeatureEnum();
     CreateParticleLists();
-    AllocWeaponArray();
-    LoadWeaponTypes();
+    g_seams.weapons->AllocWeaponArray();
+    g_seams.weapons->LoadWeaponTypes();
     g_seams.los_radar->LoadTntMap();
     ResetCameraState();
     LoadUnitTypes();
@@ -772,7 +769,7 @@ void LoadBattleAssets()
     g_seams.los_radar->InitRadar();
     InitPlayers();
     CreatePathfinder();
-    InitExplosions();
+    g_seams.weapons->InitExplosions();
     InitCommands();
     for (int i = 0; i < 10; i++)
         g_game->players[i].unitsCreated = 0;
@@ -816,14 +813,11 @@ void Force640x480Surfaces()
 void __cdecl CollectEndGameStats();
 void FreeUnitMemory();
 void DestroyParticleLists();
-void FreeExplosions();
 void DestroyPathfinder();
 void FreePlayers();
 void FreeDownloadMenus();
 void FreeUnitTypes();
-void FreeWeaponTypes();
 void FreeTextureGafs();
-void FreeWeaponArray();
 void FreeMovementClasses();
 void FreeUnitCategories();
 void CloseNetSession();
@@ -838,7 +832,7 @@ void ShutdownIngameSystems()
     g_seams.wind_meteors->EmptyShutdownPreCleanup();
     FreeUnitMemory();
     DestroyParticleLists();
-    FreeExplosions();
+    g_seams.weapons->FreeExplosions();
     DestroyPathfinder();
     FreePlayers();
     g_seams.los_radar->FreeRadar();
@@ -851,9 +845,9 @@ void ShutdownIngameSystems()
     g_game->tempXformPts = 0;
     FreeDownloadMenus();
     FreeUnitTypes();
-    FreeWeaponTypes();
+    g_seams.weapons->FreeWeaponTypes();
     FreeTextureGafs();
-    FreeWeaponArray();
+    g_seams.weapons->FreeWeaponArray();
     FreeMovementClasses();
     FreeUnitCategories();
     if (g_game->mapInfo->GetGameType() == 3) {

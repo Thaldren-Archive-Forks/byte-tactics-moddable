@@ -677,7 +677,7 @@ void __stdcall InitUnitFromType(Unit* unit, Pos_00485a40 pos, int param_5)
 
     for (int i = 0; i < 3; i++) {
         g_seams.targeting->ResetWeaponTarget((Unit*)unit, i);
-        ((Unit*)unit)->ReleaseWeapons(i);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, i);
     }
 
     unit->netDirtyFlags = 0;
@@ -818,7 +818,6 @@ void __stdcall CreateUnitMotion(Unit* unit)
 
 extern void* g_weaponAimCobVtable[];
 
-void __stdcall InitUnitWeaponSlots(Unit* unit);
 
 // Initialises a unit: finds its unit type, gives the aim callback of each of
 // the three weapon slots (at +8, +0x24 and +0x40) its vtable, stores the type
@@ -840,7 +839,7 @@ void __stdcall InitUnit(int unitType, Pos_00485a40 pos, int param_5, Unit* unit)
     unit->unitDefIndex = (short)unitType;
     InitUnitFromType(unit, pos, param_5);
     InitUnitScript(unit);
-    InitUnitWeaponSlots(unit);
+    g_seams.weapons->InitUnitWeaponSlots(unit);
     g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
         unit->motion = new UnitMotion(unit);
@@ -875,7 +874,7 @@ static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Pos_0048
     unit->unitDefIndex = unitType;
     InitUnitFromType(unit, pos, param_5);
     InitUnitScript(unit);
-    InitUnitWeaponSlots(unit);
+    g_seams.weapons->InitUnitWeaponSlots(unit);
     g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
         unit->motion = new UnitMotion(unit);
@@ -1125,15 +1124,12 @@ extern char g_takenLeadFormat[];
 unsigned char __stdcall FindSlotByDpid(int id);
 void __stdcall DeleteOrders(void* unit, int flag);
 void __stdcall RemoveSpeechOfUnit(void* unit);
-void __stdcall RemoveUnitProjectiles(void* unit);
 void __stdcall AttachUnitToPiece(void* unit, void* builder, int a, int c);
-void __stdcall DamageUnit(void* a, void* b, int c, int d, int e);
 void __stdcall ClearFootprintAndUnlink(void* unit);
 void __stdcall AddCdActivitySample(int flag);
 char* __stdcall Translate(char* text);
 void __stdcall AddMessage(char* text, int a, int b, int c);
 void __stdcall FlashScorePanelKillLoss(int a, int b);
-void __stdcall DetonateUnitWeapon(void* unit, int flag);
 void __stdcall ClearUnitRefs(void* unit);
 void __stdcall FreeObjectState(void* state);
 void __cdecl operator delete(void* p);
@@ -1164,12 +1160,12 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     DeleteOrders(unit, 1);
     RemoveSpeechOfUnit(unit);
     SetUnitSquad(unit, -1);
-    RemoveUnitProjectiles(unit);
+    g_seams.weapons->RemoveUnitProjectiles(unit);
     if (unit->carrier != 0)
         AttachUnitToPiece(unit, 0, -1, 1);
     while (unit->cargo != 0) {
         unsigned char depth = cmd->killType != 3 ? 6 : 3;
-        DamageUnit(unit->attacker, unit->cargo, 30000, depth, 0);
+        g_seams.weapons->DamageUnit(unit->attacker, unit->cargo, 30000, depth, 0);
         AttachUnitToPiece(unit->cargo, 0, -1, 1);
     }
     ClearFootprintAndUnlink(unit);
@@ -1290,7 +1286,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         }
     }
     if (cmd->cobKilledSeverity > 0 && unit->buildLeft == 0.0f)
-        DetonateUnitWeapon(unit, cmd->killType == 3);
+        g_seams.weapons->DetonateUnitWeapon(unit, cmd->killType == 3);
     if (cmd->wreckageLevel > 0) {
         // Local flag: without it the script's virtual delete uses another register.
         int flag = cmd->killType != 7;
@@ -1375,9 +1371,9 @@ void __stdcall KillPlayerUnits(unsigned char player)
                             Player* d = u->player;
                             if (d->active != 0 &&
                                 (d->type == 1 || d->type == 2)) {
-                                DamageUnit(u, u, 0x7530, 3, 0);
+                                g_seams.weapons->DamageUnit(u, u, 0x7530, 3, 0);
                             } else {
-                                DetonateUnitWeapon(u, 1);
+                                g_seams.weapons->DetonateUnitWeapon(u, 1);
                                 u->flags.all |= 0x4000;
                                 KillUnit(u, 3);
                             }

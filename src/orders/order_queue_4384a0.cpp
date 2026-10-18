@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by Opus, Haiku, deepseek-v4.1, DeepSeek V4.1 Flash, deepseek-v4.1-flash, space-bunny-free, Space Bunny Free and Claude Opus 5.5. Names are provisional.
 // The build-queue object Order and the code around it: the unit's
 // list of orders at +0x5c, the order-type table at g_missionOrderTableBegin, the
@@ -632,7 +633,7 @@ Order::~Order()
         }
     }
     if (!(flags & 0x10000)) {
-        unit->ReleaseWeapons(3);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
     }
     ((UnitRef*)&link)->Unlink();
 }

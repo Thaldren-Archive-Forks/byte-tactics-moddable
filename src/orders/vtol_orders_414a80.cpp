@@ -91,7 +91,7 @@ void __stdcall QueueUnitSpeech(Unit* unit, int kind, const char* text);
 void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Vec3* box, Vec3* from, int count);
 int __stdcall ComputeReclaimDamagePulse(Unit* unit, Unit* target, int n);
-void __stdcall DamageUnit(Unit* unit, Unit* target, int a, int b, int c);
+#include "../../interfaces/seams.h"
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall CellToWorldPos(Point cell, Vec3* out, Point origin);
 
@@ -106,7 +106,7 @@ static inline Point WorldToCell(Vec3 v, Point origin)
 // 0x40f200, matched in 0x40f200.cpp; inlined into the state 0 case below.
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
@@ -168,7 +168,7 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         int square = Square(delta);
         if (square <= range * range && unit->CanReclaim(order->target.Get())) {
             if (order->duration >= 15) {
-                DamageUnit(unit, order->target.Get(), order->elapsed, 5, 0);
+                g_seams.weapons->DamageUnit(unit, order->target.Get(), order->elapsed, 5, 0);
                 order->duration = 0;
             }
             Vec3 start;

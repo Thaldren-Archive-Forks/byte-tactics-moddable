@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by GPT-6 Astra, finished by space-bunny-free, finished by deepseek-v4.1-flash,
 // finished by GPT-6.1-sol, finished by Claude Opus 5.5. Names are provisional.
 // Kept: the operand order of the six bounds adds follows symbol ids, so this
@@ -143,7 +144,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             if (unit->def->flags&0x800) {
                 if (!unit->def->canBuild) return 7;
                 order->AnnounceStatusIfFlagged("Building");
-                unit->ClaimWeapons(3);
+                g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
                 if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
                 unit->SetStateBits(1,1);
                 if ((unit->motion->flags&3)==1) {

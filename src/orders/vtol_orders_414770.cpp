@@ -80,7 +80,7 @@ struct Game {
 
 extern Game* g_game;
 
-unsigned short __stdcall FindFeatureAtPos(Vec3* pos, Point16* cell, Point16* size);
+#include "../../interfaces/seams.h"
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 int __stdcall GetGroundHeight(Vec3* pos);
 void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
@@ -90,7 +90,7 @@ void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 // 0x40f200, matched in 0x40f200.cpp; inlined into the state 0 case below.
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
@@ -103,7 +103,6 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     }
 }
 
-#include "../../interfaces/seams.h"
 
 // Order handler "Reclaiming" (second variant, driven by a Class_0044e2d0
 // move object rather than the turn/approach states of 0x404ad0).
@@ -113,7 +112,7 @@ int __stdcall VtolReclaimOrder(Unit* unit, Order* order, int flags)
 {
     Point16 cell;
     Point16 size;
-    unsigned short index = FindFeatureAtPos(&order->pos, &cell, &size);
+    unsigned short index = g_seams.weapons->FindFeatureAtPos(&order->pos, &cell, &size);
     if (index == 0xffff) {
         QueueUnitSpeech(unit, 7, "Reclamation failed");
         return 8;

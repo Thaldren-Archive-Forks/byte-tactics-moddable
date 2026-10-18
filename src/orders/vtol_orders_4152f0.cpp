@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by Claude Opus 5.5, finished by deepseek-v4.1-flash and GPT-6, verified by GPT-6.1-Sol, finished by space-bunny-free, edited by deepseek-v4.1-flash, edited by Claude Opus 5.5, matched by Claude Opus 5.5. Names are provisional.
 // VTOL patrol order handler for construction aircraft. State 0 starts
 // patrolling ("Patrolling"; PrepVtolClimb). State 1 sets the next waypoint,
@@ -68,7 +69,7 @@ int __stdcall PickRandomReclaimableResourcesInRadius(Vec3*, Fixed, Vec3**, float
 // inline: no function may be compiled before VtolRepairPatrolOrder, or the landed test returns.
 inline void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
