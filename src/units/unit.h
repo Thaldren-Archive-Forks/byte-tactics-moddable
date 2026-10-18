@@ -171,7 +171,9 @@ struct Unit {
         unsigned int flags;
         struct {
             unsigned int mode : 2;
-            unsigned int unknown_110_2 : 16;
+            unsigned int unknown_110_2 : 14;
+            unsigned int moved : 1;
+            unsigned int unknown_110_17 : 1;
             unsigned int fire : 2;
             unsigned int move : 2;
             unsigned int unknown_110_22 : 10;
