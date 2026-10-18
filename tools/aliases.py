@@ -8,7 +8,7 @@ address has many mangled spellings. This writes a COFF object of weak externals
 (the mechanism OLDNAMES.LIB uses for its C runtime aliases) that maps each
 spelling to the definition at that address, and each C++-mangled use of a C
 runtime function (tolower, sprintf, ...) to the library's symbol. Both the
-matching link (tools/link.py) and the modern CMake build link it.
+modern CMake build links it.
 """
 
 import argparse
@@ -20,10 +20,10 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from check import ROOT, base_name
-from linkcheck import (Demangle, MEMBER_STATIC, archive_symbols, data_symbol, load_known, read_object,
-                       type_size)
-from linkcheck import address_of as matching_address_of
+from objread import (Demangle, MEMBER_STATIC, archive_symbols, data_symbol, load_known, parse, read_object,
+                     type_size)
+from objread import address_of as matching_address_of
+from sources import ROOT, base_name
 
 GLOBALS = ROOT / "data/globals.csv"
 CLANG_RUNTIME = {"___CxxFrameHandler3": "___CxxFrameHandler"}
@@ -39,7 +39,7 @@ GLOBAL_LO, GLOBAL_HI = 0x4FC000, 0x52D000
 
 
 def address_of(sym: str, symbols: dict[str, int]) -> int | None:
-    """The address a symbol names (tools/linkcheck.py's), where a std::pair of
+    """The address a symbol names (tools/objread.py's), where a std::pair of
     a const key is the pair data/symbols.csv names without the const (`$$CB`)."""
     found = matching_address_of(sym, symbols)
     if found is None and "$$CB" in sym:
@@ -159,7 +159,7 @@ def write_extra_data(extra: dict[int, tuple[str, int, str, str]], out: Path) -> 
             bytes_ = bytes.fromhex(init)[:size].rstrip(b"\0")
         else:
             if exe is None:
-                from check import Original
+                from sources import Original
                 exe = Original()
             bytes_ = exe.read(addr, size).rstrip(b"\0")
         if section == ".bss" or not bytes_:
@@ -175,7 +175,6 @@ def write_extra_data(extra: dict[int, tuple[str, int, str, str]], out: Path) -> 
 def data_extents(objects: list[Path], symbols: dict[str, int]) -> list[tuple[int, int, str]]:
     """(address, size, symbol) of every global the objects define at a known
     address: a global runs from its symbol to the next one in its section."""
-    from place import parse
     out = []
     for path in objects:
         obj = parse(path)
@@ -305,7 +304,7 @@ def overload_target(name: str, overloads: dict[str, set[int]], funcs_at: dict[in
 
 def overloaded_names(symbols: dict[str, int]) -> dict[str, set[int]]:
     """name -> every address data/symbols.csv and data/aliases.csv give it."""
-    from check import load_aliases
+    from sources import load_aliases
     out = {name: set(addrs) for name, addrs in load_aliases().items()}
     for name, addrs in out.items():
         if name in symbols:
@@ -316,7 +315,7 @@ def overloaded_names(symbols: dict[str, int]) -> dict[str, set[int]]:
 def alias_names(symbols: dict[str, int]) -> None:
     """Add the names data/aliases.csv gives one address each (a view name for
     a definition, a duplicate copy) to symbols."""
-    from check import load_aliases
+    from sources import load_aliases
     for name, addrs in load_aliases().items():
         if len(addrs) == 1 and name not in symbols:
             symbols[name] = next(iter(addrs))

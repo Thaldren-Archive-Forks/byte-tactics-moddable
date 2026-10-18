@@ -1,10 +1,8 @@
-"""Rename identifiers everywhere they are spelt, then check that nothing changed.
+"""Rename identifiers everywhere they are spelt.
 
-    uv run tools/rename.py OLD NEW [OLD NEW ...]   # rename, then run the checks
+    uv run tools/rename.py OLD NEW [OLD NEW ...]   # rename
     uv run tools/rename.py --from FILE             # the pairs from a CSV (old,new[,evidence])
     uv run tools/rename.py OLD NEW --dry-run       # what would change, and what is refused
-    uv run tools/rename.py OLD NEW --no-check      # rename only
-    uv run tools/rename.py OLD NEW --full          # also link.py --carve and linkcmp.py
     uv run tools/rename.py --from FILE --join --keep-going
                                                    # several views to one type, skipping the
                                                    # pairs that are refused
@@ -27,11 +25,8 @@ What it rewrites:
                               (docs/c2-regalloc.md), and a second declaration
                               of one name counts nothing
   data/aliases.csv            inside the names, decorated or not (the table is
-  data/symbols.csv            kept by hand; symbols.csv is rebuilt by
-                              tools/progress.py from the files, and rewritten
-                              here only so that check.py agrees until then)
-  data/modules.csv, docs/*.md, AGENTS.md
-                              OLD as a whole word, but not in a --join: there
+  data/symbols.csv            kept by hand)
+  docs/*.md, AGENTS.md        OLD as a whole word, but not in a --join: there
                               the docs keep the view names they tell apart
 
 What it refuses, pair by pair:
@@ -45,33 +40,20 @@ What it refuses, pair by pair:
     still refused (merging two types in one file is phase 3, not a rename);
   - a NEW that data/symbols.csv gives another address after the rename;
   - a NEW that is already a type in other files, unless --join says OLD's
-    views are views of that type (the evidence: tools/gametypes.py --explain);
+    views are views of that type;
   - an OLD declared as a local or a parameter in a function whose frame
     layout follows its locals' names: one with a `try` or `__try` block, or one
-    built with `/Od` (docs/agent-guide.md; docs/linking.md, "The gap regions as
-    source");
+    built with `/Od`;
   - an OLD that names a gap entry label (`// ENTRY: 0x...`): its public symbol
     is made from the address.
 
 Any refusal stops the rename, unless --keep-going, which renames the pairs
 that pass and lists the others.
-
-The checks, unless --no-check: tools/progress.py (every function that
-matched before still matches), tools/globals.py (link/ follows the new
-names), tools/place.py --write-layout (the shipped MD5, and data/layout.csv
-unchanged but for the renamed names of static initializers and the objects
-tools/globals.py generates under link/, whose .bss the compiler orders by
-name: any other change means a rename moved a piece within a game object, as
-renaming file statics can reorder its .bss) and
-tools/place.py --no-orig (the same MD5 from data/layout.csv alone); with
---full also tools/link.py --carve and tools/linkcmp.py. On a
-failure the files stay renamed for a look; `git checkout -- .` undoes it.
 """
 
 import argparse
 import csv
 import re
-import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -89,11 +71,9 @@ KEYWORDS = set("""
     typename union unsigned using virtual void volatile wchar_t while
     __asm __cdecl __stdcall __fastcall __thiscall __declspec __try __except __finally __leave __int64
 """.split())
-TEXT_FILES = ["data/modules.csv", "AGENTS.md", "docs/*.md"]
+TEXT_FILES = ["AGENTS.md", "docs/*.md"]
 NAME_TABLES = ["data/aliases.csv", "data/symbols.csv"]
 SYMBOLS = ROOT / "data/symbols.csv"
-PROGRESS = ROOT / "data/progress.csv"
-LAYOUT = ROOT / "data/layout.csv"
 ANNOTATED = re.compile(r"(//\s*(?:FUNCTION|ENTRY):\s*0x[0-9a-fA-F]+\s+)(\S+)")
 TRAILING = re.compile(r"^(.*?\S)(\s{2,})(//.*?)(\r?)$")
 
@@ -314,7 +294,7 @@ def refusals(pairs: list[tuple[str, str]], tree: Tree, join: bool) -> dict[tuple
         if types and not join and new not in olds:
             out[(old, new)].append(f"{new} is already a type in {len(types)} file(s) ({rel(types[0])}, ...): "
                                    f"renaming {old} to it makes their views one type; pass --join if the "
-                                   f"evidence says they are (tools/gametypes.py --explain {new})")
+                                   f"evidence says they are")
     # The name table after the rename: one address per name.
     if rows:
         renamer = Renamer(pairs)
@@ -330,7 +310,7 @@ def refusals(pairs: list[tuple[str, str]], tree: Tree, join: bool) -> dict[tuple
     return out
 
 
-# --- the rewrite and the checks ------------------------------------------------------------
+# --- the rewrite ------------------------------------------------------------
 
 def sources_and_headers() -> list[Path]:
     return source_files() + sorted((ROOT / "include").glob("*.h"))
@@ -376,67 +356,11 @@ def apply(pairs: list[tuple[str, str]], texts: dict[Path, str], dry_run: bool, d
     return changed
 
 
-def run(*cmd: str) -> tuple[int, str]:
-    proc = subprocess.run(["uv", "run", *cmd], cwd=ROOT, capture_output=True, text=True)
-    return proc.returncode, proc.stdout + proc.stderr
-
-
-def matched() -> dict[str, str]:
-    with PROGRESS.open() as fh:
-        return {r["address"]: r["status"] for r in csv.DictReader(fh)}
-
-
-def game_layout(text: str) -> list[str]:
-    """The layout rows of the game's own objects: link/ holds generated objects
-    (link/data.cpp and the like), laid out by the names globals.py gives them."""
-    return [line for line in text.splitlines() if not "".join(line.split(",")[3:4]).startswith("link/")]
-
-
-def checks(full: bool, before: dict[str, str], layout: str) -> list[str]:
-    failures = []
-    print("tools/progress.py ...", flush=True)
-    _, out = run("tools/progress.py", "--quiet")
-    print("  " + out.strip().splitlines()[-1] if out.strip() else "  (no output)")
-    after = matched()
-    lost = sorted(a for a, s in before.items() if s == "matched" and after.get(a) != "matched")
-    if lost:
-        failures.append(f"{len(lost)} function(s) no longer match: {' '.join(lost[:12])}")
-    # globals.py first: place.py lays out link/data.cpp, which it writes.
-    print("tools/globals.py ...", flush=True)
-    code, out = run("tools/globals.py")
-    if code:
-        failures.append("tools/globals.py failed:\n" + out[-2000:])
-    for label, args in (("tools/place.py --write-layout", ("tools/place.py", "--write-layout")),
-                        ("tools/place.py --no-orig", ("tools/place.py", "--no-orig"))):
-        print(f"{label} ...", flush=True)
-        _, out = run(*args)
-        line = next((l for l in out.splitlines() if l.startswith("MD5 ")), "no MD5 line")
-        print("  " + line[:100])
-        if "the shipped exe" not in line or "NOT the shipped exe" in line:
-            failures.append(f"{label}: not the shipped exe")
-        if label.endswith("--write-layout") and game_layout(LAYOUT.read_text()) != game_layout(layout):
-            failures.append("data/layout.csv changed: a piece moved within its object "
-                            "(renamed file statics can reorder .bss); `git diff data/layout.csv`")
-    if full:
-        print("tools/link.py --carve --map ...", flush=True)
-        code, out = run("tools/link.py", "--carve", "--map")
-        if code:
-            failures.append("tools/link.py --carve failed:\n" + out[-2000:])
-        print("tools/linkcmp.py ...", flush=True)
-        code, out = run("tools/linkcmp.py")
-        print("  " + "\n  ".join(out.strip().splitlines()[-4:]))
-        if code or re.search(r"(?m)^references that differ", out):
-            failures.append("tools/linkcmp.py found references that differ")
-    return failures
-
-
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("names", nargs="*", help="OLD NEW pairs")
     ap.add_argument("--from", dest="table", type=Path, help="a CSV of old,new[,evidence] rows")
     ap.add_argument("--dry-run", action="store_true", help="print what would change and stop")
-    ap.add_argument("--no-check", action="store_true", help="rename without running the checks")
-    ap.add_argument("--full", action="store_true", help="also link.py --carve and linkcmp.py")
     ap.add_argument("--join", action="store_true",
                     help="allow a NEW that is already a type elsewhere: OLD's views join that type")
     ap.add_argument("--keep-going", action="store_true", help="rename the pairs that pass, list the others")
@@ -466,21 +390,11 @@ def main() -> None:
         pairs = [p for p in pairs if p not in refused]
         if not pairs:
             sys.exit(2)
-    before = matched()
-    # The layout names only the static initializers (`init/?FUN_...`): expect those renamed.
-    layout = Renamer(pairs).symbols(LAYOUT.read_text())
     # A join gives many views one name: the docs keep the names they tell apart.
     changed = apply(pairs, texts, args.dry_run, docs=not args.join)
     files = [f for f in changed if f.startswith("src/")]
     print(f"{len(pairs)} pair(s): {'would change' if args.dry_run else 'changed'} {len(changed)} file(s), "
           f"{len(files)} under src/")
-    if args.dry_run or args.no_check:
-        return
-    failures = checks(args.full, before, layout)
-    if failures:
-        print("FAILED:\n  " + "\n  ".join(failures))
-        sys.exit(1)
-    print("every check passes")
 
 
 if __name__ == "__main__":

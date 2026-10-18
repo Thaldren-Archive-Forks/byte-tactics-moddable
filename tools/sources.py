@@ -33,6 +33,7 @@ moving a file between folders does not change the order.
 import argparse
 import csv
 import re
+import struct
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -277,6 +278,91 @@ def object_source(obj: Path, cache: Path) -> Path:
 def relative(src: Path) -> str:
     """A path as data/ and the tools print it: relative to the repository."""
     return str(src.resolve().relative_to(ROOT))
+
+
+SYMBOLS = ROOT / "data/symbols.csv"
+ALIASES = ROOT / "data/aliases.csv"
+PATCHES = ROOT / "data/exe_patches.csv"
+
+
+class Original:
+    def __init__(self, path: Path = ROOT / "orig/TotalA.exe"):
+        import pefile
+        self.pe = pefile.PE(str(path))
+        self.base = self.pe.OPTIONAL_HEADER.ImageBase
+        self.end = self.base + self.pe.OPTIONAL_HEADER.SizeOfImage
+        self.sizes = {}
+        for d in getattr(self.pe, "DIRECTORY_ENTRY_DEBUG", []):
+            if d.struct.Type == 3:
+                raw = self.pe.__data__[d.struct.PointerToRawData:d.struct.PointerToRawData + d.struct.SizeOfData]
+                for i in range(0, len(raw), 16):
+                    rva, size = struct.unpack_from("<II", raw, i)
+                    self.sizes[self.base + rva] = size
+
+        self.patches = []
+        if PATCHES.exists():
+            for row in csv.DictReader(PATCHES.open()):
+                self.patches.append((int(row["address"], 16), bytes.fromhex(row["original"])))
+
+    def read(self, va: int, size: int) -> bytes:
+        try:
+            data = self.pe.get_data(va - self.base, size)
+        except Exception:
+            return b""
+        for at, orig in self.patches:
+            lo, hi = max(va, at), min(va + len(data), at + len(orig))
+            if lo < hi:
+                data = data[:lo - va] + orig[lo - at:hi - at] + data[hi - va:]
+        return data
+
+
+def base_name(sym: str) -> str:
+    """Undecorate a symbol just enough to compare names: '?Reset@PlayerRef@@QAEXE@Z' -> 'PlayerRef::Reset'."""
+    if re.search(r"@\?\d+\?\?", sym):
+        return "$local:" + sym
+    if sym.startswith("??_C@"):
+        return sym
+    if sym.startswith("??0") or sym.startswith("??1"):
+        scopes = sym[3:].split("@@", 1)[0].split("@")
+        cls = scopes[0]
+        return "::".join(reversed(scopes)) + "::" + ("~" if sym[2] == "1" else "") + cls
+    if sym.startswith("??"):
+        return sym
+    if sym.startswith("?"):
+        parts = sym[1:].split("@@", 1)[0].split("@")
+        return "::".join(reversed(parts[1:])) + ("::" if len(parts) > 1 else "") + parts[0]
+    if sym.startswith("_"):
+        return sym[1:].split("@", 1)[0]
+    return sym
+
+
+def load_aliases() -> dict[str, set[int]]:
+    """Extra addresses a name may refer to, where the exe really contains
+    duplicate copies of one function (e.g. two std::_Lockit)."""
+    out: dict[str, set[int]] = {}
+    if ALIASES.exists():
+        with ALIASES.open() as fh:
+            for row in csv.DictReader(fh):
+                out.setdefault(row["name"], set()).add(int(row["address"], 16))
+    return out
+
+
+def load_symbols() -> dict[str, int]:
+    out = {}
+    if SYMBOLS.exists():
+        with SYMBOLS.open() as fh:
+            out = {row["name"]: int(row["address"], 16) for row in csv.DictReader(fh)}
+    for address, name in data_annotations():
+        out.setdefault(name, address)
+    return out
+
+
+def winpath(p: Path) -> str:
+    """A path as the compiler and Wine are given it: under drive Y: for a path inside this checkout."""
+    p = Path(p)
+    if p == ROOT or ROOT in p.parents:
+        return "Y:\\" + "\\".join(p.relative_to(ROOT).parts)
+    return "Z:" + str(p).replace("/", "\\")
 
 
 def main() -> None:

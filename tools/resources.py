@@ -1,37 +1,26 @@
-"""The game's resources: src/res/TotalA.rc, compiled the way the original's
-were, with the icon and cursor it names.
+"""The game's resources: the icon and cursor src/res/TotalA.rc names.
 
-    uv run tools/resources.py                  # compile them, and compare with the original's .rsrc
+    uv run tools/resources.py --print-art      # print the directory holding the icon and cursor
     uv run tools/resources.py --art DIR        # the icon and cursor from DIR (or BT_ART_DIR=DIR)
     uv run tools/resources.py --extract        # rewrite src/res/TotalA.rc from orig/TotalA.exe
 
 The exe holds an icon (32x32 and 16x16, 16 colours), a cursor and a version
-resource. The script is in the repository; the icon and cursor are Cavedog's
-art, which it does not hold. They come from a directory given with --art or
-the BT_ART_DIR environment variable (CI supplies them that way), or else are
-extracted from the player's own orig/TotalA.exe into build/res/art/ (the modern build
-extracts into its own build directory). With
-neither, the build stops and says so. --extract writes the script out of the
-exe again, which is how it was made.
-
-The build compiles the script with the toolchain's RC.EXE (5.00.1472) into
-build/res/TotalA.res, finding TotalA.ico and TotalA.cur through RC's include
-path, and converts that with CVTRES.EXE (5.00.1668, SP3's, the version the
-exe's Rich header names) into build/res/TotalA.obj, as LINK does when it is
-given a .res file: /MACHINE:IX86 /READONLY. CVTRES lays out the whole
-resource directory itself, as .rsrc$01, with the resources' data after it as
-.rsrc$02, so tools/place.py places the two sections at the start of .rsrc and
-resolves their relocations like any other object's.
+resource. The icon and cursor are Cavedog's art, which the repository does not
+hold. They come from a directory given with --art or the BT_ART_DIR
+environment variable (CI supplies them that way), or else are extracted from
+the player's own orig/TotalA.exe into build/res/art/ (the modern build
+extracts into its own build directory). With neither, the tool stops and says
+so. --extract writes the script out of the exe again, which is how it was
+made.
 """
 
 import argparse
 import os
 import struct
-import subprocess
 import sys
 from pathlib import Path
 
-from check import ROOT, winpath
+from sources import ROOT
 
 SRC = ROOT / "src/res"
 RC = SRC / "TotalA.rc"
@@ -87,34 +76,6 @@ def write_atomic(path: Path, data: bytes) -> None:
     temp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
     temp.write_bytes(data)
     os.replace(temp, path)
-
-
-# --- compiling ----------------------------------------------------------------------
-
-def build(art: Path | None = None) -> Path:
-    """Compile src/res/TotalA.rc and the art into build/res/TotalA.obj (only
-    when one of them changed)."""
-    art = art_dir(art)
-    sources = [RC] + [art / name for name in ART]
-    stamp = OUT / "art.path"
-    if (OBJ.exists() and stamp.exists() and stamp.read_text() == str(art)
-            and all(s.stat().st_mtime <= OBJ.stat().st_mtime for s in sources)):
-        return OBJ
-    OUT.mkdir(parents=True, exist_ok=True)
-    for path in (RES, OBJ, stamp):
-        path.unlink(missing_ok=True)
-    # /x leaves out the INCLUDE path, /i adds the art's directory.
-    run(["tools/wrc", "/r", "/x", f"/i{winpath(art)}", f"/fo{winpath(RES)}", winpath(RC)], RES)
-    run(["tools/wcvtres", "/MACHINE:IX86", "/READONLY", f"/OUT:{winpath(OBJ)}", winpath(RES)], OBJ)
-    stamp.write_text(str(art))
-    return OBJ
-
-
-def run(cmd: list[str], out: Path) -> None:
-    cmd[0] = str(ROOT / cmd[0])
-    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
-    if proc.returncode != 0 or not out.exists():
-        raise SystemExit(f"{' '.join(cmd)} failed:\n{(proc.stdout + proc.stderr).replace(chr(13), '')}")
 
 
 # --- extracting ---------------------------------------------------------------------
@@ -253,36 +214,6 @@ def extract(exe: Path) -> None:
     print(f"wrote {RC.relative_to(ROOT)}")
 
 
-# --- comparing ----------------------------------------------------------------------
-
-def compare(exe: Path) -> int:
-    """Lay the compiled sections out as LINK would at the original's .rsrc and
-    count the bytes that differ."""
-    import pefile
-    from place import parse
-    pe = pefile.PE(str(exe))
-    sec = next(s for s in pe.sections if s.Name.rstrip(b"\0") == b".rsrc")
-    want = sec.get_data()[:sec.Misc_VirtualSize]
-    obj = parse(OBJ)
-    out = bytearray()
-    starts = {}
-    for s in sorted((s for s in obj.secs if s.name.startswith(".rsrc$")), key=lambda s: s.name):
-        n = (s.chars >> 20) & 0xF
-        align = 1 << (n - 1) if n else 16
-        out += bytes(-len(out) % align)
-        starts[s.index] = len(out)
-        out += s.data
-    for s in obj.secs:
-        for off, symidx, rtype in s.relocs:
-            sym = obj.syms[symidx]
-            at = starts[s.index] + off
-            (addend,) = struct.unpack_from("<I", out, at)
-            struct.pack_into("<I", out, at, sec.VirtualAddress + starts[sym.section] + sym.value + addend)
-    diff = sum(a != b for a, b in zip(out, want)) + abs(len(out) - len(want))
-    print(f"{OBJ.relative_to(ROOT)}: {len(out):,} bytes of .rsrc, the original's {len(want):,}; {diff:,} differ")
-    return diff
-
-
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--art", type=Path, help=f"the directory with {' and '.join(ART)} (default: BT_ART_DIR, "
@@ -296,15 +227,10 @@ def main() -> None:
     args = ap.parse_args()
     if args.print_art:
         print(art_dir(args.art, args.art_out.resolve()))
-        return
-    if args.extract:
+    elif args.extract:
         extract(EXE)
-    obj = build(args.art)
-    if EXE.exists():
-        if compare(EXE):
-            sys.exit(1)
     else:
-        print(f"{obj.relative_to(ROOT)} built; no orig/TotalA.exe to compare it with")
+        ap.print_help()
 
 
 if __name__ == "__main__":
