@@ -10,19 +10,8 @@
 
 // Keeps its own view of the parser classes: with the shared tdf.h the inlined
 // FindEntry's register allocation changes and 0x422ea0 drops.
-class TdfFile {
-public:
-    char unknown_0[4];
-    void* parser;                       // +0x4
+#include "../util/tdf.h"
 
-    void ResetCurrentRecord();
-    int SelectRecord(char* name);
-};
-
-class TdfRecord {
-public:
-    int GetFieldString(char* dst, char* key, int size, char* def);
-};
 
 struct List_00422ea0 {
     int unknown_0;
@@ -98,7 +87,7 @@ void ResolveFeatureLinks()
     if (*count > 0) {
         features = &g_game->features;
         do {
-            TdfRecord* parser = (TdfRecord*)FindEntry((*features)[i].name)->parser;
+            TdfRecord* parser = (TdfRecord*)FindEntry((*features)[i].name)->current;
             if (parser->GetFieldString(buf, "featuredead", 0x100, DAT_005119b8))
                 (*features)[i].dead = FeatureIndex(buf);
             else

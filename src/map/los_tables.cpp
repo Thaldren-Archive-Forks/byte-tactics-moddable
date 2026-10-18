@@ -95,25 +95,8 @@ typedef std::vector<Elem_00434360> Column_00433270;
 
 // Keeps its own view of the parser classes: with the shared tdf.h LoadLosTable
 // (0x433380), GetLosLine (0x4335e0) and SortUnitTypes (0x432d40) drop.
-class TdfRecord {
-public:
-    int GetFieldInt(const char* name, int def);
-    int GetFieldString(char* dst, char* key, int size, char* def);
-};
 
-class TdfFile {
-public:
-    void* root;                        // +0x0
-    TdfRecord* current;                // +0x4
-
-    int SelectRecord(char* name);
-    void ResetCurrentRecord();
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    int LoadFile(char* path);
-    void StripComments(char* text);
-    int SelectRecordAt(int index);
-    void LoadBuffer(char* buffer, int size, int flags, char* name);
-};
+#include "../util/tdf.h"
 
 typedef std::vector<Elem_00434020> Vec_004336f0;
 

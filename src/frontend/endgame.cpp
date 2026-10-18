@@ -13,23 +13,7 @@
 
 #include "../sound/sound.h"
 
-class Mission {
-public:
-    int GetGameType();
-    char* GetNameSlot(int index);
-    int GetMissionIndex();
-    int MissionExists(int index);
-    int SelectMission(int index);
-    int BuildMissionList(int* out);
-    // Unused here: the symbol ids these declarations take keep the allocation
-    // after the Sound join grew sound.h (docs/c2-regalloc.md).
-    void LoadBriefing();
-    int GetDescription();
-    char* GetMissionName();
-    char unknown_0[0xd54];
-    float killMul;                     // +0xd54
-    float timeMul;                     // +0xd58
-};
+#include "../map/mission.h"
 
 class CMemoryCache {
 public:
@@ -873,7 +857,7 @@ void __stdcall OpenEndMissionScreen()
     }
     next = HasNextMission();
     if (next) {
-        int count = g_game->mapInfo->BuildMissionList((int*)&data->items);
+        int count = g_game->mapInfo->BuildMissionList((char**)&data->items);
         data->items = BuildScrollItems1((char*)data->items, g_game->campaignMissionStatus, count);
         // Suspected original bug: this finds the first 'U' mission flag but
         // the index is never used (perhaps a lost "select the first

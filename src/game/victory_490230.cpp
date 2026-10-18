@@ -5,10 +5,7 @@
 // 2 runs the "every other player is dead or allied" loop (0x48ffd0)
 // and 3 calls CheckAlliedVictory.
 
-class Mission {
-public:
-    int GetGameType();
-};
+#include "../map/mission.h"
 
 struct Unit;
 class HapiBank;

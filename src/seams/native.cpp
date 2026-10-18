@@ -5,6 +5,12 @@
 #include "../units/movement_class.h"
 #include "../units/cob_script.h"
 #include "../util/vec3.h"
+#include "../map/mission.h"
+#include "../units/unit.h"
+#include "../ai/pathfinder.h"
+#include "../ai/ai_search_goal.h"
+#include "../orders/order_fx.h"
+#include "../ai/squad_manager.h"
 
 struct Player;
 
@@ -43,17 +49,7 @@ struct UnitDef;
 struct WeaponDef;
 struct Callback;
 
-struct Unit {
-    unsigned char ChooseWeapon();
-    void SetStateBits(int mask, int set);
-    void ClaimWeapons(unsigned char index);
-    void ReleaseWeapons(unsigned char index);
-};
-
 struct Order;
-struct SquadManager {
-    void MarkOwnerNetDirtyFromDamageSplit(void* weapon, int enemyDamage, int friendlyDamage);
-};
 
 int* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
 int __stdcall WeaponCanReachPos(Unit* unit, Vec3* from, Vec3* to, int flags);
@@ -75,12 +71,6 @@ void __stdcall GetAimFromPosition(Unit* unit, Vec3* out, unsigned char weapon);
 Vec3 __stdcall GetPieceOffset(Unit* unit, int piece);
 Vec3 __stdcall GetPiecePosition(Unit* unit, int piece);
 void __stdcall MarkRecentlyDamaged(Unit* unit);
-
-class Mission {
-public:
-    int GetGameType();
-    char* GetNameSlot(int index);
-};
 
 float __stdcall GetEnergyUse(UnitDef* def);
 void __stdcall UpdatePlayerEconomy(Player* p);
@@ -152,22 +142,6 @@ void __stdcall UpdateSensorRadarAndCloak(void);
 struct DamagedAllyCollector;
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
 
-class Pathfinder {
-public:
-    ~Pathfinder();
-    void RunSearches();
-    void AbortIfGoalMatch(int goal);
-};
-
-class AiSearchGoal {
-public:
-    void SetWaypoints(Point16* points, int count);
-};
-
-class OrderFx {
-public:
-    void AddFlags(int flags);
-};
 
 
 static void __stdcall ResetNative(UnitResources* self, unsigned char playerIndex)
@@ -242,7 +216,7 @@ static void __fastcall ReleaseWeaponsNative(Unit* self, int unusedEdx, unsigned 
 
 static void __fastcall MarkOwnerNetDirtyFromDamageSplitNative(SquadManager* self, int unusedEdx, void* weapon, int enemyDamage, int friendlyDamage)
 {
-    self->MarkOwnerNetDirtyFromDamageSplit(weapon, enemyDamage, friendlyDamage);
+    self->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)weapon, enemyDamage, friendlyDamage);
 }
 
 static void __stdcall SetStateBitsNative(Unit* unit, int mask, int set)

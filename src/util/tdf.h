@@ -7,8 +7,46 @@
 #ifndef TDF_H
 #define TDF_H
 
+#include <string.h>
+
+struct TdfField;
+class StringRef;
+class TdfRecord;
+
+#pragma pack(push, 1)
+struct TdfRecordList {
+    char unknown_0[4];
+    TdfRecord** first;
+    TdfRecord** last;
+    TdfRecord** end;
+};
+
+struct TdfFieldList {
+    char unknown_0[4];
+    TdfField* first;
+    TdfField* last;
+    TdfField* end;
+};
+
+struct TdfEntries {
+    char less;
+    TdfFieldList v;
+};
+
 class TdfRecord {
 public:
+    char* name;
+    TdfRecordList children;
+    TdfEntries entries;
+    char* text;
+
+    TdfRecord(char* name, char* text, char** nextblock, char* filename);
+    ~TdfRecord();
+
+    StringRef MakeTrimmedString(char* start, char* end);
+    TdfRecord* FindChild(char* key);
+    TdfRecord* GetChild(int index);
+    void ComputeRecordChecksum(char* start, char* end);
     TdfRecord* FindSubRecord(const char* name);
     int GetRecordName();
     char* GetFieldName(int index);
@@ -16,11 +54,13 @@ public:
     int* GetFieldFixed(int* dst, char* key, int def);
     int GetFieldInt(const char* name, int def);
     double GetFieldDouble(const char* name, double def);
-    int GetFieldString(char* dst, char* key, unsigned int size, char* def);
-    void CopyRecordName(char* dest, unsigned int count);
+    int GetFieldString(char* dst, char* key, size_t size, char* def);
+    void CopyRecordName(char* dest, size_t count);
     int GetSubRecordCount();
     TdfRecord* GetSubRecord(int index);
+    int GetFieldCount();
 };
+#pragma pack(pop)
 
 class TdfFile {
 public:
@@ -30,7 +70,16 @@ public:
 
     TdfFile();
     ~TdfFile();
+    int GetString(char* dst, char* key, int size, char* def)
+    {
+        return current->GetFieldString(dst, key, size, def);
+    }
+    int GetInt(char* key, int def) { return current->GetFieldInt(key, def); }
+    double GetDouble(char* key, double def) { return current->GetFieldDouble(key, def); }
+    char* GetValue(char* key) { return (char*)current->FindFieldValue(key); }
     int LoadFile(char* path);
+    void StripComments(char* p);
+    void LoadBuffer(char* data, int size, int flag, char* path);
     void Unload();
     int SelectRecord(char* name);
     int SelectRecordAt(int index);

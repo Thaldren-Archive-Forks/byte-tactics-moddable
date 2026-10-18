@@ -119,11 +119,7 @@ struct Struct_00440a70 {
 void SetMemFussyDefault(void);
 void AbortProgram(void);
 
-class Mission {
-public:
-    int GetTerrainLength();
-    unsigned int ComputeMapChecksum();
-};
+#include "../map/mission.h"
 
 #pragma pack(push, 1)
 struct Game {

@@ -1178,10 +1178,7 @@ struct FeatureSpot {
 
 #include "../map/cell.h"
 
-class Mission {
-public:
-    int GetGameType();
-};
+#include "../map/mission.h"
 
 struct FeatureDamagePacket {
     unsigned char type;

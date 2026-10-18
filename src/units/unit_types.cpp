@@ -292,40 +292,15 @@ int RegisterUnitOrders();
 // and spelling them with the header's form changes the frame and the pushes.
 class TdfRecord;
 
-class TdfRecord {
-public:
-    char* FindFieldValue(char* key);
-    int GetFieldString(char* dst, char* key, int size, char* def);
-    int GetFieldInt(char* key, int def);
-    Fixed GetFieldFixed(char* key, Fixed def);
-    double GetFieldDouble(const char* key, double def);
-};
 
-class TdfFile {
-public:
-    int root;                          // +0x0
-    TdfRecord* current;                // +0x4
-    int flags;                         // +0x8
+#include "../util/tdf.h"
 
-    TdfFile();
-    ~TdfFile();
-    int GetString(char* dst, char* key, int size, char* def)
-    {
-        return current->GetFieldString(dst, key, size, def);
-    }
-    int GetInt(char* key, int def) { return current->GetFieldInt(key, def); }
-    double GetDouble(char* key, double def) { return current->GetFieldDouble(key, def); }
-    char* GetValue(char* key) { return current->FindFieldValue(key); }
-    int LoadFile(char* file);
-    void LoadBuffer(char* data, int size, int flag, char* name);
-    int SelectRecord(char* name);
-    void ResetCurrentRecord();
-    void Unload();
-    int GetCurrentRecord();
-    void StripComments(char* text);
-    int SelectRecordAt(int index);
-    void SetCurrentRecord(int record);
-};
+static inline int FixedField(TdfRecord* record, char* key, Fixed def)
+{
+    int out;
+    record->GetFieldFixed(&out, key, def.value);
+    return out;
+}
 
 // The reference-counted string handle: a pointer to the characters with the
 // reference count in the int just before them.
@@ -614,21 +589,21 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             unitdef->buildcostenergy = (float)parser.current->GetFieldInt("buildcostenergy", 0);
             unitdef->buildcostmetal = (float)parser.current->GetFieldInt("buildcostmetal", 0);
             unitdef->maxvelocity =
-                parser.current->GetFieldFixed("maxvelocity", Fixed(0)).value;
+                FixedField(parser.current, "maxvelocity", Fixed(0));
             unitdef->brakerate =
-                parser.current->GetFieldFixed("brakerate", Fixed(0)).value;
+                FixedField(parser.current, "brakerate", Fixed(0));
             unitdef->acceleration =
-                parser.current->GetFieldFixed("acceleration", Fixed(0)).value;
+                FixedField(parser.current, "acceleration", Fixed(0));
             unitdef->bankscale =
-                parser.current->GetFieldFixed("bankscale", Fixed(0x10000)).value;
+                FixedField(parser.current, "bankscale", Fixed(0x10000));
             unitdef->pitchscale =
-                parser.current->GetFieldFixed("pitchscale", Fixed(0)).value;
+                FixedField(parser.current, "pitchscale", Fixed(0));
             unitdef->damagemodifier =
-                parser.current->GetFieldFixed("damagemodifier", Fixed(0x10000)).value;
+                FixedField(parser.current, "damagemodifier", Fixed(0x10000));
             unitdef->moverate1 =
-                parser.current->GetFieldFixed("moverate1", Fixed(unitdef->maxvelocity * 2)).value;
+                FixedField(parser.current, "moverate1", Fixed(unitdef->maxvelocity * 2));
             unitdef->moverate2 =
-                parser.current->GetFieldFixed("moverate2", Fixed(unitdef->maxvelocity * 2)).value;
+                FixedField(parser.current, "moverate2", Fixed(unitdef->maxvelocity * 2));
             unitdef->turnrate =
                 (short)parser.current->GetFieldInt("turnrate", 0);
             unitdef->waterline = (char)parser.current->GetFieldInt("waterline", 0);
@@ -783,7 +758,7 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             unitdef->flags2 = SetFlagField(unitdef->flags2, value, 19, 1);
 
             char* countdown =
-                parser.current->FindFieldValue("selfdestructcountdown");
+                (char*)parser.current->FindFieldValue("selfdestructcountdown");
             if (countdown != (char*)0)
                 unitdef->selfdestructcountdown = atoi(countdown);
             else
