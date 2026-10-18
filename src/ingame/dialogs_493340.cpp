@@ -1297,6 +1297,10 @@ void __stdcall RunGameSteps(int showStats)
         g_seams.players->UpdateBlink();
         g_game->profileTimingBars.AccumulateProfileTime(8);
 
+        Player* shown = &g_game->players[g_game->playerIndex];
+        if (shown->displayTimer < g_game->gameTick)
+            shown->displayTimer += 0x1e;
+
         if (showStats && g_usePacketManager != 0) {
             g_seams.economy->UpdateResourceSharing(&g_game->players[g_game->localPlayer]);
             g_packetManager.SendAllQueued(0);

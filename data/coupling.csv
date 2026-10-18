@@ -592,6 +592,7 @@ game,players,shared_write,Game::localPlayer,8
 game,players,shared_write,Game::playerIndex,2
 game,players,shared_write,Game::seaLevel,1
 game,players,shared_write,Player::allied,6
+game,players,shared_write,Player::displayTimer,3
 game,players,shared_write,Player::energy,5
 game,players,shared_write,Player::metal,5
 game,players,shared_write,Player::unitsCreated,4
@@ -966,7 +967,7 @@ harness,features,shared_write,Game::playerIndex,1
 harness,game,call,ApplySlotsToGamePlayers,1
 harness,game,shared_write,Game::difficulty,4
 harness,game,shared_write,Game::localPlayer,13
-harness,game,shared_write,Game::playerIndex,5
+harness,game,shared_write,Game::playerIndex,6
 harness,los_radar,shared_write,Game::localPlayer,3
 harness,los_radar,shared_write,Game::playerIndex,14
 harness,map,call,Mission::CountStartPositions,1
@@ -2228,9 +2229,10 @@ players,features,shared_write,Vec3::z,7
 players,game,call,SimAlloc,1
 players,game,shared_write,Game::endGameCountdown,1
 players,game,shared_write,Game::localPlayer,13
-players,game,shared_write,Game::playerIndex,5
+players,game,shared_write,Game::playerIndex,6
 players,game,shared_write,Player::active,9
 players,game,shared_write,Player::allied,1
+players,game,shared_write,Player::displayTimer,1
 players,game,shared_write,Player::energy,1
 players,game,shared_write,Player::index,8
 players,game,shared_write,Player::info,5
