@@ -157,6 +157,7 @@ address,function,file,kind,target
 0x401c20,StopOrder,src/orders/unit_orders.cpp,field_read,UnitDef::flags
 0x401c20,StopOrder,src/orders/unit_orders.cpp,function,
 0x401c20,StopOrder,src/orders/unit_orders.cpp,global_read,g_seams
+0x401c20,StopOrder,src/orders/unit_orders.cpp,global_read,kSim
 0x401c20,StopOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::ClearWeaponTarget]"
 0x401cc0,MakeSelectableOrder,src/orders/unit_orders.cpp,field_read,Unit::flags
 0x401cc0,MakeSelectableOrder,src/orders/unit_orders.cpp,field_write,Unit::flags
@@ -191,6 +192,7 @@ address,function,file,kind,target
 0x401e00,AttackUTypeOrder,src/orders/unit_orders.cpp,field_read,Vec3::z
 0x401e00,AttackUTypeOrder,src/orders/unit_orders.cpp,function,
 0x401e00,AttackUTypeOrder,src/orders/unit_orders.cpp,global_read,g_game
+0x401e00,AttackUTypeOrder,src/orders/unit_orders.cpp,global_read,kSim
 0x401fd0,WaitForAttackOrder,src/orders/unit_orders.cpp,field_read,Order::state
 0x401fd0,WaitForAttackOrder,src/orders/unit_orders.cpp,field_read,PathOrderAttach::owner
 0x401fd0,WaitForAttackOrder,src/orders/unit_orders.cpp,field_write,Order::flags
@@ -476,6 +478,7 @@ address,function,file,kind,target
 0x403260,AttackKamikazeOrder,src/orders/unit_orders.cpp,field_write,Order::pos
 0x403260,AttackKamikazeOrder,src/orders/unit_orders.cpp,field_write,Order::state
 0x403260,AttackKamikazeOrder,src/orders/unit_orders.cpp,function,
+0x403260,AttackKamikazeOrder,src/orders/unit_orders.cpp,global_read,kSim
 0x4033a0,PatrolOrder,src/orders/unit_orders.cpp,call,EnsurePatrolReturnOrder
 0x4033a0,PatrolOrder,src/orders/unit_orders.cpp,call,IssueAttackOrder
 0x4033a0,PatrolOrder,src/orders/unit_orders.cpp,call,Order::AnnounceStatusIfFlagged
@@ -894,6 +897,7 @@ address,function,file,kind,target
 0x404db0,ResurrectOrder,src/orders/unit_orders_404db0.cpp,function,
 0x404db0,ResurrectOrder,src/orders/unit_orders_404db0.cpp,global_read,g_game
 0x404db0,ResurrectOrder,src/orders/unit_orders_404db0.cpp,global_read,g_seams
+0x404db0,ResurrectOrder,src/orders/unit_orders_404db0.cpp,global_read,kSim
 0x404db0,ResurrectOrder,src/orders/unit_orders_404db0.cpp,indirect_call,"indirect via int (*)(Cell *, int) __attribute__((stdcall)) [FeaturesSeam::RemoveFeature]"
 0x404db0,ResurrectOrder,src/orders/unit_orders_404db0.cpp,indirect_call,indirect via unsigned short (*)(Cell *) __attribute__((stdcall)) [FeaturesSeam::GetCellFeature]
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,call,AddRepairProgress
@@ -1017,6 +1021,7 @@ address,function,file,kind,target
 0x405980,RepairPatrolOrder,src/orders/unit_orders_405980.cpp,field_write,Order::flags
 0x405980,RepairPatrolOrder,src/orders/unit_orders_405980.cpp,field_write,Order::pos
 0x405980,RepairPatrolOrder,src/orders/unit_orders_405980.cpp,function,
+0x405980,RepairPatrolOrder,src/orders/unit_orders_405980.cpp,global_read,kSim
 0x405d90,DamagedAllyCollector::CollectDamagedAlly,src/orders/unit_orders.cpp,call,push_back
 0x405d90,DamagedAllyCollector::CollectDamagedAlly,src/orders/unit_orders.cpp,field_read,DamagedAllyCollector::owner
 0x405d90,DamagedAllyCollector::CollectDamagedAlly,src/orders/unit_orders.cpp,field_read,DamagedAllyCollector::self
@@ -1060,6 +1065,7 @@ address,function,file,kind,target
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_write,Order::flags
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,function,
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,global_read,g_seams
+0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,global_read,kSim
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,indirect_call,indirect via Unit *(*)(Unit *) __attribute__((stdcall)) [TargetingSeam::FindBestTargetIfFireAtWill]
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,call,Convert
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,call,MakePoint
@@ -1133,6 +1139,7 @@ address,function,file,kind,target
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_write,Order::radius
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,function,
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,global_read,g_seams
+0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,global_read,kSim
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,indirect_call,"indirect via Unit *(*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::GetWeaponTargetUnit]"
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x406780,GroundPickupOrder,src/orders/unit_orders.cpp,call,CobScript::StartScriptWithArgs
@@ -1500,7 +1507,6 @@ address,function,file,kind,target
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,GetBasePosition
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,GetBuilderCount
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,GetOrderType
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,HarnessZeroVec3
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,Length
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,MapRange
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,call,RandomInt
@@ -1672,6 +1678,7 @@ address,function,file,kind,target
 0x408cb0,SquadManager::SquadManager,src/ai/ai_player.cpp,field_write,SquadManager::timers
 0x408cb0,SquadManager::SquadManager,src/ai/ai_player.cpp,field_write,SquadManager::unused_9
 0x408cb0,SquadManager::SquadManager,src/ai/ai_player.cpp,function,
+0x408cb0,SquadManager::SquadManager,src/ai/ai_player.cpp,global_read,kSim
 0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,call,SquadTimer::~SquadTimer
 0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,call,operator delete
 0x408f10,SquadManager::DeleteTimers,src/ai/ai_player.cpp,field_read,SquadManager::timers
@@ -2046,6 +2053,7 @@ address,function,file,kind,target
 0x40b320,CreatePlayerAI,src/ai/ai_player.cpp,call,operator new
 0x40b320,CreatePlayerAI,src/ai/ai_player.cpp,function,
 0x40b320,CreatePlayerAI,src/ai/ai_player.cpp,global_read,g_playerAI
+0x40b320,CreatePlayerAI,src/ai/ai_player.cpp,global_read,kSim
 0x40b370,RebuildFeatureCells,src/ai/ai_player.cpp,call,PlayerAI::BuildFeatureCells
 0x40b370,RebuildFeatureCells,src/ai/ai_player.cpp,function,
 0x40b370,RebuildFeatureCells,src/ai/ai_player.cpp,global_read,g_playerAI
@@ -2428,8 +2436,8 @@ address,function,file,kind,target
 0x40e9c0,Pathfinder::AbortIfGoalMatch,src/ai/pathfind.cpp,field_write,Pathfinder::path
 0x40e9c0,Pathfinder::AbortIfGoalMatch,src/ai/pathfind.cpp,field_write,Pathfinder::target
 0x40e9c0,Pathfinder::AbortIfGoalMatch,src/ai/pathfind.cpp,function,
-0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,call,GameAllocIgnoreTag
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,call,Pathfinder::ClearDirtyCells
+0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,call,SimAllocTagged
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,call,memset
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,call,operator delete
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,call,operator new
@@ -2466,6 +2474,7 @@ address,function,file,kind,target
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,field_write,Pathfinder::stepsPerTick
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,function,
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,global_read,g_game
+0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,global_read,kSim
 0x40e9e0,Pathfinder::Pathfinder,src/ai/pathfind.cpp,global_write,g_playerBudgetCap
 0x40eb30,Pathfinder::~Pathfinder,src/ai/pathfind.cpp,call,GameFreeThunk
 0x40eb30,Pathfinder::~Pathfinder,src/ai/pathfind.cpp,call,operator delete
@@ -2567,8 +2576,8 @@ address,function,file,kind,target
 0x40f060,OpenHeap::SiftDown,src/ai/pathfind.cpp,field_read,OpenHeap::items
 0x40f060,OpenHeap::SiftDown,src/ai/pathfind.cpp,field_write,Node::index
 0x40f060,OpenHeap::SiftDown,src/ai/pathfind.cpp,function,
+0x40f110,Pathfinder::GrowNodes,src/ai/pathfind.cpp,call,SimAlloc
 0x40f110,Pathfinder::GrowNodes,src/ai/pathfind.cpp,call,operator delete
-0x40f110,Pathfinder::GrowNodes,src/ai/pathfind.cpp,call,operator new
 0x40f110,Pathfinder::GrowNodes,src/ai/pathfind.cpp,call,operator=
 0x40f110,Pathfinder::GrowNodes,src/ai/pathfind.cpp,deref_read,*Node
 0x40f110,Pathfinder::GrowNodes,src/ai/pathfind.cpp,deref_write,*Node
@@ -2602,6 +2611,7 @@ address,function,file,kind,target
 0x40f200,PrepVtolClimb,src/orders/vtol_orders.cpp,field_read,UnitMotion::flags
 0x40f200,PrepVtolClimb,src/orders/vtol_orders.cpp,field_write,Order::flags
 0x40f200,PrepVtolClimb,src/orders/vtol_orders.cpp,function,
+0x40f200,PrepVtolClimb,src/orders/vtol_orders.cpp,global_read,kSim
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,call,AddVec3
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,call,CanPlaceFootprintAt
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,call,CellToWorld
@@ -2647,6 +2657,7 @@ address,function,file,kind,target
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_write,Vec3::z
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,function,
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,global_read,g_game
+0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x40f790,AddVec3,src/orders/vtol_orders_40f790.cpp,field_read,Vec3::x
 0x40f790,AddVec3,src/orders/vtol_orders_40f790.cpp,field_read,Vec3::y
 0x40f790,AddVec3,src/orders/vtol_orders_40f790.cpp,field_read,Vec3::z
@@ -2689,6 +2700,7 @@ address,function,file,kind,target
 0x40f7d0,VtolStandbyOrder,src/orders/vtol_orders.cpp,field_write,Vec3::z
 0x40f7d0,VtolStandbyOrder,src/orders/vtol_orders.cpp,function,
 0x40f7d0,VtolStandbyOrder,src/orders/vtol_orders.cpp,global_read,g_seams
+0x40f7d0,VtolStandbyOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x40f7d0,VtolStandbyOrder,src/orders/vtol_orders.cpp,indirect_call,indirect via Unit *(*)(Unit *) __attribute__((stdcall)) [TargetingSeam::FindBestTargetIfFireAtWill]
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,call,Order::AnnounceStatusIfFlagged
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,call,Order::SetAttachedFx
@@ -2707,6 +2719,7 @@ address,function,file,kind,target
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::flags
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_write,Order::flags
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,function,
+0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,call,AddVec3
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,call,AppendOrder
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,call,AppendOrderToTail
@@ -2781,6 +2794,7 @@ address,function,file,kind,target
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,function,
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,global_read,g_game
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,global_read,g_seams
+0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,global_read,kSim
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,indirect_call,"indirect via Unit *(*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::GetWeaponTargetUnit]"
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x4103a0,DirectionFromAngle,src/orders/vtol_orders.cpp,call,FUN_004b70ef
@@ -2849,6 +2863,7 @@ address,function,file,kind,target
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,function,
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,global_read,g_game
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,global_read,g_seams
+0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,global_read,kSim
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,indirect_call,indirect via Unit *(*)(Unit *) __attribute__((stdcall)) [TargetingSeam::FindBestTargetIfFireAtWill]
 0x410830,LandingPadList::LandingPadList,src/orders/vtol_orders.cpp,deref_write,*unsigned char
 0x410830,LandingPadList::LandingPadList,src/orders/vtol_orders.cpp,field_write,std::vector<Unit >::_End
@@ -2888,6 +2903,7 @@ address,function,file,kind,target
 0x410850,VtolSeekGuardOrder,src/orders/vtol_orders_410850.cpp,field_write,Vec3::z
 0x410850,VtolSeekGuardOrder,src/orders/vtol_orders_410850.cpp,function,
 0x410850,VtolSeekGuardOrder,src/orders/vtol_orders_410850.cpp,global_read,g_game
+0x410850,VtolSeekGuardOrder,src/orders/vtol_orders_410850.cpp,global_read,kSim
 0x410c70,GroundAllyVisitor::CollectGroundAlly,src/orders/vtol_orders_410c70.cpp,call,push_back
 0x410c70,GroundAllyVisitor::CollectGroundAlly,src/orders/vtol_orders_410c70.cpp,field_read,GroundAllyVisitor::owner
 0x410c70,GroundAllyVisitor::CollectGroundAlly,src/orders/vtol_orders_410c70.cpp,field_read,GroundAllyVisitor::self
@@ -2936,6 +2952,7 @@ address,function,file,kind,target
 0x410e70,VtolPatrolOrder,src/orders/vtol_orders_410e70.cpp,field_write,Order::subFlags
 0x410e70,VtolPatrolOrder,src/orders/vtol_orders_410e70.cpp,function,
 0x410e70,VtolPatrolOrder,src/orders/vtol_orders_410e70.cpp,global_read,g_seams
+0x410e70,VtolPatrolOrder,src/orders/vtol_orders_410e70.cpp,global_read,kSim
 0x410e70,VtolPatrolOrder,src/orders/vtol_orders_410e70.cpp,indirect_call,indirect via Unit *(*)(Unit *) __attribute__((stdcall)) [TargetingSeam::FindBestTargetIfFireAtWill]
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,call,AttachUnitToPiece
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,call,BelowSeaLevel
@@ -2970,6 +2987,7 @@ address,function,file,kind,target
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_write,Order::flags
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_write,Order::piece
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,function,
+0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,call,AttachUnitToPiece
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,call,CanPlaceUnitFootprint
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,call,Class_0044e6c0::SetAltitude
@@ -2996,6 +3014,7 @@ address,function,file,kind,target
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::flags
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_write,Order::flags
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,function,
+0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x411840,FindLandingPad,src/orders/vtol_orders.cpp,call,CobScript::QueryScript
 0x411840,FindLandingPad,src/orders/vtol_orders.cpp,call,IsPadSlotFree
 0x411840,FindLandingPad,src/orders/vtol_orders.cpp,field_read,Unit::script
@@ -3036,6 +3055,7 @@ address,function,file,kind,target
 0x4118e0,VtolLandingOrder,src/orders/vtol_orders_4118e0.cpp,field_write,Order::flags
 0x4118e0,VtolLandingOrder,src/orders/vtol_orders_4118e0.cpp,field_write,Order::state
 0x4118e0,VtolLandingOrder,src/orders/vtol_orders_4118e0.cpp,function,
+0x4118e0,VtolLandingOrder,src/orders/vtol_orders_4118e0.cpp,global_read,kSim
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,AppendOrder
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,AppendOrderToTail
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,AttachMove
@@ -3099,6 +3119,7 @@ address,function,file,kind,target
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,function,
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,global_read,g_game
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,global_read,g_seams
+0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,global_read,kSim
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,indirect_call,"indirect via void (*)(Unit *, Vec3 *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetPos]"
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::ClearWeaponTarget]"
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,AppendOrder
@@ -3165,6 +3186,7 @@ address,function,file,kind,target
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,function,
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,global_read,g_game
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,global_read,g_seams
+0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,global_read,kSim
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,indirect_call,"indirect via void (*)(Unit *, Vec3 *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetPos]"
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,call,Add
@@ -3226,6 +3248,7 @@ address,function,file,kind,target
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,function,
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,global_read,g_game
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,global_read,g_seams
+0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,global_read,kSim
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,call,AddComponentwise
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,call,AddVec3
@@ -3293,6 +3316,7 @@ address,function,file,kind,target
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,function,
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,global_read,g_game
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,global_read,g_seams
+0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,call,Class_0044e730::SetApproachRadius
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,call,Offset
@@ -3314,6 +3338,7 @@ address,function,file,kind,target
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_write,Order::flags
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_write,Order::side
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,function,
+0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,call,AddBuildProgress
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,call,AddOrder
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,call,AttachUnitToPiece
@@ -3378,6 +3403,7 @@ address,function,file,kind,target
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,field_write,Order::retries
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,function,
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,global_read,g_game
+0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x414350,CellToWorldPos,src/orders/vtol_orders.cpp,field_read,Point::x
 0x414350,CellToWorldPos,src/orders/vtol_orders.cpp,field_read,Point::y
 0x414350,CellToWorldPos,src/orders/vtol_orders.cpp,field_write,Vec3::x
@@ -3428,6 +3454,7 @@ address,function,file,kind,target
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,field_write,Order::retries
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,function,
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,global_read,g_game
+0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,global_read,kSim
 0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,call,EmitReverseNanoParticles
 0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,call,FindFeatureAtPos
 0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,call,GetGroundHeight
@@ -3475,6 +3502,7 @@ address,function,file,kind,target
 0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,function,
 0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,global_read,g_game
 0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,global_read,g_seams
+0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,global_read,kSim
 0x414770,VtolReclaimOrder,src/orders/vtol_orders_414770.cpp,indirect_call,"indirect via int (*)(Unit *, Vec3 *) __attribute__((stdcall)) [FeaturesSeam::ReclaimFeature]"
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,call,CellToWorldPos
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,call,ComputeReclaimDamagePulse
@@ -3518,6 +3546,7 @@ address,function,file,kind,target
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_write,Vec3::y
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_write,Vec3::z
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,function,
+0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,global_read,kSim
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,call,AddRepairProgress
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,call,Class_0044e6c0::SetAltitude
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,call,EmitNanoParticles
@@ -3563,6 +3592,7 @@ address,function,file,kind,target
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_write,Vec3::y
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_write,Vec3::z
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,function,
+0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x415250,VtolGetRepairedOrder,src/orders/vtol_orders.cpp,call,Order::SetDeadlineTicks
 0x415250,VtolGetRepairedOrder,src/orders/vtol_orders.cpp,call,QueueUnitSpeech
 0x415250,VtolGetRepairedOrder,src/orders/vtol_orders.cpp,field_read,Order::state
@@ -3614,6 +3644,7 @@ address,function,file,kind,target
 0x4152f0,VtolRepairPatrolOrder,src/orders/vtol_orders_4152f0.cpp,field_write,Order::flags
 0x4152f0,VtolRepairPatrolOrder,src/orders/vtol_orders_4152f0.cpp,field_write,Order::pos
 0x4152f0,VtolRepairPatrolOrder,src/orders/vtol_orders_4152f0.cpp,function,
+0x4152f0,VtolRepairPatrolOrder,src/orders/vtol_orders_4152f0.cpp,global_read,kSim
 0x4158d0,RepairableUnitVisitor::CollectRepairableUnit,src/orders/vtol_orders.cpp,call,push_back
 0x4158d0,RepairableUnitVisitor::CollectRepairableUnit,src/orders/vtol_orders.cpp,field_read,PlayerView::allied
 0x4158d0,RepairableUnitVisitor::CollectRepairableUnit,src/orders/vtol_orders.cpp,field_read,PlayerView::index
@@ -6386,8 +6417,8 @@ address,function,file,kind,target
 0x421eb0,GetFootprintCentre,src/map/features.cpp,function,
 0x421eb0,GetFootprintCentre,src/map/features.cpp,global_read,g_seams
 0x421eb0,GetFootprintCentre,src/map/features.cpp,indirect_call,indirect via int (*)(Vec3 *) __attribute__((stdcall)) [UnitsSeam::GetGroundHeight]
-0x421f20,InitFeatureAnimPool,src/map/features_421f20.cpp,call,GameAllocIgnoreTag
 0x421f20,InitFeatureAnimPool,src/map/features_421f20.cpp,call,LoadFeatureType
+0x421f20,InitFeatureAnimPool,src/map/features_421f20.cpp,call,SimAllocTagged
 0x421f20,InitFeatureAnimPool,src/map/features_421f20.cpp,call,memset
 0x421f20,InitFeatureAnimPool,src/map/features_421f20.cpp,field_escape,Game::anim
 0x421f20,InitFeatureAnimPool,src/map/features_421f20.cpp,field_maybe_written,NameEntry_00421f20::name
@@ -7999,6 +8030,7 @@ address,function,file,kind,target
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,ProtectBlockReadOnly
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,ProtectBlockReadWrite
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,ShowErrorBox
+0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,SimAllocTagged
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,TdfFile::GetDouble
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,TdfFile::GetInt
 0x42a8d0,LoadUnitInfo,src/units/unit_types_42a8d0.cpp,call,TdfFile::GetString
@@ -8362,13 +8394,13 @@ address,function,file,kind,target
 0x42be30,AddDownloadBuildOptions,src/units/unit_types.cpp,global_read,g_game
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,FindMovementClass
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,FindWeaponByName
-0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,GameAllocIgnoreTag
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,GetCategoryMask
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,GetLocalizedString
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,MovementClass::ReadMoveInfo
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,MovementClass::~MovementClass
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,ReplaceFlagField
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,SetFlagField
+0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,SimAllocTagged
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfFile::LoadFile
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfFile::SelectRecord
 0x42bf40,LoadUnitFbi,src/units/unit_types.cpp,call,TdfFile::Unload
@@ -8525,6 +8557,7 @@ address,function,file,kind,target
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,MovementClass::ReadMoveInfo
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,ProtectBlockReadOnly
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,ProtectBlockReadWrite
+0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,SimAllocTagged
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,SortUnitTypes
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,StripExtension
 0x42d2e0,LoadUnitTypes,src/units/unit_types.cpp,call,TdfFile::LoadFile
@@ -8614,10 +8647,10 @@ address,function,file,kind,target
 0x42db90,FreeUnitTypes,src/units/unit_types.cpp,global_read,g_game
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,AddDownloadBuildOptions
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,BuildDataPath
-0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,GameAllocIgnoreTag
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,ListDirectory
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,ProtectBlockReadOnly
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,ProtectBlockReadWrite
+0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,SimAllocTagged
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfFile::LoadFile
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfFile::ResetCurrentRecord
 0x42dcf0,LoadDownloadMenus,src/units/unit_types.cpp,call,TdfFile::SelectRecordAt
@@ -8820,6 +8853,7 @@ address,function,file,kind,target
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,function,
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,global_maybe_written,DAT_005119b8
 0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,global_read,g_game
+0x42e440,LoadWeaponType,src/weapons/weapon_types.cpp,global_read,kSim
 0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,call,GameFreeThunk
 0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,call,Table_00499cd0::~Table_00499cd0
 0x42f3a0,FreeWeaponTypes,src/weapons/weapon_types.cpp,call,operator delete
@@ -9390,6 +9424,7 @@ address,function,file,kind,target
 0x434ab0,SetMissionType,src/map/map_list.cpp,field_write,Game::mapInfo
 0x434ab0,SetMissionType,src/map/map_list.cpp,function,
 0x434ab0,SetMissionType,src/map/map_list.cpp,global_read,g_game
+0x434ab0,SetMissionType,src/map/map_list.cpp,global_read,kSim
 0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,call,GameFreeThunk
 0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,call,Mission::~Mission
 0x434b90,FreeOtaEnumCacheAndMission,src/map/map_list.cpp,call,operator delete
@@ -9726,6 +9761,7 @@ address,function,file,kind,target
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,global_maybe_written,DAT_005119b8
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,global_read,g_game
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,global_read,g_seams
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,global_read,kSim
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::DisableMeteors]
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::EnableMeteors]
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,indirect_call,indirect via void (*)(MeteorParams *) __attribute__((fastcall)) [WindMeteorsSeam::LoadMeteorDefaults]
@@ -9752,8 +9788,8 @@ address,function,file,kind,target
 0x436860,Mission::SelectSchema,src/map/map_list.cpp,global_maybe_written,DAT_005119b8
 0x436860,Mission::SelectSchema,src/map/map_list.cpp,global_read,g_game
 0x436860,Mission::SelectSchema,src/map/map_list.cpp,global_read,len@Mission::SelectSchema
-0x436c30,Mission::LoadMissionData,src/map/map_list.cpp,call,GameAllocIgnoreTag
 0x436c30,Mission::LoadMissionData,src/map/map_list.cpp,call,GameFreeThunk
+0x436c30,Mission::LoadMissionData,src/map/map_list.cpp,call,SimAllocTagged
 0x436c30,Mission::LoadMissionData,src/map/map_list.cpp,call,TdfFile::ResetCurrentRecord
 0x436c30,Mission::LoadMissionData,src/map/map_list.cpp,call,TdfFile::SelectRecord
 0x436c30,Mission::LoadMissionData,src/map/map_list.cpp,call,TdfRecord::FindSubRecord
@@ -10115,6 +10151,7 @@ address,function,file,kind,target
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_read,Unit::list2
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,function,
+0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,global_read,kSim
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,call,CobScript::FindScript
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,call,CobScript::StartScriptWithArgsByIndex
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,call,SendScriptCall
@@ -10196,6 +10233,7 @@ address,function,file,kind,target
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,function,
+0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,global_read,kSim
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
@@ -10213,6 +10251,7 @@ address,function,file,kind,target
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,function,
+0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,global_read,kSim
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
@@ -10228,6 +10267,7 @@ address,function,file,kind,target
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,function,
+0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,global_read,kSim
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
 0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,Entry_0043a1f0::flags
@@ -10482,6 +10522,7 @@ address,function,file,kind,target
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_read,Unit::list
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_write,Order::flags
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,function,
+0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,global_read,kSim
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,PathOrderAttach::SetUnit
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,PathOrderAttach::SetValue
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,operator=
@@ -10600,6 +10641,7 @@ address,function,file,kind,target
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,function,
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,global_read,g_game
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,global_read,g_missionOrderTableBegin
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,global_read,kSim
 0x43a940,OrderTypeNameLess,src/orders/order_list.cpp,call,_strcmpi
 0x43a940,OrderTypeNameLess,src/orders/order_list.cpp,deref_read,*char
 0x43a940,OrderTypeNameLess,src/orders/order_list.cpp,function,
@@ -10706,6 +10748,7 @@ address,function,file,kind,target
 0x43adc0,AddOrder,src/orders/order_list.cpp,field_read,Unit::list
 0x43adc0,AddOrder,src/orders/order_list.cpp,field_write,Order::flags
 0x43adc0,AddOrder,src/orders/order_list.cpp,function,
+0x43adc0,AddOrder,src/orders/order_list.cpp,global_read,kSim
 0x43afc0,IssueOrCancelOrder,src/orders/order_list.cpp,call,AddOrder
 0x43afc0,IssueOrCancelOrder,src/orders/order_list.cpp,call,Matches
 0x43afc0,IssueOrCancelOrder,src/orders/order_list.cpp,call,RemoveNode
@@ -10749,6 +10792,7 @@ address,function,file,kind,target
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_write,Point::x
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_write,Point::y
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,function,
+0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,global_read,kSim
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,call,GetOrderType
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,call,Insert
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,call,PosXWhole
@@ -10767,6 +10811,7 @@ address,function,file,kind,target
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_write,Point::x
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_write,Point::y
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,function,
+0x43b400,IssueRepairOrder,src/orders/order_list.cpp,global_read,kSim
 0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,call,FindWeaponTarget
 0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,field_read,Unit::mode20
 0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,function,
@@ -10777,6 +10822,7 @@ address,function,file,kind,target
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_read,Unit::list2
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_write,Order::flags
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,function,
+0x43b730,EnqueueOrderType,src/orders/order_list.cpp,global_read,kSim
 0x43b7c0,RunOrders,src/orders/order_list.cpp,call,ClearTargets_0043b7c0
 0x43b7c0,RunOrders,src/orders/order_list.cpp,call,DeleteOrder
 0x43b7c0,RunOrders,src/orders/order_list.cpp,call,DeleteOrders
@@ -11102,6 +11148,7 @@ address,function,file,kind,target
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_write,UnitMotion::turn
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_write,UnitMotion::velocity
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,function,
+0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,global_read,kSim
 0x43dd10,UnitMotion::DestroyObject,src/orders/order_list.cpp,field_read,UnitMotion::obj
 0x43dd10,UnitMotion::DestroyObject,src/orders/order_list.cpp,function,
 0x43dd10,UnitMotion::DestroyObject,src/orders/order_list.cpp,indirect_call,virtual Iface_0043dd20::v0
@@ -11374,14 +11421,15 @@ address,function,file,kind,target
 0x440470,MovementClass::ResizePassMap,src/units/movement_class.cpp,field_write,MovementClass::height
 0x440470,MovementClass::ResizePassMap,src/units/movement_class.cpp,field_write,MovementClass::width
 0x440470,MovementClass::ResizePassMap,src/units/movement_class.cpp,function,
+0x440470,MovementClass::ResizePassMap,src/units/movement_class.cpp,global_read,kSim
 0x4404c0,MovementClass::SetPassMapCell,src/units/movement_class.cpp,deref_read,*unsigned int
 0x4404c0,MovementClass::SetPassMapCell,src/units/movement_class.cpp,deref_write,*unsigned int
 0x4404c0,MovementClass::SetPassMapCell,src/units/movement_class.cpp,field_read,MovementClass::cells
 0x4404c0,MovementClass::SetPassMapCell,src/units/movement_class.cpp,field_read,MovementClass::width
 0x4404c0,MovementClass::SetPassMapCell,src/units/movement_class.cpp,function,
 0x440500,Class_00440500::BuildPassMap,src/units/movement_class.cpp,call,GetPassMapCellValue
+0x440500,Class_00440500::BuildPassMap,src/units/movement_class.cpp,call,SimAlloc
 0x440500,Class_00440500::BuildPassMap,src/units/movement_class.cpp,call,operator delete
-0x440500,Class_00440500::BuildPassMap,src/units/movement_class.cpp,call,operator new
 0x440500,Class_00440500::BuildPassMap,src/units/movement_class.cpp,call,setcell
 0x440500,Class_00440500::BuildPassMap,src/units/movement_class.cpp,deref_escape,*Cell
 0x440500,Class_00440500::BuildPassMap,src/units/movement_class.cpp,deref_maybe_written,*unsigned int
@@ -11410,8 +11458,8 @@ address,function,file,kind,target
 0x440830,MovementClass::RefreshPassMap,src/units/movement_class.cpp,function,
 0x440930,NopAfterFeatureEnum,src/units/movement_class.cpp,function,
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,call,Class_00440500::BuildPassMap
+0x440940,BuildAllPassMaps,src/units/movement_class.cpp,call,SimAlloc
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,call,operator delete
-0x440940,BuildAllPassMaps,src/units/movement_class.cpp,call,operator new
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,deref_read,*int
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,deref_read,*unsigned int
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,deref_write,*unsigned int
@@ -14552,6 +14600,7 @@ address,function,file,kind,target
 0x44f6a0,CreatePathfinder,src/orders/order_targets.cpp,field_write,Game::pathfinder
 0x44f6a0,CreatePathfinder,src/orders/order_targets.cpp,function,
 0x44f6a0,CreatePathfinder,src/orders/order_targets.cpp,global_read,g_game
+0x44f6a0,CreatePathfinder,src/orders/order_targets.cpp,global_read,kSim
 0x44f6e0,DestroyPathfinder,src/orders/order_targets.cpp,call,Pathfinder::~Pathfinder
 0x44f6e0,DestroyPathfinder,src/orders/order_targets.cpp,call,operator delete
 0x44f6e0,DestroyPathfinder,src/orders/order_targets.cpp,field_read,Game::pathfinder
@@ -16584,8 +16633,8 @@ address,function,file,kind,target
 0x45a8d0,CreateObjectState,src/graphics/model_render.cpp,function,
 0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,AddStateEntries
 0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,CountObjects
-0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,GameAllocIgnoreTag
 0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,LinkStateEntries
+0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,SimAllocTagged
 0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,_strcmpi
 0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,memset
 0x45a950,CreatePlayerObjectState,src/graphics/model_render.cpp,call,operator=
@@ -18604,6 +18653,7 @@ address,function,file,kind,target
 0x4636b0,FrameQueue::FrameQueue,src/network/packets.cpp,field_write,FrameQueue::skipCount
 0x4636b0,FrameQueue::FrameQueue,src/network/packets.cpp,field_write,FrameQueue::toId
 0x4636b0,FrameQueue::FrameQueue,src/network/packets.cpp,function,
+0x4636b0,FrameQueue::FrameQueue,src/network/packets.cpp,global_read,kSim
 0x463710,FrameQueue::~FrameQueue,src/network/packets.cpp,call,operator delete
 0x463710,FrameQueue::~FrameQueue,src/network/packets.cpp,field_read,FrameQueue::buffer
 0x463710,FrameQueue::~FrameQueue,src/network/packets.cpp,field_read,FrameQueue::recvBuffer
@@ -18835,6 +18885,7 @@ address,function,file,kind,target
 0x4644d0,ResetPlayerSlots,src/game/players_464290.cpp,global_read,g_game
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,call,CreatePlayerAI
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,call,CreateSquads
+0x464700,InitPlayerSlot,src/game/players_464290.cpp,call,SimAlloc
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,call,memset
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,call,operator delete
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,call,operator new
@@ -18890,6 +18941,7 @@ address,function,file,kind,target
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,function,
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,global_read,g_game
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,global_read,g_seams
+0x464700,InitPlayerSlot,src/game/players_464290.cpp,global_read,kSim
 0x464700,InitPlayerSlot,src/game/players_464290.cpp,indirect_call,"indirect via void (*)(UnitResources *, unsigned char) __attribute__((stdcall)) [EconomySeam::Reset]"
 0x4648e0,LoadDefaultAIScript,src/game/players_464290.cpp,call,CommandArgs::InitArgs
 0x4648e0,LoadDefaultAIScript,src/game/players_464290.cpp,call,ExecuteCommandText
@@ -23385,8 +23437,8 @@ address,function,file,kind,target
 0x47e890,VisitObjectsInRange,src/map/terrain.cpp,indirect_call,virtual DamagedAllyCollector::CollectDamagedAlly
 0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,call,GetMapCellAtPosition
 0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,call,RandomInt
+0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,call,SimAlloc
 0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,call,operator delete
-0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,call,operator new
 0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,call,operator=
 0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,deref_read,*Vec3
 0x47ea40,PickRandomReclaimableResourcesInRadius,src/map/terrain.cpp,deref_write,*Vec3
@@ -23754,7 +23806,7 @@ address,function,file,kind,target
 0x480100,IntDynArray::EraseByValue,src/sound/sound.cpp,field_maybe_written,IntDynArray::items
 0x480100,IntDynArray::EraseByValue,src/sound/sound.cpp,function,
 0x480160,Squad::Squad,src/sound/sound.cpp,function,
-0x480190,CreateSquads,src/units/squads.cpp,call,GameAllocIgnoreTag
+0x480190,CreateSquads,src/units/squads.cpp,call,SimAllocTagged
 0x480190,CreateSquads,src/units/squads.cpp,call,operator new
 0x480190,CreateSquads,src/units/squads.cpp,deref_escape,*Squad
 0x480190,CreateSquads,src/units/squads.cpp,field_read,PlayerView::squads
@@ -24352,6 +24404,7 @@ address,function,file,kind,target
 0x482ac0,RevealNewUnit,src/map/line_of_sight.cpp,field_write,Vec3::y
 0x482ac0,RevealNewUnit,src/map/line_of_sight.cpp,function,
 0x482ac0,RevealNewUnit,src/map/line_of_sight.cpp,global_read,g_game
+0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,call,SimAlloc
 0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,call,operator delete
 0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,call,operator new
 0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,deref_read,*int
@@ -24391,6 +24444,7 @@ address,function,file,kind,target
 0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,field_write,Rec::flags
 0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,function,
 0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,global_read,g_game
+0x482c20,BuildDerivedLayers,src/map/line_of_sight.cpp,global_read,kSim
 0x483210,UpdateCellHeightRange,src/map/line_of_sight.cpp,call,SumX
 0x483210,UpdateCellHeightRange,src/map/line_of_sight.cpp,call,SumY
 0x483210,UpdateCellHeightRange,src/map/line_of_sight.cpp,deref_escape,*Cell
@@ -24440,6 +24494,7 @@ address,function,file,kind,target
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,call,LoadFileWithProgress
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,call,LosTables::LoadLosTables
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,call,Mission::GetNameSlot
+0x483610,LoadTntMap,src/map/line_of_sight.cpp,call,SimAllocTagged
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,call,SurfaceFromFrame
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,call,UpdateCellHeightRange
 0x483610,LoadTntMap,src/map/line_of_sight.cpp,call,memcpy
@@ -24836,6 +24891,7 @@ address,function,file,kind,target
 0x485420,ShareMapInfo,src/units/units_485010.cpp,function,
 0x485420,ShareMapInfo,src/units/units_485010.cpp,global_read,g_game
 0x4854a0,AllocateUnitMemory,src/units/units_485010.cpp,call,GameAllocIgnoreTag
+0x4854a0,AllocateUnitMemory,src/units/units_485010.cpp,call,SimAllocTagged
 0x4854a0,AllocateUnitMemory,src/units/units_485010.cpp,call,memset
 0x4854a0,AllocateUnitMemory,src/units/units_485010.cpp,call,sort
 0x4854a0,AllocateUnitMemory,src/units/units_485010.cpp,deref_read,*unsigned char
@@ -24986,6 +25042,7 @@ address,function,file,kind,target
 0x485d40,InitUnitScript,src/units/units_485010.cpp,field_write,Unit::state
 0x485d40,InitUnitScript,src/units/units_485010.cpp,function,
 0x485d40,InitUnitScript,src/units/units_485010.cpp,global_read,g_game
+0x485d40,InitUnitScript,src/units/units_485010.cpp,global_read,kSim
 0x485e30,emit_00485e30,src/units/units_485010.cpp,call,operator new
 0x485e30,emit_00485e30,src/units/units_485010.cpp,function,
 0x485e50,CreateUnitMotion,src/units/units_485010.cpp,call,operator new
@@ -24994,6 +25051,7 @@ address,function,file,kind,target
 0x485e50,CreateUnitMotion,src/units/units_485010.cpp,field_write,Angles16::heading
 0x485e50,CreateUnitMotion,src/units/units_485010.cpp,field_write,Unit::motion
 0x485e50,CreateUnitMotion,src/units/units_485010.cpp,function,
+0x485e50,CreateUnitMotion,src/units/units_485010.cpp,global_read,kSim
 0x485e90,InitUnit,src/units/units_485010.cpp,call,InitUnitFromType
 0x485e90,InitUnit,src/units/units_485010.cpp,call,InitUnitScript
 0x485e90,InitUnit,src/units/units_485010.cpp,call,InitUnitWeaponSlots
@@ -25013,6 +25071,7 @@ address,function,file,kind,target
 0x485e90,InitUnit,src/units/units_485010.cpp,global_escape,g_weaponAimCobVtable
 0x485e90,InitUnit,src/units/units_485010.cpp,global_read,g_game
 0x485e90,InitUnit,src/units/units_485010.cpp,global_read,g_seams
+0x485e90,InitUnit,src/units/units_485010.cpp,global_read,kSim
 0x485e90,InitUnit,src/units/units_485010.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [EconomySeam::UpdateMetalExtraction]
 0x485f50,CreateUnit,src/units/units_485010.cpp,call,AddUnitToMap
 0x485f50,CreateUnit,src/units/units_485010.cpp,call,BroadcastBuilderLink
@@ -25396,6 +25455,7 @@ address,function,file,kind,target
 0x487080,LoadUnit,src/units/unit_save.cpp,function,
 0x487080,LoadUnit,src/units/unit_save.cpp,global_read,g_game
 0x487080,LoadUnit,src/units/unit_save.cpp,global_read,g_seams
+0x487080,LoadUnit,src/units/unit_save.cpp,global_read,kSim
 0x487080,LoadUnit,src/units/unit_save.cpp,indirect_call,"indirect via void (*)(UnitResources *, UnitInfo *, HapiBank *) __attribute__((stdcall)) [EconomySeam::LoadUnitAccounts]"
 0x4876c0,SaveUnits,src/units/unit_save.cpp,call,CobScript::SaveScriptState
 0x4876c0,SaveUnits,src/units/unit_save.cpp,call,HapiBank::OpenAccount
@@ -25945,6 +26005,7 @@ address,function,file,kind,target
 0x489ce0,ApplyUnitDamage,src/units/unit_targets.cpp,global_maybe_written,s_HitByWeapon_00508d74
 0x489ce0,ApplyUnitDamage,src/units/unit_targets.cpp,global_maybe_written,s_TakeDamage_00508d68
 0x489ce0,ApplyUnitDamage,src/units/unit_targets.cpp,global_read,g_game
+0x489ce0,ApplyUnitDamage,src/units/unit_targets.cpp,global_read,kSim
 0x489fa0,ParalyzeUnit,src/units/unit_targets.cpp,call,AppendOrder
 0x489fa0,ParalyzeUnit,src/units/unit_targets.cpp,call,operator new
 0x489fa0,ParalyzeUnit,src/units/unit_targets.cpp,call,operator==
@@ -25959,6 +26020,7 @@ address,function,file,kind,target
 0x489fa0,ParalyzeUnit,src/units/unit_targets.cpp,field_read,UnitType::f241
 0x489fa0,ParalyzeUnit,src/units/unit_targets.cpp,field_write,Order::ticks
 0x489fa0,ParalyzeUnit,src/units/unit_targets.cpp,function,
+0x489fa0,ParalyzeUnit,src/units/unit_targets.cpp,global_read,kSim
 0x48a060,SetWeaponTargetUnit,src/units/unit_targets.cpp,deref_read,*unsigned short
 0x48a060,SetWeaponTargetUnit,src/units/unit_targets.cpp,deref_write,*unsigned short
 0x48a060,SetWeaponTargetUnit,src/units/unit_targets.cpp,function,
@@ -26895,6 +26957,7 @@ address,function,file,kind,target
 0x48e010,MissionConditions::RegisterConditions,src/game/victory.cpp,field_read,Param_0048e010::reader
 0x48e010,MissionConditions::RegisterConditions,src/game/victory.cpp,function,
 0x48e010,MissionConditions::RegisterConditions,src/game/victory.cpp,global_escape,DAT_005119b8
+0x48e010,MissionConditions::RegisterConditions,src/game/victory.cpp,global_read,kSim
 0x48ea00,MissionCondition::IsSatisfied,src/game/victory.cpp,field_read,MissionCondition::satisfied
 0x48ea00,MissionCondition::IsSatisfied,src/game/victory.cpp,function,
 0x48ea10,MissionCondition::OnUnitDied,src/game/victory.cpp,function,
@@ -27382,6 +27445,7 @@ address,function,file,kind,target
 0x48fed0,MissionConditions::AllVictoryConditionsMet,src/game/victory.cpp,field_write,MissionConditions::victory
 0x48fed0,MissionConditions::AllVictoryConditionsMet,src/game/victory.cpp,field_write,MissionConditions::victoryCount
 0x48fed0,MissionConditions::AllVictoryConditionsMet,src/game/victory.cpp,function,
+0x48fed0,MissionConditions::AllVictoryConditionsMet,src/game/victory.cpp,global_read,kSim
 0x48ff40,MissionConditions::AnyDefeatConditionMet,src/game/victory.cpp,call,MissionCondition::IsSatisfied
 0x48ff40,MissionConditions::AnyDefeatConditionMet,src/game/victory.cpp,call,operator new
 0x48ff40,MissionConditions::AnyDefeatConditionMet,src/game/victory.cpp,field_read,MissionConditions::defeat
@@ -27389,6 +27453,7 @@ address,function,file,kind,target
 0x48ff40,MissionConditions::AnyDefeatConditionMet,src/game/victory.cpp,field_write,MissionConditions::defeat
 0x48ff40,MissionConditions::AnyDefeatConditionMet,src/game/victory.cpp,field_write,MissionConditions::defeatCount
 0x48ff40,MissionConditions::AnyDefeatConditionMet,src/game/victory.cpp,function,
+0x48ff40,MissionConditions::AnyDefeatConditionMet,src/game/victory.cpp,global_read,kSim
 0x48ffd0,AreEnemiesEliminated,src/game/victory.cpp,field_escape,Game::players
 0x48ffd0,AreEnemiesEliminated,src/game/victory.cpp,field_read,Game::localPlayer
 0x48ffd0,AreEnemiesEliminated,src/game/victory.cpp,field_read,Player::allied
@@ -27547,6 +27612,7 @@ address,function,file,kind,target
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_read,Struct_004907e0::obj
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_write,PathGoal::target
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,function,
+0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,global_read,kSim
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x490aa0,QueryGlobalMemoryStatus,src/game/victory.cpp,call,GlobalMemoryStatus
 0x490aa0,QueryGlobalMemoryStatus,src/game/victory.cpp,field_write,_MEMORYSTATUS::dwLength
@@ -29648,7 +29714,7 @@ address,function,file,kind,target
 0x499890,MainFrameTick,src/ingame/screenshots.cpp,global_maybe_written,g_screenshotPrefix
 0x499890,MainFrameTick,src/ingame/screenshots.cpp,global_read,g_game
 0x499890,MainFrameTick,src/ingame/screenshots.cpp,indirect_call,indirect via void (*)() __attribute__((cdecl)) [Game::callback]
-0x499a30,AllocWeaponArray,src/weapons/weapons.cpp,call,GameAllocIgnoreTag
+0x499a30,AllocWeaponArray,src/weapons/weapons.cpp,call,SimAllocTagged
 0x499a30,AllocWeaponArray,src/weapons/weapons.cpp,call,memset
 0x499a30,AllocWeaponArray,src/weapons/weapons.cpp,field_read,Game::projectiles
 0x499a30,AllocWeaponArray,src/weapons/weapons.cpp,field_write,Game::projectileCount
@@ -34251,11 +34317,11 @@ address,function,file,kind,target
 0x4b1ec0,CobScript::SaveScriptState,src/units/cob.cpp,function,
 0x4b1ec0,CobScript::SaveScriptState,src/units/cob.cpp,indirect_call,virtual CobScript::GetPieceRotation
 0x4b1ec0,CobScript::SaveScriptState,src/units/cob.cpp,indirect_call,virtual CobScript::GetPieceTranslation
-0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,call,GameAllocIgnoreTag
 0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,call,GameFreeThunk
 0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,call,HapiBank::GetBoxSize
 0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,call,HapiBank::ReadBox
 0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,call,HapiBank::SeekBox
+0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,call,SimAllocTagged
 0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,call,operator=
 0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,field_read,CobScript::pieces
 0x4b2040,CobScript::LoadScriptState,src/units/cob.cpp,field_read,CobScript::statics
@@ -34733,10 +34799,14 @@ address,function,file,kind,target
 0x4b4f10,operator new,src/util/operator_new.cpp,call,GameAllocThunk
 0x4b4f10,operator new,src/util/operator_new.cpp,function,
 0x4b4f20,operator delete,src/util/operator_new.cpp,call,GameFreeIndirectThunk
+0x4b4f20,operator delete,src/util/operator_new.cpp,call,SimFree
+0x4b4f20,operator delete,src/util/operator_new.cpp,call,SimOwns
 0x4b4f20,operator delete,src/util/operator_new.cpp,function,
 0x4b4f30,operator new[],src/util/operator_new.cpp,call,GameAllocThunk
 0x4b4f30,operator new[],src/util/operator_new.cpp,function,
 0x4b4f40,operator delete[],src/util/operator_new.cpp,call,GameFreeIndirectThunk
+0x4b4f40,operator delete[],src/util/operator_new.cpp,call,SimFree
+0x4b4f40,operator delete[],src/util/operator_new.cpp,call,SimOwns
 0x4b4f40,operator delete[],src/util/operator_new.cpp,function,
 0x4b4f50,ApplyPalette,src/graphics/display.cpp,call,GetDC
 0x4b4f50,ApplyPalette,src/graphics/display.cpp,call,RealizePalette
@@ -37520,6 +37590,7 @@ address,function,file,kind,target
 0x4c2f60,TdfFile::LoadFile,src/util/tdf_4c2f60.cpp,function,
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,GameAllocIgnoreTag
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,GameFreeThunk
+0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,SimAlloc
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,TdfFile::StripComments
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,TdfRecord::~TdfRecord
 0x4c3120,TdfFile::LoadBuffer,src/util/tdf_4c3120.cpp,call,memcpy
@@ -39781,6 +39852,8 @@ address,function,file,kind,target
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,IsMemSet
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,LeaveCriticalSection
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,ReallocDebugBlock
+0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,SimOwns
+0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,SimRealloc
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,call,realloc
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,function,
 0x4d84c0,GameRealloc,src/debug/debug_lib.cpp,global_read,g_outOfMemoryHandler
@@ -39796,6 +39869,8 @@ address,function,file,kind,target
 0x4d85b0,GameFree,src/debug/debug_lib.cpp,call,GetBlockSize
 0x4d85b0,GameFree,src/debug/debug_lib.cpp,call,IsMemFussy
 0x4d85b0,GameFree,src/debug/debug_lib.cpp,call,LeaveCriticalSection
+0x4d85b0,GameFree,src/debug/debug_lib.cpp,call,SimFree
+0x4d85b0,GameFree,src/debug/debug_lib.cpp,call,SimOwns
 0x4d85b0,GameFree,src/debug/debug_lib.cpp,call,free
 0x4d85b0,GameFree,src/debug/debug_lib.cpp,function,
 0x4d8610,GameStrdup,src/debug/debug_lib.cpp,call,GameAlloc
@@ -41900,6 +41975,26 @@ address,function,file,kind,target
 ,AllocDepthFrame,src/graphics/gaf.cpp,field_write,GafFrame::x
 ,AllocDepthFrame,src/graphics/gaf.cpp,field_write,GafFrame::y
 ,AllocDepthFrame,src/graphics/gaf.cpp,function,
+,AllocLocked,src/state/block.cpp,call,At
+,AllocLocked,src/state/block.cpp,call,ChunkSizeFor
+,AllocLocked,src/state/block.cpp,call,CountUse
+,AllocLocked,src/state/block.cpp,call,Head
+,AllocLocked,src/state/block.cpp,call,OutOfBlock
+,AllocLocked,src/state/block.cpp,call,memset
+,AllocLocked,src/state/block.cpp,field_read,BlockHeader::freeHead
+,AllocLocked,src/state/block.cpp,field_read,Chunk::aux
+,AllocLocked,src/state/block.cpp,field_read,Chunk::size
+,AllocLocked,src/state/block.cpp,field_write,BlockHeader::freeHead
+,AllocLocked,src/state/block.cpp,field_write,Chunk::aux
+,AllocLocked,src/state/block.cpp,field_write,Chunk::size
+,AllocLocked,src/state/block.cpp,function,
+,AllocLocked,src/state/block.cpp,global_read,g_insideThread
+,AllocLocked,src/state/block.cpp,global_read,g_outOfMemoryHandler
+,AllocLocked,src/state/block.cpp,global_read,kChunkHeader
+,AllocLocked,src/state/block.cpp,global_read,kFreeBit
+,AllocLocked,src/state/block.cpp,global_read,kMinChunk
+,AllocLocked,src/state/block.cpp,global_write,g_insideThread
+,AllocLocked,src/state/block.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [g_outOfMemoryHandler]
 ,AllocNode,src/debug/debug_lib.cpp,call,GlobalAlloc
 ,AllocNode,src/debug/debug_lib.cpp,field_read,Node_004da8d0::left
 ,AllocNode,src/debug/debug_lib.cpp,field_write,Node_004da8d0::left
@@ -42011,11 +42106,14 @@ address,function,file,kind,target
 ,Assign_00476490,src/graphics/particles_476490.cpp,deref_read,*std::vector<Elem_00476490>
 ,Assign_00476490,src/graphics/particles_476490.cpp,deref_write,*std::vector<Elem_00476490>
 ,Assign_00476490,src/graphics/particles_476490.cpp,function,
+,At,src/state/block.cpp,function,
+,At,src/state/block.cpp,global_read,g_base
 ,AtLeast200,src/game/main_loop.cpp,function,
 ,AttachMove,src/orders/vtol_orders_411f50.cpp,call,Class_0044e2d0::SetApproachRadius
 ,AttachMove,src/orders/vtol_orders_411f50.cpp,call,Order::SetAttachedFx
 ,AttachMove,src/orders/vtol_orders_411f50.cpp,call,operator new
 ,AttachMove,src/orders/vtol_orders_411f50.cpp,function,
+,AttachMove,src/orders/vtol_orders_411f50.cpp,global_read,kSim
 ,Bad_004bdd70,src/util/hpi.cpp,call,fread
 ,Bad_004bdd70,src/util/hpi.cpp,call,fseek
 ,Bad_004bdd70,src/util/hpi.cpp,call,strcmp
@@ -42430,6 +42528,10 @@ address,function,file,kind,target
 ,CheckVersion,src/network/online_45b670.cpp,indirect_call,indirect via unsigned int (*)() __attribute__((stdcall)) [f]
 ,ChooseWeaponNative,src/seams/native.cpp,call,Unit::ChooseWeapon
 ,ChooseWeaponNative,src/seams/native.cpp,function,
+,ChunkSizeFor,src/state/block.cpp,function,
+,ChunkSizeFor,src/state/block.cpp,global_read,kChunkHeader
+,ChunkSizeFor,src/state/block.cpp,global_read,kMinChunk
+,ChunkSizeFor,src/state/block.cpp,global_read,kSimBlockBytes
 ,ClampTarget,src/ingame/control_panel.cpp,field_read,Game::mapPixelHeight
 ,ClampTarget,src/ingame/control_panel.cpp,field_read,Game::mapPixelWidth
 ,ClampTarget,src/ingame/control_panel.cpp,field_read,Game::viewPixelHeight
@@ -42695,6 +42797,12 @@ address,function,file,kind,target
 ,CountHumanSlots,src/frontend/skirmish_menu.cpp,field_read,SkirmishPlayerSlot::active
 ,CountHumanSlots,src/frontend/skirmish_menu.cpp,function,
 ,CountHumanSlots,src/frontend/skirmish_menu.cpp,global_read,g_game
+,CountUse,src/state/block.cpp,call,Head
+,CountUse,src/state/block.cpp,field_read,BlockHeader::highWater
+,CountUse,src/state/block.cpp,field_read,BlockHeader::inUse
+,CountUse,src/state/block.cpp,field_write,BlockHeader::highWater
+,CountUse,src/state/block.cpp,field_write,BlockHeader::inUse
+,CountUse,src/state/block.cpp,function,
 ,CritSec_004da780::CritSec_004da780,src/debug/debug_lib.cpp,call,InitializeCriticalSection
 ,CritSec_004da780::CritSec_004da780,src/debug/debug_lib.cpp,field_maybe_written,CritSec_004da780::cs
 ,CritSec_004da780::CritSec_004da780,src/debug/debug_lib.cpp,function,
@@ -43174,6 +43282,11 @@ address,function,file,kind,target
 ,FarFrom,src/graphics/model_render.cpp,field_read,Vector3s::y
 ,FarFrom,src/graphics/model_render.cpp,field_read,Vector3s::z
 ,FarFrom,src/graphics/model_render.cpp,function,
+,Fatal,src/state/block.cpp,call,abort
+,Fatal,src/state/block.cpp,call,fprintf
+,Fatal,src/state/block.cpp,function,
+,Fatal,src/state/block.cpp,global_maybe_written,_iob
+,Fatal,src/state/block.cpp,global_read,kSimBlockBytes
 ,FeatureIndex,src/map/features_422ea0.cpp,call,FindName
 ,FeatureIndex,src/map/features_422ea0.cpp,call,LoadFeatureType
 ,FeatureIndex,src/map/features_422ea0.cpp,function,
@@ -43918,6 +44031,20 @@ address,function,file,kind,target
 ,FreeGdi_004b5510,src/graphics/display.cpp,field_write,App_4b5980::dib
 ,FreeGdi_004b5510,src/graphics/display.cpp,field_write,App_4b5980::hpalette
 ,FreeGdi_004b5510,src/graphics/display.cpp,function,
+,FreeLocked,src/state/block.cpp,call,At
+,FreeLocked,src/state/block.cpp,call,Head
+,FreeLocked,src/state/block.cpp,call,Lookup
+,FreeLocked,src/state/block.cpp,field_read,BlockHeader::freeHead
+,FreeLocked,src/state/block.cpp,field_read,BlockHeader::inUse
+,FreeLocked,src/state/block.cpp,field_read,Chunk::aux
+,FreeLocked,src/state/block.cpp,field_read,Chunk::size
+,FreeLocked,src/state/block.cpp,field_write,BlockHeader::freeHead
+,FreeLocked,src/state/block.cpp,field_write,BlockHeader::inUse
+,FreeLocked,src/state/block.cpp,field_write,Chunk::aux
+,FreeLocked,src/state/block.cpp,field_write,Chunk::size
+,FreeLocked,src/state/block.cpp,function,
+,FreeLocked,src/state/block.cpp,global_read,g_base
+,FreeLocked,src/state/block.cpp,global_read,kFreeBit
 ,FreeNode,src/debug/debug_lib.cpp,field_write,Node_004e2250::_Left
 ,FreeNode,src/debug/debug_lib.cpp,function,
 ,FreeNode,src/debug/debug_lib.cpp,global_read,g_nameMapFreeList
@@ -44302,6 +44429,20 @@ address,function,file,kind,target
 ,Grow_00476210,src/graphics/particles_476210.cpp,call,reserve
 ,Grow_00476210,src/graphics/particles_476210.cpp,call,size
 ,Grow_00476210,src/graphics/particles_476210.cpp,function,
+,Guard::Guard,src/state/block.cpp,call,EnterCriticalSection
+,Guard::Guard,src/state/block.cpp,call,Fatal
+,Guard::Guard,src/state/block.cpp,call,GetAllocLock
+,Guard::Guard,src/state/block.cpp,call,GetCurrentThreadId
+,Guard::Guard,src/state/block.cpp,call,Prepare
+,Guard::Guard,src/state/block.cpp,field_read,<anon>::Guard::cs
+,Guard::Guard,src/state/block.cpp,field_write,<anon>::Guard::cs
+,Guard::Guard,src/state/block.cpp,function,
+,Guard::Guard,src/state/block.cpp,global_read,g_insideThread
+,Guard::Guard,src/state/block.cpp,global_write,g_insideThread
+,Guard::~Guard,src/state/block.cpp,call,LeaveCriticalSection
+,Guard::~Guard,src/state/block.cpp,field_read,<anon>::Guard::cs
+,Guard::~Guard,src/state/block.cpp,function,
+,Guard::~Guard,src/state/block.cpp,global_write,g_insideThread
 ,HAPI_FileLength,src/util/hpi_4bd830.cpp,call,_filelength
 ,HAPI_FileLength,src/util/hpi_4bd830.cpp,field_read,FILE::_file
 ,HAPI_FileLength,src/util/hpi_4bd830.cpp,field_read,FileHandle::fp
@@ -44410,9 +44551,6 @@ address,function,file,kind,target
 ,HarnessViewRand,src/harness/harness.cpp,function,
 ,HarnessViewRand,src/harness/harness.cpp,global_read,s_viewState@src/harness/harness.cpp
 ,HarnessViewRand,src/harness/harness.cpp,global_write,s_viewState@src/harness/harness.cpp
-,HarnessZeroVec3,src/harness/harness.cpp,call,memset
-,HarnessZeroVec3,src/harness/harness.cpp,function,
-,HarnessZeroVec3,src/harness/harness.cpp,global_read,s_testMode@src/harness/harness.cpp
 ,HasBit,src/units/unit.cpp,function,
 ,HasNextMission,src/frontend/endgame.cpp,call,Mission::GetGameType
 ,HasNextMission,src/frontend/endgame.cpp,call,Mission::MissionExists
@@ -44450,6 +44588,8 @@ address,function,file,kind,target
 ,HashPointer,src/harness/harness.cpp,function,
 ,HashU32,src/harness/harness.cpp,call,HashBuf
 ,HashU32,src/harness/harness.cpp,function,
+,Head,src/state/block.cpp,function,
+,Head,src/state/block.cpp,global_read,g_base
 ,Head_0043a1f0::Head_0043a1f0,src/orders/order_queue_4384a0.cpp,function,
 ,Hits_0049a120::AddFeature,src/weapons/weapons.cpp,field_read,Hits_0049a120::features
 ,Hits_0049a120::AddFeature,src/weapons/weapons.cpp,field_read,Hits_0049a120::numFeatures
@@ -44537,6 +44677,7 @@ address,function,file,kind,target
 ,InitUnit_00485e90,src/units/units_485010.cpp,global_escape,g_weaponAimCobVtable
 ,InitUnit_00485e90,src/units/units_485010.cpp,global_read,g_game
 ,InitUnit_00485e90,src/units/units_485010.cpp,global_read,g_seams
+,InitUnit_00485e90,src/units/units_485010.cpp,global_read,kSim
 ,InitUnit_00485e90,src/units/units_485010.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [EconomySeam::UpdateMetalExtraction]
 ,Insert,src/orders/order_list.cpp,deref_read,*Order
 ,Insert,src/orders/order_list.cpp,deref_write,*Order
@@ -44577,6 +44718,7 @@ address,function,file,kind,target
 ,InsertCommand,src/orders/order_list.cpp,field_read,Unit::list2
 ,InsertCommand,src/orders/order_list.cpp,field_write,Order::flags
 ,InsertCommand,src/orders/order_list.cpp,function,
+,InsertCommand,src/orders/order_list.cpp,global_read,kSim
 ,InsertNew,src/util/tdf_4c54f0.cpp,call,MakeElem
 ,InsertNew,src/util/tdf_4c54f0.cpp,call,StringRef::~StringRef
 ,InsertNew,src/util/tdf_4c54f0.cpp,call,TdfField::~TdfField
@@ -45296,6 +45438,7 @@ address,function,file,kind,target
 ,Land,src/orders/vtol_orders.cpp,field_read,UnitDef::maxHealth
 ,Land,src/orders/vtol_orders.cpp,field_write,Order::flags
 ,Land,src/orders/vtol_orders.cpp,function,
+,Land,src/orders/vtol_orders.cpp,global_read,kSim
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,AppendOrder
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,GetFactoriesInRadius
 ,Land,src/orders/vtol_orders_4152f0.cpp,call,LandingPadList::~LandingPadList
@@ -45313,6 +45456,7 @@ address,function,file,kind,target
 ,Land,src/orders/vtol_orders_4152f0.cpp,field_read,UnitDef::maxHealth
 ,Land,src/orders/vtol_orders_4152f0.cpp,field_write,Order::flags
 ,Land,src/orders/vtol_orders_4152f0.cpp,function,
+,Land,src/orders/vtol_orders_4152f0.cpp,global_read,kSim
 ,Length,src/ai/ai_player_408100.cpp,call,bx_sqrt
 ,Length,src/ai/ai_player_408100.cpp,field_read,Vec3::x
 ,Length,src/ai/ai_player_408100.cpp,field_read,Vec3::y
@@ -45520,6 +45664,7 @@ address,function,file,kind,target
 ,LoadWeaponTDFs,src/units/unit_types_42a8d0.cpp,field_read,Elem_00432be0::data
 ,LoadWeaponTDFs,src/units/unit_types_42a8d0.cpp,field_read,TdfFile::flags
 ,LoadWeaponTDFs,src/units/unit_types_42a8d0.cpp,function,
+,LoadWeaponTDFs,src/units/unit_types_42a8d0.cpp,global_read,kSim
 ,LoadWeaponTDFs,src/units/unit_types_42a8d0.cpp,global_read,s_weaponTdfAllocCount@src/units/unit_types_42a8d0.cpp
 ,LoadWeaponTDFs,src/units/unit_types_42a8d0.cpp,global_read,s_weaponTdfLoadedCount@src/units/unit_types_42a8d0.cpp
 ,LoadWeaponTDFs,src/units/unit_types_42a8d0.cpp,global_read,s_weaponTdfParsers@src/units/unit_types_42a8d0.cpp
@@ -45589,6 +45734,15 @@ address,function,file,kind,target
 ,Lookup,src/orders/order_dispatch.cpp,field_read,Game::unitCount
 ,Lookup,src/orders/order_dispatch.cpp,function,
 ,Lookup,src/orders/order_dispatch.cpp,global_read,g_game
+,Lookup,src/state/block.cpp,call,At
+,Lookup,src/state/block.cpp,call,Fatal
+,Lookup,src/state/block.cpp,field_read,Chunk::size
+,Lookup,src/state/block.cpp,function,
+,Lookup,src/state/block.cpp,global_read,g_base
+,Lookup,src/state/block.cpp,global_read,kChunkHeader
+,Lookup,src/state/block.cpp,global_read,kFirstChunk
+,Lookup,src/state/block.cpp,global_read,kFreeBit
+,Lookup,src/state/block.cpp,global_read,kSimBlockBytes
 ,LookupPlayer,src/network/net_game.cpp,call,PlayerId_00452800
 ,LookupPlayer,src/network/net_game.cpp,function,
 ,Lookup_004263b0,src/frontend/frontend.cpp,call,strcmp
@@ -45876,6 +46030,7 @@ address,function,file,kind,target
 ,MissionConditions::AllVictoryConditionsMet,src/game/victory_490230.cpp,field_write,MissionConditions::victory
 ,MissionConditions::AllVictoryConditionsMet,src/game/victory_490230.cpp,field_write,MissionConditions::victoryCount
 ,MissionConditions::AllVictoryConditionsMet,src/game/victory_490230.cpp,function,
+,MissionConditions::AllVictoryConditionsMet,src/game/victory_490230.cpp,global_read,kSim
 ,MissionConditions::AllVictoryConditionsMet,src/game/victory_490230.cpp,indirect_call,virtual MissionCondition::IsSatisfied
 ,MissionConditions::~MissionConditions,src/game/mission_conditions.h,call,FreeConditions
 ,MissionConditions::~MissionConditions,src/game/mission_conditions.h,function,
@@ -46436,6 +46591,8 @@ address,function,file,kind,target
 ,OrderTarget,src/orders/vtol_orders.cpp,function,
 ,OrderTarget,src/orders/vtol_orders_40fbe0.cpp,field_read,Order::target
 ,OrderTarget,src/orders/vtol_orders_40fbe0.cpp,function,
+,OutOfBlock,src/state/block.cpp,call,Fatal
+,OutOfBlock,src/state/block.cpp,function,
 ,OvrFile::OvrFile,src/units/unit_types_42a8d0.cpp,call,HapiBank::InitBank
 ,OvrFile::OvrFile,src/units/unit_types_42a8d0.cpp,function,
 ,OvrFile::~OvrFile,src/units/unit_types_42a8d0.cpp,call,HapiBank::CloseBank
@@ -46727,6 +46884,7 @@ address,function,file,kind,target
 ,Patrol,src/orders/vtol_orders.cpp,field_write,Order::angle
 ,Patrol,src/orders/vtol_orders.cpp,field_write,Order::flags
 ,Patrol,src/orders/vtol_orders.cpp,function,
+,Patrol,src/orders/vtol_orders.cpp,global_read,kSim
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,AppendOrder
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,Class_0044e2d0::SetApproachRadius
 ,Patrol,src/orders/vtol_orders_410850.cpp,call,FindPads
@@ -46755,6 +46913,7 @@ address,function,file,kind,target
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_write,Order::angle
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_write,Order::flags
 ,Patrol,src/orders/vtol_orders_410850.cpp,function,
+,Patrol,src/orders/vtol_orders_410850.cpp,global_read,kSim
 ,PeekFrame,src/network/packets.cpp,field_escape,FrameRing::frames
 ,PeekFrame,src/network/packets.cpp,field_read,FrameQueue::buffer
 ,PeekFrame,src/network/packets.cpp,field_read,FrameRing::count
@@ -46953,6 +47112,7 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_410e70.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_410e70.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_410e70.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_410e70.cpp,global_read,kSim
 ,PrepVtolClimb,src/orders/vtol_orders_4118e0.cpp,call,AttachUnitToPiece
 ,PrepVtolClimb,src/orders/vtol_orders_4118e0.cpp,call,Class_0044e2d0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_4118e0.cpp,call,Order::SetAttachedFx
@@ -46969,6 +47129,7 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_4118e0.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_4118e0.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_4118e0.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_4118e0.cpp,global_read,kSim
 ,PrepVtolClimb,src/orders/vtol_orders_411f50.cpp,call,AttachUnitToPiece
 ,PrepVtolClimb,src/orders/vtol_orders_411f50.cpp,call,Class_0044e2d0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_411f50.cpp,call,Order::SetAttachedFx
@@ -46985,6 +47146,7 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_411f50.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_411f50.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_411f50.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_411f50.cpp,global_read,kSim
 ,PrepVtolClimb,src/orders/vtol_orders_412710.cpp,call,AttachUnitToPiece
 ,PrepVtolClimb,src/orders/vtol_orders_412710.cpp,call,Class_0044e6c0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_412710.cpp,call,Order::SetAttachedFx
@@ -47001,6 +47163,7 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_412710.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_412710.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_412710.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_412710.cpp,global_read,kSim
 ,PrepVtolClimb,src/orders/vtol_orders_412d40.cpp,call,AttachUnitToPiece
 ,PrepVtolClimb,src/orders/vtol_orders_412d40.cpp,call,Class_0044e2d0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_412d40.cpp,call,Order::SetAttachedFx
@@ -47017,6 +47180,7 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_412d40.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_412d40.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_412d40.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_412d40.cpp,global_read,kSim
 ,PrepVtolClimb,src/orders/vtol_orders_414770.cpp,call,AttachUnitToPiece
 ,PrepVtolClimb,src/orders/vtol_orders_414770.cpp,call,Class_0044e2d0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_414770.cpp,call,Order::SetAttachedFx
@@ -47033,6 +47197,7 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_414770.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_414770.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_414770.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_414770.cpp,global_read,kSim
 ,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,call,AttachUnitToPiece
 ,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,call,Class_0044e2d0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,call,Order::SetAttachedFx
@@ -47049,6 +47214,7 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_414a80.cpp,global_read,kSim
 ,PrepVtolClimb,src/orders/vtol_orders_4152f0.cpp,call,AttachUnitToPiece
 ,PrepVtolClimb,src/orders/vtol_orders_4152f0.cpp,call,Class_0044e2d0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_4152f0.cpp,call,Order::SetAttachedFx
@@ -47065,6 +47231,20 @@ address,function,file,kind,target
 ,PrepVtolClimb,src/orders/vtol_orders_4152f0.cpp,field_read,UnitMotion::flags
 ,PrepVtolClimb,src/orders/vtol_orders_4152f0.cpp,field_write,Order::flags
 ,PrepVtolClimb,src/orders/vtol_orders_4152f0.cpp,function,
+,PrepVtolClimb,src/orders/vtol_orders_4152f0.cpp,global_read,kSim
+,Prepare,src/state/block.cpp,call,At
+,Prepare,src/state/block.cpp,call,Head
+,Prepare,src/state/block.cpp,call,Reserve
+,Prepare,src/state/block.cpp,field_read,BlockHeader::ready
+,Prepare,src/state/block.cpp,field_write,BlockHeader::freeHead
+,Prepare,src/state/block.cpp,field_write,BlockHeader::ready
+,Prepare,src/state/block.cpp,field_write,Chunk::aux
+,Prepare,src/state/block.cpp,field_write,Chunk::size
+,Prepare,src/state/block.cpp,function,
+,Prepare,src/state/block.cpp,global_read,g_base
+,Prepare,src/state/block.cpp,global_read,kFirstChunk
+,Prepare,src/state/block.cpp,global_read,kFreeBit
+,Prepare,src/state/block.cpp,global_read,kSimBlockBytes
 ,Prev_00462f30,src/network/packets.cpp,function,
 ,ProcessButtonCommand,src/network/online_45b250.cpp,call,GetProcAddress
 ,ProcessButtonCommand,src/network/online_45b250.cpp,fn_ref,OnlineTranslate
@@ -47239,6 +47419,27 @@ address,function,file,kind,target
 ,ReadSettingIntOr,src/game/settings.cpp,global_read,g_game
 ,ReadU32At,src/harness/harness.cpp,deref_read,*unsigned int
 ,ReadU32At,src/harness/harness.cpp,function,
+,ReallocLocked,src/state/block.cpp,call,AllocLocked
+,ReallocLocked,src/state/block.cpp,call,At
+,ReallocLocked,src/state/block.cpp,call,ChunkSizeFor
+,ReallocLocked,src/state/block.cpp,call,CountUse
+,ReallocLocked,src/state/block.cpp,call,FreeLocked
+,ReallocLocked,src/state/block.cpp,call,Head
+,ReallocLocked,src/state/block.cpp,call,Lookup
+,ReallocLocked,src/state/block.cpp,call,memcpy
+,ReallocLocked,src/state/block.cpp,call,memset
+,ReallocLocked,src/state/block.cpp,field_read,BlockHeader::freeHead
+,ReallocLocked,src/state/block.cpp,field_read,Chunk::aux
+,ReallocLocked,src/state/block.cpp,field_read,Chunk::size
+,ReallocLocked,src/state/block.cpp,field_write,BlockHeader::freeHead
+,ReallocLocked,src/state/block.cpp,field_write,Chunk::aux
+,ReallocLocked,src/state/block.cpp,field_write,Chunk::size
+,ReallocLocked,src/state/block.cpp,function,
+,ReallocLocked,src/state/block.cpp,global_read,g_base
+,ReallocLocked,src/state/block.cpp,global_read,kChunkHeader
+,ReallocLocked,src/state/block.cpp,global_read,kFreeBit
+,ReallocLocked,src/state/block.cpp,global_read,kMinChunk
+,ReallocLocked,src/state/block.cpp,global_read,kSimBlockBytes
 ,Rec::Rec,src/map/line_of_sight.cpp,field_write,Rec::a
 ,Rec::Rec,src/map/line_of_sight.cpp,field_write,Rec::b
 ,Rec::Rec,src/map/line_of_sight.cpp,field_write,Rec::field_6
@@ -47334,6 +47535,11 @@ address,function,file,kind,target
 ,RequestEnergyAndMetalNative,src/seams/native.cpp,function,
 ,RequestEnergyNative,src/seams/native.cpp,call,UnitResources::RequestEnergy
 ,RequestEnergyNative,src/seams/native.cpp,function,
+,Reserve,src/state/block.cpp,call,OutOfBlock
+,Reserve,src/state/block.cpp,call,VirtualAlloc
+,Reserve,src/state/block.cpp,function,
+,Reserve,src/state/block.cpp,global_read,kSimBlockBytes
+,Reserve,src/state/block.cpp,global_write,g_base
 ,Reset,src/network/packets.cpp,call,PacketChannel::InitPools
 ,Reset,src/network/packets.cpp,field_write,PacketChannel::bufferIndex
 ,Reset,src/network/packets.cpp,field_write,PacketChannel::nextSendTick
@@ -47741,6 +47947,34 @@ address,function,file,kind,target
 ,ShowSelectBox,src/ingame/info_panel_468cf0.cpp,field_read,Game::orderMode
 ,ShowSelectBox,src/ingame/info_panel_468cf0.cpp,function,
 ,ShowSelectBox,src/ingame/info_panel_468cf0.cpp,global_read,g_game
+,SimAlloc,src/state/block.cpp,call,AllocLocked
+,SimAlloc,src/state/block.cpp,call,Guard::~Guard
+,SimAlloc,src/state/block.cpp,function,
+,SimAllocTagged,src/state/block.h,call,SimAlloc
+,SimAllocTagged,src/state/block.h,function,
+,SimBlockAttach,src/state/block.cpp,function,
+,SimBlockAttach,src/state/block.cpp,global_write,g_base
+,SimBlockBase,src/state/block.cpp,function,
+,SimBlockBase,src/state/block.cpp,global_read,g_base
+,SimBlockInit,src/state/block.cpp,call,Guard::~Guard
+,SimBlockInit,src/state/block.cpp,function,
+,SimBlockReset,src/state/block.cpp,call,VirtualFree
+,SimBlockReset,src/state/block.cpp,function,
+,SimBlockReset,src/state/block.cpp,global_read,g_base
+,SimBlockReset,src/state/block.cpp,global_write,g_base
+,SimFree,src/state/block.cpp,call,FreeLocked
+,SimFree,src/state/block.cpp,call,Guard::~Guard
+,SimFree,src/state/block.cpp,function,
+,SimHighWater,src/state/block.cpp,call,Guard::~Guard
+,SimHighWater,src/state/block.cpp,call,Head
+,SimHighWater,src/state/block.cpp,field_read,BlockHeader::highWater
+,SimHighWater,src/state/block.cpp,function,
+,SimOwns,src/state/block.cpp,function,
+,SimOwns,src/state/block.cpp,global_read,g_base
+,SimOwns,src/state/block.cpp,global_read,kSimBlockBytes
+,SimRealloc,src/state/block.cpp,call,Guard::~Guard
+,SimRealloc,src/state/block.cpp,call,ReallocLocked
+,SimRealloc,src/state/block.cpp,function,
 ,SkipComment,src/util/tdf.cpp,deref_read,*char
 ,SkipComment,src/util/tdf.cpp,deref_write,*char
 ,SkipComment,src/util/tdf.cpp,function,
@@ -49742,7 +49976,15 @@ address,function,file,kind,target
 ,offset_0048a1e0,src/units/unit_targets.cpp,field_write,Vec3_0048a1e0::y
 ,offset_0048a1e0,src/units/unit_targets.cpp,field_write,Vec3_0048a1e0::z
 ,offset_0048a1e0,src/units/unit_targets.cpp,function,
+,operator delete,src/state/block.cpp,call,SimFree
+,operator delete,src/state/block.cpp,function,
+,operator delete[],src/state/block.cpp,call,SimFree
+,operator delete[],src/state/block.cpp,function,
 ,operator new,src/ai/ai_player_409730.cpp,function,
+,operator new,src/state/block.cpp,call,SimAlloc
+,operator new,src/state/block.cpp,function,
+,operator new[],src/state/block.cpp,call,SimAlloc
+,operator new[],src/state/block.cpp,function,
 ,operator+,src/orders/order_list.cpp,field_read,Vec3::x
 ,operator+,src/orders/order_list.cpp,field_read,Vec3::y
 ,operator+,src/orders/order_list.cpp,field_read,Vec3::z
