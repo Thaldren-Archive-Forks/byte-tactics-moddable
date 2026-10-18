@@ -273,7 +273,7 @@ struct Thing_0043f0e0 {
 
 extern Game* g_game;
 
-Cell* __stdcall GetMapCellAtPosition(Pos_0043f0e0* pos);
+#include "../../interfaces/seams.h"
 class Unit {
   public:
     int CanLoad(Unit_0043f0e0* other);
@@ -295,7 +295,6 @@ MissionType __stdcall GetOrderType(unsigned char mode, Unit_0043f0e0* unit,
 
 // GetOrderCursor as in 0x43e490.cpp (the annotated copy). It precedes GetOrderType in the
 // original file and is compiled first here for the compiler state it leaves; see the top.
-Cell* __stdcall GetMapCellAtPosition(Pos_0043e490* pos);
 int __stdcall WeaponCanReachPos(Unit_0043e490* unit, void* slot, Pos_0043e490* pos, int which);
 int __stdcall WeaponCanReachUnit(Unit_0043e490* unit, Unit_0043e490* target, int which);
 int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e490* target,
@@ -343,7 +342,7 @@ static inline Feature_0043e490* GetFeature(Cell* cell) {
 #define RECLAIM_CHECK(def, unit, pos, mask, result)                  \
     do {                                                             \
         if (((def)->f245 & (mask)) && Visible((unit), (pos))) {      \
-            Feature_0043e490* f = GetFeature(GetMapCellAtPosition(pos));     \
+            Feature_0043e490* f = GetFeature(g_seams.los_radar->GetMapCellAtPosition((Vec3*)(pos)));     \
             if (f && (f->flags & 0x80))                              \
                 return (result);                                     \
         }                                                            \
@@ -495,7 +494,7 @@ static inline int Visible(Unit_0043f0e0* unit, Pos_0043f0e0* pos) {
 static inline int Marked(Thing_0043f0e0* t) { return t && (t->ffe & 0x80); }
 
 static inline Thing_0043f0e0* Lookup(Pos_0043f0e0* pos) {
-    Cell* cell = GetMapCellAtPosition(pos);
+    Cell* cell = g_seams.los_radar->GetMapCellAtPosition((Vec3*)pos);
     if (!cell)
         return 0;
     unsigned short id = cell->feature;

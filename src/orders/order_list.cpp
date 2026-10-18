@@ -998,7 +998,6 @@ void __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int mode);
 int __stdcall CanPlaceUnitFootprint(UnitType_0043cd20* type, short a8, Point cell, int mode);
 void __stdcall RemoveUnitFromMap(Unit* unit);
 void __stdcall AddUnitToMap(Unit* unit);
-void __stdcall UpdateUnitLineOfSight(Unit* unit);
 MissionType __stdcall GetOrderType(unsigned char relation, Unit* unit, Unit* target, Vec3* pos);
 void __stdcall AddOrder(unsigned char kind, int remove, Unit* owner, int id, int* pos, int param_6, int param_7);
 int __stdcall FindWeaponTarget(Unit* unit, int a, int b);
@@ -2049,7 +2048,7 @@ void UnitMotion::UpdatePosition(Unit* u)
     u->mode = (short)m;
     AddUnitToMap(u);
     u->moved = 1;
-    UpdateUnitLineOfSight(u);
+    g_seams.los_radar->UpdateUnitLineOfSight(u);
 }
 
 // FUNCTION: 0x43da70

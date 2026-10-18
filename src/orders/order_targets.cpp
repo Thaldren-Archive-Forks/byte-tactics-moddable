@@ -606,9 +606,9 @@ public:
     char unknown_0[0xc9];
 
     Pathfinder();
-    ~Pathfinder();
-    void AbortIfGoalMatch(void* param);
 };
+
+#include "../../interfaces/seams.h"
 
 #pragma pack(push, 2)
 struct Order {
@@ -2482,7 +2482,7 @@ int AiSearchGoal::HasReadyWaypoints()
 // FUNCTION: 0x44f2a0
 void AiSearchGoal::SetPathOrder(void* param)
 {
-    g_game->pathfinder->AbortIfGoalMatch(this);
+    g_seams.pathfinding->AbortIfGoalMatch(g_game->pathfinder, this);
     if (target)
         ((OrderFx*)target)->AddFlags(0x80);
     active = 0;
@@ -2535,7 +2535,7 @@ void AiSearchGoal::SetPathOrder(void* param)
 // FUNCTION: 0x44f450
 AiSearchGoal::~AiSearchGoal()
 {
-    g_game->pathfinder->AbortIfGoalMatch(this);
+    g_seams.pathfinding->AbortIfGoalMatch(g_game->pathfinder, this);
 }
 
 // Slot 7: true when there is something to send: flag 3 of +0x64 (the path changed) is
@@ -2636,6 +2636,6 @@ void CreatePathfinder()
 // FUNCTION: 0x44f6e0
 void DestroyPathfinder()
 {
-    delete g_game->pathfinder;
+    g_seams.pathfinding->Destroy(g_game->pathfinder);
     g_game->pathfinder = 0;
 }

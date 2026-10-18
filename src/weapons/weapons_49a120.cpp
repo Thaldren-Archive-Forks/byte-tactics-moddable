@@ -174,7 +174,6 @@ struct Hits_0049a120 {
     }
 };
 
-Cell* __stdcall GetMapCell(int x, int y);
 int __stdcall ApplyWeaponDamage(Weapon_0049a120* weapon, Unit_0049a120* target, float scale);
 void __stdcall DetonateProjectile(Weapon_0049a120* weapon, Unit_0049a120* unit);
 int __stdcall VectorLength(Vec3_0049a120* v);
@@ -238,7 +237,7 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
     int friendlyDamage = 0;
 
     for (int z = z0; z < z1; z++) {
-        Cell* cell = GetMapCell(x0, z);
+        Cell* cell = g_seams.los_radar->GetMapCell(x0, z);
         for (int x = x0; x < x1; x++, cell++) {
             if (!cell)
                 continue;
@@ -328,7 +327,7 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
             if (cell->feature == 0xfffe) {
                 fx -= cell->origin.offsetX;
                 fz -= cell->origin.offsetZ;
-                origin = GetMapCell(fx, fz);
+                origin = g_seams.los_radar->GetMapCell(fx, fz);
             }
             unsigned short feature = origin->feature;
             if (feature >= 0xfffb)

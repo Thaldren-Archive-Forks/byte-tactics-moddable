@@ -280,7 +280,6 @@ void EmptyPostSimStepHook(void);
 void EmptyPostSimStepHook_B(void);
 void EmptyPostSimStepHook_C(void);
 void ExpireOldestMessage(void);
-void ExpireEyeballs(void);
 int __stdcall SetPageFlipping(int enable);
 
 // FUNCTION: 0x493340
@@ -1310,7 +1309,7 @@ void __stdcall RunGameSteps(int showStats)
     EmptyPostSimStepHook_B();
     EmptyPostSimStepHook_C();
     ExpireOldestMessage();
-    ExpireEyeballs();
+    g_seams.los_radar->ExpireEyeballs();
     g_game->profileTimingBars.AccumulateProfileTime(8);
 }
 

@@ -5,11 +5,12 @@ struct Unit;
 struct Vec3;
 struct Callback;
 class CobScript;
+class MovementClass;
 
 // Major version of the units interface, changed when a slot is removed or its signature changes.
 #define UNITS_VERSION_MAJOR 1
 // Minor version of the units interface, changed when a slot is added.
-#define UNITS_VERSION_MINOR 1
+#define UNITS_VERSION_MINOR 2
 
 // Unit simulation.
 struct UnitsSeam {
@@ -25,6 +26,14 @@ struct UnitsSeam {
     int (__stdcall* StartScriptWithArgs)(CobScript* script, char* name, Callback* callback, int update, int count, int a, int b, int c, int d);
     // Sets or clears the bits of a unit's state given by a mask (thiscall in 3.1c, this first). Hooks: none.
     void (__stdcall* SetStateBits)(Unit* unit, int mask, int set);
+    // Returns the 2-bit passability of a cell in a movement class's pass map (thiscall in 3.1c, this first). Hooks: none.
+    int (__stdcall* MovementClassGet)(MovementClass* self, int x, int y);
+    // Returns 1 when a cell is inside a movement class's pass map (thiscall in 3.1c, this first). Hooks: none.
+    int (__stdcall* MovementClassInBounds)(MovementClass* self, unsigned int x, unsigned int y);
+    // Brings a movement class's pass map up to date for the units that moved lately, as seen from a unit (thiscall in 3.1c, this first). Hooks: none.
+    void (__stdcall* RefreshMovedUnits)(MovementClass* self, Unit* unit);
+    // Refreshes a movement class's pass map for a unit when the map changed since the unit was last updated (thiscall in 3.1c, this first). Hooks: none.
+    void (__stdcall* RefreshUnitIfStale)(MovementClass* self, Unit* unit);
 };
 
 #endif

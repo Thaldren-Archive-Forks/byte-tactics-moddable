@@ -307,7 +307,7 @@ void __stdcall RotateByAngles(Vec3* in, Vec3* out, short* angles);
 Vec3f __stdcall VectorFromTo(Vec3f from, Vec3f to);
 Vec3f __stdcall CrossProduct(Vec3f a, Vec3f b);
 Vec3f __stdcall NormalizeVector(Vec3f v);
-Cell* __stdcall GetMapCell(int x, int y);
+#include "../../interfaces/seams.h"
 void __stdcall AddExplosionEffect(Vec3* pos, GafSequence* src, int index, int flag);
 Explosion* __stdcall BuildCalcedExplosion(int n, int from, int to);
 void* __stdcall BuildExplosionFrame(int size);
@@ -949,13 +949,13 @@ unsigned short __stdcall FindFeatureAtPos(Vec3* pos, Point16* cell, Point16* siz
     Point16 c;
     c.x = (short)(pos->x >> 20);
     c.z = (short)(pos->z >> 20);
-    Cell* p = GetMapCell(c.x, c.z);
+    Cell* p = g_seams.los_radar->GetMapCell(c.x, c.z);
     if (p == 0)
         return 0xffff;
     if (p->feature == 0xfffe) {
         c.x -= p->offsetX;
         c.z -= p->offsetY;
-        p = GetMapCell(c.x, c.z);
+        p = g_seams.los_radar->GetMapCell(c.x, c.z);
     }
     if (p->feature >= 0xfffb)
         return 0xffff;
