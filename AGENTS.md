@@ -99,8 +99,19 @@ the gate for the game logic is the matching build:
 uv run tools/checkall.py <every address in the files you touched>   # all MATCH
 ```
 
-Once #3 lands, the gate is identical traces for the scenario suite, and the
-issue gives the command.
+Now that #3 has landed, the gate for a change to game code is identical traces
+for the scenario suite, on both builds:
+
+```sh
+export WINEARCH=win64
+uv run tools/reference.py HEAD --check --game-dir ~/.ta      # the reference
+cmake --build build/modern
+uv run tools/reference.py HEAD --check --exe build/modern/TotalA.exe --game-dir ~/.ta
+```
+
+Each must report every scenario equal. Run the modern one on a fresh prefix
+(remove `build/playtest/prefix` first). `reference/README.md`, "Gate", says
+which changes need it.
 
 **When traces diverge**, the divergence report names the first tick, phase and
 field that differ. Find the smallest part of your change that causes it, and
