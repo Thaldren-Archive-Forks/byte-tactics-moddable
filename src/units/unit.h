@@ -23,7 +23,6 @@ class PathOrderAttach;
 struct Unit {
     int motion;
     union {
-        UnitWeaponSlot weapons[3];
         struct {
             TdfRecord* current;
             int field_8;
@@ -51,17 +50,18 @@ struct Unit {
             unsigned char b56;
             unsigned char f_57;
         };
+        UnitWeaponSlot weapons[3];
     };
     int extraction;
     Order* list;
     Order* list2;
     union {
-        Angles16 angles;
         struct {
             short field_64;
             short heading;
             short pitch;
         };
+        Angles16 angles;
     };
     union {
         Vec3 pos;
@@ -75,8 +75,13 @@ struct Unit {
         };
     };
     Point16 cell;
-    short losCacheCellX;
-    short losCacheCellZ;
+    union {
+        int losCacheCell;
+        struct {
+            short losCacheCellX;
+            short losCacheCellZ;
+        };
+    };
     Point16 footprint;
     int spatialBucket;
     int carrier;
@@ -103,7 +108,6 @@ struct Unit {
         short netDirtyFlags;
     };
     union {
-        UnitResources resourceSlot;
         struct {
             float energy;
             char unknown_c0[20];
@@ -116,6 +120,7 @@ struct Unit {
             char unknown_e8[4];
             Player* owner;
         };
+        UnitResources resourceSlot;
     };
     Unit* attacker;
     unsigned char lastAttackerSlot;
@@ -134,8 +139,13 @@ struct Unit {
         float buildLeft;
     };
     short health;
-    unsigned char team;
-    char unknown_10b[3];
+    union {
+        char unknown_10a[4];
+        struct {
+            unsigned char team;
+            char unknown_10b[3];
+        };
+    };
     unsigned char activateFlags;
     union {
         struct {
@@ -167,6 +177,7 @@ static_assert(offsetof(Unit, weapons) == 0x4, "weapons");
 static_assert(offsetof(Unit, angles) == 0x64, "angles");
 static_assert(offsetof(Unit, pos) == 0x6a, "pos");
 static_assert(offsetof(Unit, netDirtyFlags) == 0xba, "netDirtyFlags");
+static_assert(offsetof(Unit, losCacheCell) == 0x7a, "losCacheCell");
 static_assert(offsetof(Unit, resourceSlot) == 0xbc, "resourceSlot");
 static_assert(offsetof(Unit, owner) == 0xec, "owner");
 static_assert(offsetof(Unit, buildLeft) == 0x104, "buildLeft");
