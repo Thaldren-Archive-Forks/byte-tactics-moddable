@@ -609,8 +609,8 @@ int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* 
 // FUNCTION: 0x47d970
 int __stdcall IsFootprintClear(Unit* obj, int flag)
 {
-    short* pp = &obj->cell.x;                  // x end reads pos.x through the alias
-    Point16* q = &obj->cell;            // y end reads pos.y through this one
+    short* pp = &obj->cell.x;
+    Point16* q = &obj->cell;
     Point16* r = &obj->footprint;
     short xend = pp[0] + obj->footprint.x;
     short yend = q->y + r->y;

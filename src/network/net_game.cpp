@@ -1253,7 +1253,7 @@ struct UnitCreatePacket {
     unsigned char type;                // +0x0
     short defIndex;                    // +0x1
     short unitId;                      // +0x3
-    Vec3 pos;                 // +0x5
+    Vec3 pos;
     Angles16 angles;               // +0x11
 };
 

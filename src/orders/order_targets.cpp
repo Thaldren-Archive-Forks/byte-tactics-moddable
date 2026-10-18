@@ -458,7 +458,7 @@ public:
     };
     PathOrderAttach ref;               // +0x16
     union {
-        Vec3 pos;             // +0x26
+        Vec3 pos;
         struct {
             int pos_x;                 // +0x26, the bit-stream loader's view
             int pos_y;                 // +0x2a
@@ -1728,7 +1728,7 @@ struct Rec_0044dfb0 {
     short f3;                       // +0x20
     short f4;                       // +0x22
     short f5;                       // +0x24
-    Vec3 pos;              // +0x26
+    Vec3 pos;
     int i4;                         // +0x32
 };
 #pragma pack(pop)
