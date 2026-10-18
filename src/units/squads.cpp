@@ -19,15 +19,7 @@ struct PlayerView {
     Squad* squads;                     // +0x78
 };
 
-struct Unit {
-    char unknown_0[0x96];
-    PlayerView* player;                     // +0x96
-    char unknown_9a[0xa6 - 0x9a];
-    short unitDefIndex;                // +0xa6
-    char unknown_a8[0xac - 0xa8];
-    int group;                         // +0xac, the squad index; OrderSquad's `key`
-    char unknown_b0[0x118 - 0xb0];
-};
+#include "unit.h"
 #pragma pack(pop)
 
 class Squad {
@@ -98,9 +90,9 @@ void __stdcall SetUnitSquad(Unit* unit, int index)
 {
     // RemoveFast stays a separate inline helper: a flat body inlines push_back's size() calls too.
     if (unit->group != -1)
-        RemoveFast(unit->player->squads[unit->group].items, unit);
+        RemoveFast(((PlayerView *)unit->player)->squads[unit->group].items, unit);
     if (index != -1)
-        unit->player->squads[index].items.push_back(unit);
+        ((PlayerView *)unit->player)->squads[index].items.push_back(unit);
     unit->group = index;
 }
 
@@ -112,7 +104,7 @@ void __stdcall OrderSquad(PlayerView* owner, int key, unsigned char mode, int re
                             Unit* target, int flags, int param_7, int param_8)
 {
     for (Unit* u = owner->first; u <= owner->last; u++) {
-        if (u->unitDefIndex != 0 && u->group == key) {
+        if (((short)u->unitDefIndex) != 0 && u->group == key) {
             MissionType kind = GetOrderType(mode, u, target, flags);
             AddOrder(kind, remove, u, target, flags, param_7, param_8);
         }

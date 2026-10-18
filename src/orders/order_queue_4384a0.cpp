@@ -41,27 +41,7 @@ struct UnitType {                      // 0x249 bytes
     char unknown_245[0x249 - 0x245];
 };
 
-struct Unit {                          // 0x118 bytes
-    Owner_0043a1f0* motion;            // +0x0
-    char unknown_4[0x5c - 0x4];
-    Order* list;                       // +0x5c
-    Order* list2;                      // +0x60, for children with flag 0x40000
-    char unknown_64[0x86 - 0x64];
-    int carrier;                      // +0x86
-    char unknown_8a[0x92 - 0x8a];
-    UnitType* def;                     // +0x92
-    char unknown_96[0x9a - 0x96];
-    CobScript* script;                 // +0x9a
-    char unknown_9e[0xa8 - 0x9e];
-    unsigned short id;                 // +0xa8
-    char unknown_aa[0xb8 - 0xaa];
-    unsigned short killCount;           // +0xb8
-    char unknown_ba[0x110 - 0xba];
-    unsigned int flags;                // +0x110
-    char unknown_114[0x118 - 0x114];
-
-    void ReleaseWeapons(int param_1);
-};
+#include "../units/unit.h"
 
 struct Entry_0043a1f0 {                // 0x19-byte entries at g_missionOrderTableBegin
     char unknown_0[4];
@@ -331,8 +311,8 @@ void __stdcall AddBeCarriedOrder(Unit* p)
 // FUNCTION: 0x438590
 void __stdcall StartBuildingScript(Unit* obj, Order* target, unsigned short param_3)
 {
-    int index = obj->script->FindScript("StartBuilding");
-    obj->script->StartScriptWithArgsByIndex(index, 0, 0, 1, param_3, 0, 0, 0);
+    int index = ((CobScript *)obj->script)->FindScript("StartBuilding");
+    ((CobScript *)obj->script)->StartScriptWithArgsByIndex(index, 0, 0, 1, param_3, 0, 0, 0);
     SendScriptCall(obj, index, 1, param_3, 0, 0, 0);
     target->flags |= 0x400000;
 }
@@ -341,8 +321,8 @@ void __stdcall StartBuildingScript(Unit* obj, Order* target, unsigned short para
 void __stdcall StopBuildingScript(Unit* obj, Order* target)
 {
     if (target->flags & 0x400000) {
-        int index = obj->script->FindScript("StopBuilding");
-        obj->script->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
+        int index = ((CobScript *)obj->script)->FindScript("StopBuilding");
+        ((CobScript *)obj->script)->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
         target->flags &= ~0x400000;
     }
@@ -351,7 +331,7 @@ void __stdcall StopBuildingScript(Unit* obj, Order* target)
 // FUNCTION: 0x438650
 int __stdcall ComputeReclaimDamagePulse(Unit* a, Unit* b, int n)
 {
-    UnitType* bt = b->def;
+    UnitType* bt = ((UnitType *)b->def);
     float v = bt->metalCost > 10.0f ? bt->metalCost : 10.0f;
     // The 64-bit numerator is built by hand (signed 32-bit chain in lo, zero hi):
     // keeps the multiply order and the unsigned fild qword.
@@ -362,7 +342,7 @@ int __stdcall ComputeReclaimDamagePulse(Unit* a, Unit* b, int n)
             int hi;
         } w;
     } p;
-    p.w.lo = a->def->field_1fe * ((a->killCount + 5) / 5) * (int)bt->maxHealth * n;
+    p.w.lo = ((UnitType *)a->def)->field_1fe * ((a->killCount + 5) / 5) * (int)bt->maxHealth * n;
     p.w.hi = 0;
     int r = (int)((double)p.q / (v * 300.0f));
     if (r <= 1) {
@@ -480,15 +460,15 @@ void Order::ReattachFxToUnit()
 // FUNCTION: 0x4388d0
 void Order::SetAttachedFx(OrderFx* obj)
 {
-    if (unit->motion) {
+    if (((Owner_0043a1f0 *)unit->motion)) {
         if (attached) {
-            unit->motion->slot->Attach(0);
+            ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
             delete attached;
             attached = 0;
         }
         if (obj) {
             subFlags &= ~0x3e0;
-            unit->motion->slot->Attach(obj);
+            ((Owner_0043a1f0 *)unit->motion)->slot->Attach(obj);
             attached = obj;
         }
     }
@@ -500,23 +480,23 @@ void Order::SetAttachedFx(OrderFx* obj)
 // FUNCTION: 0x438930
 void Order::AttachApproachRadiusGoal(int* p, int n)
 {
-    if ((unit->def->flags32 & 0x800) == 0) {
+    if ((((UnitType *)unit->def)->flags32 & 0x800) == 0) {
         ApproachRadius* obj = new (kSim) ApproachRadius((Source_0044cf60*)this, p[0], p[2], n);
-        if (unit->motion) {
+        if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
-                unit->motion->slot->Attach(0);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
                 delete attached;
                 attached = 0;
             }
             if (obj) {
                 subFlags &= ~0x3e0;
-                unit->motion->slot->Attach(obj);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(obj);
                 attached = obj;
             }
         }
     } else {
-        if (unit->motion && attached) {
-            unit->motion->slot->Attach(0);
+        if (((Owner_0043a1f0 *)unit->motion) && attached) {
+            ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
             delete attached;
             attached = 0;
         }
@@ -526,24 +506,24 @@ void Order::AttachApproachRadiusGoal(int* p, int n)
 // FUNCTION: 0x438a00
 void Order::AttachRingApproachGoal(Vec3_0043a1f0* pos, int radius1, int radius2)
 {
-    if (!(unit->def->flags32 & 0x800)) {
+    if (!(((UnitType *)unit->def)->flags32 & 0x800)) {
         RingApproach* obj = new (kSim) RingApproach(this, pos->x, pos->z, radius1, radius2);
-        if (unit->motion) {
+        if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
-                unit->motion->slot->Attach(0);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
                 delete attached;
                 attached = 0;
             }
             if (obj) {
                 subFlags &= ~0x3e0;
-                unit->motion->slot->Attach(obj);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(obj);
                 attached = obj;
             }
         }
     } else {
-        if (unit->motion) {
+        if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
-                unit->motion->slot->Attach(0);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
                 delete attached;
                 attached = 0;
             }
@@ -554,24 +534,24 @@ void Order::AttachRingApproachGoal(Vec3_0043a1f0* pos, int radius1, int radius2)
 // FUNCTION: 0x438ad0
 void Order::AttachBuildFootprintMarker(Point16 cell, Point16 size)
 {
-    if (!(unit->def->flags32 & 0x800)) {
+    if (!(((UnitType *)unit->def)->flags32 & 0x800)) {
         PointMarker* obj = new (kSim) PointMarker(this, cell, size);
-        if (unit->motion) {
+        if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
-                unit->motion->slot->Attach(0);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
                 delete attached;
                 attached = 0;
             }
             if (obj) {
                 subFlags &= ~0x3e0;
-                unit->motion->slot->Attach(obj);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(obj);
                 attached = obj;
             }
         }
     } else {
-        if (unit->motion) {
+        if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
-                unit->motion->slot->Attach(0);
+                ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
                 delete attached;
                 attached = 0;
             }
@@ -615,13 +595,13 @@ Order::~Order()
     }
     if (flags & 0x400000) {
         Unit* obj = unit;
-        int index = obj->script->FindScript("StopBuilding");
-        obj->script->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
+        int index = ((CobScript *)obj->script)->FindScript("StopBuilding");
+        ((CobScript *)obj->script)->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
         flags &= ~0x400000;
     }
-    if (unit->motion != 0) {
-        Slot_0043a1f0* slot = unit->motion->slot;
+    if (((Owner_0043a1f0 *)unit->motion) != 0) {
+        Slot_0043a1f0* slot = ((Owner_0043a1f0 *)unit->motion)->slot;
         if (slot->current != 0 && slot->current == attached) {
             if (attached != 0) {
                 slot->Attach(0);
