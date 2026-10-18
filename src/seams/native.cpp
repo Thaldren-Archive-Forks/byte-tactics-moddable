@@ -4,6 +4,8 @@
 #include "../game/unit_resources.h"
 #include "../units/cob_script.h"
 #include "../util/vec3.h"
+#include "../map/mission.h"
+#include "../units/unit.h"
 
 struct Player;
 
@@ -40,16 +42,6 @@ struct Vec;
 struct UnitDef;
 struct WeaponDef;
 struct Callback;
-
-struct Unit {
-    unsigned char ChooseWeapon();
-    void SetStateBits(int mask, int set);
-};
-
-class Mission {
-public:
-    int GetGameType();
-};
 
 float __stdcall GetEnergyUse(UnitDef* def);
 void __stdcall UpdatePlayerEconomy(Player* p);
