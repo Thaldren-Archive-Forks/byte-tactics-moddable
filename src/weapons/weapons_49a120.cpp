@@ -389,5 +389,5 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
     }
 
     if (weapon->attacker)
-        weapon->attacker->player->object->MarkOwnerNetDirtyFromDamageSplit(weapon, enemyDamage, friendlyDamage);
+        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(weapon->attacker->player->object, 0, (void*)weapon, enemyDamage, friendlyDamage);
 }

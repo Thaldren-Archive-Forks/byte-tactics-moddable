@@ -523,7 +523,7 @@ void UnitScript::ExplodePiece(int a, unsigned int b)
     }
     if (b & 0x3f00) {
         Vec3 v;
-        v = GetPiecePosition(state->unit, a);
+        v = g_seams.units->GetPiecePosition(state->unit, a);
         if (b & 0x100)
             AddExplosionEffect(&v, g_game->sources[0], 2, 0);
         if (b & 0x200)

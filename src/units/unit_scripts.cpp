@@ -307,6 +307,8 @@ Angles16 __stdcall GetPieceAngles(Obj_0043e180* obj, int index)
     return p;
 }
 
+#include "../../interfaces/seams.h"
+
 // Asks the unit's script which piece the weapon (0..2) aims from
 // ("QueryPrimary", "QuerySecondary", "QueryTertiary") and returns it.
 // FUNCTION: 0x43e1e0
@@ -314,7 +316,7 @@ int __stdcall QueryWeaponPiece(Object* obj, unsigned char weapon)
 {
     char* names[3] = { "QueryPrimary", "QuerySecondary", "QueryTertiary" };
     int piece = 0;
-    obj->script->QueryScript(names[weapon], &piece, 0, 0, 0);
+    g_seams.units->QueryScript(obj->script, names[weapon], &piece, 0, 0, 0);
     return piece;
 }
 
@@ -326,7 +328,7 @@ void __stdcall GetWeaponPiecePosition(Object* obj, Vec3* out, unsigned char weap
 {
     if (piece < 0)
         piece = QueryWeaponPiece(obj, weapon);
-    *out = obj->pos + GetPieceOffset((Object_0043def0*)obj, piece);
+    *out = obj->pos + g_seams.units->GetPieceOffset((Unit*)obj, piece);
 }
 
 // Returns the world position of a weapon's aim piece: it first asks the
@@ -489,9 +491,6 @@ struct Feature_0043e490 {
 };
 #pragma pack(pop)
 
-#include "../../interfaces/seams.h"
-int __stdcall WeaponCanReachPos(Unit_0043e490* unit, void* slot, Pos_0043e490* pos, int which);
-int __stdcall WeaponCanReachUnit(Unit_0043e490* unit, Unit_0043e490* target, int which);
 
 // The same test as IsPointVisible: is the map square under pos in sight of the
 // local player? The width is read again through unit->player for the index;
@@ -576,8 +575,8 @@ int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e
             if (unit->motion)
                 return 1;
             if (target)
-                return WeaponCanReachUnit(unit, target, 0) ? 1 : 3;
-            if (!WeaponCanReachPos(unit, unit->f6a, pos, 0) || (node->f111 & 0x20000))
+                return g_seams.weapons->WeaponCanReachUnit((Unit*)unit, (Unit*)target, 0) ? 1 : 3;
+            if (!g_seams.weapons->WeaponCanReachPos((Unit*)unit, (Vec3*)unit->f6a, (Vec3*)pos, 0) || (node->f111 & 0x20000))
                 return 3;
             return 1;
         }

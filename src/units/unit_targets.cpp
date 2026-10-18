@@ -485,9 +485,7 @@ extern char s_paralyze_00508d80[];
 extern char s_HitByWeapon_00508d74[];
 extern char s_TakeDamage_00508d68[];
 
-void __stdcall AppendOrder(Unit* owner, Order* node);
-void __stdcall MarkRecentlyDamaged(Unit* unit);
-void __stdcall ReactToAttack(Unit* target, Unit* attacker, int amount);
+#include "../../interfaces/seams.h"
 void __stdcall AddCdActivitySample(int flag);
 int __cdecl FUN_004b7123(unsigned short idx, int scale);
 int __cdecl FUN_004b70ef(short idx, int scale);
@@ -522,10 +520,10 @@ void __stdcall ApplyUnitDamage(UnitDamagePacket* ev)
         return;
     }
 
-    MarkRecentlyDamaged(unit);
+    g_seams.units->MarkRecentlyDamaged(unit);
 
     if (ev->damageKind != 11)
-        ReactToAttack(target, unit, ev->amount);
+        g_seams.ai->ReactToAttack(target, unit, ev->amount);
 
     unit->lastDamageType = ev->damageKind;
 
@@ -550,7 +548,7 @@ void __stdcall ApplyUnitDamage(UnitDamagePacket* ev)
                             e->ticks += ticks;
                             return;
                         }
-                        AppendOrder(unit, new Order(kind, 0, 0, ticks, 0, 0));
+                        g_seams.orders->AppendOrder(unit, (Order*)new Order(kind, 0, 0, ticks, 0, 0));
                         return;
                     }
                 }
@@ -568,13 +566,13 @@ void __stdcall ApplyUnitDamage(UnitDamagePacket* ev)
         if (ev->damageKind == 1) {
             int a = FUN_004b7123(ev->headingByte << 8, 400);
             int b = FUN_004b70ef(ev->headingByte << 8, 400);
-            unit->script->StartScriptWithArgs(s_HitByWeapon_00508d74, 0, 0, 2, a, b, 0, 0);
+            g_seams.units->StartScriptWithArgs(unit->script, s_HitByWeapon_00508d74, 0, 0, 2, a, b, 0, 0);
             int pct = unit->health * 100 / unit->def->maxhp;
             if (pct < 0)
                 pct = 0;
             if (pct > 100)
                 pct = 100;
-            unit->script->StartScriptWithArgs(s_TakeDamage_00508d68, 0, 0, 1, pct, 0, 0, 0);
+            g_seams.units->StartScriptWithArgs(unit->script, s_TakeDamage_00508d68, 0, 0, 1, pct, 0, 0, 0);
         }
     }
 }
@@ -603,7 +601,7 @@ void __stdcall ParalyzeUnit(Unit* unit, int ticks)
                 effect->ticks += ticks;
                 return;
             }
-            AppendOrder(unit, new Order(kind, 0, 0, ticks, 0, 0));
+            g_seams.orders->AppendOrder(unit, (Order*)new Order(kind, 0, 0, ticks, 0, 0));
         }
     }
 }
@@ -631,8 +629,6 @@ void __stdcall SetWeaponTargetPos(char* param_1, int* param_2, int param_3)
     }
     *(unsigned short*)(param_1 + 0xba) &= 0x83ff;
 }
-
-#include "../../interfaces/seams.h"
 
 // Clears target entry `index` (the same reset as ResetWeaponTarget) unless it is
 // already clear, then tells the unit's script "StartBuilding" and
