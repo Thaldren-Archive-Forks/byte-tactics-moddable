@@ -92,26 +92,22 @@ and let the maintainer decide (`docs/team.md`), rather than working around it.
 
 ## 4. Pass the gate
 
-Run every check the issue names. Until #3 lands there are no traces yet, and
-the gate for the game logic is the matching build:
-
-```sh
-uv run tools/checkall.py <every address in the files you touched>   # all MATCH
-```
-
-Now that #3 has landed, the gate for a change to game code is identical traces
-for the scenario suite, on both builds:
+Run every check the issue names. The gate for a change to game code is
+identical traces for the scenario suite, on both builds:
 
 ```sh
 export WINEARCH=win64
 uv run tools/reference.py HEAD --check --game-dir ~/.ta      # the reference
+cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake   # once
 cmake --build build/modern
 uv run tools/reference.py HEAD --check --exe build/modern/TotalA.exe --game-dir ~/.ta
 ```
 
-Each must report every scenario equal. Run the modern one on a fresh prefix
-(remove `build/playtest/prefix` first). `reference/README.md`, "Gate", says
-which changes need it.
+Each must report every scenario equal. The reference check also runs checkall
+on the build, and its "not allowlisted, changed: none" line must hold: every
+function outside `reference/changed.txt` still matches 3.1c. Run the modern
+check on a fresh prefix (remove `build/playtest/prefix` first).
+`reference/README.md`, "Gate", says which changes need the gate.
 
 **When traces diverge**, the divergence report names the first tick, phase and
 field that differ. Find the smallest part of your change that causes it, and

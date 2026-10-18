@@ -294,6 +294,7 @@ fpu_control_word 0x<hex>
 export WINEARCH=win64
 uv run tools/reference.py <ref> --traces     # build <ref>, play the suite, write reference/traces/
 uv run tools/reference.py HEAD --check       # the gate: build HEAD, play the suite, compare
+cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake   # once
 cmake --build build/modern
 uv run tools/reference.py HEAD --check --exe build/modern/TotalA.exe   # the modern build's gate
 ```
