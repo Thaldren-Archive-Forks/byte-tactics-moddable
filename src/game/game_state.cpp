@@ -461,7 +461,7 @@ void ReopenCdAudio()
         if (*slot != id) {
             slot = (int*)((char*)slot + 0x88);
             index++;
-            if ((int)slot < (int)&g_savegameSideList)
+            if ((int)slot < (int)&g_cdListsDiscEntries + 0x20 + (int)sizeof(g_cdListsDiscEntries))
                 continue;
             goto newdisc;
         }

@@ -38,11 +38,46 @@ moddable one:
 
 ## Status
 
-The plan is set and the work has not started: the source in `src/` is still
-the matching decompilation. The plan, its decisions and its order are in
+The groundwork is done. A test harness records reference traces from the
+original compiler's build, the CRT and maths are bit-exact, and the source
+builds with a modern compiler, with all 27 test scenarios matching the
+reference. The game state and the coupling between subsystems are mapped.
+
+Work is now splitting the engine into subsystems. Wind and meteors, economy,
+features and targeting are now called through their own interfaces (seams);
+the rest of the seams, the shared
+state block, quirk flags and the host interface are in progress. Nothing runs
+as WebAssembly yet.
+
+The plan, its decisions and its order are in
 [issue #2](https://github.com/ozgb/byte-tactics-moddable/issues/2), with one
 sub-issue per step. The mod-support design it builds on is
 [issue #1](https://github.com/ozgb/byte-tactics-moddable/issues/1).
+
+## Roadmap
+
+1. **A moddable engine in WebAssembly**
+   ([#2](https://github.com/ozgb/byte-tactics-moddable/issues/2)). Every
+   game-logic subsystem becomes a WASM module with 3.1c as the default, the
+   whole game runs on native and browser hosts, and mods load as resolved
+   mod sets. Open Annihilation's standard hacks are rebuilt here
+   ([#45](https://github.com/ozgb/byte-tactics-moddable/issues/45)) and its
+   `oamod.yaml` files are imported
+   ([#39](https://github.com/ozgb/byte-tactics-moddable/issues/39)), so the
+   well-known TA mods run on this engine. When this is done, the idea is
+   proven. Releases are source only, because the build is still compiled from
+   the decompilation.
+2. **A clean-room engine that can ship as a binary**
+   ([#180](https://github.com/ozgb/byte-tactics-moddable/issues/180)). Every
+   part of the source is re-implemented from behavioural specs, in a separate
+   repository, by people and agents who have never seen the decompiled code.
+   The conformity traces from step 1 judge it, and with no decompiled code and
+   no MSVC runtime left, the game can be released as a binary.
+3. **Lobbies and mod sharing.** A lobby system where players host and join
+   games, get the mods a game needs from each other or from a shared index,
+   and play together. Step 1 already gives each game a hashed mod set that
+   every player must match; this step builds hosting, discovery and mod
+   downloads on top of it.
 
 ## How it fits together
 

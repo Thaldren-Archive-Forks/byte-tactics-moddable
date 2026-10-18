@@ -599,13 +599,13 @@ def piece_priority(piece: DataPiece, from_source: bool) -> int:
 
 
 def name_data_sections(data: bytes, keep: set[int], drop: set[int],
-                       pieces: dict[str, dict[int, int]]) -> bytes:
+                       pieces: dict[str, dict[int, int]], ordered: bool = True) -> bytes:
     """The object with the pieces in keep in sections named `<kind>$<address>`
     (LINK sorts the parts of a grouped section by the name after the `$`,
     which lays the game's data out in the original's order), and the pieces
     in drop, other definitions of an address, made undefined so that the
     bridge points their callers at the one definition. pieces[kind][address]
-    collects the sizes."""
+    collects the sizes. Unless ordered, the pieces in keep keep their sections."""
     chars, secs, syms = read(data)
     for index, sym in enumerate(syms):
         if index not in keep and index not in drop:
@@ -615,6 +615,8 @@ def name_data_sections(data: bytes, keep: set[int], drop: set[int],
             sec.chars |= IMAGE_SCN_LNK_REMOVE
             sec.chars &= ~IMAGE_SCN_LNK_COMDAT
             sym.section, sym.value = 0, 0
+            continue
+        if not ordered:
             continue
         addr = address_of(sym.name, SYMBOLS_FOR_NAMING)
         kind = data_kind(sec)
@@ -704,10 +706,12 @@ def drop_initialisers(data: bytes) -> bytes:
 
 
 def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
-                  source_of=None) -> list[Path]:
+                  source_of=None, ordered: bool = True) -> list[Path]:
     """Copies of the objects under out_dir (named for their position) with
     interior globals pointed at their containers; the unchanged ones are
-    copied too, so the link takes one directory."""
+    copied too, so the link takes one directory. Unless ordered, the data is
+    not laid out in the original's order (no `<kind>$<address>` sections, no
+    layout.obj)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     statics = static_names(symbols)
     for leaf, addr in statics.items():
@@ -774,12 +778,13 @@ def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
         drop = {sym for addr, options in candidates.items() for option in options
                 for _, who, sym in [option] if who == n and option != chosen[addr]}
         if keep or drop:
-            target.write_bytes(name_data_sections(target.read_bytes(), keep, drop, pieces))
-    overlaps = layout_filler(pieces, out_dir / "layout.obj")
-    result.append(out_dir / "layout.obj")
-    ordered = sum(len(found) for found in pieces.values())
-    print(f"aliases: {ordered:,} globals ordered as in the original, {overlaps} larger than the space "
-          f"the original left", file=sys.stderr)
+            target.write_bytes(name_data_sections(target.read_bytes(), keep, drop, pieces, ordered))
+    if ordered:
+        overlaps = layout_filler(pieces, out_dir / "layout.obj")
+        result.append(out_dir / "layout.obj")
+        placed = sum(len(found) for found in pieces.values())
+        print(f"aliases: {placed:,} globals ordered as in the original, {overlaps} larger than the space "
+              f"the original left", file=sys.stderr)
     print(f"aliases: {len(interior)} interior globals pointed at their containers in {patched} objects; "
           f"initialisers kept in {kept} files, dropped from {dropped}", file=sys.stderr)
     return result
@@ -1336,6 +1341,8 @@ def main() -> None:
                          "--objects is ignored")
     ap.add_argument("--winmain", type=lambda v: int(v, 0), default=None,
                     help="alias _WinMain@16 to the function at this address")
+    ap.add_argument("--no-data-order", action="store_true",
+                    help="with --patch-dir: do not lay the data out in the original's order")
     args = ap.parse_args()
     if args.import_def is not None:
         names = sorted(n[len("__imp_"):] for n in archive_symbols(args.import_def) if n.startswith("__imp_"))
@@ -1361,7 +1368,7 @@ def main() -> None:
             source = ROOT / Path(*parts[parts.index("src"):]).with_suffix("")
             return source if source.suffix == ".cpp" and source.exists() else None
 
-        objects = patch_objects(objects, symbols, args.patch_dir, source_of)
+        objects = patch_objects(objects, symbols, args.patch_dir, source_of, not args.no_data_order)
         (args.patch_dir / "objects.rsp").write_text("\n".join(str(o) for o in objects) + "\n")
     libs: dict[str, str] = {}
     for lib in args.libs:
