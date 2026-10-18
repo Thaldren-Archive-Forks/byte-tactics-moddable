@@ -136,6 +136,14 @@ void PlayerAI::RefreshUnitLists()
         }
     }
     if(sum.total!=0.0f) { sum.x/=sum.total; sum.y/=sum.total; sum.z/=sum.total; }
+#ifdef __clang__
+    {
+        volatile float roundedCentre[3]={sum.x,sum.y,sum.z};
+        sum.x=roundedCentre[0];
+        sum.y=roundedCentre[1];
+        sum.z=roundedCentre[2];
+    }
+#endif
     int ix=(int)(sum.x*65536.0);
     int iy=(int)(sum.y*65536.0);
     int iz=(int)(sum.z*65536.0);
