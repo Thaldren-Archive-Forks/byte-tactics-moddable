@@ -2,6 +2,7 @@
 // Stays in its own file: in unit_orders.cpp the feature pointer is added up in the other operand order and lstrcpynA is called directly instead of through the import.
 #include <windows.h>
 
+#include "../state/block.h"
 #include "box.h"
 
 #include "../util/angles.h"
@@ -243,7 +244,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         QueueUnitSpeech(unit, 8, "Resurrection complete");
         MissionType kind = GetOrderType(8, unit, order->target.owner, 0);
         if (kind.index)
-            AppendOrder(unit, new Order(kind, order->target.owner, 0, 0, 0, 0));
+            AppendOrder(unit, new (kSim) Order(kind, order->target.owner, 0, 0, 0, 0));
         return 5;
     }
     default:

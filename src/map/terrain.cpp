@@ -23,6 +23,7 @@
 // <vector> and <shlobj.h> stay for their symbol ids too: without them the
 // register allocation of the grid visitors and of 0x47db70 changes.
 #include <windows.h>
+#include "../state/block.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -1121,7 +1122,8 @@ void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& v
     }
 }
 
-void* __cdecl operator new(unsigned int size);
+#include "../../interfaces/seams.h"
+
 void __cdecl operator delete(void* p);
 
 int __stdcall RandomInt(int range);
@@ -1132,8 +1134,8 @@ int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* center, Fixed radius,
     int countB = 0;
     int countA = 0;
     int max = radius.p.hi * radius.p.hi / 256;
-    Entry_0047ea40* a = (Entry_0047ea40*)operator new(max * sizeof(Entry_0047ea40));
-    Entry_0047ea40* b = (Entry_0047ea40*)operator new(max * sizeof(Entry_0047ea40));
+    Entry_0047ea40* a = (Entry_0047ea40*)SimAlloc(max * sizeof(Entry_0047ea40));
+    Entry_0047ea40* b = (Entry_0047ea40*)SimAlloc(max * sizeof(Entry_0047ea40));
     int half = radius.value / 2;
     Vec3 pos;
     for (pos.z = center->z - half; pos.z <= center->z + half; pos.z += 0x300000) {

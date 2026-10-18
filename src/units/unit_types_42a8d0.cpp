@@ -8,6 +8,7 @@
 // This header set (with ta_types.h in its own namespace) must stay as is: it
 // sets symbol ids that fix several base/index operand orders.
 #include <windows.h>
+#include "../state/block.h"
 #include <ddraw.h>
 #include <dsound.h>
 #include <dplay.h>
@@ -220,7 +221,7 @@ static inline void LoadWeaponTDFs()
     if (files.size() == 0)
         return;
     s_weaponTdfAllocCount = files.size();
-    s_weaponTdfParsers = new TdfFile[s_weaponTdfAllocCount];
+    s_weaponTdfParsers = new (kSim) TdfFile[s_weaponTdfAllocCount];
     for (Elem_00432be0* it = files.begin(); it < files.end(); it++) {
         char path[256];
         TdfFile* tdf = &s_weaponTdfParsers[s_weaponTdfLoadedCount];
@@ -267,7 +268,7 @@ int LoadUnitInfo()
     int count = files.size() + 1;
     g_game->unitDefCount = count;
     int size = count * sizeof(UnitDef);
-    g_game->unitDefs = (UnitDef*)GameAllocIgnoreTag("UNITINFO", size);
+    g_game->unitDefs = (UnitDef*)SimAllocTagged("UNITINFO", size);
     memset(g_game->unitDefs, 0, size);
     strcpy(g_game->unitDefs->unitname, "None");
     g_game->unitDefs->flags1 |= 0x800000;

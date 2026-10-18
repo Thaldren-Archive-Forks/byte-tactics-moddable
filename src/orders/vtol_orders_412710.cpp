@@ -19,6 +19,7 @@ struct Vec3 {
     Vec3 operator+(const Vec3& v) const { Vec3 r = *this; r += v; return r; }
 };
 
+#include "../state/block.h"
 #include "mission_type.h"
 
 struct Unit;
@@ -159,7 +160,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
         order->flags |= flags | 0xe0;
@@ -180,12 +181,12 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
     int speed = GetSpeed(unit);
     if (flags & 0x1000a) {
         if (order->next == 0 && (unit->flags & 0x300000))
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", (int)order->target, &order->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", (int)order->target, &order->pos, 0, 0, 0));
         return 5;
     }
     if (order->target == 0 && (order->flags_42 & 0x200)) {
         if (order->next == 0)
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
         return 5;
     }
     if (order->target)
@@ -212,7 +213,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
         int angle = GetHeadingBetween(&unit->pos, &order->pos);
         Vec3 off = Offset(RandomInt(0x4000) + angle - 0x2000, dist / 2);
         Vec3 p = unit->pos + off;
-        Class_0044e2d0* obj = new Class_0044e2d0(order, p);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
         ((Class_0044e730*)obj)->SetApproachRadius(0x80);
         order->SetAttachedFx((int)obj);
         order->flags = 0x100e8;
@@ -224,7 +225,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
             g_seams.targeting->SetWeaponTargetUnit(unit, order->target, 0);
         else
             g_seams.targeting->SetWeaponTargetPos(unit, &order->pos, 0);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, order->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
         ((Class_0044e730*)obj)->SetApproachRadius(speed);
         order->SetAttachedFx((int)obj);
         order->flags = 0x100e8;
@@ -234,7 +235,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
         short angle = FUN_004b715a(unit->pos.x - order->pos.x, unit->pos.z - order->pos.z);
         Vec3 off = Offset(angle, speed * 0x30000);
         Vec3 p = order->pos + off;
-        Class_0044e2d0* obj = new Class_0044e2d0(order, p);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
         ((Class_0044e730*)obj)->SetApproachRadius(RandomInt(0x80) + 0x80);
         order->SetAttachedFx((int)obj);
         order->flags = 0x100ea;
@@ -247,7 +248,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];
-                AppendOrder(unit, new Order("VTOL_LANDING", (int)target, 0, 0, 0, 0));
+                AppendOrder(unit, new (kSim) Order("VTOL_LANDING", (int)target, 0, 0, 0, 0));
                 order->flags = 0;
                 return 0;
             }
@@ -259,7 +260,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
         sum.y = unit->pos.y + off.y;
         sum.z = unit->pos.z + off.z;
         Vec3 p = sum;
-        Class_0044e2d0* obj = new Class_0044e2d0(order, p);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
         ((Class_0044e730*)obj)->SetApproachRadius(0x80);
         order->SetAttachedFx((int)obj);
         order->flags = 0x100ea;

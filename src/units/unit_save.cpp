@@ -1,6 +1,7 @@
 // Decompiled by space-bunny-free, DeepSeek V4.1 Flash, GPT-6, GPT-6.1-sol, deepseek-v4.1, claude-sonnet-5-5, claude-opus-5-5, Space Bunny Free and Haiku. Names are provisional.
 
 #include <stdio.h>
+#include "../state/block.h"
 #include <string.h>
 #include <stdlib.h>
 // Must stay, though unused: LoadUnit's flag chain registers depend on it.
@@ -335,7 +336,7 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
     if (rec.f23 > 0) {
         do {
             sprintf(name, "u%04xm%04x", unit->id, k);
-            Order* p = new Order(unit, file, name);
+            Order* p = new (kSim) Order(unit, file, name);
             if (p->flags_42 & 0x40000) {
                 *special = p;
                 special = &p->next;

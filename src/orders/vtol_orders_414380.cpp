@@ -4,6 +4,8 @@
 // Kept: the operand order of the six bounds adds follows symbol ids, so this
 // header set matters.
 #include <memory.h>
+#include "../state/block.h"
+#include "../state/block.h"
 #include <windows.h>
 struct Point { short x, y; };
 // Kept local, not util/vec3.h: the header changes this function's code.
@@ -149,7 +151,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
                 unit->SetStateBits(1,1);
                 if ((unit->motion->flags&3)==1) {
                     unit->motion->SetFlightMode(unit,2);
-                    Class_0044e2d0* move=new Class_0044e2d0(order,unit->pos);
+                    Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
                     order->SetAttachedFx((int)move);
                     order->flags|=0xe0;
@@ -160,7 +162,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
         break;
     case 1: {
         order->retries=0;
-        Class_0044e2d0* move=new Class_0044e2d0(order,order->target.Get()->pos);
+        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,order->target.Get()->pos);
         ((Class_0044e730*)move)->SetApproachRadius(unit->def->buildRange);
         order->SetAttachedFx((int)move);
         order->flags=0xe0;
@@ -178,7 +180,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
             Vec3 pos=order->target.Get()->pos-Offset(angle,range);
-            Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+            Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e720*)move)->SetHeading((unsigned short)angle);
             order->SetAttachedFx((int)move);
         }

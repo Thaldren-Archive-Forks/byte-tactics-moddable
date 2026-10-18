@@ -3,6 +3,7 @@
 // compiler state: without it the energy + metal sum loads metal first.
 #include <stdio.h>
 
+#include "../state/block.h"
 #include "box.h"
 
 struct Unit;
@@ -96,7 +97,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
         order->flags |= flags | 0xe0;
@@ -129,7 +130,7 @@ int __stdcall VtolReclaimOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1: {
-        Class_0044e2d0* obj = new Class_0044e2d0(order, order->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
         order->SetAttachedFx((int)obj);
         order->flags = 0xe0;
         return 1;

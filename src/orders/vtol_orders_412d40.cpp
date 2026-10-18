@@ -9,6 +9,7 @@
 // it queues VTOL_EVADE.
 #include <math.h>
 
+#include "../state/block.h"
 #include "../util/vec3.h"
 
 // The whole part (high 16 bits) of a 16.16 coordinate.
@@ -137,7 +138,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
         order->flags |= flags | 0xe0;
@@ -161,12 +162,12 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
 {
     if (flags & 0x10008) {
         if (order->next == 0 && (unit->flags & 0x300000))
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", (int)order->target, &order->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", (int)order->target, &order->pos, 0, 0, 0));
         return 5;
     }
     if (order->target == 0 && (order->flags_42 & 0x200)) {
         if (order->next == 0)
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
         return 5;
     }
     if (unit->spatialBucket == g_game->overflowBucket) {
@@ -175,7 +176,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
         centre.z = g_game->height / 2 << 16;
         short angle = GetHeadingBetween(&unit->pos, &centre);
         Vec3 dest = AddVec3(unit->pos, Offset(angle, 0x3200000));
-        Class_0044e2d0* obj = new Class_0044e2d0(order, dest);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         obj->SetApproachRadius(0x80);
         order->flags |= 0xe0;
         order->SetAttachedFx((int)obj);
@@ -201,7 +202,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
             if (IsAhead(unit, order)) {
                 Vec3 from = Add(unit->pos, Offset(unit->heading, unit->def->maxvelocity * 30));
                 Vec3 to = Offset(unit->heading, unit->def->maxvelocity);
-                AirManeuverOrder* obj = new AirManeuverOrder(order, from, to);
+                AirManeuverOrder* obj = new (kSim) AirManeuverOrder(order, from, to);
                 obj->SetAltitude(unit->def->altitude);
                 order->SetAttachedFx((int)obj);
                 order->SetDeadlineTicks(RandomInt(0x1e) + 0x3c);
@@ -220,7 +221,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
                 Vec3 p = order->target->pos;
                 p.x += order->target->motion->velocity.x * 45;
                 p.z += order->target->motion->velocity.z * 45;
-                order->SetAttachedFx((int)new AirManeuverOrder(order, p,
+                order->SetAttachedFx((int)new (kSim) AirManeuverOrder(order, p,
                     Sum(order->target->motion->velocity, Offset(order->target->heading, order->target->def->maxvelocity / 2))));
             }
             order->SetDeadlineTicks(0x2d);
@@ -228,7 +229,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
             return 2;
         }
         order->SetAttachedFx(0);
-        AppendOrder(unit, new Order("VTOL_EVADE", (int)order->target, 0, 0, 0, 0));
+        AppendOrder(unit, new (kSim) Order("VTOL_EVADE", (int)order->target, 0, 0, 0, 0));
         order->ticks = 0;
         order->flags = 0;
         return 0;

@@ -4,6 +4,7 @@
 // guarded unit's own build or reclaim order (as the VTOL_ variant of that
 // order). The ground twin is 0x406300.
 #include <stdio.h>
+#include "../state/block.h"
 #include "../util/vec3.h"
 static inline Vec3 operator+(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 struct Unit;
@@ -83,7 +84,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             center.z=(g_game->height/2)<<16;
             short angle=GetHeadingBetween(&unit->pos,&center);
             Vec3 pos=AddVec3(unit->pos,Direction(angle,0x3200000));
-            Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+            Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
             order->flags|=0xe0;
             order->SetAttachedFx((int)move);
@@ -101,7 +102,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                 unit->SetStateBits(1,1);
                 if ((unit->motion->flags&3)==1) {
                     unit->motion->SetFlightMode(unit,2);
-                    Class_0044e2d0* move=new Class_0044e2d0(order,unit->pos);
+                    Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     move->SetAltitude(unit->def->altitude/2);
                     order->SetAttachedFx((int)move);
                     order->flags|=0xe0;
@@ -144,7 +145,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                 MissionType kind=GetOrderType(8,unit,order->target,0);
                 if (kind.index) {
                     order->SetAttachedFx(0);
-                    AppendOrder(unit,new Order(kind,order->target,0,0,0,0));
+                    AppendOrder(unit,new (kSim) Order(kind,order->target,0,0,0,0));
                     order->flags=0; return 3;
                 }
             }
@@ -166,13 +167,13 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                     if (kind=="RECLAIMUNIT") kind=MissionType("VTOL_RECLAIMUNIT");
                     if (kind=="HELPBUILD") kind=MissionType("VTOL_HELPBUILD");
                     order->SetAttachedFx(0);
-                    AppendOrder(unit,new Order(kind,OrderTarget(order)->list->target,&order->target->list->pos,0,0,0));
+                    AppendOrder(unit,new (kSim) Order(kind,OrderTarget(order)->list->target,&order->target->list->pos,0,0,0));
                     order->flags=0; return 3;
                 }
                 if (building && order->target->list->target) {
                     order->SetAttachedFx(0);
                     kind=MissionType("VTOL_HelpBuild");
-                    AppendOrder(unit,new Order(kind,OrderTarget(order)->list->target,&order->target->list->pos,0,0,0));
+                    AppendOrder(unit,new (kSim) Order(kind,OrderTarget(order)->list->target,&order->target->list->pos,0,0,0));
                     order->flags=0; return 3;
                 }
             }
@@ -182,7 +183,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             if ((unsigned char)(unit->flags>>31)&1)
                 pos=order->target->pos+Offset(angle,(unit->weapons[0].def->range+160)<<16);
             else pos=order->target->pos+Offset(angle,0x1400000);
-            Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+            Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
             order->SetAttachedFx((int)move);
             order->SetDeadlineTicks(30);
@@ -192,6 +193,6 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
         }
         return 7;
     }
-    if (!order->next) AppendOrderToTail(unit,new Order("VTOL_SEEKGUARD",order->target,&order->pos,0,0,0));
+    if (!order->next) AppendOrderToTail(unit,new (kSim) Order("VTOL_SEEKGUARD",order->target,&order->pos,0,0,0));
     return 5;
 }

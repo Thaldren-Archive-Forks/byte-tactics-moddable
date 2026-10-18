@@ -6,6 +6,7 @@
 // virtual destructor (the vtable holds its scalar deleting destructor).
 
 #include <string.h>
+#include "../state/block.h"
 #include <stdlib.h>
 
 // The compiled COB script of a unit type.
@@ -89,7 +90,6 @@ extern int GetTickRate();
 void __cdecl GameFreeThunk(void* p);
 int __stdcall GetCobChecksum(void* param);
 void* __cdecl GameReallocTagged(void* ptr, const char* name, unsigned int size);
-char* __cdecl GameAllocIgnoreTag(const char* text, int value);
 int __stdcall RandomInt(int);
 
 // FUNCTION: 0x4b0610
@@ -1072,7 +1072,7 @@ int CobScript::LoadScriptState(HapiBank* file)
     if (file->ReadBox(statics, size) != size) {
         return 0;
     }
-    SavedPiece* buffer = (SavedPiece*)GameAllocIgnoreTag("Piece States", bytes);
+    SavedPiece* buffer = (SavedPiece*)SimAllocTagged("Piece States", bytes);
     if (file->ReadBox(buffer, bytes) != bytes) {
         return 0;
     }

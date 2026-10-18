@@ -8,6 +8,7 @@
 // a {buffer, size, capacity} triple at +0xb2f4 and a PacketReceiver member at
 // +0xb300 that is handed the owner.
 #include <string.h>
+#include "../state/block.h"
 #include <memory.h>
 #include <windows.h>
 #include <ddraw.h>
@@ -1811,7 +1812,7 @@ FrameQueue::FrameQueue()
     recvBuffer = 0;
     fromId = -1;
     toId = -1;
-    buffer = new FrameRing;
+    buffer = new (kSim) FrameRing;
 }
 
 // Destructor of the class built by 0x4636b0: frees the buffer at +0x10, then

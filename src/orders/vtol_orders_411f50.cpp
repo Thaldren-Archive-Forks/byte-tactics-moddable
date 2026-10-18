@@ -43,6 +43,7 @@ public:
     unsigned char flags;               // +0x2e
     void SetFlightMode(Unit* unit, int state);
 };
+#include "../state/block.h"
 #include "path_order_attach.h"
 class MissionType { public: unsigned char index; MissionType(const char*); };
 
@@ -158,7 +159,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
         order->flags |= flags | 0xe0;
@@ -172,13 +173,13 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
 {
     if (flags & 0x1000a) {
         if (!order->next && (unit->flags & 0x300000))
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", order->target.owner, &order->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", order->target.owner, &order->pos, 0, 0, 0));
         return 5;
     }
     Unit* target = order->target.owner;
     if (!target && (order->flags_42 & 0x200)) {
         if (!order->next)
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
         return 5;
     }
     if (target)
@@ -244,9 +245,9 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         time += def->attackrunlength;
         Class_0044e2d0* obj;
         if (order->target.owner)
-            obj = (Class_0044e2d0*)new Class_0044e190(order, order->target.owner);
+            obj = (Class_0044e2d0*)new (kSim) Class_0044e190(order, order->target.owner);
         else
-            obj = new Class_0044e2d0(order, order->pos);
+            obj = new (kSim) Class_0044e2d0(order, order->pos);
         obj->SetApproachRadius(time);
         order->SetAttachedFx((int)obj);
         order->SetDeadlineTicks(1);
@@ -273,7 +274,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
             if (!pads.empty()) {
                 order->SetAttachedFx(0);
                 Unit* pad = pads[RandomInt(pads.size())];
-                AppendOrder(unit, new Order("VTOL_LANDING", pad, 0, 0, 0, 0));
+                AppendOrder(unit, new (kSim) Order("VTOL_LANDING", pad, 0, 0, 0, 0));
                 order->flags = 0;
                 return 0;
             }
@@ -288,7 +289,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
 
 static inline void AttachMove(Order* order, const Vec3& dest, short radius)
 {
-    Class_0044e2d0* obj = new Class_0044e2d0(order, dest);
+    Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
     obj->SetApproachRadius(radius);
     order->SetAttachedFx((int)obj);
 }

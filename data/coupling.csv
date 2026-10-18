@@ -6,10 +6,10 @@ ai,features,shared_write,Point16::y,2
 ai,features,shared_write,Vec3::x,7
 ai,features,shared_write,Vec3::y,5
 ai,features,shared_write,Vec3::z,7
+ai,game,call,SimAllocTagged,1
 ai,game,shared_write,Unit::flags,3
 ai,game,shared_write,Vec3::x,2
 ai,game,shared_write,Vec3::z,2
-ai,harness,call,HarnessZeroVec3,1
 ai,harness,shared_write,g_playerAI,1
 ai,los_radar,indirect,GetMapCell,1
 ai,los_radar,indirect,IsUnitVisibleToPlayer,1
@@ -47,7 +47,6 @@ ai,platform,call,CommandArgs::GetFloatArg,1
 ai,platform,call,CommandArgs::GetIntArg,1
 ai,platform,call,CommandArgs::InitArgs,2
 ai,platform,call,ExecuteCommandText,2
-ai,platform,call,GameAllocIgnoreTag,1
 ai,platform,call,GameFreeThunk,1
 ai,platform,call,MakeHeap,1
 ai,platform,call,PopHeapFirst,2
@@ -190,6 +189,7 @@ features,ai,shared_write,Point16::x,9
 features,ai,shared_write,Vec3::x,24
 features,ai,shared_write,Vec3::y,17
 features,ai,shared_write,Vec3::z,24
+features,game,call,SimAllocTagged,1
 features,game,call,StepGafSequence,1
 features,game,shared_write,Vec3::x,2
 features,game,shared_write,Vec3::z,2
@@ -238,7 +238,6 @@ features,platform,call,BuildDataPath,1
 features,platform,call,CommandArgs::GetArg,1
 features,platform,call,FatalError,1
 features,platform,call,FindFilesRecursive,1
-features,platform,call,GameAllocIgnoreTag,1
 features,platform,call,GameFreeThunk,1
 features,platform,call,GameReallocTagged,1
 features,platform,call,HapiBank::GetBoxSize,1
@@ -368,6 +367,7 @@ game,harness,shared_write,Game::localPlayer,1
 game,harness,shared_write,Game::playerIndex,1
 game,los_radar,indirect,FreeMapResources,1
 game,los_radar,indirect,FreeRadar,1
+game,los_radar,indirect,GetMapCellAtPosition,1
 game,los_radar,indirect,InitRadar,1
 game,los_radar,indirect,LoadTntMap,1
 game,los_radar,indirect,RecalculateLineOfSight,3
@@ -511,6 +511,7 @@ game,platform,call,FreeGameFonts,1
 game,platform,call,FreeTextureGafs,1
 game,platform,call,GameAllocIgnoreTag,4
 game,platform,call,GameFreeThunk,13
+game,platform,call,GetAllocLock,1
 game,platform,call,GetMilliseconds,2
 game,platform,call,GetTickRate,1
 game,platform,call,GetTicks,10
@@ -1028,6 +1029,8 @@ los_radar,features,shared_write,Vec3::x,7
 los_radar,features,shared_write,Vec3::y,5
 los_radar,features,shared_write,Vec3::z,7
 los_radar,game,call,SaveSettings,1
+los_radar,game,call,SimAlloc,1
+los_radar,game,call,SimAllocTagged,1
 los_radar,game,shared_write,Game::finalSurface,1
 los_radar,game,shared_write,Game::mapPixelHeight,3
 los_radar,game,shared_write,Game::mapPixelWidth,4
@@ -1194,6 +1197,8 @@ map,features,shared_write,Vec3::y,5
 map,features,shared_write,Vec3::z,7
 map,game,call,GetPreferredLanguage,2
 map,game,call,SetCursorMode,1
+map,game,call,SimAlloc,3
+map,game,call,SimAllocTagged,1
 map,game,shared_write,Game::mapInfo,16
 map,game,shared_write,Game::maxUnits,2
 map,game,shared_write,Game::victoryConditions,4
@@ -1244,7 +1249,7 @@ map,platform,call,BuildDataPath,2
 map,platform,call,ComputeChecksum,1
 map,platform,call,FatalError,1
 map,platform,call,FindTranslation,1
-map,platform,call,GameAllocIgnoreTag,5
+map,platform,call,GameAllocIgnoreTag,4
 map,platform,call,GameFreeThunk,9
 map,platform,call,GameReallocTagged,1
 map,platform,call,GetLocalizedString,2
@@ -1277,7 +1282,7 @@ map,platform,call,TdfRecord::GetSubRecord,2
 map,platform,call,TdfRecord::GetSubRecordCount,1
 map,platform,call,Translate,3
 map,platform,call,operator delete,12
-map,platform,call,operator new,10
+map,platform,call,operator new,7
 map,platform,shared_write,Vec3::x,5
 map,platform,shared_write,Vec3::y,5
 map,platform,shared_write,Vec3::z,5
@@ -1865,6 +1870,8 @@ pathfinding,ai,shared_write,Point16::x,9
 pathfinding,ai,shared_write,Point16::y,9
 pathfinding,features,shared_write,Point16::x,11
 pathfinding,features,shared_write,Point16::y,2
+pathfinding,game,call,SimAlloc,1
+pathfinding,game,call,SimAllocTagged,1
 pathfinding,los_radar,shared_write,Grid::cells,6
 pathfinding,los_radar,shared_write,Grid::count,3
 pathfinding,los_radar,shared_write,Grid::height,7
@@ -1892,10 +1899,9 @@ pathfinding,orders,indirect,RingApproach::ApproxDistExcess,3
 pathfinding,orders,indirect,RingApproach::ContainsCell,1
 pathfinding,orders,shared_write,Point16::x,15
 pathfinding,orders,shared_write,Point16::y,13
-pathfinding,platform,call,GameAllocIgnoreTag,1
 pathfinding,platform,call,GameFreeThunk,1
 pathfinding,platform,call,operator delete,3
-pathfinding,platform,call,operator new,2
+pathfinding,platform,call,operator new,1
 pathfinding,players,shared_write,Point16::x,1
 pathfinding,players,shared_write,Point16::y,1
 pathfinding,presentation,shared_write,Grid::cells,1
@@ -1938,6 +1944,10 @@ platform,features,shared_write,Vec3::y,5
 platform,features,shared_write,Vec3::z,7
 platform,game,call,ChdirToExeDirectory,1
 platform,game,call,GetPreferredLanguage,1
+platform,game,call,SimAlloc,2
+platform,game,call,SimFree,4
+platform,game,call,SimOwns,4
+platform,game,call,SimRealloc,1
 platform,game,indirect,CmdAI,1
 platform,game,indirect,CmdATM,1
 platform,game,indirect,CmdAntiAlias,1
@@ -2180,6 +2190,7 @@ players,features,shared_write,Point16::y,2
 players,features,shared_write,Vec3::x,7
 players,features,shared_write,Vec3::y,5
 players,features,shared_write,Vec3::z,7
+players,game,call,SimAlloc,1
 players,game,shared_write,Game::endGameCountdown,1
 players,game,shared_write,Game::localPlayer,13
 players,game,shared_write,Game::playerIndex,5
@@ -2528,6 +2539,7 @@ presentation,game,call,ShowLoadGameScreen,3
 presentation,game,call,ShowSaveGameScreen,2
 presentation,game,call,ShutdownIngameAndQuit,1
 presentation,game,call,ShutdownIngameSystems,1
+presentation,game,call,SimAllocTagged,1
 presentation,game,call,StepGafSequence,1
 presentation,game,call,UpdateBattleRoom,1
 presentation,game,call,WriteGameRegistryValue,4
@@ -2792,7 +2804,7 @@ presentation,platform,call,CrossProduct,1
 presentation,platform,call,FatalError,15
 presentation,platform,call,FindGameCdDrive,9
 presentation,platform,call,FindNextCdDrive,1
-presentation,platform,call,GameAllocIgnoreTag,53
+presentation,platform,call,GameAllocIgnoreTag,52
 presentation,platform,call,GameAllocShared,1
 presentation,platform,call,GameFreeThunk,83
 presentation,platform,call,GameReallocIgnoreTag,1
@@ -3306,6 +3318,7 @@ units,features,shared_write,Point16::y,2
 units,features,shared_write,Vec3::x,7
 units,features,shared_write,Vec3::y,5
 units,features,shared_write,Vec3::z,7
+units,game,call,SimAllocTagged,6
 units,game,shared_write,Angles16::heading,1
 units,game,shared_write,Game::autoFollowTicks,1
 units,game,shared_write,Game::unitDefCount,2
@@ -3519,7 +3532,7 @@ units,platform,call,Copy_backward,1
 units,platform,call,FUN_0041d8a0,2
 units,platform,call,FatalError,1
 units,platform,call,FreeCobScript,2
-units,platform,call,GameAllocIgnoreTag,7
+units,platform,call,GameAllocIgnoreTag,4
 units,platform,call,GameFreeThunk,10
 units,platform,call,GameReallocTagged,1
 units,platform,call,GameStrdup,1
@@ -3768,6 +3781,7 @@ weapons,features,shared_write,Point16::z,9
 weapons,features,shared_write,Vec3::x,7
 weapons,features,shared_write,Vec3::y,5
 weapons,features,shared_write,Vec3::z,7
+weapons,game,call,SimAllocTagged,1
 weapons,game,call,StepGafSequence,1
 weapons,game,shared_write,Game::selected,1
 weapons,game,shared_write,Unit::flags,3
@@ -3828,7 +3842,7 @@ weapons,platform,call,CMemoryCache::AllocHandle,1
 weapons,platform,call,CrossProduct,1
 weapons,platform,call,FUN_0041d8a0,1
 weapons,platform,call,FatalError,1
-weapons,platform,call,GameAllocIgnoreTag,3
+weapons,platform,call,GameAllocIgnoreTag,2
 weapons,platform,call,GameFreeThunk,3
 weapons,platform,call,ListDirectory,1
 weapons,platform,call,LoadAnimGaf,1

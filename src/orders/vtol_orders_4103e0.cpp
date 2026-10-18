@@ -14,6 +14,7 @@ public:
     Unit*& operator[](unsigned int n) { return *(begin()+n); }
 };
 }
+#include "../state/block.h"
 #include "../util/vec3.h"
 struct Order;
 #include "mission_type.h"
@@ -99,7 +100,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         center.z=(g_game->height/2)<<16;
         short angle=GetHeadingBetween(&unit->pos,&center);
         Vec3 pos=AddVec3(unit->pos,Offset(angle,0x3200000));
-        Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         ((Class_0044e730*)move)->SetApproachRadius(128);
         order->flags|=0xe0;
         order->SetAttachedFx((OrderFx*)move);
@@ -120,7 +121,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
                 unit->SetStateBits(1,1);
                 if ((unit->motion->flags&3)==1) {
                     unit->motion->SetFlightMode(unit,2);
-                    Class_0044e2d0* move=new Class_0044e2d0(order,unit->pos);
+                    Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
                     order->SetAttachedFx((OrderFx*)move);
                     order->flags|=0xe0;
@@ -137,7 +138,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
             if (!pads.empty()) {
                 order->SetAttachedFx(0);
                 Unit* pad=pads[RandomInt(pads.count())];
-                AppendOrder(unit,new Order("VTOL_LANDING",pad,0,0,0,0));
+                AppendOrder(unit,new (kSim) Order("VTOL_LANDING",pad,0,0,0,0));
                 order->flags=0;
                 return 0;
             }
@@ -146,7 +147,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         if (target && IssueAttackOrder(unit,target,0)) return 5;
         if (flags&0xe0) order->angle+=-RandomInt(0x2000)-0x5555;
         Vec3 pos=AddVec3(order->pos,Offset((short)order->angle,(unit->weapons[0].def->range+160)<<16));
-        Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         ((Class_0044e730*)move)->SetApproachRadius(128);
         order->SetAttachedFx((OrderFx*)move);
         order->SetDeadlineTicks(RandomInt(30)+30);

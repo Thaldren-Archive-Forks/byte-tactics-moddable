@@ -11,6 +11,7 @@
 #include <math.h>
 
 struct Point { short x, y; };
+#include "../state/block.h"
 #include "../util/vec3.h"
 
 struct Unit;
@@ -136,7 +137,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
         order->flags |= flags | 0xe0;
@@ -191,7 +192,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         }
         Vec3 dest = Add(order->target.owner->pos, Offset(order->angle, radius << 16));
         order->angle += 0x4000;
-        Class_0044e2d0* obj = new Class_0044e2d0(order, dest);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         obj->SetApproachRadius(0x80);
         order->SetAttachedFx((int)obj);
         order->flags = 0xe8;
@@ -199,7 +200,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         return 2;
     }
     case 2: {
-        Class_0044e250* obj = new Class_0044e250(order, order->target.owner, -1);
+        Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target.owner, -1);
         // The setters live in Class_0044e2d0; obj is another constructor view of the same object.
         ((Class_0044e2d0*)obj)->SetApproachRadius(0xa0);
         order->SetAttachedFx((int)obj);
@@ -213,7 +214,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
             QueueUnitSpeech(unit, 7, "Landing failed");
             return 0;
         }
-        Class_0044e250* obj = new Class_0044e250(order, order->target.owner, order->angle);
+        Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target.owner, order->angle);
         ((Class_0044e2d0*)obj)->SetApproachRadius(0x30);
         order->SetAttachedFx((int)obj);
         order->flags = 0xe8;
@@ -230,7 +231,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
             QueueUnitSpeech(unit, 7, "Landing aborted: all pads are occupied");
             return 0;
         }
-        Class_0044e250* obj = new Class_0044e250(order, order->target.owner, order->angle);
+        Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target.owner, order->angle);
         if (unit->cargo)
             ((Class_0044e2d0*)obj)->SetAltitude(unit->cargo->def->field_170);
         else
@@ -262,7 +263,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
             && (order->target.owner->def->flags1 & 0x40)
             && order->target.owner->buildLeft == 0.0f) {
             order->SetAttachedFx(0);
-            AppendOrder(unit, new Order("SELFREPAIR", order->target.owner, 0, 0, 0, 0));
+            AppendOrder(unit, new (kSim) Order("SELFREPAIR", order->target.owner, 0, 0, 0, 0));
         }
         return 5;
     }

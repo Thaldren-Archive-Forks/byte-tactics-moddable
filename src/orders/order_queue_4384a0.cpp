@@ -107,6 +107,7 @@ struct SaveDesc_0043a1f0 {             // the 0x3a-byte snapshot, read and writt
 };
 #pragma pack(pop)
 
+#include "../state/block.h"
 #include "../units/cob_script.h"
 
 #include "../units/unit_ref.h"
@@ -322,7 +323,7 @@ void __stdcall AddBeCarriedOrder(Unit* p)
             }
         }
         Order* child =
-            new Order("BECARRIED", p->carrier, 0, 0, 0, 0);
+            new (kSim) Order("BECARRIED", p->carrier, 0, 0, 0, 0);
         InsertBefore(p, child, (child->flags & 0x40000) ? p->list2 : p->list);
     }
 }
@@ -500,7 +501,7 @@ void Order::SetAttachedFx(OrderFx* obj)
 void Order::AttachApproachRadiusGoal(int* p, int n)
 {
     if ((unit->def->flags32 & 0x800) == 0) {
-        ApproachRadius* obj = new ApproachRadius((Source_0044cf60*)this, p[0], p[2], n);
+        ApproachRadius* obj = new (kSim) ApproachRadius((Source_0044cf60*)this, p[0], p[2], n);
         if (unit->motion) {
             if (attached) {
                 unit->motion->slot->Attach(0);
@@ -526,7 +527,7 @@ void Order::AttachApproachRadiusGoal(int* p, int n)
 void Order::AttachRingApproachGoal(Vec3_0043a1f0* pos, int radius1, int radius2)
 {
     if (!(unit->def->flags32 & 0x800)) {
-        RingApproach* obj = new RingApproach(this, pos->x, pos->z, radius1, radius2);
+        RingApproach* obj = new (kSim) RingApproach(this, pos->x, pos->z, radius1, radius2);
         if (unit->motion) {
             if (attached) {
                 unit->motion->slot->Attach(0);
@@ -554,7 +555,7 @@ void Order::AttachRingApproachGoal(Vec3_0043a1f0* pos, int radius1, int radius2)
 void Order::AttachBuildFootprintMarker(Point16 cell, Point16 size)
 {
     if (!(unit->def->flags32 & 0x800)) {
-        PointMarker* obj = new PointMarker(this, cell, size);
+        PointMarker* obj = new (kSim) PointMarker(this, cell, size);
         if (unit->motion) {
             if (attached) {
                 unit->motion->slot->Attach(0);
@@ -763,19 +764,19 @@ Order::Order(Unit* punit, HapiBank* file, char* name)
     sprintf(buf3, "%s%s", name, "g");
     switch (desc.field_4) {
     case 2:
-        attached = new Class_0044de80((int)this, file, buf3);
+        attached = new (kSim) Class_0044de80((int)this, file, buf3);
         return;
     case 3:
-        attached = new AirManeuverOrder((int)this, file, buf3);
+        attached = new (kSim) AirManeuverOrder((int)this, file, buf3);
         return;
     case 4:
-        attached = new ApproachRadius((int)this, file, buf3);
+        attached = new (kSim) ApproachRadius((int)this, file, buf3);
         return;
     case 5:
-        attached = new RingApproach((int)this, file, buf3);
+        attached = new (kSim) RingApproach((int)this, file, buf3);
         return;
     case 6:
-        attached = new PointMarker((int)this, file, buf3);
+        attached = new (kSim) PointMarker((int)this, file, buf3);
         return;
     case 0:
         attached = 0;
