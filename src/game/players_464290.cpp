@@ -346,8 +346,6 @@ void ResetPlayerSlots()
 #include "../../interfaces/seams.h"
 
 void __cdecl operator delete(void* p);
-void __stdcall CreateSquads(Player* p);
-void __stdcall CreatePlayerAI(int player);
 
 // FUNCTION: 0x464700
 void __stdcall InitPlayerSlot(Player* p)
@@ -413,11 +411,11 @@ guard:
     // read directly the load comes first, the original has it second).
     void*& bref = p->buffer;
     memset(bref, 0, sz);
-    CreateSquads(p);
+    g_seams.ai->CreateSquads(p);
     // Keep `||` with both tests as written: the branch layout depends on it.
     if (!p->active || p->type != 3) {
         p->unit = new (kSim) SquadManager(p);
-        CreatePlayerAI(p->team);
+        g_seams.ai->CreatePlayerAI(p->team);
     }
 }
 
@@ -431,8 +429,6 @@ public:
 char* __stdcall HAPI_LoadFile(const char* name, int* size);
 int __stdcall ExecuteCommandText(char* text, int len, CommandArgs* vars, int param_4);
 void __cdecl GameFreeThunk(char* text);
-void __stdcall ParseDownloadableAiWeightScripts(int player);
-void __stdcall ReparseAiWeightScriptsIfLimitNotSticky(int player);
 
 // FUNCTION: 0x4648e0
 void LoadDefaultAIScript()
@@ -452,8 +448,8 @@ void LoadDefaultAIScript()
     for (int i = 0; i < 10; i++) {
         Player* p = &g_game->players[i];
         if (p->active && p->type == 2) {
-            ParseDownloadableAiWeightScripts(i);
-            ReparseAiWeightScriptsIfLimitNotSticky(i);
+            g_seams.ai->ParseDownloadableAiWeightScripts(i);
+            g_seams.ai->ReparseAiWeightScriptsIfLimitNotSticky(i);
         }
     }
 }
@@ -472,21 +468,15 @@ void InitPlayers()
     LoadDefaultAIScript();
 }
 
-void __stdcall RebuildFeatureCells(int param_1);
-
 // FUNCTION: 0x4649d0
 void RebuildAIFeatureCells()
 {
     for (char i = 0; i < 10; i++) {
         if (g_game->players[i].unit) {
-            RebuildFeatureCells(i);
+            g_seams.ai->RebuildFeatureCells(i);
         }
     }
 }
-
-void __stdcall FreeSquads(Player* param_1);
-// Takes an int: the byte-to-int promotion is part of the original code.
-void __stdcall DestroyPlayerAI(int param_1);
 
 // The loop bound is `p <= g_game->players + 10`, one past the last slot, so
 // the body also runs once on the fields that follow the array (the `ja` guard
@@ -503,11 +493,11 @@ void FreePlayers()
         delete[] ((void**)q)[-2];
         q[1] = 0;
         ((void**)q)[-2] = 0;
-        FreeSquads(p);
+        g_seams.ai->FreeSquads(p);
         if (((SquadManager**)q)[-4]) {
-            DestroyPlayerAI(((unsigned char*)q)[0xc2]);
+            g_seams.ai->DestroyPlayerAI(((unsigned char*)q)[0xc2]);
             if (SquadManager* u = ((SquadManager**)q)[-4]) {
-                u->DeleteTimers();
+                g_seams.ai->SquadManagerDeleteTimers(u, 0);
                 delete u;
             }
             ((SquadManager**)q)[-4] = 0;
@@ -741,7 +731,6 @@ void ShowContinueWatchingDialog()
 
 extern int g_economyPacketTick;
 
-void __stdcall UpdatePlayerAI(int player);
 unsigned char __stdcall FindHostSlot();
 unsigned short __stdcall FindUnitTypeId(const char* name);
 int __stdcall RandomInt(int range);
@@ -822,9 +811,9 @@ void __stdcall UpdatePlayers()
         }
 
         if (pi->unit != 0)
-            pi->unit->TickIfActive();
+            g_seams.ai->SquadManagerTickIfActive(pi->unit, 0);
 
-        UpdatePlayerAI(bl);
+        g_seams.ai->UpdatePlayerAI(bl);
 
         {
             Unit* u = pi->units;

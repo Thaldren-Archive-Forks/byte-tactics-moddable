@@ -50,6 +50,21 @@ struct WeaponDef;
 struct Callback;
 
 struct Order;
+struct _iobuf;
+
+void __stdcall DumpPlayerAI(int player, _iobuf* file);
+void __stdcall ResetAIPlayers(void);
+void __stdcall GetFactoriesInRadius(int player, const Vec* pos, int radius, std::vector<Unit*>* out);
+void __stdcall RegisterAICommands(void);
+void __stdcall CreatePlayerAI(int player);
+void __stdcall DestroyPlayerAI(int player);
+void __stdcall UpdatePlayerAI(int player);
+void __stdcall RebuildFeatureCells(int player);
+void __stdcall ParseDownloadableAiWeightScripts(int player);
+void __stdcall ReparseAiWeightScriptsIfLimitNotSticky(int player);
+void __stdcall CreateSquads(Player* player);
+void __stdcall FreeSquads(Player* player);
+void __stdcall SetUnitSquad(Unit* unit, int index);
 
 int* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
 int __stdcall WeaponCanReachPos(Unit* unit, Vec3* from, Vec3* to, int flags);
@@ -217,6 +232,21 @@ static void __fastcall ReleaseWeaponsNative(Unit* self, int unusedEdx, unsigned 
 static void __fastcall MarkOwnerNetDirtyFromDamageSplitNative(SquadManager* self, int unusedEdx, void* weapon, int enemyDamage, int friendlyDamage)
 {
     self->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)weapon, enemyDamage, friendlyDamage);
+}
+
+static void __fastcall SquadManagerTickIfActiveNative(SquadManager* self, int unusedEdx)
+{
+    self->TickIfActive();
+}
+
+static void __fastcall SquadManagerDeleteTimersNative(SquadManager* self, int unusedEdx)
+{
+    self->DeleteTimers();
+}
+
+static void __stdcall GetFactoriesInRadiusNative(int player, const Vec3* pos, int radius, std::vector<Unit*>* out)
+{
+    GetFactoriesInRadius(player, (const Vec*)pos, radius, out);
 }
 
 static void __stdcall SetStateBitsNative(Unit* unit, int mask, int set)
@@ -494,6 +524,21 @@ void InstallNativeSeams()
     s_ai.ReactToAttack = ReactToAttack;
     s_ai.MarkOwnerNetDirtyFromDamageSplit = MarkOwnerNetDirtyFromDamageSplitNative;
     s_orders.AppendOrder = AppendOrder;
+    s_ai.DumpPlayerAI = DumpPlayerAI;
+    s_ai.ResetAIPlayers = ResetAIPlayers;
+    s_ai.GetFactoriesInRadius = GetFactoriesInRadiusNative;
+    s_ai.RegisterAICommands = RegisterAICommands;
+    s_ai.CreatePlayerAI = CreatePlayerAI;
+    s_ai.DestroyPlayerAI = DestroyPlayerAI;
+    s_ai.UpdatePlayerAI = UpdatePlayerAI;
+    s_ai.RebuildFeatureCells = RebuildFeatureCells;
+    s_ai.ParseDownloadableAiWeightScripts = ParseDownloadableAiWeightScripts;
+    s_ai.ReparseAiWeightScriptsIfLimitNotSticky = ReparseAiWeightScriptsIfLimitNotSticky;
+    s_ai.CreateSquads = CreateSquads;
+    s_ai.FreeSquads = FreeSquads;
+    s_ai.SetUnitSquad = SetUnitSquad;
+    s_ai.SquadManagerTickIfActive = SquadManagerTickIfActiveNative;
+    s_ai.SquadManagerDeleteTimers = SquadManagerDeleteTimersNative;
     s_units.StartScript = StartScriptNative;
     s_units.QueryScript = QueryScriptNative;
     s_units.GetAimFromPosition = GetAimFromPosition;

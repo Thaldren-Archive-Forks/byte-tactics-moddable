@@ -207,7 +207,6 @@ Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId,
                                       Vec3 pos, int param_5, int mode,
                                       unsigned short id);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* builder, int piece, int p4);
-void __stdcall SetUnitSquad(Unit* unit, int id);
 void __stdcall ForceNeighborFootprintReclaim(Unit* unit);
 
 // FUNCTION: 0x486fd0
@@ -292,7 +291,7 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
     unit->losCacheCellX = rec.f97;
     unit->footprint = rec.f9b;
     unit->group = rec.f9f;
-    SetUnitSquad(unit, rec.f9f);
+    g_seams.ai->SetUnitSquad(unit, rec.f9f);
     unit->buildLeft = rec.fa7;
     unit->lastDamageType = rec.bab;
     unit->healthPercent = rec.bac;

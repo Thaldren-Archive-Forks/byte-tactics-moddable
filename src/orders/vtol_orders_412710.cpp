@@ -129,7 +129,6 @@ int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrderToTail(Unit*, Order*);
 void __stdcall AppendOrder(Unit*, Order*);
-void __stdcall GetFactoriesInRadius(int player, Vec3* pos, int range, std::vector<Unit*>* out);
 
 // The landing pad list. 0x410830 is its constructor; its implicit destructor
 // is an inline candidate under 41 IL, so ~vector sits one level down.
@@ -244,7 +243,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
     case 4: {
         if (IsDamaged(unit)) {
             LandingPadList v;
-            GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &v);
+            g_seams.ai->GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &v);
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];

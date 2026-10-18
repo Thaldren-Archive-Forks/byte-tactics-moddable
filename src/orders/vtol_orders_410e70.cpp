@@ -78,7 +78,6 @@ void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrder(Unit*, Order*);
 void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
-void __stdcall GetFactoriesInRadius(int player, Vec3* pos, int range, std::vector<Unit*>* out);
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall VtolMoveOrder(Unit*, Order*, int);
 int __stdcall VtolFollowOrder(Unit*, Order*, int);
@@ -142,7 +141,7 @@ int __stdcall VtolPatrolOrder(Unit* unit, Order* order, int flags)
         // through the plain scope-exit destructor.
         if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
             std::vector<Unit*> v;
-            GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &v);
+            g_seams.ai->GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &v);
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];

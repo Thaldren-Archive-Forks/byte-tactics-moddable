@@ -134,7 +134,6 @@ int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrder(Unit*, Order*);
 void __stdcall AppendOrderToTail(Unit*, Order*);
-void __stdcall GetFactoriesInRadius(int player, Vec3* pos, int range, std::vector<Unit*>* out);
 
 static inline Vec3 Offset(short angle, int distance)
 {
@@ -270,7 +269,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         order->flags = 0xe2;
         if (unit->health < unit->def->maxHealth / 4 * 3) {
             std::vector<Unit*> pads;
-            GetFactoriesInRadius(unit->player->slotIndex, &unit->pos, 0xf00, &pads);
+            g_seams.ai->GetFactoriesInRadius(unit->player->slotIndex, &unit->pos, 0xf00, &pads);
             if (!pads.empty()) {
                 order->SetAttachedFx(0);
                 Unit* pad = pads[RandomInt(pads.size())];

@@ -613,7 +613,6 @@ void FreeUnitMemory(void)
 
 #include "../../interfaces/seams.h"
 
-void __stdcall SetUnitSquad(Unit* unit, int param_2);
 int __stdcall RandomInt(int range);
 
 // Sets up a unit from its unit type: flags, offsets, screen position, weapon
@@ -698,7 +697,7 @@ void __stdcall InitUnitFromType(Unit* unit, Pos_00485a40 pos, int param_5)
     g_seams.economy->Reset(&unit->resourceSlot, unit->playerIndex);
     unit->transportPiece = 0xff;
     unit->hoverBobPhase = (short)RandomInt(0x10000);
-    SetUnitSquad(unit, 0);
+    g_seams.ai->SetUnitSquad(unit, 0);
 }
 
 // Builds the piece-tree "Object State" block of a placed object, called from
@@ -1157,7 +1156,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     g_game->victoryConditions->NotifyUnitDied(unit);
     DeleteOrders(unit, 1);
     RemoveSpeechOfUnit(unit);
-    SetUnitSquad(unit, -1);
+    g_seams.ai->SetUnitSquad(unit, -1);
     g_seams.weapons->RemoveUnitProjectiles(unit);
     if (unit->carrier != 0)
         AttachUnitToPiece(unit, 0, -1, 1);

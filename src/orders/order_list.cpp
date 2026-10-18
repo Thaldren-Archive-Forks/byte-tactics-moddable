@@ -1005,7 +1005,6 @@ int __stdcall RandomInt(int n);
 int __stdcall CompareOrderTypeNames(const Elem_0043c390& a, const Elem_0043c390& b);
 void RegisterGroundOrders();
 void RegisterVtolOrders();
-void RegisterAICommands();
 void RegisterUnitOrders();
 void __stdcall DeleteOrder(Unit* owner, Order* node);
 void __stdcall DeleteOrders(Unit* owner, int all);
@@ -1559,7 +1558,7 @@ void RegisterAllOrderTypes()
     RegisterOrderTypes(g_readyOrder, 1);
     RegisterGroundOrders();
     RegisterVtolOrders();
-    RegisterAICommands();
+    g_seams.ai->RegisterAICommands();
     RegisterUnitOrders();
 }
 
