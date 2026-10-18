@@ -378,21 +378,13 @@ int __stdcall RandomInt(int range);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, void* flags);
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, const char* text);
 void __stdcall UpdateBuildMenuIfFocusUnit(Unit* unit);
-void __stdcall FinishConstruction(Unit* unit, Unit* target);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
-Vec3 __stdcall GetPiecePosition(Unit* unit, int piece);
-int __stdcall CanPlaceUnitFootprint(UnitDef* type, short a, Point16 cell, int b);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short type, Vec3 pos,
                            int a, int b, int c);
-void __stdcall AttachUnitToPiece(Unit* unit, Unit* builder, char piece, char p4);
 void __stdcall AddOrder(MissionType kind, int remove, Unit* owner, Unit* id, void* pos,
                         int typeId, int amount);
-int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float amount);
-int __stdcall AddBuildProgress(Unit* unit, Unit* target, float amount);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitNanoParticles(Vec3* from, Box* to, int count);
 void __stdcall MarkSelectionOrdersDirty(Unit* unit);
-void __stdcall ApplyUnfinishedBuildDecay(Unit* unit, int param);
 void __stdcall EnsurePatrolReturnOrder(Unit* unit, Order* order);
 int __stdcall IssueAttackOrder(Unit* unit, Order* order, int param);
 
@@ -637,9 +629,9 @@ int __stdcall SelfRepairOrder(Unit* unit, Order* order, int unused)
         if ((unsigned int)unit->health >= unit->def->maxHealth)
             return 1;
         unit->workTime = g_game->gameTick + 0x96;
-        if (AddRepairProgress(order->target.owner, unit, (float)(order->target.owner->def->workerTime / 30))) {
+        if (g_seams.units->AddRepairProgress(order->target.owner, unit, (float)(order->target.owner->def->workerTime / 30))) {
             Vec3 nano;
-            GetNanoPiecePosition(order->target.owner, &nano);
+            g_seams.units->GetNanoPiecePosition(order->target.owner, &nano);
             Box box;
             box.hi = unit->pos;
             box.lo = unit->pos;
@@ -701,10 +693,10 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
             } else {
                 unit->resourceSlot.metalMake += (double)refund;
             }
-            FinishConstruction(unit, order->target.owner);
+            g_seams.units->FinishConstruction(unit, order->target.owner);
             g_seams.weapons->DamageUnit(unit, order->target.owner, 30000, 9, 0);
         }
-        unit->SetStateBits(9, 0);
+        g_seams.units->SetStateBits(unit, 9, 0);
         UpdateBuildMenuIfFocusUnit(unit);
         return 5;
     }
@@ -719,10 +711,10 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         order->target.SetUnit(0);
         if (unit->flags & 0x20000000) {
             if (order->count <= 0) {
-                unit->SetStateBits(1, 0);
+                g_seams.units->SetStateBits(unit, 1, 0);
                 return 5;
             }
-            unit->SetStateBits(1, 1);
+            g_seams.units->SetStateBits(unit, 1, 1);
             return 1;
         }
         break;
@@ -730,16 +722,16 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         return WaitIfNotInBuildStance(unit, order, 2);
     case 2: {
         int piece = -1;
-        unit->script->QueryScript("QueryBuildInfo", &piece, 0, 0, 0);
-        order->pos = GetPiecePosition(unit, piece);
+        g_seams.units->QueryScript(unit->script, "QueryBuildInfo", &piece, 0, 0, 0);
+        order->pos = g_seams.units->GetPiecePosition(unit, piece);
         UnitDef* ut = &g_game->unitDefs[order->unitType];
         Point16 cell = GridCell(order->pos, ut->footprint);
-        if (!CanPlaceUnitFootprint(ut, 0, cell, unit->flags & 3)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(ut, 0, cell, unit->flags & 3)) {
             order->SetDeadlineTicks(15);
             order->flags |= 2;
             return 2;
         }
-        order->target.SetUnit(CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
+        order->target.SetUnit(g_seams.units->CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
         if (order->target.owner == 0) {
             QueueUnitSpeech(unit, 7, "Unable to create any more units");
             order->SetDeadlineTicks(300);
@@ -747,19 +739,19 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
             return 2;
         }
         QueueUnitSpeech(unit, 9, "Starting construction");
-        AttachUnitToPiece(order->target.owner, unit, piece, 1);
+        g_seams.units->AttachUnitToPiece(order->target.owner, unit, piece, 1);
         order->target.owner->bits.bits18 = unit->bits.bits18;
         order->target.owner->bits.bits20 = unit->bits.bits20;
         AddOrder("getbuilt", 1, order->target.owner, unit, 0, 0, 0);
-        unit->SetStateBits(8, 1);
+        g_seams.units->SetStateBits(unit, 8, 1);
         UpdateBuildMenuIfFocusUnit(unit);
         return 1;
     }
     case 3:
         if (order->target.owner != 0) {
-            if (AddBuildProgress(unit, order->target.owner, (float)(unit->def->workerTime / 30))) {
+            if (g_seams.units->AddBuildProgress(unit, order->target.owner, (float)(unit->def->workerTime / 30))) {
                 Vec3 nano;
-                GetNanoPiecePosition(unit, &nano);
+                g_seams.units->GetNanoPiecePosition(unit, &nano);
                 Box box;
                 box.hi = order->target.owner->pos;
                 box.lo = order->target.owner->pos;
@@ -780,8 +772,8 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         break;
     case 4:
         QueueUnitSpeech(unit, 8, 0);
-        unit->SetStateBits(8, 0);
-        FinishConstruction(unit, order->target.owner);
+        g_seams.units->SetStateBits(unit, 8, 0);
+        g_seams.units->FinishConstruction(unit, order->target.owner);
         order->target.SetUnit(0);
         order->count--;
         UpdateBuildMenuIfFocusUnit(unit);
@@ -850,7 +842,7 @@ int __stdcall BuildWeaponOrder(Unit* unit, Order* order, int unused)
 int __stdcall ParalyzeOrder(Unit* unit, Order* order, int unused)
 {
     if (order->ticks == 0) {
-        unit->SetStateBits(0x10, 0);
+        g_seams.units->SetStateBits(unit, 0x10, 0);
         return 5;
     }
     if (order->ticks > 0x708)
@@ -861,7 +853,7 @@ int __stdcall ParalyzeOrder(Unit* unit, Order* order, int unused)
     order->SetAttachedFx(0);
     order->SetDeadlineTicks(order->ticks);
     order->ticks = 0;
-    unit->SetStateBits(0x10, 1);
+    g_seams.units->SetStateBits(unit, 0x10, 1);
     return 1;
 }
 
@@ -920,7 +912,7 @@ int __stdcall GetBuiltOrder(Unit* unit, Order* order, unsigned int flags)
             order->SetDeadlineTicks(30);
         } else if (flags & 1) {
             order->SetDeadlineTicks(11);
-            ApplyUnfinishedBuildDecay(unit, 11);
+            g_seams.units->ApplyUnfinishedBuildDecay(unit, 11);
         }
         order->Wait();
         return 2;
@@ -953,7 +945,7 @@ int __stdcall BeCarriedOrder(Unit* unit, Order* order, int unused)
 int __stdcall ActivateOrder(Unit* unit, int unused1, int unused2)
 {
     if (((Sub_403010*)unit->def)->flag) {
-        unit->SetStateBits(1, 1);
+        g_seams.units->SetStateBits(unit, 1, 1);
     }
     return 5;
 }
@@ -962,7 +954,7 @@ int __stdcall ActivateOrder(Unit* unit, int unused1, int unused2)
 int __stdcall DeactivateOrder(Unit* unit, int unused1, int unused2)
 {
     if (((Sub_403010*)unit->def)->flag) {
-        unit->SetStateBits(1, 0);
+        g_seams.units->SetStateBits(unit, 1, 0);
     }
     return 5;
 }
@@ -1203,7 +1195,6 @@ extern char DAT_004fc6e8[];
 extern const float DAT_004fc930, DAT_004fc934, DAT_004fc938, DAT_004fc93c;
 
 unsigned short __stdcall FindFeatureAtPos(Vec3* pos, Point16* cell, Point16* size);
-int __stdcall GetGroundHeight(Vec3* pos);
 int __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 void __stdcall StopBuildingScript(Unit* unit, Order* order);
@@ -1213,22 +1204,17 @@ int __stdcall IssueRepairOrder(Unit* unit, Unit* target, int param);
 void __stdcall EmitNanoParticles(Vec3* from, Vec3* to, int count);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
 void __stdcall EmitReverseNanoParticles(Vec3* from, Vec3* to, int count);
-void __stdcall SnapWorldPosToFootprint(UnitDef* type, Vec3* pos);
-void __stdcall GiveUnitToPlayer(Unit* unit, void* player, int param);
 void __stdcall ReclaimFeature(Unit* unit, Vec3* pos);
-unsigned short __stdcall FindUnitTypeId(char* name);
 Cell* __stdcall GetOriginCellAtPosition(Vec3* pos);
 unsigned short __stdcall GetCellFeature(Cell* cell);
 Cell* __stdcall GetMapCellAtPosition(Vec3* pos);
 void __stdcall RemoveFeature(void* target, int flag);
 int __stdcall BroadcastPacket(int player, void* data, int size);
-void __stdcall VisitObjectsInRange(Vec3* pos, int range, const DamagedAllyCollector& visitor);
 int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* pos, int range, Vec3** energy, float* energyAmount,
                            Vec3** metal, float* metalAmount);
 int __cdecl FUN_004b70ef(int angle, int distance);
 int __cdecl FUN_004b7123(int angle, int distance);
 void __stdcall EmitTeleportParticles(Vec3* from, Vec3* to, int count, int param);
-void __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param);
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall IsUnitCommander(Unit*);
 void __stdcall AlignUnitToGround(Unit*);
@@ -1455,7 +1441,7 @@ int __stdcall CaptureOrder(Unit* unit, Order* order, unsigned int flags)
         }
         if (order->elapsed >= order->duration) return 1;
         Vec3 start;
-        GetNanoPiecePosition(order->source, &start);
+        g_seams.units->GetNanoPiecePosition(order->source, &start);
         Vec3 bounds[2];
         bounds[1] = order->target.Get()->pos;
         bounds[0] = order->target.Get()->pos;
@@ -1471,7 +1457,7 @@ int __stdcall CaptureOrder(Unit* unit, Order* order, unsigned int flags)
         return 2;
     }
     case 5:
-        GiveUnitToPlayer(target, unit->player, 0);
+        g_seams.players->GiveUnitToPlayer(target, unit->player, 0);
         QueueUnitSpeech(unit, 16, 0);
         return 5;
     }
@@ -1514,7 +1500,7 @@ int __stdcall ReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
     switch (state) {
     case 0:
         if (unit->motion && (unit->def->flags245u & 0x400)) {
-            if (!unit->CanReclaim(target)) {
+            if (!g_seams.units->CanReclaim(unit, 0, target)) {
                 QueueUnitSpeech(unit, 7, "That unit cannot be reclaimed");
                 QueueUnitSpeech(unit, 7, "Reclamation failed");
                 return 8;
@@ -1548,14 +1534,14 @@ int __stdcall ReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         range = unit->def->buildRange;
         range += target->def->radius184;
         int square = SquaredDistance(delta.x, delta.z);
-        if (square <= range * range && unit->CanReclaim(order->target.Get())) {
+        if (square <= range * range && g_seams.units->CanReclaim(unit, 0, order->target.Get())) {
             if (order->duration >= 15) {
                 g_seams.weapons->DamageUnit(unit, order->target.Get(), order->elapsed, 5, 0);
                 order->duration = 0;
             }
             unit->workTime = g_game->gameTick + 900;
             Vec3 start;
-            GetNanoPiecePosition(order->source, &start);
+            g_seams.units->GetNanoPiecePosition(order->source, &start);
             Vec3 bounds[2];
             bounds[1] = order->target.Get()->pos;
             bounds[0] = order->target.Get()->pos;
@@ -1632,9 +1618,9 @@ int __stdcall RepairUnitOrder(Unit* unit, Order* order, int flags)
             return 0;
         }
         unit->workTime = g_game->gameTick + 150;
-        if (AddRepairProgress(unit, order->target.owner, (float)(unit->def->workerTime / 30))) {
+        if (g_seams.units->AddRepairProgress(unit, order->target.owner, (float)(unit->def->workerTime / 30))) {
             Vec3 nano;
-            GetNanoPiecePosition(order->source, &nano);
+            g_seams.units->GetNanoPiecePosition(order->source, &nano);
             Box box;
             box.hi = order->target.owner->pos;
             box.lo = order->target.owner->pos;
@@ -1679,9 +1665,9 @@ int __stdcall RepairUnitNoMoveOrder(Unit* unit, Order* order, int unused)
         unit->workTime = g_game->gameTick + 150;
         int rate = 0;
         rate = unit->def->workerTime;
-        if (AddRepairProgress(unit, order->target.Get(), (float)(rate / 30))) {
+        if (g_seams.units->AddRepairProgress(unit, order->target.Get(), (float)(rate / 30))) {
             Vec3 start;
-            GetNanoPiecePosition(order->source, &start);
+            g_seams.units->GetNanoPiecePosition(order->source, &start);
             Vec3 bounds[2];
             bounds[1] = order->target.Get()->pos;
             bounds[0] = order->target.Get()->pos;
@@ -1822,7 +1808,7 @@ int __stdcall GroundPickupOrder(Unit* unit, Order* order, unsigned char flags)
         case 2:
             {
             int id = target->id;
-            unit->script->StartScriptWithArgs("TransportPickup", 0, 1, 1, id, 0, 0, 0);
+            g_seams.units->StartScriptWithArgs(unit->script, "TransportPickup", 0, 1, 1, id, 0, 0, 0);
             QueueUnitSpeech(unit, 12, 0);
             ++order->attempts;
             order->SetDeadlineTicks(15); return 1;
@@ -1855,7 +1841,7 @@ int __stdcall GroundUnloadOrder(Unit* unit, Order* order, int flags)
         order->target.SetUnit(unit->cargo);
         if (!order->target.owner) return 5;
         order->AnnounceStatusIfFlagged("Unloading");
-        unit->script->StartScriptWithArgs("TransportDrop",0,1,1,order->target.owner->id,
+        g_seams.units->StartScriptWithArgs(unit->script, "TransportDrop",0,1,1,order->target.owner->id,
             (order->pos.x&0xffff0000)+(order->pos.z>>16),0,0);
         ++order->attempts;
         order->SetDeadlineTicks(15);
@@ -2016,9 +2002,9 @@ int __stdcall HelpBuildOrder(Unit* unit, Order* order, int flags)
     case 3: {
         int rate = 0;
         rate = unit->def->workerTime;
-        if (AddBuildProgress(unit, target, (float)(rate / 30))) {
+        if (g_seams.units->AddBuildProgress(unit, target, (float)(rate / 30))) {
             Vec3 start;
-            GetNanoPiecePosition(unit, &start);
+            g_seams.units->GetNanoPiecePosition(unit, &start);
             Vec3 bounds[2];
             bounds[0] = (Vec3Sum&)order->target.owner->pos + order->target.owner->def->bounds.lo;
             bounds[1] = (Vec3Sum&)order->target.owner->pos + order->target.owner->def->bounds.hi;

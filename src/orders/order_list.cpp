@@ -114,6 +114,7 @@ struct Point {
     Point() {}
     Point(int a, int b) : x(a), y(b) {}
 };
+struct Point16 { short x, y; };
 
 // A 4-byte point of two shorts, and the temporary the constructor builds it
 // through (the derived type is what makes the compiler keep the temporary).
@@ -122,6 +123,7 @@ struct PointInit_0043a1f0 : Point {
 };
 
 #include "../util/angles.h"
+#include "../../interfaces/seams.h"
 
 #include "../network/player.h"
 
@@ -360,7 +362,6 @@ void __stdcall DeleteOrder(Unit* owner, Order* node);
 
 extern int __cdecl _strcmpi(const char*, const char*);
 
-short __stdcall FindUnitTypeId(char* name);
 
 void __stdcall DrawBuildFootprint(void* a, void* b, Order* e, Vec3* p, int c);
 void __stdcall DrawUnitRangeRings(void* a, void* b, Order* e, Vec3* p, int c);
@@ -682,7 +683,7 @@ short __stdcall ResolveUnitTypeKey(HapiBank* file, unsigned short id)
     char key[0x80];
     sprintf(key, "UTYPENAME%4d", id);
     if (file->HasItem(key))
-        return FindUnitTypeId(file->GetStringItem(key, 0));
+        return g_seams.units->FindUnitTypeId(file->GetStringItem(key, 0));
     int i, n = 0;                     // n counts every table entry, k only the
     unsigned short k = 0;             // ones without flag bit 5
     for (i = 1; i < g_game->unitDefCount; i++, n++) {
@@ -992,12 +993,6 @@ int __cdecl FUN_004b7123(short angle, int scale);
 void __cdecl FUN_004b7173(short angle, int* xz);
 int __cdecl FUN_004b715a(int x, int z);
 int __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
-Vec3 __stdcall GetPiecePosition(Path_0043d6d0* obj, int index);
-Angles16 __stdcall GetPieceAngles(Path_0043d6d0* obj, int index);
-void __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int mode);
-int __stdcall CanPlaceUnitFootprint(UnitType_0043cd20* type, short a8, Point cell, int mode);
-void __stdcall RemoveUnitFromMap(Unit* unit);
-void __stdcall AddUnitToMap(Unit* unit);
 MissionType __stdcall GetOrderType(unsigned char relation, Unit* unit, Unit* target, Vec3* pos);
 void __stdcall AddOrder(unsigned char kind, int remove, Unit* owner, int id, int* pos, int param_6, int param_7);
 int __stdcall FindWeaponTarget(Unit* unit, int a, int b);
@@ -1267,7 +1262,6 @@ static void Wait_0043b7c0(Order* node, int n)
     node->wakeFrame = g_game->frame + when;
 }
 
-#include "../../interfaces/seams.h"
 
 // Clears the unit's three weapon targets.
 static void ClearTargets_0043b7c0(Unit* unit)
@@ -1828,9 +1822,9 @@ void UnitMotion::SetFlightMode(Unit* owner, int newState)
             Vec3 zero(0, 0, 0);
             velocity = zero;
             ApplyBankAndPitch(owner, &zero);
-            owner->SetStateBits(1, 0);
+            g_seams.units->SetStateBits(owner, 1, 0);
         } else {
-            owner->SetStateBits(1, 1);
+            g_seams.units->SetStateBits(owner, 1, 1);
         }
         mode = newState;
     }
@@ -1960,7 +1954,6 @@ void UnitMotion::SteerAircraft(Unit* unit) {
 // Unused here: a real function declared for the symbol count that RegisterOrderTypes
 // (0x43bc90) and UpdatePosition (0x43d6d0) need with the shared Angles16
 // (docs/c2-regalloc.md).
-void FreeUnitInfo();
 
 // Moves the unit one step. With a path object it snaps to the path's next
 // point (raised to the draft/sea-level floor for units with the type flag at
@@ -1974,13 +1967,13 @@ void UnitMotion::UpdatePosition(Unit* u)
     if (u->carrier != 0) {
         // Copy through the returned pointer, not an initialiser.
         Vec3 v;
-        v = GetPiecePosition(u->carrier, u->transportPiece);
+        v = g_seams.units->GetPiecePosition((Unit*)u->carrier, u->transportPiece);
         if (u->def->b19) {
             // MAX stays a macro over the Fixed union with a prvalue second operand.
             v.fy = MAXM_0043d6d0(v.fy, MakeFixed_0043d6d0(u->def->draft * 0xffff + g_game->seaLevel));
         }
-        SetUnitPosition(u, v, mode);
-        Angles16 o = GetPieceAngles(u->carrier, u->transportPiece);
+        g_seams.units->SetUnitPosition(u, v, mode);
+        Angles16 o = g_seams.units->GetPieceAngles((Unit*)u->carrier, u->transportPiece);
         u->angles = o;
         if (u->carrier->motion != 0) {
             speed = u->carrier->motion->speed;
@@ -2016,7 +2009,7 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     if (u->target->active != 0) {
         if (u->target->type == 1 || u->target->type == 2)
-            flag = CanPlaceUnitFootprint(u->def, u->id, cell, m) == 0;
+            flag = g_seams.map->CanPlaceUnitFootprint((UnitDef*)u->def, (UnitDef*)(int)u->id, *(Point16*)&cell, m) == 0;
     }
 
     if (flag) {
@@ -2040,12 +2033,12 @@ void UnitMotion::UpdatePosition(Unit* u)
         return;
     }
 
-    RemoveUnitFromMap(u);
+    g_seams.map->RemoveUnitFromMap(u);
     u->pos = pos;
     u->cell = cell;
     // The (short) cast gives the and/and/or store of the 2-bit field.
     u->mode = (short)m;
-    AddUnitToMap(u);
+    g_seams.map->AddUnitToMap(u);
     u->moved = 1;
     g_seams.los_radar->UpdateUnitLineOfSight(u);
 }
@@ -2067,19 +2060,19 @@ void UnitMotion::UpdateMoveRate(Unit* unit)
     if (rate == (int)((unit->flags >> 2) & 3))
         return;
     if (rate == 0) {
-        unit->script->StartScript("StopMoving", 0, 1);
+        g_seams.units->StartScript(unit->script, "StopMoving", 0, 1);
     } else if ((unit->flags & 0xc) == 0) {
-        unit->script->StartScript("StartMoving", 0, 1);
+        g_seams.units->StartScript(unit->script, "StartMoving", 0, 1);
     }
     switch (rate) {
     case 1:
-        unit->script->StartScript("MoveRate1", 0, 1);
+        g_seams.units->StartScript(unit->script, "MoveRate1", 0, 1);
         break;
     case 2:
-        unit->script->StartScript("MoveRate2", 0, 1);
+        g_seams.units->StartScript(unit->script, "MoveRate2", 0, 1);
         break;
     case 3:
-        unit->script->StartScript("MoveRate3", 0, 1);
+        g_seams.units->StartScript(unit->script, "MoveRate3", 0, 1);
         break;
     }
     unit->flags = (unit->flags & 0xfffffff3) | ((rate & 3) << 2);
@@ -2131,7 +2124,7 @@ void UnitMotion::UpdateMotion(Unit* u)
         SteerGroundUnit(u);
     UpdatePosition(u);
     UpdateMoveRate(u);
-    ((Class_0043db50*)this)->UpdateSfxOccupy(u);
+    g_seams.units->UpdateSfxOccupy((UnitMotion*)this, 0, u);
 }
 
 // FUNCTION: 0x43dd70

@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "../map/mission.h"
+#include "../../interfaces/seams.h"
 
 struct Input_00499890 {
     int fields[6];
@@ -75,7 +76,7 @@ void MainFrameTick()
         PopKey();
         PopUntilNamedLayout(0);
         g_game->ordersPanelFlags &= 0xfffe;
-        if (g_game->mapInfo->GetGameType() != 3)
+        if (g_seams.map->GetGameType(g_game->mapInfo) != 3)
             g_game->otherFlags &= 0xfffe;
     }
     if (key == 0xd6) {

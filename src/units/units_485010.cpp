@@ -448,6 +448,7 @@ void __stdcall ShareMapInfo(unsigned char from, unsigned char to)
 // included for their __cdecl helper templates (copy_backward) and type traits.
 
 #include <iterator>
+#include "../../interfaces/seams.h"
 #include <xutility>
 
 #define _ALGORITHM_
@@ -581,7 +582,7 @@ void __stdcall AllocateUnitMemory(void)
 // FUNCTION: 0x485940
 int __stdcall ComparePlayers(Player* a, Player* b)
 {
-    if (g_game->mapInfo->GetGameType() == 3)
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3)
         return a->id < b->id;
     return a < b;
 }
@@ -611,7 +612,6 @@ void FreeUnitMemory(void)
     g_game->units = 0;
 }
 
-#include "../../interfaces/seams.h"
 
 int __stdcall RandomInt(int range);
 
@@ -853,7 +853,6 @@ void __stdcall InitUnit(int unitType, Pos_00485a40 pos, int param_5, Unit* unit)
 
 // Unused here: the symbol id this declaration takes keeps 0x4854a0 matching
 // after the header moved the file's symbol count (docs/c2-regalloc.md).
-void FreeUnitInfo();
 
 void __stdcall UpdateUnitHeight(Unit* unit);
 void __stdcall AddUnitToMap(Unit* unit);
@@ -916,7 +915,7 @@ found:
     InitUnit_00485e90(typeId, pos, param_5, unit);
     unit->flags.mode = mode;
     UpdateUnitHeight(unit);
-    AddUnitToMap(unit);
+    g_seams.map->AddUnitToMap(unit);
     SendNewUnit(unit);
     if (param_5) {
         if (type->mobile == 0)
@@ -932,7 +931,7 @@ found:
     // Array subscript, not a byte-offset cast: it fixes the SIB operand order.
     g_game->players[player].unitCount++;
     g_game->players[player].unitsCreated++;
-    g_game->victoryConditions->NotifyUnitCreated(unit);
+    g_seams.players->NotifyUnitCreated(g_game->victoryConditions, 0, unit);
     return unit;
 }
 
@@ -1107,7 +1106,7 @@ void __stdcall KillUnit(Unit* unit, int param_2)
         if (same && g_game->battleCommanderDeath != 0 && unit->player->active != 0 &&
             (unit->player->type == 1 || unit->player->type == 2)) {
             PopUntilNamedLayout(1);
-            KillPlayerUnits(unit->playerIndex);
+            g_seams.players->KillPlayerUnits(unit->playerIndex);
         }
     }
 }
@@ -1119,10 +1118,8 @@ extern char g_killedScriptName[];
 extern char g_takenLeadFormat[];
 
 unsigned char __stdcall FindSlotByDpid(int id);
-void __stdcall DeleteOrders(void* unit, int flag);
 void __stdcall RemoveSpeechOfUnit(void* unit);
 void __stdcall AttachUnitToPiece(void* unit, void* builder, int a, int c);
-void __stdcall ClearFootprintAndUnlink(void* unit);
 void __stdcall AddCdActivitySample(int flag);
 char* __stdcall Translate(char* text);
 void __stdcall AddMessage(char* text, int a, int b, int c);
@@ -1153,8 +1150,8 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         parent = &g_game->units[cmd->attackerUnitId];
     unit->attacker = parent;
     unit->lastAttackerSlot = FindSlotByDpid(cmd->attackerPlayerNetId);
-    g_game->victoryConditions->NotifyUnitDied(unit);
-    DeleteOrders(unit, 1);
+    g_seams.players->NotifyUnitDied(g_game->victoryConditions, 0, unit);
+    g_seams.orders->DeleteOrders(unit, 1);
     RemoveSpeechOfUnit(unit);
     g_seams.ai->SetUnitSquad(unit, -1);
     g_seams.weapons->RemoveUnitProjectiles(unit);
@@ -1165,7 +1162,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         g_seams.weapons->DamageUnit(unit->attacker, unit->cargo, 30000, depth, 0);
         AttachUnitToPiece(unit->cargo, 0, -1, 1);
     }
-    ClearFootprintAndUnlink(unit);
+    g_seams.map->ClearFootprintAndUnlink(unit);
     if ((g_game->mapFlags & 2) == 2)
         g_seams.los_radar->RemoveUnitLineOfSight(unit);
     if (local == 0 && cmd->cobKilledSeverity > 0)
@@ -1212,7 +1209,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         Player* rec = &g_game->players[unit->lastAttackerSlot];
         if (rec->active != 0 && (rec->type == 1 || rec->type == 2 || rec->type == 3)
             && rec->index != 10
-            && (g_game->mapInfo->GetGameType() == 3 || g_game->mapInfo->GetGameType() == 2)
+            && (g_seams.map->GetGameType(g_game->mapInfo) == 3 || g_seams.map->GetGameType(g_game->mapInfo) == 2)
             && rec->rank > 0) {
             int rank = rec->rank;
             int best = rank;
@@ -1301,7 +1298,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     }
     UnitMotion* head = unit->motion;
     if (head != 0) {
-        head->DestroyObject();
+        g_seams.orders->DestroyMotionObject(head);
         operator delete(head);
         unit->motion = 0;
     }
@@ -1312,9 +1309,9 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     unit->flags.all &= ~0x30;
     unit->player->unitCount--;
     if (unit->player->unitCount == 0) {
-        if (g_game->mapInfo->GetGameType() == 3)
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3)
             AnnouncePlayerLeft(unit->player->id);
-        if (g_game->mapInfo->GetGameType() == 2)
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 2)
             AnnounceForcesDestroyed(unit->player);
     }
 }
@@ -1372,7 +1369,7 @@ void __stdcall KillPlayerUnits(unsigned char player)
                             } else {
                                 g_seams.weapons->DetonateUnitWeapon(u, 1);
                                 u->flags.all |= 0x4000;
-                                KillUnit(u, 3);
+                                g_seams.units->KillUnit(u, 3);
                             }
                         }
                     }
@@ -1384,7 +1381,6 @@ void __stdcall KillPlayerUnits(unsigned char player)
 
 // Unused here: real functions declared to keep the file's symbol count (docs/c2-regalloc.md);
 // SaveUnits stands in for the ids the weapon slot header moved.
-void __stdcall SaveUnits(void* file);
 void __stdcall NopRetC_B(int, int, int);
 
 struct Vec3_004851c0 {

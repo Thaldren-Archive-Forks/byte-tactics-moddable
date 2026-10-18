@@ -103,6 +103,7 @@ struct Game {
 #pragma pack(pop)
 
 #include "../orders/mission_type.h"
+#include "../../interfaces/seams.h"
 
 extern Game* g_game;
 
@@ -348,13 +349,13 @@ void BattleFrame(void)
     }
 
     if (g_game->endGameFlags.bits.b2 || g_game->endGameFlags.bits.b4) {
-        if (g_game->mapInfo->GetGameType() != 3 ||
-            (g_game->mapInfo->GetGameType() == 3 &&
+        if (g_seams.map->GetGameType(g_game->mapInfo) != 3 ||
+            (g_seams.map->GetGameType(g_game->mapInfo) == 3 &&
              BroadcastPendingViewState() != 0)) {
             SetCursor(0x13);
             PopUntilNamedLayout(1);
             CloseTopScreen(g_game->menu);
-            if (g_game->mapInfo->GetGameType() == 3) {
+            if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
                 ResetChatHudIndices();
                 MainLoopTick();
             }
@@ -370,15 +371,15 @@ void BattleFrame(void)
 
     if (g_game->restartMissionRequest != 0) {
         // Each arm keeps its own copy of the hook stores, and `|= 4` in both: the compiler merges them.
-        if (g_game->mapInfo->GetGameType() == 1) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
             ShutdownIngameSystems();
             PopUntilNamedLayout(1);
             CloseTopScreen(g_game->menu);
             BlankScreen();
-            int a = g_game->mapInfo->GetMissionIndex();
-            char* b = g_game->mapInfo->GetCampaignName();
-            g_game->mapInfo->LoadCampaign(b);
-            if (g_game->mapInfo->SelectMission(a) != 0) {
+            int a = g_seams.map->GetMissionIndex(g_game->mapInfo);
+            char* b = g_seams.map->GetCampaignName(g_game->mapInfo);
+            g_seams.map->LoadCampaign(g_game->mapInfo, 0, b);
+            if (g_seams.map->SelectMission(g_game->mapInfo, 0, a) != 0) {
                 g_game->netGameFlags.bits.b3 = 1;
                 g_game->netGameFlags.value |= 4;
             }
@@ -393,7 +394,7 @@ void BattleFrame(void)
             BlankScreen();
             SetCursor(0x14);
             g_game->numPlayers = saved;
-            g_game->mapInfo->LoadMissionByName(g_game->options + 0x11c);
+            g_seams.map->LoadMissionByName(g_game->mapInfo, 0, g_game->options + 0x11c);
             ApplySlotsToGamePlayers();
             g_game->netGameFlags.value |= 4;
             g_game->frontendState = 2;

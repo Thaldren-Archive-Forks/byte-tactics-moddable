@@ -35,6 +35,7 @@ public:
 
 #include "../network/player.h"
 #include "../state/block.h"
+#include "../../interfaces/seams.h"
 
 #pragma pack(push, 1)
 struct Game {
@@ -85,7 +86,7 @@ int MissionConditions::CheckVictory()
 {
     if (active == 0)
         return 0;
-    switch (g_game->mapInfo->GetGameType()) {
+    switch (g_seams.map->GetGameType(g_game->mapInfo)) {
     case 1:
         return AllVictoryConditionsMet();
     case 2: {

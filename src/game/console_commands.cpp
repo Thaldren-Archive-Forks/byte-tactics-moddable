@@ -479,17 +479,10 @@ void* __stdcall PlaceFeature(void* target, unsigned short id, void* pos, void* a
                              unsigned char owner);
 void __stdcall IssueOrderToSelection(void* a, int b, MissionType kind, int d, int e, int f);
 void SaveSettings();
-void KillAllUnits(void);
-void __stdcall KillPlayerUnits(unsigned char player);
 void __stdcall SetLightVector(int x, int y, int z);
-void __stdcall TransferEnergy(unsigned char a, int b, float c, int d);
-void __stdcall TransferMetal(unsigned char a, int b, float c, int d);
 void __stdcall SetBrightness(float value);
 void __stdcall MakeDirectoryPath(char* dir);
 void __stdcall SaveGameFile(char* path, char* description, int gameId);
-short __stdcall FindUnitTypeId(char* name);
-void __stdcall KillUnitsOfType(short id);
-void __stdcall ReloadUnitType(unsigned short id);
 extern void ClearCameraFollowState(void);
 void FUN_004161f0();
 void __stdcall WriteScreenshot(char* name, char* description, int x, int y, int w, int h);
@@ -503,8 +496,6 @@ unsigned int __stdcall ExecuteCommandText(char* text, int size, CommandArgs* var
 void __cdecl GameFreeThunk(void* data);
 int __stdcall HAPI_CloseFile(void* file);
 int __stdcall MatchWildcard(const char* name, const char* pattern);
-void __stdcall SnapWorldPosToFootprint(UnitDef* def, Vec3* pos);
-void* __stdcall CreateUnit(unsigned char owner, short id, Vec3 pos, int param_4, int mode, int unitId);
 extern Display_00417a60* GetDisplay();
 void ToggleFullScreen();
 void __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
@@ -634,11 +625,11 @@ void __stdcall CmdSelectable(int unused)
 void __stdcall CmdKill(CommandArgs* args)
 {
     if (args->count == 1) {
-        KillAllUnits();
+        g_seams.units->KillAllUnits();
     } else {
-        KillPlayerUnits(args->GetIntArg(1, 0));
+        g_seams.players->KillPlayerUnits(args->GetIntArg(1, 0));
     }
-    g_game->victoryConditions->Deactivate();
+    g_seams.players->DeactivateConditions(g_game->victoryConditions);
 }
 
 // FUNCTION: 0x416500
@@ -809,9 +800,9 @@ void __stdcall CmdLogo(CommandArgs* args)
 void __stdcall CmdIWin(CommandArgs* args)
 {
     if (g_game->players[g_game->localPlayer].data->side == 1)
-        KillPlayerUnits(0);
+        g_seams.players->KillPlayerUnits(0);
     else
-        KillPlayerUnits(1);
+        g_seams.players->KillPlayerUnits(1);
     g_game->flag4 = 1;
     g_game->flag5 = 1;
     g_game->flag2 = 1;
@@ -823,7 +814,7 @@ void __stdcall CmdIWin(CommandArgs* args)
 // FUNCTION: 0x416a30
 void __stdcall CmdILose(CommandArgs* args)
 {
-    KillPlayerUnits(g_game->players[g_game->localPlayer].data->side);
+    g_seams.players->KillPlayerUnits(g_game->players[g_game->localPlayer].data->side);
     g_game->flag4 = 0;
     g_game->flag6 = 1;
     g_game->flag2 = 1;
@@ -871,11 +862,11 @@ void __stdcall CmdGive(CommandArgs* args)
         if (p->active != 0 && (p->type == 1 || p->type == 2 || p->type == 3)
             && p->index != 10) {
             if (_strcmpi(args->GetArg(3, DAT_005119b8), "metal") == 0) {
-                TransferEnergy(g_game->localPlayer, args->GetIntArg(1, 0),
+                g_seams.players->TransferEnergy(g_game->localPlayer, args->GetIntArg(1, 0),
                              (float)args->GetIntArg(2, 0), 1);
             }
             if (_strcmpi(args->GetArg(3, DAT_005119b8), "energy") == 0) {
-                TransferMetal(g_game->localPlayer, args->GetIntArg(1, 0),
+                g_seams.players->TransferMetal(g_game->localPlayer, args->GetIntArg(1, 0),
                              (float)args->GetIntArg(2, 0), 1);
             }
         }
@@ -1105,10 +1096,10 @@ void __stdcall CmdSave(CommandArgs* args)
 void __stdcall CmdReload(CommandArgs* args)
 {
     if (args->count > 1) {
-        short id = FindUnitTypeId(args->GetArg(1, DAT_005119b8));
+        short id = g_seams.units->FindUnitTypeId(args->GetArg(1, DAT_005119b8));
         if (id) {
-            KillUnitsOfType(id);
-            ReloadUnitType(id);
+            g_seams.units->KillUnitsOfType(id);
+            g_seams.units->ReloadUnitType(id);
         }
     }
 }
@@ -1272,8 +1263,8 @@ void __stdcall DefaultCommandHandler(CommandArgs* args)
         UnitDef* def=&g_game->unitDefs[i];
         if (MatchWildcard(def->unitname,args->GetArg(0,DAT_005119b8))) {
             if (count) pos.x-=def->modelMinX;
-            SnapWorldPosToFootprint(def,&pos);
-            CreateUnit(args->GetIntArg(1,0),i,pos,1,1,0);
+            g_seams.map->SnapWorldPosToFootprint(def,&pos);
+            g_seams.units->CreateUnit(args->GetIntArg(1,0),i,pos,1,1,0);
             pos.x+=def->modelMaxX+0x200000;
             if (pos.x >= (g_game->mapPixelWidth<<16)) { pos.x=0xa00000; pos.z+=0xa00000; }
             ++count;

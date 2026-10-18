@@ -123,8 +123,6 @@ int __stdcall OrderTypeNameLess(int param_1, char* param_2);
 Entry_0043a1f0* __stdcall LowerBoundOrderTypes(Entry_0043a1f0* first, Entry_0043a1f0* last,
                                        char* const& value, int(__stdcall* pred)(int, char*),
                                        int* unused);
-Unit* __stdcall LoadUnit(unsigned short id, void* file);
-unsigned short __stdcall FindUnitTypeId(const char* name);
 int __stdcall SendScriptCallNoArgs(Unit* obj, short index);
 void __stdcall SendScriptCall(Unit* obj, int index, int param_3, int param_4, int param_5, int param_6, int param_7);
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
@@ -311,8 +309,8 @@ void __stdcall AddBeCarriedOrder(Unit* p)
 // FUNCTION: 0x438590
 void __stdcall StartBuildingScript(Unit* obj, Order* target, unsigned short param_3)
 {
-    int index = ((CobScript *)obj->script)->FindScript("StartBuilding");
-    ((CobScript *)obj->script)->StartScriptWithArgsByIndex(index, 0, 0, 1, param_3, 0, 0, 0);
+    int index = g_seams.units->FindScript((CobScript*)obj->script, "StartBuilding");
+    g_seams.units->StartScriptWithArgsByIndex((CobScript*)obj->script, index, 0, 0, 1, param_3, 0, 0, 0);
     SendScriptCall(obj, index, 1, param_3, 0, 0, 0);
     target->flags |= 0x400000;
 }
@@ -321,8 +319,8 @@ void __stdcall StartBuildingScript(Unit* obj, Order* target, unsigned short para
 void __stdcall StopBuildingScript(Unit* obj, Order* target)
 {
     if (target->flags & 0x400000) {
-        int index = ((CobScript *)obj->script)->FindScript("StopBuilding");
-        ((CobScript *)obj->script)->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
+        int index = g_seams.units->FindScript((CobScript*)obj->script, "StopBuilding");
+        g_seams.units->StartScriptWithArgsByIndex((CobScript*)obj->script, index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
         target->flags &= ~0x400000;
     }
@@ -595,8 +593,8 @@ Order::~Order()
     }
     if (flags & 0x400000) {
         Unit* obj = unit;
-        int index = ((CobScript *)obj->script)->FindScript("StopBuilding");
-        ((CobScript *)obj->script)->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
+        int index = g_seams.units->FindScript((CobScript*)obj->script, "StopBuilding");
+        g_seams.units->StartScriptWithArgsByIndex((CobScript*)obj->script, index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
         flags &= ~0x400000;
     }
@@ -616,7 +614,7 @@ Order::~Order()
     if (!(flags & 0x10000)) {
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
     }
-    ((UnitRef*)&link)->Unlink();
+    g_seams.units->UnitRefUnlink((UnitRef*)&link);
 }
 
 // The real resolver at 0x43a360 (matched in its own file), defined here without
@@ -626,7 +624,7 @@ short __stdcall ResolveUnitTypeKey(HapiBank* file, unsigned short id)
     char key[0x80];
     sprintf(key, "UTYPENAME%4d", id);
     if (file->HasItem(key))
-        return FindUnitTypeId(file->GetStringItem(key, 0));
+        return g_seams.units->FindUnitTypeId(file->GetStringItem(key, 0));
     int i, n = 0;
     unsigned short k = 0;
     for (i = 1; i < g_game->unitDefCount; i++, n++) {
@@ -719,7 +717,7 @@ Order::Order(Unit* punit, HapiBank* file, char* name)
         return;
 
     unit = punit;
-    link.SetUnit(LoadUnit(desc.ownerType, file));
+    link.SetUnit(g_seams.units->LoadUnit(desc.ownerType, file));
 
     kind = desc.kind;
     flag5 = desc.flag5;

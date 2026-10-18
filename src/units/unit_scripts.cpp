@@ -29,6 +29,7 @@ struct Unit_0043e490;
 struct Feature_0043e490;
 
 #include "../units/unit_def.h"
+#include "sfx_occupy.h"
 
 #pragma pack(push, 1)
 struct Game {
@@ -73,10 +74,6 @@ struct Unit {
 };
 #pragma pack(pop)
 
-class Class_0043db50 {
-public:
-    void UpdateSfxOccupy(Unit* unit);
-};
 
 extern Game* g_game;
 
@@ -584,7 +581,7 @@ int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e
     case 9:
         return ((UnitDefFlags_0043e490*)def)->f245b.b6 ? 7 : 0x13;
     case 8:
-        return ((Unit*)unit)->CanRepair(target) ? 6 : 0x13;
+        return g_seams.units->CanRepair(((Unit*)unit), 0, (Unit*)target) ? 6 : 0x13;
     case 7:
         if (!(def->flags2 & 0x20) || !friendly)
             break;
@@ -594,7 +591,7 @@ int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e
     case 12:
         // Every check goes through the macro: an inline helper blows the budget.
         RECLAIM_CHECK(def, unit, pos, 0x400, 0xb);
-        if (target && ((Unit*)unit)->CanReclaim(target))
+        if (target && g_seams.units->CanReclaim(((Unit*)unit), 0, (Unit*)target))
             return 0xb;
         break;
     case 13:
@@ -602,7 +599,7 @@ int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e
             return 4;
         break;
     case 6:
-        if (!target || !((Unit*)unit)->CanLoad(target))
+        if (!target || !g_seams.units->CanLoad(((Unit*)unit), 0, (Unit*)target))
             break;
         return ((UnitDefFlags_0043e490*)def)->f241b.b11 ? 8 : 0xc;
     case 5:
@@ -631,15 +628,15 @@ int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e
             return 0xe;
         if ((def->flags2 & 0x1000) && enemy)
             return 4;
-        if (enemy && ((Unit*)unit)->CanReclaim(target))
+        if (enemy && g_seams.units->CanReclaim(((Unit*)unit), 0, (Unit*)target))
             return 0xb;
-        if (friendly && ((Unit*)unit)->CanRepair(target) && target->buildLeft != 0.0f)
+        if (friendly && g_seams.units->CanRepair(((Unit*)unit), 0, (Unit*)target) && target->buildLeft != 0.0f)
             return 6;
-        if (friendly && ((Unit*)unit)->CanRepair(target))
+        if (friendly && g_seams.units->CanRepair(((Unit*)unit), 0, (Unit*)target))
             return 6;
         if ((def->flags1 & 0x800) && (target->def->flags1 & 0x200))
             return 0xd;
-        if (((Unit*)unit)->CanLoad(target))
+        if (g_seams.units->CanLoad(((Unit*)unit), 0, (Unit*)target))
             return ((UnitDefFlags_0043e490*)def)->f241b.b11 ? 8 : 0xc;
         if ((def->flags2 & 0x20) && friendly)
             return 5;
@@ -661,7 +658,7 @@ int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e
             return GetOrderCursor(3, unit, target, pos);
         if ((def->flags2 & 0x400) && enemy)
             return GetOrderCursor(0xc, unit, target, pos);
-        if (target && ((Unit*)unit)->CanRepair(target) && target->buildLeft != 0.0f)
+        if (target && g_seams.units->CanRepair(((Unit*)unit), 0, (Unit*)target) && target->buildLeft != 0.0f)
             return 6;
         if (Selectable(target))
             return 0xf;

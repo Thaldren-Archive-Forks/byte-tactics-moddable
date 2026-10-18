@@ -113,6 +113,7 @@ struct Struct_00440a70 {
 #pragma pack(pop)
 
 #include "../network/player.h"
+#include "../../interfaces/seams.h"
 
 // Unused here: real functions declared to keep the symbol ids RefreshPassMap and
 // SetPassMapCell match in (docs/c2-regalloc.md).
@@ -513,14 +514,14 @@ void MovementClass::RefreshMovedUnits(Object_00440af0* p)
     unsigned int prev = p->unit->lastTick;
     p->unit->lastTick = g_game->gameTick;
     if (prev < old) {
-        this->RefreshPassMap(p->a, p->b);
+        g_seams.map->RefreshPassMap(this, 0, p->a, p->b);
     }
     if (start != old) {
         for (Record_00440af0* r = &g_game->units[1]; r <= g_game->unitsEnd; r++) {
             if ((r->flags & 0x10000000) != 0 && r->unit != 0) {
                 unsigned int t = r->unit->lastTick;
                 if (t >= old && t < start) {
-                    this->RefreshPassMap(r->a, r->b);
+                    g_seams.map->RefreshPassMap(this, 0, r->a, r->b);
                 }
             }
         }
@@ -534,7 +535,7 @@ void MovementClass::RefreshMovedUnits(Object_00440af0* p)
 void MovementClass::RefreshUnitIfStale(Object_00440af0* p)
 {
     if (p->unit->lastTick < lastTick) {
-        this->RefreshPassMap(p->a, p->b);
+        g_seams.map->RefreshPassMap(this, 0, p->a, p->b);
     }
 }
 
@@ -575,7 +576,7 @@ unsigned char FindHostSlot();
 // FUNCTION: 0x440cd0
 int CheckMapCrc()
 {
-    if (!g_game->mapInfo->GetTerrainLength()) {
+    if (!g_seams.map->GetTerrainLength(g_game->mapInfo)) {
         return 0;
     }
     unsigned char me = FindHostSlot();
@@ -590,5 +591,5 @@ int CheckMapCrc()
     if (!check) {
         return 1;
     }
-    return g_game->mapInfo->ComputeMapChecksum() == data->mapCrc;
+    return g_seams.map->ComputeMapChecksum(g_game->mapInfo) == data->mapCrc;
 }

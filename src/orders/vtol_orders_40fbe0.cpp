@@ -53,7 +53,6 @@ public:
 struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x14233]; int overflowBucket; };
 #pragma pack(pop)
 extern Game* g_game;
-void __stdcall AttachUnitToPiece(Unit*, Unit*, char, char);
 short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 union Fixed { int value; struct { unsigned short frac; short whole; } parts; };
 Vec3 __stdcall DirectionFromAngle(short, Fixed);
@@ -98,8 +97,8 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             if (unit->motion && (unit->def->flags1&0x800)) {
                 order->AnnounceStatusIfFlagged("Guarding");
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
-                if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
-                unit->SetStateBits(1,1);
+                if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
+                g_seams.units->SetStateBits(unit, 1,1);
                 if ((unit->motion->flags&3)==1) {
                     unit->motion->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
@@ -141,7 +140,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                     }
                 }
             }
-            if (unit->CanRepair(order->target)) {
+            if (g_seams.units->CanRepair(unit, 0, order->target)) {
                 MissionType kind=GetOrderType(8,unit,order->target,0);
                 if (kind.index) {
                     order->SetAttachedFx(0);
@@ -154,7 +153,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             // MissionType constructor call, and what frees the callee-saved
             // register the block's zero constant ends up in.
             if (order->target->list && order->target->list->kind.index && (unit->def->flags1&0x40) &&
-                unit->CanRepair(order->target->list->target) &&
+                g_seams.units->CanRepair(unit, 0, order->target->list->target) &&
                 (order->target->def->flags1&0x40) && order->target->list &&
                 (order->target->list->capabilities&0x100000) && unit!=order->target->list->target) {
                 int building = order->target->list->kind=="MobileBuild" || order->target->list->kind=="BuildingBuild" || order->target->list->kind=="VTOL_MobileBuild";

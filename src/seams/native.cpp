@@ -6,12 +6,19 @@
 #include "../units/cob_script.h"
 #include "../util/vec3.h"
 #include "../map/mission.h"
+#include "../map/spatial_bucket.h"
+#include "../game/mission_conditions.h"
 #include "../units/unit.h"
 #include "../ai/pathfinder.h"
 #include "../ai/ai_search_goal.h"
 #include "../orders/order_fx.h"
 #include "../ai/squad_manager.h"
 #include "../units/unit_type_set.h"
+#include "../units/unit_ref.h"
+#include "../units/sfx_occupy.h"
+#include "../orders/unit_motion.h"
+#include "../orders/order.h"
+#include "../util/angles.h"
 
 struct Player;
 
@@ -169,6 +176,71 @@ void __stdcall AddEyeball(Vec3* src, int a, int b, int c);
 void __stdcall DrawRadarUnits(void);
 void __stdcall UpdateRadarMapped(void);
 void __stdcall UpdateSensorRadarAndCloak(void);
+
+class HapiBank;
+void __stdcall BuildAllPassMaps(void);
+void __stdcall FreeOtaEnumCacheAndMission(void);
+void __stdcall LoadMappingData(HapiBank* file);
+void __stdcall LoadMetalPlotmap(HapiBank* file);
+void __stdcall LoadPlayerFeaturesPlotmap(HapiBank* file);
+void __stdcall SaveMappingData(HapiBank* file);
+void __stdcall SaveMetalPlotmap(HapiBank* file);
+void __stdcall SavePlayerFeaturesPlotmap(HapiBank* file);
+void __stdcall SetMissionType(int type);
+void __stdcall SnapWorldPosToFootprint(UnitDef* unit, Vec3* pos);
+void __stdcall AddUnitToMap(Unit* unit);
+void __stdcall RemoveUnitFromMap(Unit* unit);
+int __stdcall CanPlaceFootprintAt(Unit* unit, Vec3* pos);
+int __stdcall IsPadSlotFree(Unit* pad, int id);
+int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* pos, int range, Vec3** energy, float* energyAmount, Vec3** metal, float* metalAmount);
+void __stdcall ClearFootprintAndUnlink(Unit* unit);
+void __stdcall ForceNeighborFootprintReclaim(Unit* unit);
+void __stdcall SetYardOpen(Unit* unit, int open);
+void __stdcall InitPlayers(void);
+void __stdcall FreePlayers(void);
+void __stdcall InitPlayerResources(void);
+void __stdcall LoadPlayerControllers(HapiBank* file);
+void __stdcall LoadPlayers(HapiBank* file);
+void __stdcall SavePlayers(HapiBank* file);
+void __stdcall RebuildAIFeatureCells(void);
+void __stdcall SetupPlayerSlot(int player, char type);
+void __stdcall UpdateBlink(void);
+void __stdcall KillPlayerUnits(unsigned char player);
+struct OwnershipTransferPacket;
+void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPacket* packet);
+void __stdcall AllocateUnitMemory(void);
+void __stdcall FreeUnitMemory(void);
+void __stdcall FreeUnitInfo(void);
+void __stdcall RefreshUnitInfo(void);
+void __stdcall LoadUnitTypes(void);
+void __stdcall FreeUnitTypes(void);
+void __stdcall LoadDownloadMenus(void);
+void __stdcall FreeDownloadMenus(void);
+void __stdcall FreeMovementClasses(void);
+void __stdcall InitUnitCategories(void);
+void __stdcall FreeUnitCategories(void);
+void __stdcall KillAllUnits(void);
+void __stdcall KillUnitsOfType(short id);
+void __stdcall ReloadUnitType(unsigned short id);
+void __stdcall KillUnit(Unit* unit, int cause);
+void __stdcall LoadUnits(HapiBank* file);
+void __stdcall SaveUnits(HapiBank* file);
+Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file);
+Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId, Vec3 pos, int param_4, int mode, int param_6);
+UnitDef* __stdcall FindUnitType(const char* name);
+unsigned short __stdcall FindUnitTypeId(const char* name);
+int __stdcall FindMissionUnit(char* name, std::vector<Unit*>* units, int value);
+void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char piece, char mode);
+void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
+Angles16 __stdcall GetPieceAngles(Unit* unit, int piece);
+int __stdcall AddBuildProgress(Unit* builder, Unit* unit, float amount);
+int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float amount);
+void __stdcall ApplyUnfinishedBuildDecay(Unit* unit, int ticks);
+void __stdcall FinishConstruction(Unit* builder, Unit* unit);
+int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param);
+void __stdcall AddBeCarriedOrder(Unit* unit);
+void __stdcall RunOrders(Unit* unit);
+void __stdcall RunSecondaryOrders(Unit* unit);
 
 struct DamagedAllyCollector;
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
@@ -355,9 +427,184 @@ static char* __stdcall GetNameSlotNative(Mission* mission, int index)
     return mission->GetNameSlot(index);
 }
 
-static void __stdcall VisitObjectsInRangeNative(Vec3* pos, int range, void* visitor)
+static void __stdcall VisitObjectsInRangeNative(Vec3* pos, int range, UnitVisitor* visitor)
 {
     VisitObjectsInRange(pos, range, *(DamagedAllyCollector*)visitor);
+}
+
+static void __fastcall SpatialBucketPrependUnitNative(SpatialBucket* self, int unusedEdx, Unit* unit)
+{
+    self->PrependUnit((int)unit);
+}
+
+static void __fastcall SpatialBucketUnlinkUnitNative(SpatialBucket* self, int unusedEdx, Unit* unit)
+{
+    self->UnlinkUnit(unit);
+}
+
+static void __fastcall RefreshPassMapNative(MovementClass* self, int unusedEdx, Point16 a, Point16 b)
+{
+    self->RefreshPassMap(a, b);
+}
+
+static int __fastcall AdvanceMissionNative(Mission* self)
+{
+    return self->AdvanceMission();
+}
+
+static char* __fastcall GetCampaignNameNative(Mission* self)
+{
+    return self->GetCampaignName();
+}
+
+static int __fastcall GetMissionIndexNative(Mission* self)
+{
+    return self->GetMissionIndex();
+}
+
+static char* __fastcall GetMissionNameNative(Mission* self)
+{
+    return self->GetMissionName();
+}
+
+static int __fastcall GetStartPositionNative(Mission* self, int unusedEdx, Vec3* out, int id)
+{
+    return self->GetStartPosition((Vec3_00437320*)out, id);
+}
+
+static void __fastcall LoadCampaignNative(Mission* self, int unusedEdx, char* file)
+{
+    self->LoadCampaign(file);
+}
+
+static int __fastcall LoadMissionByNameNative(Mission* self, int unusedEdx, char* name)
+{
+    return self->LoadMissionByName(name);
+}
+
+static int __fastcall MissionExistsNative(Mission* self, int unusedEdx, int index)
+{
+    return self->MissionExists(index);
+}
+
+static void __fastcall RefreshMapListNative(Mission* self, int unusedEdx, int multiplayer)
+{
+    self->RefreshMapList(multiplayer);
+}
+
+static int __fastcall SelectMissionNative(Mission* self, int unusedEdx, int index)
+{
+    return self->SelectMission(index);
+}
+
+static int __fastcall ComputeMapChecksumNative(Mission* self)
+{
+    return self->ComputeMapChecksum();
+}
+
+static int __fastcall GetTerrainLengthNative(Mission* self)
+{
+    return self->GetTerrainLength();
+}
+
+static void __fastcall DeactivateConditionsNative(MissionConditions* self)
+{
+    self->Deactivate();
+}
+
+static void __fastcall LoadConditionsNative(MissionConditions* self, int unusedEdx, HapiBank* file)
+{
+    self->LoadConditions(file);
+}
+
+static void __fastcall SaveConditionsNative(MissionConditions* self, int unusedEdx, HapiBank* file)
+{
+    self->SaveConditions(file);
+}
+
+static void __fastcall RegisterConditionsNative(MissionConditions* self, int unusedEdx, TdfFile* mission)
+{
+    self->RegisterConditions((Param_0048e010*)mission);
+}
+
+static void __fastcall FreeConditionsNative(MissionConditions* self)
+{
+    self->FreeConditions();
+}
+
+static void __stdcall DeleteConditionsNative(MissionConditions* self)
+{
+    delete self;
+}
+
+static void __fastcall NotifyUnitCreatedNative(MissionConditions* self, int unusedEdx, Unit* unit)
+{
+    self->NotifyUnitCreated(unit);
+}
+
+static void __fastcall NotifyUnitDiedNative(MissionConditions* self, int unusedEdx, Unit* unit)
+{
+    self->NotifyUnitDied(unit);
+}
+
+static int __fastcall CanLoadNative(Unit* self, int unusedEdx, Unit* target)
+{
+    return self->CanLoad(target);
+}
+
+static int __fastcall CanReclaimNative(Unit* self, int unusedEdx, Unit* target)
+{
+    return self->CanReclaim(target);
+}
+
+static int __fastcall CanRepairNative(Unit* self, int unusedEdx, Unit* target)
+{
+    return self->CanRepair(target);
+}
+
+static void __fastcall UnitRefUnlinkNative(UnitRef* self)
+{
+    self->Unlink();
+}
+
+static int __stdcall StartScriptWithArgsByIndexNative(CobScript* script, int index, Callback* callback, int update, int count, int a, int b, int c, int d)
+{
+    return script->StartScriptWithArgsByIndex(index, callback, update, count, a, b, c, d);
+}
+
+static void __fastcall UpdateSfxOccupyNative(UnitMotion* self, int unusedEdx, Unit* unit)
+{
+    ((Class_0043db50*)self)->UpdateSfxOccupy(unit);
+}
+
+static void __fastcall ReattachFxToUnitNative(Order* self)
+{
+    self->ReattachFxToUnit();
+}
+
+static int __fastcall SerializeOrderToSaveNative(Order* self, int unusedEdx, Unit* unit, HapiBank* file, char* name)
+{
+    return self->SerializeToSave(unit, file, name);
+}
+
+static void __fastcall DestroyMotionObjectNative(UnitMotion* self)
+{
+    self->DestroyObject();
+}
+
+static void __fastcall LoadMotionNative(UnitMotion* self, int unusedEdx, Unit* unit, HapiBank* file)
+{
+    self->LoadMotion(unit, file);
+}
+
+static void __fastcall SaveMotionNative(UnitMotion* self, int unusedEdx, Unit* unit, HapiBank* file)
+{
+    self->SaveMotion(unit, file);
+}
+
+static void __fastcall UpdateMotionNative(UnitMotion* self, int unusedEdx, Unit* unit)
+{
+    self->UpdateMotion(unit);
 }
 
 static int __stdcall MovementClassGetNative(MovementClass* self, int x, int y)
@@ -580,6 +827,103 @@ void InstallNativeSeams()
     s_units.GetPieceOffset = GetPieceOffset;
     s_units.GetPiecePosition = GetPiecePosition;
     s_units.MarkRecentlyDamaged = MarkRecentlyDamaged;
+    s_map.BuildAllPassMaps = BuildAllPassMaps;
+    s_map.FreeOtaEnumCacheAndMission = FreeOtaEnumCacheAndMission;
+    s_map.LoadMappingData = LoadMappingData;
+    s_map.LoadMetalPlotmap = LoadMetalPlotmap;
+    s_map.LoadPlayerFeaturesPlotmap = LoadPlayerFeaturesPlotmap;
+    s_map.SaveMappingData = SaveMappingData;
+    s_map.SaveMetalPlotmap = SaveMetalPlotmap;
+    s_map.SavePlayerFeaturesPlotmap = SavePlayerFeaturesPlotmap;
+    s_map.SetMissionType = SetMissionType;
+    s_map.SnapWorldPosToFootprint = SnapWorldPosToFootprint;
+    s_map.AddUnitToMap = AddUnitToMap;
+    s_map.RemoveUnitFromMap = RemoveUnitFromMap;
+    s_map.CanPlaceFootprintAt = CanPlaceFootprintAt;
+    s_map.IsPadSlotFree = IsPadSlotFree;
+    s_map.PickRandomReclaimableResourcesInRadius = PickRandomReclaimableResourcesInRadius;
+    s_map.ClearFootprintAndUnlink = ClearFootprintAndUnlink;
+    s_map.ForceNeighborFootprintReclaim = ForceNeighborFootprintReclaim;
+    s_map.SetYardOpen = SetYardOpen;
+    s_map.SpatialBucketPrependUnit = SpatialBucketPrependUnitNative;
+    s_map.SpatialBucketUnlinkUnit = SpatialBucketUnlinkUnitNative;
+    s_map.RefreshPassMap = RefreshPassMapNative;
+    s_map.AdvanceMission = AdvanceMissionNative;
+    s_map.GetCampaignName = GetCampaignNameNative;
+    s_map.GetMissionIndex = GetMissionIndexNative;
+    s_map.GetMissionName = GetMissionNameNative;
+    s_map.GetStartPosition = GetStartPositionNative;
+    s_map.LoadCampaign = LoadCampaignNative;
+    s_map.LoadMissionByName = LoadMissionByNameNative;
+    s_map.MissionExists = MissionExistsNative;
+    s_map.RefreshMapList = RefreshMapListNative;
+    s_map.SelectMission = SelectMissionNative;
+    s_map.ComputeMapChecksum = ComputeMapChecksumNative;
+    s_map.GetTerrainLength = GetTerrainLengthNative;
+    s_players.InitPlayers = InitPlayers;
+    s_players.FreePlayers = FreePlayers;
+    s_players.InitPlayerResources = InitPlayerResources;
+    s_players.LoadPlayerControllers = LoadPlayerControllers;
+    s_players.LoadPlayers = LoadPlayers;
+    s_players.SavePlayers = SavePlayers;
+    s_players.RebuildAIFeatureCells = RebuildAIFeatureCells;
+    s_players.SetupPlayerSlot = SetupPlayerSlot;
+    s_players.UpdateBlink = UpdateBlink;
+    s_players.KillPlayerUnits = KillPlayerUnits;
+    s_players.GiveUnitToPlayer = GiveUnitToPlayer;
+    s_players.DeactivateConditions = DeactivateConditionsNative;
+    s_players.LoadConditions = LoadConditionsNative;
+    s_players.SaveConditions = SaveConditionsNative;
+    s_players.RegisterConditions = RegisterConditionsNative;
+    s_players.FreeConditions = FreeConditionsNative;
+    s_players.DeleteConditions = DeleteConditionsNative;
+    s_players.NotifyUnitCreated = NotifyUnitCreatedNative;
+    s_players.NotifyUnitDied = NotifyUnitDiedNative;
+    s_units.AllocateUnitMemory = AllocateUnitMemory;
+    s_units.FreeUnitMemory = FreeUnitMemory;
+    s_units.FreeUnitInfo = FreeUnitInfo;
+    s_units.RefreshUnitInfo = RefreshUnitInfo;
+    s_units.LoadUnitTypes = LoadUnitTypes;
+    s_units.FreeUnitTypes = FreeUnitTypes;
+    s_units.LoadDownloadMenus = LoadDownloadMenus;
+    s_units.FreeDownloadMenus = FreeDownloadMenus;
+    s_units.FreeMovementClasses = FreeMovementClasses;
+    s_units.InitUnitCategories = InitUnitCategories;
+    s_units.FreeUnitCategories = FreeUnitCategories;
+    s_units.KillAllUnits = KillAllUnits;
+    s_units.KillUnitsOfType = KillUnitsOfType;
+    s_units.ReloadUnitType = ReloadUnitType;
+    s_units.KillUnit = KillUnit;
+    s_units.LoadUnits = LoadUnits;
+    s_units.SaveUnits = SaveUnits;
+    s_units.LoadUnit = LoadUnit;
+    s_units.CreateUnit = CreateUnit;
+    s_units.FindUnitType = FindUnitType;
+    s_units.FindUnitTypeId = FindUnitTypeId;
+    s_units.FindMissionUnit = FindMissionUnit;
+    s_units.AttachUnitToPiece = AttachUnitToPiece;
+    s_units.GetNanoPiecePosition = GetNanoPiecePosition;
+    s_units.GetPieceAngles = GetPieceAngles;
+    s_units.AddBuildProgress = AddBuildProgress;
+    s_units.AddRepairProgress = AddRepairProgress;
+    s_units.ApplyUnfinishedBuildDecay = ApplyUnfinishedBuildDecay;
+    s_units.FinishConstruction = FinishConstruction;
+    s_units.SetUnitPosition = SetUnitPosition;
+    s_units.CanLoad = CanLoadNative;
+    s_units.CanReclaim = CanReclaimNative;
+    s_units.CanRepair = CanRepairNative;
+    s_units.UnitRefUnlink = UnitRefUnlinkNative;
+    s_units.StartScriptWithArgsByIndex = StartScriptWithArgsByIndexNative;
+    s_units.UpdateSfxOccupy = UpdateSfxOccupyNative;
+    s_orders.ReattachFxToUnit = ReattachFxToUnitNative;
+    s_orders.SerializeOrderToSave = SerializeOrderToSaveNative;
+    s_orders.AddBeCarriedOrder = AddBeCarriedOrder;
+    s_orders.RunOrders = RunOrders;
+    s_orders.RunSecondaryOrders = RunSecondaryOrders;
+    s_orders.DestroyMotionObject = DestroyMotionObjectNative;
+    s_orders.LoadMotion = LoadMotionNative;
+    s_orders.SaveMotion = SaveMotionNative;
+    s_orders.UpdateMotion = UpdateMotionNative;
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
     s_weapons.SpawnProjectile = SpawnProjectile;

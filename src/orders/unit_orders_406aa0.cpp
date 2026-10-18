@@ -2,6 +2,8 @@
 // Stays in its own file: it needs this file's Vec with a constructor, where unit_orders.cpp's Vec3 shares one load of the unit position between both corners.
 #include <string.h>
 #include <math.h>
+#include "../util/vec3.h"
+#include "../../interfaces/seams.h"
 struct Vec { int x, y, z; Vec() {} Vec(int a,int b,int c):x(a),y(b),z(c) {} };
 static inline Vec Add(const Vec& a,const Vec& b) { Vec r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 static inline Vec Sub(const Vec& a,const Vec& b) { Vec r; r.x=a.x-b.x; r.y=a.y-b.y; r.z=a.z-b.z; return r; }
@@ -13,7 +15,6 @@ struct Game { char pad[0x14357]; Unit* units; Unit* unitsEnd; };
 #pragma pack(pop)
 extern Game* g_game;
 void __stdcall EmitTeleportParticles(Vec*,Vec*,int,int);
-void __stdcall SetUnitPosition(Unit*,Vec,int);
 // FUNCTION: 0x406aa0
 int __stdcall TeleportOrder(Unit* unit,Order* order,int unused)
 {
@@ -23,7 +24,7 @@ int __stdcall TeleportOrder(Unit* unit,Order* order,int unused)
         if(p->pos.x >= low.x && p->pos.x <= high.x && p->pos.z >= low.z && p->pos.z <= high.z && p->pos.y >= low.y && p->pos.y <= high.y && unit != p) {
             Vec dest = Sub(Add(order->pos,p->pos),unit->pos);
             EmitTeleportParticles(&p->pos,&dest,30,5);
-            SetUnitPosition(p,dest,1);
+            g_seams.units->SetUnitPosition(p,*(Vec3*)&dest,1);
         }
     }
     return 5;

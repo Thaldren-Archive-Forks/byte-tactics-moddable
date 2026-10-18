@@ -378,7 +378,7 @@ Mission::~Mission()
 {
     MissionConditions* obj = g_game->victoryConditions;
     if (obj) {
-        obj->FreeConditions();
+        g_seams.players->FreeConditions(obj);
         operator delete(obj);
         g_game->victoryConditions = 0;
     }
@@ -817,7 +817,7 @@ int Mission::LoadMission(char* map)
     char desc[0x80];
     char lower[0x80];
 
-    delete g_game->victoryConditions;
+    g_seams.players->DeleteConditions(g_game->victoryConditions);
     g_game->victoryConditions = new (kSim) MissionConditions;
     surfaceMetal = -1;
     minWindSpeed = -1;
@@ -950,9 +950,7 @@ int Mission::LoadMission(char* map)
     noSeaLevelTrigger = parser.current->GetFieldInt("nosealeveltrigger", 0);
     waterDoesDamage = parser.current->GetFieldInt("waterdoesdamage", 0);
     waterDamage = parser.current->GetFieldInt("waterdamage", 0);
-    // The parameter is a TdfFile; the method takes the placeholder type that
-    // carries the same pointer, as the original's decorated name has it.
-    g_game->victoryConditions->RegisterConditions((Param_0048e010*)&parser);
+    g_seams.players->RegisterConditions(g_game->victoryConditions, 0, &parser);
     killMul = GetFloat(parser.current, "killmul");
     timeMul = GetFloat(parser.current, "timemul");
     if (!SelectSchema(type, &parser, schema)) {

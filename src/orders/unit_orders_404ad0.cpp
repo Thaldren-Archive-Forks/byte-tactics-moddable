@@ -43,11 +43,9 @@ extern Game* g_game;
 
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 int __stdcall RandomInt(int range);
-int __stdcall GetGroundHeight(Vec3* pos);
 unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
 // Unused here: the symbol ids this declaration takes keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int typeId, int amount);
@@ -82,7 +80,7 @@ int __stdcall ReclaimOrder(Unit* unit, Order* order, int flags)
         Vec3 pos;
         pos.x = (size.x + cell.x * 2) << 19;
         pos.z = (size.y + cell.y * 2) << 19;
-        pos.y = (RandomInt(f->height) + GetGroundHeight(&pos)) << 16;
+        pos.y = (RandomInt(f->height) + g_seams.units->GetGroundHeight(&pos)) << 16;
         StartBuildingScript(unit, order, GetHeadingBetween(&unit->pos, &pos) - unit->heading);
         return 1;
     }
@@ -98,11 +96,11 @@ int __stdcall ReclaimOrder(Unit* unit, Order* order, int flags)
         unit->workTime = g_game->gameTick + 300;
         if (order->time > 15) {
             Vec3 nano;
-            GetNanoPiecePosition(unit, &nano);
+            g_seams.units->GetNanoPiecePosition(unit, &nano);
             Box box;
             box.lo.x = cell.x << 20;
             box.lo.z = cell.y << 20;
-            box.lo.y = GetGroundHeight(&box.lo) << 16;
+            box.lo.y = g_seams.units->GetGroundHeight(&box.lo) << 16;
             box.hi = box.lo;
             box.hi.x += f->footprintX << 20;
             box.hi.z += f->footprintZ << 20;

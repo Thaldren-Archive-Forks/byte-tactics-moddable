@@ -169,6 +169,9 @@ struct Unit {
     unsigned char ChooseWeapon();
     void ClaimWeapons(unsigned char index);
     void ReleaseWeapons(unsigned char index);
+    int CanLoad(Unit* other);
+    int CanReclaim(void* param_1);
+    int CanRepair(Unit* other);
 };
 #pragma pack(pop)
 

@@ -63,7 +63,6 @@ struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x142
 extern Game* g_game;
 class Class_0044e730 { public: void SetApproachRadius(int); };
 class Class_0044e6c0 { public: void SetAltitude(int); };
-void __stdcall AttachUnitToPiece(Unit*, Unit*, char, char);
 short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 union Fixed { int value; struct { unsigned short frac; short whole; } parts; };
 Vec3 __stdcall DirectionFromAngle(short, Fixed);
@@ -87,7 +86,6 @@ class LandingPadList : public std::vector<Unit*> { public: LandingPadList(); };
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int param_6, int param_7);
 int __stdcall GetOrderName(Unit* obj);
-void __stdcall DeleteOrders(Unit* owner, int all);
 // Stays in a file of its own: it matches only in this file's symbol context.
 // FUNCTION: 0x4103e0
 int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
@@ -116,8 +114,8 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
                 order->angle=RandomInt(0x10000);
                 order->parity=order->angle&1;
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
-                if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
-                unit->SetStateBits(1,1);
+                if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
+                g_seams.units->SetStateBits(unit, 1,1);
                 if ((unit->motion->flags&3)==1) {
                     unit->motion->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);

@@ -197,6 +197,7 @@ struct View_00498da0 {
 };
 
 #include "../map/cell.h"
+#include "../util/vec3.h"
 
 struct Slot_00497180 {                  // 0x18 bytes
     int kind;                           // +0x0, 1 or 2 when the slot is in use
@@ -419,21 +420,16 @@ int __stdcall RandomInt(int x);
 unsigned char __stdcall FindHostSlot();
 void ApplyUseOnlyUnits();
 void HandleNetPackets();
-void __stdcall LoadPlayerControllers(void* mission);
 void ApplySlotsToGamePlayers();
 void LoadBattleAssets();
-void InitPlayerResources();
 void __stdcall LoadSavedGameState(void* mission);
 void CreateMissionUnits();
 void CenterCameraOnStartPosition();
 void __stdcall LoadPictureCached(const char* name, int a, int b, int c);
 void BroadcastPlayerInfo();
 void UpdateNetGameInfo();
-void UpdatePlayers();
 void __stdcall ReportGameEvent(int x);
-void RebuildAIFeatureCells();
 void __stdcall SetCameraPosition(int x, int y, int z);
-unsigned short __stdcall FindUnitTypeId(const char* name);
 void __stdcall SpawnCommanderAtStartPos(int team, int startpos);
 void __stdcall CreateUnit(unsigned char team, unsigned short id, FixedPos_497180 pos, int a,
     int b, int c);
@@ -499,7 +495,6 @@ unsigned int __cdecl GetTicks();
 char* __cdecl GetPreferredLanguage();
 
 #include "../../interfaces/seams.h"
-int __stdcall GetGroundHeight(Pos_00498d00* pos);
 int __stdcall PointInRect(Rect* r, int x, int y);
 
 
@@ -563,7 +558,7 @@ void __cdecl LoadMatch(void*)
     // Six of these casts stay: taking more than two out in this function moves
     // the symbol state that LoadingScreenFrame's allocation depends on
     // (docs/c2-regalloc.md).
-    switch (((Mission*)g_game->mapInfo)->GetGameType()) {
+    switch (g_seams.map->GetGameType(((Mission*)g_game->mapInfo))) {
     case 1:
         g_nonCampaignGame = 0;
         ApplyMissionOptionFlags(&g_game->singleSettings);
@@ -600,7 +595,7 @@ void __cdecl LoadMatch(void*)
             SleepMilliseconds(0x32);
         }
 
-        ((Mission*)g_game->mapInfo)->LoadMissionByName((char*)g_game->players[sel].data);
+        g_seams.map->LoadMissionByName(((Mission*)g_game->mapInfo), 0, (char*)g_game->players[sel].data);
         if (FindHostSlot() == 10)
             break;
 
@@ -621,8 +616,8 @@ void __cdecl LoadMatch(void*)
     if (g_game->pendingSaveStore != 0) {
         g_game->pendingSaveStore->OpenAccount("summary");
         if (g_game->pendingSaveStore->HasItem("BetweenMissions") == 0) {
-            LoadPlayerControllers(g_game->pendingSaveStore);
-            if (((Mission*)g_game->mapInfo)->GetGameType() == 2) {
+            g_seams.players->LoadPlayerControllers(g_game->pendingSaveStore);
+            if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) == 2) {
                 int count = 0;
                 Slot_00497180* def = g_game->options->slots;
                 int i = 0;
@@ -643,8 +638,8 @@ void __cdecl LoadMatch(void*)
 
     LoadBattleAssets();
 
-    if (g_game->mapInfo->GetGameType() != 1) {
-        if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) != 1) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
             g_game->loadingFlags.value |= 4;
             while ((g_game->loadingFlags.value & 8) == 0)
                 SleepMilliseconds(0x32);
@@ -671,11 +666,11 @@ void __cdecl LoadMatch(void*)
                 PlayerInfo* pl2 = rec->data;
                 int side = pl2->side;
                 int which = rec->startPos;
-                ((Mission*)g_game->mapInfo)->GetStartPosition((Vec3_00437320*)&pos, which);
+                g_seams.map->GetStartPosition(((Mission*)g_game->mapInfo), 0, (Vec3*)&pos, which);
                 if (rec->active != 0 && rec->team == 1)
                     start = pos;
-                unsigned short id = FindUnitTypeId(g_game->sideNames[side].name + 4);
-                CreateUnit(rec->kind, id, pos, 1, 1, 0);
+                unsigned short id = g_seams.units->FindUnitTypeId(g_game->sideNames[side].name + 4);
+                g_seams.units->CreateUnit(rec->kind, id, *(Vec3*)&pos, 1, 1, 0);
                 int s1 = pl->energy * 100;
                 int s2 = pl->metal * 100;
                 rec->flags_149.started = 1;
@@ -698,7 +693,7 @@ void __cdecl LoadMatch(void*)
             }
             SetCameraPosition(cx, cz, 0);
             ReportGameEvent(6);
-        } else if (((Mission*)g_game->mapInfo)->GetGameType() == 2 &&
+        } else if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) == 2 &&
             g_game->pendingSaveStore == 0) {
             if (g_game->options->fixedloc != 0) {
                 for (int i1 = 0; i1 < 10; i1++) {
@@ -743,7 +738,7 @@ void __cdecl LoadMatch(void*)
                     }
                 }
             }
-            InitPlayerResources();
+            g_seams.players->InitPlayerResources();
         }
     }
 
@@ -755,7 +750,7 @@ void __cdecl LoadMatch(void*)
             LoadSavedGameState(g_game->pendingSaveStore);
             goto tail;
         }
-    } else if (((Mission*)g_game->mapInfo)->GetGameType() != 1) {
+    } else if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) != 1) {
         goto tail;
     }
     CreateMissionUnits();
@@ -779,8 +774,8 @@ tail:
     currec->data->flags_9b |= 0x10;
     BroadcastPlayerInfo();
     UpdateNetGameInfo();
-    UpdatePlayers();
-    InitPlayerResources();
+    g_seams.players->UpdatePlayers();
+    g_seams.players->InitPlayerResources();
 
     HapiBank* mission = g_game->pendingSaveStore;
     if (mission != 0) {
@@ -788,7 +783,7 @@ tail:
         operator delete(mission);
         g_game->pendingSaveStore = 0;
     }
-    RebuildAIFeatureCells();
+    g_seams.players->RebuildAIFeatureCells();
 
     g_game->loadingFlags.value |= 2;
 }
@@ -931,7 +926,7 @@ void LoadingScreenFrame(void)
         }
         SetFont(g_game->fontComix);
         SetPaletteColors(g_game->paletteRgba, 0, 0x100);
-        if (g_game->mapInfo->GetGameType() != 2) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) != 2) {
             SaveSettings();
         }
         while (g_game->field_531 != 0) {
@@ -1061,10 +1056,10 @@ void LoadingScreenFrame(void)
         }
         SetFont(g_game->fontComix);
         DrawSurface(&gadget, (void*)g_game->surface, 0, 0);
-        if (g_game->mapInfo->GetGameType() != 1) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) != 1) {
             SetTextColors(color, 0xfe);
             // Local for the strncpy source: the call comes before the length push.
-            char* name = g_game->mapInfo->GetMissionName();
+            char* name = g_seams.map->GetMissionName(g_game->mapInfo);
             strncpy(namebuf, name, 100);
             namebuf[99] = 0;
             if (GetPreferredLanguage() != 0 && _strcmpi((const char*)GetPreferredLanguage(), "english") != 0) {
@@ -1092,7 +1087,7 @@ void LoadingScreenFrame(void)
                          rect[1] + *((short*)lightbar + 3));
             DrawLoadingBar(&gadget, lightbar, 5, &DAT_0051e825, (unsigned char*)&DAT_0051e6cc, 1, "Explosions", 0x15b, rect);
         }
-        if (g_game->mapInfo->GetGameType() == 3) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
             DrawSyncStatus(&gadget);
             SendLoadProgress();
         }
@@ -1120,7 +1115,7 @@ void __stdcall MinimapCursorToWorldPos(Pos_00498d00* out)
     memset(out, 0, sizeof(Pos_00498d00));
     out->x.whole = g_game->mapPixelWidth * dx / g_game->minimapGadgetW;
     out->z.whole = g_game->mapPixelHeight * dy / g_game->minimapGadgetH;
-    out->y.whole = GetGroundHeight(out);
+    out->y.whole = g_seams.units->GetGroundHeight((Vec3*)out);
 }
 
 // Turns a screen point into a world position. The caller copies the 24-byte

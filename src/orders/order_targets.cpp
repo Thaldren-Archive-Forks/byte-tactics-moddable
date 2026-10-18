@@ -16,6 +16,7 @@
 #include "../util/hapi_bank.h"
 #include <stdlib.h>
 #include <vector>
+#include "../util/vec3.h"
 #include <algorithm>
 #include <math.h>
 
@@ -1002,14 +1003,8 @@ void FreeGameFonts();
 int LoadDefaultPalette();
 void LoadTextureGafs();
 void FreeTextureGafs();
-void FreeUnitInfo();
-void RefreshUnitInfo();
 void CheckDownloadableFlags();
 void AddDownloadBuildOptions();
-void LoadUnitTypes();
-void FreeUnitTypes();
-void LoadDownloadMenus();
-void FreeDownloadMenus();
 // Two more, for the declaration PatrolGoal::DeserializeNetUnitState no longer needs.
 void StartScreenFade();
 void StepScreenFade();
@@ -1083,9 +1078,6 @@ extern int Pad6260_65;
 extern int Pad6260_66;
 extern int Pad6260_67;
 
-Unit* __stdcall LoadUnit(unsigned short index, HapiBank* file);
-Vec3 __stdcall GetPiecePosition(Unit* obj, int param);
-int __stdcall GetGroundHeight(Pos_0044e6c0* pos);
 void __cdecl FUN_004b7173(short angle, int* xy);
 
 // FUNCTION: 0x44ce40
@@ -1679,8 +1671,8 @@ PathOrder::PathOrder(int owner, HapiBank* file, char* name)
     file->OpenNamedBox(name);
     file->SeekBox(0);
     if (file->ReadBox(&rec, 0x36) == 0x36) {
-        unit = LoadUnit(rec.id1, file);
-        ref.SetUnit((Unit*)LoadUnit(rec.id2, file));
+        unit = g_seams.units->LoadUnit(rec.id1, file);
+        ref.SetUnit((Unit*)g_seams.units->LoadUnit(rec.id2, file));
         field_8 = rec.f1;
         approachRadius = rec.f2;
         altitude = rec.f3;
@@ -1689,7 +1681,7 @@ PathOrder::PathOrder(int owner, HapiBank* file, char* name)
         pos = *(Vec3*)&rec.pos;
         followOffset = rec.i4;
     }
-    ((UnitRef*)&rec.ref_vt)->Unlink();
+    g_seams.units->UnitRefUnlink(((UnitRef*)&rec.ref_vt));
 }
 
 // FUNCTION: 0x44df70
@@ -1705,7 +1697,7 @@ int PathOrder::GetType()
 // FUNCTION: 0x44df80
 void* PathOrder::Destroy(unsigned char flag)
 {
-    ((UnitRef*)((char*)this + 0x16))->Unlink();
+    g_seams.units->UnitRefUnlink(((UnitRef*)((char*)this + 0x16)));
     vtable = g_orderFxVtable;
     if (flag & 1) {
         operator delete(this);
@@ -1768,7 +1760,7 @@ int PathOrder::SerializeToSave(int unused, HapiBank* file, char* name)
     file->OpenNamedBox(name);
     file->SeekBox(0);
     file->WriteBox(&rec, 0x36);
-    ((UnitRef*)&rec.ref_vt)->Unlink();
+    g_seams.units->UnitRefUnlink(((UnitRef*)&rec.ref_vt));
     return 1;
 }
 
@@ -1902,7 +1894,7 @@ int PathOrder::FillWorldPos(Vec3* out)
             return 0;
         // Through a local pointer: keeps the struct-assignment destination in edi.
         Vec3* p = &pos;
-        *p = GetPiecePosition(ref.owner, piece);
+        *p = g_seams.units->GetPiecePosition(ref.owner, piece);
         if (flags & 2) {
             short angle = ref.owner->heading;
             if (flags & 0x40)
@@ -1993,7 +1985,7 @@ void PathOrder::SetAltitude(int param_1)
     field_8 |= 8;
     altitude = param_1;
     if ((unsigned char)field_8 & 0x20) {
-        pos.y = (max(GetGroundHeight((Pos_0044e6c0*)&pos), g_game->seaLevel) + param_1) << 16;
+        pos.y = (max(g_seams.units->GetGroundHeight((Vec3*)&pos), g_game->seaLevel) + param_1) << 16;
         if (pos.y > 0x1ff0000)
             pos.y = 0x1ff0000;
     }
@@ -2057,7 +2049,7 @@ AirManeuverOrder::AirManeuverOrder(int owner, HapiBank* file, char* name)
     file->SeekBox(0);
     Header_0044e740 hdr;
     if (file->ReadBox(&hdr, 0x2a) == 0x2a) {
-        self = (Object_0044e740*)LoadUnit(hdr.id, file);
+        self = (Object_0044e740*)g_seams.units->LoadUnit(hdr.id, file);
         flags = hdr.flag;
         target = hdr.target;
         other = hdr.other;

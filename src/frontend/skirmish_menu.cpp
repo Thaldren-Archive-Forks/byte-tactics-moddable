@@ -83,6 +83,7 @@ struct Table {
 
 #include "../network/player.h"
 #include "../network/player_info.h"
+#include "../../interfaces/seams.h"
 
 struct Game {
     char unknown_0[0x519];
@@ -625,7 +626,6 @@ int __stdcall FindNextAllySlot(int self, int start)
     return -1;
 }
 
-void __stdcall SetupPlayerSlot(unsigned char player, unsigned char kind);
 
 // Marks, for each active player (active 1 or 2), every player slot that shares
 // its team type (or is the player itself), in the entry's `allied` array.
@@ -636,15 +636,15 @@ void ApplySlotsToGamePlayers()
         if (g_game->options->players[i].active == 1) {
             g_game->players[i].info->color = g_game->options->players[i].color;
             g_game->players[i].info->side = g_game->options->players[i].shade;
-            SetupPlayerSlot(i, 1);
+            g_seams.players->SetupPlayerSlot(i, 1);
             g_game->playerIndex = i;
             g_game->localPlayer = i;
         } else if (g_game->options->players[i].active == 2) {
             g_game->players[i].info->color = g_game->options->players[i].color;
             g_game->players[i].info->side = g_game->options->players[i].shade;
-            SetupPlayerSlot(i, 2);
+            g_seams.players->SetupPlayerSlot(i, 2);
         } else {
-            SetupPlayerSlot(i, 0);
+            g_seams.players->SetupPlayerSlot(i, 0);
         }
         if (g_game->options->players[i].active == 1 || g_game->options->players[i].active == 2) {
             int j = 0;

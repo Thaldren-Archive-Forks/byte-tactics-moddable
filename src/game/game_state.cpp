@@ -316,7 +316,7 @@ void __cdecl UpdateWind()
 // FUNCTION: 0x490da0
 void ResetGameSpeed()
 {
-    if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         g_game->gameSpeed = 10;
         g_game->effectiveGameSpeed = 10;
     }
@@ -511,7 +511,6 @@ extern const char g_unitLimitKey[];        // "UnitLimit"
 int GetScreenWidth();
 int GetScreenHeight();
 void __stdcall SetPageFlipping(int enable);
-void __stdcall SetMissionType(int type);
 void LoadGameResources();
 void InitSound();
 void ResetFrontendState();
@@ -565,8 +564,8 @@ void InitGame()
     g_game->endGameFlags &= 0xfffe;
     g_game->endGameFlags &= 0xfffd;
     g_game->restartMissionRequest = 0;
-    SetMissionType(0);
-    if (g_game->mapInfo->GetGameType() == 3) {
+    g_seams.map->SetMissionType(0);
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         g_game->gameSpeed = 10;
         g_game->effectiveGameSpeed = 10;
     }
@@ -660,9 +659,7 @@ void FreeGameFonts();
 void ShutdownSound();
 void FreeAnimFiles();
 void ClearOrderTypeTable();
-void FreeUnitInfo();
 void __stdcall ReleasePacketData(Class_00452370* obj);
-void FreeOtaEnumCacheAndMission();
 
 // FUNCTION: 0x4916a0
 void ShutdownGame(void)
@@ -688,9 +685,9 @@ void ShutdownGame(void)
     ClearOrderTypeTable();
     GameFreeThunk((int*)g_game->options);
     g_game->options = 0;
-    FreeUnitInfo();
+    g_seams.units->FreeUnitInfo();
     ReleasePacketData((Class_00452370*)g_game->chatHudRing);
-    FreeOtaEnumCacheAndMission();
+    g_seams.map->FreeOtaEnumCacheAndMission();
 }
 
 #include "../../interfaces/seams.h"
@@ -707,14 +704,8 @@ void ResetChatHudIndices();
 void LoadLightBar();
 void ResetSpeech();
 void LoadTextureGafs();
-void InitUnitCategories();
 void CreateParticleLists();
 void ResetCameraState();
-void LoadUnitTypes();
-void LoadDownloadMenus();
-void AllocateUnitMemory();
-void BuildAllPassMaps();
-void InitPlayers();
 void CreatePathfinder();
 void InitCommands();
 unsigned int GetTicks();
@@ -739,19 +730,19 @@ void LoadBattleAssets()
     ResetSpeech();
     LoadTextureGafs();
     g_seams.features->LoadFeatureFileList();
-    InitUnitCategories();
+    g_seams.units->InitUnitCategories();
     g_seams.features->NopAfterFeatureEnum();
     CreateParticleLists();
     g_seams.weapons->AllocWeaponArray();
     g_seams.weapons->LoadWeaponTypes();
     g_seams.los_radar->LoadTntMap();
     ResetCameraState();
-    LoadUnitTypes();
-    LoadDownloadMenus();
-    AllocateUnitMemory();
+    g_seams.units->LoadUnitTypes();
+    g_seams.units->LoadDownloadMenus();
+    g_seams.units->AllocateUnitMemory();
     g_seams.features->ResolveFeatureLinks();
     g_seams.features->FreeFeatureFileList();
-    BuildAllPassMaps();
+    g_seams.map->BuildAllPassMaps();
     g_game->windSpeedDenominator = 5000;
     g_game->windCounter = 0;
     g_seams.wind_meteors->UpdateWind();
@@ -760,14 +751,14 @@ void LoadBattleAssets()
     g_game->assemPts = GameAllocIgnoreTag("ASSEM PTS", 0xa0);
     g_game->lastSimBudgetTick = GetTicks();
     g_game->gameTick = 0;
-    if (g_game->mapInfo->GetGameType() == 3) {
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         g_game->gameSpeed = 10;
         g_game->effectiveGameSpeed = 10;
     }
     g_game->carry = 0;
     g_seams.wind_meteors->InitMeteors();
     g_seams.los_radar->InitRadar();
-    InitPlayers();
+    g_seams.players->InitPlayers();
     CreatePathfinder();
     g_seams.weapons->InitExplosions();
     InitCommands();
@@ -811,15 +802,9 @@ void Force640x480Surfaces()
 }
 
 void __cdecl CollectEndGameStats();
-void FreeUnitMemory();
 void DestroyParticleLists();
 void DestroyPathfinder();
-void FreePlayers();
-void FreeDownloadMenus();
-void FreeUnitTypes();
 void FreeTextureGafs();
-void FreeMovementClasses();
-void FreeUnitCategories();
 void CloseNetSession();
 
 // FUNCTION: 0x491b60
@@ -830,11 +815,11 @@ void ShutdownIngameSystems()
     g_game->sound->SetTrackCategory(4);
     CollectEndGameStats();
     g_seams.wind_meteors->EmptyShutdownPreCleanup();
-    FreeUnitMemory();
+    g_seams.units->FreeUnitMemory();
     DestroyParticleLists();
     g_seams.weapons->FreeExplosions();
     DestroyPathfinder();
-    FreePlayers();
+    g_seams.players->FreePlayers();
     g_seams.los_radar->FreeRadar();
     g_seams.los_radar->FreeMapResources();
     GameFreeThunk((int*)g_game->assemPts);
@@ -843,14 +828,14 @@ void ShutdownIngameSystems()
     g_game->assemPts = 0;
     g_game->tempProjectedPts = 0;
     g_game->tempXformPts = 0;
-    FreeDownloadMenus();
-    FreeUnitTypes();
+    g_seams.units->FreeDownloadMenus();
+    g_seams.units->FreeUnitTypes();
     g_seams.weapons->FreeWeaponTypes();
     FreeTextureGafs();
     g_seams.weapons->FreeWeaponArray();
-    FreeMovementClasses();
-    FreeUnitCategories();
-    if (g_game->mapInfo->GetGameType() == 3) {
+    g_seams.units->FreeMovementClasses();
+    g_seams.units->FreeUnitCategories();
+    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         CloseNetSession();
     }
 }

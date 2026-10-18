@@ -18,6 +18,8 @@ struct Vec3_00487bf0 {
 #include "../util/angles.h"
 
 #include "../network/player.h"
+#include "../util/vec3.h"
+#include "../../interfaces/seams.h"
 
 struct Def_00488310 {
     char unknown_0[0x1fa];
@@ -70,9 +72,7 @@ void __stdcall AddOrder(MissionType kind, int remove, Unit* owner,
                             int id, Vec3_00487bf0* pos, int param_6, int param_7);
 void __stdcall GetOrderType(MissionType* out, int mode, Unit* unit,
                             int target, Vec3_00487bf0* pos);
-int __stdcall FindMissionUnit(char* name, Table_00487bf0* table, int value);
 unsigned short __stdcall FindUnitTypeId(const char* name);
-void __stdcall AttachUnitToPiece(Unit* unit, int target, int a, int b);
 
 struct Outs_t {
     MissionType g, a, m, u, p;
@@ -141,7 +141,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
         case 'G':
         case 'g': {
             sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
-            int target = FindMissionUnit(buf, table, 0);
+            int target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
             if (target != 0) {
                 GetOrderType(&out.g, 7, unit, target, 0);
                 AddOrder(out.g, 1, unit, target, 0, 0, 0);
@@ -175,7 +175,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 processed = 1;
             } else {
                 sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
-                unsigned short id = FindUnitTypeId(buf);
+                unsigned short id = g_seams.units->FindUnitTypeId(buf);
                 if (id != 0) {
                     // String kinds are implicit conversions in the argument, never a named temporary.
                     AddOrder("ATTACKUTYPE", 1, unit, 0, 0, id, 0);
@@ -195,7 +195,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 L.pos.x = (int)(L.f1 * 65536.0);
                 L.pos.y = 0;
                 L.pos.z = (int)(65536.0 * L.f2);
-                unsigned short id = FindUnitTypeId(buf);
+                unsigned short id = g_seams.units->FindUnitTypeId(buf);
                 if (id != 0) {
                     if (unit->motion != 0)
                         AddOrder("MOBILEBUILD", 1, unit, 0,
@@ -215,7 +215,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 count = sscanf(buf + 2, " %[a-zA-Z0-9.]", buf);
                 int target = 0;
                 if (count == 1)
-                    target = FindMissionUnit(buf, table, 0);
+                    target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
                 if (target == 0)
                     target = (int)unit;
                 AddOrder("WAITFORATTACK", 1, unit, target,
@@ -245,9 +245,9 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
         case 'I':
         case 'i': {
             sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
-            int target = FindMissionUnit(buf, table, 0);
+            int target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
             if (target != 0)
-                AttachUnitToPiece(unit, target, -1, 0);
+                g_seams.units->AttachUnitToPiece(unit, (Unit*)target, -1, 0);
             break;
         }
         }
@@ -303,7 +303,6 @@ struct Game {
 extern Game* g_game;
 
 UnitType_00488b10* __stdcall FindUnitType(const char* name);
-void __stdcall SnapWorldPosToFootprint(UnitType_00488b10* type, Vec3_00487bf0* pos);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short id,
                                       Vec3_00487bf0 pos, int a, int b, int c);
 void __stdcall FatalError(char* message);
@@ -358,7 +357,7 @@ void __cdecl CreateMissionUnits()
     std::vector<Unit*> units(n);       // loops re-read mapInfo->unitCount themselves
     for (int i = 0; i < g_game->mapInfo->unitCount; i++) {
         MissionUnit* e = &g_game->mapInfo->units[i];
-        UnitType_00488b10* item = FindUnitType(e->name);
+        UnitType_00488b10* item = (UnitType_00488b10*)g_seams.units->FindUnitType(e->name);
         if (item == 0) {
             units[i] = 0;
             continue;
@@ -371,8 +370,8 @@ void __cdecl CreateMissionUnits()
             sprintf(buf, "Player number %d invalid for unit %s", e->player, e->name);
             FatalError(buf);
         }
-        SnapWorldPosToFootprint(item, &e->pos);
-        Unit* u = CreateUnit((unsigned char)(e->player - 1), item->id, e->pos, 1, 1, 0);
+        g_seams.map->SnapWorldPosToFootprint((UnitDef*)item, (Vec3*)&e->pos);
+        Unit* u = g_seams.units->CreateUnit((unsigned char)(e->player - 1), item->id, *(Vec3*)&e->pos, 1, 1, 0);
         if (u) {
             // The mask is 0xffffff80, not 0x80: keeps the byte zero-extension.
             u->flags = (u->flags & ~0x8000) | ((e->flags & 0xffffff80) << 8);
@@ -387,7 +386,7 @@ void __cdecl CreateMissionUnits()
             RunInitialMission(units[j], e->initialMission, (Table_00487bf0*)&units);
     }
     if (g_game->mapInfo->unitCount <= 0)
-        g_game->victoryConditions->Deactivate();
+        g_seams.players->DeactivateConditions(g_game->victoryConditions);
 }
 
 // Moves a unit to another player. Does nothing when the unit already belongs
@@ -414,7 +413,6 @@ struct OwnershipTransferPacket {       // 0x18 bytes
 
 int __stdcall GetPlayerDpid(Player* player);
 void __stdcall BroadcastPacket(int who, OwnershipTransferPacket* packet, int size);
-#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x488570
 void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPacket* p)
@@ -455,7 +453,7 @@ void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPack
     if (other->type != 1 && other->type != 2)
         return;
 
-    Unit* n = CreateUnit(other->index, unit->unitDefIndex, unit->pos, 1, unit->flags & 3, 0);
+    Unit* n = g_seams.units->CreateUnit(other->index, unit->unitDefIndex, *(Vec3*)&unit->pos, 1, unit->flags & 3, 0);
     if (!n)
         return;
     n->flags &= 0xffc3ffff;
@@ -481,8 +479,8 @@ void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPack
             n->weapons[2].stockpile = unit->weapons[2].stockpile;
         g_seams.weapons->DamageUnit(0, unit, 30000, 4, 0);
     }
-    n->SetStateBits(unit->activateFlags, 1);
-    n->SetStateBits(~unit->activateFlags, 0);
+    g_seams.units->SetStateBits(n, unit->activateFlags, 1);
+    g_seams.units->SetStateBits(n, ~unit->activateFlags, 0);
 }
 
 // A quicksort of a range of item pointers ordered by ComparePlayers through a

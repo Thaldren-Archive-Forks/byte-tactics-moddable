@@ -275,7 +275,6 @@ void HandleNetPackets(void);
 void StepAllGafSequences(void);
 void UpdateCameraFollow(void);
 void UpdateParticles(void);
-void UpdateBlink(void);
 void EmptyPostSimStepHook(void);
 void EmptyPostSimStepHook_B(void);
 void EmptyPostSimStepHook_C(void);
@@ -1294,7 +1293,7 @@ void __stdcall RunGameSteps(int showStats)
 
         UpdateParticles();
         g_game->profileTimingBars.AccumulateProfileTime(6);
-        UpdateBlink();
+        g_seams.players->UpdateBlink();
         g_game->profileTimingBars.AccumulateProfileTime(8);
 
         if (showStats && g_usePacketManager != 0) {

@@ -42,6 +42,7 @@ struct Layer {
 };
 
 #include "../gui/gui.h"
+#include "../../interfaces/seams.h"
 
 struct UnitSync;
 
@@ -266,7 +267,7 @@ void UpdateBattleRoom()
             if (host != 10) {
                 if (IsScreenNamed(&g_game->gui, "LOUNGE2.GUI") != 0) {
                     PlayerInfo* info = g_game->players[host].info;
-                    g_game->mapInfo->LoadMissionByName((char*)info);
+                    g_seams.map->LoadMissionByName(g_game->mapInfo, 0, (char*)info);
                     SetNamedSliderValue(&g_game->gui, "MAXUNITS", g_game->players[host].info->maxUnits - 0x14);
                     SetNamedSliderValue(&g_game->gui, "METAL", g_game->players[host].info->metal * 100);
                     SetNamedSliderValue(&g_game->gui, "ENERGY", g_game->players[host].info->energy * 100);
@@ -275,8 +276,8 @@ void UpdateBattleRoom()
                     UpdateMetalText(&g_game->gui, 0);
                 } else if (IsScreenNamed(&g_game->gui, "viewmap.gui") != 0) {
                     PlayerInfo* info = g_game->players[host].info;
-                    if (strcmp(g_game->mapInfo->GetMissionName(), info->map) != 0) {
-                        g_game->mapInfo->LoadMissionByName((char*)g_game->players[host].info);
+                    if (strcmp(g_seams.map->GetMissionName(g_game->mapInfo), info->map) != 0) {
+                        g_seams.map->LoadMissionByName(g_game->mapInfo, 0, (char*)g_game->players[host].info);
                         ShowSelectedMapInfo();
                         MarkLayerChanged(&g_game->gui);
                     }

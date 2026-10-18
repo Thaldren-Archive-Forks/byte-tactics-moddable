@@ -264,18 +264,13 @@ struct Block {
 
 int __stdcall GetGroundHeight(Vec3* pos);
 void __stdcall AlignUnitToGround(Unit* unit);
-void __stdcall RemoveUnitFromMap(Unit* unit);
-void __stdcall AddUnitToMap(Unit* unit);
 #include "../../interfaces/seams.h"
 int __cdecl FUN_004b715a(int x, int z);
 int __cdecl GetLocalDpid();
 int __stdcall BroadcastPacket(int player, void* data, int size);
 void __stdcall ApplyAttachUnit(Order* order);
-void __stdcall AddBeCarriedOrder(Beacon* beacon);
 void __stdcall DeselectIfIneligible(Unit* u);
 void __stdcall UpdateWindGenerator(Unit* u);
-void __stdcall RunOrders(Unit* u);
-void __stdcall RunSecondaryOrders(Unit* u);
 void __stdcall UpdateUnitHeight(Unit* u);
 void __stdcall KillUnit(Unit* u, int n);
 int __stdcall AddRepairProgress(Unit* u, Unit* u2, float f);
@@ -381,12 +376,12 @@ int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param_5)
     if (cell.x == unit->cell.x && cell.y == unit->cell.y && param_5 == (unit->flags & 3)) {
         unit->pos = pos;
     } else {
-        RemoveUnitFromMap(unit);
+        g_seams.map->RemoveUnitFromMap(unit);
         unit->pos = pos;
         unit->cell = cell;
         // The (short) cast gives the in-place two-bit mask.
         unit->flags = (unit->flags & 0xfffffffc) | (short)(param_5 & 3);
-        AddUnitToMap(unit);
+        g_seams.map->AddUnitToMap(unit);
         g_seams.los_radar->UpdateUnitLineOfSight(unit);
     }
     unit->flags |= 0x10000;
@@ -460,7 +455,7 @@ void __stdcall ApplyAttachUnit(Order* order)
                             }
                             *link = u->cargoNext;
                         } else {
-                            u->spatialBucket->UnlinkUnit(u);
+                            g_seams.map->SpatialBucketUnlinkUnit(u->spatialBucket, 0, u);
                         }
                         u->transportPiece = order->param;
                         if (t) {
@@ -474,14 +469,14 @@ void __stdcall ApplyAttachUnit(Order* order)
                             u->cargoNext = 0;
                             u->f110.bits.b17 = 0;
                             u->carrier = 0;
-                            u->spatialBucket->PrependUnit((int)u);
+                            g_seams.map->SpatialBucketPrependUnit(u->spatialBucket, 0, u);
                         }
                         u->motion->bits_2e = order->param2;
                         if (u->player->active) {
                             unsigned char k = u->player->type;
                             if (k == 1 || k == 2) {
                                 if (t && !(t->def->f241.bits.low & 0x200))
-                                    AddBeCarriedOrder((Beacon*)u);
+                                    g_seams.orders->AddBeCarriedOrder(u);
                             }
                         }
                         DeselectIfIneligible(u);
@@ -573,10 +568,10 @@ void __stdcall UpdateAllUnits(void)
                                     int n = u->def->f200 * 8;
                                     AddRepairProgress(u, u, (float)(n / 30));
                                 }
-                                RunOrders(u);
-                                RunSecondaryOrders(u);
+                                g_seams.orders->RunOrders(u);
+                                g_seams.orders->RunSecondaryOrders(u);
                                 if (u->motion != 0) {
-                                    u->motion->UpdateMotion(u);
+                                    g_seams.orders->UpdateMotion(u->motion, 0, u);
                                     UpdateUnitHeight(u);
                                 }
                             }
@@ -753,12 +748,12 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     if (np.x == u->cell.x && np.y == u->cell.y && colour == (u->f110.all & 3)) {
         u->pos = pos;
     } else {
-        RemoveUnitFromMap(u);
+        g_seams.map->RemoveUnitFromMap(u);
         u->pos = pos;
         u->cell = np;
         // The (unsigned short) cast stops the int colour getting a frame home.
         u->f110.bits.colour = (unsigned int)(unsigned short)colour;
-        AddUnitToMap(u);
+        g_seams.map->AddUnitToMap(u);
         g_seams.los_radar->UpdateUnitLineOfSight(u);
     }
     u->f110.bits.b16 = 1;
@@ -869,7 +864,7 @@ void __stdcall ReceiveUnitStates(Player* p, unsigned int* data)
     for (Unit* u = p->unitsBegin; u <= p->unitsEnd;
          u = (Unit*)((char*)u + 0x118)) {
         if ((u->flags & 0x10000000) && u->motion) {
-            u->motion->UpdateMotion(u);
+            g_seams.orders->UpdateMotion(u->motion, 0, u);
             UpdateUnitHeight(u);
         }
     }

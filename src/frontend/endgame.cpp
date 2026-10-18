@@ -105,6 +105,7 @@ struct Display {
 };
 
 #include "../network/player_info.h"
+#include "../../interfaces/seams.h"
 
 // Unused here: a real function declared to keep the file's symbol count (docs/c2-regalloc.md).
 int StepTowards(int, int, int);
@@ -1024,7 +1025,7 @@ void __stdcall RunEndGameState()
     HandleNetPackets();
     switch(g_game->state) {
     case 0:
-        if(g_game->mapInfo->GetGameType()==3) {
+        if(g_seams.map->GetGameType(g_game->mapInfo)==3) {
             Display* e=GetDisplay();
             g_game->lastFrame=AllocSurface("Copy of last game frame",e->width,e->height);
             DrawSurface(g_game->lastFrame,g_game->offscreen,e->width,e->height);
@@ -1076,7 +1077,7 @@ void __stdcall RunEndGameState()
         }
         break;
     case 4:
-        if(g_game->mapInfo->GetGameType()==1 && !FindGameCdDrive(0)) {
+        if(g_seams.map->GetGameType(g_game->mapInfo)==1 && !FindGameCdDrive(0)) {
             Layer* l=LoadGuiLayer(&g_game->gui,"CDCHECK.GUI",0x101);
             l->handler=(void (__stdcall*)(void*))HandleCdCheckClick;
             SetCursorOverlayEnabled(1);
@@ -1087,14 +1088,14 @@ void __stdcall RunEndGameState()
         break;
     case 5: {
         SetUpEndMissionScreen();
-        int next=g_game->mapInfo->MissionExists(g_game->mission+1);
-        if(g_game->mapInfo->GetGameType()==1 && g_game->bit4_3923b && !next && !g_game->noMovie) {
+        int next=g_seams.map->MissionExists(g_game->mapInfo, 0, g_game->mission+1);
+        if(g_seams.map->GetGameType(g_game->mapInfo)==1 && g_game->bit4_3923b && !next && !g_game->noMovie) {
             if((unsigned char)GetDisplay()->network) {
                 if(!g_game->players[0].info->side) SetFrontendState(4,0x4ce,"c:\\cavedog\\wargame\\endgame.cpp");
                 else SetFrontendState(5,0x4d3,"c:\\cavedog\\wargame\\endgame.cpp");
             } else SetFrontendState(2,0x4d9,"c:\\cavedog\\wargame\\endgame.cpp");
             SetGameMode(2);
-        } else if(g_game->mapInfo->GetGameType()==1 && g_game->bit4_3923b && g_game->image_3907b) {
+        } else if(g_seams.map->GetGameType(g_game->mapInfo)==1 && g_game->bit4_3923b && g_game->image_3907b) {
             memset(palette,0,sizeof(palette));
             StartPaletteFade(g_game->palette_3907f,(unsigned char*)palette,5);
             g_game->nextTime=GetTicks()+1;
@@ -1139,7 +1140,7 @@ void __stdcall RunEndGameState()
         UpdateMenu(&g_game->gui); BlitMenuLayers(&g_game->gui,0,0);
         int skip=0;
         int clicked=PopKey();
-        if(clicked && g_game->mapInfo->GetGameType()!=3) skip=1;
+        if(clicked && g_seams.map->GetGameType(g_game->mapInfo)!=3) skip=1;
         if(g_game->deadline<GetTicks() || skip) {
             if(clicked) {
                 { ENABLE_BARS("Kills") }
@@ -1160,7 +1161,7 @@ void __stdcall RunEndGameState()
             case 5: { ENABLE_BARS("MWasted") } PlaySoundByName("EndGameStatBar",0); break;
             case 6: { ENABLE_BARS("Score") } PlaySoundByName("EndGameScore",0); break;
             }
-            if(g_game->mapInfo->GetGameType()==3) {
+            if(g_seams.map->GetGameType(g_game->mapInfo)==3) {
                 Player* player=&g_game->players[g_game->localPlayer];
                 for(int j=0;j<2;++j) SendPlayerEconomy(player,0,0);
             }

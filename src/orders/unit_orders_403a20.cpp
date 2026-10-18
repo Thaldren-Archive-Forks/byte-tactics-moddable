@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <math.h>
 struct Point { short x, y; };
+struct Point16 { short x, y; };
 // Kept local, not util/vec3.h: its free operators inline differently from these members and the code size changes.
 struct Vec3 {
     int x, y, z;
@@ -68,15 +69,10 @@ static inline UnitDef* Definitions() { return g_game->unitDefs; }
 union Fixed { int value; struct { unsigned short fraction; short whole; }; };
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
 void __stdcall MarkSelectionOrdersDirty(Unit*);
-int __stdcall CanPlaceUnitFootprint(UnitDef*, int, Point, int);
-void __stdcall SnapWorldPosToFootprint(UnitDef*, Vec3*);
-Unit* __stdcall CreateUnit(unsigned char, short, Vec3, int, int, int);
 void __stdcall AddOrder(MissionType, int, Unit*, Unit*, Vec3*, int, int);
 short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
-int __stdcall AddBuildProgress(Unit*, Unit*, float);
-void __stdcall GetNanoPiecePosition(Unit*, Vec3*);
 void __stdcall EmitNanoParticles(Vec3*, Vec3*, int);
 static inline Point WorldToCell(Vec3 v, Point origin)
 {
@@ -84,6 +80,13 @@ static inline Point WorldToCell(Vec3 v, Point origin)
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
+}
+static inline Point16 ToPoint16(Point p)
+{
+    Point16 r;
+    r.x = p.x;
+    r.y = p.y;
+    return r;
 }
 static inline void CellToWorld(Point origin, Point c, Vec3* v)
 {
@@ -130,7 +133,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
                 return 8;
             }
         }
-        if (!CanPlaceUnitFootprint(def, 0, WorldToCell(order->pos, Definitions()[order->type].origin), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, ToPoint16(WorldToCell(order->pos, Definitions()[order->type].origin)), 1)) {
             if (!order->retries)
                 QueueUnitSpeech(unit, 7, "Waiting for target area to clear");
             else if (order->retries > 10) {
@@ -142,9 +145,9 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
             return 2;
         }
         g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
-        SnapWorldPosToFootprint(def, &order->pos);
+        g_seams.map->SnapWorldPosToFootprint(def, &order->pos);
         ((PathOrderAttach*)((char*)order + 0x12))->SetUnit(
-            CreateUnit(unit->playerIndex, (short)order->type, order->pos, 0, 1, 0));
+            g_seams.units->CreateUnit(unit->playerIndex, (short)order->type, order->pos, 0, 1, 0));
         if (!order->target) {
             QueueUnitSpeech(unit, 7, "Unable to create any more units");
             order->SetDeadlineTicks(300);
@@ -161,9 +164,9 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
     case 3: {
         int rate = 0;
         rate = unit->def->buildRate;
-        if (AddBuildProgress(unit, order->target, (float)(rate / 30))) {
+        if (g_seams.units->AddBuildProgress(unit, order->target, (float)(rate / 30))) {
             Vec3 start;
-            GetNanoPiecePosition(unit, &start);
+            g_seams.units->GetNanoPiecePosition(unit, &start);
             Vec3 bounds[2];
             bounds[0] = order->target->pos + order->target->def->min;
             bounds[1] = order->target->pos + order->target->def->max;

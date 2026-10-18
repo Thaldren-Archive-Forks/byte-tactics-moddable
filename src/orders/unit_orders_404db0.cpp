@@ -119,14 +119,10 @@ extern Game* g_game;
 
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 int __stdcall RandomInt(int range);
-int __stdcall GetGroundHeight(Vec3* pos);
 unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
-unsigned short __stdcall FindUnitTypeId(char* name);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitNanoParticles(Vec3* from, Box* to, int count);
-Unit* __stdcall CreateUnit(unsigned char player, unsigned short type, Vec3 pos, int a, int b, int c);
 int __stdcall BroadcastPacket(int player, void* data, int size);
 void __stdcall MarkSelectionOrdersDirty(Unit* unit);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, int flags);
@@ -166,7 +162,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         Vec3 pos;
         pos.x = (size.x + cell.x * 2) << 19;
         pos.z = (size.y + cell.y * 2) << 19;
-        pos.y = (RandomInt(f->height) + GetGroundHeight(&pos)) << 16;
+        pos.y = (RandomInt(f->height) + g_seams.units->GetGroundHeight(&pos)) << 16;
         StartBuildingScript(unit, order, GetHeadingBetween(&unit->pos, &pos) - unit->angles.heading);
         return 1;
     }
@@ -181,7 +177,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
                 break;
             }
         }
-        order->unitType = FindUnitTypeId(name);
+        order->unitType = g_seams.units->FindUnitTypeId(name);
         if (!order->unitType) {
             QueueUnitSpeech(unit, 7, "Ressurection failed");
             return 8;
@@ -193,11 +189,11 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
     case 4:
         if (order->time--) {
             Vec3 nano;
-            GetNanoPiecePosition(unit, &nano);
+            g_seams.units->GetNanoPiecePosition(unit, &nano);
             Box box;
             box.lo.x = cell.x << 20;
             box.lo.z = cell.y << 20;
-            box.lo.y = GetGroundHeight(&box.lo) << 16;
+            box.lo.y = g_seams.units->GetGroundHeight(&box.lo) << 16;
             box.hi = box.lo;
             box.hi.x += f->footprintX << 20;
             box.hi.z += f->footprintZ << 20;
@@ -209,7 +205,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 5: {
-        order->target.SetUnit(CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
+        order->target.SetUnit(g_seams.units->CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
         if (!order->target.owner) {
             QueueUnitSpeech(unit, 7, "Unable to create any more units");
             order->SetDeadlineTicks(300);
@@ -222,7 +218,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         if (spot)
             order->target.owner->angles = spot->rot;
         g_seams.features->RemoveFeature(g_seams.los_radar->GetMapCellAtPosition(&order->pos), 0);
-        if (g_game->mapInfo->GetGameType() == 3) {
+        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
             FeatureDamagePacket packet;
             int n = c - g_game->heightMap;
             int w = g_game->mapWidthTiles;

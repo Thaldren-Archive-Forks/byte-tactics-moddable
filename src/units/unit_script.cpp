@@ -113,7 +113,6 @@ extern Game* g_game;
 Vec3 __stdcall GetPiecePosition(Unit* obj, int param);
 int __stdcall GetGroundHeight(Vec3* pos);
 int __cdecl FUN_004b715a(int a, int b);
-void __stdcall SetYardOpen(Unit* unit, int flag);
 #include "../../interfaces/seams.h"
 void __stdcall EmitThrustParticles(int, int, int, int, short);
 void __stdcall EmitWakeParticles(int, int, int, short);
@@ -123,7 +122,6 @@ int __stdcall RandomInt(int range);
 void __stdcall StartExplodePiece(Header_00481140* h);
 void __stdcall AddExplosionEffect(void* pos, void* src, int index, int flag);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* transporter, int a, int b);
-int __stdcall CanPlaceUnitFootprint(UnitDef* type, short a, int position, int b);
 
 static inline Unit* GetUnit(unsigned short id)
 {
@@ -272,7 +270,7 @@ void UnitScript::SetUnitValue(int which, int value)
         unit->bit1 = value;
         break;
     case 18:
-        SetYardOpen(unit, value);
+        g_seams.map->SetYardOpen(unit, value);
         break;
     case 19:
         unit->bit3 = value;
@@ -558,7 +556,7 @@ void UnitScript::DropUnit(unsigned short id)
 {
     Unit* u = GetUnit(id);
     if (u != 0 && (u->flags & 0x10000000) && u->carrier == state->unit) {
-        if (CanPlaceUnitFootprint(u->def, u->id, u->cell, 1)) {
+        if (g_seams.map->CanPlaceUnitFootprint(u->def, (UnitDef*)(int)u->id, *(Point16*)&u->cell, 1)) {
             AttachUnitToPiece(u, 0, -1, 1);
         }
     }
