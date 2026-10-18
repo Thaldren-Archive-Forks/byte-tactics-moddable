@@ -9,10 +9,7 @@
 #include <string.h>
 #include <stddef.h>
 
-class Mission {
-public:
-    int GetGameType();
-};
+#include "../map/mission.h"
 
 class MissionConditions;
 class CobScript;

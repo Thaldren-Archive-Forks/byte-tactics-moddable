@@ -369,21 +369,7 @@ extern "C" unsigned char g_loadingBarPrevPercent, DAT_0051e821, DAT_0051e822;
 extern "C" unsigned char DAT_0051e823, DAT_0051e824, DAT_0051e825;
 extern int g_nonCampaignGame;
 
-class Mission {
-public:
-    int GetGameType();
-    char* GetMissionName();
-    void LoadMissionByName(void* player);
-    int GetStartPosition(FixedPos_497180* pos, int id);
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void LoadBriefing();
-    int CountMissions();
-    void LoadCampaign(char* name);
-    int LoadMission(char* name);
-    int MissionExists(int index);
-    int BuildMissionList(int* list);
-    void BuildCampaignFilePath(int index, char* path, char* dir, char* ext);
-};
+#include "../map/mission.h"
 
 class PacketManager {
 public:
@@ -617,7 +603,7 @@ void __cdecl LoadMatch(void*)
             SleepMilliseconds(0x32);
         }
 
-        ((Mission*)g_game->mapInfo)->LoadMissionByName(g_game->players[sel].data);
+        ((Mission*)g_game->mapInfo)->LoadMissionByName((char*)g_game->players[sel].data);
         if (FindHostSlot() == 10)
             break;
 
@@ -688,7 +674,7 @@ void __cdecl LoadMatch(void*)
                 PlayerInfo* pl2 = rec->data;
                 int side = pl2->side;
                 int which = rec->startPos;
-                ((Mission*)g_game->mapInfo)->GetStartPosition(&pos, which);
+                ((Mission*)g_game->mapInfo)->GetStartPosition((Vec3_00437320*)&pos, which);
                 if (rec->active != 0 && rec->team == 1)
                     start = pos;
                 unsigned short id = FindUnitTypeId(g_game->sideNames[side].name + 4);
