@@ -28,7 +28,7 @@ immediate (`mov r, imm32`, `cmp r, imm32`, `push imm32`, a store of it) or with
 stores through B or calls it, and B is then not an end. The count is about 170
 without a tighter rule, so no tighter rule is used. Both kinds over-report (a
 function may use two adjacent globals for their own sake); the `verdict` column
-is left empty for a later pass: `end`, `quirk` (a real read into the neighbour
+starts empty and is set by hand (a rewrite keeps it, by function, kind, symbol, addend and array): `end`, `quirk` (a real read into the neighbour
 that 3.1c relies on) or `none`.
 
 Columns: function, function_address (the `// FUNCTION:` marker), file, kind,
@@ -253,6 +253,30 @@ def render(rows: list[list]) -> str:
     return buf.getvalue()
 
 
+def key_of(row: list) -> tuple[str, ...]:
+    """The identity of a row: function, kind, symbol, addend and array."""
+    return tuple(str(row[i]) for i in (0, 3, 4, 5, 6))
+
+
+def read_verdicts(path: Path) -> dict[tuple[str, ...], str]:
+    """The verdicts of an existing file by row key; none when it is missing."""
+    if not path.exists():
+        return {}
+    with path.open() as fh:
+        return {key_of([r[c] for c in COLUMNS]): r["verdict"] for r in csv.DictReader(fh) if r["verdict"]}
+
+
+def with_verdicts(rows: list[list], verdicts: dict[tuple[str, ...], str]) -> list[list]:
+    """The rows with each verdict carried over from the existing file by key."""
+    return [r[:-1] + [verdicts.get(key_of(r), r[-1])] for r in rows]
+
+
+def without_verdicts(text: str) -> str:
+    """The CSV text with the verdict column emptied, for comparing."""
+    rows = list(csv.reader(io.StringIO(text)))
+    return render([r[:-1] + [""] for r in rows[1:]])
+
+
 def response(arg: str) -> list[Path]:
     """The object files an argument names: a path, or @file listing them."""
     if arg.startswith("@"):
@@ -266,9 +290,10 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=OUT)
     parser.add_argument("--check", action="store_true", help="fail if the file differs from what the tool generates")
     args = parser.parse_args()
-    text = render(generate([p for a in args.objects for p in response(a)]))
+    generated = generate([p for a in args.objects for p in response(a)])
+    text = render(with_verdicts(generated, read_verdicts(args.out)))
     if args.check:
-        if not args.out.exists() or args.out.read_text() != text:
+        if not args.out.exists() or without_verdicts(args.out.read_text()) != without_verdicts(text):
             print("layoutrefs: %s is out of date; run uv run tools/layoutrefs.py --objects @build/modern/objects.rsp"
                   % args.out, file=sys.stderr)
             sys.exit(1)

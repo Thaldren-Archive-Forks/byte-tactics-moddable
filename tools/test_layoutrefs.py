@@ -98,5 +98,35 @@ class EndOfTest(unittest.TestCase):
                          [["f", "0x401000", "src/f.cpp", "end-of", "end", 0, "table", "", ""]])
 
 
+class VerdictTest(unittest.TestCase):
+    ROWS = [["f", "0x401000", "src/f.cpp", "end-of", "end", 0, "table", "", ""],
+            ["g", "0x401010", "src/f.cpp", "past-end", "table", 1000, "table", "other+0x0", ""]]
+
+    def test_verdict_carries_over_by_key(self):
+        old = {lr.key_of(self.ROWS[0]): "end"}
+        rows = lr.with_verdicts(self.ROWS, old)
+        self.assertEqual([r[-1] for r in rows], ["end", ""])
+
+    def test_changed_key_loses_the_verdict(self):
+        other = ["f", "0x401000", "src/f.cpp", "end-of", "end", 0, "far", "", ""]
+        self.assertEqual(lr.with_verdicts([other], {lr.key_of(self.ROWS[0]): "end"})[0][-1], "")
+
+    def test_read_back_through_a_file(self):
+        import tempfile
+        from pathlib import Path
+        rows = lr.with_verdicts(self.ROWS, {lr.key_of(self.ROWS[1]): "none"})
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "refs.csv"
+            path.write_text(lr.render(rows))
+            self.assertEqual(lr.read_verdicts(path), {lr.key_of(self.ROWS[1]): "none"})
+            self.assertEqual(lr.read_verdicts(Path(d) / "missing.csv"), {})
+
+    def test_check_ignores_the_verdict(self):
+        plain = lr.render(self.ROWS)
+        marked = lr.render(lr.with_verdicts(self.ROWS, {lr.key_of(self.ROWS[0]): "quirk"}))
+        self.assertNotEqual(plain, marked)
+        self.assertEqual(lr.without_verdicts(plain), lr.without_verdicts(marked))
+
+
 if __name__ == "__main__":
     unittest.main()
