@@ -375,7 +375,7 @@ address,function,file,kind,target
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via Vec3 (*)(Unit *, int) __attribute__((stdcall)) [UnitsSeam::GetPiecePosition]"
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via int (*)(CobScript *, char *, int *, int *, int *, int *) __attribute__((stdcall)) [UnitsSeam::QueryScript]"
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via int (*)(Unit *, Unit *, float) __attribute__((stdcall)) [UnitsSeam::AddBuildProgress]"
-0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *) __attribute__((stdcall)) [UnitsSeam::FinishConstruction]"
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, char, char) __attribute__((stdcall)) [UnitsSeam::AttachUnitToPiece]"
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int, int, unsigned short) __attribute__((stdcall)) [WeaponsSeam::DamageUnit]"
@@ -691,7 +691,7 @@ address,function,file,kind,target
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,global_read,g_seams
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,indirect_call,"indirect via Unit *(*)(unsigned char, unsigned short, Vec3, int, int, int) __attribute__((stdcall)) [UnitsSeam::CreateUnit]"
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,indirect_call,"indirect via int (*)(Unit *, Unit *, float) __attribute__((stdcall)) [UnitsSeam::AddBuildProgress]"
-0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,indirect_call,"indirect via void (*)(Unit *, Vec3 *) __attribute__((stdcall)) [UnitsSeam::GetNanoPiecePosition]"
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,indirect_call,"indirect via void (*)(Unit *, int, unsigned char) __attribute__((fastcall)) [WeaponsSeam::ClaimWeapons]"
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,indirect_call,"indirect via void (*)(UnitDef *, Vec3 *) __attribute__((stdcall)) [MapSeam::SnapWorldPosToFootprint]"
@@ -1790,8 +1790,8 @@ address,function,file,kind,target
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,WeaponsSeam::FindTargetableProjectile
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,function,
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,global_read,g_seams
+0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via Projectile *(*)(Unit *, unsigned int) __attribute__((stdcall)) [WeaponsSeam::FindTargetableProjectile]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via Unit *(*)(Unit *, unsigned char, int) __attribute__((stdcall)) [TargetingSeam::FindWeaponTarget]"
-0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via int *(*)(Unit *, unsigned int) __attribute__((stdcall)) [WeaponsSeam::FindTargetableProjectile]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, Vec3 *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetPos]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::ClearWeaponTarget]"
@@ -2119,7 +2119,7 @@ address,function,file,kind,target
 0x40a5d0,PlayerAI::FindRandomPlacementCell,src/ai/ai_player.cpp,function,
 0x40a5d0,PlayerAI::FindRandomPlacementCell,src/ai/ai_player.cpp,global_read,g_game
 0x40a5d0,PlayerAI::FindRandomPlacementCell,src/ai/ai_player.cpp,global_read,g_seams
-0x40a5d0,PlayerAI::FindRandomPlacementCell,src/ai/ai_player.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x40a5d0,PlayerAI::FindRandomPlacementCell,src/ai/ai_player.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x40a7b0,PlayerAI::BuildFeatureCells,src/ai/ai_player.cpp,call,clear
 0x40a7b0,PlayerAI::BuildFeatureCells,src/ai/ai_player.cpp,call,push_back
 0x40a7b0,PlayerAI::BuildFeatureCells,src/ai/ai_player.cpp,deref_escape,*Feature
@@ -3291,7 +3291,7 @@ address,function,file,kind,target
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,global_read,g_seams
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via int (*)(CobScript *, const char *, Callback *, int) __attribute__((stdcall)) [UnitsSeam::StartScript]"
-0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, char, char) __attribute__((stdcall)) [UnitsSeam::AttachUnitToPiece]"
 0x411840,FindLandingPad,src/orders/vtol_orders.cpp,field_read,MapSeam::IsPadSlotFree
 0x411840,FindLandingPad,src/orders/vtol_orders.cpp,field_read,Seams::map
@@ -3719,7 +3719,7 @@ address,function,file,kind,target
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,global_read,kSim
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via Unit *(*)(unsigned char, unsigned short, Vec3, int, int, int) __attribute__((stdcall)) [UnitsSeam::CreateUnit]"
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via int (*)(Unit *, Unit *, float) __attribute__((stdcall)) [UnitsSeam::AddBuildProgress]"
-0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, char, char) __attribute__((stdcall)) [UnitsSeam::AttachUnitToPiece]"
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via void (*)(Unit *, Vec3 *) __attribute__((stdcall)) [UnitsSeam::GetNanoPiecePosition]"
 0x413d80,VtolMobileBuildOrder,src/orders/vtol_orders.cpp,indirect_call,"indirect via void (*)(Unit *, int, int) __attribute__((stdcall)) [UnitsSeam::SetStateBits]"
@@ -7227,7 +7227,7 @@ address,function,file,kind,target
 0x4239c0,SpreadFire,src/map/features.cpp,global_read,g_game
 0x4239c0,SpreadFire,src/map/features.cpp,global_read,g_seams
 0x4239c0,SpreadFire,src/map/features.cpp,indirect_call,"indirect via Cell *(*)(int, int) __attribute__((stdcall)) [LosRadarSeam::GetMapCell]"
-0x4239c0,SpreadFire,src/map/features.cpp,indirect_call,"indirect via void (*)(void *, Vec3 *) __attribute__((stdcall)) [WeaponsSeam::ApplyAreaDamageAt]"
+0x4239c0,SpreadFire,src/map/features.cpp,indirect_call,"indirect via void (*)(WeaponDef *, Vec3 *) __attribute__((stdcall)) [WeaponsSeam::ApplyAreaDamageAt]"
 0x423bf0,ReplaceFeatureWithBurnt,src/map/features.cpp,call,PlaceFeature
 0x423bf0,ReplaceFeatureWithBurnt,src/map/features.cpp,call,RemoveFeature
 0x423bf0,ReplaceFeatureWithBurnt,src/map/features.cpp,field_read,Feature::burnt
@@ -11598,7 +11598,7 @@ address,function,file,kind,target
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via Angles16 (*)(Unit *, int) __attribute__((stdcall)) [UnitsSeam::GetPieceAngles]"
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via Vec3 (*)(Unit *, int) __attribute__((stdcall)) [UnitsSeam::GetPiecePosition]"
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via int (*)(Unit *, Vec3, int) __attribute__((stdcall)) [UnitsSeam::SetUnitPosition]"
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [LosRadarSeam::UpdateUnitLineOfSight]
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [MapSeam::AddUnitToMap]
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [MapSeam::RemoveUnitFromMap]
@@ -19762,7 +19762,7 @@ address,function,file,kind,target
 0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_write,g_economyPacketTick
 0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via Unit *(*)(unsigned char, unsigned short, Vec3, int, int, int) __attribute__((stdcall)) [UnitsSeam::CreateUnit]"
 0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via int (*)(Vec3 *) __attribute__((stdcall)) [MapSeam::GetCellMeanHeight]
 0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via unsigned short (*)(Vec3 *, Point16 *, Point16 *) __attribute__((stdcall)) [WeaponsSeam::FindFeatureAtPos]"
 0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via unsigned short (*)(const char *) __attribute__((stdcall)) [UnitsSeam::FindUnitTypeId]
@@ -24649,7 +24649,7 @@ address,function,file,kind,target
 0x4813b0,UnitScript::DropUnit,src/units/unit_script.cpp,field_read,UnitScript::state
 0x4813b0,UnitScript::DropUnit,src/units/unit_script.cpp,function,
 0x4813b0,UnitScript::DropUnit,src/units/unit_script.cpp,global_read,g_seams
-0x4813b0,UnitScript::DropUnit,src/units/unit_script.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x4813b0,UnitScript::DropUnit,src/units/unit_script.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x481430,UnitScript::IsCarryingUnit,src/units/unit_script.cpp,field_read,ObjectState::unit
 0x481430,UnitScript::IsCarryingUnit,src/units/unit_script.cpp,field_read,Unit::cargo
 0x481430,UnitScript::IsCarryingUnit,src/units/unit_script.cpp,field_read,Unit::cargoNext
@@ -30710,7 +30710,7 @@ address,function,file,kind,target
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Weapon_499c70::owner
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,function,
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,global_read,g_seams
-0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, void *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
+0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, Projectile *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,call,DamageUnit
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,call,FUN_004b715a
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,call,Find_00499cd0
@@ -30792,7 +30792,7 @@ address,function,file,kind,target
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,global_read,g_game
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,global_read,g_seams
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,indirect_call,indirect via Cell *(*)(Vec3 *) __attribute__((stdcall)) [LosRadarSeam::GetMapCellAtPosition]
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, void *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, Projectile *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
 0x49a0c0,ApplyAreaDamageAt,src/weapons/weapons.cpp,call,ApplyAreaDamage
 0x49a0c0,ApplyAreaDamageAt,src/weapons/weapons.cpp,call,memset
 0x49a0c0,ApplyAreaDamageAt,src/weapons/weapons.cpp,call,operator=
@@ -30874,7 +30874,7 @@ address,function,file,kind,target
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via Cell *(*)(int, int) __attribute__((stdcall)) [LosRadarSeam::GetMapCell]"
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via Vec3 (*)(Point16 *, Feature *) __attribute__((stdcall)) [FeaturesSeam::GetFootprintCentre]"
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via void (*)(Cell *, int, int, WeaponDef *) __attribute__((stdcall)) [FeaturesSeam::DamageFeature]"
-0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, void *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
+0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, Projectile *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
 0x49a850,VectorLength,src/weapons/weapons.cpp,call,bx_sqrt
 0x49a850,VectorLength,src/weapons/weapons.cpp,field_read,Vec3i_0049a850::x
 0x49a850,VectorLength,src/weapons/weapons.cpp,field_read,Vec3i_0049a850::y

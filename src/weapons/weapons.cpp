@@ -582,7 +582,7 @@ void __stdcall ApplyWeaponHit(Weapon_499c70* weapon, Unit* target)
             a = damage;
         else
             b = damage;
-        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(attacker->player->ai, 0, (void*)weapon, a, b);
+        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(attacker->player->ai, 0, (Projectile*)weapon, a, b);
     }
 }
 
@@ -771,7 +771,7 @@ void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
                     a = damage;
                 else
                     b = damage;
-                g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(source->player->ai, 0, (void*)projectile, a & 0xffff, b & 0xffff);
+                g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(source->player->ai, 0, (Projectile*)projectile, a & 0xffff, b & 0xffff);
                 return;
             }
         } else {

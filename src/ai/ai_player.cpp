@@ -1193,9 +1193,9 @@ void SquadManager::AssignSquads()
 void __stdcall RetargetWeapon(Unit* unit, unsigned int weapon)
 {
     if (unit->weapons[weapon].weapon->flag30) {
-        int* p = g_seams.weapons->FindTargetableProjectile(unit, weapon);
+        Projectile* p = g_seams.weapons->FindTargetableProjectile(unit, weapon);
         if (p)
-            g_seams.targeting->SetWeaponTargetPos(unit, (Vec3*)(p + 1), weapon);
+            g_seams.targeting->SetWeaponTargetPos(unit, (Vec3*)((int*)p + 1), weapon);
         else
             g_seams.targeting->ClearWeaponTarget(unit, weapon);
     } else if ((unit->flags & 0x300000) == 0x200000) {
