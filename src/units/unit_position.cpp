@@ -20,17 +20,12 @@ union Fixed {
 };
 
 // Own definitions, not vec3.h: y is a 16.16 Fixed, and vec3.h would redefine Vec3.
-#define VEC3_H
-struct Vec3 {
+struct PosVec3 {
     int x;                             // +0x0
     Fixed y;                           // +0x4
     int z;                             // +0x8
 };
 
-struct Point16 {
-    short x;
-    short y;
-};
 
 #include "../util/angles.h"
 
@@ -172,7 +167,7 @@ struct Spawn {
     unsigned char player;              // +0x00
     unsigned short type;               // +0x01
     unsigned short id;                 // +0x03
-    Vec3 pos;                          // +0x05
+    PosVec3 pos;                          // +0x05
     union {
         Angles16 words;                // +0x11
         Tail32 dword;                  // +0x11
@@ -198,7 +193,7 @@ struct Block {
 
 #pragma pack(pop)
 
-int __stdcall GetGroundHeight(Vec3* pos);
+int __stdcall GetGroundHeight(PosVec3* pos);
 void __stdcall AlignUnitToGround(Unit* unit);
 #include "../../interfaces/seams.h"
 int __cdecl FUN_004b715a(int x, int z);
@@ -229,9 +224,9 @@ void __stdcall SnapUnitToGround(Unit* unit)
 {
     extern Game* g_game;
     if (((UnitType*)unit->def)->f241.bits.floats) {
-        unit->pos.y.value = max(GetGroundHeight(&unit->pos), g_game->seaLevel - ((UnitType*)unit->def)->draft) << 16;
+        unit->pos.y = max(GetGroundHeight((PosVec3*)&unit->pos), g_game->seaLevel - ((UnitType*)unit->def)->draft) << 16;
     } else {
-        unit->pos.y.value = GetGroundHeight(&unit->pos) << 16;
+        unit->pos.y = GetGroundHeight((PosVec3*)&unit->pos) << 16;
     }
 }
 
@@ -252,16 +247,16 @@ void __stdcall UpdateUnitHeight(Unit* unit)
         if (unit->motion && (unit->flags & 3) == 1) {
             if (((UnitType*)unit->def)->f241.bits.over_water) {
                 if (((UnitType*)unit->def)->f241.bits.floats) {
-                    unit->pos.y.value = max(GetGroundHeight(&unit->pos), g_game->seaLevel - ((UnitType*)unit->def)->draft) << 16;
+                    unit->pos.y = max(GetGroundHeight((PosVec3*)&unit->pos), g_game->seaLevel - ((UnitType*)unit->def)->draft) << 16;
                 } else {
-                    unit->pos.y.value = GetGroundHeight(&unit->pos) << 16;
+                    unit->pos.y = GetGroundHeight((PosVec3*)&unit->pos) << 16;
                 }
             } else if (((UnitType*)unit->def)->f241.bits.on_water) {
                 // Union copy: an int would fold the product, sum and shift into (sea - draft) << 16.
                 Fixed h;
                 h.value = ((UnitType*)unit->def)->draft * 0xffff + g_game->seaLevel;
                 h.value <<= 16;
-                unit->pos.y = h;
+                unit->pos.y = h.value;
             } else {
                 AlignUnitToGround(unit);
             }
@@ -271,7 +266,7 @@ void __stdcall UpdateUnitHeight(Unit* unit)
 
 // Heading from one position to another in the x/z plane.
 // FUNCTION: 0x48a980
-int __stdcall GetHeadingBetween(Vec3* from, Vec3* to)
+int __stdcall GetHeadingBetween(PosVec3* from, PosVec3* to)
 {
     return FUN_004b715a(from->x - to->x, from->z - to->z);
 }
@@ -279,7 +274,7 @@ int __stdcall GetHeadingBetween(Vec3* from, Vec3* to)
 // Heading from one position to another in the x/z plane (like 0x48a980),
 // or `def` when the two positions coincide in that plane.
 // FUNCTION: 0x48a9b0
-unsigned short __stdcall GetHeadingBetweenOrDefault(Vec3* from, Vec3* to, unsigned short def)
+unsigned short __stdcall GetHeadingBetweenOrDefault(PosVec3* from, PosVec3* to, unsigned short def)
 {
     int dx = from->x - to->x;
     int dz = from->z - to->z;
@@ -296,7 +291,7 @@ unsigned short __stdcall GetHeadingBetweenOrDefault(Vec3* from, Vec3* to, unsign
 // the map (AddUnitToMap) with its path redone (UpdateUnitLineOfSight). Either way flag
 // 0x10000 (the "position changed" bit UpdateUnitHeight tests) is set, and the new
 // flags value is returned.
-static inline Point16 WorldToCell(Vec3 v, Point16 origin)
+static inline Point16 WorldToCell(PosVec3 v, Point16 origin)
 {
     Point16 c;
     // Multiplication, not a shift: the offset is sign-extended and copied in one go.
@@ -306,14 +301,14 @@ static inline Point16 WorldToCell(Vec3 v, Point16 origin)
 }
 
 // FUNCTION: 0x48a9f0
-int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param_5)
+int __stdcall SetUnitPosition(Unit* unit, PosVec3 pos, int param_5)
 {
     Point16 cell = WorldToCell(pos, unit->footprint);
     if (cell.x == unit->cell.x && cell.y == unit->cell.y && param_5 == (unit->flags & 3)) {
-        unit->pos = pos;
+        *(PosVec3*)&unit->pos = pos;
     } else {
         g_seams.map->RemoveUnitFromMap(unit);
-        unit->pos = pos;
+        *(PosVec3*)&unit->pos = pos;
         unit->cell = cell;
         // The (short) cast gives the in-place two-bit mask.
         unit->flags = (unit->flags & 0xfffffffc) | (short)(param_5 & 3);
@@ -495,7 +490,7 @@ void __stdcall UpdateAllUnits(void)
                             if (k3 == 1 || k3 == 2) {
                                 if (g_game->mapInfo->waterDoesDamage != 0
                                     && g_game->mapInfo->waterDamage != 0
-                                    && (unsigned int)g_game->gameTick % 30 == 0 && u->pos.y.whole <= g_game->seaLevel
+                                    && (unsigned int)g_game->gameTick % 30 == 0 && u->yWhole <= g_game->seaLevel
                                     && !((UnitType*)u->def)->f241.bits.floats) {
                                     g_seams.weapons->DamageUnit(0, u, g_game->mapInfo->waterDamage, 0xb, 0);
                                 }
@@ -583,7 +578,7 @@ void __stdcall WriteUnitState(BitWriter* stream, Unit* u)
             stream->data[stream->index] = 0;
         }
         stream->WriteBits(u->pos.x, 0x20);
-        stream->WriteBits(u->pos.y.value, 0x20);
+        stream->WriteBits(u->pos.y, 0x20);
         stream->WriteBits(u->pos.z, 0x20);
         stream->WriteBits(u->angles.heading, 0x10);
         stream->WriteBits((unsigned short)u->angles.pitch, 0x10);
@@ -631,7 +626,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
         spawn.type = type;
         spawn.id = u->id;
         spawn.player = 9;
-        spawn.pos = u->pos;
+        spawn.pos = *(PosVec3*)&u->pos;
         spawn.tail.words = u->angles;
         CreateUnitFromPacket((u->angles.bank & ~0xff) | u->playerIndex, &spawn);
     }
@@ -667,7 +662,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
         order.param2 = (unsigned char)colour;
         ApplyAttachUnit(&order);
     }
-    Vec3 pos;
+    PosVec3 pos;
     pos.x = reader->ReadBits(0x20);
     pos.y.value = reader->ReadBits(0x20);
     pos.z = reader->ReadBits(0x20);
@@ -682,10 +677,10 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     np.x = (short)((pos.x - fixed.x * 0x80000 + 0x80000) >> 20);
     np.y = (short)((pos.z - fixed.y * 0x80000 + 0x80000) >> 20);
     if (np.x == u->cell.x && np.y == u->cell.y && colour == (u->flags & 3)) {
-        u->pos = pos;
+        *(PosVec3*)&u->pos = pos;
     } else {
         g_seams.map->RemoveUnitFromMap(u);
-        u->pos = pos;
+        *(PosVec3*)&u->pos = pos;
         u->cell = np;
         // The (unsigned short) cast stops the int colour getting a frame home.
         u->mode = (unsigned int)(unsigned short)colour;
@@ -789,7 +784,7 @@ void __stdcall ReceiveUnitStates(Player* p, unsigned int* data)
             spawn.id = unit->id;
             spawn.type = type;
             spawn.player = 9;
-            spawn.pos = unit->pos;
+            spawn.pos = *(PosVec3*)&unit->pos;
             spawn.tail.dword = *(Tail32*)&unit->angles;
             CreateUnitFromPacket(unit->playerIndex, &spawn);
         }
