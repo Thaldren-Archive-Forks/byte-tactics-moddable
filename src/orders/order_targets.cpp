@@ -270,12 +270,6 @@ unsigned short __stdcall GetHeadingBetween(void* from, void* to);
 int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
 
-struct Vec3_0044e3c0 {
-    int x;
-    int y;
-    int z;
-};
-
 struct Sub_0044e190 {
     char unknown_0[0xdc];
     int range;                         // +0xdc
@@ -299,23 +293,7 @@ struct UnitDef {
 
 #pragma pack(push, 1)
 // The second part's full view of the unit, with part 1's x and y at +0x76.
-struct Unit {
-    char unknown_0[0x10];
-    Sub_0044e190* weapon;              // +0x10
-    char unknown_14[0x66 - 0x14];
-    short heading;                     // +0x66
-    char unknown_68[0x6a - 0x68];
-    Vec3_0044e3c0 pos;                 // +0x6a
-    short x;                           // +0x76
-    short y;                           // +0x78
-    char unknown_7a[0x82 - 0x7a];
-    int spatialBucket;                      // +0x82
-    char unknown_86[0x92 - 0x86];
-    UnitDef* def;                      // +0x92
-    char unknown_96[0xa8 - 0x96];
-    short id;                          // +0xa8
-    char unknown_aa[0x118 - 0xaa];
-};
+#include "../units/unit.h"
 #pragma pack(pop)
 
 // The donut area: the point at +0x8, inner radius +0xc, outer +0x10 and each
@@ -481,7 +459,7 @@ public:
     };
     PathOrderAttach ref;               // +0x16
     union {
-        Vec3_0044e3c0 pos;             // +0x26
+        Vec3 pos;
         struct {
             int pos_x;                 // +0x26, the bit-stream loader's view
             int pos_y;                 // +0x2a
@@ -506,7 +484,7 @@ public:
     void* Destroy(unsigned char flag);
     int SerializeToSave(int unused, HapiBank* file, char* name);
     int KeepAfterComplete();
-    int FillWorldPos(Vec3_0044e3c0* out);
+    int FillWorldPos(Vec3* out);
     int GetDesiredHeading(unsigned short* out);
 };
 
@@ -1487,8 +1465,8 @@ bool RingApproach::ContainsCell(int px, int py)
 // FUNCTION: 0x44d800
 int RingApproach::ContainsUnit(Unit* unit)
 {
-    int dy = unit->y - y;
-    int dx = unit->x - x;
+    int dy = unit->cell.y - y;
+    int dx = unit->cell.x - x;
     int distSq = dx * dx + dy * dy;
     return distSq <= radius1Sq && distSq >= radius2Sq;
 }
@@ -1661,7 +1639,7 @@ void PathOrder::SerializeToBits(BitWriter* stream)
     stream->WriteBits(flags, 8);
     if ((flags & 1) != 0) {
         stream->WriteBits(piece, 0x10);
-        stream->WriteBits((int)(unsigned short)(ref.owner == 0 ? 0 : (unsigned short)ref.owner->id), 0x10);
+        stream->WriteBits((int)(unsigned short)(ref.owner == 0 ? 0 : (unsigned short)((short)ref.owner->id)), 0x10);
     }
     if ((flags & 0x10) != 0) {
         stream->WriteBits(approachRadius, 0x10);
@@ -1700,7 +1678,7 @@ PathOrder::PathOrder(int owner, HapiBank* file, char* name)
         altitude = rec.f3;
         heading = rec.f4;
         piece = rec.f5;
-        pos = *(Vec3_0044e3c0*)&rec.pos;
+        pos = *(Vec3*)&rec.pos;
         followOffset = rec.i4;
     }
     g_seams.units->UnitRefUnlink(((UnitRef*)&rec.ref_vt));
@@ -1742,7 +1720,7 @@ struct Rec_0044dfb0 {
     short f3;                       // +0x20
     short f4;                       // +0x22
     short f5;                       // +0x24
-    Vec3_0044e3c0 pos;              // +0x26
+    Vec3 pos;
     int i4;                         // +0x32
 };
 #pragma pack(pop)
@@ -1767,11 +1745,11 @@ int PathOrder::SerializeToSave(int unused, HapiBank* file, char* name)
     if (unit == 0)
         rec.id1 = 0;
     else
-        rec.id1 = unit->id;
+        rec.id1 = ((short)unit->id);
     if (this->ref.owner == 0)
         rec.id2 = 0;
     else
-        rec.id2 = this->ref.owner->id;
+        rec.id2 = ((short)this->ref.owner->id);
     rec.f1 = flags;
     rec.f2 = approachRadius;
     rec.f3 = altitude;
@@ -1832,7 +1810,7 @@ PathOrder::PathOrder(Order* order, Unit* unit)
     piece = -1;
     if ((unsigned char)(ref.owner->def->flags >> 11) & 1) {
         field_8 = 7;
-        int t = this->unit->weapon->range;
+        int t = ((Sub_0044e190 *)this->unit->weapon)->range;
         if (t != 0)
             followOffset = t << 16;
         else
@@ -1861,7 +1839,7 @@ PathOrder::PathOrder(Source_0044e250* source, int unit, short value)
 // g_pathOrderVtable), with a type of 0x20 and the position passed in.
 // FUNCTION: 0x44e2d0 ??0PathOrder@@QAE@PAUSource_0044e2d0@@ABUVec3_0044e2d0@@@Z
 PathOrder::PathOrder(Source_0044e2d0* source, const Vec3_0044e2d0& p)
-    : OrderFx((int)source), ref(0, 0), pos(*(const Vec3_0044e3c0*)&p)
+    : OrderFx((int)source), ref(0, 0), pos(*(const Vec3*)&p)
 {
     vtable = g_pathOrderVtable;
     approachRadius = 0;
@@ -1877,7 +1855,7 @@ PathOrder::PathOrder(Source_0044e330* source, int unit, const Vec3_0044e330& p)
 {
     vtable = g_pathOrderVtable;
     ref.SetUnit((Unit*)unit);
-    pos = *(const Vec3_0044e3c0*)&p;
+    pos = *(const Vec3*)&p;
     approachRadius = 0;
     altitude = 0;
     piece = -1;
@@ -1898,9 +1876,9 @@ int PathOrder::KeepAfterComplete() {
 // set, it aims at the reference unit's predicted position, optionally adding
 // a direction offset from the fixed-point trig helpers; otherwise it just
 // places itself at terrain level using the unit definition's height.
-static inline Vec3_0044e3c0 Direction_0044e3c0(short angle, int scale)
+static inline Vec3 Direction_0044e3c0(short angle, int scale)
 {
-    Vec3_0044e3c0 v;
+    Vec3 v;
     v.x = -FUN_004b70ef(angle, scale);
     v.y = 0;
     v.z = -FUN_004b7123(angle, scale);
@@ -1908,21 +1886,20 @@ static inline Vec3_0044e3c0 Direction_0044e3c0(short angle, int scale)
 }
 
 // FUNCTION: 0x44e3c0
-int PathOrder::FillWorldPos(Vec3_0044e3c0* out)
+int PathOrder::FillWorldPos(Vec3* out)
 {
     unsigned short f = flags;
     if ((f & 1) && !(f & 0x80)) {
         if (ref.owner == 0 || ref.owner->spatialBucket == g_game->overflowBucket)
             return 0;
         // Through a local pointer: keeps the struct-assignment destination in edi.
-        Vec3_0044e3c0* p = &pos;
-        Vec3 piecePos = g_seams.units->GetPiecePosition(ref.owner, piece);
-        *p = *(Vec3_0044e3c0*)&piecePos;
+        Vec3* p = &pos;
+        *p = g_seams.units->GetPiecePosition(ref.owner, piece);
         if (flags & 2) {
             short angle = ref.owner->heading;
             if (flags & 0x40)
                 angle += heading;
-            Vec3_0044e3c0 d = Direction_0044e3c0(angle, followOffset);
+            Vec3 d = Direction_0044e3c0(angle, followOffset);
             p->x -= d.x;
             p->y -= d.y;
             p->z -= d.z;

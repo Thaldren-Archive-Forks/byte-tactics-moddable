@@ -82,27 +82,7 @@ struct Link_0048ea40 {
     Owner_0048ea40* owner;             // +0x27
 };
 
-struct Unit {
-    int motion;                       // +0x0
-    char unknown_4[0x76 - 0x4];
-    short cell;                    // +0x76
-    short field_78;                    // +0x78
-    char unknown_7a[0x86 - 0x7a];
-    Unit* carrier;                     // +0x86
-    char unknown_8a[0x92 - 0x8a];
-    UnitType* def;                     // +0x92
-    Link_0048ea40* player;             // +0x96
-    char unknown_9a[0xa6 - 0x9a];
-    short unitDefIndex;                    // +0xa6
-    char unknown_a8[0xfb - 0xa8];
-    int postTransferHoldoff;                      // +0xfb
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x104 - 0x100];
-    float buildLeft;                   // +0x104
-    char unknown_108[0x110 - 0x108];
-    unsigned int flags;                // +0x110
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 struct UnitList {
     Unit* first;                       // +0x0
@@ -111,7 +91,7 @@ struct UnitList {
     void ForEach(Listener_0048ff40* visitor)
     {
         for (Unit* unit = first; unit <= last; unit++) {
-            if (unit->unitDefIndex != 0) {
+            if (((short)unit->unitDefIndex) != 0) {
                 int result = visitor->VisitUnit(unit);
                 if (!result) {
                     break;
@@ -603,7 +583,7 @@ extern char g_celebratedKey[]; // "Celebrated"
 void VictoryKillEnemyCommander::OnUnitDied(Unit* unit)
 {
     if (unit->playerIndex == 1) {
-        if (_strcmpi(unit->def->name, g_game->sideDefs[unit->player->owner->side].commander) == 0) {
+        if (_strcmpi(((UnitType *)unit->def)->name, g_game->sideDefs[((Link_0048ea40 *)unit->player)->owner->side].commander) == 0) {
             satisfied = 1;
             if (celebrated == 0) {
                 PlaySoundByName("Victory Condition", 0);
@@ -736,7 +716,7 @@ extern char g_buildUnitTypeKey[]; // "VictoryCondition_BuildUnitType"
 // FUNCTION: 0x48ed50
 int VictoryBuildUnitType::VisitUnit(Unit* unit)
 {
-    if (unit->unitDefIndex == id && unit->buildLeft == 0.0f) {
+    if (((short)unit->unitDefIndex) == id && unit->buildLeft == 0.0f) {
         satisfied = 1;
         if (celebrated == 0) {
             PlaySoundByName("Victory Condition", 0);
@@ -783,7 +763,7 @@ void VictoryBuildUnitType::LoadState(HapiBank* obj)
 // FUNCTION: 0x48eeb0
 void VictoryCaptureUnitType::OnUnitCaptured(Unit* unit)
 {
-    if (unit->playerIndex == 1 && _strcmpi(name, unit->def->name) == 0) {
+    if (unit->playerIndex == 1 && _strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
         satisfied = 1;
         if (celebrated == 0) {
             PlaySoundByName("Victory Condition", 0);
@@ -816,7 +796,7 @@ void VictoryCaptureUnitType::LoadState(HapiBank* obj)
 // FUNCTION: 0x48ef80
 int VictoryKillAllOfType::VisitUnit(Unit* unit)
 {
-    if (unit->unitDefIndex == id) {
+    if (((short)unit->unitDefIndex) == id) {
         count++;
     }
     return count <= 1;
@@ -827,7 +807,7 @@ int VictoryKillAllOfType::VisitUnit(Unit* unit)
 // FUNCTION: 0x48efb0
 void VictoryKillAllOfType::OnUnitDied(Unit* unit)
 {
-    if (satisfied == 0 && unit->playerIndex == 1 && _strcmpi(name, unit->def->name) == 0) {
+    if (satisfied == 0 && unit->playerIndex == 1 && _strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
         id = g_seams.units->FindUnitTypeId(name);
         count = 0;
         g_game->units2.ForEach(this);
@@ -869,7 +849,7 @@ extern char g_numLeftToKillKey[]; // "NumLeftToKill"
 // FUNCTION: 0x48f0f0
 void VictoryKillUnitType::OnUnitDied(Unit* unit)
 {
-    if (numLeftToKill > 0 && unit->playerIndex == 1 && _strcmpi(name, unit->def->name) == 0) {
+    if (numLeftToKill > 0 && unit->playerIndex == 1 && _strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
         if (--numLeftToKill <= 0) {
             satisfied = 1;
             if (celebrated == 0) {
@@ -919,11 +899,11 @@ int VictoryMoveUnitToRadius::IsSatisfied()
 void VictoryMoveUnitToRadius::VisitUnit(Unit* unit)
 {
     if (unit->playerIndex == 0) {
-        if (name[0] != 0 && _strcmpi(name, unit->def->name) != 0) {
+        if (name[0] != 0 && _strcmpi(name, ((UnitType *)unit->def)->name) != 0) {
             return;
         }
         if ((unit->flags & 0x20) && unit->buildLeft == 0.0f && unit->postTransferHoldoff == 0
-            && (unit->carrier == 0 || (unit->carrier->flags & 0x40000000))) {
+            && (((Unit *)unit->carrier) == 0 || (((Unit *)unit->carrier)->flags & 0x40000000))) {
             satisfied = 1;
             if (celebrated == 0) {
                 PlaySoundByName("Victory Condition", 0);
@@ -957,8 +937,8 @@ void VictoryMoveUnitToRadius::LoadState(HapiBank* obj)
 // FUNCTION: 0x48f370
 int VictoryUnitTypePassesX::VisitUnit(Unit* unit)
 {
-    if (name[0] == 0 || _strcmpi(name, unit->def->name) == 0) {
-        if (abs(unit->cell - x) <= 2) {
+    if (name[0] == 0 || _strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
+        if (abs(unit->cell.x - x) <= 2) {
             satisfied = 1;
             if (celebrated == 0) {
                 PlaySoundByName("Victory Condition", 0);
@@ -1006,8 +986,8 @@ void VictoryUnitTypePassesX::LoadState(HapiBank* obj)
 // FUNCTION: 0x48f4c0
 int VictoryUnitTypePassesZ::VisitUnit(Unit* unit)
 {
-    if (name[0] == 0 || _strcmpi(name, unit->def->name) == 0) {
-        if (abs(unit->field_78 - z) <= 2) {
+    if (name[0] == 0 || _strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
+        if (abs(unit->cell.y - z) <= 2) {
             satisfied = 1;
             if (celebrated == 0) {
                 PlaySoundByName("Victory Condition", 0);
@@ -1085,7 +1065,7 @@ void VictoryTimerRunsOut::LoadState(HapiBank* obj)
 void DefeatCommanderKilled::OnUnitDied(Unit* unit)
 {
     if (unit->playerIndex == 0) {
-        if (_strcmpi(unit->def->name, g_game->sideDefs[unit->player->owner->side].commander) == 0) {
+        if (_strcmpi(((UnitType *)unit->def)->name, g_game->sideDefs[((Link_0048ea40 *)unit->player)->owner->side].commander) == 0) {
             satisfied = 1;
         }
     }
@@ -1121,7 +1101,7 @@ extern char g_allUnitsKilledKey[]; // "DefeatCondition_AllUnitsKilled"
 int DefeatAllUnitsKilled::VisitUnit(Unit* unit)
 {
     if ((unit->flags & 0x20) && unit->buildLeft == 0.0f && unit->postTransferHoldoff == 0
-        && (unit->carrier == 0 || (unit->carrier->flags & 0x40000000))) {
+        && (((Unit *)unit->carrier) == 0 || (((Unit *)unit->carrier)->flags & 0x40000000))) {
         satisfied = 0;
     }
     return satisfied;
@@ -1162,7 +1142,7 @@ void DefeatAllUnitsKilled::LoadState(HapiBank* obj)
 // FUNCTION: 0x48f8c0
 void DefeatUnitTypeKilled::OnUnitDied(Unit* unit)
 {
-    if (_strcmpi(name, unit->def->name) == 0) {
+    if (_strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
         if (--numLeftToKill <= 0) {
             satisfied = 1;
         }
@@ -1196,7 +1176,7 @@ void DefeatUnitTypeKilled::LoadState(HapiBank* obj)
 // FUNCTION: 0x48f9a0
 int DefeatAllUnitsKilledOfType::VisitUnit(Unit* unit)
 {
-    if (unit->unitDefIndex == id) {
+    if (((short)unit->unitDefIndex) == id) {
         count++;
     }
     return count <= 1;
@@ -1209,7 +1189,7 @@ int DefeatAllUnitsKilledOfType::VisitUnit(Unit* unit)
 // FUNCTION: 0x48f9d0
 void DefeatAllUnitsKilledOfType::OnUnitDied(Unit* unit)
 {
-    if (_strcmpi(name, unit->def->name) == 0) {
+    if (_strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
         id = g_seams.units->FindUnitTypeId(name);
         count = 0;
         g_game->units.ForEach(this);
@@ -1246,7 +1226,7 @@ void DefeatAllUnitsKilledOfType::LoadState(HapiBank* obj)
 // FUNCTION: 0x48fb30
 int DefeatAnyUnitPassesX::VisitUnit(Unit* unit)
 {
-    int diff = abs((int)unit->cell - x);
+    int diff = abs((int)unit->cell.x - x);
 
     if (diff <= 2) {
         satisfied = 1;
@@ -1293,7 +1273,7 @@ void DefeatAnyUnitPassesX::LoadState(HapiBank* obj)
 // FUNCTION: 0x48fc40
 int DefeatAnyUnitPassesZ::VisitUnit(Unit* unit)
 {
-    int diff = abs((int)unit->field_78 - z);
+    int diff = abs((int)unit->cell.y - z);
 
     if (diff <= 2) {
         satisfied = 1;

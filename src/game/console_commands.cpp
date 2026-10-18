@@ -80,13 +80,7 @@ struct Movement {
 struct UnitDef;
 #include "../units/unit_def.h"
 
-struct Unit {
-    char unknown_0[0x92];
-    UnitDef* def;                      // +0x92
-    char unknown_96[0x110 - 0x96];
-    unsigned int flags;                // +0x110
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 struct Tile {
     unsigned short unit;               // +0x0

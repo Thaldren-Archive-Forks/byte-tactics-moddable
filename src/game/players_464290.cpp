@@ -31,17 +31,7 @@ struct UnitDef;
 #include "../units/unit_def.h"
 
 // A unit. Only the fields these functions use are named.
-struct Unit {
-    char unknown_0[0xbc];
-    float resourceSlot;                    // +0xbc
-    char unknown_c0[0xd4 - 0xc0];
-    float metalMake;                   // +0xd4
-    char unknown_d8[0xec - 0xd8];
-    Player* owner;                     // +0xec
-    char unknown_f0[0x110 - 0xf0];
-    unsigned int flags;                // +0x110
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 #include "../network/player_info.h"
 #include "../../interfaces/seams.h"
@@ -935,7 +925,7 @@ void __stdcall UpdatePlayers()
                                     // pointer is forwarded from the first block
                                     // instead and the second `mov eax,
                                     // [esi+0xec]` disappears.
-                                    float* slot = &unit->resourceSlot;
+                                    float* slot = &unit->energy;
                                     float f = (float)self->energy * kHundred;
                                     if (unit->owner->active != 0 &&
                                         unit->owner->type == 2) {
@@ -950,7 +940,7 @@ void __stdcall UpdatePlayers()
                                     *slot = f;
                                 }
                                 {
-                                    float* slot = &unit->metalMake;
+                                    float* slot = &unit->metal;
                                     float f = (float)self->metal * kHundred;
                                     if (unit->owner->active != 0 &&
                                         unit->owner->type == 2) {
