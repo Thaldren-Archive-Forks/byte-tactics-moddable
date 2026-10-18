@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "../state/block.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -602,12 +603,6 @@ void HarnessInit(char* cmdLine)
 int HarnessTestMode()
 {
     return s_testMode;
-}
-
-void HarnessZeroVec3(void* v)
-{
-    if (s_testMode)
-        memset(v, 0, 12);
 }
 
 unsigned HarnessGameSeed(unsigned live)

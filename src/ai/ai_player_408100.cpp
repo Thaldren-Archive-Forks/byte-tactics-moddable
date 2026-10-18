@@ -10,6 +10,7 @@
 // from it when farther), the others to the base itself, or when within 0x140 of
 // it, 0x140 onwards in its direction.
 #include <ta_types.h>
+#include "../state/block.h"
 // The system header set decides operand and load order in the _allmul and
 // MapRange code.
 #include <time.h>
@@ -75,7 +76,6 @@ extern Game_00408100* g_game;
 void __stdcall GetBasePosition(int index, Vec3* out);
 unsigned short __stdcall ChooseBuildOption(unsigned int player, Unit_00408100* unit);
 int __stdcall FindBuildPosition(unsigned int player, Vec3* from, Item_00408100* item, Vec3* out);
-void HarnessZeroVec3(void* v);
 int __stdcall GetBuilderCount(unsigned int player);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit_00408100* unit, Unit_00408100* target, Vec3* pos);
 void __stdcall AddOrder(MissionType kind, int remove, Unit_00408100* unit, Unit_00408100* target, Vec3* pos, int param_6, int param_7);
@@ -138,7 +138,9 @@ void ScoutTimer::OnTimer()
             unsigned short idx = ChooseBuildOption(field_10, u);
             if (idx) {
                 Vec3 pos;
-                HarnessZeroVec3(&pos);
+                pos.x = 0;
+                pos.y = 0;
+                pos.z = 0;
                 int ok = FindBuildPosition(field_10, &u->pos, &g_game->unitDefs[idx], &pos);
                 if (u->def->flag12) {
                     // Assigned to a local first: in the comparison it follows _ftol.
