@@ -72,7 +72,7 @@ so a function carries the set of roots that reach it. HarnessPhase numbers them 
   d RunGameSteps itself (the tick counter and the step loop), not what it calls
 
 Load. `load_write` follows the same walk from LOAD_ROOTS: LoadMatch, and
-AssignStartPositions, which tools/crtcalls.py lists as game logic that only frame
+AssignStartPositions, which data/game_logic.csv lists as game logic that only frame
 handlers call.
 
 Presentation. The functions the walk calls presentation, and so touching state as

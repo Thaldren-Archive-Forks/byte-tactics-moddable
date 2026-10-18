@@ -2,7 +2,7 @@
 
 A portable C port of the hand-written fixed-point trigonometry in
 `src/util/math_4b70a0.cpp`, giving the same result as the original for every
-input. It lives outside `src/` so that `tools/link.py` never builds it into the
+input. It lives outside `src/` so that the matching link never builds it into the
 reference exe. It needs no libm, no `long double`, and no platform headers.
 
 Plain C89 (MSVC 5 and clang), types from `bitexact.h` (`bx_i32` and so on), names
@@ -81,11 +81,8 @@ mode; SSE2 and wasm need nothing.
 
 ## Tests
 
-`uv run tools/bitexact.py` builds `src/util/math_4b70a0.cpp` (as `tools/check.py`
-compiles it) and the port into one console exe with the matching toolchain, runs
-it under Wine and prints `name: N cases, M mismatches` per entry point. The
-exe calls the original's entry points by their offsets from `FixedSine`, and
-gets the original's tables (`g_sinTable`, `g_cosTable` and the two doubles) from the bytes of `orig/TotalA.exe`, while the port uses the generated ones. The exit status is
+`uv run tools/bitexact.py` builds the tests with `clang-cl` (see "Under clang") and prints `name: N cases, M mismatches` per entry point. The
+original's entry points are called by their offsets from `FixedSine` in the reference branch's MSVC 5 exe, which wrote the vectors the clang build reads; the original's tables (`g_sinTable`, `g_cosTable` and the two doubles) come from the bytes of `orig/TotalA.exe`, while the port uses the generated ones. The exit status is
 non-zero on any mismatch.
 
 The math functions (`test/math_test.c`, see "x87 intermediates") add `name: N cases, M mismatches` lines for `bx_sqrt`, `bx_hypot`, `bx_strtof_msvc5`, `bx_atof_msvc5` (against `atof`, 1.1 million generated and fixed texts: whitespace, signs, `d` exponents, `inf`/`nan` spellings, overflow, denormals and underflow; and the numeric value strings of the player's TDF files, which `tools/tdfnumbers.py` extracts from `~/.ta` into `build/tdf_numbers.txt` and the test reads if present, printing how many it found) and `bx_sscanf` (the wrapper of `cmake/bitexact/sscanf.c` against the C runtime's `sscanf`, on the formats of `RunInitialMission` and some mixed ones, over generated and cut-off inputs, comparing the return count and every stored value), which must be 0, `bx_acos`, which may have a few (see `_CIacos` below), and `info:` lines for the candidates that do not match, which do not fail the run.
@@ -98,7 +95,7 @@ xorshift seed.
 
 ## Under clang
 
-`uv run tools/bitexact.py` runs the tests twice. The MSVC 5 exes also write what the originals returned (`build/bitexact/vectors/bitexact.bin` and `crt.bin`, about 900 MB together): every `ORACLE_*` call of the tests, in order, from `test/vectors.c`. Then the same test sources are built with `clang-cl` for i686 (`-DBX_REPLAY`: the original is not linked in, the oracle calls read the vectors) against MSVC 5's headers and `LIBCMT.LIB`, as the modern build is, and run under Wine. The library is compiled with SSE2 doubles (`-msse2 -mfpmath=sse`, no contraction), the test code with x87 (`-mno-sse`) like the game's files. Both halves must print the same `0 mismatches` lines; the clang half also fails if it runs out of vectors or leaves some unread. `--compiler msvc` or `--compiler clang` runs one half, the clang half on the vectors of the last MSVC run.
+`uv run tools/bitexact.py` replays vectors: the reference branch's `tools/bitexact.py` builds the tests with MSVC 5 and writes what the originals returned (`build/bitexact/vectors/bitexact.bin` and `crt.bin`, about 900 MB together): every `ORACLE_*` call of the tests, in order, from `test/vectors.c`. The test sources are built here with `clang-cl` for i686 (`-DBX_REPLAY`: the original is not linked in, the oracle calls read the vectors) against MSVC 5's headers and `LIBCMT.LIB`, as the modern build is, and run under Wine. The library is compiled with SSE2 doubles (`-msse2 -mfpmath=sse`, no contraction), the test code with x87 (`-mno-sse`) like the game's files. Every line must print `0 mismatches`; the run also fails if it runs out of vectors or leaves some unread.
 
 The generator inputs are deterministic in both builds, so the n-th oracle call of the clang run is the n-th of the MSVC run. The `info:` lines that need the CPU's own `fsincos` are the only live ones.
 
@@ -114,8 +111,8 @@ The generator inputs are deterministic in both builds, so the n-th oracle call o
 ## CRT and float operations in game logic
 
 What the game's own functions call in the C runtime (LIBCMT) or compute inline
-in the FPU, read from the matching build's objects by `tools/crtcalls.py`. The
-full list, per function, is `data/crt_calls.csv` (`uv run tools/crtcalls.py`
+in the FPU, read from the matching build's objects by the reference branch's `tools/crtcalls.py`. The
+full list, per function, is `data/crt_calls.csv` (the reference branch's `uv run tools/crtcalls.py`
 rewrites it). A game-logic function is one reachable from the eight phase calls
 of `RunGameSteps` (HandleNetPackets, UpdateAllUnits, UpdateProjectiles,
 UpdateExplosions, UpdatePlayers, UpdateFeatures, UpdateWind, UpdateMeteors) or
@@ -276,7 +273,7 @@ operation, not at each C expression. Values spilled to memory as `float` or
 
 ## x87 intermediates
 
-`tools/x87scan.py` (#73, phase 1) finds the places where MSVC 5's x87 code keeps
+the reference branch's `tools/x87scan.py` (#73, phase 1) finds the places where MSVC 5's x87 code keeps
 a float value at double precision (53 bits, with the extended exponent range)
 across several operations. The source says `float` there, MSVC rounds to 32
 bits only at a store, and a compiler that does float arithmetic in float (SSE,
@@ -291,7 +288,7 @@ of game logic with their format strings.
 - Walk: each function is decoded by recursive descent as crtcalls does, and the x87 stack is followed in address order. Every slot holds the expression that produced it; `fld dword` is a float leaf, `fld qword` a double leaf, `fild` an integer leaf, and `fst`/`fstp` of a dword or qword, `fist`/`fistp` and `call _ftol` end a chain.
 - Site: a chain of two or more arithmetic operations (fadd, fsub, fmul, fdiv and variants, fsqrt, the `_CI` calls) with a float or integer load among its leaves, ending in a float store (`float-store`), a double store (`double-store`), `_ftol` (`ftol`) or `fistp`. Each node gets the type C gives it: double if any operand is, else float if any is, else ambiguous (integers and constants only).
 - Class `float-chain`: a float-typed operation feeds another operation, a conversion to int or a double store, so a float-evaluating compiler rounds where x87 does not. `safe`: every such operation is double in C. `unknown`: only integer loads, or a call result.
-- Source line: the COFF line table of the `/Zd` object (`tools/coff.py` reads it). The line is the store's; for an inlined function it is the line of the call, not of the inline body (UpdatePlayerEconomy's `SettleResourceAccount` and `AddIncomeW`, DrawBattleFrame's `DrawResourcePanel`, RateUnitType in ComputeBaseWeights), and a scheduled store can be a line or two after its statement.
+- Source line: the COFF line table of the `/Zd` object (the reference branch's `tools/coff.py` reads it). The line is the store's; for an inlined function it is the line of the call, not of the inline body (UpdatePlayerEconomy's `SettleResourceAccount` and `AddIncomeW`, DrawBattleFrame's `DrawResourcePanel`, RateUnitType in ComputeBaseWeights), and a scheduled store can be a line or two after its statement.
 - Review: with 65 sites the classes were checked against the C source. 45 of the sites are classed as the scan gives them; for 20 the scan could not decide or was misled and `REVIEWED` in the tool holds the class (integer-only chains from `Length` helpers that use `float` locals are `float-chain`, those that use `double` locals are `safe`; the GUI `(int)((float)a * b / c)` forms are `float-chain`; UpdateMetalExtraction multiplies by a power of two, so reassociating is exact, and is `safe`).
 
 ### Scan counts
@@ -308,7 +305,7 @@ The `disposition` column says what became of each site:
 
 | Disposition | Sites | Meaning |
 | --- | --- | --- |
-| rewritten | 11 | the source now states the double precision x87 used, and the function still matches (`uv run tools/check.py`): 2 in UpdatePlayerEconomy (the wasted-resource sums), 2 in SteerAircraft (the two `* 65536.0` conversions), 4 in DrawBattleFrame (the energy bar, the share box and two more), 3 in ScoutTimer::OnTimer; these now read `safe` |
+| rewritten | 11 | the source now states the double precision x87 used, and the function still matches (the reference branch's `uv run tools/check.py`): 2 in UpdatePlayerEconomy (the wasted-resource sums), 2 in SteerAircraft (the two `* 65536.0` conversions), 4 in DrawBattleFrame (the energy bar, the share box and two more), 3 in ScoutTimer::OnTimer; these now read `safe` |
 | modern | 33 | the chain is stated only under `#ifdef __clang__` (the MSVC 5 source is unchanged, because a rewrite changed the bytes or could not state the precision), so the modern build rounds as x87 did; the class stays `float-chain` |
 | n/a | 21 | safe sites: the source is double there |
 
@@ -337,7 +334,7 @@ Not in the file: 19 single-operation float expressions converted by `_ftol` (`(i
 
 ### Format strings
 
-`uv run tools/x87scan.py --formats` finds the string literals pushed before each `sprintf`, `sscanf`, `printf` and `fprintf` call of the game-logic functions (190, 21, 6 and 21 calls; 36 have no literal in the argument window, in 13 functions, and the source of those has no float formats except the debug line `buildtimeleft: %1.3f` in the status panel and `HapiBank::WriteAuditFile`'s). `%f`, `%e` and `%g` appear in:
+the reference branch's `uv run tools/x87scan.py --formats` finds the string literals pushed before each `sprintf`, `sscanf`, `printf` and `fprintf` call of the game-logic functions (190, 21, 6 and 21 calls; 36 have no literal in the argument window, in 13 functions, and the source of those has no float formats except the debug line `buildtimeleft: %1.3f` in the status panel and `HapiBank::WriteAuditFile`'s). `%f`, `%e` and `%g` appear in:
 
 - `RunInitialMission` (0x487bf0), `sscanf` with `%f`, 6 calls: the mission script's unit orders (` %f %f` move and patrol positions, ` %f %f %f` with a wait time, ` %[...] %d %f %f`). The floats become `(int)(f * 65536.0)` order positions and `(int)(f * 30.0f)` times, so the result reaches game state: it needs the exact `sscanf` result above.
 - `DrawNetworkStats` (`%1.1f`), `DrawBattleFrame` (`%.1f`, 2 calls) and `DrawUnitInfoPanel` (`+%.0f`, `+%.1f`, `-%.0f`, `-%.1f`): display text only.

@@ -17,11 +17,11 @@ column of data/functions.csv:
 
     game      game functions (the default)
     gap       a function inside a `gap` region: inline assembly and more
-              per-file flags are allowed (tools/gapcheck.py checks it)
+              per-file flags are allowed
     library   only `library` functions: runtime library code built with the
-              game's options, which tools/place.py places as library code
+              game's options
     data      no functions and at least one `// GLOBAL:`: the game's data as
-              source (docs/linking.md), which tools/place.py places by address
+              source
 
 The builds link the objects in a fixed order that does not depend on folders
 (link_order): data first, then gap, library and game code, each kind by the
@@ -33,6 +33,7 @@ moving a file between folders does not change the order.
 import argparse
 import csv
 import re
+import struct
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -196,8 +197,7 @@ def link_key(src: Path | str) -> tuple:
 
 def link_order(paths: list[Path]) -> list[Path]:
     """Data first, then gap code, library code and game code, each in address
-    order: the order the builds link the objects in (tools/link.py leaves the
-    gap code out: tools/gapcheck.py builds it). Data files keep their names'
+    order: the order the builds link the objects in. Data files keep their names'
     order (their globals are placed by address anyway). Anything that counts
     or picks among the files goes through this order too, so that where a file
     lives never changes a result."""
@@ -222,7 +222,7 @@ def find_global(address: int) -> Path | None:
 
 def gap_sources() -> dict[int, Path]:
     """Gap region -> the file holding its code: the one that annotates a
-    function inside it. One file holds one region (tools/gapcheck.py)."""
+    function inside it. One file holds one region."""
     out: dict[int, Path] = {}
     for src in source_files():
         for a in function_addresses(src):
@@ -253,10 +253,7 @@ _gap_annotations: list[tuple[int, str]] | None = None
 def gap_annotations() -> list[tuple[int, str]]:
     """(address, name) for every name only gap sources spell: the function a
     `// FUNCTION:` annotation defines, and a global a `// GLOBAL:` annotation
-    marks on the declaration of it. Gap code is checked by tools/gapcheck.py,
-    not by tools/progress.py, so no match there learns these names; without
-    them in data/symbols.csv a rename loses tools/globals.py's definition of
-    the global and adds tools/place.py relocation rows."""
+    marks on the declaration of it."""
     global _gap_annotations
     if _gap_annotations is None:
         out: list[tuple[int, str]] = []
@@ -277,6 +274,83 @@ def object_source(obj: Path, cache: Path) -> Path:
 def relative(src: Path) -> str:
     """A path as data/ and the tools print it: relative to the repository."""
     return str(src.resolve().relative_to(ROOT))
+
+
+SYMBOLS = ROOT / "data/symbols.csv"
+ALIASES = ROOT / "data/aliases.csv"
+PATCHES = ROOT / "data/exe_patches.csv"
+
+
+class Original:
+    def __init__(self, path: Path = ROOT / "orig/TotalA.exe"):
+        import pefile
+        self.pe = pefile.PE(str(path))
+        self.base = self.pe.OPTIONAL_HEADER.ImageBase
+        self.end = self.base + self.pe.OPTIONAL_HEADER.SizeOfImage
+        self.sizes = {}
+        for d in getattr(self.pe, "DIRECTORY_ENTRY_DEBUG", []):
+            if d.struct.Type == 3:
+                raw = self.pe.__data__[d.struct.PointerToRawData:d.struct.PointerToRawData + d.struct.SizeOfData]
+                for i in range(0, len(raw), 16):
+                    rva, size = struct.unpack_from("<II", raw, i)
+                    self.sizes[self.base + rva] = size
+
+        self.patches = []
+        if PATCHES.exists():
+            for row in csv.DictReader(PATCHES.open()):
+                self.patches.append((int(row["address"], 16), bytes.fromhex(row["original"])))
+
+    def read(self, va: int, size: int) -> bytes:
+        try:
+            data = self.pe.get_data(va - self.base, size)
+        except Exception:
+            return b""
+        for at, orig in self.patches:
+            lo, hi = max(va, at), min(va + len(data), at + len(orig))
+            if lo < hi:
+                data = data[:lo - va] + orig[lo - at:hi - at] + data[hi - va:]
+        return data
+
+
+def base_name(sym: str) -> str:
+    """Undecorate a symbol just enough to compare names: '?Reset@PlayerRef@@QAEXE@Z' -> 'PlayerRef::Reset'."""
+    if re.search(r"@\?\d+\?\?", sym):
+        return "$local:" + sym
+    if sym.startswith("??_C@"):
+        return sym
+    if sym.startswith("??0") or sym.startswith("??1"):
+        scopes = sym[3:].split("@@", 1)[0].split("@")
+        cls = scopes[0]
+        return "::".join(reversed(scopes)) + "::" + ("~" if sym[2] == "1" else "") + cls
+    if sym.startswith("??"):
+        return sym
+    if sym.startswith("?"):
+        parts = sym[1:].split("@@", 1)[0].split("@")
+        return "::".join(reversed(parts[1:])) + ("::" if len(parts) > 1 else "") + parts[0]
+    if sym.startswith("_"):
+        return sym[1:].split("@", 1)[0]
+    return sym
+
+
+def load_aliases() -> dict[str, set[int]]:
+    """Extra addresses a name may refer to, where the exe really contains
+    duplicate copies of one function (e.g. two std::_Lockit)."""
+    out: dict[str, set[int]] = {}
+    if ALIASES.exists():
+        with ALIASES.open() as fh:
+            for row in csv.DictReader(fh):
+                out.setdefault(row["name"], set()).add(int(row["address"], 16))
+    return out
+
+
+def load_symbols() -> dict[str, int]:
+    out = {}
+    if SYMBOLS.exists():
+        with SYMBOLS.open() as fh:
+            out = {row["name"]: int(row["address"], 16) for row in csv.DictReader(fh)}
+    for address, name in data_annotations():
+        out.setdefault(name, address)
+    return out
 
 
 def main() -> None:

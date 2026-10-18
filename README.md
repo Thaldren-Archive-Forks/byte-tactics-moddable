@@ -72,9 +72,9 @@ sub-issue per step. The mod-support design it builds on is
 The fork gives up matching bytes and network compatibility with 3.1c clients.
 It keeps the game's behaviour:
 
-- **The reference** is a build of a `moddable` commit
-  (`uv run tools/reference.py HEAD`): 3.1c's game logic plus a test harness,
-  which is part of `src/`.
+- **The reference** is the `reference` branch, built with the original
+  compiler: 3.1c's game logic plus a test harness, which is part of `src/`.
+  Its traces are stored in `reference/traces/`.
 - **A test mode** makes runs reproducible: fixed random seeds, one simulation
   step per frame, scripted AI-vs-AI games.
 - **Traces** hash the game state after every phase of every tick. A change
@@ -83,20 +83,24 @@ It keeps the game's behaviour:
 
 Every change to the engine is gated on that, on every platform.
 
-## Building the reference
+## Building and gating
 
-The reference builds from `src/` with the original compiler, under Wine. You
-need `wine`, `7z`, `cabextract`, `curl` and [uv](https://docs.astral.sh/uv/),
-and your own copy of Total Annihilation (the Steam version).
+`moddable` builds with clang and LLVM 22.1.8 against MSVC 5's `INCLUDE` and
+`LIB` directories; it needs no MSVC 5 compiler. You need `cmake`, `ninja`,
+`wine` (the gate plays the game under it), `7z`, `cabextract`, `curl` and
+[uv](https://docs.astral.sh/uv/), and your own copy of Total Annihilation (the
+Steam version).
 
 ```sh
-tools/setup_toolchain.sh        # VC++ 5.0 + SP3 into toolchain/, TotalA.exe from Steam (set STEAM_TA if needed)
-uv run tools/check.py 0x401070  # one function: prints MATCH
-uv run tools/place.py           # the whole exe, compared byte for byte with the original
+tools/setup_toolchain.sh        # MSVC 5 INCLUDE and LIB into toolchain/, TotalA.exe from Steam (set STEAM_TA if needed)
+cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake
+cmake --build build/modern
+WINEARCH=win64 uv run tools/reference.py --check --exe build/modern/TotalA.exe --game-dir ~/.ta
 ```
 
-The result is the shipped v3.1 exe, MD5 `8e74a1dffa1f5988624c52048f5b20cd`.
-[docs/linking.md](docs/linking.md) explains how the build works.
+The check plays every scenario and compares its traces with the reference's.
+`CONTRIBUTING.md` has the details. The matching build that made the traces
+lives on the `reference` branch.
 
 ## Repository layout
 
@@ -104,11 +108,11 @@ The result is the shipped v3.1 exe, MD5 `8e74a1dffa1f5988624c52048f5b20cd`.
 | --- | --- |
 | `src/` | The engine source, in folders by subsystem |
 | `include/` | Shared types and prototypes |
-| `data/` | The function map, symbols and module ranges of the original exe |
-| `tools/` | Build, comparison and play-test scripts |
-| `docs/` | Guides from the decompilation, and bugs found in Cavedog's code (`docs/bugs.md`) |
+| `data/` | The function map, symbols and analysis tables of the original exe |
+| `tools/` | Build, analysis and play-test scripts |
+| `docs/` | Design notes, and bugs found in Cavedog's code (`docs/bugs.md`) |
 | `orig/` | The original exe (ignored by git) and its expected hash |
-| `toolchain/` | VC++ 5.0 and the Wine prefix (ignored by git) |
+| `toolchain/` | MSVC 5's headers and libraries (ignored by git) |
 
 ## Contributing
 

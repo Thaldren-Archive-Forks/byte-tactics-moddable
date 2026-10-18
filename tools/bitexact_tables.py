@@ -33,7 +33,7 @@ import sys
 from fractions import Fraction
 from pathlib import Path
 
-from check import ROOT
+from sources import ROOT
 
 OUT = ROOT / "build/bitexact/bx_tables.c"
 SIN_TABLE = 0x509F00
