@@ -20,6 +20,7 @@ union Fixed {
 };
 
 // Own definitions, not vec3.h: y is a 16.16 Fixed, and vec3.h would redefine Vec3.
+#define VEC3_H
 struct Vec3 {
     int x;                             // +0x0
     Fixed y;                           // +0x4
@@ -41,7 +42,6 @@ struct Tail32 {
     unsigned short b;
 };
 
-class Unit;
 class CobScript;
 class UnitMotion;
 class PlayerData;
@@ -83,27 +83,7 @@ struct UnitType {
 };
 
 // The +0x110 flag word, one bit view per function that reads it.
-union Flags {
-    struct {
-        unsigned int colour : 2;       // bits 0..1
-        unsigned int b2 : 1;
-        unsigned int b3 : 1;
-        unsigned int b4 : 1;
-        unsigned int b5 : 1;
-        unsigned int mid6 : 7;         // bits 6..12
-        unsigned int b13 : 1;
-        unsigned int b14 : 1;
-        unsigned int b15 : 1;
-        unsigned int b16 : 1;
-        unsigned int b17 : 1;
-        unsigned int mid18 : 10;       // bits 18..27
-        unsigned int b28 : 1;
-        unsigned int b29 : 1;
-        unsigned int b30 : 1;
-        unsigned int b31 : 1;
-    } bits;
-    unsigned int all;
-};
+
 
 // What a unit's +0 points at: its motion, the serialisation interface at +0
 // and the int of 0x48b200 at +0x20. 0x48ab70's two bit field is at +0x2e.
@@ -143,51 +123,7 @@ public:
     void PrependUnit(int node);
 };
 
-struct Unit {
-    UnitMotion* motion;                // +0x00
-    char unknown_4[0x64 - 4];
-    union {
-        Angles16 angles;                // +0x64
-        Tail32 tail32;                 // +0x64
-    };
-    Vec3 pos;                          // +0x6a
-    Point16 cell;                      // +0x76
-    char unknown_7a[0x7e - 0x7a];
-    Point16 footprint;                 // +0x7e
-    SpatialBucket* spatialBucket;      // +0x82
-    Unit* carrier;                     // +0x86
-    Unit* cargo;                       // +0x8a
-    Unit* cargoNext;                   // +0x8e
-    UnitType* def;                     // +0x92
-    Player* player;                    // +0x96
-    CobScript* script;                 // +0x9a
-    Block* state;                      // +0x9e
-    char unknown_a2[0xa6 - 0xa2];
-    unsigned short unitDefIndex;           // +0xa6
-    unsigned short id;                 // +0xa8
-    char unknown_aa[0xf5 - 0xaa];
-    unsigned char lastDamageType;      // +0xf5
-    unsigned char healthPercent;       // +0xf6
-    unsigned char prevHealthPercent;   // +0xf7
-    char losSightFrameIdx;             // +0xf8
-    signed char transportPiece;        // +0xf9
-    unsigned char recentlyDamagedTimer;  // +0xfa
-    int postTransferHoldoff;           // +0xfb
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x104 - 0x100];
-    float buildLeft;                   // +0x104
-    short health;                   // +0x108
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char activateFlags;           // +0x10e
-    char unknown_10f[0x110 - 0x10f];
-    union {
-        unsigned int flags;            // +0x110
-        Flags f110;                    // +0x110
-    };
-    char unknown_114[0x118 - 0x114];
-
-    void SetStateBits(unsigned char mask, int set);
-};
+#include "unit.h"
 
 union F14373 {
     struct {
@@ -292,8 +228,8 @@ extern float g_buildPercentScale;
 void __stdcall SnapUnitToGround(Unit* unit)
 {
     extern Game* g_game;
-    if (unit->def->f241.bits.floats) {
-        unit->pos.y.value = max(GetGroundHeight(&unit->pos), g_game->seaLevel - unit->def->draft) << 16;
+    if (((UnitType*)unit->def)->f241.bits.floats) {
+        unit->pos.y.value = max(GetGroundHeight(&unit->pos), g_game->seaLevel - ((UnitType*)unit->def)->draft) << 16;
     } else {
         unit->pos.y.value = GetGroundHeight(&unit->pos) << 16;
     }
@@ -311,19 +247,19 @@ void __stdcall SnapUnitToGround(Unit* unit)
 void __stdcall UpdateUnitHeight(Unit* unit)
 {
     extern Game* g_game;
-    if ((unit->flags & 0x10000) || unit->def->f241.bits.floats) {
+    if ((unit->flags & 0x10000) || ((UnitType*)unit->def)->f241.bits.floats) {
         unit->flags &= ~0x10000;
         if (unit->motion && (unit->flags & 3) == 1) {
-            if (unit->def->f241.bits.over_water) {
-                if (unit->def->f241.bits.floats) {
-                    unit->pos.y.value = max(GetGroundHeight(&unit->pos), g_game->seaLevel - unit->def->draft) << 16;
+            if (((UnitType*)unit->def)->f241.bits.over_water) {
+                if (((UnitType*)unit->def)->f241.bits.floats) {
+                    unit->pos.y.value = max(GetGroundHeight(&unit->pos), g_game->seaLevel - ((UnitType*)unit->def)->draft) << 16;
                 } else {
                     unit->pos.y.value = GetGroundHeight(&unit->pos) << 16;
                 }
-            } else if (unit->def->f241.bits.on_water) {
+            } else if (((UnitType*)unit->def)->f241.bits.on_water) {
                 // Union copy: an int would fold the product, sum and shift into (sea - draft) << 16.
                 Fixed h;
-                h.value = unit->def->draft * 0xffff + g_game->seaLevel;
+                h.value = ((UnitType*)unit->def)->draft * 0xffff + g_game->seaLevel;
                 h.value <<= 16;
                 unit->pos.y = h;
             } else {
@@ -439,14 +375,14 @@ void __stdcall ApplyAttachUnit(Order* order)
     Unit* u = !order->id1 ? 0 : &g_game->units[order->id1];
     Unit* t = !order->id2 ? 0 : &g_game->units[order->id2];
     if (u) {
-        unsigned int f = u->f110.all;
+        unsigned int f = u->flags;
         if (f & 0x10000000) {
             if (!(f & 0x20000000)) {
                 if (u->cargo == 0) {
                     if (t == 0
-                        || ((t->f110.all & 0x10000000) && t != u && t->carrier == 0)) {
+                        || ((t->flags & 0x10000000) && t != u && t->carrier == 0)) {
                         if (u->carrier != 0) {
-                            Unit* n = u->carrier;
+                            Unit* n = (Unit*)u->carrier;
                             Unit** link = &n->cargo;
                             n = n->cargo;
                             while (n != u) {
@@ -455,27 +391,27 @@ void __stdcall ApplyAttachUnit(Order* order)
                             }
                             *link = u->cargoNext;
                         } else {
-                            g_seams.map->SpatialBucketUnlinkUnit(u->spatialBucket, 0, u);
+                            g_seams.map->SpatialBucketUnlinkUnit((SpatialBucket*)u->spatialBucket, 0, u);
                         }
                         u->transportPiece = order->param;
                         if (t) {
-                            u->carrier = t;
+                            u->carrier = (int)t;
                             u->cargoNext = t->cargo;
                             t->cargo = u;
                             // Named bool, `char` compared with -1, masked with `& 1`: keeps the field width mask.
                             bool v = ((order->param == -1) & 1);
-                            u->f110.bits.b17 = v;
+                            u->f110.b17 = v;
                         } else {
                             u->cargoNext = 0;
-                            u->f110.bits.b17 = 0;
+                            u->f110.b17 = 0;
                             u->carrier = 0;
-                            g_seams.map->SpatialBucketPrependUnit(u->spatialBucket, 0, u);
+                            g_seams.map->SpatialBucketPrependUnit((SpatialBucket*)u->spatialBucket, 0, u);
                         }
-                        u->motion->bits_2e = order->param2;
+                        ((UnitMotion*)u->motion)->bits_2e = order->param2;
                         if (u->player->active) {
                             unsigned char k = u->player->type;
                             if (k == 1 || k == 2) {
-                                if (t && !(t->def->f241.bits.low & 0x200))
+                                if (t && !(((UnitType*)t->def)->f241.bits.low & 0x200))
                                     g_seams.orders->AddBeCarriedOrder(u);
                             }
                         }
@@ -527,7 +463,7 @@ void __stdcall UpdateAllUnits(void)
                             }
                         }
                         if (u->script != 0) {
-                            u->script->RunScripts(1);
+                            ((CobScript*)u->script)->RunScripts(1);
                         }
                         if (u->recentlyDamagedTimer != 0) {
                             u->recentlyDamagedTimer--;
@@ -535,15 +471,15 @@ void __stdcall UpdateAllUnits(void)
                         if (u->postTransferHoldoff != 0) {
                             u->postTransferHoldoff--;
                         }
-                        if (u->f110.bits.b4 != 0) {
-                            if (!(u->f110.bits.b5) || u->buildLeft != 0.0f || u->postTransferHoldoff != 0
-                                || (u->carrier != 0 && !(u->carrier->f110.bits.b30))) {
-                                u->f110.bits.b4 = 0;
+                        if (u->f110.b4 != 0) {
+                            if (!(u->f110.b5) || u->buildLeft != 0.0f || u->postTransferHoldoff != 0
+                                || (u->carrier != 0 && !(((Unit*)u->carrier)->f110.b30))) {
+                                u->f110.b4 = 0;
                             }
                         }
                         // Unsigned `% 30` (here and below) keeps the original's `div`.
                         if ((unsigned int)g_game->gameTick % 30 == 0) {
-                            int v = u->health * 100 / u->def->f1fa;
+                            int v = u->health * 100 / ((UnitType*)u->def)->f1fa;
                             if (v < 0) {
                                 v = 0;
                             }
@@ -560,23 +496,23 @@ void __stdcall UpdateAllUnits(void)
                                 if (g_game->mapInfo->waterDoesDamage != 0
                                     && g_game->mapInfo->waterDamage != 0
                                     && (unsigned int)g_game->gameTick % 30 == 0 && u->pos.y.whole <= g_game->seaLevel
-                                    && !u->def->f241.bits.floats) {
+                                    && !((UnitType*)u->def)->f241.bits.floats) {
                                     g_seams.weapons->DamageUnit(0, u, g_game->mapInfo->waterDamage, 0xb, 0);
                                 }
-                                if (u->def->f200 != 0 && u->health < u->def->f1fa
+                                if (((UnitType*)u->def)->f200 != 0 && u->health < ((UnitType*)u->def)->f1fa
                                     && (g_game->gameTick & 7) == 0) {
-                                    int n = u->def->f200 * 8;
+                                    int n = ((UnitType*)u->def)->f200 * 8;
                                     AddRepairProgress(u, u, (float)(n / 30));
                                 }
                                 g_seams.orders->RunOrders(u);
                                 g_seams.orders->RunSecondaryOrders(u);
                                 if (u->motion != 0) {
-                                    g_seams.orders->UpdateMotion(u->motion, 0, u);
+                                    g_seams.orders->UpdateMotion((UnitMotion*)u->motion, 0, u);
                                     UpdateUnitHeight(u);
                                 }
                             }
                         }
-                        if (u->f110.bits.b14) {
+                        if (u->f110.b14) {
                             KillUnit(u, u->lastDamageType);
                         }
                     }
@@ -634,8 +570,8 @@ void __stdcall WriteUnitState(BitWriter* stream, Unit* u)
             stream->data[stream->index] = 0;
         }
         // `!owner ? 0 : ...` lays the zero arm ahead of the load; keep the redundant `& 0xffff`.
-        stream->WriteBits((!u->carrier ? 0 : u->carrier->id) & 0xffff, 0xf);
-        stream->WriteBits(u->transportPiece, 8);
+        stream->WriteBits((!u->carrier ? 0 : ((Unit*)u->carrier)->id) & 0xffff, 0xf);
+        stream->WriteBits((signed char)u->transportPiece, 8);
     } else {
         stream->bit++;
         if (stream->bit == 0x20) {
@@ -653,7 +589,7 @@ void __stdcall WriteUnitState(BitWriter* stream, Unit* u)
         stream->WriteBits((unsigned short)u->angles.pitch, 0x10);
         stream->WriteBits((unsigned short)u->angles.bank, 0x10);
         if (u->motion)
-            stream->WriteBits(u->motion->speed, 0x20);
+            stream->WriteBits(((UnitMotion*)u->motion)->speed, 0x20);
     }
 }
 
@@ -687,7 +623,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     int zero = 0;
     if (type == zero) {
         if (u->unitDefIndex != zero)
-            u->f110.bits.b14 = 1;
+            u->f110.b14 = 1;
         return;
     }
     if (u->unitDefIndex != type) {
@@ -699,14 +635,14 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
         spawn.tail.words = u->angles;
         CreateUnitFromPacket((u->angles.bank & ~0xff) | u->playerIndex, &spawn);
     }
-    u->state->field_10 = zero;
+    ((Block*)u->state)->field_10 = zero;
     u->health = reader->ReadBits(0x10);
     // Unsigned into an __int64: gives `fild qword` with no `cdq`.
     __int64 alpha = (unsigned int)reader->ReadBits(8);
     float scale = (float)alpha * g_buildPercentScale;
     if (scale != u->buildLeft) {
         u->buildLeft = scale;
-        u->f110.bits.b13 = 1;
+        u->f110.b13 = 1;
     }
     // Byte-typed: SetStateBits takes a byte, spilled with a byte store.
     unsigned char state = (unsigned char)reader->ReadBits(8);
@@ -745,21 +681,21 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     Point16 np;
     np.x = (short)((pos.x - fixed.x * 0x80000 + 0x80000) >> 20);
     np.y = (short)((pos.z - fixed.y * 0x80000 + 0x80000) >> 20);
-    if (np.x == u->cell.x && np.y == u->cell.y && colour == (u->f110.all & 3)) {
+    if (np.x == u->cell.x && np.y == u->cell.y && colour == (u->flags & 3)) {
         u->pos = pos;
     } else {
         g_seams.map->RemoveUnitFromMap(u);
         u->pos = pos;
         u->cell = np;
         // The (unsigned short) cast stops the int colour getting a frame home.
-        u->f110.bits.colour = (unsigned int)(unsigned short)colour;
+        u->mode = (unsigned int)(unsigned short)colour;
         g_seams.map->AddUnitToMap(u);
         g_seams.los_radar->UpdateUnitLineOfSight(u);
     }
-    u->f110.bits.b16 = 1;
+    u->f110.b16 = 1;
     u->angles = tail;
     if (u->motion)
-        u->motion->speed = reader->ReadBits(0x20);
+        ((UnitMotion*)u->motion)->speed = reader->ReadBits(0x20);
 }
 
 // Builds one player's whole unit list as a single packet and sends it: a
@@ -783,11 +719,11 @@ void __stdcall SendUnitStates(Player* p)
             continue;
         if (!u->motion)
             continue;
-        if (!u->motion->player->v7())
+        if (!((UnitMotion*)u->motion)->player->v7())
             continue;
         stream.WriteBits(u->id - u->player->firstIndex, 0x10);
         stream.WriteBits(u->unitDefIndex, g_game->unitDefCountBits);
-        u->motion->player->WriteTo(&stream);
+        ((UnitMotion*)u->motion)->player->WriteTo(&stream);
         // `>> 3`, not `/ 8`: that is the original's `add ecx, 7; sar ecx, 3`
         // with no sign fix-up.
         if (((stream.bit + 7) >> 3) + stream.index * 4 >= 0x200)
@@ -854,17 +790,17 @@ void __stdcall ReceiveUnitStates(Player* p, unsigned int* data)
             spawn.type = type;
             spawn.player = 9;
             spawn.pos = unit->pos;
-            spawn.tail.dword = unit->tail32;
+            spawn.tail.dword = *(Tail32*)&unit->angles;
             CreateUnitFromPacket(unit->playerIndex, &spawn);
         }
-        unit->motion->player->ReadFrom(&reader);
+        ((UnitMotion*)unit->motion)->player->ReadFrom(&reader);
         index = (short)reader.ReadBits(0x10);
     }
 
     for (Unit* u = p->unitsBegin; u <= p->unitsEnd;
          u = (Unit*)((char*)u + 0x118)) {
         if ((u->flags & 0x10000000) && u->motion) {
-            g_seams.orders->UpdateMotion(u->motion, 0, u);
+            g_seams.orders->UpdateMotion((UnitMotion*)u->motion, 0, u);
             UpdateUnitHeight(u);
         }
     }
