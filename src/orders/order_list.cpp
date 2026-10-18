@@ -1924,9 +1924,10 @@ void UnitMotion::SteerAircraft(Unit* unit) {
     double vzd = (double)da.z * k * eps - (double)db.z * eps;
     float vx = vxd;
     float vz = vzd;
+    double vxs = vx;
     double mag = _hypot(vxd, vzd);
     if (mag > f18) {
-        vx = vx * (f18 / mag);
+        vxs = vx * (f18 / mag);
         vz = vz * (f18 / mag);
     }
 #else
@@ -1942,7 +1943,11 @@ void UnitMotion::SteerAircraft(Unit* unit) {
 
 #endif
 
+#ifdef __clang__
+    velocity.x += (int)(vxs * 65536.0);
+#else
     AddFixed(velocity.x, vx);
+#endif
     AddFixed(velocity.z, vz);
     speed = velocity.Length();
 
