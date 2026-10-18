@@ -353,14 +353,6 @@ def load_symbols() -> dict[str, int]:
     return out
 
 
-def winpath(p: Path) -> str:
-    """A path as the compiler and Wine are given it: under drive Y: for a path inside this checkout."""
-    p = Path(p)
-    if p == ROOT or ROOT in p.parents:
-        return "Y:\\" + "\\".join(p.relative_to(ROOT).parts)
-    return "Z:" + str(p).replace("/", "\\")
-
-
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("address", nargs="*", type=lambda s: int(s, 16))

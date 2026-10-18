@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 import bitexact_tables
-from sources import ROOT, Original, winpath
+from sources import ROOT, Original
 
 LIB = ROOT / "lib/bitexact"
 BUILD = ROOT / "build/bitexact"
@@ -82,11 +82,13 @@ def generate_and_check() -> bool:
     return True
 
 
+def windows_path(p: Path) -> str:
+    return "Z:" + str(Path(p).resolve()).replace("/", "\\")
+
+
 def run(exe: Path, *args: Path) -> int:
-    script = '. "$ROOT/tools/wineenv.sh"; exec wine "$@"'
-    env = dict(os.environ, ROOT=str(ROOT))
-    return subprocess.run(["bash", "-c", script, "wine", winpath(exe), *(winpath(a) for a in args)], env=env,
-                          cwd=ROOT).returncode
+    env = dict(os.environ, WINEDEBUG="-all", WINEARCH=os.environ.get("WINEARCH", "win64"))
+    return subprocess.run(["wine", windows_path(exe), *(windows_path(a) for a in args)], env=env, cwd=ROOT).returncode
 
 
 def tdf_args() -> list[Path]:
