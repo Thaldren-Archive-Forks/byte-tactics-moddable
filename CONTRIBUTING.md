@@ -7,17 +7,20 @@ step of it is a sub-issue, and the issues record which steps wait on which.
 
 ## Setting up
 
-You need Linux (or WSL) with `wine`, `7z`, `cabextract`, `curl`, `git`, the
-GitHub CLI (`gh`, logged in) and [uv](https://docs.astral.sh/uv/). You also
-need your own copy of Total Annihilation: the Steam version is the one the
-reference build matches.
+You need Linux (or WSL) with clang and LLVM **22.1.8**, `cmake`, `ninja`,
+`wine` (the gate plays the game under it), `7z`, `cabextract`, `curl`, `git`,
+the GitHub CLI (`gh`, logged in) and [uv](https://docs.astral.sh/uv/). You also
+need your own copy of Total Annihilation (the Steam version) and MSVC 5's
+`INCLUDE` and `LIB` directories in `toolchain/msvc5-sp3/`. The MSVC 5 compiler
+is not used to build `moddable`.
 
 ```sh
 git clone https://github.com/ozgb/byte-tactics-moddable
 cd byte-tactics-moddable
-tools/setup_toolchain.sh        # Visual C++ 5.0 + SP3 into toolchain/;
+tools/setup_toolchain.sh        # MSVC 5 INCLUDE and LIB into toolchain/;
                                 # copies TotalA.exe from Steam (set STEAM_TA if needed)
-uv run tools/check.py 0x401070  # must print MATCH
+ls toolchain/msvc5-sp3/INCLUDE toolchain/msvc5-sp3/LIB orig/TotalA.exe
+clang-cl --version              # must report 22.1.8
 ```
 
 Clone this repository, not upstream Byte Tactics: the scripts branch from
@@ -43,7 +46,7 @@ nine STL headers clang-cl cannot parse, and a case-insensitive overlay for
 MSVC 5's upper-case `INCLUDE`, under `build/modern/`. The toolchain itself is
 never edited. Building then runs `tools/aliases.py`, the generator that bridges
 the many spellings of each function and global to the one definition at its
-address (`tools/link.py` uses it too), and links the result with the import
+address, and links the result with the import
 libraries made from `link/*.def`, MSVC 5's `LIBCMT.LIB` and its system
 libraries, zlib from `toolchain/thirdparty` and the resources (`llvm-rc`). It
 needs `uv`, `orig/TotalA.exe` (the icon, the cursor and the initial value of
@@ -51,7 +54,7 @@ some globals) and `llvm-dlltool`, `llvm-rc` and `lld-link`.
 
 The objects are linked in `tools/sources.py`'s link order, the reference's, and
 `tools/aliases.py` keeps one definition (the first that is not an inline copy) of a name defined in
-several files (the copies kept in callers' files, `docs/linking.md`), as
+several files (the copies kept in callers' files), as
 LINK's `/FORCE:MULTIPLE` does, so the link prints no duplicate-symbol warning.
 
 The link refuses unresolved names: there are no stubs. `tools/aliases.py` also
@@ -64,8 +67,7 @@ The build also compiles `lib/bitexact` and routes the game logic's `rand`,
 `srand`, `sqrt`, `_hypot`, `acos`, the `%f` form of `sscanf` and the trig entry points of `src/util/math_4b70a0.cpp` to it
 (see "In the modern build" in `lib/bitexact/README.md`); `src/` is untouched, so
 the matching build is not affected. `uv run tools/bitexact.py` tests the library
-under both compilers, MSVC 5 first and then clang-cl against the vectors it
-wrote.
+with clang-cl against the vectors the reference branch's MSVC 5 build wrote.
 
 The `modern-compile` CI job compiles the game and `lib/bitexact` with clang-cl
 (`cmake --build build/modern --target game bitexact`, configured with
@@ -91,9 +93,8 @@ and open a pull request. Give it this prompt:
 In short:
 
 - Take only issues whose blockers are all closed.
-- Every change keeps the game behaving exactly like 3.1c. Until the
-  conformance harness (#3) lands, that means every game-logic function still
-  matches (`tools/checkall.py`); after it, identical traces.
+- Every change keeps the game behaving exactly like 3.1c: identical traces
+  for the scenario suite (`uv run tools/reference.py --check --exe build/modern/TotalA.exe`).
 - Code comments are limited to three forms (see "Comments in code" in
   `AGENTS.md`); the reasons for a change go in its commit message and pull
   request.

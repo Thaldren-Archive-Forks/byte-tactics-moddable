@@ -123,11 +123,13 @@ tick. Your header must agree with the stored one except for `commit`. The
 first differing tick is where your engine first diverges.
 
 A digest names only the tick. To find the phase and field, build the
-reference from the tag and diff full traces and dumps with `tools/tracediff.py`:
+reference from the tag (or the `reference` branch) and diff full traces and
+dumps with `tools/tracediff.py`:
 
 ```sh
 export WINEARCH=win64
-uv run tools/reference.py reference-traces-v3                 # build build/reference/reference-traces-v3/TotalA.exe
+git checkout reference-traces-v3
+uv run tools/reference.py HEAD                                # build build/reference/HEAD/TotalA.exe
 uv run tools/tracediff.py --traces ref/trace.txt mine/trace.txt   # first tick and phase that differ
 uv run tools/tracediff.py --dumps ref/dump.txt mine/dump.txt --at <tick> <phase>
 ```

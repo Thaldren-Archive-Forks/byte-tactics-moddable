@@ -1,8 +1,19 @@
 # Reference build and scenarios
 
-`uv run tools/reference.py HEAD` builds `build/reference/HEAD/TotalA.exe`: the
-current commit, with the harness in `src/harness/harness.cpp`. The game functions
-the harness changes are listed in `changed.txt`.
+The reference is the matching build: the source compiled with Visual C++ 5.0,
+plus the harness in `src/harness/harness.cpp`. It is built on the `reference`
+branch, cut from `moddable` at 875d19d5c03eb254d636077d0f0d3cd86e08ced2, with
+that branch's own `tools/reference.py HEAD` (the original compiler under Wine,
+and `reference/changed.txt` and checkall as the allowlist). `moddable` has no
+MSVC 5 compiler, linker or Wine wrapper. It builds with clang and LLVM 22.1.8
+against MSVC 5's `INCLUDE` and `LIB` directories, and
+`build/modern/TotalA.exe` is what the gate checks.
+
+A harness change lands on both branches: cherry-pick the same commit to
+`reference`, run `uv run tools/reference.py HEAD --traces` there, and tag a new
+`reference-traces-v<n>` when a digest changes. `uv run tools/reference.py --traces`
+on `moddable` does the second step in a worktree of `origin/reference`
+(`build/reference/branch`) and copies the traces into `reference/traces/`.
 
 ## Running a scenario
 
@@ -12,8 +23,8 @@ A bad scenario or a failed check exits with status 2 and a message on stderr
 that names the line.
 
 ```sh
-build/reference/HEAD/TotalA.exe -testmode reference/scenarios/skirmish2.txt -memset=0
-WINEARCH=win64 uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe \
+build/modern/TotalA.exe -testmode reference/scenarios/skirmish2.txt -memset=0
+WINEARCH=win64 uv run tools/playtest.py --exe build/modern/TotalA.exe \
   --testmode reference/scenarios/skirmish2.txt     # under Wine, headless
 ```
 
@@ -292,34 +303,29 @@ fpu_control_word 0x<hex>
 
 ```sh
 export WINEARCH=win64
-uv run tools/reference.py <ref> --traces     # build <ref>, play the suite, write reference/traces/
-uv run tools/reference.py HEAD --check       # the gate: build HEAD, play the suite, compare
 cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake   # once
 cmake --build build/modern
-uv run tools/reference.py HEAD --check --exe build/modern/TotalA.exe   # the modern build's gate
+rm -r build/playtest/prefix     # a fresh prefix; tools/playtest.py makes it again
+uv run tools/reference.py --check --exe build/modern/TotalA.exe --game-dir ~/.ta   # the gate
 ```
 
-`uv run tools/reference.py HEAD --check` is the gate command later issues name.
-A change to game code also passes
-`uv run tools/reference.py HEAD --check --exe build/modern/TotalA.exe --game-dir ~/.ta`,
-after `cmake --build build/modern` and on a fresh prefix (remove
-`build/playtest/prefix` first; `tools/playtest.py` makes it again). Both must
-report every scenario equal.
-Add `--game-dir <dir>` when the game is not in a Steam directory.
+The gate is the modern build's `--check`: every scenario must report equal.
+`--check` without `--exe` is an error, since `moddable` does not build the
+reference. Add `--game-dir <dir>` when the game is not in a Steam directory.
 
 The gate applies when a pull request changes `src/`, `include/`,
 `lib/bitexact/`, `reference/`, or the tools that build or run the exe
-(`tools/link.py`, `tools/reference.py`, `tools/playtest.py` and the like). Other
+(`tools/reference.py`, `tools/playtest.py` and the like). Other
 changes do not need it.
 
-`--traces` writes every trace with the built sha as `commit`. `--check` plays
+`--traces` writes every trace with the reference branch's sha as `commit`. `--check` plays
 every scenario (`--parallel N` at a time, default half the CPUs and at most 6), prints one line per scenario with its run time
 and a total, and exits 0 when every digest equals the stored one. It exits 1
 when a trace has no scenario or a scenario has no trace, and on a difference:
-it builds the reference from the commit the trace records (cached in
-`build/reference/<sha>`), prints the `tools/tracediff.py` report for the first
-differing scenario and exits 1. `--check --exe <path>` checks a given exe instead
-of building HEAD, and its report is `tracediff.py` run on the reference exe and
+it builds the reference from the commit the trace records (a commit of the
+`reference` branch or of `moddable` before the cut, built with its own tools and
+cached in `build/reference/<sha>`), prints the `tools/tracediff.py` report for the first
+differing scenario and exits 1. `--check --exe <path>` checks the given exe, and its report is `tracediff.py` run on the reference exe and
 that exe: the first differing tick, phase, field and the function the phase runs.
 A differing scenario's run is kept: its `trace.txt` (and `dump.txt`, if any) is copied to
 `build/scratch/check-<scenario>-<time>/`, and the `DIFF` line ends with that path, so a one-off
@@ -349,8 +355,8 @@ stderr at the start (`testmode: allocations are filled with 0x00000000`).
 `--poison` finds the bytes whose starting value reaches the hashed state:
 
 ```sh
-uv run tools/reference.py HEAD --check --poison      # lists the bytes whose starting value reaches hashed state
-uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe --testmode reference/scenarios/skirmish2.txt --poison
+uv run tools/reference.py --check --exe build/modern/TotalA.exe --poison      # lists the bytes whose starting value reaches hashed state
+uv run tools/playtest.py --exe build/modern/TotalA.exe --testmode reference/scenarios/skirmish2.txt --poison
 ```
 
 It passes `-memset=0xcdcdcdcd` instead, so each block is filled with 0xCD. `GameCalloc` still
@@ -365,12 +371,12 @@ it compares the runs that differed.
 ## Quick check
 
 ```sh
-uv run tools/reference.py HEAD --check --quick     # a fixed subset, for a fast look
+uv run tools/reference.py --check --exe build/modern/TotalA.exe --quick     # a fixed subset, for a fast look
 ```
 
 `--quick` is the same `--check` restricted to the five scenarios in the
 `QUICK` constant of `tools/reference.py`. Its scenarios take about 1 to 2
-minutes at the default `--parallel`, after the build and checkall. A pass says so and reminds you that it is not the gate; a failure
+minutes at the default `--parallel`. A pass says so and reminds you that it is not the gate; a failure
 prints the same `tools/tracediff.py` report as the full run. `--quick` goes with
 `--check` and `--exe`, and `--traces` rejects it. It is no substitute for the
 full `--check`, which is what a pull request's gate needs.
