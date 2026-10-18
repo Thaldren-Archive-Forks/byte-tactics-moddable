@@ -36,20 +36,7 @@ struct UnitDef {
     unsigned int flags2;               // +0x245
 };
 
-struct Unit {
-    UnitMotion* motion;                  // +0x0
-    char unknown_4[0x6a - 0x4];
-    Vec3 pos;                          // +0x6a
-    char unknown_76[0x7e - 0x76];
-    Point footprint;                   // +0x7e
-    char unknown_82[0x86 - 0x82];
-    int carrier;                      // +0x86
-    char unknown_8a[0x92 - 0x8a];
-    UnitDef* def;                      // +0x92
-    void ClaimWeapons(int);
-    void SetStateBits(int, int);
-    int CanReclaim(Unit*);
-};
+#include "../units/unit.h"
 
 #include "../units/unit_ref.h"
 
@@ -109,8 +96,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
@@ -148,7 +135,7 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
     case 1: {
         order->elapsed = ComputeReclaimDamagePulse(unit, target, 15);
         order->duration = 0;
-        Point origin = unit->footprint;
+        Point origin = *(Point*)&unit->footprint;
         Point cell = WorldToCell(order->pos, origin);
         CellToWorldPos(cell, &order->pos, origin);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->target.Get()->pos);

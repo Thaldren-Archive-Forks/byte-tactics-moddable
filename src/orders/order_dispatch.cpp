@@ -274,14 +274,7 @@ struct Thing_0043f0e0 {
 extern Game* g_game;
 
 #include "../../interfaces/seams.h"
-class Unit {
-  public:
-    int CanLoad(Unit_0043f0e0* other);
-    int CanLoad(Unit_0043e490* other);
-    int CanRepair(Unit_0043f0e0* other);
-    int CanRepair(Unit_0043e490* other);
-    int CanReclaim(Unit_0043e490* other);
-};
+#include "../units/unit.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall IsUnitCommander(Unit*);
 int __stdcall FindLandingPad(Unit*, int);

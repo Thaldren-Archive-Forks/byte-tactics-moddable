@@ -39,22 +39,7 @@ struct UnitDef {
     char pad196[0x21c - 0x196]; short altitude;
     char pad21e[0x241 - 0x21e]; unsigned int flags;
 };
-struct Unit {
-    UnitMotion* motion;
-    char pad4[0x66 - 4]; short heading;
-    char pad68[2];
-    union {
-        Vec3 pos;
-        struct { unsigned short xf; short x; int y; unsigned short zf; short z; } p;
-    };
-    char pad76[0x82 - 0x76];
-    int spatialBucket; int carrier;
-    char pad8a[8]; UnitDef* def;
-    char pad96[0x110 - 0x96]; unsigned int flags;
-    void ClaimWeapons(int);
-    void ReleaseWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 struct Order {
     char pad0[5]; unsigned char state; unsigned int flags;
     char padA[0x16 - 0xa]; Unit* target;
@@ -135,8 +120,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
@@ -181,7 +166,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
         order->SetAttachedFx((int)obj);
         return 2;
     }
-    if (order->range && (int)_hypot(unit->p.x - order->x, unit->p.z - order->z) >= order->range)
+    if (order->range && (int)_hypot(unit->xWhole - order->x, unit->zWhole - order->z) >= order->range)
         return 5;
     switch (order->state) {
     case 0:
@@ -218,10 +203,10 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
             d.v = (int)_hypot(unit->pos.x - order->target->pos.x, unit->pos.z - order->target->pos.z);
             if (d.p.whole > 0xa0) {
                 Vec3 p = order->target->pos;
-                p.x += order->target->motion->velocity.x * 45;
-                p.z += order->target->motion->velocity.z * 45;
+                p.x += ((UnitMotion*)order->target->motion)->velocity.x * 45;
+                p.z += ((UnitMotion*)order->target->motion)->velocity.z * 45;
                 order->SetAttachedFx((int)new (kSim) AirManeuverOrder(order, p,
-                    Sum(order->target->motion->velocity, Offset(order->target->heading, order->target->def->maxvelocity / 2))));
+                    Sum(((UnitMotion*)order->target->motion)->velocity, Offset(order->target->heading, order->target->def->maxvelocity / 2))));
             }
             order->SetDeadlineTicks(0x2d);
             order->flags |= 0x100e8;

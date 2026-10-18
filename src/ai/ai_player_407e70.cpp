@@ -99,14 +99,9 @@ struct UnitDefFlags_00407e90 {
     unsigned int flag4 : 1;             // +0x245 bit 4
 };
 
-struct Unit {
-    int motion;                        // +0x0
-    char unknown_4[0x6a - 0x4];
-    Vec3_00407d40 pos;                  // +0x6a
-    char unknown_76[0x92 - 0x76];
-    UnitDef* def;                       // +0x92
-};
 #pragma pack(pop)
+
+#include "../units/unit.h"
 
 struct Group_00407e90 {
     Player* player;                     // +0x0

@@ -39,9 +39,6 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 #include <tchar.h>
 #include <time.h>
 #include <float.h>
-namespace ta {
-#include <ta_types.h>
-}
 struct Unit;
 struct Order;
 
@@ -55,12 +52,10 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 }
 #endif
 #include <vector>
-namespace ta {
-#include <ta_types.h>
-}
 
 // A 16.16 position or velocity, and the fixed-point halves the VTOL code
 // reads from it (the fraction and whole parts of x, y and z).
+#define VEC3_H
 struct Vec3 {
     union { int x; struct { unsigned short xf; short xw; }; };
     union { int y; struct { unsigned short yf; short yw; }; };
@@ -79,7 +74,7 @@ struct Vec3 {
 };
 
 struct Point { short x, y; };
-struct Point16 { short x, z; };
+struct Point16 { short x, y; };
 struct Pair16 { short lo, hi; };
 
 struct Box {
@@ -321,57 +316,7 @@ struct Order {
     void Wait();
 };
 
-struct Unit {
-    UnitMotion* motion;                // +0x0
-    char unknown_4[4];
-    union {
-        Weapon weapons[3];             // +0x8
-        struct {
-            char unknown_8[8];
-            WeaponDef* weapon;         // +0x10, weapons[0].def
-        };
-    };
-    Order* list;                       // +0x5c
-    char unknown_60[0x66 - 0x60];
-    short heading;                     // +0x66
-    char unknown_68[2];
-    Vec3 pos;                          // +0x6a
-    char unknown_76[0x7e - 0x76];
-    Point footprint;                   // +0x7e
-    int spatialBucket;                      // +0x82
-    int carrier;                      // +0x86
-    Unit* cargo;                       // +0x8a
-    char unknown_8e[4];
-    UnitDef* def;                      // +0x92
-    PlayerView* player;                // +0x96
-    CobScript* script;                 // +0x9a
-    char unknown_9e[0xa6 - 0x9e];
-    unsigned short unitDefIndex;       // +0xa6
-    char unknown_a8[0xb0 - 0xa8];
-    int workTime;                      // +0xb0
-    char unknown_b4[0xf0 - 0xb4];
-    Unit* attacker;                    // +0xf0
-    unsigned char lastAttackerSlot;    // +0xf4
-    unsigned char lastDamageType;      // +0xf5
-    char unknown_f6[0xff - 0xf6];
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x104 - 0x100];
-    float buildLeft;                   // +0x104
-    short health;                      // +0x108
-    char unknown_10a[0x110 - 0x10a];
-    union {
-        unsigned int flags;            // +0x110
-        struct {
-            unsigned int mode : 2;
-            unsigned int unknown_2 : 30;
-        } bits;
-    };
-    void ClaimWeapons(int);
-    void ReleaseWeapons(int);
-    void SetStateBits(int, int);
-    int CanRepair(Unit*);
-    int CanReclaim(Unit*);
-};
+#include "../units/unit.h"
 #pragma pack(pop)
 
 class Class_0044e2d0 {
@@ -561,7 +506,7 @@ static inline Point16 ToPoint16(Point p)
 {
     Point16 r;
     r.x = p.x;
-    r.z = p.y;
+    r.y = p.y;
     return r;
 }
 
@@ -602,7 +547,7 @@ static inline int IsDamaged(Unit* u)
 
 static inline int GetSpeed(Unit* unit)
 {
-    return unit->weapons[0].def->range;
+    return ((WeaponDef*)unit->weapons[0].weapon)->range;
 }
 
 // Used on the target argument of the order-steal calls: the plain chain
@@ -620,7 +565,7 @@ static inline Unit* OrderTarget(Order* order)
 // FUNCTION: 0x413bc0
 int __stdcall VtolEvadeOrder(Unit* unit,Order* order,int flags)
 {
-    int range=unit->weapons[0].def->range;
+    int range=((WeaponDef*)unit->weapons[0].weapon)->range;
     if (order->targetUnit && !(flags&0x10008)) {
     unsigned int state=0; state=order->state;
     switch(state) {
@@ -665,8 +610,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
@@ -714,7 +659,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
         break;
     case 1: {
         if (g_seams.map->CanPlaceFootprintAt(unit, &unit->pos)) {
-            g_seams.units->StartScript(unit->script, "EndTransport", 0, 1);
+            g_seams.units->StartScript((CobScript*)unit->script, "EndTransport", 0, 1);
             Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
             int h = max(g_seams.units->GetGroundHeight(&unit->pos), g_game->seaLevel);
             ((Class_0044e6c0*)obj)->SetAltitude(h <= g_game->seaLevel ? g_seams.units->GetGroundHeight(&unit->pos) - g_game->seaLevel : 0);
@@ -727,7 +672,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
             Vec3 p = unit->pos;
             p.x += (RandomInt(r * 2 + 1) - r) << 16;
             p.z += (RandomInt(r * 2 + 1) - r) << 16;
-            Point fp = unit->footprint;
+            Point fp = *(Point*)&unit->footprint;
             Point cell = WorldToCellMul(p, fp);
             CellToWorld(fp, cell, &p);
             if (g_seams.map->CanPlaceFootprintAt(unit, &p)) {
@@ -754,7 +699,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
     }
     case 2:
         if (flags & 0x20) {
-            unit->motion->SetFlightMode(unit, 1);
+            ((UnitMotion*)unit->motion)->SetFlightMode(unit, 1);
             return 5;
         }
         return 8;
@@ -843,7 +788,7 @@ int __stdcall VtolMoveOrder(Unit* unit, Order* order, int flags)
     case 1:
         order->AnnounceStatusIfFlagged(0);
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
-        Snap(&order->pos, unit->footprint);
+        Snap(&order->pos, *(Point*)&unit->footprint);
         order->SetAttachedFx((int)new (kSim) Class_0044e2d0(order, order->pos));
         order->flags = 0xe0;
         return 1;
@@ -899,7 +844,7 @@ class UnitList : public std::vector<Unit*> {};
 
 static inline void FindPads(Unit* u, std::vector<Unit*>* pads)
 {
-    g_seams.ai->GetFactoriesInRadius(u->player->index,&u->pos,0xf00,pads);
+    g_seams.ai->GetFactoriesInRadius(((PlayerView*)u->player)->index,&u->pos,0xf00,pads);
 }
 
 static inline int SearchRange(Unit* u)
@@ -922,7 +867,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     }
     UnitList units;
     int range=SearchRange(unit);
-    GroundAllyVisitor visitor(unit->player,&units,unit);
+    GroundAllyVisitor visitor((PlayerView*)unit->player,&units,unit);
     g_seams.map->VisitObjectsInRange(&unit->pos,range,(UnitVisitor*)&visitor);
     if (!units.empty()) {
         order->SetAttachedFx(0);
@@ -932,7 +877,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
         return 3;
     }
     if (flags&0xe0) order->angle+=-RandomInt(0x2000)-0x4000;
-    Vec3 pos=Add(order->pos,Offset((short)order->angle,(unit->weapons[0].def->range+160)<<16));
+    Vec3 pos=Add(order->pos,Offset((short)order->angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16));
     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
     ((Class_0044e730*)move)->SetApproachRadius(128);
     order->SetAttachedFx((int)move);
@@ -986,7 +931,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         break;
     case 1: {
         Unit* cargo = order->target.owner;
-        if (g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, cargo->footprint)), 1)) {
+        if (g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, *(Point*)&cargo->footprint)), 1)) {
             Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
             // Through an int local: passing the expression straight sign-extends differently.
             int h = unit->cargo->def->field_170;
@@ -1002,11 +947,11 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         if (flags & 0x40)
             return 9;
         Unit* cargo = order->target.owner;
-        if (!g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, cargo->footprint)), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, *(Point*)&cargo->footprint)), 1)) {
             QueueUnitSpeech(unit, 7, "Unable to unload unit");
             return 9;
         }
-        g_seams.units->StartScript(unit->script, "EndTransport", 0, 0);
+        g_seams.units->StartScript((CobScript*)unit->script, "EndTransport", 0, 0);
         g_seams.units->AttachUnitToPiece(unit->cargo, 0, -1, 1);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
@@ -1034,7 +979,7 @@ int __stdcall FindLandingPad(Unit* unit, int pad)
     pads[1] = -1;
     pads[2] = -1;
     pads[3] = -1;
-    g_seams.units->QueryScript(unit->script, "QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
+    g_seams.units->QueryScript((CobScript*)unit->script, "QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
     for (int i = 0; i < 4; i++) {
         if (pads[i] != -1 && g_seams.map->IsPadSlotFree(unit, pads[i])) {
             return pads[i];
@@ -1095,8 +1040,8 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
             g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
             if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
             g_seams.units->SetStateBits(unit, 1,1);
-            if ((unit->motion->flags&3)==1) {
-                unit->motion->SetFlightMode(unit,2);
+            if ((((UnitMotion*)unit->motion)->flags&3)==1) {
+                ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                 Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                 ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
                 order->SetAttachedFx((int)move);
@@ -1211,7 +1156,7 @@ int __stdcall VtolRepairUnitOrder(Unit* unit, Order* order, int flags)
     }
     if (order->range && (int)_hypot(unit->pos.xw - order->x, unit->pos.zw - order->z) >= order->range)
         return 5;
-    if (order->targetUnit->bits.mode != 1) {
+    if (order->targetUnit->mode != 1) {
         QueueUnitSpeech(unit, 7, "Repairs unsuccessful.");
         return 5;
     }
@@ -1240,7 +1185,7 @@ int __stdcall VtolRepairUnitOrder(Unit* unit, Order* order, int flags)
     case 2:
         if (flags & 0x40)
             return 8;
-        if (order->targetUnit->bits.mode != 1)
+        if (order->targetUnit->mode != 1)
             return 8;
         if (order->targetUnit->flags & 0xc) {
             order->SetDeadlineTicks(15);
@@ -1300,7 +1245,7 @@ static inline int Land(Unit* unit, Order* order)
 {
     if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
         std::vector<Unit*> pads;
-        g_seams.ai->GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &pads);
+        g_seams.ai->GetFactoriesInRadius(((PlayerView*)unit->player)->index, &unit->pos, 0xf00, &pads);
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad = pads[RandomInt(pads.size())];
@@ -1336,7 +1281,7 @@ void RepairableUnitVisitor::CollectRepairableUnit(Unit* unit)
 {
     if (unit == self) return;
     unsigned int index = 0;
-    index = unit->player->index;
+    index = ((PlayerView*)unit->player)->index;
     if (!owner->allied[index]) return;
     unsigned int kind = unit->flags & 3;
     if ((unsigned char)kind != 1) return;
@@ -1402,7 +1347,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
     short& oz = order->z;
     if (order->range && (int)_hypot(unit->pos.xw - ox, unit->pos.zw - oz) >= order->range)
         return 5;
-    int range = unit->weapons[0].def->range;
+    int range = ((WeaponDef*)unit->weapons[0].weapon)->range;
     unsigned int state = 0;
     state = order->state;
     switch (state) {
@@ -1468,7 +1413,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         order->flags = 0x100e8;
         if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
             std::vector<Unit*> v;
-            g_seams.ai->GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &v);
+            g_seams.ai->GetFactoriesInRadius(((PlayerView*)unit->player)->index, &unit->pos, 0xf00, &v);
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];
@@ -1524,12 +1469,12 @@ int __stdcall VtolPickupOrder(Unit* unit, Order* order, int flags)
         case 2:
             order->AnnounceStatusIfFlagged("Preparing for transport");
             order->piece = -1;
-            g_seams.units->QueryScript(unit->script, "QueryTransport", &order->piece, 0, 0, 0);
+            g_seams.units->QueryScript((CobScript*)unit->script, "QueryTransport", &order->piece, 0, 0, 0);
             order->flags = 0x100e8;
             return 1;
         case 3: {
             int height = target->def->modelMaxY;
-            g_seams.units->StartScriptWithArgs(unit->script, "BeginTransport", 0, 1, 1, height, 0, 0, 0);
+            g_seams.units->StartScriptWithArgs((CobScript*)unit->script, "BeginTransport", 0, 1, 1, height, 0, 0, 0);
             SendScriptCallByName(unit, "BeginTransport", 1, height, 0, 0, 0);
             Vec3 offset = g_seams.units->GetPieceOffset(unit, order->piece);
             Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target.owner, -1);
@@ -1542,7 +1487,7 @@ int __stdcall VtolPickupOrder(Unit* unit, Order* order, int flags)
             // Suspected original bug: the waypoint built below is never
             // handed to the order (no SetAttachedFx call), so it leaks.
             if (flags & 0x42) {
-                g_seams.units->StartScript(unit->script, "EndTransport", 0, 0);
+                g_seams.units->StartScript((CobScript*)unit->script, "EndTransport", 0, 0);
                 return 8;
             }
             g_seams.units->AttachUnitToPiece(target, unit, order->piece, 0);

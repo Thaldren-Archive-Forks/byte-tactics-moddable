@@ -21,7 +21,6 @@ struct Order;
 
 #pragma pack(push, 1)
 struct WeaponDef { char pad0[0xdc]; int range; char pade0[0x111-0xe0]; unsigned int flags; };
-struct Weapon { char pad0[8]; WeaponDef* def; char padc[11]; unsigned char flags; char pad18[4]; };
 #include "../units/unit_def.h"
 struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index; };
 #include "unit_motion.h"
@@ -32,17 +31,7 @@ class ScoutTimer;
 class EscortTimer;
 class AssaultTimer;
 class SquadManager;
-struct Unit {
-    UnitMotion* motion; char pad4[4]; Weapon weapons[3]; Order* list;
-    char pad60[10]; Vec3 pos; char pad76[8]; short width; short depth; int spatialBucket; int carrier;
-    char pad8a[8]; UnitDef* def; Owner* player; char pad9a[12]; unsigned short unitDefIndex;
-    char pada8[0xf0-0xa8]; Unit* attacker; char padf4[0x108-0xf4]; short health;
-    char pad10a[6]; unsigned int flags;
-    void ReleaseWeapons(int);
-    int CanRepair(Unit*);
-    void ClaimWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 
 #include "../../interfaces/seams.h"
 #include "order.h"
@@ -116,8 +105,8 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
                 if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
                 g_seams.units->SetStateBits(unit, 1,1);
-                if ((unit->motion->flags&3)==1) {
-                    unit->motion->SetFlightMode(unit,2);
+                if ((((UnitMotion*)unit->motion)->flags&3)==1) {
+                    ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
                     order->SetAttachedFx((OrderFx*)move);
@@ -131,7 +120,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
         if ((unsigned int)unit->health < (unit->def->maxHealth>>2)*3) {
             LandingPadList pads;
-            g_seams.ai->GetFactoriesInRadius(unit->player->index,&unit->pos,0xf00,&pads);
+            g_seams.ai->GetFactoriesInRadius(((Owner*)unit->player)->index,&unit->pos,0xf00,&pads);
             if (!pads.empty()) {
                 order->SetAttachedFx(0);
                 Unit* pad=pads[RandomInt(pads.count())];
@@ -143,7 +132,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         Unit* target=g_seams.targeting->FindBestTargetIfFireAtWill(unit);
         if (target && IssueAttackOrder(unit,target,0)) return 5;
         if (flags&0xe0) order->angle+=-RandomInt(0x2000)-0x5555;
-        Vec3 pos=AddVec3(order->pos,Offset((short)order->angle,(unit->weapons[0].def->range+160)<<16));
+        Vec3 pos=AddVec3(order->pos,Offset((short)order->angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16));
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         ((Class_0044e730*)move)->SetApproachRadius(128);
         order->SetAttachedFx((OrderFx*)move);

@@ -72,12 +72,7 @@ struct WeaponDef {                     // 0x115 bytes
     };
 };
 
-struct UnitWeaponSlot {                // 0x1c bytes, one of a unit's three
-    char unknown_0[0xc];               // the aim target pair and the aim callback
-    WeaponDef* weapon;                 // +0xc
-    char unknown_10[0x1b - 0x10];
-    unsigned char flags;               // +0x1b
-};
+#include "../weapons/unit_weapon_slot.h"
 
 struct Order {
     char unknown_0[0x42];
@@ -94,6 +89,7 @@ union Fixed {                          // a 16.16 fixed-point value
 
 // Own Vec3, not vec3.h: each coordinate is also a Fixed or two words, and it has
 // operator+ and operator-.
+#define VEC3_H
 struct Vec3 {
     union {
         int x;
@@ -203,52 +199,7 @@ struct Group;
 struct Economy;
 class SquadTimer;
 
-struct Unit {                          // 0x118 bytes
-    int motion;                       // +0x0
-    UnitWeaponSlot weapons[3];         // +0x4, stride 0x1c
-    char unknown_58[0x5c - 0x58];
-    Order* list;                       // +0x5c
-    char unknown_60[0x6a - 0x60];
-    Vec3 pos;                          // +0x6a
-    char unknown_76[0x92 - 0x76];
-    UnitDef* def;                      // +0x92
-    union {
-        Player* player;                // +0x96
-        Economy* economy;
-    };
-    char unknown_9a[0xa6 - 0x9a];
-    union {
-        unsigned short unitDefIndex;   // +0xa6
-        unsigned short id;
-    };
-    char unknown_a8[0xac - 0xa8];
-    int group;                         // +0xac
-    char unknown_b0[0xf4 - 0xb0];
-    unsigned char lastAttackerSlot;    // +0xf4
-    unsigned char lastDamageType;      // +0xf5
-    char unknown_f6[0xff - 0xf6];
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x104 - 0x100];
-    float buildLeft;                   // +0x104
-    unsigned char allied[6];           // +0x108
-    union {
-        unsigned short flags10e;       // +0x10e
-        unsigned char activateFlags;
-        unsigned char status;
-        unsigned char active;
-    };
-    // The unit's state flags: each handler names its own bits.
-    union {
-        unsigned int flags;            // +0x110
-        struct {
-            unsigned int mode : 2;
-            unsigned int rest : 30;
-        };
-    };
-    char unknown_114[4];
-
-    int Ready() const;
-};
+#include "../units/unit.h"
 
 // Unused here: these forward declarations take the symbol ids that keep 0x406f80, 0x408670, 0x4086d0 and 0x4089a0 matching (docs/c2-regalloc.md).
 struct Sound;
@@ -261,8 +212,7 @@ struct UnitSync;
 struct Packet;
 struct Pathfinder;
 #include "../network/player.h"
-
-inline int Unit::Ready() const { return (flags & 0x10000000) && !(flags & 0x4000); }
+inline int Unit::Ready() { return (flags & 0x10000000) && !(flags & 0x4000); }
 
 struct Economy {                       // a unit's resources
     char unknown_0[0x8c];
@@ -787,7 +737,7 @@ Unit* SquadManager::FindNearestEnemyUnit(int x,int y,int z)
             Unit* u=p->unitsBegin;
             Unit* last=p->unitsEnd;
             for(;u<=last;++u) {
-                if((u->flags&0x10000000) && u->mode!=2 && !(u->flags&0x8000) && !(u->flags10e&4)) {
+                if((u->flags&0x10000000) && u->mode!=2 && !(u->flags&0x8000) && !(*(unsigned short*)&u->activateFlags&4)) {
                     int dz=z-u->pos.z;
                     int dx=x-u->pos.x;
                     int distance=(int)(((__int64)dx*dx)>>32)+(int)(((__int64)dz*dz)>>32);
@@ -1124,7 +1074,7 @@ ScoutTimer::ScoutTimer(SquadManager* p, Group* q)
 // FUNCTION: 0x408670
 void __stdcall UpdateConverter(Unit* unit)
 {
-    Economy* economy = unit->economy;
+    Economy* economy = (Economy*)unit->player;
     if (economy->cost + economy->cost < economy->energy) {
         if (g_seams.players->GetNetEnergy((Player*)economy) > Zero_004fc968 && RandomInt(5) != 0) {
             g_seams.units->SetStateBits(unit, 1, 1);
@@ -1145,8 +1095,8 @@ void BuildTimer::OnTimer()
         Unit* u = *it;
         if ((u->flags & 0x20000000) && (u->flags & 0x10000000) && !(u->flags & 0x4000)) {
             if (u->def->makesMetal) {
-                if (u->economy->cost + u->economy->cost < u->economy->energy) {
-                    if (g_seams.players->GetNetEnergy((Player*)u->economy) > Zero_004fc968 && RandomInt(5))
+                if (((Economy*)u->player)->cost + ((Economy*)u->player)->cost < ((Economy*)u->player)->energy) {
+                    if (g_seams.players->GetNetEnergy(u->player) > Zero_004fc968 && RandomInt(5))
                         g_seams.units->SetStateBits(u, 1, 1);
                 } else
                     g_seams.units->SetStateBits(u, 1, 0);
@@ -1785,12 +1735,12 @@ Unit* __stdcall FindWeaponTarget(Unit* unit,unsigned char weapon,int useRange)
         if((target->flags&0x10000000) && !(target->flags&0x4000) &&
            ((target->def->flags1&0x8000) || ai || (g_game->matchFlags&4)) &&
            ((unit->def->flags1&0x10000000) || g_seams.weapons->WeaponCanReachUnit(unit,target,weapon)) &&
-           (useRange || !((Bits*)&unit->def->categories)->Test(target->id)) &&
-           (!(unit->weapons[weapon].weapon->flags8&0x80) || !(target->status&0x10))) {
+           (useRange || !((Bits*)&unit->def->categories)->Test(target->unitDefIndex)) &&
+           (!(unit->weapons[weapon].weapon->flags8&0x80) || !(target->activateFlags&0x10))) {
             int dz=unit->pos.z-target->pos.z;
             int dx=unit->pos.x-target->pos.x;
             int d=RandomInt((int)(((__int64)dx*dx)>>32)+(int)(((__int64)dz*dz)>>32));
-            if(((Bits*)unit->def->weaponCategories)[weapon].Test(target->id)) {
+            if(((Bits*)unit->def->weaponCategories)[weapon].Test(target->unitDefIndex)) {
                 if(d<fallbackDistance) { fallbackDistance=d; fallback=target; }
             } else if(d<bestDistance) { bestDistance=d; best=target; }
         }

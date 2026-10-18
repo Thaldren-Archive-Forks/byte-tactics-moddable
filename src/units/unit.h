@@ -146,7 +146,17 @@ struct Unit {
             char unknown_10b[3];
         };
     };
-    unsigned char activateFlags;
+    union {
+        unsigned char activateFlags;
+        struct {
+            unsigned char activate_bit0 : 1;
+            unsigned char activate_bit1 : 1;
+            unsigned char activate_bit2 : 1;
+            unsigned char activate_bit3 : 1;
+            unsigned char activate_bit4 : 1;
+            unsigned char unknown_10e : 3;
+        };
+    };
     union {
         struct {
             unsigned char bit0 : 1;
@@ -157,7 +167,23 @@ struct Unit {
         };
         char cobStateFlags;
     };
-    unsigned int flags;
+    union {
+        unsigned int flags;
+        struct {
+            unsigned int mode : 2;
+            unsigned int unknown_110_2 : 14;
+            unsigned int moved : 1;
+            unsigned int unknown_110_17 : 1;
+            unsigned int fire : 2;
+            unsigned int move : 2;
+            unsigned int unknown_110_22 : 10;
+        };
+        struct {
+            unsigned int bits_110 : 14;
+            unsigned int flag_110 : 1;
+            unsigned int unknown_110_15 : 17;
+        } panel;
+    };
     int zBufferFlag;
     Unit(void);
     ~Unit(void);

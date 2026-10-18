@@ -12,12 +12,8 @@
 #include <math.h>
 #include <vector>
 
-// Kept local, not util/vec3.h: its free operators inline differently from these members and the code size changes.
-struct Vec3 {
-    int x, y, z;
-    void operator+=(const Vec3& v) { x += v.x; y += v.y; z += v.z; }
-    Vec3 operator+(const Vec3& v) const { Vec3 r = *this; r += v; return r; }
-};
+#include "../util/vec3.h"
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& v) { Vec3 r = a; r.x += v.x; r.y += v.y; r.z += v.z; return r; }
 
 #include "../state/block.h"
 #include "mission_type.h"
@@ -53,25 +49,7 @@ struct Layer;
 struct Weapon;
 struct Feature;
 #include "../network/player.h"
-struct Unit {
-    UnitMotion* motion;
-    char pad4[0x10 - 4]; WeaponDef* weapon;   // +0x10, weapons[0].def
-    char pad14[0x66 - 0x14]; short heading;
-    char pad68[2];
-    union {
-        Vec3 pos;
-        struct { unsigned short xf; short x; int y; unsigned short zf; short z; } p;
-    };
-    char pad76[0x82 - 0x76];
-    int spatialBucket; int carrier;
-    char pad8a[8]; UnitDef* def;
-    Player* player;
-    char pad9a[0x108 - 0x9a]; short health;
-    char pad10a[0x110 - 0x10a]; unsigned int flags;
-    void ClaimWeapons(int);
-    void ReleaseWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall IsUnitCommander(Unit*);
 void __stdcall AlignUnitToGround(Unit*);
@@ -147,7 +125,7 @@ static inline void Dummy(void) {}
 static inline int IsDamaged(Unit* u) { return (unsigned int)u->health < (u->def->maxHealth >> 2) * 3; }
 static inline int GetSpeed(Unit* unit)
 {
-    return unit->weapon->range;
+    return ((WeaponDef*)unit->weapon)->range;
 }
 
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
@@ -156,8 +134,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
@@ -192,7 +170,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
         order->SetDeadlineTicks(0x1e);
         order->state = 2;
     }
-    if (order->range && (int)_hypot(unit->p.x - order->x, unit->p.z - order->z) >= order->range)
+    if (order->range && (int)_hypot(unit->xWhole - order->x, unit->zWhole - order->z) >= order->range)
         return 5;
     unsigned int state = 0;
     state = order->state;
@@ -209,7 +187,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
         int dist = (int)_hypot(order->pos.x - unit->pos.x, order->pos.z - unit->pos.z);
         int angle = GetHeadingBetween(&unit->pos, &order->pos);
         Vec3 off = Offset(RandomInt(0x4000) + angle - 0x2000, dist / 2);
-        Vec3 p = unit->pos + off;
+        Vec3 p = PosPlus(unit->pos, off);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
         ((Class_0044e730*)obj)->SetApproachRadius(0x80);
         order->SetAttachedFx((int)obj);
@@ -231,7 +209,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
     case 3: {
         short angle = FUN_004b715a(unit->pos.x - order->pos.x, unit->pos.z - order->pos.z);
         Vec3 off = Offset(angle, speed * 0x30000);
-        Vec3 p = order->pos + off;
+        Vec3 p = PosPlus(order->pos, off);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
         ((Class_0044e730*)obj)->SetApproachRadius(RandomInt(0x80) + 0x80);
         order->SetAttachedFx((int)obj);

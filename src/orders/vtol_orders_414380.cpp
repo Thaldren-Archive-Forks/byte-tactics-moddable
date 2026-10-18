@@ -8,19 +8,17 @@
 #include "../state/block.h"
 #include <windows.h>
 struct Point { short x, y; };
-// Kept local, not util/vec3.h: the header changes this function's code.
-struct Vec3 {
-    int x, y, z;
-    void operator-=(const Vec3& v) { x-=v.x; y-=v.y; z-=v.z; }
-    Vec3 operator-(const Vec3& v) const { Vec3 r; r.x=x-v.x; r.y=y-v.y; r.z=z-v.z; return r; }
-    Vec3 operator+(const Vec3& other) const {
-        Vec3 r;
-        r.x = x + other.x;
-        r.y = y + other.y;
-        r.z = z + other.z;
-        return r;
-    }
-};
+#include "../util/vec3.h"
+static inline Vec3 PosMinus(const Vec3& a, const Vec3& v) { Vec3 r; r.x=a.x-v.x; r.y=a.y-v.y; r.z=a.z-v.z; return r; }
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
+{
+    Vec3 r;
+    r.x = a.x + other.x;
+    r.y = a.y + other.y;
+    r.z = a.z + other.z;
+    return r;
+}
+
 struct Unit;
 class UnitMotion { public: char pad0[0x2e]; unsigned char flags; void SetFlightMode(Unit*,int); };
 
@@ -38,17 +36,7 @@ struct UnitDef {
     char pad200[0x212-0x200]; unsigned short buildRange;
     char pad214[8]; short altitude; char pad21e[0x241-0x21e]; unsigned int flags,flags2;
 };
-struct Unit {
-    UnitMotion* motion; char pad4[0x66-4]; short heading;
-    char pad68[2]; Vec3 pos;
-    char pad76[8]; Point footprint;
-    char pad82[4]; int carrier; char pad8a[8]; UnitDef* def;
-    char pad96[0xb0-0x96]; int workTime;
-    char padb4[0xff-0xb4]; unsigned char playerIndex;
-    char pad100[4]; float buildLeft;
-    void SetStateBits(int,int);
-    void ClaimWeapons(int);
-};
+#include "../units/unit.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall IsUnitCommander(Unit*);
 int __stdcall FindLandingPad(Unit*, int);
@@ -143,8 +131,8 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
                 if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
                 g_seams.units->SetStateBits(unit, 1,1);
-                if ((unit->motion->flags&3)==1) {
-                    unit->motion->SetFlightMode(unit,2);
+                if ((((UnitMotion*)unit->motion)->flags&3)==1) {
+                    ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
                     order->SetAttachedFx((int)move);
@@ -173,7 +161,8 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             int angle=GetHeadingBetween(&unit->pos,&order->target.Get()->pos);
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
-            Vec3 pos=order->target.Get()->pos-Offset(angle,range);
+            Vec3* base=&order->target.Get()->pos;
+            Vec3 pos=PosMinus(*base,Offset(angle,range));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e720*)move)->SetHeading((unsigned short)angle);
             order->SetAttachedFx((int)move);
@@ -185,8 +174,8 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit,&start);
             Vec3 bounds[2];
-            bounds[0]=order->target.Get()->pos+order->target.Get()->def->min;
-            bounds[1]=order->target.Get()->pos+order->target.Get()->def->max;
+            bounds[0]=PosPlus(order->target.Get()->pos,order->target.Get()->def->min);
+            bounds[1]=PosPlus(order->target.Get()->pos,order->target.Get()->def->max);
             EmitNanoParticles(&start,bounds,6);
         }
         if (order->target.Get()->buildLeft!=0.0f) {

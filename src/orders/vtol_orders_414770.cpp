@@ -20,19 +20,7 @@ void UpdateEdgeScroll();
 
 #include "../units/unit_def.h"
 
-struct Unit {
-    UnitMotion* motion;                  // +0x0
-    char unknown_4[0x6a - 0x4];
-    Vec3 pos;                          // +0x6a
-    char unknown_76[0x86 - 0x76];
-    int carrier;                      // +0x86
-    char unknown_8a[0x92 - 0x8a];
-    UnitDef* def;                      // +0x92
-    char unknown_96[0xb0 - 0x96];
-    int workTime;                      // +0xb0
-    void ClaimWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall FindLandingPad(Unit*, int);
 unsigned short __stdcall ChooseBuildOption(unsigned int, Unit*);
@@ -92,8 +80,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);

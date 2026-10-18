@@ -135,9 +135,7 @@ protected:
 	iterator _First, _Last, _End;
 	};
 }
-struct Unit {
-    int unknown_0;
-};
+#include "../units/unit.h"
 
 struct Elem_0040cfb0 {
     char a;
