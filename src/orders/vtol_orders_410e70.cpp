@@ -7,6 +7,7 @@
 // Kept: the flags/health block's register allocation depends on this include.
 #include <windows.h>
 #include <vector>
+#include "../../interfaces/seams.h"
 
 // Kept local, not util/vec3.h: the header's symbol ids change this function's registers.
 struct Vec3 {
@@ -75,7 +76,6 @@ int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrder(Unit*, Order*);
 void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
-Unit* __stdcall FindBestTargetIfFireAtWill(Unit*);
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
 void __stdcall GetFactoriesInRadius(int player, Vec3* pos, int range, std::vector<Unit*>* out);
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
@@ -167,7 +167,7 @@ int __stdcall VtolPatrolOrder(Unit* unit, Order* order, int flags)
         Dummy();
         Dummy();
         Dummy();
-        Unit* next = FindBestTargetIfFireAtWill(unit);
+        Unit* next = g_seams.targeting->FindBestTargetIfFireAtWill(unit);
         if (next && IssueAttackOrder(unit, next, 0)) {
             order->flags = 0;
             return 3;

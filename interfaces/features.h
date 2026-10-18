@@ -3,7 +3,7 @@
 
 struct Cell;
 struct Feature;
-struct Weapon;
+struct WeaponDef;
 struct Spot;
 struct Rot16;
 struct Unit;
@@ -48,7 +48,7 @@ struct FeaturesSeam {
     // Returns the number of a feature type by name, loading it when it is new. Hooks: none.
     unsigned short (__stdcall* FindOrLoadFeatureType)(char* name);
     // Damages the feature near a cell with a weapon's area damage. Hooks: none.
-    void (__stdcall* DamageFeature)(Cell* cell, int x, int z, Weapon* weapon);
+    void (__stdcall* DamageFeature)(Cell* cell, int x, int z, WeaponDef* weapon);
     // Returns the world position of the centre of a feature's footprint. Hooks: none.
     Vec3 (__stdcall* GetFootprintCentre)(Point16* cell, Feature* def);
     // Writes the features to a saved game. Hooks: none.

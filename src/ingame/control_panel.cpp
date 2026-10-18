@@ -272,6 +272,7 @@ struct SideName {
 
 // The mouse record at g_game+0x2c76: copied by 0x41cc60, read by 0x41cd50.
 #include "../gui/mouse_event.h"
+#include "../../interfaces/seams.h"
 
 struct CursorState {
     MouseEvent start;                 // +0x0, the mouse when the scroll began
@@ -1352,7 +1353,7 @@ int __stdcall AddBuildProgress(Unit* builder, Unit* unit, float amount)
         unit->flags.raw |= 0x2000;
         if (next >= 1.0f)
             DamageUnit(unit, unit, 30000, 9, 0);
-    } else if (builder->resourceSlot.RequestEnergyAndMetal(energyCharge, metalCharge)) {
+    } else if (g_seams.economy->RequestEnergyAndMetal(&builder->resourceSlot, energyCharge, metalCharge)) {
         unit->health = min(hp + unit->health, unit->def->maxHealth);
         unit->buildLeft = next;
         unit->flags.raw |= 0x2000;
@@ -1390,7 +1391,7 @@ int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float f)
         n1 = 1;
     if (n2 >= 1)
         n2 = 1;
-    if (builder->resourceSlot.RequestEnergy(&builder->resourceSlot, (float)n2)) {
+    if (g_seams.economy->RequestEnergy(&builder->resourceSlot, &builder->resourceSlot, (float)n2)) {
         DamageUnit(builder, unit, n1, 10, 0);
         result = 1;
     }

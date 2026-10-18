@@ -9,6 +9,7 @@
 #include <math.h>
 
 #include "../util/vec3.h"
+#include "../../interfaces/seams.h"
 
 // The whole part (high 16 bits) of a 16.16 coordinate.
 static inline short Whole(const int& v) { return ((short*)&v)[1]; }
@@ -102,7 +103,6 @@ int __cdecl FUN_004b70ef(short, int);
 int __cdecl FUN_004b7123(short, int);
 int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
-void __stdcall SetWeaponTargetUnit(Unit*, Unit*, int);
 void __stdcall AppendOrderToTail(Unit*, Order*);
 void __stdcall AppendOrder(Unit*, Order*);
 
@@ -195,7 +195,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
     case 1:
         unit->ReleaseWeapons(3);
         unit->ClaimWeapons(0);
-        SetWeaponTargetUnit(unit, order->target, 0);
+        g_seams.targeting->SetWeaponTargetUnit(unit, order->target, 0);
         if (flags & 0xe0) {
             if (IsAhead(unit, order)) {
                 Vec3 from = Add(unit->pos, Offset(unit->heading, unit->def->maxvelocity * 30));

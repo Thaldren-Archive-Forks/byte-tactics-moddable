@@ -197,6 +197,7 @@ public:
 #pragma pack(pop)
 
 #include "../game/unit_resources.h"
+#include "../../interfaces/seams.h"
 
 extern Game* g_game;
 
@@ -323,7 +324,7 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
     unit->flags = (unit->flags & ~0x400000) | ((rec.flags.e << 14) & 0x400000);
     unit->flags = (unit->flags & ~0x3800000) | ((rec.flags.e << 14) & 0x3800000);
 
-    ((UnitResources*)&unit->resourceSlot)->LoadUnitAccounts((UnitInfo*)unit, file);
+    g_seams.economy->LoadUnitAccounts((UnitResources*)&unit->resourceSlot, (UnitInfo*)unit, file);
     if (rec.f27 != 0)
         ((UnitMotion*)unit->motion)->LoadMotion(unit, file);
 
@@ -412,7 +413,7 @@ void __stdcall SaveUnits(HapiBank* file)
 
             if (unit->motion != 0)
                 ((UnitMotion*)unit->motion)->SaveMotion(unit, file);
-            ((UnitResources*)((char*)unit + 0xbc))->SaveUnitAccounts((UnitInfo*)unit, file);
+            g_seams.economy->SaveUnitAccounts((UnitResources*)((char*)unit + 0xbc), (UnitInfo*)unit, file);
 
             strcpy(rec.name, (char*)(*(char**)((char*)unit + 0x92) + 0x20));
             rec.player = unit->playerIndex;

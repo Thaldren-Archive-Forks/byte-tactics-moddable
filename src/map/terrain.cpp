@@ -27,6 +27,7 @@
 #include <string.h>
 #include <math.h>
 #include <vector>
+#include "../../interfaces/seams.h"
 #include <shlobj.h>
 
 struct Unit;
@@ -1126,7 +1127,6 @@ void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 
 void* __stdcall GetMapCellAtPosition(Vec3* pos);
-unsigned short __stdcall GetCellFeature(void* cell);
 int __stdcall RandomInt(int range);
 
 // FUNCTION: 0x47ea40
@@ -1144,7 +1144,7 @@ int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* center, Fixed radius,
             void* cell = GetMapCellAtPosition(&pos);
             if (!cell)
                 continue;
-            unsigned short index = GetCellFeature(cell);
+            unsigned short index = g_seams.features->GetCellFeature((Cell*)cell);
             if (index >= 0xfffb)
                 continue;
             unsigned short fl = g_game->features[index].flags16;

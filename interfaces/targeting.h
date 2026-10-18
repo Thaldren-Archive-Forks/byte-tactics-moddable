@@ -25,8 +25,8 @@ struct TargetingSeam {
     int (__stdcall* GetWeaponTargetPos)(Unit* unit, Vec3* pos, int weapon);
     // Picks the best enemy for one weapon, within its range or the unit's sight. Hooks: FilterTargets.
     Unit* (__stdcall* FindWeaponTarget)(Unit* unit, unsigned char weapon, int useRange);
-    // Picks the best enemy for a unit that fires at will, or returns 0. Hooks: FilterTargets.
-    int (__stdcall* FindBestTargetIfFireAtWill)(Unit* unit);
+    // Picks the best enemy for a unit that fires at will, or returns null. Hooks: FilterTargets.
+    Unit* (__stdcall* FindBestTargetIfFireAtWill)(Unit* unit);
     // Returns the weapon a unit fires first at its target (thiscall in 3.1c, this first). Hooks: none.
     unsigned char (__fastcall* ChooseWeapon)(Unit* unit);
 };

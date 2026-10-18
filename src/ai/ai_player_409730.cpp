@@ -264,7 +264,14 @@ public:
 
 extern Game* g_game;
 
-float __stdcall GetEnergyUse(UnitDef* def);
+#include "../../interfaces/economy.h"
+
+// The part of Seams this file reads: its own <vector> keeps interfaces/seams.h out.
+struct Seams {
+    void* wind_meteors;
+    EconomySeam* economy;
+};
+extern Seams g_seams;
 
 // 0x409520 and 0x4095d0 (matched in their own files): no callers in the
 // exe, both inlined into the loop below.
@@ -294,7 +301,7 @@ int __stdcall RateUnitType(UnitDef* p)
         result = 0xb;
     if (p->makesMetal != 0)
         result += 10;
-    if (GetEnergyUse(p) < 0.0f)
+    if (g_seams.economy->GetEnergyUse(p) < 0.0f)
         result += 10;
 #ifdef __clang__
     result = (int)((int)((double)result - (double)p->metalCost * -0.01f) - (double)p->energyCost * -0.002f);
@@ -329,7 +336,7 @@ void PlayerAI::ComputeBaseWeights()
             a = 21;
         if (def->flags_241.flag_6 && n < 3)
             a += 30;
-        if (GetEnergyUse(def) < 0.0f)
+        if (g_seams.economy->GetEnergyUse(def) < 0.0f)
             a += 50;
         // Stays a method: the first resize's erase needs its inline budget.
         if (def->HasField1ce())
@@ -361,7 +368,7 @@ void PlayerAI::ComputeBaseWeights()
             x = 0;
         x = min(x, 100);
         e->a = x;
-        e->c = (char)max(0.0f, min(100.0f, def->energyCost * -0.0025f - GetEnergyUse(def) * 5.0f));
+        e->c = (char)max(0.0f, min(100.0f, def->energyCost * -0.0025f - g_seams.economy->GetEnergyUse(def) * 5.0f));
         // The e->b bonus is a plain conditional: RateWeapons only inlines then.
 #ifdef __clang__
         e->b = (char)max(0.0f, min(100.0f, (double)(float)((double)def->metalCost * -0.02f + (def->makesMetal ? 25 : 0)) + (def->extractsMetal != 0.0f ? 100 : 0)));

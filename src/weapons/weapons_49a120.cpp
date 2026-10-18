@@ -31,6 +31,8 @@ struct CellPos_0049a120 {
 #pragma pack(push, 1)
 
 #include "weapon_def.h"
+#include "../util/vec3.h"
+#include "../../interfaces/seams.h"
 
 // Not units/unit_def.h: the header takes 0x49a120 out of its symbol-id window.
 struct UnitDef_0049a120 {
@@ -177,8 +179,6 @@ Cell* __stdcall GetMapCell(int x, int y);
 int __stdcall ApplyWeaponDamage(Weapon_0049a120* weapon, Unit_0049a120* target, float scale);
 void __stdcall DetonateProjectile(Weapon_0049a120* weapon, Unit_0049a120* unit);
 int __stdcall VectorLength(Vec3_0049a120* v);
-Vec3_0049a120 __stdcall GetFootprintCentre(CellPos_0049a120* cell, FeatureDef_0049a120* def);
-void __stdcall DamageFeature(Cell* cell, int x, int z, WeaponDef* def);
 int __stdcall BroadcastPacket(int id, void* data, int size);
 
 static inline int Length(Vec3_0049a120* v)
@@ -345,7 +345,8 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
                 dist.raw = VectorLength(&v);
                 distance = dist.part.whole;
             } else {
-                Vec3_0049a120 p = GetFootprintCentre(&at, &g_game->features[feature]);
+                Vec3 centre = g_seams.features->GetFootprintCentre((Point16*)&at, (Feature*)&g_game->features[feature]);
+                Vec3_0049a120 p = *(Vec3_0049a120*)&centre;
                 Vec3_0049a120 v = Sub(*pos, p);
                 Fixed_0049a120 dist;
                 dist.raw = (int)sqrt((double)v.x * v.x + (double)v.y * v.y + (double)v.z * v.z);
@@ -355,7 +356,7 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
                 continue;
             if (!hits.AddFeature(origin))
                 continue;
-            DamageFeature(origin, fx, fz, weapon->def);
+            g_seams.features->DamageFeature(origin, fx, fz, weapon->def);
         }
     }
 

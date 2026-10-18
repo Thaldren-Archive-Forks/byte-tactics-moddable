@@ -8,6 +8,7 @@
 #include <string.h>
 #include <vector>
 #include <list>
+#include "../../interfaces/seams.h"
 // Included only for its symbols: it puts LoadUnitFbi's yardmap stores back
 // in the original's base/index order (docs/c2-regalloc.md).
 #include <malloc.h>
@@ -382,7 +383,6 @@ int __stdcall GetObjectHeight(void* obj);
 void* __stdcall LoadCobScript(char* path);
 void __stdcall StripExtension(char* text);
 void __stdcall BindModelTextures(void* obj, char* name);
-unsigned short __stdcall FindOrLoadFeatureType(char* name);
 MovementClass* __stdcall FindMovementClass(char* name);
 char* __stdcall FindWeaponByName(char* name);
 void LoadUnitInfo();
@@ -808,7 +808,7 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
         SOUND_DONE:
             unitdef->corpse = -1;
             if (parser.current->GetFieldString(buf, "corpse", 100, DAT_005119b8))
-                unitdef->corpse = FindOrLoadFeatureType(buf);
+                unitdef->corpse = g_seams.features->FindOrLoadFeatureType(buf);
             unitdef->movementclass = 0;
             if (parser.current
                     ->GetFieldString(buf, "movementclass", 100, DAT_005119b8))

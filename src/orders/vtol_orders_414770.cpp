@@ -2,6 +2,7 @@
 // <stdio.h> (or another header, see tools/headers.py) is needed only for
 // compiler state: without it the energy + metal sum loads metal first.
 #include <stdio.h>
+#include "../../interfaces/seams.h"
 
 #include "box.h"
 
@@ -85,7 +86,6 @@ void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 int __stdcall GetGroundHeight(Vec3* pos);
 void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
-void __stdcall ReclaimFeature(Unit* unit, Vec3* pos);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 
 // 0x40f200, matched in 0x40f200.cpp; inlined into the state 0 case below.
@@ -162,7 +162,7 @@ int __stdcall VtolReclaimOrder(Unit* unit, Order* order, int flags)
         }
         return 2;
     case 4:
-        ReclaimFeature(unit, &order->pos);
+        g_seams.features->ReclaimFeature(unit, &order->pos);
         return 5;
     }
     return 7;

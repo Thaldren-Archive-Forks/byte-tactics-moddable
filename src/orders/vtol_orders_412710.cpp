@@ -10,6 +10,7 @@
 
 #include <math.h>
 #include <vector>
+#include "../../interfaces/seams.h"
 
 // Kept local, not util/vec3.h: its free operators inline differently from these members and the code size changes.
 struct Vec3 {
@@ -125,8 +126,6 @@ int __cdecl FUN_004b7123(short, int);
 int __cdecl FUN_004b715a(int x, int z);
 int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
-void __stdcall SetWeaponTargetUnit(Unit*, Unit*, int);
-void __stdcall SetWeaponTargetPos(Unit*, Vec3*, int);
 void __stdcall AppendOrderToTail(Unit*, Order*);
 void __stdcall AppendOrder(Unit*, Order*);
 void __stdcall GetFactoriesInRadius(int player, Vec3* pos, int range, std::vector<Unit*>* out);
@@ -221,9 +220,9 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
     case 2: {
         unit->ClaimWeapons(0);
         if (order->target)
-            SetWeaponTargetUnit(unit, order->target, 0);
+            g_seams.targeting->SetWeaponTargetUnit(unit, order->target, 0);
         else
-            SetWeaponTargetPos(unit, &order->pos, 0);
+            g_seams.targeting->SetWeaponTargetPos(unit, &order->pos, 0);
         Class_0044e2d0* obj = new Class_0044e2d0(order, order->pos);
         ((Class_0044e730*)obj)->SetApproachRadius(speed);
         order->SetAttachedFx((int)obj);

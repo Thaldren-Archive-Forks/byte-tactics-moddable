@@ -5,6 +5,7 @@
 // copy `box.hi = box.lo` gives the early store of hi.x and puts order in
 // edi and the feature in esi.
 #include <windows.h>
+#include "../../interfaces/seams.h"
 
 #include "box.h"
 
@@ -48,7 +49,6 @@ void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
 void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
-void __stdcall ReclaimFeature(Unit* unit, Vec3* pos);
 // Unused here: the symbol ids this declaration takes keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int typeId, int amount);
 
@@ -112,7 +112,7 @@ int __stdcall ReclaimOrder(Unit* unit, Order* order, int flags)
         }
         return 2;
     case 5:
-        ReclaimFeature(unit, &order->pos);
+        g_seams.features->ReclaimFeature(unit, &order->pos);
         return 5;
     }
     return 7;

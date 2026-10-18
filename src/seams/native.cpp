@@ -167,6 +167,16 @@ static int __stdcall GetWeaponTargetPosNative(Unit* unit, Vec3* pos, int weapon)
     return GetWeaponTargetPos(unit, (Vec3_0048a1e0*)pos, weapon);
 }
 
+static void __stdcall DamageFeatureNative(Cell* cell, int x, int z, WeaponDef* weapon)
+{
+    DamageFeature(cell, x, z, (Weapon*)weapon);
+}
+
+static Unit* __stdcall FindBestTargetIfFireAtWillNative(Unit* unit)
+{
+    return (Unit*)FindBestTargetIfFireAtWill(unit);
+}
+
 static int __stdcall GetGroundHeightNative(Vec3* pos)
 {
     return GetGroundHeight((Pos_00485070*)pos);
@@ -247,7 +257,7 @@ void InstallNativeSeams()
     s_features.RemoveFeature = RemoveFeature;
     s_features.ReclaimFeature = ReclaimFeature;
     s_features.FindOrLoadFeatureType = FindOrLoadFeatureType;
-    s_features.DamageFeature = DamageFeature;
+    s_features.DamageFeature = DamageFeatureNative;
     s_features.GetFootprintCentre = GetFootprintCentre;
     s_features.SaveFeatures = SaveFeatures;
     s_features.LoadFeatures = LoadFeatures;
@@ -258,7 +268,7 @@ void InstallNativeSeams()
     s_targeting.GetWeaponTargetUnit = GetWeaponTargetUnit;
     s_targeting.GetWeaponTargetPos = GetWeaponTargetPosNative;
     s_targeting.FindWeaponTarget = FindWeaponTarget;
-    s_targeting.FindBestTargetIfFireAtWill = FindBestTargetIfFireAtWill;
+    s_targeting.FindBestTargetIfFireAtWill = FindBestTargetIfFireAtWillNative;
     s_targeting.ChooseWeapon = ChooseWeaponNative;
     s_los_radar.GetMapCell = GetMapCell;
     s_los_radar.CmdShareMapping = CmdShareMapping;

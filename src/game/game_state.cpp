@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include "../../interfaces/seams.h"
 
 #include "../map/mission.h"
 
@@ -704,9 +705,7 @@ void ResetChatHudIndices();
 void LoadLightBar();
 void ResetSpeech();
 void LoadTextureGafs();
-void LoadFeatureFileList();
 void InitUnitCategories();
-void NopAfterFeatureEnum();
 void CreateParticleLists();
 void AllocWeaponArray();
 void LoadWeaponTypes();
@@ -715,8 +714,6 @@ void ResetCameraState();
 void LoadUnitTypes();
 void LoadDownloadMenus();
 void AllocateUnitMemory();
-void ResolveFeatureLinks();
-void FreeFeatureFileList();
 void BuildAllPassMaps();
 void InitMeteors();
 void InitRadar();
@@ -745,9 +742,9 @@ void LoadBattleAssets()
     LoadLightBar();
     ResetSpeech();
     LoadTextureGafs();
-    LoadFeatureFileList();
+    g_seams.features->LoadFeatureFileList();
     InitUnitCategories();
-    NopAfterFeatureEnum();
+    g_seams.features->NopAfterFeatureEnum();
     CreateParticleLists();
     AllocWeaponArray();
     LoadWeaponTypes();
@@ -756,8 +753,8 @@ void LoadBattleAssets()
     LoadUnitTypes();
     LoadDownloadMenus();
     AllocateUnitMemory();
-    ResolveFeatureLinks();
-    FreeFeatureFileList();
+    g_seams.features->ResolveFeatureLinks();
+    g_seams.features->FreeFeatureFileList();
     BuildAllPassMaps();
     g_game->windSpeedDenominator = 5000;
     g_game->windCounter = 0;

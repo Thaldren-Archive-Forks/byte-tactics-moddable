@@ -1,6 +1,7 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
 // Stays in its own file: in unit_orders.cpp the feature pointer is added up in the other operand order and lstrcpynA is called directly instead of through the import.
 #include <windows.h>
+#include "../../interfaces/seams.h"
 
 #include "box.h"
 
@@ -126,9 +127,7 @@ void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitNanoParticles(Vec3* from, Box* to, int count);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short type, Vec3 pos, int a, int b, int c);
 Cell* __stdcall GetOriginCellAtPosition(Vec3* pos);
-unsigned short __stdcall GetCellFeature(Cell* cell);
 Cell* __stdcall GetMapCellAtPosition(Vec3* pos);
-void __stdcall RemoveFeature(void* target, int flag);
 int __stdcall BroadcastPacket(int player, void* data, int size);
 void __stdcall MarkSelectionOrdersDirty(Unit* unit);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, int flags);
@@ -218,12 +217,12 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
             return 2;
         }
         Cell* c = GetOriginCellAtPosition(&order->pos);
-        if (GetCellFeature(c) >= 0xfffb)
+        if (g_seams.features->GetCellFeature(c) >= 0xfffb)
             return 8;
         FeatureSpot* spot = &g_game->spots[c->spot];
         if (spot)
             order->target.owner->angles = spot->rot;
-        RemoveFeature(GetMapCellAtPosition(&order->pos), 0);
+        g_seams.features->RemoveFeature(GetMapCellAtPosition(&order->pos), 0);
         if (g_game->mapInfo->GetGameType() == 3) {
             FeatureDamagePacket packet;
             int n = c - g_game->heightMap;
