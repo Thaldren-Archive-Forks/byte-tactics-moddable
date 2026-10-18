@@ -946,8 +946,7 @@ class Schema:
         return "\n".join(out)
 
     def parse(self, name, body, declared):
-        if name == "Unit":
-            body = self.flatten_unions(body)
+        body = self.flatten_unions(body)
         leaves = []
         pos = 0
         group = None
