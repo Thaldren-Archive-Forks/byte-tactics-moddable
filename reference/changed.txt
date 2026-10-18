@@ -4,7 +4,6 @@
 0x421620 StartExplodePiece
 0x421700 BreakPieceIntoDebris
 0x425b80 UpdateMenuSparks
-0x426e80 RunFrontendStateMachine
 0x43e3c0 GetSweetSpot
 0x44fc10 NetCondenser::SendPacket
 0x450380 AnnouncePlayerLeft
@@ -25,6 +24,7 @@
 0x48a490 AlignUnitToGround
 0x495230 UpdateFramePacing
 0x495490 RunGameSteps
+0x496bb0 MenuFrame
 0x497180 LoadMatch
 0x49be60 DrawProjectiles
 0x49e830 GameMain
