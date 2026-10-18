@@ -823,7 +823,11 @@ void __stdcall StartExplodePiece(ExplodedPiece* piece)
 
 // Cast and whole expression each parenthesised: keeps the a, b, c stores
 // list-scheduled.
+#ifdef __clang__
+#define FIX2F(x) ((float)((double)(x) * 1.5259021893143654e-05))
+#else
 #define FIX2F(x) (((float)(x)) / 65535.0f)
+#endif
 
 // Breaks a unit piece into debris: for each quad face of the piece, takes a
 // free debris slot and a free 3D object (AllocExplodePieceObject, inlined),
@@ -895,9 +899,15 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
             n = NormalizeVector(CrossProduct(n, ab));
             d->vel.x += RandomInt(200) * (short)(n.x * 512.0f);
             d->vel.z -= RandomInt(200) * (short)(n.z * 512.0f);
+#ifdef __clang__
+            int nx = (int)((double)n.x * 65535.0);
+            int ny = (int)((double)n.y * 65535.0);
+            int nz = (int)((double)n.z * 65535.0);
+#else
             int nx = (int)(n.x * 65535.0f);
             int ny = (int)(n.y * 65535.0f);
             int nz = (int)(n.z * 65535.0f);
+#endif
             for (k = 0; k < 4; k++) {
                 o->verts[k + 4].x -= nx * param->scale;
                 o->verts[k + 4].y -= ny * param->scale;
