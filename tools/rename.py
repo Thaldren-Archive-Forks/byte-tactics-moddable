@@ -310,7 +310,7 @@ def refusals(pairs: list[tuple[str, str]], tree: Tree, join: bool) -> dict[tuple
     return out
 
 
-# --- the rewrite ------------------------------------------------------------
+# --- the rewrite and the checks ------------------------------------------------------------
 
 def sources_and_headers() -> list[Path]:
     return source_files() + sorted((ROOT / "include").glob("*.h"))
