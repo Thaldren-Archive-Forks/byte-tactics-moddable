@@ -59,7 +59,6 @@ public:
 
 int __stdcall RandomInt(int);
 void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
-void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrder(Unit*, Order*);
 int __stdcall IssueRepairOrder(Unit*, Unit*, int);
 union Fixed { int v; struct { unsigned short frac; short whole; } p; };

@@ -100,15 +100,10 @@ static inline UnitDef* Definitions() { return g_game->unitDefs; }
 union Fixed { int value; struct { unsigned short fraction; short whole; }; };
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
 void __stdcall MarkSelectionOrdersDirty(Unit*);
-int __stdcall CanPlaceUnitFootprint(UnitDef*, int, Point, int);
-void __stdcall SnapWorldPosToFootprint(UnitDef*, Vec3*);
-Unit* __stdcall CreateUnit(unsigned char, short, Vec3, int, int, int);
 void __stdcall AddOrder(MissionType, int, Unit*, Unit*, Vec3*, int, int);
 int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
-int __stdcall AddBuildProgress(Unit*, Unit*, float);
-void __stdcall GetNanoPiecePosition(Unit*, Vec3*);
 void __stdcall EmitNanoParticles(Vec3*, Vec3*, int);
 static inline Point WorldToCell(Vec3 v, Point origin)
 {
@@ -122,7 +117,6 @@ static inline void CellToWorld(Point origin, Point c, Vec3* v)
     v->x = (origin.x + c.x * 2) << 19;
     v->z = (origin.y + c.y * 2) << 19;
 }
-void __stdcall AttachUnitToPiece(Unit*,Unit*,char,char);
 void __stdcall CellToWorldPos(Point,Vec3*,Point);
 int __cdecl FUN_004b70ef(short,int);
 int __cdecl FUN_004b7123(short,int);

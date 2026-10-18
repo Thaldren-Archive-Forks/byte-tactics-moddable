@@ -53,7 +53,6 @@ public:
 struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x14233]; int overflowBucket; };
 #pragma pack(pop)
 extern Game* g_game;
-void __stdcall AttachUnitToPiece(Unit*, Unit*, char, char);
 short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 union Fixed { int value; struct { unsigned short frac; short whole; } parts; };
 Vec3 __stdcall DirectionFromAngle(short, Fixed);

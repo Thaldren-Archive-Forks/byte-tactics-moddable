@@ -72,9 +72,7 @@ void __stdcall AddOrder(MissionType kind, int remove, Unit* owner,
                             int id, Vec3_00487bf0* pos, int param_6, int param_7);
 void __stdcall GetOrderType(MissionType* out, int mode, Unit* unit,
                             int target, Vec3_00487bf0* pos);
-int __stdcall FindMissionUnit(char* name, Table_00487bf0* table, int value);
 unsigned short __stdcall FindUnitTypeId(const char* name);
-void __stdcall AttachUnitToPiece(Unit* unit, int target, int a, int b);
 
 struct Outs_t {
     MissionType g, a, m, u, p;
@@ -305,7 +303,6 @@ struct Game {
 extern Game* g_game;
 
 UnitType_00488b10* __stdcall FindUnitType(const char* name);
-void __stdcall SnapWorldPosToFootprint(UnitType_00488b10* type, Vec3_00487bf0* pos);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short id,
                                       Vec3_00487bf0 pos, int a, int b, int c);
 void __stdcall FatalError(char* message);

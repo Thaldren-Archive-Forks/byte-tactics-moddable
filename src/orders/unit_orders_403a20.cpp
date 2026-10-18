@@ -69,15 +69,10 @@ static inline UnitDef* Definitions() { return g_game->unitDefs; }
 union Fixed { int value; struct { unsigned short fraction; short whole; }; };
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
 void __stdcall MarkSelectionOrdersDirty(Unit*);
-int __stdcall CanPlaceUnitFootprint(UnitDef*, int, Point, int);
-void __stdcall SnapWorldPosToFootprint(UnitDef*, Vec3*);
-Unit* __stdcall CreateUnit(unsigned char, short, Vec3, int, int, int);
 void __stdcall AddOrder(MissionType, int, Unit*, Unit*, Vec3*, int, int);
 short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
-int __stdcall AddBuildProgress(Unit*, Unit*, float);
-void __stdcall GetNanoPiecePosition(Unit*, Vec3*);
 void __stdcall EmitNanoParticles(Vec3*, Vec3*, int);
 static inline Point WorldToCell(Vec3 v, Point origin)
 {

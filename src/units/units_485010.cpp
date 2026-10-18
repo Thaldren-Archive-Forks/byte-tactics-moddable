@@ -853,7 +853,6 @@ void __stdcall InitUnit(int unitType, Pos_00485a40 pos, int param_5, Unit* unit)
 
 // Unused here: the symbol id this declaration takes keeps 0x4854a0 matching
 // after the header moved the file's symbol count (docs/c2-regalloc.md).
-void FreeUnitInfo();
 
 void __stdcall UpdateUnitHeight(Unit* unit);
 void __stdcall AddUnitToMap(Unit* unit);
@@ -1119,10 +1118,8 @@ extern char g_killedScriptName[];
 extern char g_takenLeadFormat[];
 
 unsigned char __stdcall FindSlotByDpid(int id);
-void __stdcall DeleteOrders(void* unit, int flag);
 void __stdcall RemoveSpeechOfUnit(void* unit);
 void __stdcall AttachUnitToPiece(void* unit, void* builder, int a, int c);
-void __stdcall ClearFootprintAndUnlink(void* unit);
 void __stdcall AddCdActivitySample(int flag);
 char* __stdcall Translate(char* text);
 void __stdcall AddMessage(char* text, int a, int b, int c);
@@ -1154,7 +1151,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     unit->attacker = parent;
     unit->lastAttackerSlot = FindSlotByDpid(cmd->attackerPlayerNetId);
     g_seams.players->NotifyUnitDied(g_game->victoryConditions, 0, unit);
-    DeleteOrders(unit, 1);
+    g_seams.orders->DeleteOrders(unit, 1);
     RemoveSpeechOfUnit(unit);
     g_seams.ai->SetUnitSquad(unit, -1);
     g_seams.weapons->RemoveUnitProjectiles(unit);
@@ -1301,7 +1298,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     }
     UnitMotion* head = unit->motion;
     if (head != 0) {
-        head->DestroyObject();
+        g_seams.orders->DestroyMotionObject(head);
         operator delete(head);
         unit->motion = 0;
     }
@@ -1384,7 +1381,6 @@ void __stdcall KillPlayerUnits(unsigned char player)
 
 // Unused here: real functions declared to keep the file's symbol count (docs/c2-regalloc.md);
 // SaveUnits stands in for the ids the weapon slot header moved.
-void __stdcall SaveUnits(void* file);
 void __stdcall NopRetC_B(int, int, int);
 
 struct Vec3_004851c0 {

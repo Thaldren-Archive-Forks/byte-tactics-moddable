@@ -163,7 +163,6 @@ void* __stdcall LoadSurface(HapiBank* obj);
 HapiBank* __stdcall OpenSummaryBank(char* name);
 void __stdcall FreeSummaryBank(void* handle);
 HapiBank* __stdcall OpenHapiBank(char* path);
-void __stdcall SetMissionType(int value);
 void __stdcall PlaySoundByName(char* name, int param);
 void __stdcall ShutdownIngameSystems();
 void __stdcall PopUntilNamedLayout(int flag);

@@ -25,7 +25,6 @@ void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
 int __stdcall RandomInt(int);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 int __stdcall IssueRepairOrder(Unit*, Unit*, int);
-int __stdcall PickRandomReclaimableResourcesInRadius(Vec3*, int, Vec3**, float*, Vec3**, float*);
 void __stdcall AppendOrder(Unit*, Order*);
 
 // FUNCTION: 0x405980

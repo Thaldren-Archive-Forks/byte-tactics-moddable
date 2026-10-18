@@ -264,18 +264,13 @@ struct Block {
 
 int __stdcall GetGroundHeight(Vec3* pos);
 void __stdcall AlignUnitToGround(Unit* unit);
-void __stdcall RemoveUnitFromMap(Unit* unit);
-void __stdcall AddUnitToMap(Unit* unit);
 #include "../../interfaces/seams.h"
 int __cdecl FUN_004b715a(int x, int z);
 int __cdecl GetLocalDpid();
 int __stdcall BroadcastPacket(int player, void* data, int size);
 void __stdcall ApplyAttachUnit(Order* order);
-void __stdcall AddBeCarriedOrder(Beacon* beacon);
 void __stdcall DeselectIfIneligible(Unit* u);
 void __stdcall UpdateWindGenerator(Unit* u);
-void __stdcall RunOrders(Unit* u);
-void __stdcall RunSecondaryOrders(Unit* u);
 void __stdcall UpdateUnitHeight(Unit* u);
 void __stdcall KillUnit(Unit* u, int n);
 int __stdcall AddRepairProgress(Unit* u, Unit* u2, float f);
@@ -481,7 +476,7 @@ void __stdcall ApplyAttachUnit(Order* order)
                             unsigned char k = u->player->type;
                             if (k == 1 || k == 2) {
                                 if (t && !(t->def->f241.bits.low & 0x200))
-                                    AddBeCarriedOrder((Beacon*)u);
+                                    g_seams.orders->AddBeCarriedOrder(u);
                             }
                         }
                         DeselectIfIneligible(u);
@@ -573,10 +568,10 @@ void __stdcall UpdateAllUnits(void)
                                     int n = u->def->f200 * 8;
                                     AddRepairProgress(u, u, (float)(n / 30));
                                 }
-                                RunOrders(u);
-                                RunSecondaryOrders(u);
+                                g_seams.orders->RunOrders(u);
+                                g_seams.orders->RunSecondaryOrders(u);
                                 if (u->motion != 0) {
-                                    u->motion->UpdateMotion(u);
+                                    g_seams.orders->UpdateMotion(u->motion, 0, u);
                                     UpdateUnitHeight(u);
                                 }
                             }
@@ -869,7 +864,7 @@ void __stdcall ReceiveUnitStates(Player* p, unsigned int* data)
     for (Unit* u = p->unitsBegin; u <= p->unitsEnd;
          u = (Unit*)((char*)u + 0x118)) {
         if ((u->flags & 0x10000000) && u->motion) {
-            u->motion->UpdateMotion(u);
+            g_seams.orders->UpdateMotion(u->motion, 0, u);
             UpdateUnitHeight(u);
         }
     }

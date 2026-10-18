@@ -362,7 +362,6 @@ void __stdcall DeleteOrder(Unit* owner, Order* node);
 
 extern int __cdecl _strcmpi(const char*, const char*);
 
-short __stdcall FindUnitTypeId(char* name);
 
 void __stdcall DrawBuildFootprint(void* a, void* b, Order* e, Vec3* p, int c);
 void __stdcall DrawUnitRangeRings(void* a, void* b, Order* e, Vec3* p, int c);
@@ -994,12 +993,6 @@ int __cdecl FUN_004b7123(short angle, int scale);
 void __cdecl FUN_004b7173(short angle, int* xz);
 int __cdecl FUN_004b715a(int x, int z);
 int __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
-Vec3 __stdcall GetPiecePosition(Path_0043d6d0* obj, int index);
-Angles16 __stdcall GetPieceAngles(Path_0043d6d0* obj, int index);
-void __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int mode);
-int __stdcall CanPlaceUnitFootprint(UnitType_0043cd20* type, short a8, Point cell, int mode);
-void __stdcall RemoveUnitFromMap(Unit* unit);
-void __stdcall AddUnitToMap(Unit* unit);
 MissionType __stdcall GetOrderType(unsigned char relation, Unit* unit, Unit* target, Vec3* pos);
 void __stdcall AddOrder(unsigned char kind, int remove, Unit* owner, int id, int* pos, int param_6, int param_7);
 int __stdcall FindWeaponTarget(Unit* unit, int a, int b);
@@ -1961,7 +1954,6 @@ void UnitMotion::SteerAircraft(Unit* unit) {
 // Unused here: a real function declared for the symbol count that RegisterOrderTypes
 // (0x43bc90) and UpdatePosition (0x43d6d0) need with the shared Angles16
 // (docs/c2-regalloc.md).
-void FreeUnitInfo();
 
 // Moves the unit one step. With a path object it snaps to the path's next
 // point (raised to the draft/sea-level floor for units with the type flag at

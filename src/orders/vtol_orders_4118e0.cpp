@@ -59,7 +59,6 @@ unsigned short __stdcall ChooseBuildOption(unsigned int, Unit*);
 void __stdcall ClearWeaponTarget(Unit*, int);
 void __stdcall DetonateUnitWeapon(Unit*, int);
 void __stdcall DrawUnit(void*, Unit*);
-void __stdcall KillUnit(Unit*, int);
 
 struct Order {
     char pad0[5]; unsigned char state; unsigned int flags;
@@ -105,9 +104,7 @@ public:
 int __stdcall RandomInt(int);
 int __cdecl FUN_004b70ef(short, int);
 int __cdecl FUN_004b7123(short, int);
-int __stdcall IsPadSlotFree(Unit* unit, int id);
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
-void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, int p3, int p4);
 void __stdcall AppendOrder(Unit*, Order*);
 
 static inline Vec3 Offset(short angle, int distance)

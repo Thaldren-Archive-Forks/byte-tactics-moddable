@@ -83,10 +83,7 @@ extern Game* g_game;
 
 #include "../../interfaces/seams.h"
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
-int __stdcall GetGroundHeight(Vec3* pos);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
-void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 
 // 0x40f200, matched in 0x40f200.cpp; inlined into the state 0 case below.
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)

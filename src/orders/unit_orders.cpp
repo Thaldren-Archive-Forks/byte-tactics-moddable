@@ -378,21 +378,13 @@ int __stdcall RandomInt(int range);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, void* flags);
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, const char* text);
 void __stdcall UpdateBuildMenuIfFocusUnit(Unit* unit);
-void __stdcall FinishConstruction(Unit* unit, Unit* target);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
-Vec3 __stdcall GetPiecePosition(Unit* unit, int piece);
-int __stdcall CanPlaceUnitFootprint(UnitDef* type, short a, Point16 cell, int b);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short type, Vec3 pos,
                            int a, int b, int c);
-void __stdcall AttachUnitToPiece(Unit* unit, Unit* builder, char piece, char p4);
 void __stdcall AddOrder(MissionType kind, int remove, Unit* owner, Unit* id, void* pos,
                         int typeId, int amount);
-int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float amount);
-int __stdcall AddBuildProgress(Unit* unit, Unit* target, float amount);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitNanoParticles(Vec3* from, Box* to, int count);
 void __stdcall MarkSelectionOrdersDirty(Unit* unit);
-void __stdcall ApplyUnfinishedBuildDecay(Unit* unit, int param);
 void __stdcall EnsurePatrolReturnOrder(Unit* unit, Order* order);
 int __stdcall IssueAttackOrder(Unit* unit, Order* order, int param);
 
@@ -1203,7 +1195,6 @@ extern char DAT_004fc6e8[];
 extern const float DAT_004fc930, DAT_004fc934, DAT_004fc938, DAT_004fc93c;
 
 unsigned short __stdcall FindFeatureAtPos(Vec3* pos, Point16* cell, Point16* size);
-int __stdcall GetGroundHeight(Vec3* pos);
 int __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 void __stdcall StopBuildingScript(Unit* unit, Order* order);
@@ -1213,10 +1204,7 @@ int __stdcall IssueRepairOrder(Unit* unit, Unit* target, int param);
 void __stdcall EmitNanoParticles(Vec3* from, Vec3* to, int count);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
 void __stdcall EmitReverseNanoParticles(Vec3* from, Vec3* to, int count);
-void __stdcall SnapWorldPosToFootprint(UnitDef* type, Vec3* pos);
-void __stdcall GiveUnitToPlayer(Unit* unit, void* player, int param);
 void __stdcall ReclaimFeature(Unit* unit, Vec3* pos);
-unsigned short __stdcall FindUnitTypeId(char* name);
 Cell* __stdcall GetOriginCellAtPosition(Vec3* pos);
 unsigned short __stdcall GetCellFeature(Cell* cell);
 Cell* __stdcall GetMapCellAtPosition(Vec3* pos);
@@ -1227,7 +1215,6 @@ int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* pos, int range, Vec3*
 int __cdecl FUN_004b70ef(int angle, int distance);
 int __cdecl FUN_004b7123(int angle, int distance);
 void __stdcall EmitTeleportParticles(Vec3* from, Vec3* to, int count, int param);
-void __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param);
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall IsUnitCommander(Unit*);
 void __stdcall AlignUnitToGround(Unit*);

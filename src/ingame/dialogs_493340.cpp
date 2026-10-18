@@ -275,7 +275,6 @@ void HandleNetPackets(void);
 void StepAllGafSequences(void);
 void UpdateCameraFollow(void);
 void UpdateParticles(void);
-void UpdateBlink(void);
 void EmptyPostSimStepHook(void);
 void EmptyPostSimStepHook_B(void);
 void EmptyPostSimStepHook_C(void);

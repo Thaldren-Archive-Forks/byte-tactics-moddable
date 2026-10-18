@@ -420,21 +420,16 @@ int __stdcall RandomInt(int x);
 unsigned char __stdcall FindHostSlot();
 void ApplyUseOnlyUnits();
 void HandleNetPackets();
-void __stdcall LoadPlayerControllers(void* mission);
 void ApplySlotsToGamePlayers();
 void LoadBattleAssets();
-void InitPlayerResources();
 void __stdcall LoadSavedGameState(void* mission);
 void CreateMissionUnits();
 void CenterCameraOnStartPosition();
 void __stdcall LoadPictureCached(const char* name, int a, int b, int c);
 void BroadcastPlayerInfo();
 void UpdateNetGameInfo();
-void UpdatePlayers();
 void __stdcall ReportGameEvent(int x);
-void RebuildAIFeatureCells();
 void __stdcall SetCameraPosition(int x, int y, int z);
-unsigned short __stdcall FindUnitTypeId(const char* name);
 void __stdcall SpawnCommanderAtStartPos(int team, int startpos);
 void __stdcall CreateUnit(unsigned char team, unsigned short id, FixedPos_497180 pos, int a,
     int b, int c);
@@ -500,7 +495,6 @@ unsigned int __cdecl GetTicks();
 char* __cdecl GetPreferredLanguage();
 
 #include "../../interfaces/seams.h"
-int __stdcall GetGroundHeight(Pos_00498d00* pos);
 int __stdcall PointInRect(Rect* r, int x, int y);
 
 

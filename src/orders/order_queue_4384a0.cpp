@@ -143,8 +143,6 @@ int __stdcall OrderTypeNameLess(int param_1, char* param_2);
 Entry_0043a1f0* __stdcall LowerBoundOrderTypes(Entry_0043a1f0* first, Entry_0043a1f0* last,
                                        char* const& value, int(__stdcall* pred)(int, char*),
                                        int* unused);
-Unit* __stdcall LoadUnit(unsigned short id, void* file);
-unsigned short __stdcall FindUnitTypeId(const char* name);
 int __stdcall SendScriptCallNoArgs(Unit* obj, short index);
 void __stdcall SendScriptCall(Unit* obj, int index, int param_3, int param_4, int param_5, int param_6, int param_7);
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);

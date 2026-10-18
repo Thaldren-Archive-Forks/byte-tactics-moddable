@@ -152,7 +152,6 @@ void __stdcall WriteRegistryDword(void* section, void* key, int value);
 int __stdcall ReadRegistryValue(const char* app, const char* key, void* buf, unsigned int* size);
 void __stdcall WriteRegistryBinary(void* subKey, void* valueName, void* data, int unused);
 int __stdcall GetWindowsUserName(void* buf);
-void __stdcall SetMissionType(int mode);
 int __cdecl IsOnlineConfigLoaded();
 void __cdecl ProtectBlockReadWrite(void* p);
 void __cdecl ProtectBlockReadOnly(void* p);

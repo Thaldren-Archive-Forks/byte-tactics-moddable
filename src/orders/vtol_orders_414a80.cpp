@@ -89,11 +89,9 @@ public:
 #pragma pack(pop)
 
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, const char* text);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Vec3* box, Vec3* from, int count);
 int __stdcall ComputeReclaimDamagePulse(Unit* unit, Unit* target, int n);
 #include "../../interfaces/seams.h"
-void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall CellToWorldPos(Point cell, Vec3* out, Point origin);
 
 static inline Point WorldToCell(Vec3 v, Point origin)

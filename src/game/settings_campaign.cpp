@@ -92,20 +92,10 @@ extern char g_gameIdKey[];            // "Game ID"
 extern char g_gameTimeKey[];          // "Game Time"
 extern char g_radarImageBoxName[];    // "Radar Image"
 
-void __stdcall LoadPlayers(HapiBank* file);
 void __stdcall ReadCameraPosition(HapiBank* file);
-void __stdcall LoadMetalPlotmap(HapiBank* file);
-void __stdcall LoadPlayerFeaturesPlotmap(HapiBank* file);
-void __stdcall LoadMappingData(HapiBank* file);
-void __stdcall LoadUnits(HapiBank* file);
 
 void __stdcall SaveSurface(void* surface, void* file);
 void __stdcall WriteCameraPosition(void* file);
-void __stdcall SavePlayers(void* file);
-void __stdcall SaveUnits(void* file);
-void __stdcall SaveMappingData(void* file);
-void __stdcall SavePlayerFeaturesPlotmap(void* file);
-void __stdcall SaveMetalPlotmap(void* file);
 
 extern int __stdcall ReadRegistryData(const char* app, const char* key, char* buf, int* size);
 extern void __stdcall WriteRegistryString(const char* app, const char* key, const char* value);

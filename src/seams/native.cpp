@@ -17,6 +17,7 @@
 #include "../units/unit_ref.h"
 #include "../units/sfx_occupy.h"
 #include "../orders/unit_motion.h"
+#include "../orders/order.h"
 #include "../util/angles.h"
 
 struct Player;
@@ -237,6 +238,9 @@ int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float amount);
 void __stdcall ApplyUnfinishedBuildDecay(Unit* unit, int ticks);
 void __stdcall FinishConstruction(Unit* builder, Unit* unit);
 int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param);
+void __stdcall AddBeCarriedOrder(Unit* unit);
+void __stdcall RunOrders(Unit* unit);
+void __stdcall RunSecondaryOrders(Unit* unit);
 
 struct DamagedAllyCollector;
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
@@ -573,6 +577,36 @@ static void __fastcall UpdateSfxOccupyNative(UnitMotion* self, int unusedEdx, Un
     ((Class_0043db50*)self)->UpdateSfxOccupy(unit);
 }
 
+static void __fastcall ReattachFxToUnitNative(Order* self)
+{
+    self->ReattachFxToUnit();
+}
+
+static int __fastcall SerializeOrderToSaveNative(Order* self, int unusedEdx, Unit* unit, HapiBank* file, char* name)
+{
+    return self->SerializeToSave(unit, file, name);
+}
+
+static void __fastcall DestroyMotionObjectNative(UnitMotion* self)
+{
+    self->DestroyObject();
+}
+
+static void __fastcall LoadMotionNative(UnitMotion* self, int unusedEdx, Unit* unit, HapiBank* file)
+{
+    self->LoadMotion(unit, file);
+}
+
+static void __fastcall SaveMotionNative(UnitMotion* self, int unusedEdx, Unit* unit, HapiBank* file)
+{
+    self->SaveMotion(unit, file);
+}
+
+static void __fastcall UpdateMotionNative(UnitMotion* self, int unusedEdx, Unit* unit)
+{
+    self->UpdateMotion(unit);
+}
+
 static int __stdcall MovementClassGetNative(MovementClass* self, int x, int y)
 {
     return self->Get(x, y);
@@ -881,6 +915,15 @@ void InstallNativeSeams()
     s_units.UnitRefUnlink = UnitRefUnlinkNative;
     s_units.StartScriptWithArgsByIndex = StartScriptWithArgsByIndexNative;
     s_units.UpdateSfxOccupy = UpdateSfxOccupyNative;
+    s_orders.ReattachFxToUnit = ReattachFxToUnitNative;
+    s_orders.SerializeOrderToSave = SerializeOrderToSaveNative;
+    s_orders.AddBeCarriedOrder = AddBeCarriedOrder;
+    s_orders.RunOrders = RunOrders;
+    s_orders.RunSecondaryOrders = RunSecondaryOrders;
+    s_orders.DestroyMotionObject = DestroyMotionObjectNative;
+    s_orders.LoadMotion = LoadMotionNative;
+    s_orders.SaveMotion = SaveMotionNative;
+    s_orders.UpdateMotion = UpdateMotionNative;
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
     s_weapons.SpawnProjectile = SpawnProjectile;

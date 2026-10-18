@@ -207,7 +207,6 @@ Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId,
                                       Vec3 pos, int param_5, int mode,
                                       unsigned short id);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* builder, int piece, int p4);
-void __stdcall ForceNeighborFootprintReclaim(Unit* unit);
 
 // FUNCTION: 0x486fd0
 void __stdcall LoadUnits(HapiBank* file)
@@ -327,7 +326,7 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
 
     g_seams.economy->LoadUnitAccounts((UnitResources*)&unit->resourceSlot, (UnitInfo*)unit, file);
     if (rec.f27 != 0)
-        ((UnitMotion*)unit->motion)->LoadMotion(unit, file);
+        g_seams.orders->LoadMotion((UnitMotion*)unit->motion, 0, unit, file);
 
     Order** normal = (Order**)&unit->list;
     Order** special = (Order**)&unit->list2;
@@ -347,7 +346,7 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
         } while (k < rec.f23);
     }
     if (unit->list != 0)
-        ((Order*)unit->list)->ReattachFxToUnit();
+        g_seams.orders->ReattachFxToUnit((Order*)unit->list);
     sprintf(script, "Script%i", i);
     file->OpenNamedBox(script);
     ((CobScript*)unit->script)->LoadScriptState(file);
@@ -400,20 +399,20 @@ void __stdcall SaveUnits(HapiBank* file)
             Order* c = (Order*)unit->list;
             while (c != 0) {
                 sprintf(bufHead, "u%04xm%04x", unit->id, n);
-                c->SerializeToSave(unit, file, bufHead);
+                g_seams.orders->SerializeOrderToSave(c, 0, unit, file, bufHead);
                 c = c->next;
                 n++;
             }
             c = (Order*)unit->list2;
             while (c != 0) {
                 sprintf(bufTail, "u%04xm%04x", unit->id, n);
-                c->SerializeToSave(unit, file, bufTail);
+                g_seams.orders->SerializeOrderToSave(c, 0, unit, file, bufTail);
                 c = c->next;
                 n++;
             }
 
             if (unit->motion != 0)
-                ((UnitMotion*)unit->motion)->SaveMotion(unit, file);
+                g_seams.orders->SaveMotion((UnitMotion*)unit->motion, 0, unit, file);
             g_seams.economy->SaveUnitAccounts((UnitResources*)((char*)unit + 0xbc), (UnitInfo*)unit, file);
 
             strcpy(rec.name, (char*)(*(char**)((char*)unit + 0x92) + 0x20));

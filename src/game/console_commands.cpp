@@ -485,17 +485,10 @@ void* __stdcall PlaceFeature(void* target, unsigned short id, void* pos, void* a
                              unsigned char owner);
 void __stdcall IssueOrderToSelection(void* a, int b, MissionType kind, int d, int e, int f);
 void SaveSettings();
-void KillAllUnits(void);
-void __stdcall KillPlayerUnits(unsigned char player);
 void __stdcall SetLightVector(int x, int y, int z);
-void __stdcall TransferEnergy(unsigned char a, int b, float c, int d);
-void __stdcall TransferMetal(unsigned char a, int b, float c, int d);
 void __stdcall SetBrightness(float value);
 void __stdcall MakeDirectoryPath(char* dir);
 void __stdcall SaveGameFile(char* path, char* description, int gameId);
-short __stdcall FindUnitTypeId(char* name);
-void __stdcall KillUnitsOfType(short id);
-void __stdcall ReloadUnitType(unsigned short id);
 extern void ClearCameraFollowState(void);
 void FUN_004161f0();
 void __stdcall WriteScreenshot(char* name, char* description, int x, int y, int w, int h);
@@ -509,8 +502,6 @@ unsigned int __stdcall ExecuteCommandText(char* text, int size, CommandArgs* var
 void __cdecl GameFreeThunk(void* data);
 int __stdcall HAPI_CloseFile(void* file);
 int __stdcall MatchWildcard(const char* name, const char* pattern);
-void __stdcall SnapWorldPosToFootprint(UnitDef* def, Vec3* pos);
-void* __stdcall CreateUnit(unsigned char owner, short id, Vec3 pos, int param_4, int mode, int unitId);
 extern Display_00417a60* GetDisplay();
 void ToggleFullScreen();
 void __cdecl GameAllocIgnoreTag(char* name, unsigned int size);

@@ -1025,14 +1025,8 @@ void FreeGameFonts();
 int LoadDefaultPalette();
 void LoadTextureGafs();
 void FreeTextureGafs();
-void FreeUnitInfo();
-void RefreshUnitInfo();
 void CheckDownloadableFlags();
 void AddDownloadBuildOptions();
-void LoadUnitTypes();
-void FreeUnitTypes();
-void LoadDownloadMenus();
-void FreeDownloadMenus();
 // Two more, for the declaration PatrolGoal::DeserializeNetUnitState no longer needs.
 void StartScreenFade();
 void StepScreenFade();
@@ -1106,9 +1100,6 @@ extern int Pad6260_65;
 extern int Pad6260_66;
 extern int Pad6260_67;
 
-Unit* __stdcall LoadUnit(unsigned short index, HapiBank* file);
-Vec3_0044e3c0 __stdcall GetPiecePosition(Unit* obj, int param);
-int __stdcall GetGroundHeight(Pos_0044e6c0* pos);
 void __cdecl FUN_004b7173(short angle, int* xy);
 
 // FUNCTION: 0x44ce40

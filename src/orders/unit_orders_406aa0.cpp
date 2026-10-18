@@ -15,7 +15,6 @@ struct Game { char pad[0x14357]; Unit* units; Unit* unitsEnd; };
 #pragma pack(pop)
 extern Game* g_game;
 void __stdcall EmitTeleportParticles(Vec*,Vec*,int,int);
-void __stdcall SetUnitPosition(Unit*,Vec,int);
 // FUNCTION: 0x406aa0
 int __stdcall TeleportOrder(Unit* unit,Order* order,int unused)
 {

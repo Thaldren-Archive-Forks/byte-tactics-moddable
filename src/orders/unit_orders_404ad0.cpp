@@ -43,11 +43,9 @@ extern Game* g_game;
 
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 int __stdcall RandomInt(int range);
-int __stdcall GetGroundHeight(Vec3* pos);
 unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitReverseNanoParticles(Box* from, Vec3* to, int count);
 // Unused here: the symbol ids this declaration takes keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int typeId, int amount);

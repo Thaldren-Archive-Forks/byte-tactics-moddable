@@ -113,7 +113,6 @@ extern Game* g_game;
 Vec3 __stdcall GetPiecePosition(Unit* obj, int param);
 int __stdcall GetGroundHeight(Vec3* pos);
 int __cdecl FUN_004b715a(int a, int b);
-void __stdcall SetYardOpen(Unit* unit, int flag);
 #include "../../interfaces/seams.h"
 void __stdcall EmitThrustParticles(int, int, int, int, short);
 void __stdcall EmitWakeParticles(int, int, int, short);
@@ -123,7 +122,6 @@ int __stdcall RandomInt(int range);
 void __stdcall StartExplodePiece(Header_00481140* h);
 void __stdcall AddExplosionEffect(void* pos, void* src, int index, int flag);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* transporter, int a, int b);
-int __stdcall CanPlaceUnitFootprint(UnitDef* type, short a, int position, int b);
 
 static inline Unit* GetUnit(unsigned short id)
 {

@@ -170,7 +170,6 @@ struct Game {
 extern Game* g_game;
 
 void __stdcall PlaySoundByName(char* str, int flag);
-short __stdcall FindUnitTypeId(char* name);
 #include "../../interfaces/seams.h"
 
 // KillEnemyCommander (vtable 0x4fd960).

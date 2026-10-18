@@ -626,7 +626,6 @@ int __stdcall FindNextAllySlot(int self, int start)
     return -1;
 }
 
-void __stdcall SetupPlayerSlot(unsigned char player, unsigned char kind);
 
 // Marks, for each active player (active 1 or 2), every player slot that shares
 // its team type (or is the player itself), in the entry's `allied` array.

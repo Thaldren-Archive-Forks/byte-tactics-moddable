@@ -460,9 +460,6 @@ int __cdecl FUN_004b70ef(short, int);
 int __cdecl FUN_004b7123(short, int);
 short __cdecl FUN_004b715a(int, int);
 int __stdcall GetHeadingBetween(Vec3*, Vec3*);
-int __stdcall GetGroundHeight(Vec3*);
-int __stdcall CanPlaceFootprintAt(Unit*, Vec3*);
-void __stdcall AttachUnitToPiece(Unit*, Unit*, int, int);
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
 int __stdcall IssueRepairOrder(Unit*, Unit*, int);
@@ -474,15 +471,9 @@ Unit* __stdcall GetWeaponTargetUnit(Unit*, int);
 #include "../../interfaces/seams.h"
 void __stdcall SetWeaponTargetPos(Unit*, Vec3*, int);
 void __stdcall ClearWeaponTarget(Unit*, int);
-int __stdcall IsPadSlotFree(Unit*, int);
-int __stdcall CanPlaceUnitFootprint(UnitDef*, int, Point, int);
-void __stdcall SnapWorldPosToFootprint(UnitDef*, Vec3*);
-Unit* __stdcall CreateUnit(unsigned char, short, Vec3, int, int, int);
 void __stdcall AddOrder(MissionType, int, Unit*, Unit*, Vec3*, int, int);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
-int __stdcall AddBuildProgress(Unit*, Unit*, float);
-void __stdcall GetNanoPiecePosition(Unit*, Vec3*);
 void __stdcall EmitNanoParticles(Vec3*, Box*, int);
 void __stdcall EmitReverseNanoParticles(Box*, Vec3*, int);
 void __stdcall ReclaimFeature(Unit*, Vec3*);
@@ -490,10 +481,7 @@ unsigned short __stdcall FindFeatureAtPos(Vec3*, Point16*, Point16*);
 int __stdcall ComputeReclaimDamagePulse(Unit*, Unit*, int);
 void __stdcall DamageUnit(Unit*, Unit*, int, int, int);
 void __stdcall MarkSelectionOrdersDirty(Unit*);
-int __stdcall AddRepairProgress(Unit*, Unit*, float);
-int __stdcall PickRandomReclaimableResourcesInRadius(Vec3*, Fixed, Vec3**, float*, Vec3**, float*);
 int __stdcall SendScriptCallByName(Unit*, char*, char, int, int, int, int);
-Vec3 __stdcall GetPieceOffset(Unit*, int);
 // Unused here: the symbol ids these declarations take keep the allocation
 // (docs/c2-regalloc.md).
 int __stdcall IsUnitCommander(Unit*);
@@ -501,7 +489,6 @@ void __stdcall AlignUnitToGround(Unit*);
 unsigned short __stdcall ChooseBuildOption(unsigned int, Unit*);
 void __stdcall DetonateUnitWeapon(Unit*, int);
 void __stdcall DrawUnit(void*, Unit*);
-void __stdcall KillUnit(Unit*, int);
 
 // The functions of this file that the handlers below call before their
 // definitions.

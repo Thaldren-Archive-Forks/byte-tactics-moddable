@@ -103,7 +103,6 @@ int __stdcall RandomInt(int);
 int __cdecl FUN_004b70ef(short, int);
 int __cdecl FUN_004b7123(short, int);
 int __stdcall GetHeadingBetween(Vec3*, Vec3*);
-void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall AppendOrderToTail(Unit*, Order*);
 void __stdcall AppendOrder(Unit*, Order*);
 

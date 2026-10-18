@@ -732,10 +732,7 @@ void ShowContinueWatchingDialog()
 extern int g_economyPacketTick;
 
 unsigned char __stdcall FindHostSlot();
-unsigned short __stdcall FindUnitTypeId(const char* name);
 int __stdcall RandomInt(int range);
-int __stdcall CanPlaceUnitFootprint(UnitDef* type, int a, Point16 cell, int c);
-int __stdcall GetCellMeanHeight(Vec3* pos);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId,
                            Vec3 pos, int a, int b, int c);
 void __stdcall SetStartingStorageBonus(Player* player, int height, int width);

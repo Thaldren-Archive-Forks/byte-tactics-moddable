@@ -119,14 +119,10 @@ extern Game* g_game;
 
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 int __stdcall RandomInt(int range);
-int __stdcall GetGroundHeight(Vec3* pos);
 unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 void __stdcall StartBuildingScript(Unit* unit, Order* order, short turn);
 int __stdcall WaitIfNotInBuildStance(Unit* unit, Order* order, int flags);
-unsigned short __stdcall FindUnitTypeId(char* name);
-void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 void __stdcall EmitNanoParticles(Vec3* from, Box* to, int count);
-Unit* __stdcall CreateUnit(unsigned char player, unsigned short type, Vec3 pos, int a, int b, int c);
 int __stdcall BroadcastPacket(int player, void* data, int size);
 void __stdcall MarkSelectionOrdersDirty(Unit* unit);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, int flags);

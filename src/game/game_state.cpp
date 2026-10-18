@@ -511,7 +511,6 @@ extern const char g_unitLimitKey[];        // "UnitLimit"
 int GetScreenWidth();
 int GetScreenHeight();
 void __stdcall SetPageFlipping(int enable);
-void __stdcall SetMissionType(int type);
 void LoadGameResources();
 void InitSound();
 void ResetFrontendState();
@@ -660,9 +659,7 @@ void FreeGameFonts();
 void ShutdownSound();
 void FreeAnimFiles();
 void ClearOrderTypeTable();
-void FreeUnitInfo();
 void __stdcall ReleasePacketData(Class_00452370* obj);
-void FreeOtaEnumCacheAndMission();
 
 // FUNCTION: 0x4916a0
 void ShutdownGame(void)
@@ -707,14 +704,8 @@ void ResetChatHudIndices();
 void LoadLightBar();
 void ResetSpeech();
 void LoadTextureGafs();
-void InitUnitCategories();
 void CreateParticleLists();
 void ResetCameraState();
-void LoadUnitTypes();
-void LoadDownloadMenus();
-void AllocateUnitMemory();
-void BuildAllPassMaps();
-void InitPlayers();
 void CreatePathfinder();
 void InitCommands();
 unsigned int GetTicks();
@@ -811,15 +802,9 @@ void Force640x480Surfaces()
 }
 
 void __cdecl CollectEndGameStats();
-void FreeUnitMemory();
 void DestroyParticleLists();
 void DestroyPathfinder();
-void FreePlayers();
-void FreeDownloadMenus();
-void FreeUnitTypes();
 void FreeTextureGafs();
-void FreeMovementClasses();
-void FreeUnitCategories();
 void CloseNetSession();
 
 // FUNCTION: 0x491b60
