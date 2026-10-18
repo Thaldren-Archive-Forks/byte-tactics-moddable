@@ -13,7 +13,6 @@ class AiSearchGoal;
 void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 
-// What the search is looking for.
 class Target {
 public:
     virtual void unused0();
@@ -27,11 +26,11 @@ public:
 };
 
 struct NodeData {
-    Point16 pos;                       // +0x0
-    int g;                             // +0x4
-    int f;                             // +0x8, the heap key
-    short penalty;                     // +0xc
-    short steps;                       // +0xe, steps since the last turn
+    Point16 pos;
+    int g;
+    int f;
+    short penalty;
+    short steps;
     NodeData() {}
     NodeData(short x, short y, int g_, int f_, short steps_)
     {
@@ -44,22 +43,22 @@ struct NodeData {
 };
 
 struct Node {
-    int index;                         // +0x0 heap slot, or next free node
-    NodeData data;                     // +0x4
+    int index;
+    NodeData data;
 };
 
 struct PathCell {
-    unsigned char flags;               // +0 bit 0 open, bit 2 goal, bit 3 visited
-    unsigned char dir;                 // +1 the step taken into this cell
-    unsigned short node;               // +2 index into the node pool
+    unsigned char flags;
+    unsigned char dir;
+    unsigned short node;
 };
 
 struct Grid {
-    PathCell* cells;                    // +0x0
-    unsigned int width;                // +0x4
-    unsigned int height;               // +0x8
-    int count;                         // +0xc
-    unsigned int* dirty;               // +0x10, one bit per 8 cells
+    PathCell* cells;
+    unsigned int width;
+    unsigned int height;
+    int count;
+    unsigned int* dirty;
     int InBounds(unsigned int x, unsigned int y)
     {
         return x < width && y < height;
@@ -100,9 +99,6 @@ struct Grid {
             }
         }
     }
-    // The dead `t` and its folded branch emit nothing, but the store keeps
-    // MSVC from propagating the `cells` load into the pointer add, so the load
-    // lands after the `dirty[i] = 0` store as in the original.
     void ClearLast(int i)
     {
         if (dirty[i]) {
@@ -148,17 +144,15 @@ static int FixMul(int a, int b)
 }
 
 
-// The open list: a binary min-heap of node pointers over a pool of nodes,
-// each node holding its heap slot (or, when free, the next free node).
 class OpenHeap {
 public:
-    Node* pool;                        // +0x0
-    Node** items;                      // +0x4
-    int freeHead;                      // +0x8
-    int used;                          // +0xc
-    int capacity;                      // +0x10
-    int count;                         // +0x14
-    int topPopped;                     // +0x18
+    Node* pool;
+    Node** items;
+    int freeHead;
+    int used;
+    int capacity;
+    int count;
+    int topPopped;
 
     // FUNCTION: 0x40f000 ?SiftUp@OpenHeap@@QAEXH@Z
     void SiftUp(int i)
@@ -185,8 +179,6 @@ public:
         }
     }
     void SiftDown(int i);
-    // RemoveNode inlines this copy; the out-of-line 0x40f060 below is what the
-    // other methods call.
     void SiftDownInline(int i)
     {
         Node* node = items[i];
@@ -282,36 +274,33 @@ public:
 #pragma pack(push, 1)
 class Pathfinder : public OpenHeap {
 public:
-    Grid grid;                         // +0x1c
-    Point16 start;                     // +0x30
-    Point16 found;                     // +0x34, the goal cell reached
-    int goalX;                         // +0x38
-    int goalY;                         // +0x3c
-    int probe;                         // +0x40, the straight-line probe's cost
-    int range;                         // +0x44, the turns tried per node
-    int stepsPerTick;                  // +0x48
-    int steps;                         // +0x4c
-    int costScale;                     // +0x50
-    int baseScale;                     // +0x54
-    Unit* object;                      // +0x58
-    AiSearchGoal* path;                // +0x5c
-    Target* target;                    // +0x60
-    MovementClass* owner;              // +0x64
+    Grid grid;
+    Point16 start;
+    Point16 found;
+    int goalX;
+    int goalY;
+    int probe;
+    int range;
+    int stepsPerTick;
+    int steps;
+    int costScale;
+    int baseScale;
+    Unit* object;
+    AiSearchGoal* path;
+    Target* target;
+    MovementClass* owner;
     union {
-        Table_0040d880 table;          // +0x68
+        Table_0040d880 table;
         unsigned char turnCost[8];
     };
     union {
-        Pair_0040d880 pairs[4];        // +0x70
+        Pair_0040d880 pairs[4];
         unsigned char stepCost[8];
     };
-    unsigned char player;              // +0x78
-    Unit* cursor[10];                  // +0x79
-    int budget[10];                    // +0xa1
+    unsigned char player;
+    Unit* cursor[10];
+    int budget[10];
 
-    // The heuristic estimate: caches the scale before the virtual call, then
-    // truncates the 64-bit product. The original inlines it here; the
-    // out-of-line 0x40da40 below is the same arithmetic returned 64 bits wide.
     int EstimateCost(int x, int y)
     {
         int factor = costScale;
@@ -402,8 +391,6 @@ public:
     void MarkGoalCell(unsigned int x, unsigned int y);
     void ClearDirtyCells();
     __int64 Estimate(int param1, int param2);
-    // Inlines the node pool's growth (0x40f110) that StartSearch calls out of
-    // line.
     void ExpandNeighbour(NodeData* from, PathCell* fromCell, int turn);
     int ExpandBestNode();
     void TracePath();
@@ -414,7 +401,6 @@ public:
     Pathfinder();
     ~Pathfinder();
     void RunSearches();
-    // Inlines the sift-down (0x40f060) the other methods call out of line.
     void RemoveNode(int k);
     // FUNCTION: 0x40f110 ?GrowNodes@Pathfinder@@QAEXH@Z
     void GrowNodes(int n)

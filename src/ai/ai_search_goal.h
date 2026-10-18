@@ -16,31 +16,31 @@ class AiSearchGoal;
 
 class PathGoal {
 public:
-    Base_00490a10* target;             // +0x4
-    Unit* owner;                       // +0x8
+    Base_00490a10* target;
+    Unit* owner;
 
     PathGoal(Unit* p);
-    virtual ~PathGoal();                                          // slot 0
-    virtual void SetPathOrder(void* param);                       // slot 1
-    virtual void TickTowardGoal();                                // slot 2
-    virtual void FillWaypointWorldPos(Vec3*, int, int);           // slot 3
-    virtual void ExportGoalPose(Vec3*, Vec3*, short*);            // slot 4
-    virtual int HasReadyWaypoints();                              // slot 5
-    virtual AiSearchGoal* TryClaimRepath();                       // slot 6
-    virtual int HasNetUnitState();                                // slot 7
-    virtual void SerializeNetUnitState(BitWriter*);               // slot 8
-    virtual void DeserializeNetUnitState(BitReader*);             // slot 9
-    virtual void DrawOnSurface(void*);                            // slot 10
+    virtual ~PathGoal();
+    virtual void SetPathOrder(void* param);
+    virtual void TickTowardGoal();
+    virtual void FillWaypointWorldPos(Vec3*, int, int);
+    virtual void ExportGoalPose(Vec3*, Vec3*, short*);
+    virtual int HasReadyWaypoints();
+    virtual AiSearchGoal* TryClaimRepath();
+    virtual int HasNetUnitState();
+    virtual void SerializeNetUnitState(BitWriter*);
+    virtual void DeserializeNetUnitState(BitReader*);
+    virtual void DrawOnSurface(void*);
 };
 
 class AiSearchGoal : public PathGoal {
 public:
-    Point16 points[20];                // +0xc
-    int count;                         // +0x5c
-    unsigned int repathClaimTick;      // +0x60
+    Point16 points[20];
+    int count;
+    unsigned int repathClaimTick;
     union {
         struct {
-            unsigned char active : 1;  // +0x64 bit 0
+            unsigned char active : 1;
             unsigned char flag_1 : 1;
             unsigned char flag_2 : 1;
             unsigned char flag_3 : 1;
