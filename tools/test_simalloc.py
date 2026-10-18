@@ -70,6 +70,36 @@ void ViaHeader()
     Deep();
 }
 
+// FUNCTION: 0x401900
+void MixedTags()
+{
+    char* a = (char*)SimAlloc(8);
+    char* b = (char*)GameAllocIgnoreTag("DRAW LIST", 8);
+}
+
+// FUNCTION: 0x401a00
+void UnconvertedTag()
+{
+    char* a = (char*)SimAlloc(8);
+    char* b = (char*)GameAllocIgnoreTag("STATE LIST", 8);
+}
+
+// FUNCTION: 0x401b00
+void TempBuffer(char* path)
+{
+    char* a = (char*)SimAlloc(8);
+    char* buf = (char*)GameAllocIgnoreTag(path, 8);
+    GameFreeThunk(buf);
+}
+
+// FUNCTION: 0x401c00
+void KeptBuffer(char* path)
+{
+    char* a = (char*)SimAlloc(8);
+    char* buf = (char*)GameAllocIgnoreTag(path, 8);
+    g_keep = buf;
+}
+
 static void Build(int n)
 {
     Gadget* g = new (kSim) Gadget();
@@ -159,6 +189,43 @@ class SimAllocTest(unittest.TestCase):
         self.assertEqual((p["function"], p["allocator"], p["what"]), ("Order::Order", "new[]", "Rec"))
         p = simalloc.parse_row({"name": "LoadUnitInfo: GameAllocIgnoreTag UnitDef", "address": ""})
         self.assertEqual((p["allocator"], p["what"]), ("GameAllocIgnoreTag", "UnitDef"))
+
+    def others(self, *tags):
+        return frozenset(tags)
+
+    def test_call_with_non_sim_row_tag_is_skipped(self):
+        r = row("MixedTags", "0x401900", "GameAllocIgnoreTag", "Thing")
+        self.assertEqual(simalloc.check_row(r, self.index, self.others("DRAW LIST")), [])
+
+    def test_call_with_unlisted_tag_still_fails(self):
+        r = row("UnconvertedTag", "0x401a00", "GameAllocIgnoreTag", "Thing")
+        out = simalloc.check_row(r, self.index, self.others("DRAW LIST"))
+        self.assertEqual(len(out), 1)
+        self.assertIn('GameAllocIgnoreTag("STATE LIST", 8)', out[0])
+
+    def test_non_sim_tag_does_not_hide_a_named_sim_call(self):
+        r = row("UnconvertedTag", "0x401a00", "GameAllocIgnoreTag", "STATE LIST")
+        self.assertEqual(len(simalloc.check_row(r, self.index, self.others("STATE LIST"))), 1)
+
+    def test_non_literal_tag_freed_in_function_is_skipped(self):
+        r = row("TempBuffer", "0x401b00", "GameAllocIgnoreTag", "Thing")
+        self.assertEqual(simalloc.check_row(r, self.index), [])
+
+    def test_non_literal_tag_kept_still_fails(self):
+        r = row("KeptBuffer", "0x401c00", "GameAllocIgnoreTag", "Thing")
+        out = simalloc.check_row(r, self.index)
+        self.assertEqual(len(out), 1)
+        self.assertIn("GameAllocIgnoreTag(path, 8)", out[0])
+
+    def test_other_tags_read_from_non_sim_rows(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "classes.csv"
+            path.write_text("name,address,kind,class\n"
+                            "F: GameAllocIgnoreTag DRAW LIST,0x1,heap,view\n"
+                            "F: GameAllocIgnoreTag KEEP,0x1,heap,sim\n"
+                            "F: GameAllocIgnoreTag OTHER,0x2,heap,platform\n")
+            self.assertEqual(simalloc.other_tags(path),
+                             {("F", "0x1"): frozenset({"DRAW LIST"}), ("F", "0x2"): frozenset({"OTHER"})})
 
     def test_allowlist_skips_a_row(self):
         rows = [row("MakePlain", "0x401100", "new", "Widget")]
