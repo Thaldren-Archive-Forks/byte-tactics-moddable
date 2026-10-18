@@ -15,6 +15,8 @@
 
 #include "../sound/sound.h"
 
+#include "../../interfaces/seams.h"
+
 unsigned int __cdecl GetMilliseconds(void);
 
 #include "../network/packet_manager.h"
@@ -270,14 +272,7 @@ int IsHostLocal();
 void __stdcall EnableKeyCommands(Gui* menu);
 void ShowSoftwareCursor();
 void HandleNetPackets(void);
-void UpdateAllUnits(void);
-void UpdateProjectiles(void);
-void UpdateExplosions(void);
-void UpdatePlayers(void);
-void UpdateFeatures(void);
 void StepAllGafSequences(void);
-void UpdateWind(void);
-void UpdateMeteors(void);
 void UpdateCameraFollow(void);
 void UpdateParticles(void);
 void UpdateBlink(void);
@@ -286,7 +281,6 @@ void EmptyPostSimStepHook_B(void);
 void EmptyPostSimStepHook_C(void);
 void ExpireOldestMessage(void);
 void ExpireEyeballs(void);
-void __stdcall UpdateResourceSharing(Player* player);
 int __stdcall SetPageFlipping(int enable);
 
 // FUNCTION: 0x493340
@@ -1276,25 +1270,25 @@ void __stdcall RunGameSteps(int showStats)
             HarnessPhase(0);
             g_game->profileTimingBars.AccumulateProfileTime(0);
         }
-        UpdateAllUnits();
+        g_seams.units->UpdateAllUnits();
         HarnessPhase(1);
         g_game->profileTimingBars.AccumulateProfileTime(1);
-        UpdateProjectiles();
+        g_seams.weapons->UpdateProjectiles();
         HarnessPhase(2);
         g_game->profileTimingBars.AccumulateProfileTime(7);
-        UpdateExplosions();
+        g_seams.weapons->UpdateExplosions();
         HarnessPhase(3);
         g_game->profileTimingBars.AccumulateProfileTime(8);
-        UpdatePlayers();
+        g_seams.players->UpdatePlayers();
         HarnessPhase(4);
         g_game->profileTimingBars.AccumulateProfileTime(2);
 
-        UpdateFeatures();
+        g_seams.features->UpdateFeatures();
         HarnessPhase(5);
         StepAllGafSequences();
-        UpdateWind();
+        g_seams.wind_meteors->UpdateWind();
         HarnessPhase(6);
-        UpdateMeteors();
+        g_seams.wind_meteors->UpdateMeteors();
         HarnessPhase(7);
         UpdateCameraFollow();
         g_game->profileTimingBars.AccumulateProfileTime(8);
@@ -1305,7 +1299,7 @@ void __stdcall RunGameSteps(int showStats)
         g_game->profileTimingBars.AccumulateProfileTime(8);
 
         if (showStats && g_usePacketManager != 0) {
-            UpdateResourceSharing(&g_game->players[g_game->localPlayer]);
+            g_seams.economy->UpdateResourceSharing(&g_game->players[g_game->localPlayer]);
             g_packetManager.SendAllQueued(0);
             g_game->profileTimingBars.AccumulateProfileTime(0);
         }

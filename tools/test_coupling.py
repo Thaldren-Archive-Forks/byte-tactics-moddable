@@ -216,6 +216,55 @@ class SharedTest(unittest.TestCase):
         self.assertEqual([(r["from"], r["count"]) for r in result.rows], [("a", "1"), ("b", "2")])
 
 
+def call_row(f, t, kind="call", target="X", count="1"):
+    return {"from": f, "to": t, "kind": kind, "target": target, "count": count}
+
+
+def debt_row(f, t, target):
+    return {"from": f, "to": t, "target": target}
+
+
+class SeamTest(unittest.TestCase):
+    def test_a_sim_to_sim_call_and_a_game_to_sim_call_are_edges(self):
+        rows = [call_row("units", "weapons", target="Fire"), call_row("game", "map", target="Plot")]
+        self.assertEqual(cp.seam_edges(rows), {("units", "weapons", "Fire"), ("game", "map", "Plot")})
+
+    def test_other_ends_and_kinds_are_not_edges(self):
+        rows = [call_row("units", "presentation"), call_row("units", "network"), call_row("units", "harness"),
+                call_row("units", "platform"), call_row("units", "seams"), call_row("seams", "units"),
+                call_row("presentation", "units"), call_row("network", "units"), call_row("platform", "map"),
+                call_row("units", "game"), call_row("units", "weapons", kind="indirect"),
+                call_row("units", "weapons", kind="shared_write")]
+        self.assertEqual(cp.seam_edges(rows), set())
+
+    def test_a_listed_edge_passes_whatever_its_count(self):
+        debt = [debt_row("units", "weapons", "Fire")]
+        for count in ("1", "7"):
+            lines, summary = cp.check_seams([call_row("units", "weapons", target="Fire", count=count)], debt)
+            self.assertEqual(lines, [])
+            self.assertIn("1 direct calls", summary)
+
+    def test_a_new_edge_fails_and_says_to_use_a_seam(self):
+        lines, _ = cp.check_seams([call_row("units", "weapons", target="Fire")], [])
+        self.assertEqual(len(lines), 2)
+        self.assertIn("units -> weapons: Fire", lines[0])
+        self.assertIn("interfaces/seams.h", lines[1])
+
+    def test_a_stale_row_fails_and_says_to_delete_it(self):
+        lines, _ = cp.check_seams([], [debt_row("units", "weapons", "Fire")])
+        self.assertEqual(len(lines), 1)
+        self.assertIn("units -> weapons: Fire", lines[0])
+        self.assertIn("delete", lines[0])
+
+    def test_the_committed_debt_matches_the_committed_coupling(self):
+        lines, _ = cp.check_seams(cp.read_csv(cp.COUPLING_CSV), cp.read_csv(cp.SEAM_DEBT_CSV))
+        self.assertEqual(lines, [])
+
+    def test_src_seams_is_its_own_subsystem(self):
+        self.assertEqual(cp.rule_of("InstallNativeSeams", "src/seams/install.cpp", {}),
+                         ("seams", "folder:src/seams/"))
+
+
 class DataTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -280,6 +329,8 @@ class DataTest(unittest.TestCase):
             self.assertEqual(next(csv.reader(f)), cp.SUBSYSTEM_COLUMNS)
         with cp.COUPLING_CSV.open(newline="") as f:
             self.assertEqual(next(csv.reader(f)), cp.COUPLING_COLUMNS)
+        with cp.SEAM_DEBT_CSV.open(newline="") as f:
+            self.assertEqual(next(csv.reader(f)), cp.SEAM_DEBT_COLUMNS)
 
 
 if __name__ == "__main__":

@@ -28442,27 +28442,42 @@ address,function,file,kind,target
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,HarnessPhase
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,PacketManager::SendAllQueued
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,StepAllGafSequences
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateAllUnits
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateBlink
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateCameraFollow
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateExplosions
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateFeatures
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateMeteors
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateParticles
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdatePlayers
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateProjectiles
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateResourceSharing
-0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,call,UpdateWind
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_maybe_written,Game::players
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_maybe_written,Game::profileTimingBars
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,EconomySeam::UpdateResourceSharing
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,FeaturesSeam::UpdateFeatures
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Game::gameTick
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Game::localPlayer
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Game::simStepsPending
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,PlayersSeam::UpdatePlayers
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Seams::economy
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Seams::features
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Seams::players
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Seams::units
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Seams::weapons
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,Seams::wind_meteors
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,UnitsSeam::UpdateAllUnits
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,WeaponsSeam::UpdateExplosions
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,WeaponsSeam::UpdateProjectiles
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,WindMeteorsSeam::UpdateMeteors
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_read,WindMeteorsSeam::UpdateWind
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,field_write,Game::gameTick
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,function,
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,global_maybe_written,g_packetManager
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,global_read,g_game
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,global_read,g_seams
 0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,global_read,g_usePacketManager
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)() __attribute__((cdecl)) [WindMeteorsSeam::UpdateWind]
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [FeaturesSeam::UpdateFeatures]
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [PlayersSeam::UpdatePlayers]
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [UnitsSeam::UpdateAllUnits]
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WeaponsSeam::UpdateExplosions]
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WeaponsSeam::UpdateProjectiles]
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::UpdateMeteors]
+0x495490,RunGameSteps,src/ingame/dialogs_493340.cpp,indirect_call,indirect via void (*)(Player *) __attribute__((stdcall)) [EconomySeam::UpdateResourceSharing]
 0x4956c0,HandleDebugHotkey,src/ingame/dialogs_493340.cpp,call,SetPageFlipping
 0x4956c0,HandleDebugHotkey,src/ingame/dialogs_493340.cpp,deref_escape,*Unit
 0x4956c0,HandleDebugHotkey,src/ingame/dialogs_493340.cpp,field_read,Game::bit0_3923b
@@ -44006,6 +44021,7 @@ address,function,file,kind,target
 ,HarnessInit,src/harness/harness.cpp,call,Fail
 ,HarnessInit,src/harness/harness.cpp,call,GetMemSetValue
 ,HarnessInit,src/harness/harness.cpp,call,GetStdHandle
+,HarnessInit,src/harness/harness.cpp,call,InstallNativeSeams
 ,HarnessInit,src/harness/harness.cpp,call,IsMemSet
 ,HarnessInit,src/harness/harness.cpp,call,OpenTrace
 ,HarnessInit,src/harness/harness.cpp,call,ParseTestDump
@@ -44247,6 +44263,54 @@ address,function,file,kind,target
 ,InsideExplored,src/graphics/particles.cpp,field_read,Player::exploredHeight
 ,InsideExplored,src/graphics/particles.cpp,field_read,Player::exploredWidth
 ,InsideExplored,src/graphics/particles.cpp,function,
+,InstallNativeSeams,src/seams/native.cpp,field_write,EconomySeam::UpdateResourceSharing
+,InstallNativeSeams,src/seams/native.cpp,field_write,FeaturesSeam::UpdateFeatures
+,InstallNativeSeams,src/seams/native.cpp,field_write,PlayersSeam::UpdatePlayers
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::ai
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::economy
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::features
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::los_radar
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::map
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::orders
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::pathfinding
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::players
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::targeting
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::units
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::weapons
+,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::wind_meteors
+,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::UpdateAllUnits
+,InstallNativeSeams,src/seams/native.cpp,field_write,WeaponsSeam::UpdateExplosions
+,InstallNativeSeams,src/seams/native.cpp,field_write,WeaponsSeam::UpdateProjectiles
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::UpdateMeteors
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::UpdateWind
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateAllUnits
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateExplosions
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateFeatures
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateMeteors
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdatePlayers
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateProjectiles
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateResourceSharing
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateWind
+,InstallNativeSeams,src/seams/native.cpp,function,
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_ai@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_economy@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_features@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_los_radar@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_map@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_orders@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_pathfinding@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_players@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_targeting@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_units@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_weapons@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_escape,s_wind_meteors@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_write,g_seams
+,InstallNativeSeams,src/seams/native.cpp,global_write,s_economy@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_write,s_features@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_write,s_players@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_write,s_units@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_write,s_weapons@src/seams/native.cpp
+,InstallNativeSeams,src/seams/native.cpp,global_write,s_wind_meteors@src/seams/native.cpp
 ,IsActive12_00452960,src/network/net_game.cpp,field_read,Player::active
 ,IsActive12_00452960,src/network/net_game.cpp,field_read,Player::type
 ,IsActive12_00452960,src/network/net_game.cpp,function,

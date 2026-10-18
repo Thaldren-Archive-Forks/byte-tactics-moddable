@@ -12,7 +12,8 @@ when it is:
   * a TODO(#n): text, where #n is an open issue (checked when GITHUB_TOKEN and
     GITHUB_REPOSITORY are set, as in CI, otherwise skipped with a note);
   * a directive that a tool reads, listed in DIRECTIVES, alone on its line;
-  * in a published interface header (PUBLISHED_INTERFACES), a one-line doc
+  * in a published interface header (PUBLISHED_INTERFACES, or any file under
+    PUBLISHED_INTERFACE_DIRS), a one-line doc
     comment directly above a declaration or trailing on its line.
 
 Exempt: generated files, Python docstrings (they are not comments), and
@@ -41,6 +42,7 @@ PY_SUFFIXES = {".py"}
 PUBLISHED_INTERFACES = {
     "lib/bitexact/bitexact.h",
 }
+PUBLISHED_INTERFACE_DIRS = ("interfaces/",)
 
 GENERATED_FILES = {
     "src/harness/trace_schema.h",
@@ -150,7 +152,7 @@ def one_line_doc(comment, lines):
 def check_c(path, text, added):
     out, todos = [], []
     lines = text.splitlines()
-    published = path in PUBLISHED_INTERFACES
+    published = path in PUBLISHED_INTERFACES or path.startswith(PUBLISHED_INTERFACE_DIRS)
     for c in scan_c(text):
         touched = [ln for ln in range(c.start, c.end + 1) if ln in added]
         if not touched:
