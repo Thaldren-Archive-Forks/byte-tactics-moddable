@@ -1072,7 +1072,7 @@ int CobScript::LoadScriptState(HapiBank* file)
     if (file->ReadBox(statics, size) != size) {
         return 0;
     }
-    SavedPiece* buffer = (SavedPiece*)SimAlloc(bytes);
+    SavedPiece* buffer = (SavedPiece*)SimAllocTagged("Piece States", bytes);
     if (file->ReadBox(buffer, bytes) != bytes) {
         return 0;
     }

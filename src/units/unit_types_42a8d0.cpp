@@ -267,7 +267,7 @@ int LoadUnitInfo()
     int count = files.size() + 1;
     g_game->unitDefCount = count;
     int size = count * sizeof(UnitDef);
-    g_game->unitDefs = (UnitDef*)SimAlloc(size);
+    g_game->unitDefs = (UnitDef*)SimAllocTagged("UNITINFO", size);
     memset(g_game->unitDefs, 0, size);
     strcpy(g_game->unitDefs->unitname, "None");
     g_game->unitDefs->flags1 |= 0x800000;

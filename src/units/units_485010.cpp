@@ -535,7 +535,7 @@ void __stdcall AllocateUnitMemory(void)
     g_game->unitsPerPlayer = g_game->maxUnits;
     g_game->poolCount = (unsigned short)(g_game->maxUnits * 10 + 1);
 
-    unsigned char* pool = g_game->pool = (unsigned char*)SimAlloc(g_game->poolCount * 0x118);
+    unsigned char* pool = g_game->pool = (unsigned char*)SimAllocTagged("UNIT MEMORY", g_game->poolCount * 0x118);
     memset(pool, 0, g_game->poolCount * 0x118);
 
     unsigned int ten = g_game->maxUnits * 10;

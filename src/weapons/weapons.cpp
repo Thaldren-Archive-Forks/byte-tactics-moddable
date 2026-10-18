@@ -418,7 +418,7 @@ extern Game* g_game;
 // FUNCTION: 0x499a30
 void AllocWeaponArray(void)
 {
-    g_game->projectiles = SimAlloc(0x7d64);
+    g_game->projectiles = SimAllocTagged("WEAPON ARRAY", 0x7d64);
     memset(g_game->projectiles, 0, 0x7d64);
     g_game->projectileCount = 0;
 }

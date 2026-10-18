@@ -1085,7 +1085,7 @@ void LoadTntMap()
     mapSettings->mapValues = (unsigned short*)dst;
     memcpy(dst, info.tile_map_src, a.n * 2);
     a.n = mapSettings->width * mapSettings->height;
-    unsigned char* plot = (unsigned char*)SimAlloc(a.n * 0xd);
+    unsigned char* plot = (unsigned char*)SimAllocTagged("PLOT MEMORY", a.n * 0xd);
     mapSettings->cells = (Cell*)plot;
     int fill = g_game->mapInfo->surfaceMetal;
     if (fill < 0 || info.version < 0x2000)
@@ -1216,7 +1216,7 @@ void LoadTntMap()
     ClearBorderFeatures();
     unsigned int total2 = (unsigned int)(mapSettings->width * mapSettings->height) * 2;
     unsigned int half = total2 / 4;
-    int* mapped = (int*)SimAlloc(half);
+    int* mapped = (int*)SimAllocTagged("MAPPED MEMORY", half);
     mapSettings->visibilityMask = (unsigned short*)mapped;
     memset(mapped, 0, half);
     int sx = mapSettings->screenTilesX + 0xc;
@@ -1228,7 +1228,7 @@ void LoadTntMap()
     mapSettings->sortLineCount = (int*)GameAllocIgnoreTag("SORT LINE COUNT", mapSettings->sortRowCount << 1);
     g_seams.features->StampFeatureMetal();
     g_game->count = 0;
-    g_game->eyes = (Eye*)SimAlloc(0x2d0);
+    g_game->eyes = (Eye*)SimAllocTagged("EYEBALL MEMORY", 0x2d0);
     mapSettings->featureReproduceCursor = 0;
     g_game->loadProgress = 100;
     // REGION r5 end

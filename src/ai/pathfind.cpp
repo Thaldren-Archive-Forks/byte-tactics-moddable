@@ -1059,7 +1059,7 @@ Pathfinder::Pathfinder()
 
     unsigned int m = (grid.count + 0xff) >> 8;
     unsigned int n = m * 4;
-    grid.dirty = (unsigned int*)SimAlloc(n);
+    grid.dirty = (unsigned int*)SimAllocTagged("AISearch touched mapentries", n);
     // Only n - 1 bytes are filled; the last dword is zeroed separately.
     memset(grid.dirty, 0xff, n - 1);
     *(int*)((char*)grid.dirty + n - 4) = 0;

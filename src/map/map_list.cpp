@@ -1145,7 +1145,8 @@ void Mission::LoadMissionData(char* name, TdfFile* parser)
     // Own local, computed before unitCount is stored: keeps the count in ecx.
     int unitBytes = count * sizeof(MissionUnit);
     unitCount = count;
-    units = (MissionUnit*)SimAlloc(
+    units = (MissionUnit*)SimAllocTagged(
+        "MISSIONUNIT DATA",
         (total / 0x400 + 2) * 0x400 + unitBytes);
     char* strings = (char*)units + unitBytes;
     for (i = 0; i < count; i++) {
@@ -1192,7 +1193,7 @@ void Mission::LoadMissionData(char* name, TdfFile* parser)
     else
         count = 0;
     ruleCount = count;
-    rules = (MissionRule*)SimAlloc(count * sizeof(MissionRule));
+    rules = (MissionRule*)SimAllocTagged("MISSIONRULE DATA", count * sizeof(MissionRule));
     int startPos = 0;
     for (i = 0; i < count; i++) {
         MissionRule* r = &rules[i];
@@ -1224,7 +1225,7 @@ void Mission::LoadMissionData(char* name, TdfFile* parser)
     featureCount = count;
     if (features)
         GameFreeThunk(features);
-    features = (MissionFeature*)SimAlloc(count * sizeof(MissionFeature));
+    features = (MissionFeature*)SimAllocTagged("MISSIONFEATURE DATA", count * sizeof(MissionFeature));
     for (i = 0; i < count; i++) {
         MissionFeature* f = &features[i];
         TdfRecord* s = list->GetSubRecord(i);

@@ -44,7 +44,7 @@ DEPTH = 2
 
 C_FAMILY = re.compile(r"\b(GameAlloc\w*|GameCalloc|GameRealloc\w*)\s*\(")
 OPERATOR_NEW = re.compile(r"\boperator\s+new(?:\s*\[\s*\])?\s*\(")
-SIM_CALL = re.compile(r"\bSim(?:Alloc|Realloc)\s*\(")
+SIM_CALL = re.compile(r"\bSim(?:Alloc(?:Tagged)?|Realloc)\s*\(")
 INCLUDE = re.compile(r'^\s*#\s*include\s*"([^"]+)"', re.M)
 CALL = re.compile(r"\b([A-Za-z_~][\w]*(?:::~?[A-Za-z_]\w*)*)\s*\(")
 KEYWORDS = {"if", "for", "while", "switch", "return", "sizeof", "new", "delete", "catch", "operator"}

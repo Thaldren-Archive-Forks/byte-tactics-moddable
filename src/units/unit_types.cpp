@@ -857,7 +857,8 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             if (unitdef->bmcode == 0) {
                 parser.current
                     ->GetFieldString(yard, "YardMap", 1024, DAT_005119b8);
-                unitdef->yardmap = (char*)SimAlloc(
+                unitdef->yardmap = (char*)SimAllocTagged(
+                    "BUILDING YARD",
                     unitdef->footprintx * unitdef->footprintz);
                 int cell = 0;
                 char* cursor = yard;
@@ -1073,7 +1074,7 @@ void LoadUnitTypes() {
         } while (c);
     }
 
-    g_game->unitModels = (void**)SimAlloc(g_game->unitDefCount * 4);
+    g_game->unitModels = (void**)SimAllocTagged("MODEL PTRS", g_game->unitDefCount * 4);
 
     // `u` must be an unsigned short: an int counter breaks the loop.
     for (unsigned short u = 1; u < g_game->unitDefCount; u++) {
@@ -1165,7 +1166,7 @@ void LoadUnitTypes() {
                     type->count = count;
                 }
                 sprintf(objpath, "CANBUILD %s", type->unitname);
-                type->ids = SimAlloc(0x3c);
+                type->ids = SimAllocTagged(objpath, 0x3c);
                 memcpy(type->ids, list, 0x3c);
             }
         }
@@ -1266,7 +1267,7 @@ void LoadDownloadMenus()
 
     int n = files.size();
     g_game->buildListCount = n;
-    g_game->buildLists = (BuildList_0042dcf0*)SimAlloc(n * 0xbd);
+    g_game->buildLists = (BuildList_0042dcf0*)SimAllocTagged("DOWNLOADMENU", n * 0xbd);
 
     for (i = 0; i < n; i++) {
         TdfFile parser;

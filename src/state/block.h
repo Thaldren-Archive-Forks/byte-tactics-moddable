@@ -9,6 +9,9 @@ const unsigned int kSimBlockBytes = 64u << 20;
 // Allocates size zeroed bytes from the sim block, 8-byte aligned.
 void* __cdecl SimAlloc(unsigned int size);
 
+// Allocates like SimAlloc; the tag names the site for the analysis tools and the block ignores it.
+inline void* __cdecl SimAllocTagged(const char*, unsigned int size) { return SimAlloc(size); }
+
 // Resizes a sim block like realloc, zeroing the bytes beyond the old size.
 void* __cdecl SimRealloc(void* p, unsigned int size);
 

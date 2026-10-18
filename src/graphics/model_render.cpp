@@ -1043,7 +1043,7 @@ Model_459200* __stdcall CreatePlayerObjectState(Object3do* obj, BuildList_0045a9
         count += CountObjects(obj->sibling);
     }
     int size = count * 0x36 + 0x22;
-    Model_459200* state = (Model_459200*)SimAlloc(size);
+    Model_459200* state = (Model_459200*)SimAllocTagged("Object State", size);
     memset(state, 0, size);
     state->root = AddStateEntries(state, obj, 0);
     state->animDirty = 1;
