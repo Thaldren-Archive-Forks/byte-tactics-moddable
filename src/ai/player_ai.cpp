@@ -120,6 +120,13 @@ void PlayerAI::RefreshUnitLists()
                 sum.x-=(double)u->pos.x*weight*-0.0000152587890625f;
                 sum.y-=(double)u->pos.y*weight*-0.0000152587890625f;
                 sum.z-=(double)u->pos.z*weight*-0.0000152587890625f;
+                {
+                    volatile float roundedSums[4]={sum.x,sum.y,sum.z,sum.total};
+                    sum.x=roundedSums[0];
+                    sum.y=roundedSums[1];
+                    sum.z=roundedSums[2];
+                    sum.total=roundedSums[3];
+                }
 #else
                 sum.x-=(float)u->pos.x*weight*-0.0000152587890625f;
                 sum.y-=(float)u->pos.y*weight*-0.0000152587890625f;
