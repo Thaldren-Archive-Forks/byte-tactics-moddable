@@ -867,7 +867,6 @@ game,presentation,shared_write,Unit::health,1
 game,presentation,shared_write,UnitDef::flags1,2
 game,presentation,shared_write,Vec3::x,30
 game,presentation,shared_write,Vec3::z,29
-game,seams,call,InstallNativeSeams,1
 game,targeting,shared_write,Game::seaLevel,1
 game,targeting,shared_write,Unit::flags,1
 game,targeting,shared_write,UnitDef::flags1,1
@@ -979,6 +978,7 @@ harness,presentation,call,UpdatePlacementGhostValidity,1
 harness,presentation,shared_write,Game::difficulty,9
 harness,presentation,shared_write,Game::localPlayer,67
 harness,presentation,shared_write,Game::playerIndex,32
+harness,seams,call,InstallNativeSeams,1
 harness,units,call,GetGroundHeight,1
 harness,units,shared_write,Game::difficulty,2
 harness,units,shared_write,Game::localPlayer,2
