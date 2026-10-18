@@ -15,6 +15,7 @@
 #undef TdfFile
 #include "../map/mission.h"
 #include "condition_class.h"
+#include "../../interfaces/seams.h"
 
 extern Game* g_game;
 
@@ -533,6 +534,7 @@ static void ParseTestDump(char* cmdLine)
 
 void HarnessInit(char* cmdLine)
 {
+    InstallNativeSeams();
     char* p = cmdLine;
     char* flag = NULL;
     while (*p != '\0') {

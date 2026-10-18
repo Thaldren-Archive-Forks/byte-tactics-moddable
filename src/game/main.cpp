@@ -8,8 +8,6 @@
 #include <time.h>
 #include <new>
 
-#include "../../interfaces/seams.h"
-
 // Appends a string (with its terminating zero) to DEBUG.FIL, creating the
 // file if it cannot be opened for appending.
 struct FileHandle;
@@ -238,7 +236,6 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     int lzero = 0;
 
     HarnessInit(lpCmdLine);
-    InstallNativeSeams();
     (void)hPrevInstance;
 
     InitDebugSupport(8);

@@ -30602,7 +30602,6 @@ address,function,file,kind,target
 0x49e830,GameMain,src/game/main.cpp,call,InitEnvironment
 0x49e830,GameMain,src/game/main.cpp,call,InitGame
 0x49e830,GameMain,src/game/main.cpp,call,InitTimers
-0x49e830,GameMain,src/game/main.cpp,call,InstallNativeSeams
 0x49e830,GameMain,src/game/main.cpp,call,LoadTranslations
 0x49e830,GameMain,src/game/main.cpp,call,MainFrameTick
 0x49e830,GameMain,src/game/main.cpp,call,OpenSemaphoreA
@@ -44022,6 +44021,7 @@ address,function,file,kind,target
 ,HarnessInit,src/harness/harness.cpp,call,Fail
 ,HarnessInit,src/harness/harness.cpp,call,GetMemSetValue
 ,HarnessInit,src/harness/harness.cpp,call,GetStdHandle
+,HarnessInit,src/harness/harness.cpp,call,InstallNativeSeams
 ,HarnessInit,src/harness/harness.cpp,call,IsMemSet
 ,HarnessInit,src/harness/harness.cpp,call,OpenTrace
 ,HarnessInit,src/harness/harness.cpp,call,ParseTestDump
