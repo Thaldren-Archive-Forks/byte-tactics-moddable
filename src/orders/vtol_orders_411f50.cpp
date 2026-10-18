@@ -13,26 +13,15 @@
 #include <vector>
 
 struct Point { short x, y; };
-// Kept local, not util/vec3.h: the header's symbol ids change this function's registers.
-struct Vec3 {
-    int x, y, z;
-    Vec3 operator+(const Vec3& other) const {
-        Vec3 r;
-        r.x = x + other.x;
-        r.y = y + other.y;
-        r.z = z + other.z;
-        return r;
-    }
-};
-// A 16.16 fixed-point position seen as its fraction and whole halves.
-struct FixedVec3 {
-    unsigned short xf;
-    short x;
-    unsigned short yf;
-    short y;
-    unsigned short zf;
-    short z;
-};
+#include "../util/vec3.h"
+static inline Vec3 operator+(const Vec3& a, const Vec3& other)
+{
+    Vec3 r;
+    r.x = a.x + other.x;
+    r.y = a.y + other.y;
+    r.z = a.z + other.z;
+    return r;
+}
 
 struct Unit;
 class UnitMotion {
@@ -63,23 +52,7 @@ struct UnitDef {
 struct Struct_Unit96 {
     char pad0[0x146]; unsigned char slotIndex;
 };
-struct Unit {
-    UnitMotion* motion;
-    char pad4[0x66 - 4]; short heading;
-    char pad68[2];
-    union {
-        Vec3 pos;                      // +0x6a
-        FixedVec3 fixedPos;
-    };
-    char pad76[0x86 - 0x76]; int carrier;
-    char pad8a[8]; UnitDef* def;
-    Struct_Unit96* player;
-    char pad9a[0x108 - 0x9a]; short health;
-    char pad10a[0x110 - 0x10a]; unsigned int flags;
-    void ReleaseWeapons(int);
-    void ClaimWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 struct Order {
     char pad0[5]; unsigned char state; unsigned int flags;
     char padA[0x12 - 0xa]; PathOrderAttach target;
@@ -155,8 +128,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
@@ -182,7 +155,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
     }
     if (target)
         order->pos = target->pos;
-    if (order->range && (int)_hypot(unit->fixedPos.x - order->start.x, unit->fixedPos.z - order->start.y) >= order->range)
+    if (order->range && (int)_hypot(unit->xWhole - order->start.x, unit->zWhole - order->start.y) >= order->range)
         return 5;
     unsigned int state = 0;
     state = order->state;
@@ -239,7 +212,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         // Float local x: keeps the constant multiply from moving outermost.
         float x = (float)sqrt(size * 2.0 / rate) * 30.0f;
         // attackrunlength is added in a second statement: one sum changes the x87 order.
-        int time = (int)(x * unit->motion->field_22) + 1;
+        int time = (int)(x * ((UnitMotion*)unit->motion)->field_22) + 1;
         time += def->attackrunlength;
         Class_0044e2d0* obj;
         if (order->target.owner)
@@ -268,7 +241,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         order->flags = 0xe2;
         if (unit->health < unit->def->maxHealth / 4 * 3) {
             std::vector<Unit*> pads;
-            g_seams.ai->GetFactoriesInRadius(unit->player->slotIndex, &unit->pos, 0xf00, &pads);
+            g_seams.ai->GetFactoriesInRadius(((Struct_Unit96*)unit->player)->slotIndex, &unit->pos, 0xf00, &pads);
             if (!pads.empty()) {
                 order->SetAttachedFx(0);
                 Unit* pad = pads[RandomInt(pads.size())];

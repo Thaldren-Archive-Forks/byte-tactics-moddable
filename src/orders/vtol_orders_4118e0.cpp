@@ -40,20 +40,7 @@ struct CalcedExplosion;
 struct WeaponDef {
     char pad0[0xdc]; int range;
 };
-struct Unit {
-    UnitMotion* motion;
-    char pad4[0x10 - 4]; WeaponDef* weapon;   // +0x10, weapons[0].def
-    char pad14[0x6a - 0x14]; Vec3 pos;
-    char pad76[8]; Point footprint;
-    int spatialBucket; int carrier;
-    Unit* cargo;
-    char pad8e[4]; UnitDef* def;
-    char pad96[4]; CobScript* script;
-    char pad9e[0x104 - 0x9e]; float buildLeft;
-    short health;
-    void ClaimWeapons(int);
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 unsigned short __stdcall ChooseBuildOption(unsigned int, Unit*);
 void __stdcall ClearWeaponTarget(Unit*, int);
@@ -132,8 +119,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     if (unit->carrier)
         g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
     g_seams.units->SetStateBits(unit, 1, 1);
-    if ((unit->motion->flags & 3) == 1) {
-        unit->motion->SetFlightMode(unit, 2);
+    if ((((UnitMotion*)unit->motion)->flags & 3) == 1) {
+        ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
@@ -152,7 +139,7 @@ int __stdcall FindLandingPad(Unit* unit, int pad)
     pads[1] = -1;
     pads[2] = -1;
     pads[3] = -1;
-    g_seams.units->QueryScript(unit->script, "QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
+    g_seams.units->QueryScript((CobScript*)unit->script, "QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
     for (int i = 0; i < 4; i++) {
         if (pads[i] != -1 && g_seams.map->IsPadSlotFree(unit, pads[i])) {
             return pads[i];
@@ -165,7 +152,7 @@ int __stdcall FindLandingPad(Unit* unit, int pad)
 // FUNCTION: 0x4118e0
 int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
 {
-    int radius = unit->weapon->range;
+    int radius = ((WeaponDef*)unit->weapon)->range;
     Unit* host = order->target.owner;
     if (!host) {
         QueueUnitSpeech(unit, 7, "Landing aborted");
@@ -233,7 +220,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
             ((Class_0044e2d0*)obj)->SetAltitude(unit->cargo->def->field_170);
         else
             ((Class_0044e2d0*)obj)->SetAltitude(0);
-        g_seams.units->StartScript(unit->script, "EndTransport", 0, 1);
+        g_seams.units->StartScript((CobScript*)unit->script, "EndTransport", 0, 1);
         order->SetAttachedFx((int)obj);
         order->SetDeadlineTicks(0xf);
         order->state = 5;
@@ -249,7 +236,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
             return 0;
         }
         if (unit->cargo) {
-            g_seams.units->StartScript(unit->script, "EndTransport", 0, 0);
+            g_seams.units->StartScript((CobScript*)unit->script, "EndTransport", 0, 0);
             g_seams.units->AttachUnitToPiece(unit->cargo, order->target.owner, order->angle, 0);
             dropped = 1;
         } else {
