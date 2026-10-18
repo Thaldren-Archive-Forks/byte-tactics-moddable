@@ -88,7 +88,7 @@ struct Game {
 
 extern Game* g_game;
 
-void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size);
+#include "../../interfaces/seams.h"
 void __stdcall RefreshAllPassMaps(Point16 pos, Point16 size);
 
 static void SetOwner_0047cc30(Obj_0047cc30* obj, Owner_0047cc30* nw)
@@ -175,7 +175,7 @@ void __stdcall AddUnitToMap(Obj_0047cc30* obj)
             Point16 pad;
             pad.x = obj->pos.x - 1;
             pad.y = obj->pos.y - 1;
-            UpdateCellHeightRange(pad, grown);
+            g_seams.los_radar->UpdateCellHeightRange(pad, grown);
             RefreshAllPassMaps(obj->pos, obj->footprint);
             return;
         }

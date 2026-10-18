@@ -712,7 +712,7 @@ void __stdcall UntrackProjectile(Projectile_00499eb0* projectile)
     projectile->flags |= 2;
 }
 
-Cell* __stdcall GetMapCellAtPosition(Vec3_0049b720* position);
+#include "../../interfaces/seams.h"
 void __stdcall AccumulateScreenShake(int a, int b, int c);void __stdcall AddExplosionEffect(Vec3_0049b720* position, void* value, int a, int b);
 void __stdcall EmitWhiteSmoke(Vec3_0049b720* position, int value);
 // The sound id stays unsigned int: gives the original's zero extension.
@@ -726,7 +726,7 @@ void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
     int hostile = 0;
     WeaponDef* type = projectile->type;
     Vec3_0049b720* position = &projectile->position;
-    unsigned char* value = (unsigned char*)GetMapCellAtPosition(position);
+    unsigned char* value = (unsigned char*)g_seams.los_radar->GetMapCellAtPosition((Vec3*)position);
     if (value != 0)
         hostile = value[5] < g_game->seaLevel;
     if (!type->flags.b.noExplode) {
@@ -957,7 +957,6 @@ struct Hits_0049a120 {
     }
 };
 
-Cell* __stdcall GetMapCell(int x, int y);
 int __stdcall ApplyWeaponDamage(Weapon_0049a120* weapon, Unit_0049a120* target, float scale);
 void __stdcall DetonateProjectile(Weapon_0049a120* weapon, Unit_0049a120* unit);
 int __stdcall VectorLength(Vec3_0049a120* v);
@@ -2718,8 +2717,6 @@ void __stdcall InitUnitWeaponSlots(Unit* unit)
     unit->script->StartScriptWithArgs("SetMaxReloadTime", 0, 0, 1, frame.maxTime * 1000 / 30, 0, 0, 0);
 }
 
-#include "../../interfaces/seams.h"
-
 // The three aim script names. The original's array has three elements, with
 // the string "AimTertiary" right after it, so a weapon index of 3 would read
 // string bytes as a pointer.
@@ -2953,7 +2950,7 @@ void __stdcall CheckProjectileCollision(WeaponDef* type, Proj_0049b090* proj)
     // No `Game* g = g_game` local: g_game is read at each use to stay in edi.
     // Named pos local, used again after the lookup: gives the original's prologue.
     Vec3* pos = (Vec3*)&proj->px;
-    Cell* cell = GetMapCellAtPosition(pos);
+    Cell* cell = g_seams.los_radar->GetMapCellAtPosition(pos);
 
     if (!cell) {
         if (proj == (Proj_0049b090*)g_game->cameraFollowTrackObj) {

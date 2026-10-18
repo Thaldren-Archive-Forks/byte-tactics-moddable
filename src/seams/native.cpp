@@ -2,6 +2,7 @@
 
 #include "../../interfaces/seams.h"
 #include "../game/unit_resources.h"
+#include "../units/movement_class.h"
 #include "../units/cob_script.h"
 #include "../util/vec3.h"
 
@@ -27,6 +28,7 @@ void __stdcall UpdateResourceSharing(Player* player);
 void __stdcall UpdateFeatures(void);
 
 struct Cell;
+struct Point16;
 struct Feature;
 struct Weapon;
 struct Spot;
@@ -49,6 +51,7 @@ struct Unit {
 class Mission {
 public:
     int GetGameType();
+    char* GetNameSlot(int index);
 };
 
 float __stdcall GetEnergyUse(UnitDef* def);
@@ -96,6 +99,48 @@ char* __stdcall FindWeaponByName(char* name);
 int __stdcall GetWeaponRange(int param1, unsigned int param2);
 int __stdcall WeaponCanReachUnit(Unit* unit1, Unit* unit2, unsigned char weapon);
 void __stdcall GetVisibleEnemiesInRadius(int player, const Vec* pos, int radius, int flags, std::vector<Unit*>* out);
+bool __stdcall HasReadyUnitInRange(int player, Vec3* pos, int range);
+int __stdcall IsPointVisible(Player* player, Vec3* pos);
+
+void __stdcall ClampWorldPosToTerrain(int x, int y, Vec3* out);
+void __stdcall ExpireEyeballs(void);
+void __stdcall FreeMapResources(void);
+void __stdcall FreeRadar(void);
+void __stdcall InitRadar(void);
+void __stdcall LoadTntMap(void);
+void __stdcall RecalculateLineOfSight(int flag);
+int __stdcall IsUnitVisibleToPlayer(Player* player, Unit* unit);
+Cell* __stdcall GetMapCellAtPosition(Vec3* pos);
+Cell* __stdcall GetOriginCellAtPosition(Vec3* pos);
+void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size);
+void __stdcall UpdateUnitLineOfSight(Unit* unit);
+void __stdcall RemoveUnitLineOfSight(Unit* unit);
+void __stdcall RevealNewUnit(Unit* unit);
+void __stdcall AddEyeball(Vec3* src, int a, int b, int c);
+void __stdcall DrawRadarUnits(void);
+void __stdcall UpdateRadarMapped(void);
+void __stdcall UpdateSensorRadarAndCloak(void);
+
+struct DamagedAllyCollector;
+void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
+
+class Pathfinder {
+public:
+    ~Pathfinder();
+    void RunSearches();
+    void AbortIfGoalMatch(int goal);
+};
+
+class AiSearchGoal {
+public:
+    void SetWaypoints(Point16* points, int count);
+};
+
+class OrderFx {
+public:
+    void AddFlags(int flags);
+};
+
 
 static void __stdcall ResetNative(UnitResources* self, unsigned char playerIndex)
 {
@@ -227,6 +272,61 @@ static void __stdcall GetVisibleEnemiesInRadiusNative(int player, const Vec3* po
     GetVisibleEnemiesInRadius(player, (const Vec*)pos, radius, flags, out);
 }
 
+static char* __stdcall GetNameSlotNative(Mission* mission, int index)
+{
+    return mission->GetNameSlot(index);
+}
+
+static void __stdcall VisitObjectsInRangeNative(Vec3* pos, int range, void* visitor)
+{
+    VisitObjectsInRange(pos, range, *(DamagedAllyCollector*)visitor);
+}
+
+static int __stdcall MovementClassGetNative(MovementClass* self, int x, int y)
+{
+    return self->Get(x, y);
+}
+
+static int __stdcall MovementClassInBoundsNative(MovementClass* self, unsigned int x, unsigned int y)
+{
+    return self->InBounds(x, y);
+}
+
+static void __stdcall RefreshMovedUnitsNative(MovementClass* self, Unit* unit)
+{
+    self->RefreshMovedUnits((Object_00440af0*)unit);
+}
+
+static void __stdcall RefreshUnitIfStaleNative(MovementClass* self, Unit* unit)
+{
+    self->RefreshUnitIfStale((Object_00440af0*)unit);
+}
+
+static void __stdcall AiSearchGoalSetWaypointsNative(AiSearchGoal* self, Point16* points, int count)
+{
+    self->SetWaypoints(points, count);
+}
+
+static void __stdcall OrderFxAddFlagsNative(OrderFx* self, int flags)
+{
+    self->AddFlags(flags);
+}
+
+static void __fastcall RunSearchesNative(Pathfinder* self)
+{
+    self->RunSearches();
+}
+
+static void __stdcall AbortIfGoalMatchNative(Pathfinder* self, AiSearchGoal* goal)
+{
+    self->AbortIfGoalMatch((int)goal);
+}
+
+static void __stdcall DestroyPathfinderNative(Pathfinder* self)
+{
+    delete self;
+}
+
 Seams g_seams;
 
 static WindMeteorsSeam s_wind_meteors;
@@ -302,6 +402,37 @@ void InstallNativeSeams()
     s_los_radar.GetMapCell = GetMapCell;
     s_los_radar.CmdShareMapping = CmdShareMapping;
     s_los_radar.CmdShareRadar = CmdShareRadar;
+    s_los_radar.ClampWorldPosToTerrain = ClampWorldPosToTerrain;
+    s_los_radar.ExpireEyeballs = ExpireEyeballs;
+    s_los_radar.FreeMapResources = FreeMapResources;
+    s_los_radar.FreeRadar = FreeRadar;
+    s_los_radar.InitRadar = InitRadar;
+    s_los_radar.LoadTntMap = LoadTntMap;
+    s_los_radar.RecalculateLineOfSight = RecalculateLineOfSight;
+    s_los_radar.IsUnitVisibleToPlayer = IsUnitVisibleToPlayer;
+    s_los_radar.GetMapCellAtPosition = GetMapCellAtPosition;
+    s_los_radar.GetOriginCellAtPosition = GetOriginCellAtPosition;
+    s_los_radar.UpdateCellHeightRange = UpdateCellHeightRange;
+    s_los_radar.UpdateUnitLineOfSight = UpdateUnitLineOfSight;
+    s_los_radar.RemoveUnitLineOfSight = RemoveUnitLineOfSight;
+    s_los_radar.RevealNewUnit = RevealNewUnit;
+    s_los_radar.AddEyeball = AddEyeball;
+    s_los_radar.DrawRadarUnits = DrawRadarUnits;
+    s_los_radar.UpdateRadarMapped = UpdateRadarMapped;
+    s_los_radar.UpdateSensorRadarAndCloak = UpdateSensorRadarAndCloak;
+    s_pathfinding.RunSearches = RunSearchesNative;
+    s_pathfinding.AbortIfGoalMatch = AbortIfGoalMatchNative;
+    s_pathfinding.Destroy = DestroyPathfinderNative;
+    s_orders.AiSearchGoalSetWaypoints = AiSearchGoalSetWaypointsNative;
+    s_orders.OrderFxAddFlags = OrderFxAddFlagsNative;
+    s_units.MovementClassGet = MovementClassGetNative;
+    s_units.MovementClassInBounds = MovementClassInBoundsNative;
+    s_units.RefreshMovedUnits = RefreshMovedUnitsNative;
+    s_units.RefreshUnitIfStale = RefreshUnitIfStaleNative;
+    s_ai.HasReadyUnitInRange = HasReadyUnitInRange;
+    s_ai.IsPointVisible = IsPointVisible;
+    s_map.GetNameSlot = GetNameSlotNative;
+    s_map.VisitObjectsInRange = VisitObjectsInRangeNative;
     s_players.TransferMetal = TransferMetal;
     s_players.TransferEnergy = TransferEnergy;
     s_units.GetGroundHeight = GetGroundHeightNative;
