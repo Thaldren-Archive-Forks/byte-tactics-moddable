@@ -26,32 +26,7 @@ struct Def_00488310 {
     int f1fa;                          // +0x1fa
 };
 
-struct Unit {
-    int motion;                       // +0x0
-    UnitWeaponSlot weapons[3];         // +0x4, stride 0x1c
-    char unknown_58[0x64 - 0x58];
-    Angles16 angles;               // +0x64
-    Vec3_00487bf0 pos;                 // +0x6a
-    char unknown_76[0x92 - 0x76];
-    Def_00488310* def;                 // +0x92
-    Player* player;                    // +0x96
-    char unknown_9a[0xa6 - 0x9a];
-    unsigned short unitDefIndex;       // +0xa6
-    short id;                          // +0xa8
-    char unknown_aa[0xfb - 0xaa];
-    int postTransferHoldoff;           // +0xfb
-    char unknown_ff[0x104 - 0xff];
-    union {
-        float buildLeft;               // +0x104
-        int speed_bits;
-    };
-    short health;                      // +0x108
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char activateFlags;       // +0x10e
-    char unknown_10f[0x110 - 0x10f];
-    unsigned int flags;                // +0x110
-    void SetStateBits(unsigned char mask, int set);
-};
+#include "unit.h"
 
 struct Table_00487bf0 {
     char allocator_byte;
@@ -371,7 +346,7 @@ void __cdecl CreateMissionUnits()
         if (u) {
             // The mask is 0xffffff80, not 0x80: keeps the byte zero-extension.
             u->flags = (u->flags & ~0x8000) | ((e->flags & 0xffffff80) << 8);
-            u->health = (unsigned short)((unsigned)(u->def->f1fa * e->health) / 100);
+            u->health = (unsigned short)((unsigned)(((Def_00488310*)u->def)->f1fa * e->health) / 100);
             u->angles.heading = e->angle;
             units[i] = u;
         }

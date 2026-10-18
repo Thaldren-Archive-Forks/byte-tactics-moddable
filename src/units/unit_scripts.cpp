@@ -56,24 +56,9 @@ struct Object {
     CobScript* script;                 // +0x9a
 };
 
-struct Unit {
-    char unknown_0[0x70];
-    short yWhole;                      // +0x70, the whole part of pos.y
-    char unknown_72[0x92 - 0x72];
-    UnitDef* def;                      // +0x92
-    char unknown_96[0x9a - 0x96];
-    CobScript* script;                 // +0x9a
-    char unknown_9e[0x10a - 0x9e];
-    int state;                         // +0x10a
-    char unknown_10e[0x110 - 0x10e];
-    unsigned int flags;                // +0x110
-
-    int CanLoad(Unit_0043e490* other);
-    int CanReclaim(Unit_0043e490* other);
-    int CanRepair(Unit_0043e490* other);
-};
 #pragma pack(pop)
 
+#include "unit.h"
 
 extern Game* g_game;
 
@@ -82,7 +67,7 @@ void Class_0043db50::UpdateSfxOccupy(Unit* unit)
 {
     int seaLevel = g_game->seaLevel;
     int y = unit->yWhole;
-    int newState = unit->state;
+    int newState = *(int*)unit->unknown_10a;
     if ((unit->flags & 3) == 1 || (unit->flags & 3) == 2) {
         if (y > seaLevel) {
             newState = 4;
@@ -97,9 +82,9 @@ void Class_0043db50::UpdateSfxOccupy(Unit* unit)
     } else {
         newState = 0;
     }
-    if (unit->state != newState) {
-        unit->script->StartScriptWithArgs("setSFXoccupy", 0, 1, 1, newState, 0, 0, 0);
-        unit->state = newState;
+    if (*(int*)unit->unknown_10a != newState) {
+        ((CobScript*)unit->script)->StartScriptWithArgs("setSFXoccupy", 0, 1, 1, newState, 0, 0, 0);
+        *(int*)unit->unknown_10a = newState;
     }
 }
 

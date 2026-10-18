@@ -196,6 +196,7 @@ struct Unit {
     void ClaimWeapons(unsigned char index);
     void ReleaseWeapons(unsigned char index);
     int CanLoad(Unit* other);
+    int CountCargo(void);
     int CanReclaim(void* param_1);
     int CanRepair(Unit* other);
 };
