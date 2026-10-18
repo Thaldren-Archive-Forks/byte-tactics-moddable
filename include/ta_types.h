@@ -4146,11 +4146,7 @@ struct Flags_418fd0 {  // 0x2 bytes, 2 views
     char unknown_0[2];
 };
 
-struct Arg_00419670 {  // 0x18 bytes, 15 views
-    int x;  // +0x0
-    int y;  // +0x4
-    int unknown_8[4];  // +0x8
-};
+#include "../src/ingame/arg_00419670.h"
 
 struct Flags_00419670 {  // 0x4 bytes, 1 view
     unsigned int bits_0 : 6;  // +0x0
@@ -4164,20 +4160,9 @@ union FlagsU_00419670 {  // 0x4 bytes, 1 view
     union { unsigned int raw; Flags_00419670 bits; };  // +0x0
 };
 
-struct BitFlags_004197d0 {  // 0x1 bytes, 2 views
-    unsigned char b0 : 1;  // +0x0
-    unsigned char b1 : 1;
-    unsigned char b2 : 1;
-    unsigned char b3 : 1;
-    unsigned char b4 : 1;
-    unsigned char b5 : 1;
-    unsigned char b6 : 1;
-    unsigned char b7 : 1;
-};
+#include "../src/ingame/bit_flags_004197d0.h"
 
-union Flags_004197d0 {  // 0x1 bytes, 2 views
-    union { unsigned char value; BitFlags_004197d0 bits; };  // +0x0
-};
+#include "../src/ingame/flags_004197d0.h"
 
 struct Entry {  // 0x1044 bytes, 277 views
     unsigned char type;  // +0x0
@@ -4319,17 +4304,9 @@ struct CursorState_0041cd20 {  // 0x1c bytes, 1 view
     int flag;  // +0x18
 };
 
-struct Point_0041cd50 {  // 0x8 bytes, 1 view
-    int x;  // +0x0
-    int y;  // +0x4
-};
+#include "../src/ingame/point_0041cd50.h"
 
-struct CursorState_0041cc60 {  // 0x2c bytes, 2 views
-    Arg_00419670 rect;  // +0x0
-    int flag;  // +0x18
-    Point_0041cd50 center;  // +0x1c
-    Point_0041cd50 savedScroll;  // +0x24
-};
+#include "../src/ingame/cursor_state_0041cc60.h"
 
 struct Display_0041ce90 {  // 0xf1 bytes, 1 view
     char unknown_0[64];
@@ -4419,11 +4396,7 @@ struct Button_0041e420 {  // 0xcc bytes, 2 views
     int flags;  // +0xc8
 };
 
-struct Slot_0041e420 {  // 0x3a bytes, 3 views
-    unsigned char active;  // +0x0
-    char unknown_1[29];
-    int stats[7];  // +0x1e
-};
+#include "../src/game/slot_0041e420.h"
 
 struct Amount {  // 0x8 bytes, 2 views
     int current;  // +0x0
@@ -4543,22 +4516,7 @@ struct Explosion {  // 0x30 bytes, 1 view
     ImageFrame frames[1];  // +0x28
 };
 
-struct Object3do {  // 0x34 bytes, 20 views
-    unsigned char state;  // +0x0
-    char unknown_1[3];
-    int vertexCount;  // +0x4
-    int faceCount;  // +0x8
-    int firstFace;  // +0xc
-    int f10;  // +0x10
-    int f14;  // +0x14
-    unsigned short* color;  // +0x18
-    char* name;  // +0x1c
-    int active;  // +0x20
-    void* vertices;  // +0x24
-    PieceFrame* faces;  // +0x28
-    Object3do* sibling;  // +0x2c
-    Object3do* child;  // +0x30
-};
+#include "../src/graphics/object3do.h"
 
 struct Shape {  // 0x8 bytes, 1 view
     int a;  // +0x0
@@ -4613,20 +4571,7 @@ struct Feature {  // 0x100 bytes, 32 views
     char unknown_ff;  // +0xff
 };
 
-struct Debris_00420f30 {  // 0x54 bytes, 3 views
-    int field_0;  // +0x0
-    Handle ref1;  // +0x4
-    Handle ref2;  // +0x10
-    Vec3 pos;  // +0x1c
-    Vec3 size;  // +0x28
-    Vec3 vel;  // +0x34
-    Vec3 spin;  // +0x40
-    short angle_x;  // +0x4c
-    short angle_y;  // +0x4e
-    short angle_z;  // +0x50
-    unsigned short flag : 1;  // +0x52
-    unsigned short : 15;
-};
+#include "../src/weapons/debris_00420f30.h"
 
 struct Effect {  // 0x54 bytes, 1 view
     void* model;  // +0x0
@@ -4691,22 +4636,9 @@ struct Arr_00421550 {  // 0x2c bytes, 2 views
     PieceFrame* faces;  // +0x28
 };
 
-struct FaceFlags_459830 {  // 0x4 bytes, 4 views
-    unsigned int textured : 1;  // +0x0
-    unsigned int usePic : 1;
-    unsigned int shaded : 1;
-    unsigned int rest : 29;
-};
+#include "../src/graphics/face_flags_459830.h"
 
-struct PieceFrame {  // 0x20 bytes, 9 views
-    int unknown_0;  // +0x0
-    int count;  // +0x4
-    int unknown_8;  // +0x8
-    unsigned short* indices;  // +0xc
-    char unknown_10[8];
-    unsigned short* color;  // +0x18
-    FaceFlags_459830 flags;  // +0x1c
-};
+#include "../src/graphics/piece_frame.h"
 
 struct Inner_00421550 {  // 0x26 bytes, 3 views
     Arr_00421550* f0;  // +0x0
@@ -4821,18 +4753,7 @@ struct AnimEntry_00421f20 {  // 0x30 bytes, 1 view
     char unknown_4[44];
 };
 
-struct AnimManager_00421f20 {  // 0x78 bytes, 1 view
-    char unknown_0[16];
-    AnimEntry_00421f20* anim;  // +0x10
-    FeatureUnit_00421f20* featureUnit;  // +0x14
-    int activeHead;  // +0x18
-    int idleHead;  // +0x1c
-    int freeHead;  // +0x20
-    char unknown_24[52];
-    int nameCount;  // +0x58
-    char unknown_5c[24];
-    char (*names)[256];  // +0x74
-};
+#include "../src/map/anim_manager_00421f20.h"
 
 struct FeatureUnit_00421f20 {  // 0x118 bytes, 1 view
     char unknown_0[146];
@@ -4979,86 +4900,7 @@ struct Frame_00424050 {  // 0x8 bytes, 1 view
     unsigned short originY;  // +0x6
 };
 
-struct Def_0049d270 {  // 0x115 bytes, 7 views
-    unsigned char used;  // +0x0
-    char unknown_1[31];
-    char name2[64];  // +0x20
-    char unknown_60[4];
-    Map_0042e440* sub;  // +0x64
-    int weaponvelocity;  // +0x68
-    int startvelocity;  // +0x6c
-    int weaponacceleration;  // +0x70
-    void* text;  // +0x74
-    void* anim1;  // +0x78
-    void* anim2;  // +0x7c
-    char model[64];  // +0x80
-    float energypershot;  // +0xc0
-    float metalpershot;  // +0xc4
-    float minbarrelangle;  // +0xc8
-    int shakemagnitude;  // +0xcc
-    int shakeduration;  // +0xd0
-    unsigned short damage;  // +0xd4
-    short areaofeffect;  // +0xd6
-    float edgeeffectiveness;  // +0xd8
-    int range;  // +0xdc
-    int coverage;  // +0xe0
-    short reloadtime;  // +0xe4
-    short weapontimer;  // +0xe6
-    short turnrate;  // +0xe8
-    short burst;  // +0xea
-    short burstrate;  // +0xec
-    short sprayangle;  // +0xee
-    short duration;  // +0xf0
-    short randomdecay;  // +0xf2
-    unsigned short soundstart;  // +0xf4
-    unsigned short soundhit;  // +0xf6
-    unsigned short soundwater;  // +0xf8
-    short smokedelay;  // +0xfa
-    short flighttime;  // +0xfc
-    short holdtime;  // +0xfe
-    char unknown_100[4];
-    short accuracy;  // +0x104
-    short tolerance;  // +0x106
-    short pitchtolerance;  // +0x108
-    unsigned char id;  // +0x10a
-    unsigned char firestarter;  // +0x10b
-    unsigned char rendertype;  // +0x10c
-    unsigned char color;  // +0x10d
-    unsigned char color2;  // +0x10e
-    char unknown_10f[2];
-    unsigned int lineofsight : 1;  // +0x111
-    unsigned int ballistic : 1;
-    unsigned int shellweapon : 1;
-    unsigned int beamweapon : 1;
-    unsigned int vlaunch : 1;
-    unsigned int meteor : 1;
-    unsigned int noradar : 1;
-    unsigned int paralyzer : 1;
-    unsigned int dropped : 1;
-    unsigned int startsmoke : 1;
-    unsigned int endsmoke : 1;
-    unsigned int soundtrigger : 1;
-    unsigned int guidance : 1;
-    unsigned int tracks : 1;
-    unsigned int unitsonly : 1;
-    unsigned int groundbounce : 1;
-    unsigned int waterweapon : 1;
-    unsigned int toairweapon : 1;
-    unsigned int smoketrail : 1;
-    unsigned int turret : 1;
-    unsigned int selfprop : 1;
-    unsigned int propeller : 1;
-    unsigned int noexplode : 1;
-    unsigned int burnblow : 1;
-    unsigned int twophase : 1;
-    unsigned int cruise : 1;
-    unsigned int commandfire : 1;
-    unsigned int noautorange : 1;
-    unsigned int stockpile : 1;
-    unsigned int targetable : 1;
-    unsigned int interceptor : 1;
-    unsigned int : 1;
-};
+#include "../src/weapons/def_0049d270.h"
 
 struct Packet_004244b0 {  // 0x6 bytes, 1 view
     unsigned char type;  // +0x0
@@ -5210,12 +5052,7 @@ struct Obj_00426e80 {  // 0xf2 bytes, 1 view
     unsigned short : 14;
 };
 
-struct V4i {  // 0x10 bytes, 16 views
-    unsigned long data1;  // +0x0
-    unsigned long data2;  // +0x4
-    unsigned long data3;  // +0x8
-    unsigned long data4;  // +0xc
-};
+#include "../src/frontend/v4i.h"
 
 class AIProfileParser {  // 0x98 bytes, 1 view
 public:
@@ -5525,14 +5362,9 @@ public:
     int SetAuxVolume(int, int);
 };
 
-struct Flags_00495e90_37f06 {  // 0x2 bytes, 5 views
-    char unknown_0[2];
-};
+#include "../src/ingame/flags_00495e90_37f06.h"
 
-struct MissionFlags_0042f9a0 {  // 0x2 bytes, 1 view
-    unsigned short allMissions : 1;  // +0x0
-    unsigned short : 15;
-};
+#include "../src/game/mission_flags_0042f9a0.h"
 
 struct SkirmishPlayer {  // 0x18 bytes, 2 views
     int controller;  // +0x0
@@ -5586,43 +5418,7 @@ struct Entry_00431a20 {  // 0x232 bytes, 1 view
     char unknown_4[558];
 };
 
-struct Side_00431a60 {  // 0x232 bytes, 1 view
-    char name[30];  // +0x0
-    char nameprefix[4];  // +0x1e
-    char commander[32];  // +0x22
-    Rect logo;  // +0x42
-    Rect energyBar;  // +0x52
-    Rect energyNum;  // +0x62
-    Rect metalBar;  // +0x72
-    Rect metalNum;  // +0x82
-    Rect totalUnits;  // +0x92
-    Rect totalTime;  // +0xa2
-    Rect energyMax;  // +0xb2
-    Rect metalMax;  // +0xc2
-    Rect energy0;  // +0xd2
-    Rect metal0;  // +0xe2
-    Rect energyProduced;  // +0xf2
-    Rect energyConsumed;  // +0x102
-    Rect metalProduced;  // +0x112
-    Rect metalConsumed;  // +0x122
-    Rect logo2;  // +0x132
-    Rect unitName;  // +0x142
-    Rect damageBar;  // +0x152
-    Rect unitEnergyMake;  // +0x162
-    Rect unitEnergyUse;  // +0x172
-    Rect unitMetalMake;  // +0x182
-    Rect unitMetalUse;  // +0x192
-    Rect missionText;  // +0x1a2
-    Rect unitName2;  // +0x1b2
-    Rect damageBar2;  // +0x1c2
-    Rect nameBlock;  // +0x1d2
-    Rect description;  // +0x1e2
-    Rect reload[3];  // +0x1f2
-    int energyColor;  // +0x222
-    int metalColor;  // +0x226
-    int sideNumber;  // +0x22a
-    void* font;  // +0x22e
-};
+#include "../src/game/side_00431a60.h"
 
 class Class_004b3630 {  // 0x4 bytes, 21 views
 public:
@@ -6750,15 +6546,9 @@ struct Conn_00443cb0 {  // 0x14b bytes, 1 view
     char unknown_23[296];
 };
 
-struct Conn_443ff0 {  // 0x8 bytes, 1 view
-    void* data;  // +0x0
-    int size;  // +0x4
-};
+#include "../src/frontend/conn_443ff0.h"
 
-struct ConnInfo_443ff0 {  // 0x18 bytes, 1 view
-    V4i guid;  // +0x0
-    Conn_443ff0 conn;  // +0x10
-};
+#include "../src/frontend/conn_info_443ff0.h"
 
 struct Inner_00444910 {  // 0x8 bytes, 1 view
     char unknown_0[4];
@@ -7841,13 +7631,7 @@ struct Packet_00452b70 {  // 0xe bytes, 1 view
     int extra;  // +0xa
 };
 
-struct Entry_00463ca0 {  // 0x48 bytes, 4 views
-    char text[64];  // +0x0
-    unsigned int time;  // +0x40
-    unsigned short field_44;  // +0x44
-    char field_46;  // +0x46
-    unsigned char flags;  // +0x47
-};
+#include "../src/network/entry_00463ca0.h"
 
 struct Gui_00453a50 {  // 0x20 bytes, 1 view
     char unknown_0[4];
@@ -8307,13 +8091,9 @@ struct Video_0045bb00 {  // 0x14e bytes, 1 view
     ModeList_004b5330* field_14a;  // +0x14a
 };
 
-struct Bits_0045c570 {  // 0x2 bytes, 3 views
-    char unknown_0[2];
-};
+#include "../src/sound/bits_0045c570.h"
 
-union Flags_0045c570 {  // 0x2 bytes, 3 views
-    union { unsigned short word; Bits_0045c570 bits; };  // +0x0
-};
+#include "../src/sound/flags_0045c570.h"
 
 class Class_004ce3e0 {  // 0x216 bytes, 6 views
 public:
@@ -8378,9 +8158,7 @@ union Flags_0045d280 {  // 0x2 bytes, 1 view
     union { unsigned short word; Bits_0045d280 bits; unsigned char byte; };  // +0x0
 };
 
-struct Flags_00495e90_37ebe {  // 0x2 bytes, 3 views
-    char unknown_0[2];
-};
+#include "../src/ingame/flags_00495e90_37ebe.h"
 
 struct FreeObj_0045e100 {  // 0x18 bytes, 1 view
     char unknown_0[4];
@@ -9200,21 +8978,9 @@ struct Unit_00467980 {  // 0x114 bytes, 1 view
     unsigned int flags;  // +0x110
 };
 
-struct Sub_004679a0_a {  // 0x21 bytes, 1 view
-    char unknown_0[1];
-    int field_1;  // +0x1
-    char unknown_5[8];
-    int field_d;  // +0xd
-    char unknown_11[8];
-    int field_19;  // +0x19
-    int field_1d;  // +0x1d
-};
+#include "../src/ingame/sub_004679a0_a.h"
 
-struct Sub_004679a0_b {  // 0x38 bytes, 1 view
-    char unknown_0[48];
-    int field_30;  // +0x30
-    unsigned short* lightbar;  // +0x34
-};
+#include "../src/ingame/sub_004679a0_b.h"
 
 struct Colors_00467b60 {  // 0xb bytes, 1 view
     char unknown_0[4];
@@ -9735,19 +9501,7 @@ struct Class_004c6b10 {  // 0x30 bytes, 4 views
     void SetClipRect(Rect);
 };
 
-struct MapGrid {  // 0x90 bytes, 1 view
-    int* buf;  // +0x0
-    int** cursor;  // +0x4
-    unsigned short* count;  // +0x8
-    char unknown_c[44];
-    int width;  // +0x38
-    int height;  // +0x3c
-    char unknown_40[16];
-    int stride;  // +0x50
-    int rows;  // +0x54
-    char unknown_58[52];
-    int tiles;  // +0x8c
-};
+#include "../src/ingame/map_grid.h"
 
 struct Resources {  // 0x21 bytes, 1 view
     char owner;  // +0x0
@@ -9767,21 +9521,7 @@ struct Flags_0046a530 {  // 0x2 bytes, 1 view
     unsigned short rest : 13;
 };
 
-struct Snapshot_0046a860 {  // 0x3c bytes, 1 view
-    int orderName;  // +0x0
-    unsigned short selected;  // +0x4
-    unsigned short health;  // +0x6
-    unsigned short build;  // +0x8
-    int weapons[3];  // +0xa
-    float values[4];  // +0x16
-    unsigned short targetType;  // +0x26
-    unsigned short targetHealth;  // +0x28
-    unsigned short feature;  // +0x2a
-    int button;  // +0x2c
-    int width;  // +0x30
-    int height;  // +0x34
-    int reserved;  // +0x38
-};
+#include "../src/ingame/snapshot_0046a860.h"
 
 struct Size_0046b9d0 {  // 0x4 bytes, 1 view
     short w;  // +0x0
@@ -12220,22 +11960,9 @@ struct Cell_004848e0 {  // 0x2 bytes, 2 views
     unsigned char level1;  // +0x1
 };
 
-struct MapInfo {  // 0x7c bytes, 1 view
-    char unknown_0[36];
-    Grid* grid;  // +0x24
-    char unknown_28[16];
-    int width;  // +0x38
-    int height;  // +0x3c
-    char unknown_40[56];
-    unsigned short* visibilityMask;  // +0x78
-};
+#include "../src/map/map_info.h"
 
-struct PlayerGrid {  // 0x14b bytes, 1 view
-    unsigned char* cells;  // +0x0
-    unsigned int width;  // +0x4
-    unsigned int height;  // +0x8
-    char unknown_c[319];
-};
+#include "../src/map/player_grid.h"
 
 struct Fixed_00485330 {  // 0x4 bytes, 1 view
     unsigned short frac;  // +0x0
@@ -13710,13 +13437,7 @@ public:
     int SetCdCallback(void (__stdcall *)(void));
 };
 
-struct Zero11_004917d0 {  // 0xb bytes, 1 view
-    int a;  // +0x0
-    int b;  // +0x4
-    short c;  // +0x8
-    char d;  // +0xa
-    void Clear(void);
-};
+#include "../src/game/zero11_004917d0.h"
 
 struct Save_00492df0 {  // 0x108 bytes, 1 view
     int games;  // +0x0
@@ -13779,33 +13500,17 @@ struct Class_004cb940 {  // 0x10 bytes, 2 views
     bool WriteRows(Image_004cb940*, int, int, int, int, int, int);
 };
 
-struct Flags_00495e90_38a51 {  // 0x2 bytes, 1 view
-    unsigned short b0 : 1;  // +0x0
-    unsigned short rest : 15;
-};
+#include "../src/ingame/flags_00495e90_38a51.h"
 
-union Flags_00495e90_3923b {  // 0x2 bytes, 1 view
-    unsigned short b0 : 1;  // +0x0
-    unsigned short b1 : 1;
-    unsigned short rest : 14;
-};
+#include "../src/ingame/flags_00495e90_3923b.h"
 
 struct Sub_00496b10 {  // 0xa6 bytes, 2 views
     char unknown_0[166];
 };
 
-struct Flags_00496ce0 {  // 0x2 bytes, 1 view
-    unsigned short low : 4;  // +0x0
-    unsigned short flag : 1;
-    unsigned short rest : 11;
-};
+#include "../src/game/flags_00496ce0.h"
 
-struct Settings_00496e10 {  // 0x10 bytes, 1 view
-    int value;  // +0x0
-    int flag_4;  // +0x4
-    int flag_8;  // +0x8
-    int flag_c;  // +0xc
-};
+#include "../src/game/settings_00496e10.h"
 
 union Fixed_497180 {  // 0x4 bytes, 1 view
     union { int i; struct { short frac; short whole; } h; };  // +0x0
@@ -13828,12 +13533,7 @@ struct Settings_00496e10_2 {  // 0x10 bytes, 1 view
     int flag_c;  // +0xc
 };
 
-struct ViewFlags_497180 {  // 0x2 bytes, 1 view
-    unsigned short bit0 : 1;  // +0x0
-    unsigned short bit1 : 1;
-    unsigned short bit2 : 1;
-    unsigned short rest : 13;
-};
+#include "../src/game/view_flags_497180.h"
 
 class Class_004ce800 {  // 0x1 bytes, 2 views
 public:
@@ -13841,44 +13541,18 @@ public:
     int IsCdPlaying(void);
 };
 
-union LoadFlags_00497f40 {  // 0x2 bytes, 1 view
-    union { unsigned short value; struct { unsigned short started : 1; unsigned short loaded : 1; unsigned short b2 : 1; unsigned short b3 : 1; unsigned short rest : 12; } bits; };  // +0x0
-};
+#include "../src/game/load_flags_00497f40.h"
 
-struct PlayerSlots_00497f40 {  // 0x8c bytes, 1 view
-    int inGame[10];  // +0x0
-    int unknown_28;  // +0x28
-    int flag40[10];  // +0x2c
-    char unknown_54[56];
-};
+#include "../src/game/player_slots_00497f40.h"
 
 struct Point_00498cd0 {  // 0x8 bytes, 1 view
     int x;  // +0x0
     int y;  // +0x4
 };
 
-struct BitFlags16_00499200 {  // 0x2 bytes, 1 view
-    unsigned short b0 : 1;  // +0x0
-    unsigned short b1 : 1;
-    unsigned short b2 : 1;
-    unsigned short b3 : 1;
-    unsigned short b4 : 1;
-    unsigned short b5 : 1;
-    unsigned short b6 : 1;
-    unsigned short b7 : 1;
-    unsigned short b8 : 1;
-    unsigned short b9 : 1;
-    unsigned short b10 : 1;
-    unsigned short b11 : 1;
-    unsigned short b12 : 1;
-    unsigned short b13 : 1;
-    unsigned short b14 : 1;
-    unsigned short b15 : 1;
-};
+#include "../src/ingame/bit_flags16_00499200.h"
 
-union Flags16_00499200 {  // 0x2 bytes, 1 view
-    union { unsigned short value; BitFlags16_00499200 bits; };  // +0x0
-};
+#include "../src/ingame/flags16_00499200.h"
 
 struct Kind_00499ab0 {  // 0x8 bytes, 1 view
     char unknown_0[4];
