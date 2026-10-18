@@ -4056,7 +4056,9 @@ address,name
 0x4fd3f8,g_airManeuverOrderVtable
 0x4fd428,??_7PathGoal@@6B@
 0x4fd458,??_7AiSearchGoal@@6B@
+0x4fd458,g_aiSearchGoalVtable
 0x4fd488,??_7PatrolGoal@@6B@
+0x4fd488,g_patrolGoalVtable
 0x4fd4c0,DAT_004fd4c0
 0x4fd4cc,DAT_004fd4cc
 0x4fd514,??_7PacketManager@@6B@
@@ -4110,8 +4112,11 @@ address,name
 0x4fd948,??_7VictoryDestroyAllUnits@@6B@
 0x4fd960,??_7VictoryKillEnemyCommander@@6B@
 0x4fd980,??_7PackedGoal@@6B@
+0x4fd980,g_packedGoalVtable
 0x4fd9b0,??_7LiteGoal@@6B@
+0x4fd9b0,g_liteGoalVtable
 0x4fd9e0,??_7PackedPosGoal@@6B@
+0x4fd9e0,g_packedPosGoalVtable
 0x4fdaf0,DAT_004fdaf0
 0x4fdb00,??_7CobScript@@6B@
 0x4fdbe8,g_shadeStep

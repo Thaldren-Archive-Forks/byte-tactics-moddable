@@ -851,6 +851,10 @@ extern void* g_pointMarkerVtable[];
 extern void* g_pathOrderVtable[];
 extern void* g_airManeuverOrderVtable[];
 extern void* g_patrolGoalVtable[];
+extern void* g_aiSearchGoalVtable[];
+extern void* g_packedGoalVtable[];
+extern void* g_liteGoalVtable[];
+extern void* g_packedPosGoalVtable[];
 extern unsigned char* g_playerAI[MAX_PLAYERS];
 
 static const char* const s_phaseNames[9] = { "net", "units", "projectiles", "explosions", "players", "features",
@@ -1676,25 +1680,19 @@ static int FxClassOf(unsigned fx)
     return FX_UNKNOWN;
 }
 
-static unsigned GoalVtableDelta(unsigned goal)
-{
-    return ReadU32At(goal, 0) - (unsigned)g_patrolGoalVtable;
-}
-
 static int GoalClassOf(unsigned goal)
 {
-    switch (GoalVtableDelta(goal)) {
-    case 0:
+    unsigned vptr = ReadU32At(goal, 0);
+    if (vptr == (unsigned)g_patrolGoalVtable)
         return GOAL_PATROL;
-    case 0xffffffd0:
+    if (vptr == (unsigned)g_aiSearchGoalVtable)
         return GOAL_AISEARCH;
-    case 0x4f8:
+    if (vptr == (unsigned)g_packedGoalVtable)
         return GOAL_PACKED;
-    case 0x528:
+    if (vptr == (unsigned)g_liteGoalVtable)
         return GOAL_LITE;
-    case 0x558:
+    if (vptr == (unsigned)g_packedPosGoalVtable)
         return GOAL_PACKEDPOS;
-    }
     return GOAL_UNKNOWN;
 }
 
@@ -1823,10 +1821,9 @@ static void VisitGoal(const char* prefix, unsigned goal)
     cls = GoalClassOf(goal);
     VisitU32(path, (unsigned)cls);
     if (cls == GOAL_UNKNOWN) {
-        if (s_dumpNow)
-            sprintf(path, "%s.vtableDelta", prefix);
-        VisitU32(path, GoalVtableDelta(goal));
-        return;
+        char msg[160];
+        sprintf(msg, "testmode: unknown motion goal at %08x (vtable %08x)\n", goal, ReadU32At(goal, 0));
+        Fail(msg);
     }
     switch (cls) {
     case GOAL_PATROL:

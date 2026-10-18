@@ -74,13 +74,17 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x4fd388,g_pointMarkerVtable,.rdata,4,type,data,void (__stdcall* const const*)(void),1,1,2,conflicting: shape,2,,PTR_FUN_004fd388,1,src/data/vtables.cpp,10d94400
 0x4fd3b8,g_pathOrderVtable,.rdata,4,type,data,void (__stdcall* const const*)(void),1,1,2,conflicting: shape,2,,PTR_FUN_004fd3b8,1,src/data/vtables.cpp,80df4400
 0x4fd3f8,g_airManeuverOrderVtable,.rdata,4,type,data,void (__stdcall* const const*)(void),1,1,2,conflicting: shape,2,,PTR_FUN_004fd3f8,1,src/data/vtables.cpp,b0e74400
-0x4fd488,g_patrolGoalVtable,.rdata,4,type,data,void (__stdcall* const const*)(void),1,0,1,one type,1,,PTR__scalar_deleting_destructor__004fd488,1,src/data/vtables.cpp,90f54400
+0x4fd458,g_aiSearchGoalVtable,.rdata,48,gap,vtable,void*[],1,0,1,one type,1,,,11,,40f04400a0f24400a0f1440050f1440000f0440090f2440060f2440080f44400a0f44400d0ef4400007e410000000000
+0x4fd488,g_patrolGoalVtable,.rdata,48,gap,vtable,void*[],1,0,1,one type,1,,,11,,90f5440090ef4400b0ef440050f6440000f04400b0f54400f0ef4400e0ef4400c0ef4400c0f5440050ef440000000000
 0x4fd4c0,DAT_004fd4c0,.rdata,4,type,float,const float,1,0,1,one type,1,,,,,00000000
 0x4fd4cc,DAT_004fd4cc,.rdata,4,type,float,const float,1,0,1,one type,1,,,,,0000a040
 0x4fd670,g_dirDeltaX,.rdata,8,gap,data,signed char[],2,0,1,one type,2,,DAT_004fd670,,,00ffffff00010101
 0x4fd678,g_dirDeltaZ,.rdata,8,gap,data,signed char[],2,0,1,one type,2,,DAT_004fd678,,,ffff0001010100ff
 0x4fd6f0,g_weaponAimCobVtable,.rdata,4,type,data,void (__stdcall* const const*)(void),1,1,2,conflicting: shape,2,,PTR_FUN_004fd6f0,1,src/data/vtables.cpp,90144800
 0x4fd750,g_buildPercentScale,.rdata,4,type,float,float,1,0,1,one type,1,,,,,8180803b
+0x4fd980,g_packedGoalVtable,.rdata,48,gap,vtable,void*[],1,0,1,one type,1,,,11,,3006490090ef44009006490040ef44005006490080ef4400f0ef4400e0ef4400c0ef4400d0ef440050ef440000000000
+0x4fd9b0,g_liteGoalVtable,.rdata,48,gap,vtable,void*[],1,0,1,one type,1,,,11,,40084900600849008008490040ef44005006490080ef4400f0ef4400b0084900c0084900d0ef440050ef440000000000
+0x4fd9e0,g_packedPosGoalVtable,.rdata,48,gap,vtable,void*[],1,0,1,one type,1,,,11,,a009490090ef44009006490040ef44005006490080ef4400f0ef4400e0ef4400c0ef4400100a490050ef440000000000
 0x4fda70,DAT_004fda70,.rdata,8,type,float,const double,1,0,1,one type,1,,,,src/data/unused.cpp,0000000000000040
 0x4fdaf0,DAT_004fdaf0,.rdata,16,gap,data,V4i,1,1,2,conflicting: struct names only,2,0xc,,,,00000000000000000000000000000000
 0x4fdbe0,DAT_004fdbe0,.rdata,4,type,data,const unsigned char*,1,0,1,one type,1,,,,src/data/unused.cpp,00000000

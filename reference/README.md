@@ -175,7 +175,7 @@ Paths are `gameTick`, `rng.parkMiller`, `rng.crtHoldrand`, `units[i].<field>`,
 `moveClasses[i].passMap[k]`, and for the unit heap objects `units[i].head`,
 `units[i].list[k].<field>` and `units[i].list2[k].<field>`, `units[i].motion.<field>` with
 `units[i].motion.goal.class` (0 none, 1 patrol, 2 AI search, 3 packed, 4 lite, 5 packed
-position, any other value is an unknown class, dumped as `vtableDelta`) and `.goal.<field>`
+position; any other vtable fails the run) and `.goal.<field>`
 and `.goal.points`, `orderFx[id].<field>` with `orderFx[id].class` (1 approach radius, 2 ring
 approach, 3 point marker, 4 path order, 5 air maneuver), and `units[i].script.<field>`,
 `.channels[c].<field>` and `.channels[c].stack`, `.statics`, `.pieces[p].<field>` and
