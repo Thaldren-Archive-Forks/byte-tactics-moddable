@@ -7,9 +7,10 @@
 import struct
 import unittest
 
+from collections import Counter, defaultdict
 from types import SimpleNamespace
 
-from carve import Positional, original_refs, reference_problem, target_problem
+from carve import Positional, marker_address, original_refs, reference_problem, target_problem
 from place import REL_DIR32, REL_REL32, Obj, Sec, Sym
 
 BASE = 0x400000
@@ -74,6 +75,7 @@ class UncheckedSites(unittest.TestCase):
         check = Positional.__new__(Positional)
         check.img, check.text, check.slots, check.absolutes, check.cache, check.problems = (
             img, (VA, 0x1000), set(), set(), {}, {})
+        check.symbols = {}
         return check
 
     def test_reference_after_the_jump_table_cut_fails(self):
@@ -93,6 +95,56 @@ class UncheckedSites(unittest.TestCase):
         obj = SimpleNamespace(syms={1: far}, path=SimpleNamespace(name="x.obj"))
         check = self.positional(code)
         self.assertIsNone(check.problem("F", obj, sec, 0, len(code), VA, 1, REL_REL32, far, VA + 0x100))
+
+    def shifted(self, symbols):
+        original = call(0x1000) + b"\xc3"
+        ours = b"\x90" * 5 + call(0x1000) + b"\xc3"
+        func = Sym(1, "?F@@YGXXZ", 0, 0, 2, False)
+        sec = Sec(1, ".text", 0x60000020, ours, [(6, 1, REL_REL32)])
+        obj = SimpleNamespace(syms={1: func}, path=SimpleNamespace(name="x.obj"))
+        check = self.positional(original)
+        check.symbols = symbols
+        return check, obj, sec, func, len(ours)
+
+    def test_misaligned_site_of_an_unmarked_name_fails(self):
+        check, obj, sec, func, size = self.shifted({})
+        self.assertIsNotNone(check.problem("F", obj, sec, 0, size, VA, 6, REL_REL32, func, VA + 0x100))
+
+    def test_misaligned_site_of_a_marked_name_passes(self):
+        check, obj, sec, func, size = self.shifted({"F": VA + 0x100})
+        self.assertIsNone(check.problem("F", obj, sec, 0, size, VA, 6, REL_REL32, func, VA + 0x900))
+
+    def test_marker_names_only_plain_functions(self):
+        symbols = {"F": 0x401100, "C::F": 0x401200}
+        self.assertEqual(marker_address("?F@@YGXXZ", symbols), 0x401100)
+        self.assertIsNone(marker_address("?F@C@@QAEXXZ", symbols))
+        self.assertIsNone(marker_address("?F@?$T@H@std@@YGXXZ", symbols))
+
+
+class MarkerBinding(unittest.TestCase):
+    NAME = "?F@@YGXXZ"
+
+    def setup(self, votes):
+        check = Positional.__new__(Positional)
+        check.symbols, check.problems = {"F": VA + 0x200}, {}
+        placer = SimpleNamespace(ref_targets=defaultdict(Counter, votes), learned={})
+        return check, placer
+
+    def test_marked_callee_without_a_reference_binds_to_its_marker(self):
+        check, placer = self.setup({})
+        check.bind_markers(placer, {self.NAME})
+        self.assertEqual(placer.learned, {self.NAME: VA + 0x200})
+        self.assertEqual(placer.ref_targets[self.NAME].most_common(1)[0][0], VA + 0x200)
+        self.assertEqual(check.problems, {})
+
+    def test_marker_that_disagrees_with_the_positional_vote_fails(self):
+        check, placer = self.setup({self.NAME: Counter({VA + 0x300: 2})})
+        check.bind_markers(placer, {self.NAME})
+        (message,) = check.problems
+        self.assertIn(self.NAME, message)
+        self.assertIn(hex(VA + 0x200), message)
+        self.assertIn(hex(VA + 0x300), message)
+        self.assertEqual(placer.learned, {})
 
 
 if __name__ == "__main__":
