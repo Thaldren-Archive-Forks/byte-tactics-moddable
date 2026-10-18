@@ -1,6 +1,6 @@
 bt-digest 3
 trace_format bt-trace 3
-commit b36faf537b2f8b263b1181021d4e253f712e76eb
+commit f5aabb059c61365f8767f6075422163465b6fc13
 scenario reference/scenarios/six-hundred-isles.txt
 game_seed 184
 crt_seed 1184
