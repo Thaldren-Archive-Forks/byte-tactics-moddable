@@ -18,7 +18,7 @@ struct WeaponsSeam {
     // Adds a projectile of the given weapon at a position with a velocity, returning 0 when the table is full. Hooks: none.
     int (__stdcall* SpawnProjectile)(WeaponDef* weapon, Vec3* pos, Vec3* vel, int flag);
     // Finds a weapon definition by its TDF name, or null. Hooks: none.
-    char* (__stdcall* FindWeaponByName)(char* name);
+    WeaponDef* (__stdcall* FindWeaponByName)(char* name);
 };
 
 #endif

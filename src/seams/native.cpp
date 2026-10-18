@@ -41,6 +41,11 @@ static UnitsSeam s_units;
 static PlayersSeam s_players;
 static MapSeam s_map;
 
+static WeaponDef* __stdcall FindWeaponByNameNative(char* name)
+{
+    return (WeaponDef*)FindWeaponByName(name);
+}
+
 static void __fastcall LoadMeteorDefaultsNative(MeteorParams* params)
 {
     params->LoadMeteorDefaults();
@@ -64,7 +69,7 @@ void InstallNativeSeams()
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
     s_weapons.SpawnProjectile = SpawnProjectile;
-    s_weapons.FindWeaponByName = FindWeaponByName;
+    s_weapons.FindWeaponByName = FindWeaponByNameNative;
     s_units.UpdateAllUnits = UpdateAllUnits;
     s_players.UpdatePlayers = UpdatePlayers;
     g_seams.wind_meteors = &s_wind_meteors;
