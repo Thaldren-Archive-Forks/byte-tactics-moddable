@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Mission;
+#include "../map/mission.h"
 
 #pragma pack(push, 1)
 #include "../network/player.h"
@@ -68,7 +68,6 @@ struct Game {
 };
 #pragma pack(pop)
 
-struct Mission { int GetTerrainLength(); int ComputeMapChecksum(); void LoadMissionByName(PlayerInfo* info); char* GetMissionName(); };
 struct UnitSync {
     int AllPlayersSynced();
     void ProcessSync();
@@ -267,7 +266,7 @@ void UpdateBattleRoom()
             if (host != 10) {
                 if (IsScreenNamed(&g_game->gui, "LOUNGE2.GUI") != 0) {
                     PlayerInfo* info = g_game->players[host].info;
-                    g_game->mapInfo->LoadMissionByName(info);
+                    g_game->mapInfo->LoadMissionByName((char*)info);
                     SetNamedSliderValue(&g_game->gui, "MAXUNITS", g_game->players[host].info->maxUnits - 0x14);
                     SetNamedSliderValue(&g_game->gui, "METAL", g_game->players[host].info->metal * 100);
                     SetNamedSliderValue(&g_game->gui, "ENERGY", g_game->players[host].info->energy * 100);
@@ -277,7 +276,7 @@ void UpdateBattleRoom()
                 } else if (IsScreenNamed(&g_game->gui, "viewmap.gui") != 0) {
                     PlayerInfo* info = g_game->players[host].info;
                     if (strcmp(g_game->mapInfo->GetMissionName(), info->map) != 0) {
-                        g_game->mapInfo->LoadMissionByName(g_game->players[host].info);
+                        g_game->mapInfo->LoadMissionByName((char*)g_game->players[host].info);
                         ShowSelectedMapInfo();
                         MarkLayerChanged(&g_game->gui);
                     }
