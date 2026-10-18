@@ -6,6 +6,7 @@
 struct Point { short x, y; };
 struct Point16 { short x, y; };
 // Kept local, not util/vec3.h: its free operators inline differently from these members and the code size changes.
+#define VEC3_H
 struct Vec3 {
     int x, y, z;
     Vec3 operator+(const Vec3& other) const {
@@ -28,18 +29,7 @@ struct UnitDef {
     char pad200[0x212-0x200]; unsigned short buildRange;
     char pad214[0x249-0x214];
 };
-struct Unit {
-    char pad0[0x66]; short heading;
-    char pad68[2]; Vec3 pos;
-    char pad76[8]; Point footprint;
-    char pad82[0x92-0x82]; UnitDef* def;
-    char pad96[0xb0-0x96]; int workTime;
-    char padb4[0xff-0xb4]; unsigned char playerIndex;
-    char pad100[4]; float buildLeft;
-    void ClaimWeapons(int);
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void SetStateBits(int, int);
-};
+#include "../units/unit.h"
 struct Order {
     char pad0[5]; unsigned char state;
     unsigned int flags;
