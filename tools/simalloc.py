@@ -156,6 +156,15 @@ class Index:
             for address, name, function in marked_functions(unit):
                 self.by_address.setdefault(address, []).append(function)
                 self.by_name.setdefault(name, []).append(function)
+        seen = set()
+        for unit in units:
+            for header in self.included(unit):
+                if header.path in seen:
+                    continue
+                seen.add(header.path)
+                for address, name, function in marked_functions(header):
+                    self.by_address.setdefault(address, []).append(function)
+                    self.by_name.setdefault(name, []).append(function)
 
     def named(self, name: str) -> list[Function]:
         found = list(self.by_name.get(name, []))
