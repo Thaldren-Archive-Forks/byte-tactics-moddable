@@ -277,88 +277,7 @@ int __stdcall GetBuilderCount(int);
 int __stdcall GetUnitCount(int, unsigned int);
 int __stdcall DirectionFromStep(int, int);
 
-struct Unit {
-    // +0x0 holds the unit's UnitMotion pointer; only its non-nullness is read
-    // here, and an int spelling keeps the file's symbol count (docs/c2-regalloc.md).
-    int motion;                        // +0x0
-    // Two views of +0x4: the three weapon slots, or the order list at +0x5c.
-    union {
-        UnitWeaponSlot weapons[3];     // +0x4, stride 0x1c
-        struct {
-            char unknown_4[0x5c - 0x4];
-            Order* list;               // +0x5c
-            Order* list2;              // +0x60, not read here
-        };
-    };
-    Angles16 angles;                   // +0x64
-    Vec3 pos;                          // +0x6a
-    Point16 cell;                      // +0x76
-    char unknown_7a[0x7e - 0x7a];
-    Point16 footprint;                 // +0x7e
-    char unknown_82[0x86 - 0x82];
-    Unit* carrier;                     // +0x86
-    Unit* cargo;                       // +0x8a
-    char unknown_8e[0x92 - 0x8e];
-    UnitDef* def;                      // +0x92
-    Player* player;                    // +0x96
-    CobScript* script;                 // +0x9a
-    char unknown_9e[0xa6 - 0x9e];
-    unsigned short unitDefIndex;       // +0xa6
-    unsigned short id;                 // +0xa8
-    char unknown_aa[0xac - 0xaa];
-    int group;                         // +0xac
-    int workTime;                      // +0xb0
-    char unknown_b4[0xb8 - 0xb4];
-    unsigned short killCount;          // +0xb8
-    char unknown_ba[0xbc - 0xba];
-    UnitResources resourceSlot;        // +0xbc, its player pointer is at +0x30
-    Unit* attacker;                    // +0xf0
-    unsigned char lastAttackerSlot;    // +0xf4
-    unsigned char lastDamageType;      // +0xf5
-    char unknown_f6[0xff - 0xf6];
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x104 - 0x100];
-    float buildLeft;                   // +0x104
-    short health;                      // +0x108
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char activateFlags;       // +0x10e
-    char unknown_10f[0x110 - 0x10f];
-    // The unit's state flags: the handlers name their own bits.
-    union {
-        unsigned int flags;            // +0x110
-        struct {
-            unsigned int mode : 2;
-            unsigned int unknown_2 : 16;
-            unsigned int bits18 : 2;
-            unsigned int bits20 : 2;
-            unsigned int unknown_22 : 10;
-        } bits;
-        struct {
-            unsigned int low : 18;
-            unsigned int fire : 2;
-            unsigned int move : 2;
-            unsigned int high : 10;
-        };
-        struct {
-            unsigned int unknown_bits : 18;
-            unsigned int mode2 : 2;
-            unsigned int unknown_bits2 : 12;
-        };
-        struct {
-            unsigned int unknown_bits20 : 20;
-            unsigned int mode : 2;
-            unsigned int unknown_bits210 : 10;
-        };
-    };
-    char unknown_114[0x118 - 0x114];   // sizeof(Unit) is the units array's stride
-    void ReleaseWeapons(int param);
-    void ClaimWeapons(int param);
-    unsigned char ChooseWeapon();
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void SetStateBits(int which, int on);
-    int CanReclaim(Unit* unit);
-    int Ready() { return (flags & 0x10000000) && !(flags & 0x4000); }
-};
+#include "../units/unit.h"
 #pragma pack(pop)
 
 inline int Order::Advance(int distance) {
@@ -722,7 +641,7 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         return WaitIfNotInBuildStance(unit, order, 2);
     case 2: {
         int piece = -1;
-        g_seams.units->QueryScript(unit->script, "QueryBuildInfo", &piece, 0, 0, 0);
+        g_seams.units->QueryScript((CobScript*)unit->script, "QueryBuildInfo", &piece, 0, 0, 0);
         order->pos = g_seams.units->GetPiecePosition(unit, piece);
         UnitDef* ut = &g_game->unitDefs[order->unitType];
         Point16 cell = GridCell(order->pos, ut->footprint);
@@ -740,8 +659,8 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         }
         QueueUnitSpeech(unit, 9, "Starting construction");
         g_seams.units->AttachUnitToPiece(order->target.owner, unit, piece, 1);
-        order->target.owner->bits.bits18 = unit->bits.bits18;
-        order->target.owner->bits.bits20 = unit->bits.bits20;
+        order->target.owner->fire = unit->fire;
+        order->target.owner->move = unit->move;
         AddOrder("getbuilt", 1, order->target.owner, unit, 0, 0, 0);
         g_seams.units->SetStateBits(unit, 8, 1);
         UpdateBuildMenuIfFocusUnit(unit);
@@ -982,7 +901,7 @@ int __stdcall CloakOffOrder(char* unit, int unused1, int unused2)
 // FUNCTION: 0x4030d0
 int __stdcall StandingMoveOrder(Unit* unit, Order* order, int unused)
 {
-    unit->mode2 = order->mode;
+    unit->fire = order->mode;
     return 5;
 }
 
@@ -990,7 +909,7 @@ int __stdcall StandingMoveOrder(Unit* unit, Order* order, int unused)
 // FUNCTION: 0x403100
 int __stdcall StandingFireOrder(Unit* unit, Order* order, int unused)
 {
-    unit->mode = order->mode;
+    unit->move = order->mode;
     if (order->mode == 0 || order->mode == 1) {
         for (char i = 0; i < 3; i++) {
             if (unit->weapons[i].flags & 0x10) {
@@ -1577,7 +1496,7 @@ int __stdcall RepairUnitOrder(Unit* unit, Order* order, int flags)
     }
     if (order->range && (int)_hypot(Whole(unit->pos.x) - order->start.x, Whole(unit->pos.z) - order->start.y) >= order->range)
         return 5;
-    if (order->target.owner->bits.mode != 1) {
+    if (order->target.owner->mode != 1) {
         QueueUnitSpeech(unit, 7, "Repairs unsuccessful.");
         return 5;
     }
@@ -1737,7 +1656,7 @@ int __stdcall StandbyMineOrder(Unit* unit, Order* order, int unused)
     case 1:
         {
             Unit* other = g_seams.targeting->FindBestTargetIfFireAtWill(unit);
-            if (other && other->bits.mode == 1 && (unit->flags & 0x300000)) {
+            if (other && other->mode == 1 && (unit->flags & 0x300000)) {
                 AppendOrder(unit, new (kSim) Order("SELFDESTRUCT", 0, 0, 1, 0, 0));
                 return 5;
             }
@@ -1808,7 +1727,7 @@ int __stdcall GroundPickupOrder(Unit* unit, Order* order, unsigned char flags)
         case 2:
             {
             int id = target->id;
-            g_seams.units->StartScriptWithArgs(unit->script, "TransportPickup", 0, 1, 1, id, 0, 0, 0);
+            g_seams.units->StartScriptWithArgs((CobScript*)unit->script, "TransportPickup", 0, 1, 1, id, 0, 0, 0);
             QueueUnitSpeech(unit, 12, 0);
             ++order->attempts;
             order->SetDeadlineTicks(15); return 1;
@@ -1841,14 +1760,14 @@ int __stdcall GroundUnloadOrder(Unit* unit, Order* order, int flags)
         order->target.SetUnit(unit->cargo);
         if (!order->target.owner) return 5;
         order->AnnounceStatusIfFlagged("Unloading");
-        g_seams.units->StartScriptWithArgs(unit->script, "TransportDrop",0,1,1,order->target.owner->id,
+        g_seams.units->StartScriptWithArgs((CobScript*)unit->script, "TransportDrop",0,1,1,order->target.owner->id,
             (order->pos.x&0xffff0000)+(order->pos.z>>16),0,0);
         ++order->attempts;
         order->SetDeadlineTicks(15);
         return 1;
     case 1: return WaitIfCobBusy(unit,order,8);
     case 2:
-        if (order->target.owner->carrier!=unit) { QueueUnitSpeech(unit,13,0); return 5; }
+        if (*(Unit**)&order->target.owner->carrier!=unit) { QueueUnitSpeech(unit,13,0); return 5; }
         if (order->attempts>=3) return 9;
         if ((unsigned char)(unit->def->flags>>12)&1)
             order->AttachApproachRadiusGoal(&order->pos,(int)(unit->def->height180*1.5));
