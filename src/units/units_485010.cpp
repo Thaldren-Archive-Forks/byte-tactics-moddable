@@ -4,6 +4,7 @@
 // network CreateUnitFromPacket) and killing units (KillUnit, ApplyUnitDeath).
 
 #include <stdio.h>
+#include "../state/block.h"
 // Included only for its declarations: the symbol counter of GetCellMeanHeight needs them.
 #include <stdlib.h>
 #include <string.h>
@@ -531,7 +532,7 @@ void __stdcall AllocateUnitMemory(void)
     g_game->unitsPerPlayer = g_game->maxUnits;
     g_game->poolCount = (unsigned short)(g_game->maxUnits * 10 + 1);
 
-    unsigned char* pool = g_game->pool = (unsigned char*)GameAllocIgnoreTag("UNIT MEMORY", g_game->poolCount * 0x118);
+    unsigned char* pool = g_game->pool = (unsigned char*)SimAllocTagged("UNIT MEMORY", g_game->poolCount * 0x118);
     memset(pool, 0, g_game->poolCount * 0x118);
 
     unsigned int ten = g_game->maxUnits * 10;
@@ -767,7 +768,7 @@ void __stdcall InitUnitScript(Unit* self)
 {
     Object3do* obj = g_game->unitModels[self->unitDefIndex];
     if (self->def->data) {
-        self->script = new UnitScript;
+        self->script = new (kSim) UnitScript;
         self->script->SetCob(self->def->data);
         self->state = CreatePlayerObjectState(obj, self->def->data, (int)self);  // the owner, as an int
         ((UnitScript*)self->script)->SetObjectState(self->state);
@@ -809,7 +810,7 @@ UnitScript* emit_00485e30() { return new UnitScript; }
 // FUNCTION: 0x485e50
 void __stdcall CreateUnitMotion(Unit* unit)
 {
-    unit->motion = new UnitMotion(unit);
+    unit->motion = new (kSim) UnitMotion(unit);
     unit->angles.heading = unit->def->buildangle;
 }
 
@@ -840,7 +841,7 @@ void __stdcall InitUnit(int unitType, Pos_00485a40 pos, int param_5, Unit* unit)
     InitUnitWeaponSlots(unit);
     g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
-        unit->motion = new UnitMotion(unit);
+        unit->motion = new (kSim) UnitMotion(unit);
         unit->angles.heading = unit->def->buildangle;
     }
 }
@@ -875,7 +876,7 @@ static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Pos_0048
     InitUnitWeaponSlots(unit);
     g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
-        unit->motion = new UnitMotion(unit);
+        unit->motion = new (kSim) UnitMotion(unit);
         unit->angles.heading = unit->def->buildangle;
     }
 }

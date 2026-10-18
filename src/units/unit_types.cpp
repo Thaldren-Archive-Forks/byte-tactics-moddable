@@ -4,6 +4,7 @@
 // TdfRecord, MovementClass and Game each have one definition; the views the
 // functions used sit in unions where they disagree.
 #include <stdio.h>
+#include "../state/block.h"
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
@@ -831,8 +832,9 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             if (unitdef->bmcode == 0) {
                 parser.current
                     ->GetFieldString(yard, "YardMap", 1024, DAT_005119b8);
-                unitdef->yardmap = (char*)GameAllocIgnoreTag(
-                    "BUILDING YARD", unitdef->footprintx * unitdef->footprintz);
+                unitdef->yardmap = (char*)SimAllocTagged(
+                    "BUILDING YARD",
+                    unitdef->footprintx * unitdef->footprintz);
                 int cell = 0;
                 char* cursor = yard;
                 int y = 0;
@@ -1047,7 +1049,7 @@ void LoadUnitTypes() {
         } while (c);
     }
 
-    g_game->unitModels = (void**)GameAllocIgnoreTag("MODEL PTRS", g_game->unitDefCount * 4);
+    g_game->unitModels = (void**)SimAllocTagged("MODEL PTRS", g_game->unitDefCount * 4);
 
     // `u` must be an unsigned short: an int counter breaks the loop.
     for (unsigned short u = 1; u < g_game->unitDefCount; u++) {
@@ -1139,7 +1141,7 @@ void LoadUnitTypes() {
                     type->count = count;
                 }
                 sprintf(objpath, "CANBUILD %s", type->unitname);
-                type->ids = GameAllocIgnoreTag(objpath, 0x3c);
+                type->ids = SimAllocTagged(objpath, 0x3c);
                 memcpy(type->ids, list, 0x3c);
             }
         }
@@ -1240,7 +1242,7 @@ void LoadDownloadMenus()
 
     int n = files.size();
     g_game->buildListCount = n;
-    g_game->buildLists = (BuildList_0042dcf0*)GameAllocIgnoreTag("DOWNLOADMENU", n * 0xbd);
+    g_game->buildLists = (BuildList_0042dcf0*)SimAllocTagged("DOWNLOADMENU", n * 0xbd);
 
     for (i = 0; i < n; i++) {
         TdfFile parser;

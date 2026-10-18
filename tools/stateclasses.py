@@ -29,10 +29,12 @@ Rows (kind), one per item, sorted by kind, then address, then name:
                `unknown_` and padding ranges are regions of their own
   heap         an allocation site in game logic, named `Function: allocator type-or-tag`
                (`#n` for the n-th identical site of a function); address is the allocating
-               function's. Sites: `new` and `new[]` (not placement new), operator new,
+               function's. Sites: `new` and `new[]` (placement new only into the sim block, `new (kSim)`), operator new,
                malloc, calloc, realloc, GlobalAlloc, GlobalAllocFixed, LocalAlloc, HeapAlloc,
                VirtualAlloc, GameAlloc, GameAllocIgnoreTag, GameAllocShared, GameAllocThunk,
-               GameRealloc and PoolAlloc. The type is the one the result is cast or assigned
+               GameRealloc and PoolAlloc. SimAlloc, SimAllocTagged and SimRealloc are named
+               `operator new`, `GameAllocIgnoreTag` and `realloc`, as the 3.1c calls they
+               replaced were. The type is the one the result is cast or assigned
                to, else the `sizeof` operand, else the first string literal (the tag). A
                site whose result is returned is a wrapper and not a row, its callers are.
                Game logic is a function of data/game_logic.csv or one the walk below
@@ -225,8 +227,9 @@ PLATFORM_NAME = re.compile(r"(^|_)(hwnd|hinst|handle|module|device|process|dll|p
                            r"windows_sound|window_(class|name)|blit_lock|lzss_lock|screen_lock|squash_thread|"
                            r"image_help")
 PLATFORM_ALLOCATORS = {"VirtualAlloc"}
+SIM_ALLOCATORS = {"SimAlloc": "operator new", "SimAllocTagged": "GameAllocIgnoreTag", "SimRealloc": "realloc"}
 ALLOCATORS = (set(hazards.ALLOCATORS) | {"calloc", "GameAllocIgnoreTag", "GameAllocShared", "GameAllocThunk",
-                                         "VirtualAlloc"})
+                                         "VirtualAlloc"} | set(SIM_ALLOCATORS))
 PRIMITIVES = {"void", "char", "unsigned char", "signed char", "short", "unsigned short", "int", "unsigned int",
               "long", "unsigned long", "float", "double", "?"}
 LAYOUT_FLAG = ["-Xclang", "-fdump-record-layouts-complete"]
@@ -465,6 +468,20 @@ def is_returned(node: dict, parents: list[dict]) -> bool:
     return hazards.holder_of(node, parents) == "return"
 
 
+def is_heap_new(node: dict) -> bool:
+    """Whether a new expression allocates: a plain one or a placement new into the sim block (`new (kSim) T`)."""
+    if not node.get("isPlacement"):
+        return True
+    stack = list(node.get("inner", ()))
+    while stack:
+        n = stack.pop()
+        if n.get("kind") == "DeclRefExpr" and n.get("referencedDecl", {}).get("name") == "kSim":
+            return True
+        if n.get("kind") not in ("CXXConstructExpr", "CallExpr"):
+            stack.extend(n.get("inner", ()))
+    return False
+
+
 def argument_type(node: dict) -> str | None:
     """The `sizeof` operand type or the first string literal among a call's arguments."""
     found = None
@@ -509,14 +526,14 @@ def allocations(node: dict, function: str) -> list[tuple[str, str, int, str]]:
         kind = n.get("kind")
         if kind is None:
             return
-        if kind == "CXXNewExpr" and not n.get("isPlacement") and not is_returned(n, parents):
+        if kind == "CXXNewExpr" and is_heap_new(n) and not is_returned(n, parents):
             found.append(("new[]" if n.get("isArray") else "new", record_name(n["type"]), n.get("_line", 0),
                           stored_target(n, parents, locals_)))
         elif kind == "CallExpr" and call_name(n) and not is_returned(n, parents):
             context = context_type(n, parents)
             argument = argument_type(n)
             what = context if context and context not in PRIMITIVES else argument or context or "?"
-            found.append((call_name(n), what, n.get("_line", 0), stored_target(n, parents, locals_)))
+            found.append((SIM_ALLOCATORS.get(call_name(n), call_name(n)), what, n.get("_line", 0), stored_target(n, parents, locals_)))
         if kind not in rwsets.UNEVALUATED:
             parents.append(n)
             for child in n.get("inner", ()):

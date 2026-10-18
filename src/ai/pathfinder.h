@@ -4,13 +4,13 @@
 #include <vector>
 
 #include "../../interfaces/seams.h"
+#include "../state/block.h"
 #include "../units/movement_class.h"
 #include "../util/vec3.h"
 
 struct Unit;
 class AiSearchGoal;
 
-void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 
 class Target {
@@ -408,12 +408,12 @@ public:
         int cap = capacity;
         if (n < cap)
             n = cap + (cap >> 1) + 0x10;
-        Node* newe = (Node*)operator new(n * 0x14);
+        Node* newe = (Node*)SimAlloc(n * 0x14);
         int i;
         for (i = 0; i < used; i++)
             *(newe + i) = pool[i];
         operator delete(pool);
-        Node** newp = (Node**)operator new(n * 4);
+        Node** newp = (Node**)SimAlloc(n * 4);
         for (i = 0; i < count; i++)
             newp[i] = newe + (items[i] - pool);
         operator delete(items);

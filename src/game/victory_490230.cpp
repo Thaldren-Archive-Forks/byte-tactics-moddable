@@ -34,6 +34,7 @@ public:
 };
 
 #include "../network/player.h"
+#include "../state/block.h"
 
 #pragma pack(push, 1)
 struct Game {
@@ -66,7 +67,7 @@ public:
     inline int AllVictoryConditionsMet()
     {
         if (victoryCount == 0) {
-            victory[victoryCount] = new VictoryDestroyAllUnits;
+            victory[victoryCount] = new (kSim) VictoryDestroyAllUnits;
             victoryCount++;
         }
         for (int i = 0; i < victoryCount; i++) {

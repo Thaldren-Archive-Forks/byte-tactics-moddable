@@ -5,14 +5,13 @@
 // shares the search steps among the players, and the trace back from the goal.
 // Needed: without it GetCellState's first argument lands in eax, not edx.
 #include <stdlib.h>
+#include "../state/block.h"
 #include <string.h>
 #include <windows.h>
 #include <ddraw.h>
 #include <vector>
 
-void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
-void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 void __cdecl GameFreeThunk(void* p);
 
 // A min-heap record for MakeHeap and friends (the STL heap the search uses).
@@ -616,11 +615,11 @@ Pathfinder::Pathfinder()
     grid.height = h;
     operator delete(grid.cells);
     grid.count = (h * w + 7) & ~7;
-    grid.cells = grid.count ? new PathCell[grid.count] : 0;
+    grid.cells = grid.count ? new (kSim) PathCell[grid.count] : 0;
 
     unsigned int m = (grid.count + 0xff) >> 8;
     unsigned int n = m * 4;
-    grid.dirty = (unsigned int*)GameAllocIgnoreTag("AISearch touched mapentries", n);
+    grid.dirty = (unsigned int*)SimAllocTagged("AISearch touched mapentries", n);
     // Only n - 1 bytes are filled; the last dword is zeroed separately.
     memset(grid.dirty, 0xff, n - 1);
     *(int*)((char*)grid.dirty + n - 4) = 0;

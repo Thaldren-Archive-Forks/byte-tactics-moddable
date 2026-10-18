@@ -93,6 +93,7 @@ union Fixed {
     struct { unsigned short frac; short whole; } parts;
 };
 
+#include "../state/block.h"
 #include "../units/cob_script.h"
 
 // Unused here: these headers and forward declarations take the symbol ids that keep
@@ -637,7 +638,7 @@ int __stdcall VtolEvadeOrder(Unit* unit,Order* order,int flags)
             Vec3 pos;
         if (order->side) pos=unit->pos+Offset(unit->heading-0x4000,range<<16);
         else pos=unit->pos+Offset(unit->heading+0x4000,range<<16);
-            Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+            Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e730*)move)->SetApproachRadius(128);
             order->SetAttachedFx((int)move);
             order->flags=0x100e8;
@@ -648,7 +649,7 @@ int __stdcall VtolEvadeOrder(Unit* unit,Order* order,int flags)
         Vec3 pos;
         if (order->side) pos=unit->pos+Offset(unit->heading-0x4000,range<<17);
         else pos=unit->pos+Offset(unit->heading+0x4000,range<<17);
-        Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         ((Class_0044e730*)move)->SetApproachRadius(128);
         order->SetAttachedFx((int)move);
         order->flags=0x100e8;
@@ -674,7 +675,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
         order->flags |= flags | 0xe0;
@@ -699,7 +700,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
         centre.z = g_game->mapPixelHeight / 2 << 16;
         short angle = GetHeadingBetween(&unit->pos, &centre);
         Vec3 dest = AddVec3(unit->pos, Offset(angle, 0x3200000));
-        Class_0044e2d0* obj = new Class_0044e2d0(order, dest);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         ((Class_0044e730*)obj)->SetApproachRadius(0x80);
         order->flags |= 0xe0;
         order->SetAttachedFx((int)obj);
@@ -722,7 +723,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
     case 1: {
         if (CanPlaceFootprintAt(unit, &unit->pos)) {
             unit->script->StartScript("EndTransport", 0, 1);
-            Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+            Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
             int h = max(GetGroundHeight(&unit->pos), g_game->seaLevel);
             ((Class_0044e6c0*)obj)->SetAltitude(h <= g_game->seaLevel ? GetGroundHeight(&unit->pos) - g_game->seaLevel : 0);
             order->SetAttachedFx((int)obj);
@@ -738,7 +739,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
             Point cell = WorldToCellMul(p, fp);
             CellToWorld(fp, cell, &p);
             if (CanPlaceFootprintAt(unit, &p)) {
-                order->SetAttachedFx((int)new Class_0044e2d0(order, p));
+                order->SetAttachedFx((int)new (kSim) Class_0044e2d0(order, p));
                 order->flags = 0xe0;
                 return 2;
             }
@@ -753,7 +754,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
         sum.z = order->pos.z + off.z;
         // Summed into a temporary then copied: keeps all three sums live at once.
         Vec3 dest = sum;
-        Class_0044e2d0* obj = new Class_0044e2d0(order, dest);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         ((Class_0044e730*)obj)->SetApproachRadius(0x40);
         order->SetAttachedFx((int)obj);
         order->flags |= 0xe0;
@@ -815,14 +816,14 @@ int __stdcall VtolStandbyOrder(Unit* unit, Order* order, int flags)
                 p.z = order->z << 16;
                 int distance = (RandomInt(0x20) + 8) << 16;
                 p += Offset(angle, distance);
-                Class_0044e2d0* obj = new Class_0044e2d0(order, p);
+                Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
                 ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
                 order->SetAttachedFx((int)obj);
                 order->SetDeadlineTicks(RandomInt(0xf) + 0x1e);
                 order->state = 1;
                 return 2;
             }
-            AppendOrder(unit, new Order(MissionType("VTOL_LANDIFCAN"), 0, &order->pos, 0, 0, 0));
+            AppendOrder(unit, new (kSim) Order(MissionType("VTOL_LANDIFCAN"), 0, &order->pos, 0, 0, 0));
             return 5;
         }
         order->flags |= 0x10000;
@@ -852,7 +853,7 @@ int __stdcall VtolMoveOrder(Unit* unit, Order* order, int flags)
         order->AnnounceStatusIfFlagged(0);
         unit->ReleaseWeapons(3);
         Snap(&order->pos, unit->footprint);
-        order->SetAttachedFx((int)new Class_0044e2d0(order, order->pos));
+        order->SetAttachedFx((int)new (kSim) Class_0044e2d0(order, order->pos));
         order->flags = 0xe0;
         return 1;
     case 2:
@@ -923,7 +924,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad=pads[RandomInt(pads.size())];
-            AppendOrder(unit,new Order("VTOL_LANDING",pad,0,0,0,0));
+            AppendOrder(unit,new (kSim) Order("VTOL_LANDING",pad,0,0,0,0));
             order->flags=0;
             return 0;
         }
@@ -935,13 +936,13 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     if (!units.empty()) {
         order->SetAttachedFx(0);
         MissionType kind=GetOrderType(7,unit,units[0],0);
-        AppendOrder(unit,new Order(kind,units[0],0,0,0,0));
+        AppendOrder(unit,new (kSim) Order(kind,units[0],0,0,0,0));
         order->flags=0;
         return 3;
     }
     if (flags&0xe0) order->angle+=-RandomInt(0x2000)-0x4000;
     Vec3 pos=Add(order->pos,Offset((short)order->angle,(unit->weapons[0].def->range+160)<<16));
-    Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+    Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
     ((Class_0044e730*)move)->SetApproachRadius(128);
     order->SetAttachedFx((int)move);
     order->SetDeadlineTicks(30);
@@ -984,7 +985,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         if (unit->motion && (unit->def->flags & 0x800)) {
             order->AnnounceStatusIfFlagged("Unloading");
             ((PathOrderAttach*)&order->target)->SetUnit(unit->cargo);
-            Class_0044e2d0* obj = new Class_0044e2d0(order, order->pos);
+            Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
             ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
             ((Class_0044e730*)obj)->SetApproachRadius(0x140);
             order->SetAttachedFx((int)obj);
@@ -995,7 +996,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
     case 1: {
         Unit* cargo = order->target.owner;
         if (CanPlaceUnitFootprint(cargo->def, 0, WorldToCell(order->pos, cargo->footprint), 1)) {
-            Class_0044e2d0* obj = new Class_0044e2d0(order, order->pos);
+            Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
             // Through an int local: passing the expression straight sign-extends differently.
             int h = unit->cargo->def->field_170;
             ((Class_0044e6c0*)obj)->SetAltitude(h);
@@ -1016,7 +1017,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         }
         unit->script->StartScript("EndTransport", 0, 0);
         AttachUnitToPiece(unit->cargo, 0, -1, 1);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
         order->SetAttachedFx((int)obj);
         order->flags = 0xe0;
@@ -1105,7 +1106,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
             unit->SetStateBits(1,1);
             if ((unit->motion->flags&3)==1) {
                 unit->motion->SetFlightMode(unit,2);
-                Class_0044e2d0* move=new Class_0044e2d0(order,unit->pos);
+                Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                 ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
                 order->SetAttachedFx((int)move);
                 order->flags|=0xe0;
@@ -1119,7 +1120,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
         Point origin=def->origin;
         Point cell=WorldToCell(order->pos,origin);
         CellToWorldPos(cell,&order->pos,origin);
-        Class_0044e2d0* move=new Class_0044e2d0(order,order->pos);
+        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,order->pos);
         ((Class_0044e730*)move)->SetApproachRadius(unit->def->buildRange);
         order->SetAttachedFx((int)move);
         order->flags=0xe0;
@@ -1152,7 +1153,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
             Vec3 pos=order->targetUnit->pos-Offset(angle,range);
-            Class_0044e2d0* move=new Class_0044e2d0(order,pos);
+            Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e720*)move)->SetHeading((unsigned short)angle);
             order->SetAttachedFx((int)move);
         }
@@ -1239,7 +1240,7 @@ int __stdcall VtolRepairUnitOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1: {
-        Class_0044e2d0* obj = new Class_0044e2d0(order, order->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
         order->SetAttachedFx((int)obj);
         order->flags = 0xe8;
@@ -1312,7 +1313,7 @@ static inline int Land(Unit* unit, Order* order)
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad = pads[RandomInt(pads.size())];
-            AppendOrder(unit, new Order("VTOL_LANDING", pad, 0, 0, 0, 0));
+            AppendOrder(unit, new (kSim) Order("VTOL_LANDING", pad, 0, 0, 0, 0));
             order->flags = 0;
             return 1;
         }
@@ -1385,12 +1386,12 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
 {
     if (flags & 0x10008) {
         if (order->next == 0 && (unit->flags & 0x300000))
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", order->target.owner, &order->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", order->target.owner, &order->pos, 0, 0, 0));
         return 5;
     }
     if (order->target.owner == 0 && (order->flags_42 & 0x200)) {
         if (order->next == 0)
-            AppendOrderToTail(unit, new Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
         return 5;
     }
     if (unit->spatialBucket == g_game->overflowBucket) {
@@ -1399,7 +1400,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         centre.z = g_game->mapPixelHeight / 2 << 16;
         short angle = GetHeadingBetween(&unit->pos, &centre);
         Vec3 dest = AddVec3(unit->pos, Offset(angle, 0x3200000));
-        Class_0044e2d0* obj = new Class_0044e2d0(order, dest);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         ((Class_0044e730*)obj)->SetApproachRadius(0x80);
         order->flags |= 0xe0;
         order->SetAttachedFx((int)obj);
@@ -1427,7 +1428,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         int angle = GetHeadingBetween(&unit->pos, &order->target.owner->pos);
         Vec3 off = Offset(RandomInt(0x4000) + angle - 0x2000, dist / 2);
         Vec3 p = Sum(unit->pos, off);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, p);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
         ((Class_0044e730*)obj)->SetApproachRadius(0x80);
         order->SetAttachedFx((int)obj);
         order->flags = 0x100e8;
@@ -1436,7 +1437,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
     case 2: {
         unit->ClaimWeapons(0);
         g_seams.targeting->SetWeaponTargetUnit(unit, order->target.owner, 0);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, order->target.owner->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->target.owner->pos);
         ((Class_0044e730*)obj)->SetApproachRadius(range);
         order->SetAttachedFx((int)obj);
         order->flags = 0x100e8;
@@ -1452,7 +1453,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
             Vec3 off = Offset(RandomInt(0x10000), range << 16);
             Vec3 p = AddComponentwise(order->target.owner->pos, off);
             // The new waypoint is never given to the order (see the header).
-            Class_0044e2d0* obj = new Class_0044e2d0(order, p);
+            Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, p);
             ((Class_0044e730*)obj)->SetApproachRadius(0x80);
             order->flags |= 0x110e8;
             return 2;
@@ -1468,7 +1469,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         }
         Vec3 off = Offset(angle, range * 2 / 3 << 16);
         Vec3 p = Diff(order->target.owner->pos, off);
-        Class_0044e330* obj = new Class_0044e330(order, order->target.owner, p);
+        Class_0044e330* obj = new (kSim) Class_0044e330(order, order->target.owner, p);
         // The setters live in Class_0044e2d0; obj is another constructor view of the same object.
         ((Class_0044e730*)obj)->SetApproachRadius(0x10);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
@@ -1480,7 +1481,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];
-                AppendOrder(unit, new Order("VTOL_LANDING", target, 0, 0, 0, 0));
+                AppendOrder(unit, new (kSim) Order("VTOL_LANDING", target, 0, 0, 0, 0));
                 order->flags = 0;
                 return 0;
             }
@@ -1521,7 +1522,7 @@ int __stdcall VtolPickupOrder(Unit* unit, Order* order, int flags)
             }
             break;
         case 1: {
-            Class_0044e190* obj = new Class_0044e190(order, order->target.owner);
+            Class_0044e190* obj = new (kSim) Class_0044e190(order, order->target.owner);
             // The setters live in Class_0044e2d0; obj is another constructor view of the same object.
             ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
             ((Class_0044e730*)obj)->SetApproachRadius(0x30);
@@ -1540,7 +1541,7 @@ int __stdcall VtolPickupOrder(Unit* unit, Order* order, int flags)
             unit->script->StartScriptWithArgs("BeginTransport", 0, 1, 1, height, 0, 0, 0);
             SendScriptCallByName(unit, "BeginTransport", 1, height, 0, 0, 0);
             Vec3 offset = GetPieceOffset(unit, order->piece);
-            Class_0044e250* obj = new Class_0044e250(order, order->target.owner, -1);
+            Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target.owner, -1);
             ((Class_0044e6c0*)obj)->SetAltitude(-offset.yw);
             order->SetAttachedFx((int)obj);
             order->flags = 0x100ea;
@@ -1555,7 +1556,7 @@ int __stdcall VtolPickupOrder(Unit* unit, Order* order, int flags)
             }
             AttachUnitToPiece(target, unit, order->piece, 0);
             QueueUnitSpeech(unit, 12, 0);
-            Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+            Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
             ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude);
             order->flags |= 0xe0;
             return 1;

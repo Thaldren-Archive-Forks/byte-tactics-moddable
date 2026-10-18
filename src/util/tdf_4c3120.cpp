@@ -6,6 +6,7 @@
 // into a new root section named "root" (TdfRecord::TdfRecord). The class holding the
 // tree is the same one 0x4c2f60 loads files into.
 #include <vector>
+#include "../state/block.h"
 #include <string.h>
 
 // The reference-counted string handle: a pointer to the characters with the
@@ -50,7 +51,7 @@ void TdfFile::LoadBuffer(char* data, int size, int flag, char* path)
     memcpy(text, data, size);
     text[size] = 0;
     this->StripComments(text);
-    TdfRecord* node = (TdfRecord*)operator new(0x29);
+    TdfRecord* node = (TdfRecord*)SimAlloc(0x29);
     root = node ? new (node) TdfRecord("root", text, 0, path) : 0;
     GameFreeThunk((int*)text);
 }

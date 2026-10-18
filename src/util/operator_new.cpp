@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 
+#include "../state/block.h"
+
 void* __cdecl GameAllocThunk(size_t size);
 void __cdecl GameFreeIndirectThunk(void* p);
 
@@ -16,6 +18,10 @@ void* __cdecl operator new(size_t size)
 // FUNCTION: 0x4b4f20
 void __cdecl operator delete(void* p)
 {
+    if (SimOwns(p)) {
+        SimFree(p);
+        return;
+    }
     GameFreeIndirectThunk(p);
 }
 
@@ -28,5 +34,9 @@ void* __cdecl operator new[](size_t size)
 // FUNCTION: 0x4b4f40 ??_V@YAXPAX@Z
 void __cdecl operator delete[](void* p)
 {
+    if (SimOwns(p)) {
+        SimFree(p);
+        return;
+    }
     GameFreeIndirectThunk(p);
 }

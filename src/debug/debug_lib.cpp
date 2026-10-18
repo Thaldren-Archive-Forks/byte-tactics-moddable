@@ -34,6 +34,7 @@
 #include <malloc.h>
 #include <stddef.h>
 #include <stdio.h>
+#include "../state/block.h"
 
 extern char g_memFussyQueried;
 extern char g_memFussyDefault;
@@ -286,6 +287,8 @@ int HarnessTestMode();
 // FUNCTION: 0x4d84c0
 void* __cdecl GameRealloc(void* block, unsigned int size)
 {
+    if (SimOwns(block))
+        return SimRealloc(block, size);
     CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
     EnterCriticalSection(cs);
     size_t grownFrom = 0;
@@ -344,6 +347,10 @@ void __cdecl FreeDebugBlock(void* p, int flags);
 // FUNCTION: 0x4d85b0
 void __cdecl GameFree(void* p)
 {
+    if (SimOwns(p)) {
+        SimFree(p);
+        return;
+    }
     if (p) {
         CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
         EnterCriticalSection(cs);

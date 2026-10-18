@@ -8,6 +8,7 @@
 // Nothing here uses <windows.h>: its symbols put RefreshPassMap and
 // SetPassMapCell in the symbol-id windows they match in (docs/c2-regalloc.md).
 #include <windows.h>
+#include "../state/block.h"
 #include <string.h>
 // Unused by the code, but it puts the pointer first in v[n] in BuildPassMap.
 #include <stdio.h>
@@ -16,7 +17,6 @@
 
 void __cdecl GameFreeThunk(void* p);
 
-void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 
 struct MovementClass;
@@ -245,7 +245,7 @@ void MovementClass::ResizePassMap(unsigned int w, unsigned int h)
     unsigned int n = ((h + 15) >> 4) * w;
     delete cells;
     if (n != 0) {
-        cells = new unsigned int[n];
+        cells = new (kSim) unsigned int[n];
     } else {
         cells = 0;
     }
@@ -285,7 +285,7 @@ void Class_00440500::BuildPassMap()
     else
         size = footprintZ + height;
 
-    buf = (unsigned char*)operator new(size + 3);
+    buf = (unsigned char*)SimAlloc(size + 3);
     v = buf + 2;
 
     // Braces keep the two int j apart: MSVC 5 leaks a for-init variable into the enclosing scope.
@@ -417,7 +417,7 @@ void BuildAllPassMaps(void)
             n = ((unsigned)(q[-1] + 0xf) >> 4) * q[-2];
             operator delete((void*)q[0]);
             if (n != 0) {
-                q[0] = (unsigned int)operator new(n * 4);
+                q[0] = (unsigned int)SimAlloc(n * 4);
             } else {
                 q[0] = 0;
             }

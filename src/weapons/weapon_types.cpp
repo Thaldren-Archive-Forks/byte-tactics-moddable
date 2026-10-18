@@ -1,6 +1,7 @@
 // Decompiled by deepseek-v4.1-flash, finished by GPT-6, edited by deepseek-v4.1, finished by GPT-6.1-sol, finished by deepseek-v4.1-flash, edited by deepseek-v4.1-flash, finished by claude-opus-5.5, space-bunny-free. Names are provisional.
 
 #include <string.h>
+#include "../state/block.h"
 #include <vector>
 
 #include "../util/tdf.h"
@@ -289,7 +290,7 @@ model_done:
             if (_strcmpi(key, "default") != 0) {
                 int value = damage->GetFieldInt(key, 0);
                 if (!w->table)
-                    w->table = new Table_00499cd0;
+                    w->table = new (kSim) Table_00499cd0;
                 StringRef name(key);
                 Table_00499cd0* m = w->table;
                 Entry_00432cf0* e = m->LowerBound(name.ptr);

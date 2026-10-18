@@ -211,3 +211,14 @@ add_custom_command(
   DEPENDS game data extra ${ZLIB_TARGETS} $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/TotalA.res" ${IMPORT_LIBS}
   VERBATIM COMMAND_EXPAND_LISTS)
 add_custom_target(TotalA ALL DEPENDS "${CMAKE_BINARY_DIR}/TotalA.exe")
+
+add_library(block_test_objects OBJECT src/state/block.cpp tests/block_test.cpp)
+target_include_directories(block_test_objects SYSTEM PRIVATE "${MSVC5_INCLUDE}")
+target_compile_options(block_test_objects PRIVATE ${GAME_COMPILE_OPTIONS})
+add_custom_command(
+  OUTPUT "${CMAKE_BINARY_DIR}/block_test.exe"
+  COMMAND "${LLD_LINK}" /nologo /machine:x86 /subsystem:console /out:${CMAKE_BINARY_DIR}/block_test.exe /libpath:${CMAKE_BINARY_DIR}/lib /incremental:no /safeseh:no
+          $<TARGET_OBJECTS:block_test_objects> "${CMAKE_BINARY_DIR}/KERNEL32.lib" "${MSVC5_LIB}/LIBCMT.LIB" "${MSVC5_LIB}/OLDNAMES.LIB"
+  DEPENDS block_test_objects $<TARGET_OBJECTS:block_test_objects> "${CMAKE_BINARY_DIR}/KERNEL32.lib"
+  VERBATIM COMMAND_EXPAND_LISTS)
+add_custom_target(block_test DEPENDS "${CMAKE_BINARY_DIR}/block_test.exe")

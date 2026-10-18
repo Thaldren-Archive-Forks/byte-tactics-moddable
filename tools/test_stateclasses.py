@@ -41,6 +41,13 @@ extern "C" { void* malloc(unsigned); void* calloc(unsigned, unsigned); }
 void* operator new(unsigned, void* where) { return where; }
 void* GameAllocIgnoreTag(char* name, unsigned int size);
 void* GameAlloc(unsigned n) { return malloc(n); }
+struct SimHeap {};
+extern const SimHeap kSim;
+void* operator new(unsigned, const SimHeap&);
+void* operator new[](unsigned, const SimHeap&);
+void* SimAlloc(unsigned n);
+void* SimAllocTagged(const char* tag, unsigned n);
+void* SimRealloc(void* p, unsigned n);
 extern Game* g_game;
 int counter;
 
@@ -53,6 +60,9 @@ void Cast() { Unit* u = (Unit*)GameAllocIgnoreTag("CAST TAG", 16); (void)u; }
 void Tag() { char* b = (char*)malloc(32); (void)b; }
 char* Wrapper(unsigned n) { return (char*)malloc(n); }
 void Placement(void* where) { Unit* u = new (where) Unit; (void)u; }
+void SimNew() { Unit* u = new (kSim) Unit; Unit* v = new (kSim) Unit[4]; (void)u; (void)v; }
+void SimCalls(void* old) { Unit* u = (Unit*)SimAlloc(16); void* t = SimAllocTagged("SIM TAG", 8);
+                           void* r = SimRealloc(old, 32); (void)u; (void)t; (void)r; }
 void Zeroed() { void* z = calloc(1, 8); (void)z; }
 void LiteralIndex() { g_game->blob[3] = 1; }
 int LiteralRead() { return g_game->blob[5]; }
@@ -173,6 +183,12 @@ class ScanTest(unittest.TestCase):
     def test_a_wrapper_placement_new_and_the_allocator_itself_are_not_sites(self):
         for name in ("Wrapper", "Placement", "GameAlloc"):
             self.assertEqual(self.by_name[name]["allocs"], [], name)
+
+    def test_sim_block_forms_are_sites_named_as_the_forms_they_replace(self):
+        self.assertEqual([(a, w) for a, w, *_ in self.by_name["SimNew"]["allocs"]],
+                         [("new", "Unit"), ("new[]", "Unit")])
+        self.assertEqual([(a, w) for a, w, *_ in self.by_name["SimCalls"]["allocs"]],
+                         [("operator new", "Unit"), ("GameAllocIgnoreTag", "SIM TAG"), ("realloc", "void")])
 
     def test_calloc_is_a_site(self):
         self.assertEqual([a for a, w, *_ in self.by_name["Zeroed"]["allocs"]], ["calloc"])
