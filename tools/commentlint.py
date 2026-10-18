@@ -55,13 +55,13 @@ TODO = re.compile(r"TODO\(#(\d+)\):\s*\S")
 
 DIRECTIVES = [
     ("FUNCTION", re.compile(r"FUNCTION:\s*0x[0-9a-fA-F]+(\s+\S+)?$"),
-     "tools/sources.py, check.py, checkall.py, unitmap.py, rename.py"),
+     "tools/sources.py, rwsets.py, rename.py"),
     ("GLOBAL", re.compile(r"GLOBAL:\s*0x[0-9a-fA-F]+$"),
-     "tools/sources.py, place.py"),
+     "tools/sources.py"),
     ("ENTRY", re.compile(r"ENTRY:\s*0x[0-9a-fA-F]+(\s+\S+)?$"),
-     "tools/gapcheck.py, rename.py"),
+     "tools/aliases.py, rename.py"),
     ("FLAGS", re.compile(r"FLAGS:\s*\S.*$"),
-     "tools/check.py, gametypes.py"),
+     "CMakeLists.txt, tools/rename.py"),
 ]
 
 

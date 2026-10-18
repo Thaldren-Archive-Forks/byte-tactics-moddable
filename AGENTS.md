@@ -156,9 +156,10 @@ one of three forms:
    reference so a trace divergence can be looked up there.
 
 The lint also allows the `GLOBAL:`, `ENTRY:` and `FLAGS:` lines, because tools
-read them as input, not commentary: `tools/sources.py` reads `GLOBAL:`,
-`tools/aliases.py` and `tools/rename.py` read `ENTRY:`, `tools/rename.py` reads
-`FLAGS:`, and the `reference` branch's matching build reads all three.
+and the build read them as input, not commentary: `tools/sources.py` reads
+`GLOBAL:`, `tools/aliases.py` and `tools/rename.py` read `ENTRY:`, and
+`CMakeLists.txt` and `tools/rename.py` read `FLAGS:`. `FUNCTION:` markers are
+read by `tools/sources.py`, `tools/rwsets.py` and `tools/rename.py`.
 
 Code that looks wrong but is deliberate, such as a 3.1c quirk, is documented by
 a quirk flag whose name says what it does (#1), or by a `TODO(#n)` pointing at

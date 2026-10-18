@@ -48,7 +48,7 @@ never edited. Building then runs `tools/aliases.py`, the generator that bridges
 the many spellings of each function and global to the one definition at its
 address, and links the result with the import
 libraries made from `link/*.def`, MSVC 5's `LIBCMT.LIB` and its system
-libraries, zlib from `toolchain/thirdparty` and the resources (`llvm-rc`). It
+libraries, zlib 1.0.4 (the sources in `toolchain/thirdparty`, compiled with clang-cl as `/Gz /Zp1`) and the resources (`llvm-rc`). It
 needs `uv`, `orig/TotalA.exe` (the icon, the cursor and the initial value of
 some globals) and `llvm-dlltool`, `llvm-rc` and `lld-link`.
 
