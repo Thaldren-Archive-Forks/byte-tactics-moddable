@@ -69,7 +69,10 @@
 0x42dcf0 LoadDownloadMenus
 0x432610 LoadSavedGameState
 0x4326b0 SaveGameFile
+0x435da0 Mission::LoadMission
 0x437840 UpdateMetalExtraction
+0x437cd0 InitMeteors
+0x437de0 UpdateMeteors
 0x43b7c0 RunOrders
 0x43c050 RegisterAllOrderTypes
 0x43d6d0 UnitMotion::UpdatePosition
@@ -116,6 +119,7 @@
 0x48a1e0 GetWeaponTargetPos
 0x48a490 AlignUnitToGround
 0x4917d0 LoadBattleAssets
+0x491b60 ShutdownIngameSystems
 0x495230 UpdateFramePacing
 0x495490 RunGameSteps
 0x496bb0 MenuFrame

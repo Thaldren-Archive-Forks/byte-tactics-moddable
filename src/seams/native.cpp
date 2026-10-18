@@ -7,8 +7,22 @@
 
 struct Player;
 
+class MeteorParams {
+public:
+    void LoadMeteorDefaults();
+};
+
 void __cdecl UpdateWind(void);
 void __stdcall UpdateMeteors(void);
+void __stdcall InitMeteors(void);
+void __stdcall EmptyShutdownPreCleanup(void);
+void __stdcall EnableMeteors(void);
+void __stdcall DisableMeteors(void);
+void __stdcall SetMeteorParams(MeteorParams* params);
+void __stdcall SaveMeteors(HapiBank* file);
+void __stdcall LoadMeteors(HapiBank* file);
+void __stdcall CmdMeteor(CommandArgs* args);
+int __stdcall SpawnProjectile(WeaponDef* weapon, Vec3* pos, Vec3* vel, int flag);
 void __stdcall UpdateResourceSharing(Player* player);
 void __stdcall UpdateFeatures(void);
 
@@ -83,60 +97,61 @@ int __stdcall GetWeaponRange(int param1, unsigned int param2);
 int __stdcall WeaponCanReachUnit(Unit* unit1, Unit* unit2, unsigned char weapon);
 void __stdcall GetVisibleEnemiesInRadius(int player, const Vec* pos, int radius, int flags, std::vector<Unit*>* out);
 
-static void __stdcall ResetUnitResources(UnitResources* self, unsigned char playerIndex)
+static void __stdcall ResetNative(UnitResources* self, unsigned char playerIndex)
 {
     self->Reset(playerIndex);
 }
 
-static void __stdcall SaveUnitResources(UnitResources* self, UnitInfo* info, HapiBank* file)
+static void __stdcall SaveUnitAccountsNative(UnitResources* self, UnitInfo* info, HapiBank* file)
 {
     self->SaveUnitAccounts(info, file);
 }
 
-static void __stdcall LoadUnitResources(UnitResources* self, UnitInfo* info, HapiBank* file)
+static void __stdcall LoadUnitAccountsNative(UnitResources* self, UnitInfo* info, HapiBank* file)
 {
     self->LoadUnitAccounts(info, file);
 }
 
-static int __stdcall RequestEnergyOfUnit(UnitResources* self, UnitResources* r, float amount)
+static int __stdcall RequestEnergyNative(UnitResources* self, UnitResources* r, float amount)
 {
     return self->RequestEnergy(r, amount);
 }
 
-static int __stdcall RequestEnergyAndMetalOfUnit(UnitResources* self, float energy, float metal)
+static int __stdcall RequestEnergyAndMetalNative(UnitResources* self, float energy, float metal)
 {
     return self->RequestEnergyAndMetal(energy, metal);
 }
 
-static int __stdcall SpendEnergyOfUnit(UnitResources* self, float amount)
+static int __stdcall SpendEnergyNative(UnitResources* self, float amount)
 {
     return self->SpendEnergy(amount);
 }
 
-static int __stdcall SpendMetalOfUnit(UnitResources* self, float amount)
+static int __stdcall SpendMetalNative(UnitResources* self, float amount)
 {
     return self->SpendMetal(amount);
 }
 
-static int __stdcall SpendEnergyAndMetalOfUnit(UnitResources* self, float energy, float metal)
+static int __stdcall SpendEnergyAndMetalNative(UnitResources* self, float energy, float metal)
 {
     return self->SpendEnergyAndMetal(energy, metal);
 }
 
-static int __stdcall FindScriptOfUnit(CobScript* script, const char* name)
+static int __stdcall FindScriptNative(CobScript* script, const char* name)
 {
     return script->FindScript(name);
 }
 
-static int __stdcall StartScriptWithArgsOfUnit(CobScript* script, char* name, Callback* callback, int update, int count, int a, int b, int c, int d)
+static int __stdcall StartScriptWithArgsNative(CobScript* script, char* name, Callback* callback, int update, int count, int a, int b, int c, int d)
 {
     return script->StartScriptWithArgs(name, callback, update, count, a, b, c, d);
 }
 
-static void __stdcall SetStateBitsOfUnit(Unit* unit, int mask, int set)
+static void __stdcall SetStateBitsNative(Unit* unit, int mask, int set)
 {
     unit->SetStateBits(mask, set);
 }
+
 void __stdcall UpdateProjectiles(void);
 void __stdcall UpdateExplosions(void);
 void __stdcall UpdateAllUnits(void);
@@ -227,22 +242,36 @@ static UnitsSeam s_units;
 static PlayersSeam s_players;
 static MapSeam s_map;
 
+static void __fastcall LoadMeteorDefaultsNative(MeteorParams* params)
+{
+    params->LoadMeteorDefaults();
+}
+
 void InstallNativeSeams()
 {
     s_wind_meteors.UpdateWind = UpdateWind;
     s_wind_meteors.UpdateMeteors = UpdateMeteors;
+    s_wind_meteors.InitMeteors = InitMeteors;
+    s_wind_meteors.EmptyShutdownPreCleanup = EmptyShutdownPreCleanup;
+    s_wind_meteors.EnableMeteors = EnableMeteors;
+    s_wind_meteors.DisableMeteors = DisableMeteors;
+    s_wind_meteors.SetMeteorParams = SetMeteorParams;
+    s_wind_meteors.LoadMeteorDefaults = LoadMeteorDefaultsNative;
+    s_wind_meteors.SaveMeteors = SaveMeteors;
+    s_wind_meteors.LoadMeteors = LoadMeteors;
+    s_wind_meteors.CmdMeteor = CmdMeteor;
     s_economy.UpdateResourceSharing = UpdateResourceSharing;
     s_economy.GetEnergyUse = GetEnergyUse;
     s_economy.UpdatePlayerEconomy = UpdatePlayerEconomy;
     s_economy.UpdateMetalExtraction = UpdateMetalExtraction;
-    s_economy.Reset = ResetUnitResources;
-    s_economy.SaveUnitAccounts = SaveUnitResources;
-    s_economy.LoadUnitAccounts = LoadUnitResources;
-    s_economy.RequestEnergy = RequestEnergyOfUnit;
-    s_economy.RequestEnergyAndMetal = RequestEnergyAndMetalOfUnit;
-    s_economy.SpendEnergy = SpendEnergyOfUnit;
-    s_economy.SpendMetal = SpendMetalOfUnit;
-    s_economy.SpendEnergyAndMetal = SpendEnergyAndMetalOfUnit;
+    s_economy.Reset = ResetNative;
+    s_economy.SaveUnitAccounts = SaveUnitAccountsNative;
+    s_economy.LoadUnitAccounts = LoadUnitAccountsNative;
+    s_economy.RequestEnergy = RequestEnergyNative;
+    s_economy.RequestEnergyAndMetal = RequestEnergyAndMetalNative;
+    s_economy.SpendEnergy = SpendEnergyNative;
+    s_economy.SpendMetal = SpendMetalNative;
+    s_economy.SpendEnergyAndMetal = SpendEnergyAndMetalNative;
     s_features.UpdateFeatures = UpdateFeatures;
     s_features.LoadFeatureFileList = LoadFeatureFileList;
     s_features.FreeFeatureFileList = FreeFeatureFileList;
@@ -277,9 +306,9 @@ void InstallNativeSeams()
     s_players.TransferEnergy = TransferEnergy;
     s_units.GetGroundHeight = GetGroundHeightNative;
     s_units.GetSweetSpot = GetSweetSpotNative;
-    s_units.FindScript = FindScriptOfUnit;
-    s_units.StartScriptWithArgs = StartScriptWithArgsOfUnit;
-    s_units.SetStateBits = SetStateBitsOfUnit;
+    s_units.FindScript = FindScriptNative;
+    s_units.StartScriptWithArgs = StartScriptWithArgsNative;
+    s_units.SetStateBits = SetStateBitsNative;
     s_map.GetCellMeanHeight = GetCellMeanHeightNative;
     s_map.RefreshAllPassMaps = RefreshAllPassMaps;
     s_map.GetGameType = GetGameTypeNative;
@@ -290,6 +319,7 @@ void InstallNativeSeams()
     s_ai.GetVisibleEnemiesInRadius = GetVisibleEnemiesInRadiusNative;
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
+    s_weapons.SpawnProjectile = SpawnProjectile;
     s_units.UpdateAllUnits = UpdateAllUnits;
     s_players.UpdatePlayers = UpdatePlayers;
     g_seams.wind_meteors = &s_wind_meteors;

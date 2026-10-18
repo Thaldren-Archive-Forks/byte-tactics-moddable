@@ -109,11 +109,6 @@ game,weapons,FreeWeaponArray
 game,weapons,FreeWeaponTypes
 game,weapons,InitExplosions
 game,weapons,LoadWeaponTypes
-game,wind_meteors,EmptyShutdownPreCleanup
-game,wind_meteors,InitMeteors
-game,wind_meteors,LoadMeteors
-game,wind_meteors,SaveMeteors
-game,wind_meteors,UpdateWind
 los_radar,ai,HasReadyUnitInRange
 los_radar,ai,IsPointVisible
 los_radar,map,Mission::GetNameSlot
@@ -128,10 +123,6 @@ map,players,MissionConditions::RegisterConditions
 map,players,MissionConditions::~MissionConditions
 map,units,UpdateAll
 map,units,setcell
-map,wind_meteors,DisableMeteors
-map,wind_meteors,EnableMeteors
-map,wind_meteors,MeteorParams::LoadMeteorDefaults
-map,wind_meteors,SetMeteorParams
 orders,ai,GetFactoriesInRadius
 orders,ai,GetVisibleEnemiesInRadius
 orders,ai,MakeVec3
@@ -286,5 +277,3 @@ weapons,units,GetGroundHeight
 weapons,units,GetPieceOffset
 weapons,units,GetPiecePosition
 weapons,units,MarkRecentlyDamaged
-wind_meteors,weapons,FindWeaponByName
-wind_meteors,weapons,SpawnProjectile

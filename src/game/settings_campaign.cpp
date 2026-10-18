@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "../util/hapi_bank.h"
+#include "../../interfaces/seams.h"
 #include "mission_conditions.h"
 
 class Mission;
@@ -97,7 +98,6 @@ void __stdcall LoadMetalPlotmap(HapiBank* file);
 void __stdcall LoadPlayerFeaturesPlotmap(HapiBank* file);
 void __stdcall LoadMappingData(HapiBank* file);
 void __stdcall LoadUnits(HapiBank* file);
-void __stdcall LoadMeteors(HapiBank* file);
 
 void __stdcall SaveSurface(void* surface, void* file);
 void __stdcall WriteCameraPosition(void* file);
@@ -106,7 +106,6 @@ void __stdcall SaveUnits(void* file);
 void __stdcall SaveMappingData(void* file);
 void __stdcall SavePlayerFeaturesPlotmap(void* file);
 void __stdcall SaveMetalPlotmap(void* file);
-void __stdcall SaveMeteors(void* file);
 
 extern int __stdcall ReadRegistryData(const char* app, const char* key, char* buf, int* size);
 extern void __stdcall WriteRegistryString(const char* app, const char* key, const char* value);
@@ -184,7 +183,7 @@ int __stdcall LoadSavedGameState(HapiBank* file)
     LoadPlayerFeaturesPlotmap(file);
     LoadMappingData(file);
     LoadUnits(file);
-    LoadMeteors(file);
+    g_seams.wind_meteors->LoadMeteors(file);
     g_game->victoryConditions->LoadConditions(file);
     g_game->loaded = 1;
     return 1;
@@ -247,7 +246,7 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
         g_seams.features->SaveFeatures(&file);
         SavePlayerFeaturesPlotmap(&file);
         SaveMetalPlotmap(&file);
-        SaveMeteors(&file);
+        g_seams.wind_meteors->SaveMeteors(&file);
         g_game->victoryConditions->SaveConditions(&file);
     }
     int result = file.SaveBank(path, g_saveBankName, 1, 0);
