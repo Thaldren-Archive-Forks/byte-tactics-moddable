@@ -1,7 +1,0 @@
-from,to,target
-game,orders,AddOrder
-game,orders,ClearOrderTypeTable
-game,orders,CreatePathfinder
-game,orders,DestroyPathfinder
-game,orders,GetOrderType
-game,orders,RegisterAllOrderTypes
