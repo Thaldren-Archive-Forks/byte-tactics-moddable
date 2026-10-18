@@ -9,11 +9,17 @@ MSVC 5 compiler, linker or Wine wrapper. It builds with clang and LLVM 22.1.8
 against MSVC 5's `INCLUDE` and `LIB` directories, and
 `build/modern/TotalA.exe` is what the gate checks.
 
-A harness change lands on both branches: cherry-pick the same commit to
-`reference`, run `uv run tools/reference.py HEAD --traces` there, and tag a new
-`reference-traces-v<n>` when a digest changes. `uv run tools/reference.py --traces`
+A harness or engine change lands on both branches: cherry-pick the same commit
+to `reference`, run `uv run tools/reference.py HEAD --traces` there, and tag a
+new `reference-traces-v<n>` when a digest changes. `uv run tools/reference.py --traces`
 on `moddable` does the second step in a worktree of `origin/reference`
 (`build/reference/branch`) and copies the traces into `reference/traces/`.
+
+`--traces` plays `moddable`'s scenarios: it copies this tree's
+`reference/scenarios/` into the branch worktree, replacing the branch's set, so
+a new scenario needs no cherry-pick to `reference`. It refuses to replace
+`reference/traces/` unless the trace names equal the scenario names, and the
+error lists the missing and the extra ones.
 
 ## Running a scenario
 

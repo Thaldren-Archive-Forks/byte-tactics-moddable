@@ -331,8 +331,20 @@ def reference_branch() -> Path:
     return directory
 
 
+def name_mismatch(produced: set[str], expected: set[str]) -> str:
+    """Empty when the sets are equal, else a message naming the missing and the extra names."""
+    if produced == expected:
+        return ""
+    missing = ", ".join(sorted(expected - produced)) or "none"
+    extra = ", ".join(sorted(produced - expected)) or "none"
+    return f"the traces do not match moddable's scenarios; missing: {missing}; extra: {extra}"
+
+
 def write_traces(game_dir: str | None, parallel: int) -> None:
     directory = reference_branch()
+    branch_scenarios = directory / "reference/scenarios"
+    shutil.rmtree(branch_scenarios, ignore_errors=True)
+    shutil.copytree(SCENARIOS, branch_scenarios)
     cmd = ["uv", "run", "tools/reference.py", "HEAD", "--traces", "--parallel", str(parallel)]
     if game_dir:
         cmd += ["--game-dir", game_dir]
@@ -341,6 +353,9 @@ def write_traces(game_dir: str | None, parallel: int) -> None:
     produced = sorted((directory / "reference/traces").glob("*.txt"))
     if not produced:
         fail("the reference branch wrote no traces; reference/traces/ is untouched")
+    mismatch = name_mismatch({p.stem for p in produced}, set(scenario_files()))
+    if mismatch:
+        fail(f"{mismatch}; reference/traces/ is untouched")
     TRACES.mkdir(parents=True, exist_ok=True)
     for old in TRACES.glob("*.txt"):
         old.unlink()
