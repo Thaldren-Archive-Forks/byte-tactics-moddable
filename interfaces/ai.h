@@ -1,7 +1,10 @@
 #ifndef INTERFACES_AI_H
 #define INTERFACES_AI_H
 
-#include <vector>
+namespace std {
+template<class T> class allocator;
+template<class T, class A> class vector;
+}
 
 struct Unit;
 struct Vec3;
@@ -14,7 +17,7 @@ struct Vec3;
 // Computer player decisions.
 struct AiSeam {
     // Appends to out the enemies a player sees within a radius of a position. Hooks: none.
-    void (__stdcall* GetVisibleEnemiesInRadius)(int player, const Vec3* pos, int radius, int flags, std::vector<Unit*>* out);
+    void (__stdcall* GetVisibleEnemiesInRadius)(int player, const Vec3* pos, int radius, int flags, std::vector<Unit*, std::allocator<Unit*> >* out);
 };
 
 #endif
