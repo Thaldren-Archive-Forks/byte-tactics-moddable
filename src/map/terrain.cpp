@@ -247,12 +247,11 @@ extern Game* g_game;
 extern ClaimFootprintVisitor g_claimFootprintVtable[];
 extern int g_lastPlaceHeight;
 extern int g_lastPlaceMetalSum;
-void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size);
 void __stdcall RefreshAllPassMaps(Point16 pos, Point16 size);
 // Stays in a file of its own: see the note at its definition.
 void __stdcall RemoveUnitFromMap(Unit* unit);
 
-Cell* __stdcall GetMapCell(int x, int y);
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x47c790
 void __stdcall ClaimFootprintCells(Unit* obj)
@@ -265,7 +264,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
     obj->flags = f;
     Point16 size = obj->footprint;
     if (f & 0x20000000) {
-        Cell* cell = GetMapCell(obj->pos.x, obj->pos.y);
+        Cell* cell = g_seams.los_radar->GetMapCell(obj->pos.x, obj->pos.y);
         int index = 0;
         for (int j = size.y; j > 0; j--) {
             for (int i = size.x; i > 0; i--) {
@@ -297,7 +296,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
             cell += g_game->mapWidthTiles - size.x;
         }
     } else if ((obj->flags & 3) == 1) {
-        Cell* cell = GetMapCell(obj->pos.x, obj->pos.y);
+        Cell* cell = g_seams.los_radar->GetMapCell(obj->pos.x, obj->pos.y);
         for (int j = size.y; j > 0; j--) {
             for (int i = size.x; i > 0; i--) {
                 Unit* rec;
@@ -323,7 +322,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
             cell += g_game->mapWidthTiles - size.x;
         }
     } else {
-        Cell* cell = GetMapCell(obj->pos.x, obj->pos.y);
+        Cell* cell = g_seams.los_radar->GetMapCell(obj->pos.x, obj->pos.y);
         for (int j = size.y; j > 0; j--) {
             for (int i = size.x; i > 0; i--) {
                 Unit* rec;
@@ -1127,7 +1126,6 @@ void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& v
 
 void __cdecl operator delete(void* p);
 
-void* __stdcall GetMapCellAtPosition(Vec3* pos);
 int __stdcall RandomInt(int range);
 
 // FUNCTION: 0x47ea40
@@ -1142,7 +1140,7 @@ int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* center, Fixed radius,
     Vec3 pos;
     for (pos.z = center->z - half; pos.z <= center->z + half; pos.z += 0x300000) {
         for (pos.x = center->x - half; pos.x <= center->x + half; pos.x += 0x300000) {
-            void* cell = GetMapCellAtPosition(&pos);
+            void* cell = g_seams.los_radar->GetMapCellAtPosition(&pos);
             if (!cell)
                 continue;
             unsigned short index = g_seams.features->GetCellFeature((Cell*)cell);

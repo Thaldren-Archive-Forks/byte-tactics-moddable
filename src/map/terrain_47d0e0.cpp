@@ -61,7 +61,7 @@ public:
 extern Game* g_game;
 extern ClaimFootprintVisitor g_claimFootprintVtable[];
 
-void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size);
+#include "../../interfaces/seams.h"
 void __stdcall VisitObjectsInArea(Point16 pos, Point16 size, ClaimFootprintVisitor* visitor);
 void __stdcall RefreshPassMapsForUnit(Obj_0047db20* obj);
 
@@ -98,7 +98,7 @@ void __stdcall RemoveUnitFromMap(Obj_0047db20* obj)
             Point16 pad;
             pad.x = obj->pos.x - 1;
             pad.y = obj->pos.y - 1;
-            UpdateCellHeightRange(pad, grown);
+            g_seams.los_radar->UpdateCellHeightRange(pad, grown);
         } else if ((obj->flags.all & 3) == 1) {
             for (int j = size.y; j > 0; j--) {
                 for (int i = size.x; i > 0; i--) {

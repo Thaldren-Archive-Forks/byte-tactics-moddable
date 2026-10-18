@@ -489,7 +489,7 @@ struct Feature_0043e490 {
 };
 #pragma pack(pop)
 
-Cell* __stdcall GetMapCellAtPosition(Pos_0043e490* pos);
+#include "../../interfaces/seams.h"
 int __stdcall WeaponCanReachPos(Unit_0043e490* unit, void* slot, Pos_0043e490* pos, int which);
 int __stdcall WeaponCanReachUnit(Unit_0043e490* unit, Unit_0043e490* target, int which);
 
@@ -535,7 +535,7 @@ static inline Feature_0043e490* GetFeature(Cell* cell) {
 #define RECLAIM_CHECK(def, unit, pos, mask, result)                  \
     do {                                                             \
         if (((def)->flags2 & (mask)) && Visible((unit), (pos))) {      \
-            Feature_0043e490* f = GetFeature(GetMapCellAtPosition(pos));     \
+            Feature_0043e490* f = GetFeature(g_seams.los_radar->GetMapCellAtPosition((Vec3*)(pos)));     \
             if (f && (f->flags & 0x80))                              \
                 return (result);                                     \
         }                                                            \

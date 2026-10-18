@@ -343,7 +343,7 @@ struct Point16_00485010 {
     short y;
 };
 
-static inline Cell* GetCell(int x, int y)
+static inline Cell* CellAt(int x, int y)
 {
     if (x >= 0 && x < g_game->mapWidthTiles && y >= 0 && y < g_game->mapHeightTiles)
         return &g_game->heightMap[y * g_game->mapWidthTiles + x];
@@ -353,7 +353,7 @@ static inline Cell* GetCell(int x, int y)
 // FUNCTION: 0x485010
 int __stdcall GetCellHeight(Point16_00485010* p)
 {
-    Cell* cell = GetCell(p->x, p->y);
+    Cell* cell = CellAt(p->x, p->y);
     if (cell)
         return cell->height;
     return 0;
@@ -392,7 +392,7 @@ int __stdcall GetCellMeanHeight(Pos_00485070* p)
 // FUNCTION: 0x485330
 void __stdcall GetCellPosition(int x, int y, Pos_00485070* out)
 {
-    Cell* cell = GetCell(x, y);
+    Cell* cell = CellAt(x, y);
     if (cell) {
         memset(out, 0, sizeof(*out));
         out->x.whole = x << 4;
@@ -864,7 +864,6 @@ void __stdcall UpdateUnitHeight(Unit* unit);
 void __stdcall AddUnitToMap(Unit* unit);
 void __stdcall SendNewUnit(Unit* unit);
 void __stdcall BroadcastBuilderLink(Unit* a, Unit* b);
-void __stdcall RevealNewUnit(Unit* unit);
 
 static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Pos_00485a40 pos,
                                                int param_5, Unit* unit)
@@ -934,7 +933,7 @@ found:
             unit->flags.bit14 = 1;
         }
     }
-    RevealNewUnit(unit);
+    g_seams.los_radar->RevealNewUnit(unit);
     // Array subscript, not a byte-offset cast: it fixes the SIB operand order.
     g_game->players[player].unitCount++;
     g_game->players[player].unitsCreated++;
@@ -978,7 +977,7 @@ Unit* __stdcall CreateUnitFromPacket(unsigned char player, Spawn_004861d0* spawn
     InitUnit_00485e90(spawn->type, spawn->pos, 0, unit);
     UpdateUnitHeight(unit);
     AddUnitToMap(unit);
-    RevealNewUnit(unit);
+    g_seams.los_radar->RevealNewUnit(unit);
     // Indexed again from g_game, not through pl: keeps the player index live early.
     g_game->players[player].unitCount++;
     g_game->players[player].unitsCreated++;
@@ -992,7 +991,6 @@ struct Result_486360 {
     int velZ;                        // +0x1c
 };
 
-void* __stdcall GetMapCell(int x, int y);
 // GetGroundHeight (units_485070.cpp) only matches in a file of its own: its symbol
 // ids have to stay below a low limit.
 int __stdcall GetGroundHeight(Pos_00485070* pos);
@@ -1011,7 +1009,7 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
         id = g_game->features[id].next;
     }
     if (id < 0xfffb) {
-        void* target = GetMapCell(unit->screen.x, unit->screen.y);
+        void* target = g_seams.los_radar->GetMapCell(unit->screen.x, unit->screen.y);
         if (target != 0) {
             Pos_00485070* pos = (Pos_00485070*)&unit->pos;
             if (GetGroundHeight(pos) <= g_game->seaLevel) {
@@ -1125,7 +1123,6 @@ void __stdcall KillUnit(Unit* unit, int param_2)
 extern char g_killedScriptName[];
 extern char g_takenLeadFormat[];
 
-void __stdcall AddEyeball(void* pos, int a, int b, int c);
 unsigned char __stdcall FindSlotByDpid(int id);
 void __stdcall DeleteOrders(void* unit, int flag);
 void __stdcall RemoveSpeechOfUnit(void* unit);
@@ -1133,7 +1130,6 @@ void __stdcall RemoveUnitProjectiles(void* unit);
 void __stdcall AttachUnitToPiece(void* unit, void* builder, int a, int c);
 void __stdcall DamageUnit(void* a, void* b, int c, int d, int e);
 void __stdcall ClearFootprintAndUnlink(void* unit);
-void __stdcall RemoveUnitLineOfSight(void* unit);
 void __stdcall AddCdActivitySample(int flag);
 char* __stdcall Translate(char* text);
 void __stdcall AddMessage(char* text, int a, int b, int c);
@@ -1157,7 +1153,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         return;
 
     if (unit->player->index == g_game->playerIndex)
-        AddEyeball(&unit->pos, unit->def->x202, unit->def->x170, 60);
+        g_seams.los_radar->AddEyeball((Vec3*)&unit->pos, unit->def->x202, unit->def->x170, 60);
     Unit* parent;
     if (cmd->attackerUnitId == 0)
         parent = 0;
@@ -1179,7 +1175,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     }
     ClearFootprintAndUnlink(unit);
     if ((g_game->mapFlags & 2) == 2)
-        RemoveUnitLineOfSight(unit);
+        g_seams.los_radar->RemoveUnitLineOfSight(unit);
     if (local == 0 && cmd->cobKilledSeverity > 0)
         unit->script->StartScriptWithArgs(g_killedScriptName, 0, 1, 1, cmd->cobKilledSeverity, 0, 0, 0);
 
@@ -1426,7 +1422,7 @@ int __stdcall FindHighestPointOnLine(Vec3_004851c0 a, Vec3_004851c0 b)
     d.z /= n;
     short best = 0;
     for (int i = 0; i <= n; i++) {
-        Cell* c = GetCell(a.x / 0x100000, a.z / 0x100000);
+        Cell* c = CellAt(a.x / 0x100000, a.z / 0x100000);
         if (c) {
             short v = ((unsigned char*)g_game->features)[c->feature * 256 + 0xfa] + c->height;
             if (best < v) best = v;

@@ -283,16 +283,12 @@ public:
     virtual int Cost(int x, int y);
 };
 
-class OrderFx {
-public:
-    void AddFlags(int flags);
-};
+#include "../../interfaces/seams.h"
 
 class AiSearchGoal {
 public:
     char unknown_0[4];
     Target* target;                    // +0x4
-    void SetWaypoints(Point16* points, int count);
 };
 
 class Planner_0040eb70 {
@@ -499,13 +495,13 @@ public:
     }
     void Release()
     {
-        owner->RefreshUnitIfStale((Object_00440af0*)object);
+        g_seams.units->RefreshUnitIfStale(owner, object);
         object = 0;
         owner = 0;
     }
     void Finish()
     {
-        path->SetWaypoints(0, 0);
+        g_seams.orders->AiSearchGoalSetWaypoints(path, 0, 0);
         Release();
     }
     int CostFix(int x, int y)
@@ -647,7 +643,7 @@ static int IsPlaying(unsigned char i)
 // FUNCTION: 0x40d7b0
 int Pathfinder::GetCellState(int x, int y)
 {
-    if (!owner->InBounds(x, y))
+    if (!g_seams.units->MovementClassInBounds(owner, x, y))
         return 0;
     int cx = (x >> 1) + (owner->footprintX >> 2);
     int cy = (y >> 1) + (owner->footprintZ >> 2);
@@ -656,7 +652,7 @@ int Pathfinder::GetCellState(int x, int y)
         return 0;
     if (!((1 << player) & g_game->visibilityMask[cy * (g_game->mapWidthTiles >> 1) + cx]))
         return 2;
-    return owner->Get(x, y);
+    return g_seams.units->MovementClassGet(owner, x, y);
 }
 
 // Resets a table of eight bytes {0, 40, 60, 80, 100, 80, 60, 40} copied from
@@ -847,7 +843,7 @@ void Pathfinder::TracePath()
         out[i].x = (pt.x * 2 + owner->footprintX) * 8;
         out[i].y = (pt.y * 2 + owner->footprintZ) * 8;
     }
-    path->SetWaypoints(out, count);
+    g_seams.orders->AiSearchGoalSetWaypoints(path, out, count);
 }
 
 // Bug-style path probe: walks straight towards the goal (x first, then y)
@@ -959,7 +955,7 @@ void Pathfinder::StartSearch(Target* t)
     owner = (MovementClass*)object->motion->owner;
     target = t;
     start = object->cell;
-    owner->RefreshMovedUnits((Object_00440af0*)object);
+    g_seams.units->RefreshMovedUnits(owner, object);
     ResetTable();
     ClearDirtyCells();
 
@@ -980,21 +976,21 @@ void Pathfinder::StartSearch(Target* t)
 
     // Each early exit is its own `Finish(); return;`, not a goto to a shared block.
     if (target->IsGoal(start.x, start.y)) {
-        ((OrderFx*)target)->AddFlags(0x100);
+        g_seams.orders->OrderFxAddFlags((OrderFx*)target, 0x100);
         Finish();
         return;
     }
     int cost = Cost(start.x, start.y);
     if (!grid.InBounds(start.x, start.y)) {
-        ((OrderFx*)target)->AddFlags(0x200);
+        g_seams.orders->OrderFxAddFlags((OrderFx*)target, 0x200);
         Finish();
         return;
     }
     probe = ProbeStraightPath();
     if (probe == 0) {
-        ((OrderFx*)target)->AddFlags(0x100);
+        g_seams.orders->OrderFxAddFlags((OrderFx*)target, 0x100);
     } else {
-        ((OrderFx*)target)->AddFlags(0x200);
+        g_seams.orders->OrderFxAddFlags((OrderFx*)target, 0x200);
         if (probe >= cost) {
             Finish();
             return;
@@ -1013,7 +1009,7 @@ void Pathfinder::StartSearch(Target* t)
 // FUNCTION: 0x40e9a0
 void Pathfinder::ReleaseHeldPathLock()
 {
-    owner->RefreshUnitIfStale((Object_00440af0*)object);
+    g_seams.units->RefreshUnitIfStale(owner, object);
     object = 0;
     owner = 0;
 }
@@ -1189,7 +1185,7 @@ void Pathfinder::RunSearches()
                     break;
             }
         } else {
-            path->SetWaypoints(0, 0);
+            g_seams.orders->AiSearchGoalSetWaypoints(path, 0, 0);
             Release();
         }
         total -= steps;

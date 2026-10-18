@@ -437,7 +437,6 @@ void __stdcall LoadPlayerControllers(void* mission);
 void ApplySlotsToGamePlayers();
 void LoadBattleAssets();
 void InitPlayerResources();
-void __stdcall RecalculateLineOfSight(int x);
 void __stdcall LoadSavedGameState(void* mission);
 void CreateMissionUnits();
 void CenterCameraOnStartPosition();
@@ -513,11 +512,9 @@ int __cdecl AssignStartPositions();
 unsigned int __cdecl GetTicks();
 char* __cdecl GetPreferredLanguage();
 
-int __stdcall ClampWorldPosToTerrain(int x, int y, int param_3);
-void __stdcall ClampWorldPosToTerrain(int x, int y, Pos_00498da0* out);
+#include "../../interfaces/seams.h"
 int __stdcall GetGroundHeight(Pos_00498d00* pos);
 int __stdcall PointInRect(Rect* r, int x, int y);
-Cell* __stdcall GetMapCell(int x, int y);
 
 
 // Game start: seeds the random generators, loads the match settings for the
@@ -764,7 +761,7 @@ void __cdecl LoadMatch(void*)
         }
     }
 
-    RecalculateLineOfSight(1);
+    g_seams.los_radar->RecalculateLineOfSight(1);
 
     if (g_game->pendingSaveStore != 0) {
         g_game->pendingSaveStore->OpenAccount("summary");
@@ -1123,7 +1120,7 @@ void LoadingScreenFrame(void)
 // FUNCTION: 0x498cd0
 void __stdcall OffsetWorldPosFromView(Point_00498cd0* p, View_00498cd0* view, int param_3)
 {
-    ClampWorldPosToTerrain((view->x - 0x80) + p->x, (view->y - 0x20) + p->y, param_3);
+    g_seams.los_radar->ClampWorldPosToTerrain((view->x - 0x80) + p->x, (view->y - 0x20) + p->y, (Vec3*)param_3);
 }
 // Converts the screen position stored at +0x2c76 into a 16.16 world position
 // (scaled from the view origin), with the height taken from the ground there.
@@ -1140,7 +1137,6 @@ void __stdcall MinimapCursorToWorldPos(Pos_00498d00* out)
     out->y.whole = GetGroundHeight(out);
 }
 
-#include "../../interfaces/seams.h"
 // Turns a screen point into a world position. The caller copies the 24-byte
 // view rectangle at g_game+0x2c76 onto its own stack and passes the address, so
 // this function sees a snapshot of the view.
@@ -1196,7 +1192,7 @@ void __stdcall UpdateCursorWorldPos(View_00498da0* r)
         g_game->inputFlags.bits.b1 = PointInRect(lim, r->x, r->y);
     }
     g_game->inputFlags.bits.b2 = g_game->inputFlags.bits.b0 || g_game->inputFlags.bits.b1;
-    ClampWorldPosToTerrain(mx, my, &g_game->pos);
+    g_seams.los_radar->ClampWorldPosToTerrain(mx, my, (Vec3*)&g_game->pos);
     {
         Pos_00498da0* p = &g_game->pos;
         Point_00498da0 pt;
@@ -1205,5 +1201,5 @@ void __stdcall UpdateCursorWorldPos(View_00498da0* r)
         pt.y = (short)(v.z >> 20);
         g_game->point = pt;
     }
-    g_game->cellFeature = g_seams.features->GetCellFeature(GetMapCell(g_game->point.x, g_game->point.y));
+    g_game->cellFeature = g_seams.features->GetCellFeature(g_seams.los_radar->GetMapCell(g_game->point.x, g_game->point.y));
 }

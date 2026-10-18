@@ -171,7 +171,7 @@ extern Game* g_game;
 
 void __stdcall PlaySoundByName(char* str, int flag);
 short __stdcall FindUnitTypeId(char* name);
-void __stdcall ClampWorldPosToTerrain(int x, int z, Vec3* out);
+#include "../../interfaces/seams.h"
 void __stdcall VisitObjectsInRange(Vec3* pos, int radius, Listener_0048f250* visitor);
 
 // KillEnemyCommander (vtable 0x4fd960).
@@ -909,7 +909,7 @@ void VictoryKillUnitType::LoadState(HapiBank* obj)
 int VictoryMoveUnitToRadius::IsSatisfied()
 {
     if (pos.y == 0x12345678) {
-        ClampWorldPosToTerrain(pos.x, pos.z, &pos);
+        g_seams.los_radar->ClampWorldPosToTerrain(pos.x, pos.z, &pos);
     }
     VisitObjectsInRange(&pos, radius, this);
     return satisfied;

@@ -10,13 +10,9 @@
 #include "mission_conditions.h"
 #include "../game/unit_resources.h"
 
-class Pathfinder {
-public:
-    void RunSearches();
-};
-
 struct Player;
 struct Unit;
+class Pathfinder;
 
 #pragma pack(push, 1)
 
@@ -673,7 +669,6 @@ void __stdcall TransferEnergy(unsigned char from, unsigned char to, float amount
         SendShareEnergy(from, to, *(int*)&amount);
 }
 
-void __stdcall UpdateUnitLineOfSight(Unit* unit);
 
 // Calls UpdateUnitLineOfSight for every unit in the range whose flag 0x10000000 is set.
 // FUNCTION: 0x464da0
@@ -681,7 +676,7 @@ void __stdcall RefreshOwnedUnitsLineOfSight(Player* range)
 {
     for (Unit* u = range->units; u <= range->units_end; u++) {
         if (u->flags & 0x10000000) {
-            UpdateUnitLineOfSight(u);
+            g_seams.los_radar->UpdateUnitLineOfSight(u);
         }
     }
 }
@@ -747,9 +742,6 @@ void ShowContinueWatchingDialog()
 extern int g_economyPacketTick;
 
 void __stdcall UpdatePlayerAI(int player);
-void DrawRadarUnits();
-void UpdateSensorRadarAndCloak();
-void UpdateRadarMapped();
 unsigned char __stdcall FindHostSlot();
 unsigned short __stdcall FindUnitTypeId(const char* name);
 int __stdcall RandomInt(int range);
@@ -759,7 +751,6 @@ int __stdcall GetCellMeanHeight(Vec3* pos);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId,
                            Vec3 pos, int a, int b, int c);
 void __stdcall SetStartingStorageBonus(Player* player, int height, int width);
-void __stdcall RecalculateLineOfSight(int on);
 void __stdcall FocusCommander(int on);
 void __stdcall SendPlayerEconomy(Player* player, int a, int b);
 int __stdcall CountCombatPlayers();
@@ -796,7 +787,7 @@ static const float kHundred = 100.0f;
 // FUNCTION: 0x464f80
 void __stdcall UpdatePlayers()
 {
-    g_game->pathfinder->RunSearches();
+    g_seams.pathfinding->RunSearches(g_game->pathfinder);
     // bl is declared before the guard and pi before the first goto, or the jump
     // is rejected.
     unsigned char bl = 0;
@@ -840,13 +831,13 @@ void __stdcall UpdatePlayers()
             Unit* u = pi->units;
             while (u <= pi->units_end) {
                 if (u->flags & 0x10000000)
-                    UpdateUnitLineOfSight(u);
+                    g_seams.los_radar->UpdateUnitLineOfSight(u);
                 u = (Unit*)((char*)u + 0x118);
             }
         }
 
         if (bl == g_game->playerIndex)
-            DrawRadarUnits();
+            g_seams.los_radar->DrawRadarUnits();
 
         if ((unsigned int)pi->updateTime > g_game->gameTick)
             goto next_bl;
@@ -988,7 +979,7 @@ void __stdcall UpdatePlayers()
                                     }
                                     *slot = f;
                                 }
-                                RecalculateLineOfSight(1);
+                                g_seams.los_radar->RecalculateLineOfSight(1);
                                 FocusCommander(1);
                             }
                         } else {
@@ -1016,8 +1007,8 @@ void __stdcall UpdatePlayers()
         }
 
         if (bl == g_game->playerIndex) {
-            UpdateSensorRadarAndCloak();
-            UpdateRadarMapped();
+            g_seams.los_radar->UpdateSensorRadarAndCloak();
+            g_seams.los_radar->UpdateRadarMapped();
             if (g_game->mapInfo->GetGameType() == 3) {
                 g_economyPacketTick++;
                 if ((g_economyPacketTick & 3) == 0)
@@ -1035,7 +1026,7 @@ void __stdcall UpdatePlayers()
                 if (bl == g_game->localPlayer) {
                     g_game->mapFlags &= 0xfffe;
                     g_game->mapFlags &= 0xfffd;
-                    RecalculateLineOfSight(1);
+                    g_seams.los_radar->RecalculateLineOfSight(1);
                     BroadcastPlayerInfo();
                     if (CountActiveAIPlayers() == 0) {
                         Screen* dlg = LoadGuiLayer(&g_game->gui, "YESORNO.GUI", 0x900);
