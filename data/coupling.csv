@@ -455,12 +455,10 @@ game,network,shared_write,PlayerInfo::color,7
 game,network,shared_write,PlayerInfo::flags_9b,3
 game,network,shared_write,Unit::flags,2
 game,network,shared_write,UnitDef::flags1,1
-game,orders,call,AddOrder,1
-game,orders,call,ClearOrderTypeTable,1
-game,orders,call,CreatePathfinder,1
-game,orders,call,DestroyPathfinder,1
-game,orders,call,GetOrderType,1
-game,orders,call,RegisterAllOrderTypes,1
+game,orders,indirect,AddOrder,1
+game,orders,indirect,CreatePathfinder,1
+game,orders,indirect,DestroyPathfinder,1
+game,orders,indirect,GetOrderType,1
 game,orders,shared_write,Angles16::heading,12
 game,orders,shared_write,Game::difficulty,1
 game,orders,shared_write,Game::gameTick,13
@@ -3124,6 +3122,7 @@ seams,game,shared_write,Seams::economy,1
 seams,game,shared_write,Seams::features,5
 seams,game,shared_write,Seams::los_radar,8
 seams,game,shared_write,Seams::map,22
+seams,game,shared_write,Seams::orders,5
 seams,game,shared_write,Seams::players,13
 seams,game,shared_write,Seams::units,15
 seams,game,shared_write,Seams::weapons,3

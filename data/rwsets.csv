@@ -26290,14 +26290,14 @@ address,function,file,kind,target
 0x487af0,FindMissionUnit,src/units/unit_save.cpp,field_read,Struct_00487af0::field_4
 0x487af0,FindMissionUnit,src/units/unit_save.cpp,function,
 0x487af0,FindMissionUnit,src/units/unit_save.cpp,global_read,g_game
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,call,AddOrder
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,call,GetOrderType
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,call,bx_sscanf
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,call,isspace
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,call,operator=
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,call,strcspn
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,call,strncpy
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,deref_read,*char
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,deref_read,*unsigned int
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_escape,<anon>::pos
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_escape,Unit::flags
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,<anon>::f1
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,<anon>::f2
@@ -26305,13 +26305,7 @@ address,function,file,kind,target
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,<anon>::move
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,<anon>::n
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,<anon>::pf
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,<anon>::pos
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,<anon>::wf
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,Outs_t::a
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,Outs_t::g
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,Outs_t::m
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,Outs_t::p
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_maybe_written,Outs_t::u
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::f1
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::f2
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::fire
@@ -26319,11 +26313,14 @@ address,function,file,kind,target
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::n
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::pf
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::wf
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,OrdersSeam::AddOrder
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,OrdersSeam::GetOrderType
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::a
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::g
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::m
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::p
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::u
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Seams::orders
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Seams::units
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Unit::flags
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Unit::motion
@@ -26335,14 +26332,21 @@ address,function,file,kind,target
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,<anon>::n
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,<anon>::pf
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,<anon>::wf
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::a
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::g
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::m
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::p
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::u
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Unit::flags
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Vec3_00487bf0::x
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Vec3_00487bf0::y
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Vec3_00487bf0::z
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,function,
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,global_read,g_seams
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,indirect_call,"indirect via MissionType (*)(unsigned char, Unit *, Unit *, Vec3 *) __attribute__((stdcall)) [OrdersSeam::GetOrderType]"
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,indirect_call,"indirect via int (*)(char *, std::vector<Unit *, std::allocator<Unit *>> *, int) __attribute__((stdcall)) [UnitsSeam::FindMissionUnit]"
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,indirect_call,indirect via unsigned short (*)(const char *) __attribute__((stdcall)) [UnitsSeam::FindUnitTypeId]
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,indirect_call,"indirect via void (*)(MissionType, int, Unit *, Unit *, Vec3 *, int, int) __attribute__((stdcall)) [OrdersSeam::AddOrder]"
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, char, char) __attribute__((stdcall)) [UnitsSeam::AttachUnitToPiece]"
 0x488310,CreateMissionUnits,src/units/unit_commands.cpp,call,FatalError
 0x488310,CreateMissionUnits,src/units/unit_commands.cpp,call,RunInitialMission
@@ -28568,7 +28572,6 @@ address,function,file,kind,target
 0x491200,InitGame,src/game/game_state.cpp,call,MakeBlueTable
 0x491200,InitGame,src/game/game_state.cpp,call,MakeGrayTable
 0x491200,InitGame,src/game/game_state.cpp,call,ReadGameRegistryValue
-0x491200,InitGame,src/game/game_state.cpp,call,RegisterAllOrderTypes
 0x491200,InitGame,src/game/game_state.cpp,call,ReopenCdAudio
 0x491200,InitGame,src/game/game_state.cpp,call,ResetFrontendState
 0x491200,InitGame,src/game/game_state.cpp,call,SetAnimsPath
@@ -28607,7 +28610,9 @@ address,function,file,kind,target
 0x491200,InitGame,src/game/game_state.cpp,field_read,Gui::values
 0x491200,InitGame,src/game/game_state.cpp,field_read,MapSeam::GetGameType
 0x491200,InitGame,src/game/game_state.cpp,field_read,MapSeam::SetMissionType
+0x491200,InitGame,src/game/game_state.cpp,field_read,OrdersSeam::RegisterAllOrderTypes
 0x491200,InitGame,src/game/game_state.cpp,field_read,Seams::map
+0x491200,InitGame,src/game/game_state.cpp,field_read,Seams::orders
 0x491200,InitGame,src/game/game_state.cpp,field_write,Game::carry
 0x491200,InitGame,src/game/game_state.cpp,field_write,Game::chatHudFilterMode
 0x491200,InitGame,src/game/game_state.cpp,field_write,Game::debugMode
@@ -28652,8 +28657,8 @@ address,function,file,kind,target
 0x491200,InitGame,src/game/game_state.cpp,global_read,g_skirmishInfoTag
 0x491200,InitGame,src/game/game_state.cpp,global_read,g_unitLimitKey
 0x491200,InitGame,src/game/game_state.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
+0x491200,InitGame,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [OrdersSeam::RegisterAllOrderTypes]
 0x491200,InitGame,src/game/game_state.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [MapSeam::SetMissionType]
-0x4916a0,ShutdownGame,src/game/game_state.cpp,call,ClearOrderTypeTable
 0x4916a0,ShutdownGame,src/game/game_state.cpp,call,FreeAnimFiles
 0x4916a0,ShutdownGame,src/game/game_state.cpp,call,FreeCommonGuiGaf
 0x4916a0,ShutdownGame,src/game/game_state.cpp,call,FreeGafSlot
@@ -28676,7 +28681,9 @@ address,function,file,kind,target
 0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,Game::options
 0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,Game::sound
 0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,MapSeam::FreeOtaEnumCacheAndMission
+0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,OrdersSeam::ClearOrderTypeTable
 0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,Seams::map
+0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,Seams::orders
 0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,Seams::units
 0x4916a0,ShutdownGame,src/game/game_state.cpp,field_read,UnitsSeam::FreeUnitInfo
 0x4916a0,ShutdownGame,src/game/game_state.cpp,field_write,CdLists_490f80::tracks
@@ -28688,9 +28695,9 @@ address,function,file,kind,target
 0x4916a0,ShutdownGame,src/game/game_state.cpp,global_read,g_seams
 0x4916a0,ShutdownGame,src/game/game_state.cpp,global_write,g_cdListsDiscEntries
 0x4916a0,ShutdownGame,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [MapSeam::FreeOtaEnumCacheAndMission]
+0x4916a0,ShutdownGame,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [OrdersSeam::ClearOrderTypeTable]
 0x4916a0,ShutdownGame,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [UnitsSeam::FreeUnitInfo]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,CreateParticleLists
-0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,CreatePathfinder
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,GameAllocIgnoreTag
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,GetTicks
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,InitCommands
@@ -28710,10 +28717,12 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,LosRadarSeam::LoadTntMap
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,MapSeam::BuildAllPassMaps
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,MapSeam::GetGameType
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,OrdersSeam::CreatePathfinder
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,PlayersSeam::InitPlayers
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::features
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::los_radar
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::map
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::orders
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::players
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::units
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::weapons
@@ -28770,6 +28779,7 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::InitRadar]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::LoadTntMap]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [MapSeam::BuildAllPassMaps]
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [OrdersSeam::CreatePathfinder]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [PlayersSeam::InitPlayers]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [UnitsSeam::AllocateUnitMemory]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [UnitsSeam::InitUnitCategories]
@@ -28802,7 +28812,6 @@ address,function,file,kind,target
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,CloseNetSession
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,CollectEndGameStats
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,DestroyParticleLists
-0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,DestroyPathfinder
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,FreeTextureGafs
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,GameFreeThunk
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,Sound::SetTrackCategory
@@ -28816,9 +28825,11 @@ address,function,file,kind,target
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,LosRadarSeam::FreeMapResources
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,LosRadarSeam::FreeRadar
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,MapSeam::GetGameType
+0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,OrdersSeam::DestroyPathfinder
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,PlayersSeam::FreePlayers
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Seams::los_radar
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Seams::map
+0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Seams::orders
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Seams::players
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Seams::units
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Seams::weapons
@@ -28842,6 +28853,7 @@ address,function,file,kind,target
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::FreeMapResources]
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::FreeRadar]
+0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [OrdersSeam::DestroyPathfinder]
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [PlayersSeam::FreePlayers]
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [UnitsSeam::FreeDownloadMenus]
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [UnitsSeam::FreeMovementClasses]
@@ -45896,14 +45908,18 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::AddOrder
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::AiSearchGoalSetWaypoints
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::AppendOrder
+,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::ClearOrderTypeTable
+,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::CreatePathfinder
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::DeleteOrders
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::DestroyMotionObject
+,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::DestroyPathfinder
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::GetOrderFlags
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::GetOrderType
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::IssueAttackOrder
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::LoadMotion
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::OrderFxAddFlags
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::ReattachFxToUnit
+,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::RegisterAllOrderTypes
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::RunOrders
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::RunSecondaryOrders
 ,InstallNativeSeams,src/seams/native.cpp,field_write,OrdersSeam::SaveMotion
@@ -46074,11 +46090,13 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ClaimWeaponsNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ClampWorldPosToTerrain
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ClearFootprintAndUnlink
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,ClearOrderTypeTable
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ClearWeaponTarget
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,CmdMeteor
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,CmdShareMapping
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,CmdShareRadar
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ComputeMapChecksumNative
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,CreatePathfinder
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,CreatePlayerAI
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,CreateSquads
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,CreateUnit
@@ -46088,6 +46106,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,DeleteConditionsNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,DeleteOrders
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,DestroyMotionObjectNative
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,DestroyPathfinder
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,DestroyPathfinderNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,DestroyPlayerAI
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,DetonateUnitWeapon
@@ -46225,6 +46244,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,RefreshUnitIfStaleNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,RefreshUnitInfo
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,RegisterAICommands
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,RegisterAllOrderTypes
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,RegisterConditionsNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ReleaseWeaponsNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ReloadUnitType
