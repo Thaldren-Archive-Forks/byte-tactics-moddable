@@ -767,7 +767,7 @@ void LoadBattleAssets()
     g_game->carry = 0;
     g_seams.wind_meteors->InitMeteors();
     g_seams.los_radar->InitRadar();
-    InitPlayers();
+    g_seams.players->InitPlayers();
     CreatePathfinder();
     g_seams.weapons->InitExplosions();
     InitCommands();
@@ -834,7 +834,7 @@ void ShutdownIngameSystems()
     DestroyParticleLists();
     g_seams.weapons->FreeExplosions();
     DestroyPathfinder();
-    FreePlayers();
+    g_seams.players->FreePlayers();
     g_seams.los_radar->FreeRadar();
     g_seams.los_radar->FreeMapResources();
     GameFreeThunk((int*)g_game->assemPts);

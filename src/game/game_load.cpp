@@ -621,7 +621,7 @@ void __cdecl LoadMatch(void*)
     if (g_game->pendingSaveStore != 0) {
         g_game->pendingSaveStore->OpenAccount("summary");
         if (g_game->pendingSaveStore->HasItem("BetweenMissions") == 0) {
-            LoadPlayerControllers(g_game->pendingSaveStore);
+            g_seams.players->LoadPlayerControllers(g_game->pendingSaveStore);
             if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) == 2) {
                 int count = 0;
                 Slot_00497180* def = g_game->options->slots;
@@ -743,7 +743,7 @@ void __cdecl LoadMatch(void*)
                     }
                 }
             }
-            InitPlayerResources();
+            g_seams.players->InitPlayerResources();
         }
     }
 
@@ -779,8 +779,8 @@ tail:
     currec->data->flags_9b |= 0x10;
     BroadcastPlayerInfo();
     UpdateNetGameInfo();
-    UpdatePlayers();
-    InitPlayerResources();
+    g_seams.players->UpdatePlayers();
+    g_seams.players->InitPlayerResources();
 
     HapiBank* mission = g_game->pendingSaveStore;
     if (mission != 0) {
@@ -788,7 +788,7 @@ tail:
         operator delete(mission);
         g_game->pendingSaveStore = 0;
     }
-    RebuildAIFeatureCells();
+    g_seams.players->RebuildAIFeatureCells();
 
     g_game->loadingFlags.value |= 2;
 }

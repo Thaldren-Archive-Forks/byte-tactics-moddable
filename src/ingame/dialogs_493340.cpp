@@ -1294,7 +1294,7 @@ void __stdcall RunGameSteps(int showStats)
 
         UpdateParticles();
         g_game->profileTimingBars.AccumulateProfileTime(6);
-        UpdateBlink();
+        g_seams.players->UpdateBlink();
         g_game->profileTimingBars.AccumulateProfileTime(8);
 
         if (showStats && g_usePacketManager != 0) {

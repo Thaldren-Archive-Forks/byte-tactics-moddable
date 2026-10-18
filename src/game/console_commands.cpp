@@ -642,9 +642,9 @@ void __stdcall CmdKill(CommandArgs* args)
     if (args->count == 1) {
         KillAllUnits();
     } else {
-        KillPlayerUnits(args->GetIntArg(1, 0));
+        g_seams.players->KillPlayerUnits(args->GetIntArg(1, 0));
     }
-    g_game->victoryConditions->Deactivate();
+    g_seams.players->DeactivateConditions(g_game->victoryConditions);
 }
 
 // FUNCTION: 0x416500
@@ -815,9 +815,9 @@ void __stdcall CmdLogo(CommandArgs* args)
 void __stdcall CmdIWin(CommandArgs* args)
 {
     if (g_game->players[g_game->localPlayer].data->side == 1)
-        KillPlayerUnits(0);
+        g_seams.players->KillPlayerUnits(0);
     else
-        KillPlayerUnits(1);
+        g_seams.players->KillPlayerUnits(1);
     g_game->flag4 = 1;
     g_game->flag5 = 1;
     g_game->flag2 = 1;
@@ -829,7 +829,7 @@ void __stdcall CmdIWin(CommandArgs* args)
 // FUNCTION: 0x416a30
 void __stdcall CmdILose(CommandArgs* args)
 {
-    KillPlayerUnits(g_game->players[g_game->localPlayer].data->side);
+    g_seams.players->KillPlayerUnits(g_game->players[g_game->localPlayer].data->side);
     g_game->flag4 = 0;
     g_game->flag6 = 1;
     g_game->flag2 = 1;
@@ -877,11 +877,11 @@ void __stdcall CmdGive(CommandArgs* args)
         if (p->active != 0 && (p->type == 1 || p->type == 2 || p->type == 3)
             && p->index != 10) {
             if (_strcmpi(args->GetArg(3, DAT_005119b8), "metal") == 0) {
-                TransferEnergy(g_game->localPlayer, args->GetIntArg(1, 0),
+                g_seams.players->TransferEnergy(g_game->localPlayer, args->GetIntArg(1, 0),
                              (float)args->GetIntArg(2, 0), 1);
             }
             if (_strcmpi(args->GetArg(3, DAT_005119b8), "energy") == 0) {
-                TransferMetal(g_game->localPlayer, args->GetIntArg(1, 0),
+                g_seams.players->TransferMetal(g_game->localPlayer, args->GetIntArg(1, 0),
                              (float)args->GetIntArg(2, 0), 1);
             }
         }

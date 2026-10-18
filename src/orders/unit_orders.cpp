@@ -1470,7 +1470,7 @@ int __stdcall CaptureOrder(Unit* unit, Order* order, unsigned int flags)
         return 2;
     }
     case 5:
-        GiveUnitToPlayer(target, unit->player, 0);
+        g_seams.players->GiveUnitToPlayer(target, unit->player, 0);
         QueueUnitSpeech(unit, 16, 0);
         return 5;
     }

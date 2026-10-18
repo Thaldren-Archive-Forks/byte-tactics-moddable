@@ -932,7 +932,7 @@ found:
     // Array subscript, not a byte-offset cast: it fixes the SIB operand order.
     g_game->players[player].unitCount++;
     g_game->players[player].unitsCreated++;
-    g_game->victoryConditions->NotifyUnitCreated(unit);
+    g_seams.players->NotifyUnitCreated(g_game->victoryConditions, 0, unit);
     return unit;
 }
 
@@ -1107,7 +1107,7 @@ void __stdcall KillUnit(Unit* unit, int param_2)
         if (same && g_game->battleCommanderDeath != 0 && unit->player->active != 0 &&
             (unit->player->type == 1 || unit->player->type == 2)) {
             PopUntilNamedLayout(1);
-            KillPlayerUnits(unit->playerIndex);
+            g_seams.players->KillPlayerUnits(unit->playerIndex);
         }
     }
 }
@@ -1153,7 +1153,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         parent = &g_game->units[cmd->attackerUnitId];
     unit->attacker = parent;
     unit->lastAttackerSlot = FindSlotByDpid(cmd->attackerPlayerNetId);
-    g_game->victoryConditions->NotifyUnitDied(unit);
+    g_seams.players->NotifyUnitDied(g_game->victoryConditions, 0, unit);
     DeleteOrders(unit, 1);
     RemoveSpeechOfUnit(unit);
     g_seams.ai->SetUnitSquad(unit, -1);

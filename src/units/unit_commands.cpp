@@ -388,7 +388,7 @@ void __cdecl CreateMissionUnits()
             RunInitialMission(units[j], e->initialMission, (Table_00487bf0*)&units);
     }
     if (g_game->mapInfo->unitCount <= 0)
-        g_game->victoryConditions->Deactivate();
+        g_seams.players->DeactivateConditions(g_game->victoryConditions);
 }
 
 // Moves a unit to another player. Does nothing when the unit already belongs

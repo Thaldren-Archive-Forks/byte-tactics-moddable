@@ -176,7 +176,7 @@ int __stdcall LoadSavedGameState(HapiBank* file)
     file->OpenAccount(g_summaryAccountName);
     if (file->HasItem("maxunits"))
         g_game->unitLimitIni = file->GetIntegerItem("maxunits", 0);
-    LoadPlayers(file);
+    g_seams.players->LoadPlayers(file);
     ReadCameraPosition(file);
     g_seams.features->LoadFeatures(file);
     g_seams.map->LoadMetalPlotmap(file);
@@ -184,7 +184,7 @@ int __stdcall LoadSavedGameState(HapiBank* file)
     g_seams.map->LoadMappingData(file);
     LoadUnits(file);
     g_seams.wind_meteors->LoadMeteors(file);
-    g_game->victoryConditions->LoadConditions(file);
+    g_seams.players->LoadConditions(g_game->victoryConditions, 0, file);
     g_game->loaded = 1;
     return 1;
 }
@@ -240,14 +240,14 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
         (&file)->OpenNamedBox(g_radarImageBoxName);
         SaveSurface(g_game->finalSurface, &file);
         WriteCameraPosition(&file);
-        SavePlayers(&file);
+        g_seams.players->SavePlayers(&file);
         SaveUnits(&file);
         g_seams.map->SaveMappingData(&file);
         g_seams.features->SaveFeatures(&file);
         g_seams.map->SavePlayerFeaturesPlotmap(&file);
         g_seams.map->SaveMetalPlotmap(&file);
         g_seams.wind_meteors->SaveMeteors(&file);
-        g_game->victoryConditions->SaveConditions(&file);
+        g_seams.players->SaveConditions(g_game->victoryConditions, 0, &file);
     }
     int result = file.SaveBank(path, g_saveBankName, 1, 0);
     (&file)->CloseBank();

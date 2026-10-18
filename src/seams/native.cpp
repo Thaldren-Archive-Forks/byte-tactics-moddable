@@ -7,6 +7,7 @@
 #include "../util/vec3.h"
 #include "../map/mission.h"
 #include "../map/spatial_bucket.h"
+#include "../game/mission_conditions.h"
 #include "../units/unit.h"
 #include "../ai/pathfinder.h"
 #include "../ai/ai_search_goal.h"
@@ -190,6 +191,18 @@ int __stdcall PickRandomReclaimableResourcesInRadius(Vec3* pos, int range, Vec3*
 void __stdcall ClearFootprintAndUnlink(Unit* unit);
 void __stdcall ForceNeighborFootprintReclaim(Unit* unit);
 void __stdcall SetYardOpen(Unit* unit, int open);
+void __stdcall InitPlayers(void);
+void __stdcall FreePlayers(void);
+void __stdcall InitPlayerResources(void);
+void __stdcall LoadPlayerControllers(HapiBank* file);
+void __stdcall LoadPlayers(HapiBank* file);
+void __stdcall SavePlayers(HapiBank* file);
+void __stdcall RebuildAIFeatureCells(void);
+void __stdcall SetupPlayerSlot(int player, char type);
+void __stdcall UpdateBlink(void);
+void __stdcall KillPlayerUnits(unsigned char player);
+struct OwnershipTransferPacket;
+void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPacket* packet);
 
 struct DamagedAllyCollector;
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
@@ -456,6 +469,46 @@ static int __fastcall GetTerrainLengthNative(Mission* self)
     return self->GetTerrainLength();
 }
 
+static void __fastcall DeactivateConditionsNative(MissionConditions* self)
+{
+    self->Deactivate();
+}
+
+static void __fastcall LoadConditionsNative(MissionConditions* self, int unusedEdx, HapiBank* file)
+{
+    self->LoadConditions(file);
+}
+
+static void __fastcall SaveConditionsNative(MissionConditions* self, int unusedEdx, HapiBank* file)
+{
+    self->SaveConditions(file);
+}
+
+static void __fastcall RegisterConditionsNative(MissionConditions* self, int unusedEdx, TdfFile* mission)
+{
+    self->RegisterConditions((Param_0048e010*)mission);
+}
+
+static void __fastcall FreeConditionsNative(MissionConditions* self)
+{
+    self->FreeConditions();
+}
+
+static void __stdcall DeleteConditionsNative(MissionConditions* self)
+{
+    delete self;
+}
+
+static void __fastcall NotifyUnitCreatedNative(MissionConditions* self, int unusedEdx, Unit* unit)
+{
+    self->NotifyUnitCreated(unit);
+}
+
+static void __fastcall NotifyUnitDiedNative(MissionConditions* self, int unusedEdx, Unit* unit)
+{
+    self->NotifyUnitDied(unit);
+}
+
 static int __stdcall MovementClassGetNative(MovementClass* self, int x, int y)
 {
     return self->Get(x, y);
@@ -709,6 +762,25 @@ void InstallNativeSeams()
     s_map.SelectMission = SelectMissionNative;
     s_map.ComputeMapChecksum = ComputeMapChecksumNative;
     s_map.GetTerrainLength = GetTerrainLengthNative;
+    s_players.InitPlayers = InitPlayers;
+    s_players.FreePlayers = FreePlayers;
+    s_players.InitPlayerResources = InitPlayerResources;
+    s_players.LoadPlayerControllers = LoadPlayerControllers;
+    s_players.LoadPlayers = LoadPlayers;
+    s_players.SavePlayers = SavePlayers;
+    s_players.RebuildAIFeatureCells = RebuildAIFeatureCells;
+    s_players.SetupPlayerSlot = SetupPlayerSlot;
+    s_players.UpdateBlink = UpdateBlink;
+    s_players.KillPlayerUnits = KillPlayerUnits;
+    s_players.GiveUnitToPlayer = GiveUnitToPlayer;
+    s_players.DeactivateConditions = DeactivateConditionsNative;
+    s_players.LoadConditions = LoadConditionsNative;
+    s_players.SaveConditions = SaveConditionsNative;
+    s_players.RegisterConditions = RegisterConditionsNative;
+    s_players.FreeConditions = FreeConditionsNative;
+    s_players.DeleteConditions = DeleteConditionsNative;
+    s_players.NotifyUnitCreated = NotifyUnitCreatedNative;
+    s_players.NotifyUnitDied = NotifyUnitDiedNative;
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
     s_weapons.SpawnProjectile = SpawnProjectile;
