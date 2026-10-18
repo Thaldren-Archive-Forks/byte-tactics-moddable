@@ -60,7 +60,6 @@ struct Game {
 
 extern Game* g_game;
 
-void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 unsigned short __stdcall LoadFeatureType(char* name);
 
 // FUNCTION: 0x421f20

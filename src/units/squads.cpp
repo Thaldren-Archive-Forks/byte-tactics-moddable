@@ -44,7 +44,6 @@ public:
     }
 };
 
-void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 void __cdecl GameFreeThunk(int* p);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit,
                                        Unit* target, int flags);

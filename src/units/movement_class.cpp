@@ -17,7 +17,6 @@
 
 void __cdecl GameFreeThunk(void* p);
 
-void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 
 struct MovementClass;

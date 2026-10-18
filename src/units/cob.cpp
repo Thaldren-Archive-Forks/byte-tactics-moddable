@@ -90,7 +90,6 @@ extern int GetTickRate();
 void __cdecl GameFreeThunk(void* p);
 int __stdcall GetCobChecksum(void* param);
 void* __cdecl GameReallocTagged(void* ptr, const char* name, unsigned int size);
-char* __cdecl GameAllocIgnoreTag(const char* text, int value);
 int __stdcall RandomInt(int);
 
 // FUNCTION: 0x4b0610

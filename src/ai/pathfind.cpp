@@ -11,9 +11,7 @@
 #include <ddraw.h>
 #include <vector>
 
-void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
-void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 void __cdecl GameFreeThunk(void* p);
 
 // A min-heap record for MakeHeap and friends (the STL heap the search uses).

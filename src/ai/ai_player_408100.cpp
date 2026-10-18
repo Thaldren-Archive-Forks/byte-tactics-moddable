@@ -10,7 +10,6 @@
 // from it when farther), the others to the base itself, or when within 0x140 of
 // it, 0x140 onwards in its direction.
 #include <ta_types.h>
-#include "../state/block.h"
 // The system header set decides operand and load order in the _allmul and
 // MapRange code.
 #include <time.h>

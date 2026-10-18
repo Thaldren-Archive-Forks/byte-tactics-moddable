@@ -349,7 +349,6 @@ void ResetPlayerSlots()
 
 #include "../../interfaces/seams.h"
 
-void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 void __stdcall CreateSquads(Player* p);
 void __stdcall CreatePlayerAI(int player);

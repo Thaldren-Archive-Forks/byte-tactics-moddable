@@ -413,7 +413,6 @@ struct Cell;
 
 extern Game* g_game;
 
-void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 
 // Allocates and clears the 0x7d64-byte weapon array, then resets its count.
 // FUNCTION: 0x499a30

@@ -986,7 +986,6 @@ extern int g_missionOrderTableEnd;
 extern Elem_0043c390 g_readyOrder[];
 extern signed char g_slopeSpeedFactor[];
 
-void* __cdecl operator new(unsigned int size);
 
 int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
