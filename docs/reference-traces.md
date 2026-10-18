@@ -1,8 +1,8 @@
 # Checking a new engine against the reference traces
 
-The git tag `reference-traces-v2` is the fixed target for anyone writing a new
+The git tag `reference-traces-v3` is the fixed target for anyone writing a new
 engine. Check your engine's game state against it, or take the deterministic
-code as a base. This page names the current tag: **`reference-traces-v2`**.
+code as a base. This page names the current tag: **`reference-traces-v3`**.
 
 ## What the tag holds
 
@@ -20,7 +20,7 @@ code as a base. This page names the current tag: **`reference-traces-v2`**.
 Check the tag out to get all four:
 
 ```sh
-git checkout reference-traces-v2
+git checkout reference-traces-v3
 ```
 
 A tag is never moved. Read this page at the tag you target.
@@ -127,7 +127,7 @@ reference from the tag and diff full traces and dumps with `tools/tracediff.py`:
 
 ```sh
 export WINEARCH=win64
-uv run tools/reference.py reference-traces-v2                 # build build/reference/reference-traces-v2/TotalA.exe
+uv run tools/reference.py reference-traces-v3                 # build build/reference/reference-traces-v3/TotalA.exe
 uv run tools/tracediff.py --traces ref/trace.txt mine/trace.txt   # first tick and phase that differ
 uv run tools/tracediff.py --dumps ref/dump.txt mine/dump.txt --at <tick> <phase>
 ```
@@ -152,9 +152,9 @@ default is Steam's.
 ## Later versions
 
 A tag is never moved. A later change to the trace format, the scenario list or
-the digests that should become a target gets a new tag (`reference-traces-v3`
+the digests that should become a target gets a new tag (`reference-traces-v4`
 and so on), and this page is updated to name it. The current tag is
-`reference-traces-v2`.
+`reference-traces-v3`.
 
 - `reference-traces-v1`: the map, line of sight and pathfinder, and the
   per-unit heap objects.
@@ -162,8 +162,12 @@ and so on), and this page is updated to name it. The current tag is
   and pathfinder, the per-unit heap objects, the per-player AI, and the
   constants loaded at match start. Every sim field is traced or argued out in
   `data/trace_coverage.csv`. The format is still `bt-trace 3`.
+- `reference-traces-v3`: the goal fields of every goal class (#157). v2 hashed
+  only the class of Packed, Lite and PackedPos goals, because the harness
+  classed goals by their distance from the patrol vtable, which the carve link
+  does not keep; v3 classes them by vtable symbol.
 
-`bt-trace N` names the file layout only, not what is hashed. v1 and v2 are
-both `bt-trace 3`, but they hash different fields, so their digests are not
+`bt-trace N` names the file layout only, not what is hashed. v1, v2 and v3 are
+all `bt-trace 3`, but they hash different fields, so their digests are not
 comparable. The hashed fields are those of `src/harness/trace_schema.h` at the
 tag. The format number changes only when the line layout changes.

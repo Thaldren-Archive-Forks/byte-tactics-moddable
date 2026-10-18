@@ -590,7 +590,7 @@ extern int g_lzssLockOwner;                                                     
 extern void* g_squashThreadLockEvent;                                                                           // 0x52a4f8, 4 bytes; 2 of 2 files
 extern long g_squashThreadLockTicket;                                                                           // 0x52a4fc, 4 bytes; 1 of 2 files (conflicting: signedness or const)
 
-// Not declared: 203 globals defined in a data file or whose type is not settled (see data/globals.csv).
+// Not declared: 209 globals defined in a data file or whose type is not settled (see data/globals.csv).
 //   0x513000 g_packetManager: defined in src/network/packets_460e20.cpp
 //   0x4fcdb8 g_dpspGuidSerial: defined in src/data/guids.cpp
 //   0x4fcdc8 g_dpspGuidModem: defined in src/data/guids.cpp
@@ -719,7 +719,11 @@ extern long g_squashThreadLockTicket;                                           
 //   0x4fcfe8 DAT_004fcfe8: defined in src/data/guids.cpp
 //   0x4fcff8 DAT_004fcff8: defined in src/data/guids.cpp
 //   0x4fd2e4 DAT_004fd2e4: defined in src/data/unused.cpp
-//   0x4fd488 g_patrolGoalVtable: defined in src/data/vtables.cpp
+//   0x4fd458 g_aiSearchGoalVtable: vtable
+//   0x4fd488 g_patrolGoalVtable: vtable
+//   0x4fd980 g_packedGoalVtable: vtable
+//   0x4fd9b0 g_liteGoalVtable: vtable
+//   0x4fd9e0 g_packedPosGoalVtable: vtable
 //   0x4fda70 DAT_004fda70: defined in src/data/unused.cpp
 //   0x4fdbe0 DAT_004fdbe0: defined in src/data/unused.cpp
 //   0x501fcc DAT_00501fcc: defined in src/game/console_commands.cpp

@@ -65,17 +65,6 @@ namespace AirManeuverOrder { void FillWorldPos(); }
 namespace AirManeuverOrder { void GetDesiredHeading(); }
 namespace AirManeuverOrder { void IsComplete(); }
 namespace AirManeuverOrder { void IsFxStyle(); }
-namespace PathGoal { void DrawOnSurface(); }
-namespace PathGoal { void SetPathOrder(); }
-namespace PathGoal { void TickTowardGoal(); }
-namespace PathGoal { void SerializeNetUnitState(); }
-namespace PathGoal { void HasNetUnitState(); }
-namespace PathGoal { void TryClaimRepath(); }
-namespace PathGoal { void ExportGoalPose(); }
-void FUN_0044f590();
-namespace PatrolGoal { void HasReadyWaypoints(); }
-namespace PatrolGoal { void DeserializeNetUnitState(); }
-namespace PatrolGoal { void FillWaypointWorldPos(); }
 void OnAimCobReturn();
 void AimCobStub();
 
@@ -131,14 +120,6 @@ extern VirtualFunction const g_airManeuverOrderVtable[12] = {
     AirManeuverOrder::Destroy, AirManeuverOrder::SerializeToSave, AirManeuverOrder::GetType, AirManeuverOrder::IsFxStyle,
     AirManeuverOrder::IsComplete, OrderFx::ContainsCell, OrderFx::FillGoalCells, OrderFx::ApproxDist,
     AirManeuverOrder::FillWorldPos, AirManeuverOrder::GetDesiredHeading, AirManeuverOrder::SerializeToBits, AirManeuverOrder::KeepAfterComplete,
-};
-
-// PatrolGoal's: stored by 0x44f570.
-// GLOBAL: 0x4fd488
-extern VirtualFunction const g_patrolGoalVtable[12] = {
-    FUN_0044f590, PathGoal::SetPathOrder, PathGoal::TickTowardGoal, PatrolGoal::FillWaypointWorldPos,
-    PathGoal::ExportGoalPose, PatrolGoal::HasReadyWaypoints, PathGoal::TryClaimRepath, PathGoal::HasNetUnitState,
-    PathGoal::SerializeNetUnitState, PatrolGoal::DeserializeNetUnitState, PathGoal::DrawOnSurface, 0,
 };
 
 // Stored by 0x485e90, 0x485f50 and 0x4861d0.

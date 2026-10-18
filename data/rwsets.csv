@@ -43902,11 +43902,13 @@ address,function,file,kind,target
 ,GetWaveOutVolume,src/sound/samples.cpp,call,waveOutGetVolume
 ,GetWaveOutVolume,src/sound/samples.cpp,field_read,Sound::waveDevices
 ,GetWaveOutVolume,src/sound/samples.cpp,function,
-,GoalClassOf,src/harness/harness.cpp,call,GoalVtableDelta
+,GoalClassOf,src/harness/harness.cpp,call,ReadU32At
 ,GoalClassOf,src/harness/harness.cpp,function,
-,GoalVtableDelta,src/harness/harness.cpp,call,ReadU32At
-,GoalVtableDelta,src/harness/harness.cpp,function,
-,GoalVtableDelta,src/harness/harness.cpp,global_escape,g_patrolGoalVtable
+,GoalClassOf,src/harness/harness.cpp,global_escape,g_aiSearchGoalVtable
+,GoalClassOf,src/harness/harness.cpp,global_escape,g_liteGoalVtable
+,GoalClassOf,src/harness/harness.cpp,global_escape,g_packedGoalVtable
+,GoalClassOf,src/harness/harness.cpp,global_escape,g_packedPosGoalVtable
+,GoalClassOf,src/harness/harness.cpp,global_escape,g_patrolGoalVtable
 ,Grid::At,src/ai/pathfind.cpp,deref_escape,*PathCell
 ,Grid::At,src/ai/pathfind.cpp,field_read,Grid::cells
 ,Grid::At,src/ai/pathfind.cpp,field_read,Grid::width
@@ -48706,8 +48708,8 @@ address,function,file,kind,target
 ,VisitGlobalList,src/harness/harness.cpp,field_write,TraceField::target
 ,VisitGlobalList,src/harness/harness.cpp,function,
 ,VisitGlobalList,src/harness/harness.cpp,global_read,s_dumpNow@src/harness/harness.cpp
+,VisitGoal,src/harness/harness.cpp,call,Fail
 ,VisitGoal,src/harness/harness.cpp,call,GoalClassOf
-,VisitGoal,src/harness/harness.cpp,call,GoalVtableDelta
 ,VisitGoal,src/harness/harness.cpp,call,ReadU32At
 ,VisitGoal,src/harness/harness.cpp,call,VisitElement
 ,VisitGoal,src/harness/harness.cpp,call,VisitRaw
