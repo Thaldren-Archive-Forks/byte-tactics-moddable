@@ -20,7 +20,6 @@ class Mission;
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int DrawTriangleContours(int, int, int, int, int, int, int);
 int DrawRangeCircle(int, int, int, int, int, int, int);
-int AddOrder(int, int, int, int, int, int, int);
 int UpdatePlayerEconomy(int);
 
 // A player's side block, the SideData behind PlayerState::pSideData (Thaldren
