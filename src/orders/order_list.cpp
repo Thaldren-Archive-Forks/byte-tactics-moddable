@@ -139,7 +139,7 @@ struct Target_0043d6d0 {
 
 struct TargetData_0043d6d0 {
     char unknown_0[8];
-    Vec3Ex velocity;                     // +0x8
+    Vec3Ex velocity;
     char unknown_14[0x20 - 0x14];
     int speed;                         // +0x20
 };
@@ -234,7 +234,7 @@ public:
     unsigned int wakeFrame;          // +0xa
     void* unit;                      // +0xe
     PathOrderAttach link;            // +0x12
-    Vec3Ex pos;                        // +0x22
+    Vec3Ex pos;
     Point start;                     // +0x2e
     Point cached;                    // +0x32
     int id;                          // +0x36
@@ -880,8 +880,8 @@ typedef int(__stdcall* Pred_0043c390)(const Elem_0043c390&, const Elem_0043c390&
 
 // The movement state saved as "u%04xmob".
 struct Record_0043dd70 {
-    Vec3Ex velocity;                     // +0x00
-    Vec3Ex p2;                           // +0x0c
+    Vec3Ex velocity;
+    Vec3Ex p2;
     int speed;                         // +0x18
     short turn;                        // +0x1c
     int pathLockStamp;                 // +0x1e
@@ -910,8 +910,8 @@ class UnitMotion {
 public:
     Iface_0043dd20* obj;               // +0x0
     int movementClass;                 // +0x4
-    Vec3Ex velocity;                     // +0x8
-    Vec3Ex p2;                           // +0x14
+    Vec3Ex velocity;
+    Vec3Ex p2;
     int speed;                         // +0x20
     short turn;                        // +0x24, turn this tick
     int pathLockStamp;                 // +0x26
@@ -2039,7 +2039,7 @@ void UnitMotion::UpdateMoveRate(Unit* unit)
 }
 
 // Constructor of the 0x2f-byte behaviour holder stored at unit+0. It zeroes two
-// Vec3Ex-shaped triples and a few scalars, mirrors a value from the unit type and
+// Vec3-shaped triples and a few scalars, mirrors a value from the unit type and
 // then creates one of four behaviour objects, chosen by the unit's target type
 // (byte at +0x73 == 3) and bit 11 of the unit type's flags at +0x241.
 // FUNCTION: 0x43dc00
