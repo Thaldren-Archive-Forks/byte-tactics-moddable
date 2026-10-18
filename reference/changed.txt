@@ -1,5 +1,6 @@
 0x401360 UpdatePlayerEconomy
 0x401c20 StopOrder
+0x401e00 AttackUTypeOrder
 0x402160 AttackNoMoveOrder
 0x4021f0 GuardNoMoveOrder
 0x402b70 BuildWeaponOrder
@@ -13,6 +14,8 @@
 0x404ad0 ReclaimOrder
 0x404db0 ResurrectOrder
 0x405300 RepairUnitOrder
+0x405740 RepairUnitNoMoveOrder
+0x405d90 DamagedAllyCollector::CollectDamagedAlly
 0x405fe0 StandbyOrder
 0x406090 StandbyMineOrder
 0x406300 FollowGroundOrder
@@ -37,6 +40,7 @@
 0x413bc0 VtolEvadeOrder
 0x414770 VtolReclaimOrder
 0x414e70 VtolRepairUnitOrder
+0x415250 VtolGetRepairedOrder
 0x4158d0 RepairableUnitVisitor::CollectRepairableUnit
 0x4163a0 CmdBurnOne
 0x4163d0 CmdFeature
@@ -75,6 +79,7 @@
 0x437de0 UpdateMeteors
 0x43b7c0 RunOrders
 0x43c050 RegisterAllOrderTypes
+0x43c720 SortOrderTypes
 0x43d6d0 UnitMotion::UpdatePosition
 0x43e3c0 GetSweetSpot
 0x44fc10 NetCondenser::SendPacket
@@ -108,6 +113,7 @@
 0x483dd0 FreeMapResources
 0x483fa0 DrawMapTiles
 0x4851c0 FindHighestPointOnLine
+0x4854a0 AllocateUnitMemory
 0x485a40 InitUnitFromType
 0x485e90 InitUnit
 0x485f50 CreateUnit
