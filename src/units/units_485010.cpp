@@ -613,7 +613,8 @@ void FreeUnitMemory(void)
     g_game->units = 0;
 }
 
-void __stdcall ResetWeaponTarget(Unit* unit, int index);
+#include "../../interfaces/seams.h"
+
 void __stdcall SetUnitSquad(Unit* unit, int param_2);
 int __stdcall RandomInt(int range);
 
@@ -675,7 +676,7 @@ void __stdcall InitUnitFromType(Unit* unit, Pos_00485a40 pos, int param_5)
     unit->flags.bits.b8 = 0;
 
     for (int i = 0; i < 3; i++) {
-        ResetWeaponTarget(unit, i);
+        g_seams.targeting->ResetWeaponTarget((Unit*)unit, i);
         ((Unit*)unit)->ReleaseWeapons(i);
     }
 
@@ -696,7 +697,7 @@ void __stdcall InitUnitFromType(Unit* unit, Pos_00485a40 pos, int param_5)
     }
 
     unit->losSightFrameIdx = 0;
-    unit->resourceSlot.Reset(unit->playerIndex);
+    g_seams.economy->Reset(&unit->resourceSlot, unit->playerIndex);
     unit->transportPiece = 0xff;
     unit->hoverBobPhase = (short)RandomInt(0x10000);
     SetUnitSquad(unit, 0);
@@ -818,7 +819,6 @@ void __stdcall CreateUnitMotion(Unit* unit)
 extern void* g_weaponAimCobVtable[];
 
 void __stdcall InitUnitWeaponSlots(Unit* unit);
-void __stdcall UpdateMetalExtraction(Unit* unit);
 
 // Initialises a unit: finds its unit type, gives the aim callback of each of
 // the three weapon slots (at +8, +0x24 and +0x40) its vtable, stores the type
@@ -841,7 +841,7 @@ void __stdcall InitUnit(int unitType, Pos_00485a40 pos, int param_5, Unit* unit)
     InitUnitFromType(unit, pos, param_5);
     InitUnitScript(unit);
     InitUnitWeaponSlots(unit);
-    UpdateMetalExtraction(unit);
+    g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
         unit->motion = new UnitMotion(unit);
         unit->angles.heading = unit->def->buildangle;
@@ -877,7 +877,7 @@ static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Pos_0048
     InitUnitFromType(unit, pos, param_5);
     InitUnitScript(unit);
     InitUnitWeaponSlots(unit);
-    UpdateMetalExtraction(unit);
+    g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
         unit->motion = new UnitMotion(unit);
         unit->angles.heading = unit->def->buildangle;
@@ -997,7 +997,6 @@ void* __stdcall GetMapCell(int x, int y);
 int __stdcall GetGroundHeight(Pos_00485070* pos);
 // Also declared for the symbol count that AllocateUnitMemory needs.
 int __stdcall FindHighestPointOnLine(Pos_00485a40 a, Pos_00485a40 b);
-Result_486360* __stdcall PlaceFeature(void* target, unsigned short id, Pos_00485070* pos, void* field_64, unsigned char owner);
 void __stdcall EmitSmoke(Pos_00485070* pos, int a, int b, int c);
 
 // FUNCTION: 0x486360
@@ -1015,7 +1014,7 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
         if (target != 0) {
             Pos_00485070* pos = (Pos_00485070*)&unit->pos;
             if (GetGroundHeight(pos) <= g_game->seaLevel) {
-                Result_486360* r = PlaceFeature(target, id, pos, &unit->angles, unit->playerIndex);
+                Result_486360* r = (Result_486360*)g_seams.features->PlaceFeature((Cell*)target, id, (Vec3*)pos, (Rot16*)&unit->angles, unit->playerIndex);
                 if (r != 0) {
                     if (!(unit->def->flags.all & 0x1000000)) {
                         r->velY = -11468;
@@ -1024,7 +1023,7 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
                     flag = 0;
                 }
             } else {
-                PlaceFeature(target, id, pos, &unit->angles, unit->playerIndex);
+                g_seams.features->PlaceFeature((Cell*)target, id, (Vec3*)pos, (Rot16*)&unit->angles, unit->playerIndex);
             }
             if (flag) {
                 EmitSmoke(pos, 0xf, 900, 9);

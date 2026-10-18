@@ -2846,6 +2846,7 @@ void __stdcall BroadcastBuilderLink(Unit* obj, Unit* target)
 // random_shuffle; <time.h> 0x457710's time and localtime.
 #include <algorithm>
 #include <time.h>
+
 #pragma pack(push, 1)
 
 // Unused here: the symbol ids this declaration takes keep the allocation (docs/c2-regalloc.md).
@@ -2938,8 +2939,6 @@ int __stdcall HAPINET_guaranteepackets(int enable);
 int __stdcall RequestPlayerColor(int color);
 void __stdcall SleepMilliseconds(unsigned int ms);
 void __stdcall SendPlayerEconomy(Player* from, Player* to, unsigned char flag);
-void __stdcall TransferEnergy(unsigned char from, unsigned char to, float amount, int flag);
-void __stdcall TransferMetal(unsigned char from, unsigned char to, float amount, int flag);
 int __stdcall HAPINET_initlobbiedconnection(void* p);
 void __stdcall SetMissionType(int a);
 
@@ -3891,6 +3890,8 @@ int CountCombatPlayers()
     return count;
 }
 
+#include "../../interfaces/seams.h"
+
 // Shared-resource tick: every 60 game ticks, if the local player is over its
 // energy (or metal) reserve and has the matching flag, give up to a third (a
 // half for metal) of the surplus to the neediest ally that shows up in the
@@ -3925,7 +3926,7 @@ void __stdcall UpdateResourceSharing(Player* player)
             // The min() must be a ternary into a fresh local, not an if.
             float result = amount < limit ? amount : limit;
             amount = result;
-            TransferEnergy(player->index, found->index, amount, 1);
+            g_seams.players->TransferEnergy(player->index, found->index, amount, 1);
         }
 
         found = player;
@@ -3950,7 +3951,7 @@ void __stdcall UpdateResourceSharing(Player* player)
             // The min() must be a ternary into a fresh local, not an if.
             float result = amount < limit ? amount : limit;
             amount = result;
-            TransferMetal(player->index, found->index, amount, 1);
+            g_seams.players->TransferMetal(player->index, found->index, amount, 1);
         }
     }
 

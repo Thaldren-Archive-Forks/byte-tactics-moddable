@@ -693,6 +693,8 @@ void ShutdownGame(void)
     FreeOtaEnumCacheAndMission();
 }
 
+#include "../../interfaces/seams.h"
+
 // Resets the game state for a new match: clears the scratch fields and flags
 // in g_game, runs the per-subsystem reset functions, allocates the three
 // transform point buffers, and zeroes the per-player counters and the input
@@ -705,9 +707,7 @@ void ResetChatHudIndices();
 void LoadLightBar();
 void ResetSpeech();
 void LoadTextureGafs();
-void LoadFeatureFileList();
 void InitUnitCategories();
-void NopAfterFeatureEnum();
 void CreateParticleLists();
 void AllocWeaponArray();
 void LoadWeaponTypes();
@@ -716,8 +716,6 @@ void ResetCameraState();
 void LoadUnitTypes();
 void LoadDownloadMenus();
 void AllocateUnitMemory();
-void ResolveFeatureLinks();
-void FreeFeatureFileList();
 void BuildAllPassMaps();
 void InitRadar();
 void InitPlayers();
@@ -745,9 +743,9 @@ void LoadBattleAssets()
     LoadLightBar();
     ResetSpeech();
     LoadTextureGafs();
-    LoadFeatureFileList();
+    g_seams.features->LoadFeatureFileList();
     InitUnitCategories();
-    NopAfterFeatureEnum();
+    g_seams.features->NopAfterFeatureEnum();
     CreateParticleLists();
     AllocWeaponArray();
     LoadWeaponTypes();
@@ -756,8 +754,8 @@ void LoadBattleAssets()
     LoadUnitTypes();
     LoadDownloadMenus();
     AllocateUnitMemory();
-    ResolveFeatureLinks();
-    FreeFeatureFileList();
+    g_seams.features->ResolveFeatureLinks();
+    g_seams.features->FreeFeatureFileList();
     BuildAllPassMaps();
     g_game->windSpeedDenominator = 5000;
     g_game->windCounter = 0;

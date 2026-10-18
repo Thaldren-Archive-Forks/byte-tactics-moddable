@@ -1288,6 +1288,8 @@ void __stdcall FinishConstruction(Unit* unit, Unit* target)
     }
 }
 
+#include "../../interfaces/seams.h"
+
 // Adds build progress to a unit under construction: `amount` build points
 // (negative when it is being taken apart) move the remaining fraction at
 // +0x104 towards 0 (done) or 1 (nothing built), clamped to [0, 1]. Building
@@ -1352,7 +1354,7 @@ int __stdcall AddBuildProgress(Unit* builder, Unit* unit, float amount)
         unit->flags.raw |= 0x2000;
         if (next >= 1.0f)
             DamageUnit(unit, unit, 30000, 9, 0);
-    } else if (builder->resourceSlot.RequestEnergyAndMetal(energyCharge, metalCharge)) {
+    } else if (g_seams.economy->RequestEnergyAndMetal(&builder->resourceSlot, energyCharge, metalCharge)) {
         unit->health = min(hp + unit->health, unit->def->maxHealth);
         unit->buildLeft = next;
         unit->flags.raw |= 0x2000;
@@ -1390,7 +1392,7 @@ int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float f)
         n1 = 1;
     if (n2 >= 1)
         n2 = 1;
-    if (builder->resourceSlot.RequestEnergy(&builder->resourceSlot, (float)n2)) {
+    if (g_seams.economy->RequestEnergy(&builder->resourceSlot, &builder->resourceSlot, (float)n2)) {
         DamageUnit(builder, unit, n1, 10, 0);
         result = 1;
     }

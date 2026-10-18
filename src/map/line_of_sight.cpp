@@ -366,7 +366,6 @@ void __stdcall RevealAroundUnit(SightQuery* params);
 void __stdcall UpdateCellHeightRange(Point pos, Point size);
 void UpdateRadarMapped();
 void DrawRadarUnits();
-void FreeFeaturePool();
 void BuildFogTiles();
 void* __stdcall AllocFrame(const char* name, int width, int height);
 void __stdcall SurfaceFromFrame(void* dst, void* src);
@@ -378,10 +377,6 @@ void __stdcall EraseFrameDithered(void* surface, void* bmp, int x, int y, int co
 void __stdcall FillRectangle(void* surface, Rect* rect, int color);
 void __stdcall GrayRectangle(void* surface, Rect* rect);
 void __stdcall DitherRectangle(void* surface, Rect* rect, int color);
-void __stdcall InitFeatureAnimPool(int* info);
-void* __stdcall PlaceFeature(void* target, unsigned short id, void* pos, void* field_64, unsigned char owner);
-void __stdcall PlaceMissionFeatures();
-void StampFeatureMetal();
 int __stdcall GetGroundHeight(Vec3* pos);
 void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
@@ -974,6 +969,8 @@ struct MapSettings {
     unsigned short* mapValues;         // +0x90
 };
 
+#include "../../interfaces/seams.h"
+
 // FUNCTION: 0x483610
 void LoadTntMap()
 {
@@ -1100,7 +1097,7 @@ void LoadTntMap()
         plot[7] = (unsigned char)fill;
         plot += 0xd;
     }
-    InitFeatureAnimPool(&info.version);
+    g_seams.features->InitFeatureAnimPool((List_00421f20*)&info.version);
     if (info.attr_b != 0) {
         unsigned char* q = (unsigned char*)mapSettings->cells;
         if (a.n > 0) {
@@ -1119,7 +1116,7 @@ void LoadTntMap()
                 unsigned char* src = info.attr_b + 2;
                 do {
                     if (*src < info.attr_limit)
-                        PlaceFeature(q, *src, 0, 0, 10);
+                        g_seams.features->PlaceFeature((Cell*)q, *src, 0, 0, 10);
                     q += 0xd;
                     src += 8;
                     a.n--;
@@ -1136,7 +1133,7 @@ void LoadTntMap()
                     q[4] = *src;
                     q[0xc] = (q[0xc] & 0xd7) | 0x50;
                     if (*(unsigned short*)(src + 1) == 0xfffc)
-                        PlaceFeature(q, 0xfffc, 0, 0, 10);
+                        g_seams.features->PlaceFeature((Cell*)q, 0xfffc, 0, 0, 10);
                     q += 0xd;
                     src += 4;
                     b.n--;
@@ -1149,13 +1146,13 @@ void LoadTntMap()
                     int n = a.n;
                     do {
                         if ((int)*sp < info.attr_limit)
-                            PlaceFeature(q, *sp, 0, 0, 10);
+                            g_seams.features->PlaceFeature((Cell*)q, *sp, 0, 0, 10);
                         q += 0xd;
                         sp += 2;
                         n--;
                     } while (n != 0);
                 }
-                PlaceMissionFeatures();
+                g_seams.features->PlaceMissionFeatures();
             }
         }
     }
@@ -1228,7 +1225,7 @@ void LoadTntMap()
     mapSettings->sortUnits = (int*)GameAllocIgnoreTag("SORT UNIT LIST", sy * sx * 4);
     mapSettings->sortIndices = (int*)GameAllocIgnoreTag("SORT INDICES", mapSettings->sortRowCount << 2);
     mapSettings->sortLineCount = (int*)GameAllocIgnoreTag("SORT LINE COUNT", mapSettings->sortRowCount << 1);
-    StampFeatureMetal();
+    g_seams.features->StampFeatureMetal();
     g_game->count = 0;
     g_game->eyes = (Eye*)GameAllocIgnoreTag("EYEBALL MEMORY", 0x2d0);
     mapSettings->featureReproduceCursor = 0;
@@ -1240,7 +1237,7 @@ void LoadTntMap()
 void FreeMapResources()
 {
     GameFreeThunk(g_game->eyes);
-    FreeFeaturePool();
+    g_seams.features->FreeFeaturePool();
     if (g_game->radarFrame) {
         GameFreeThunk(g_game->radarFrame);
         g_game->radarFrame = 0;

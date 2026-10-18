@@ -31,11 +31,11 @@ struct Order { Unit* Target() { return target; } Vec3* Position() { return &pos;
     void MergeFlagsFromTable(int k);
 };
 
+#include "../../interfaces/seams.h"
+
 #pragma pack(pop)
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
-Unit* __stdcall GetWeaponTargetUnit(Unit*, int);
 int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
-void __stdcall SetWeaponTargetUnit(Unit*, Unit*, int);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 void __stdcall AppendOrder(Unit*, Order*);
 int __stdcall RandomInt(int);
@@ -74,9 +74,9 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
                 for (unsigned char i=0;i<3;++i) {
                     Weapon* weapon=&unit->weapons[i];
                     if ((weapon->flags&2) && (weapon->flags&0x10) && !((unsigned char)(weapon->def->flags >> 26)&1)) {
-                        Unit* target=GetWeaponTargetUnit(unit,i);
+                        Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
                         if (!target || !WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
-                            SetWeaponTargetUnit(unit,attacker,i);
+                            g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);
                     }
                 }
             }

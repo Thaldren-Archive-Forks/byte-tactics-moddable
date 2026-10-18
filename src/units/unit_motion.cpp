@@ -171,9 +171,9 @@ void CMemoryCache::DrawObjectPieces(Vec3_458810* result, List_458810* list, Vec3
     }
 }
 
-extern Game* g_game;
+#include "../../interfaces/seams.h"
 
-Cell* __stdcall GetMapCell(int x, int y);
+extern Game* g_game;
 
 // Wind/metal picker for a metal extractor: when the unit type extracts metal
 // (+0x1ce > 0), sums the metal byte of every map cell under the unit's
@@ -192,7 +192,7 @@ void __stdcall UpdateMetalExtraction(Unit* unit)
         Point16_437840 fp = unit->footprint;
         for (int y = unit->cell.y; y < unit->cell.y + fp.y; y++) {
             for (int x = unit->cell.x; x < unit->cell.x + fp.x; x++) {
-                Cell* c = GetMapCell(x, y);
+                Cell* c = g_seams.los_radar->GetMapCell(x, y);
                 if (c) {
                     total.parts.whole += c->metal + 1;
                 }
@@ -200,7 +200,7 @@ void __stdcall UpdateMetalExtraction(Unit* unit)
         }
         unit->extraction = unit->def->extractsMetal * 1.52587890625e-05 * (float)total.value;
         if (unit->script)
-            unit->script->StartScriptWithArgs("SetSpeed", 0, 0, 1, total.parts.whole, 0, 0, 0);
+            g_seams.units->StartScriptWithArgs(unit->script, "SetSpeed", 0, 0, 1, total.parts.whole, 0, 0, 0);
     }
 }
 

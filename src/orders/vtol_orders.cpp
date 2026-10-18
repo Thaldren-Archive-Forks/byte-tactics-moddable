@@ -464,7 +464,6 @@ int __stdcall CanPlaceFootprintAt(Unit*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit*, Unit*, int, int);
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
 void __stdcall GetFactoriesInRadius(int, Vec3*, int, std::vector<Unit*>*);
-Unit* __stdcall FindBestTargetIfFireAtWill(Unit*);
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
 int __stdcall IssueRepairOrder(Unit*, Unit*, int);
 void __stdcall AppendOrder(Unit*, Order*);
@@ -473,7 +472,6 @@ void __stdcall EnsurePatrolReturnOrder(Unit*, Order*);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 Unit* __stdcall GetWeaponTargetUnit(Unit*, int);
 int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
-void __stdcall SetWeaponTargetUnit(Unit*, Unit*, int);
 void __stdcall SetWeaponTargetPos(Unit*, Vec3*, int);
 void __stdcall ClearWeaponTarget(Unit*, int);
 int __stdcall IsPadSlotFree(Unit*, int);
@@ -771,6 +769,8 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
     return 7;
 }
 
+#include "../../interfaces/seams.h"
+
 // Adds two integer 3-vectors and returns the sum by value.
 #pragma auto_inline(off)
 #pragma auto_inline(on)
@@ -797,7 +797,7 @@ int __stdcall VtolStandbyOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1: {
-        Unit* other = FindBestTargetIfFireAtWill(unit);
+        Unit* other = g_seams.targeting->FindBestTargetIfFireAtWill(unit);
         if (other && IssueAttackOrder(unit, other, 0)) {
             order->flags = 0;
             order->state = 0;
@@ -1435,7 +1435,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
     }
     case 2: {
         unit->ClaimWeapons(0);
-        SetWeaponTargetUnit(unit, order->target.owner, 0);
+        g_seams.targeting->SetWeaponTargetUnit(unit, order->target.owner, 0);
         Class_0044e2d0* obj = new Class_0044e2d0(order, order->target.owner->pos);
         ((Class_0044e730*)obj)->SetApproachRadius(range);
         order->SetAttachedFx((int)obj);

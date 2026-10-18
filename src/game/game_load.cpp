@@ -518,7 +518,6 @@ void __stdcall ClampWorldPosToTerrain(int x, int y, Pos_00498da0* out);
 int __stdcall GetGroundHeight(Pos_00498d00* pos);
 int __stdcall PointInRect(Rect* r, int x, int y);
 Cell* __stdcall GetMapCell(int x, int y);
-unsigned short __stdcall GetCellFeature(Cell* cell);
 
 
 // Game start: seeds the random generators, loads the match settings for the
@@ -1140,6 +1139,8 @@ void __stdcall MinimapCursorToWorldPos(Pos_00498d00* out)
     out->z.whole = g_game->mapPixelHeight * dy / g_game->minimapGadgetH;
     out->y.whole = GetGroundHeight(out);
 }
+
+#include "../../interfaces/seams.h"
 // Turns a screen point into a world position. The caller copies the 24-byte
 // view rectangle at g_game+0x2c76 onto its own stack and passes the address, so
 // this function sees a snapshot of the view.
@@ -1204,5 +1205,5 @@ void __stdcall UpdateCursorWorldPos(View_00498da0* r)
         pt.y = (short)(v.z >> 20);
         g_game->point = pt;
     }
-    g_game->cellFeature = GetCellFeature(GetMapCell(g_game->point.x, g_game->point.y));
+    g_game->cellFeature = g_seams.features->GetCellFeature(GetMapCell(g_game->point.x, g_game->point.y));
 }

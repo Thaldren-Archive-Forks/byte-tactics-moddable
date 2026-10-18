@@ -5,6 +5,7 @@
 #pragma pack(push, 1)
 #include "../network/player.h"
 #include "../network/player_info.h"
+#include "../../interfaces/seams.h"
 
 struct Game {
     char unknown_0[0x4ed];
@@ -118,11 +119,6 @@ void __stdcall CmdShareRadar(int unused)
     }
 }
 
-// Chat command: toggles the local player's ShareMetal, ShareEnergy,
-// ShareMapping and ShareRadar flags in turn. The four toggles are the chat
-// commands 0x418cd0, 0x418d90, 0x418e50 and 0x418fd0, inlined. The last one
-// must be the mask form with a pointer local (as in 0x418d90): the `!` on a
-// bitfield form gives its block different registers from the other three.
 static inline void ShareMetal(int unused)
 {
     char buf[256];
@@ -151,42 +147,14 @@ static inline void ShareEnergy(int unused)
     }
 }
 
-static inline void ShareMapping(int unused)
-{
-    char buf[256];
-    if (g_game->netGameFlags & 1) {
-        PlayerInfo* data = g_game->players[g_game->localPlayer].info;
-        data->flags_97_wide = (data->flags_97_wide & ~0x20) | (~data->flags_97_wide & 0x20);
-        sprintf(buf, "Toggled ShareMapping to: %s",
-                (g_game->players[g_game->localPlayer].info->flags_97_wide & 0x20)
-                    ? "ON" : "OFF");
-        AddMessage(buf, 2, 0, 10);
-        BroadcastPlayerInfo();
-    }
-}
-
-static inline void ShareRadar(int unused)
-{
-    char buf[256];
-    if (g_game->netGameFlags & 1) {
-        PlayerInfo* data = g_game->players[g_game->localPlayer].info;
-        data->flags_97_wide = (data->flags_97_wide & ~0x40) | (~data->flags_97_wide & 0x40);
-        sprintf(buf, "Toggled ShareRadar to: %s",
-                (g_game->players[g_game->localPlayer].info->flags_97_wide & 0x40)
-                    ? "ON" : "OFF");
-        AddMessage(buf, 2, 0, 10);
-        BroadcastPlayerInfo();
-    }
-}
-
 // FUNCTION: 0x419090
 void __stdcall CmdShareAll(int unused)
 {
     if (g_game->netGameFlags & 1) {
         ShareMetal(unused);
         ShareEnergy(unused);
-        ShareMapping(unused);
-        ShareRadar(unused);
+        g_seams.los_radar->CmdShareMapping(unused);
+        g_seams.los_radar->CmdShareRadar(unused);
     }
 }
 

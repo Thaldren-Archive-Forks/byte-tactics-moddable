@@ -79,7 +79,6 @@ unsigned short __stdcall LoadFeatureType(char* name);
 void __stdcall ResolveFeatureLinks();
 void __stdcall StartFeatureBurning(int x, int y, int flag);
 void __stdcall KillFeature(int x, int y, int flag);
-Cell_00424c00* __stdcall GetMapCell(int x, int y);
 void* __stdcall PlaceFeature(Cell_00424c00* cell, unsigned short feature, void* pos, void* rot, unsigned char owner);
 
 // FindOrLoadFeatureType, inlined
@@ -105,6 +104,8 @@ static inline void FreeFeatureList()
     delete s_featureTdfParsers;
     s_featureTdfParsers = 0;
 }
+
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x424c00
 void __stdcall LoadFeatures(HapiBank* file)
@@ -149,7 +150,7 @@ void __stdcall LoadFeatures(HapiBank* file)
         // The `got` and `type` locals add IL size that the inlining depends on.
         int got = file->ReadBox(&rec, sizeof(Normal_00424890));
         if (got >= sizeof(Normal_00424890)) {
-            Cell_00424c00* c = GetMapCell(rec.x, rec.y);
+            Cell_00424c00* c = (Cell_00424c00*)g_seams.los_radar->GetMapCell(rec.x, rec.y);
             unsigned short type = remap[rec.feature];
             PlaceFeature(c, type, 0, 0, 10);
             c->spot = rec.spot;
@@ -163,7 +164,7 @@ void __stdcall LoadFeatures(HapiBank* file)
         ((Class_004b4c10*)file)->SeekBox(k * sizeof(Anim_00424c00));
         int got = file->ReadBox(&rec, sizeof(Anim_00424c00));
         if (got >= sizeof(Anim_00424c00)) {
-            Cell_00424c00* c = GetMapCell(rec.x, rec.y);
+            Cell_00424c00* c = (Cell_00424c00*)g_seams.los_radar->GetMapCell(rec.x, rec.y);
             unsigned short type = remap[rec.feature];
             PlaceFeature(c, type, 0, 0, 10);
             switch (rec.anim) {
@@ -192,7 +193,7 @@ void __stdcall LoadFeatures(HapiBank* file)
         ((Class_004b4c10*)file)->SeekBox(k * sizeof(Model3D_00424c00));
         int got = file->ReadBox(&rec, sizeof(Model3D_00424c00));
         if (got >= sizeof(Model3D_00424c00)) {
-            Cell_00424c00* c = GetMapCell(rec.x, rec.y);
+            Cell_00424c00* c = (Cell_00424c00*)g_seams.los_radar->GetMapCell(rec.x, rec.y);
             unsigned short type = remap[rec.feature];
             PlaceFeature(c, type, &rec.pos, &rec.rot, 10);
             g_game->spots[c->spot].damage = rec.damage;

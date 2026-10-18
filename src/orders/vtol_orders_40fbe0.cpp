@@ -47,6 +47,8 @@ public:
     void SetAltitude(int);
     void SetApproachRadius(int);
 };
+
+#include "../../interfaces/seams.h"
 struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x14233]; int overflowBucket; };
 #pragma pack(pop)
 extern Game* g_game;
@@ -59,9 +61,7 @@ Vec3 __stdcall AddVec3(const Vec3&, const Vec3&);
 void __stdcall AppendOrderToTail(Unit*, Order*);
 
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
-Unit* __stdcall GetWeaponTargetUnit(Unit*, int);
 int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
-void __stdcall SetWeaponTargetUnit(Unit*, Unit*, int);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 void __stdcall AppendOrder(Unit*, Order*);
 int __stdcall RandomInt(int);
@@ -130,9 +130,9 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                                 // register for the pointer and its stack slots
                                 if (!((weapon->flags&2) && weapon->flags&0x10 && ((unsigned char)(weapon->def->flags >> 26)&1) == 0)) {
                                 } else {
-                                    Unit* target=GetWeaponTargetUnit(unit,i);
+                                    Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
                                     if (!target || !WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
-                                        SetWeaponTargetUnit(unit,attacker,i);
+                                        g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);
                                 }
                                 ++i;
                                 weapon++;
