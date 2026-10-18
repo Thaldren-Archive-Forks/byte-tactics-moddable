@@ -318,8 +318,6 @@ address,function,file,kind,target
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,call,operator=
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,deref_escape,*UnitDef
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_maybe_written,Order::target
-0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,<anon>::bits18
-0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,<anon>::bits20
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Game::difficulty
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Game::unitDefs
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,MapSeam::CanPlaceUnitFootprint
@@ -336,7 +334,9 @@ address,function,file,kind,target
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Seams::weapons
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::buildLeft
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::def
+0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::fire
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::flags
+0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::move
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::playerIndex
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::pos
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Unit::script
@@ -357,13 +357,13 @@ address,function,file,kind,target
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Vec3::y
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,Vec3::z
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_read,WeaponsSeam::DamageUnit
-0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,<anon>::bits18
-0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,<anon>::bits20
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Box::hi
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Box::lo
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Order::count
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Order::flags
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Order::pos
+0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Unit::fire
+0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Unit::move
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,UnitResources::metalMake
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Vec3::x
 0x402640,BuildingBuildOrder,src/orders/unit_orders.cpp,field_write,Vec3::y
@@ -484,13 +484,13 @@ address,function,file,kind,target
 0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,field_read,Target::flag
 0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,function,
 0x4030d0,StandingMoveOrder,src/orders/unit_orders.cpp,field_read,Order::mode
-0x4030d0,StandingMoveOrder,src/orders/unit_orders.cpp,field_write,Unit::mode2
+0x4030d0,StandingMoveOrder,src/orders/unit_orders.cpp,field_write,Unit::fire
 0x4030d0,StandingMoveOrder,src/orders/unit_orders.cpp,function,
 0x403100,StandingFireOrder,src/orders/unit_orders.cpp,field_read,Order::mode
 0x403100,StandingFireOrder,src/orders/unit_orders.cpp,field_read,Seams::targeting
 0x403100,StandingFireOrder,src/orders/unit_orders.cpp,field_read,TargetingSeam::ClearWeaponTarget
 0x403100,StandingFireOrder,src/orders/unit_orders.cpp,field_read,UnitWeaponSlot::flags
-0x403100,StandingFireOrder,src/orders/unit_orders.cpp,field_write,Unit::mode
+0x403100,StandingFireOrder,src/orders/unit_orders.cpp,field_write,Unit::move
 0x403100,StandingFireOrder,src/orders/unit_orders.cpp,function,
 0x403100,StandingFireOrder,src/orders/unit_orders.cpp,global_read,g_seams
 0x403100,StandingFireOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::ClearWeaponTarget]"
@@ -661,6 +661,8 @@ address,function,file,kind,target
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Order::state
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Order::target
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Order::type
+0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Point16::x
+0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Point16::y
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Point::x
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Point::y
 0x403a20,MobileBuildOrder,src/orders/unit_orders_403a20.cpp,field_read,Seams::map
@@ -1026,7 +1028,6 @@ address,function,file,kind,target
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,call,_hypot
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,call,operator=
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_maybe_written,Unit::pos
-0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,<anon>::mode
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Angles16::heading
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Fixed::whole
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Game::gameTick
@@ -1045,6 +1046,7 @@ address,function,file,kind,target
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Unit::flags
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Unit::footprint
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Unit::health
+0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Unit::mode
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Unit::motion
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,Unit::pos
 0x405300,RepairUnitOrder,src/orders/unit_orders.cpp,field_read,UnitDef::buildRange
@@ -1185,13 +1187,13 @@ address,function,file,kind,target
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,call,Order::SetDeadlineTicks
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,call,RandomInt
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,call,operator new
-0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,<anon>::mode
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,Order::flags
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,Order::state
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,Seams::targeting
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,Seams::weapons
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,TargetingSeam::FindBestTargetIfFireAtWill
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,Unit::flags
+0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,Unit::mode
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_read,WeaponsSeam::ReleaseWeapons
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,field_write,Order::flags
 0x406090,StandbyMineOrder,src/orders/unit_orders.cpp,function,
@@ -1244,6 +1246,7 @@ address,function,file,kind,target
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Order::target
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Owner::allied
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Owner::index
+0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Point16::x
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Seams::targeting
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Seams::weapons
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,TargetingSeam::GetWeaponTargetUnit
@@ -1257,13 +1260,12 @@ address,function,file,kind,target
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Unit::player
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Unit::pos
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Unit::unitDefIndex
-0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Unit::width
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitDef::categories
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitDef::flags1
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitDef::maxHealth
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitDef::weaponCategories
-0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Weapon::def
-0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Weapon::flags
+0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitWeaponSlot::flags
+0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitWeaponSlot::weapon
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,WeaponDef::flags
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,WeaponsSeam::ReleaseWeapons
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,WeaponsSeam::WeaponCanReachUnit
@@ -1308,6 +1310,8 @@ address,function,file,kind,target
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,call,PathOrderAttach::SetUnit
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,call,QueueUnitSpeech
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,call,WaitIfCobBusy
+0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,deref_read,*Unit
+0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_escape,Unit::carrier
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_maybe_written,Order::pos
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_maybe_written,Order::target
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,Order::attempts
@@ -1315,7 +1319,6 @@ address,function,file,kind,target
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,PathOrderAttach::owner
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,Seams::units
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,Unit::cargo
-0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,Unit::carrier
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,Unit::def
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,Unit::id
 0x406900,GroundUnloadOrder,src/orders/unit_orders.cpp,field_read,Unit::motion
@@ -1334,8 +1337,9 @@ address,function,file,kind,target
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,call,Add
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,call,EmitTeleportParticles
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,call,Sub
+0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,deref_read,*Vec
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,deref_read,*Vec3
-0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_maybe_written,Unit::pos
+0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_escape,Unit::pos
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Def::high
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Def::low
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Game::units
@@ -1343,8 +1347,10 @@ address,function,file,kind,target
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Order::pos
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Seams::units
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Unit::def
-0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Unit::pos
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,UnitsSeam::SetUnitPosition
+0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Vec3::x
+0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Vec3::y
+0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Vec3::z
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Vec::x
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Vec::y
 0x406aa0,TeleportOrder,src/orders/unit_orders_406aa0.cpp,field_read,Vec::z
@@ -1456,7 +1462,9 @@ address,function,file,kind,target
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [OrdersSeam::DeleteOrders]"
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [UnitsSeam::NotifyUnitRefs]"
+0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,deref_read,*unsigned short
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_escape,Game::players
+0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_escape,Unit::activateFlags
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Player::active
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Player::allied
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Player::index
@@ -1465,7 +1473,6 @@ address,function,file,kind,target
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Player::unitsEnd
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,SquadManager::player
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Unit::flags
-0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Unit::flags10e
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Unit::mode
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Vec3::x
 0x4071f0,SquadManager::FindNearestEnemyUnit,src/ai/ai_player.cpp,field_read,Vec3::z
@@ -1724,7 +1731,7 @@ address,function,file,kind,target
 0x408670,UpdateConverter,src/ai/ai_player.cpp,field_read,PlayersSeam::GetNetEnergy
 0x408670,UpdateConverter,src/ai/ai_player.cpp,field_read,Seams::players
 0x408670,UpdateConverter,src/ai/ai_player.cpp,field_read,Seams::units
-0x408670,UpdateConverter,src/ai/ai_player.cpp,field_read,Unit::economy
+0x408670,UpdateConverter,src/ai/ai_player.cpp,field_read,Unit::player
 0x408670,UpdateConverter,src/ai/ai_player.cpp,field_read,UnitsSeam::SetStateBits
 0x408670,UpdateConverter,src/ai/ai_player.cpp,function,
 0x408670,UpdateConverter,src/ai/ai_player.cpp,global_read,Zero_004fc968@src/ai/ai_player.cpp
@@ -1749,9 +1756,9 @@ address,function,file,kind,target
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,SquadTimer::group
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,SquadTimer::player
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,Unit::def
-0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,Unit::economy
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,Unit::flags
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,Unit::list
+0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,Unit::player
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,UnitDef::count
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,UnitDef::makesMetal
 0x4086d0,BuildTimer::OnTimer,src/ai/ai_player.cpp,field_read,UnitsSeam::SetStateBits
@@ -2232,6 +2239,8 @@ address,function,file,kind,target
 0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,field_read,PlayerAI::vec_8d
 0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,field_read,Unit::unitDefIndex
 0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,field_read,UnitList_00409160::units
+0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,field_read,Vec3::x
+0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,field_read,Vec3::z
 0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,field_read,Vec_0040b1c0::x
 0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,field_read,Vec_0040b1c0::z
 0x40b1c0,SumUnitRatingsInRange,src/ai/ai_player_40b1c0.cpp,function,
@@ -2264,8 +2273,10 @@ address,function,file,kind,target
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,deref_read,*Unit
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Def::flags
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Owner::factories
-0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Unit::active
+0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Unit::activateFlags
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Unit::def
+0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Vec3::x
+0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Vec3::z
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Vec::x
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,field_read,Vec::z
 0x40b530,GetFactoriesInRadius,src/ai/ai_player_40b530.cpp,function,
@@ -2287,12 +2298,12 @@ address,function,file,kind,target
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Player::type
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Seams::ai
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Seams::weapons
+0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::activateFlags
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::def
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::flags
-0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::id
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::player
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::playerIndex
-0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::status
+0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Unit::unitDefIndex
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,UnitDef::flags1
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,UnitDef::range
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,UnitWeaponSlot::weapon
@@ -2856,6 +2867,8 @@ address,function,file,kind,target
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,call,WorldToCellMul
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,call,operator new
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,call,operator=
+0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,deref_read,*Point
+0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_escape,Unit::footprint
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_maybe_written,Unit::pos
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Game::mapPixelHeight
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Game::mapPixelWidth
@@ -2869,7 +2882,6 @@ address,function,file,kind,target
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Seams::map
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Seams::units
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Unit::def
-0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Unit::footprint
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Unit::motion
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Unit::pos
 0x40f2a0,VtolLandIfCanOrder,src/orders/vtol_orders.cpp,field_read,Unit::script
@@ -2948,13 +2960,14 @@ address,function,file,kind,target
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,call,QueueUnitSpeech
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,call,Snap
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,call,operator new
+0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,deref_read,*Point
+0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_escape,Unit::footprint
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_maybe_written,Order::pos
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,Order::next
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,Order::pos
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,Order::state
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,Seams::weapons
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,Unit::def
-0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,Unit::footprint
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,Unit::motion
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::flags
 0x40fa20,VtolMoveOrder,src/orders/vtol_orders.cpp,field_read,WeaponsSeam::ReleaseWeapons
@@ -3021,11 +3034,11 @@ address,function,file,kind,target
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitDef::flags1
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitDef::weaponCategories
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitMotion::flags
+0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitWeaponSlot::flags
+0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitWeaponSlot::weapon
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitsSeam::AttachUnitToPiece
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitsSeam::CanRepair
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitsSeam::SetStateBits
-0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,Weapon::def
-0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,Weapon::flags
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,WeaponDef::flags
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,WeaponDef::range
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,WeaponsSeam::ClaimWeapons
@@ -3099,12 +3112,12 @@ address,function,file,kind,target
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,UnitDef::flags1
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,UnitDef::maxHealth
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,UnitMotion::flags
+0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,UnitWeaponSlot::weapon
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,UnitsSeam::AttachUnitToPiece
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,UnitsSeam::SetStateBits
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,Vec3::x
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,Vec3::y
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,Vec3::z
-0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,Weapon::def
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,WeaponDef::range
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,WeaponsSeam::ClaimWeapons
 0x4103e0,VtolSeekAttackOrder,src/orders/vtol_orders_4103e0.cpp,field_read,WeaponsSeam::ReleaseWeapons
@@ -3232,7 +3245,7 @@ address,function,file,kind,target
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Order::flags
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Order::piece
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Order::state
-0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Point::x
+0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Point16::x
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Seams::units
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Unit::cargo
 0x4111b0,VtolPickupOrder,src/orders/vtol_orders.cpp,field_read,Unit::def
@@ -3268,7 +3281,9 @@ address,function,file,kind,target
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,call,ToPoint16
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,call,WorldToCell
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,call,operator new
+0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,deref_read,*Point
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_escape,Order::target
+0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_escape,Unit::footprint
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Link_004895c0::owner
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,MapSeam::CanPlaceUnitFootprint
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Order::pos
@@ -3277,7 +3292,6 @@ address,function,file,kind,target
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Seams::units
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Unit::cargo
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Unit::def
-0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Unit::footprint
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Unit::motion
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Unit::pos
 0x411560,VtolUnloadOrder,src/orders/vtol_orders.cpp,field_read,Unit::script
@@ -3354,12 +3368,12 @@ address,function,file,kind,target
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,Order::AnnounceStatusIfFlagged
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,Order::SetAttachedFx
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,Order::SetDeadlineTicks
+0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,PosPlus
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,PrepVtolClimb
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,RandomInt
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,_hypot
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,empty
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,operator new
-0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,operator+
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,operator=
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,operator[]
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,call,size
@@ -3369,8 +3383,6 @@ address,function,file,kind,target
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_maybe_written,Order::pos
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_maybe_written,Unit::pos
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,AiSeam::GetFactoriesInRadius
-0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,FixedVec3::x
-0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,FixedVec3::z
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Game::mapInfo
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Order::flags
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Order::flags_42
@@ -3395,6 +3407,8 @@ address,function,file,kind,target
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Unit::motion
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Unit::player
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Unit::pos
+0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Unit::xWhole
+0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,Unit::zWhole
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,UnitDef::altitude
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,UnitDef::attackrunlength
 0x411f50,AirStrikeOrder,src/orders/vtol_orders_411f50.cpp,field_read,UnitDef::flags
@@ -3429,12 +3443,12 @@ address,function,file,kind,target
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,Order::AnnounceStatusIfFlagged
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,Order::SetAttachedFx
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,Order::SetDeadlineTicks
+0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,PosPlus
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,PrepVtolClimb
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,RandomInt
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,_hypot
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,empty
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,operator new
-0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,operator+
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,operator=
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,operator[]
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,call,size
@@ -3442,8 +3456,6 @@ address,function,file,kind,target
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_escape,Unit::pos
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_maybe_written,Order::pos
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_maybe_written,Unit::pos
-0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,<anon>::x
-0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,<anon>::z
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,AiSeam::GetFactoriesInRadius
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Game::overflowBucket
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Order::flags_42
@@ -3467,6 +3479,8 @@ address,function,file,kind,target
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Unit::player
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Unit::pos
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Unit::spatialBucket
+0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Unit::xWhole
+0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Unit::zWhole
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,UnitDef::flags
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Vec3::x
 0x412710,AirToGroundOrder,src/orders/vtol_orders_412710.cpp,field_read,Vec3::y
@@ -3509,8 +3523,6 @@ address,function,file,kind,target
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_escape,Unit::pos
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_maybe_written,Unit::pos
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,<anon>::whole
-0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,<anon>::x
-0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,<anon>::z
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Game::height
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Game::overflowBucket
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Game::width
@@ -3532,6 +3544,8 @@ address,function,file,kind,target
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Unit::motion
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Unit::pos
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Unit::spatialBucket
+0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Unit::xWhole
+0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,Unit::zWhole
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,UnitDef::altitude
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,UnitDef::flags
 0x412d40,AirToAirOrder,src/orders/vtol_orders_412d40.cpp,field_read,UnitDef::maxvelocity
@@ -3603,11 +3617,11 @@ address,function,file,kind,target
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::altitude
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::flags
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::maxHealth
+0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,UnitWeaponSlot::weapon
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,Vec3::x
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,Vec3::xw
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,Vec3::z
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,Vec3::zw
-0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,Weapon::def
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,WeaponDef::range
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,WeaponsSeam::ClaimWeapons
 0x413470,AirToGroundHoverOrder,src/orders/vtol_orders.cpp,field_read,WeaponsSeam::ReleaseWeapons
@@ -3641,7 +3655,7 @@ address,function,file,kind,target
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_read,Unit::motion
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_read,Unit::pos
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::flags
-0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_read,Weapon::def
+0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_read,UnitWeaponSlot::weapon
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_read,WeaponDef::range
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_write,Order::flags
 0x413bc0,VtolEvadeOrder,src/orders/vtol_orders.cpp,field_write,Order::side
@@ -3740,14 +3754,16 @@ address,function,file,kind,target
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,Order::AnnounceStatusIfFlagged
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,Order::SetAttachedFx
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,Order::SetDeadlineTicks
+0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,PosMinus
+0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,PosPlus
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,QueueUnitSpeech
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,StartBuildingScript
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,UnitMotion::SetFlightMode
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,UnitRef::Get
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,operator new
-0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,operator+
-0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,operator-
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,call,operator=
+0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,deref_read,*Vec3
+0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,field_escape,Unit::pos
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,field_maybe_written,Order::target
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,field_maybe_written,Unit::pos
 0x414380,VtolHelpBuildOrder,src/orders/vtol_orders_414380.cpp,field_read,Game::tick
@@ -3852,6 +3868,8 @@ address,function,file,kind,target
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,call,WorldToCell
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,call,operator new
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,call,operator=
+0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,deref_read,*Point
+0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_escape,Unit::footprint
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_maybe_written,Order::pos
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_maybe_written,Order::target
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,Order::duration
@@ -3863,7 +3881,6 @@ address,function,file,kind,target
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,Seams::units
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,Seams::weapons
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,Unit::def
-0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,Unit::footprint
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,Unit::motion
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,Unit::pos
 0x414a80,VtolReclaimUnitOrder,src/orders/vtol_orders_414a80.cpp,field_read,UnitDef::buildRange
@@ -3899,7 +3916,6 @@ address,function,file,kind,target
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,call,operator=
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,deref_write,*Vec3
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_escape,Order::pos
-0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,<anon>::mode
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Order::flags
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Order::pos
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Order::range
@@ -3912,6 +3928,7 @@ address,function,file,kind,target
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Unit::def
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Unit::flags
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Unit::health
+0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Unit::mode
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Unit::motion
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,Unit::pos
 0x414e70,VtolRepairUnitOrder,src/orders/vtol_orders.cpp,field_read,UnitDef::altitude
@@ -10905,11 +10922,12 @@ address,function,file,kind,target
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,call,DrawUnitRangeRings
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,call,DrawWeaponCoverage
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,call,operator=
+0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,deref_read,*Vec3Ex
+0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_escape,Unit::pos
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Elem_0043c390::drawMask
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Order::kind
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Order::next
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Unit::list
-0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Unit::pos
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,function,
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,global_read,g_missionOrderTableBegin
 0x439cf0,GetOrderTargetIfFlagged,src/orders/order_list.cpp,deref_read,*int
@@ -10991,7 +11009,7 @@ address,function,file,kind,target
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,PathOrderAttach::SetUnit
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,PathOrderAttach::SetValue
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,operator=
-0x43a0c0,Order::Order,src/orders/order_list.cpp,deref_read,*Vec3
+0x43a0c0,Order::Order,src/orders/order_list.cpp,deref_read,*Vec3Ex
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_maybe_written,Order::link
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_read,Elem_0043c390::flags
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_read,Game::gameTick
@@ -11259,7 +11277,6 @@ address,function,file,kind,target
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,call,PosZWhole
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,call,operator new
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_escape,Unit::pos
-0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_maybe_written,Unit::pos
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,MissionType::index
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,Order::flags
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,Unit::def
@@ -11277,7 +11294,6 @@ address,function,file,kind,target
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,call,PosZWhole
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,call,operator new
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_escape,Unit::pos
-0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_maybe_written,Unit::pos
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,MissionType::index
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,Order::flags
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,Unit::def
@@ -11291,7 +11307,7 @@ address,function,file,kind,target
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,function,
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,global_read,kSim
 0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,call,FindWeaponTarget
-0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,field_read,Unit::mode20
+0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,field_read,Unit::move
 0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,function,
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,call,InsertBefore
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,call,operator new
@@ -11426,15 +11442,15 @@ address,function,file,kind,target
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,Angles16::pitch
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,Game::seaLevel
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,Unit::def
+0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,Unit::yWhole
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,UnitMotion::speed
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,UnitType_0043cd20::flags1
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,UnitType_0043cd20::maxvelocity
-0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_read,Vec3::yWhole
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,UnitMotion::speed
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,UnitMotion::velocity
-0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,Vec3::x
-0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,Vec3::y
-0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,Vec3::z
+0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,Vec3Ex::x
+0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,Vec3Ex::y
+0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,field_write,Vec3Ex::z
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,function,
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,global_read,g_game
 0x43cc20,UnitMotion::UpdateVelocityFromHeading,src/orders/order_list.cpp,global_read,g_slopeSpeedFactor
@@ -11443,7 +11459,7 @@ address,function,file,kind,target
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,call,abs
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,call,bx_hypot
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,call,operator-
-0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,deref_read,*Vec3
+0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,deref_read,*Vec3Ex
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_escape,Unit::pos
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_read,Angles16::heading
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_read,Unit::def
@@ -11455,26 +11471,28 @@ address,function,file,kind,target
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_read,UnitType_0043cd20::max_turn
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_read,Vec3::x
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_read,Vec3::z
+0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_read,Vec3Ex::x
+0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_read,Vec3Ex::z
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_write,Angles16::heading
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_write,Unit::moved
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_write,UnitMotion::turn
-0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_write,Vec3::x
-0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_write,Vec3::z
+0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_write,Vec3Ex::x
+0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,field_write,Vec3Ex::z
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,function,
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,indirect_call,virtual Iface_0043dd20::v3
 0x43cd20,UnitMotion::SteerGroundUnit,src/orders/order_list.cpp,indirect_call,virtual Iface_0043dd20::v5
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,call,FUN_004b715a
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,call,FUN_004b7173
-0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,call,Vec3::Add
-0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,call,Vec3::Scale
+0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,call,Vec3Ex::Add
+0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,call,Vec3Ex::Scale
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_maybe_written,UnitMotion::p2
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,Angles16::heading
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,Game::gravity
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,Unit::def
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,UnitType_0043cd20::bankscale
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,UnitType_0043cd20::pitchscale
-0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,Vec3::x
-0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,Vec3::z
+0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,Vec3Ex::x
+0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_read,Vec3Ex::z
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_write,Angles16::bank
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,field_write,Angles16::pitch
 0x43d0d0,UnitMotion::ApplyBankAndPitch,src/orders/order_list.cpp,function,
@@ -11494,18 +11512,19 @@ address,function,file,kind,target
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,MulFixed
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,Offset
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,UnitMotion::ApplyBankAndPitch
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,Vec3::Length
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,Vec3::Scale
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,Vec3Ex::Length
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,Vec3Ex::Scale
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,bx_hypot
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,bx_sqrt
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,operator+=
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,operator-
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,call,operator=
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,deref_read,*Vec3Ex
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_escape,Unit::pos
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_maybe_written,UnitMotion::velocity
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Angles16::heading
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Game::overflowBucket
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Unit::def
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Unit::pos
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Unit::spatialBucket
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,UnitMotion::mode
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,UnitMotion::obj
@@ -11516,16 +11535,16 @@ address,function,file,kind,target
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,UnitType_0043cd20::brakerate
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,UnitType_0043cd20::max_turn
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,UnitType_0043cd20::maxvelocity
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Vec3::x
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Vec3::y
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Vec3::z
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Vec3Ex::x
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Vec3Ex::y
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_read,Vec3Ex::z
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Angles16::heading
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Unit::moved
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,UnitMotion::speed
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,UnitMotion::turn
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,UnitMotion::velocity
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Vec3::x
-0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Vec3::y
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Vec3Ex::x
+0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,field_write,Vec3Ex::y
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,function,
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,global_read,g_game
 0x43d290,UnitMotion::SteerAircraft,src/orders/order_list.cpp,indirect_call,virtual Iface_0043dd20::v4
@@ -11536,7 +11555,15 @@ address,function,file,kind,target
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,call,operator+
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,call,operator=
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,call,operator>
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,deref_read,*Point
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,deref_read,*Point16
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,deref_read,*Vec3Ex
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,deref_write,*Point
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,deref_write,*Vec3
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,deref_write,*Vec3Ex
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_escape,Unit::cell
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_escape,Unit::footprint
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_escape,Unit::pos
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Angles16::heading
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Game::field_38a47
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Game::seaLevel
@@ -11545,6 +11572,8 @@ address,function,file,kind,target
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,MapSeam::CanPlaceUnitFootprint
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,MapSeam::RemoveUnitFromMap
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Path_0043d6d0::motion
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Point16::x
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Point16::y
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Point::x
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Point::y
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Seams::los_radar
@@ -11555,13 +11584,10 @@ address,function,file,kind,target
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Target_0043d6d0::active
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Target_0043d6d0::type
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::carrier
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::cell
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::def
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::footprint
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::id
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::mode
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::pos
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::target
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::player
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Unit::transportPiece
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,UnitMotion::flag
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,UnitMotion::mode
@@ -11573,31 +11599,32 @@ address,function,file,kind,target
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,UnitsSeam::GetPieceAngles
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,UnitsSeam::GetPiecePosition
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,UnitsSeam::SetUnitPosition
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3::fy
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3::x
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3::y
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3::z
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3Ex::fy
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3Ex::x
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3Ex::y
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_read,Vec3Ex::z
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Point::x
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Point::y
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Unit::angles
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Unit::cell
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Unit::mode
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Unit::moved
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Unit::pos
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,UnitMotion::flag
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,UnitMotion::lastMoveTick
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,UnitMotion::speed
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,UnitMotion::velocity
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3::fy
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3::x
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3::y
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3::z
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3Ex::fy
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3Ex::x
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3Ex::y
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,field_write,Vec3Ex::z
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,function,
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,global_read,g_game
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,global_read,g_seams
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via Angles16 (*)(Unit *, int) __attribute__((stdcall)) [UnitsSeam::GetPieceAngles]"
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via Vec3 (*)(Unit *, int) __attribute__((stdcall)) [UnitsSeam::GetPiecePosition]"
-0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via int (*)(Unit *, Vec3, int) __attribute__((stdcall)) [UnitsSeam::SetUnitPosition]"
+0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via int (*)(Unit *, Vec3Ex, int) __attribute__((stdcall))"
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,"indirect via int (*)(UnitDef *, UnitDef *, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [LosRadarSeam::UpdateUnitLineOfSight]
 0x43d6d0,UnitMotion::UpdatePosition,src/orders/order_list.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [MapSeam::AddUnitToMap]
@@ -11634,7 +11661,7 @@ address,function,file,kind,target
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_read,Target_0043d6d0::active
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_read,Target_0043d6d0::type
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_read,Unit::def
-0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_read,Unit::target
+0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_read,Unit::player
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_read,UnitType_0043cd20::flag_800
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_read,UnitType_0043cd20::movementclass
 0x43dc00,UnitMotion::UnitMotion,src/orders/order_list.cpp,field_write,UnitMotion::flag
@@ -43534,10 +43561,10 @@ address,function,file,kind,target
 ,ClampTarget,src/ingame/control_panel.cpp,global_read,g_game
 ,ClampToCell,src/orders/order_list.cpp,field_read,Point::x
 ,ClampToCell,src/orders/order_list.cpp,field_read,Point::y
-,ClampToCell,src/orders/order_list.cpp,field_read,Vec3::x
-,ClampToCell,src/orders/order_list.cpp,field_read,Vec3::z
-,ClampToCell,src/orders/order_list.cpp,field_write,Vec3::x
-,ClampToCell,src/orders/order_list.cpp,field_write,Vec3::z
+,ClampToCell,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,ClampToCell,src/orders/order_list.cpp,field_read,Vec3Ex::z
+,ClampToCell,src/orders/order_list.cpp,field_write,Vec3Ex::x
+,ClampToCell,src/orders/order_list.cpp,field_write,Vec3Ex::z
 ,ClampToCell,src/orders/order_list.cpp,function,
 ,ClampToZero,src/orders/order_list.cpp,function,
 ,ClampVolume,src/sound/samples.cpp,function,
@@ -45350,7 +45377,7 @@ address,function,file,kind,target
 ,GetSlotDpid_00452cc0,src/network/net_game.cpp,field_read,Player::type
 ,GetSlotDpid_00452cc0,src/network/net_game.cpp,function,
 ,GetSlotDpid_00452cc0,src/network/net_game.cpp,global_read,g_game
-,GetSpeed,src/orders/vtol_orders.cpp,field_read,Weapon::def
+,GetSpeed,src/orders/vtol_orders.cpp,field_read,UnitWeaponSlot::weapon
 ,GetSpeed,src/orders/vtol_orders.cpp,field_read,WeaponDef::range
 ,GetSpeed,src/orders/vtol_orders.cpp,function,
 ,GetSpeed,src/orders/vtol_orders_412710.cpp,field_read,Unit::weapon
@@ -47376,8 +47403,8 @@ address,function,file,kind,target
 ,Matches,src/orders/order_list.cpp,deref_read,*int
 ,Matches,src/orders/order_list.cpp,field_read,Order::kind
 ,Matches,src/orders/order_list.cpp,field_read,PathOrderAttach::owner
-,Matches,src/orders/order_list.cpp,field_read,Vec3::x
-,Matches,src/orders/order_list.cpp,field_read,Vec3::z
+,Matches,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,Matches,src/orders/order_list.cpp,field_read,Vec3Ex::z
 ,Matches,src/orders/order_list.cpp,function,
 ,Max,src/ai/ai_player.cpp,function,
 ,Max_004dbd80,src/debug/debug_lib.cpp,field_read,Node_004db000::right
@@ -47821,9 +47848,9 @@ address,function,file,kind,target
 ,Offset,src/ingame/markers.cpp,function,
 ,Offset,src/orders/order_list.cpp,call,FUN_004b70ef
 ,Offset,src/orders/order_list.cpp,call,FUN_004b7123
-,Offset,src/orders/order_list.cpp,field_write,Vec3::x
-,Offset,src/orders/order_list.cpp,field_write,Vec3::y
-,Offset,src/orders/order_list.cpp,field_write,Vec3::z
+,Offset,src/orders/order_list.cpp,field_write,Vec3Ex::x
+,Offset,src/orders/order_list.cpp,field_write,Vec3Ex::y
+,Offset,src/orders/order_list.cpp,field_write,Vec3Ex::z
 ,Offset,src/orders/order_list.cpp,function,
 ,Offset,src/orders/unit_orders.cpp,call,FUN_004b70ef
 ,Offset,src/orders/unit_orders.cpp,call,FUN_004b7123
@@ -48330,7 +48357,7 @@ address,function,file,kind,target
 ,Patrol,src/orders/vtol_orders.cpp,field_read,Order::pos
 ,Patrol,src/orders/vtol_orders.cpp,field_read,Seams::map
 ,Patrol,src/orders/vtol_orders.cpp,field_read,Unit::player
-,Patrol,src/orders/vtol_orders.cpp,field_read,Weapon::def
+,Patrol,src/orders/vtol_orders.cpp,field_read,UnitWeaponSlot::weapon
 ,Patrol,src/orders/vtol_orders.cpp,field_read,WeaponDef::range
 ,Patrol,src/orders/vtol_orders.cpp,field_write,Order::angle
 ,Patrol,src/orders/vtol_orders.cpp,field_write,Order::flags
@@ -48362,7 +48389,7 @@ address,function,file,kind,target
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_read,Order::pos
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_read,Seams::map
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_read,Unit::player
-,Patrol,src/orders/vtol_orders_410850.cpp,field_read,Weapon::def
+,Patrol,src/orders/vtol_orders_410850.cpp,field_read,UnitWeaponSlot::weapon
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_read,WeaponDef::range
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_write,Order::angle
 ,Patrol,src/orders/vtol_orders_410850.cpp,field_write,Order::flags
@@ -48520,6 +48547,34 @@ address,function,file,kind,target
 ,Pos::operator+,src/ingame/markers.cpp,field_read,Fixed::value
 ,Pos::operator+,src/ingame/markers.cpp,field_write,Fixed::value
 ,Pos::operator+,src/ingame/markers.cpp,function,
+,PosMinus,src/orders/vtol_orders_414380.cpp,field_read,Vec3::x
+,PosMinus,src/orders/vtol_orders_414380.cpp,field_read,Vec3::y
+,PosMinus,src/orders/vtol_orders_414380.cpp,field_read,Vec3::z
+,PosMinus,src/orders/vtol_orders_414380.cpp,field_write,Vec3::x
+,PosMinus,src/orders/vtol_orders_414380.cpp,field_write,Vec3::y
+,PosMinus,src/orders/vtol_orders_414380.cpp,field_write,Vec3::z
+,PosMinus,src/orders/vtol_orders_414380.cpp,function,
+,PosPlus,src/orders/vtol_orders_411f50.cpp,field_read,Vec3::x
+,PosPlus,src/orders/vtol_orders_411f50.cpp,field_read,Vec3::y
+,PosPlus,src/orders/vtol_orders_411f50.cpp,field_read,Vec3::z
+,PosPlus,src/orders/vtol_orders_411f50.cpp,field_write,Vec3::x
+,PosPlus,src/orders/vtol_orders_411f50.cpp,field_write,Vec3::y
+,PosPlus,src/orders/vtol_orders_411f50.cpp,field_write,Vec3::z
+,PosPlus,src/orders/vtol_orders_411f50.cpp,function,
+,PosPlus,src/orders/vtol_orders_412710.cpp,field_read,Vec3::x
+,PosPlus,src/orders/vtol_orders_412710.cpp,field_read,Vec3::y
+,PosPlus,src/orders/vtol_orders_412710.cpp,field_read,Vec3::z
+,PosPlus,src/orders/vtol_orders_412710.cpp,field_write,Vec3::x
+,PosPlus,src/orders/vtol_orders_412710.cpp,field_write,Vec3::y
+,PosPlus,src/orders/vtol_orders_412710.cpp,field_write,Vec3::z
+,PosPlus,src/orders/vtol_orders_412710.cpp,function,
+,PosPlus,src/orders/vtol_orders_414380.cpp,field_read,Vec3::x
+,PosPlus,src/orders/vtol_orders_414380.cpp,field_read,Vec3::y
+,PosPlus,src/orders/vtol_orders_414380.cpp,field_read,Vec3::z
+,PosPlus,src/orders/vtol_orders_414380.cpp,field_write,Vec3::x
+,PosPlus,src/orders/vtol_orders_414380.cpp,field_write,Vec3::y
+,PosPlus,src/orders/vtol_orders_414380.cpp,field_write,Vec3::z
+,PosPlus,src/orders/vtol_orders_414380.cpp,function,
 ,PosXWhole,src/orders/order_list.cpp,deref_read,*short
 ,PosXWhole,src/orders/order_list.cpp,field_escape,Unit::pos
 ,PosXWhole,src/orders/order_list.cpp,function,
@@ -49811,19 +49866,15 @@ address,function,file,kind,target
 ,TdfFieldVector::DestroyAll,src/util/tdf_4c54f0.cpp,function,
 ,TdfFile::GetDouble,src/util/tdf.h,call,TdfRecord::GetFieldDouble
 ,TdfFile::GetDouble,src/util/tdf.h,field_read,TdfFile::current
-,TdfFile::GetDouble,src/util/tdf.h,field_read,ta::TdfFile::current
 ,TdfFile::GetDouble,src/util/tdf.h,function,
 ,TdfFile::GetInt,src/util/tdf.h,call,TdfRecord::GetFieldInt
 ,TdfFile::GetInt,src/util/tdf.h,field_read,TdfFile::current
-,TdfFile::GetInt,src/util/tdf.h,field_read,ta::TdfFile::current
 ,TdfFile::GetInt,src/util/tdf.h,function,
 ,TdfFile::GetString,src/util/tdf.h,call,TdfRecord::GetFieldString
 ,TdfFile::GetString,src/util/tdf.h,field_read,TdfFile::current
-,TdfFile::GetString,src/util/tdf.h,field_read,ta::TdfFile::current
 ,TdfFile::GetString,src/util/tdf.h,function,
 ,TdfFile::GetValue,src/util/tdf.h,call,TdfRecord::FindFieldValue
 ,TdfFile::GetValue,src/util/tdf.h,field_read,TdfFile::current
-,TdfFile::GetValue,src/util/tdf.h,field_read,ta::TdfFile::current
 ,TdfFile::GetValue,src/util/tdf.h,function,
 ,TdfRecord::FindChild,src/util/tdf.cpp,call,Kids
 ,TdfRecord::FindChild,src/util/tdf.cpp,call,_strcmpi
@@ -49886,7 +49937,7 @@ address,function,file,kind,target
 ,ToPoint16,src/orders/vtol_orders.cpp,field_read,Point::x
 ,ToPoint16,src/orders/vtol_orders.cpp,field_read,Point::y
 ,ToPoint16,src/orders/vtol_orders.cpp,field_write,Point16::x
-,ToPoint16,src/orders/vtol_orders.cpp,field_write,Point16::z
+,ToPoint16,src/orders/vtol_orders.cpp,field_write,Point16::y
 ,ToPoint16,src/orders/vtol_orders.cpp,function,
 ,ToWorld,src/orders/order_targets.cpp,deref_write,*int
 ,ToWorld,src/orders/order_targets.cpp,field_read,Point_0044d2c0::x
@@ -50251,13 +50302,6 @@ address,function,file,kind,target
 ,Value_004e2620::operator=,src/debug/debug_lib_4e2620.cpp,call,memcpy
 ,Value_004e2620::operator=,src/debug/debug_lib_4e2620.cpp,deref_read,*Value_004e2620
 ,Value_004e2620::operator=,src/debug/debug_lib_4e2620.cpp,function,
-,Vec3::Add,src/orders/order_list.cpp,field_read,Vec3::x
-,Vec3::Add,src/orders/order_list.cpp,field_read,Vec3::y
-,Vec3::Add,src/orders/order_list.cpp,field_read,Vec3::z
-,Vec3::Add,src/orders/order_list.cpp,field_write,Vec3::x
-,Vec3::Add,src/orders/order_list.cpp,field_write,Vec3::y
-,Vec3::Add,src/orders/order_list.cpp,field_write,Vec3::z
-,Vec3::Add,src/orders/order_list.cpp,function,
 ,Vec3::Length,src/ai/ai_player.cpp,call,bx_sqrt
 ,Vec3::Length,src/ai/ai_player.cpp,field_read,Vec3::x
 ,Vec3::Length,src/ai/ai_player.cpp,field_read,Vec3::y
@@ -50268,11 +50312,6 @@ address,function,file,kind,target
 ,Vec3::Length,src/ingame/markers.cpp,field_read,Vec3::y
 ,Vec3::Length,src/ingame/markers.cpp,field_read,Vec3::z
 ,Vec3::Length,src/ingame/markers.cpp,function,
-,Vec3::Length,src/orders/order_list.cpp,call,bx_sqrt
-,Vec3::Length,src/orders/order_list.cpp,field_read,Vec3::x
-,Vec3::Length,src/orders/order_list.cpp,field_read,Vec3::y
-,Vec3::Length,src/orders/order_list.cpp,field_read,Vec3::z
-,Vec3::Length,src/orders/order_list.cpp,function,
 ,Vec3::NonZero,src/map/features.cpp,field_read,Vec3::x
 ,Vec3::NonZero,src/map/features.cpp,field_read,Vec3::y
 ,Vec3::NonZero,src/map/features.cpp,field_read,Vec3::z
@@ -50284,17 +50323,11 @@ address,function,file,kind,target
 ,Vec3::Scale,src/ai/ai_player.cpp,field_write,Vec3::y
 ,Vec3::Scale,src/ai/ai_player.cpp,field_write,Vec3::z
 ,Vec3::Scale,src/ai/ai_player.cpp,function,
-,Vec3::Scale,src/orders/order_list.cpp,call,MulFixed
-,Vec3::Scale,src/orders/order_list.cpp,field_read,Vec3::x
-,Vec3::Scale,src/orders/order_list.cpp,field_read,Vec3::y
-,Vec3::Scale,src/orders/order_list.cpp,field_read,Vec3::z
-,Vec3::Scale,src/orders/order_list.cpp,function,
 ,Vec3::Square,src/orders/vtol_orders.cpp,field_read,Vec3::x
 ,Vec3::Square,src/orders/vtol_orders.cpp,field_read,Vec3::z
 ,Vec3::Square,src/orders/vtol_orders.cpp,function,
 ,Vec3::Vec3,src/ai/ai_player_408100.cpp,function,
 ,Vec3::Vec3,src/map/features.cpp,function,
-,Vec3::Vec3,src/orders/order_list.cpp,function,
 ,Vec3::operator+,src/ai/ai_player.cpp,field_read,Vec3::x
 ,Vec3::operator+,src/ai/ai_player.cpp,field_read,Vec3::y
 ,Vec3::operator+,src/ai/ai_player.cpp,field_read,Vec3::z
@@ -50323,23 +50356,6 @@ address,function,file,kind,target
 ,Vec3::operator+,src/orders/vtol_orders.cpp,field_write,Vec3::y
 ,Vec3::operator+,src/orders/vtol_orders.cpp,field_write,Vec3::z
 ,Vec3::operator+,src/orders/vtol_orders.cpp,function,
-,Vec3::operator+,src/orders/vtol_orders_411f50.cpp,field_read,Vec3::x
-,Vec3::operator+,src/orders/vtol_orders_411f50.cpp,field_read,Vec3::y
-,Vec3::operator+,src/orders/vtol_orders_411f50.cpp,field_read,Vec3::z
-,Vec3::operator+,src/orders/vtol_orders_411f50.cpp,field_write,Vec3::x
-,Vec3::operator+,src/orders/vtol_orders_411f50.cpp,field_write,Vec3::y
-,Vec3::operator+,src/orders/vtol_orders_411f50.cpp,field_write,Vec3::z
-,Vec3::operator+,src/orders/vtol_orders_411f50.cpp,function,
-,Vec3::operator+,src/orders/vtol_orders_412710.cpp,call,operator+=
-,Vec3::operator+,src/orders/vtol_orders_412710.cpp,deref_read,*Vec3
-,Vec3::operator+,src/orders/vtol_orders_412710.cpp,function,
-,Vec3::operator+,src/orders/vtol_orders_414380.cpp,field_read,Vec3::x
-,Vec3::operator+,src/orders/vtol_orders_414380.cpp,field_read,Vec3::y
-,Vec3::operator+,src/orders/vtol_orders_414380.cpp,field_read,Vec3::z
-,Vec3::operator+,src/orders/vtol_orders_414380.cpp,field_write,Vec3::x
-,Vec3::operator+,src/orders/vtol_orders_414380.cpp,field_write,Vec3::y
-,Vec3::operator+,src/orders/vtol_orders_414380.cpp,field_write,Vec3::z
-,Vec3::operator+,src/orders/vtol_orders_414380.cpp,function,
 ,Vec3::operator+,src/weapons/explosions.cpp,field_read,Vec3::x
 ,Vec3::operator+,src/weapons/explosions.cpp,field_read,Vec3::y
 ,Vec3::operator+,src/weapons/explosions.cpp,field_read,Vec3::z
@@ -50362,14 +50378,6 @@ address,function,file,kind,target
 ,Vec3::operator+=,src/map/features.cpp,field_write,Vec3::y
 ,Vec3::operator+=,src/map/features.cpp,field_write,Vec3::z
 ,Vec3::operator+=,src/map/features.cpp,function,
-,Vec3::operator+=,src/orders/order_list.cpp,deref_read,*Vec3
-,Vec3::operator+=,src/orders/order_list.cpp,field_read,Vec3::x
-,Vec3::operator+=,src/orders/order_list.cpp,field_read,Vec3::y
-,Vec3::operator+=,src/orders/order_list.cpp,field_read,Vec3::z
-,Vec3::operator+=,src/orders/order_list.cpp,field_write,Vec3::x
-,Vec3::operator+=,src/orders/order_list.cpp,field_write,Vec3::y
-,Vec3::operator+=,src/orders/order_list.cpp,field_write,Vec3::z
-,Vec3::operator+=,src/orders/order_list.cpp,function,
 ,Vec3::operator+=,src/orders/vtol_orders.cpp,field_read,Vec3::x
 ,Vec3::operator+=,src/orders/vtol_orders.cpp,field_read,Vec3::y
 ,Vec3::operator+=,src/orders/vtol_orders.cpp,field_read,Vec3::z
@@ -50377,13 +50385,6 @@ address,function,file,kind,target
 ,Vec3::operator+=,src/orders/vtol_orders.cpp,field_write,Vec3::y
 ,Vec3::operator+=,src/orders/vtol_orders.cpp,field_write,Vec3::z
 ,Vec3::operator+=,src/orders/vtol_orders.cpp,function,
-,Vec3::operator+=,src/orders/vtol_orders_412710.cpp,field_read,Vec3::x
-,Vec3::operator+=,src/orders/vtol_orders_412710.cpp,field_read,Vec3::y
-,Vec3::operator+=,src/orders/vtol_orders_412710.cpp,field_read,Vec3::z
-,Vec3::operator+=,src/orders/vtol_orders_412710.cpp,field_write,Vec3::x
-,Vec3::operator+=,src/orders/vtol_orders_412710.cpp,field_write,Vec3::y
-,Vec3::operator+=,src/orders/vtol_orders_412710.cpp,field_write,Vec3::z
-,Vec3::operator+=,src/orders/vtol_orders_412710.cpp,function,
 ,Vec3::operator-,src/ai/ai_player.cpp,field_read,Vec3::x
 ,Vec3::operator-,src/ai/ai_player.cpp,field_read,Vec3::y
 ,Vec3::operator-,src/ai/ai_player.cpp,field_read,Vec3::z
@@ -50398,13 +50399,6 @@ address,function,file,kind,target
 ,Vec3::operator-,src/ai/ai_player_408100.cpp,field_write,Vec3::y
 ,Vec3::operator-,src/ai/ai_player_408100.cpp,field_write,Vec3::z
 ,Vec3::operator-,src/ai/ai_player_408100.cpp,function,
-,Vec3::operator-,src/orders/order_list.cpp,field_read,Vec3::x
-,Vec3::operator-,src/orders/order_list.cpp,field_read,Vec3::y
-,Vec3::operator-,src/orders/order_list.cpp,field_read,Vec3::z
-,Vec3::operator-,src/orders/order_list.cpp,field_write,Vec3::x
-,Vec3::operator-,src/orders/order_list.cpp,field_write,Vec3::y
-,Vec3::operator-,src/orders/order_list.cpp,field_write,Vec3::z
-,Vec3::operator-,src/orders/order_list.cpp,function,
 ,Vec3::operator-,src/orders/vtol_orders.cpp,field_read,Vec3::x
 ,Vec3::operator-,src/orders/vtol_orders.cpp,field_read,Vec3::y
 ,Vec3::operator-,src/orders/vtol_orders.cpp,field_read,Vec3::z
@@ -50412,13 +50406,6 @@ address,function,file,kind,target
 ,Vec3::operator-,src/orders/vtol_orders.cpp,field_write,Vec3::y
 ,Vec3::operator-,src/orders/vtol_orders.cpp,field_write,Vec3::z
 ,Vec3::operator-,src/orders/vtol_orders.cpp,function,
-,Vec3::operator-,src/orders/vtol_orders_414380.cpp,field_read,Vec3::x
-,Vec3::operator-,src/orders/vtol_orders_414380.cpp,field_read,Vec3::y
-,Vec3::operator-,src/orders/vtol_orders_414380.cpp,field_read,Vec3::z
-,Vec3::operator-,src/orders/vtol_orders_414380.cpp,field_write,Vec3::x
-,Vec3::operator-,src/orders/vtol_orders_414380.cpp,field_write,Vec3::y
-,Vec3::operator-,src/orders/vtol_orders_414380.cpp,field_write,Vec3::z
-,Vec3::operator-,src/orders/vtol_orders_414380.cpp,function,
 ,Vec3::operator-=,src/orders/vtol_orders.cpp,field_read,Vec3::x
 ,Vec3::operator-=,src/orders/vtol_orders.cpp,field_read,Vec3::y
 ,Vec3::operator-=,src/orders/vtol_orders.cpp,field_read,Vec3::z
@@ -50426,13 +50413,6 @@ address,function,file,kind,target
 ,Vec3::operator-=,src/orders/vtol_orders.cpp,field_write,Vec3::y
 ,Vec3::operator-=,src/orders/vtol_orders.cpp,field_write,Vec3::z
 ,Vec3::operator-=,src/orders/vtol_orders.cpp,function,
-,Vec3::operator-=,src/orders/vtol_orders_414380.cpp,field_read,Vec3::x
-,Vec3::operator-=,src/orders/vtol_orders_414380.cpp,field_read,Vec3::y
-,Vec3::operator-=,src/orders/vtol_orders_414380.cpp,field_read,Vec3::z
-,Vec3::operator-=,src/orders/vtol_orders_414380.cpp,field_write,Vec3::x
-,Vec3::operator-=,src/orders/vtol_orders_414380.cpp,field_write,Vec3::y
-,Vec3::operator-=,src/orders/vtol_orders_414380.cpp,field_write,Vec3::z
-,Vec3::operator-=,src/orders/vtol_orders_414380.cpp,function,
 ,Vec3Add,src/orders/unit_orders.cpp,field_read,Vec3::x
 ,Vec3Add,src/orders/unit_orders.cpp,field_read,Vec3::y
 ,Vec3Add,src/orders/unit_orders.cpp,field_read,Vec3::z
@@ -50440,9 +50420,42 @@ address,function,file,kind,target
 ,Vec3Add,src/orders/unit_orders.cpp,field_write,Vec3::y
 ,Vec3Add,src/orders/unit_orders.cpp,field_write,Vec3::z
 ,Vec3Add,src/orders/unit_orders.cpp,function,
-,Vec3Init_0043a1f0::Vec3Init_0043a1f0,src/orders/order_list.cpp,field_write,Vec3::x
-,Vec3Init_0043a1f0::Vec3Init_0043a1f0,src/orders/order_list.cpp,field_write,Vec3::y
-,Vec3Init_0043a1f0::Vec3Init_0043a1f0,src/orders/order_list.cpp,field_write,Vec3::z
+,Vec3Ex::Add,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,Vec3Ex::Add,src/orders/order_list.cpp,field_read,Vec3Ex::y
+,Vec3Ex::Add,src/orders/order_list.cpp,field_read,Vec3Ex::z
+,Vec3Ex::Add,src/orders/order_list.cpp,field_write,Vec3Ex::x
+,Vec3Ex::Add,src/orders/order_list.cpp,field_write,Vec3Ex::y
+,Vec3Ex::Add,src/orders/order_list.cpp,field_write,Vec3Ex::z
+,Vec3Ex::Add,src/orders/order_list.cpp,function,
+,Vec3Ex::Length,src/orders/order_list.cpp,call,bx_sqrt
+,Vec3Ex::Length,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,Vec3Ex::Length,src/orders/order_list.cpp,field_read,Vec3Ex::y
+,Vec3Ex::Length,src/orders/order_list.cpp,field_read,Vec3Ex::z
+,Vec3Ex::Length,src/orders/order_list.cpp,function,
+,Vec3Ex::Scale,src/orders/order_list.cpp,call,MulFixed
+,Vec3Ex::Scale,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,Vec3Ex::Scale,src/orders/order_list.cpp,field_read,Vec3Ex::y
+,Vec3Ex::Scale,src/orders/order_list.cpp,field_read,Vec3Ex::z
+,Vec3Ex::Scale,src/orders/order_list.cpp,function,
+,Vec3Ex::Vec3Ex,src/orders/order_list.cpp,function,
+,Vec3Ex::operator+=,src/orders/order_list.cpp,deref_read,*Vec3Ex
+,Vec3Ex::operator+=,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,Vec3Ex::operator+=,src/orders/order_list.cpp,field_read,Vec3Ex::y
+,Vec3Ex::operator+=,src/orders/order_list.cpp,field_read,Vec3Ex::z
+,Vec3Ex::operator+=,src/orders/order_list.cpp,field_write,Vec3Ex::x
+,Vec3Ex::operator+=,src/orders/order_list.cpp,field_write,Vec3Ex::y
+,Vec3Ex::operator+=,src/orders/order_list.cpp,field_write,Vec3Ex::z
+,Vec3Ex::operator+=,src/orders/order_list.cpp,function,
+,Vec3Ex::operator-,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,Vec3Ex::operator-,src/orders/order_list.cpp,field_read,Vec3Ex::y
+,Vec3Ex::operator-,src/orders/order_list.cpp,field_read,Vec3Ex::z
+,Vec3Ex::operator-,src/orders/order_list.cpp,field_write,Vec3Ex::x
+,Vec3Ex::operator-,src/orders/order_list.cpp,field_write,Vec3Ex::y
+,Vec3Ex::operator-,src/orders/order_list.cpp,field_write,Vec3Ex::z
+,Vec3Ex::operator-,src/orders/order_list.cpp,function,
+,Vec3Init_0043a1f0::Vec3Init_0043a1f0,src/orders/order_list.cpp,field_write,Vec3Ex::x
+,Vec3Init_0043a1f0::Vec3Init_0043a1f0,src/orders/order_list.cpp,field_write,Vec3Ex::y
+,Vec3Init_0043a1f0::Vec3Init_0043a1f0,src/orders/order_list.cpp,field_write,Vec3Ex::z
 ,Vec3Init_0043a1f0::Vec3Init_0043a1f0,src/orders/order_list.cpp,function,
 ,Vec3Sub,src/orders/unit_orders.cpp,field_read,Vec3::x
 ,Vec3Sub,src/orders/unit_orders.cpp,field_read,Vec3::y
@@ -51518,12 +51531,12 @@ address,function,file,kind,target
 ,operator new,src/state/block.cpp,function,
 ,operator new[],src/state/block.cpp,call,SimAlloc
 ,operator new[],src/state/block.cpp,function,
-,operator+,src/orders/order_list.cpp,field_read,Vec3::x
-,operator+,src/orders/order_list.cpp,field_read,Vec3::y
-,operator+,src/orders/order_list.cpp,field_read,Vec3::z
-,operator+,src/orders/order_list.cpp,field_write,Vec3::x
-,operator+,src/orders/order_list.cpp,field_write,Vec3::y
-,operator+,src/orders/order_list.cpp,field_write,Vec3::z
+,operator+,src/orders/order_list.cpp,field_read,Vec3Ex::x
+,operator+,src/orders/order_list.cpp,field_read,Vec3Ex::y
+,operator+,src/orders/order_list.cpp,field_read,Vec3Ex::z
+,operator+,src/orders/order_list.cpp,field_write,Vec3Ex::x
+,operator+,src/orders/order_list.cpp,field_write,Vec3Ex::y
+,operator+,src/orders/order_list.cpp,field_write,Vec3Ex::z
 ,operator+,src/orders/order_list.cpp,function,
 ,operator+,src/orders/unit_orders_406300.cpp,field_read,Vec3::x
 ,operator+,src/orders/unit_orders_406300.cpp,field_read,Vec3::y

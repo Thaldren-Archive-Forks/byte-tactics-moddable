@@ -188,7 +188,7 @@ struct Unit {
     Unit(void);
     ~Unit(void);
     int SelectRecord(char*);
-    int Ready(void) { return (flags & 0x10000000) && !(flags & 0x4000); }
+    int Ready(void);
     unsigned char GetState(void);
     unsigned char PlayerIndex(void);
     void SetStateBits(int, int);

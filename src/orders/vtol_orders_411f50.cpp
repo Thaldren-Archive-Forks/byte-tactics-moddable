@@ -14,7 +14,7 @@
 
 struct Point { short x, y; };
 #include "../util/vec3.h"
-static inline Vec3 operator+(const Vec3& a, const Vec3& other)
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 {
     Vec3 r;
     r.x = a.x + other.x;
@@ -177,7 +177,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         up = &unit->pos;
         if ((int)_hypot(order->pos.x - unit->pos.x, order->pos.z - unit->pos.z) < 0x1e00000) {
             int angle = GetHeadingBetween(up, op);
-            Vec3 dest = unit->pos + Offset(angle, 0x8c00000);
+            Vec3 dest = PosPlus(unit->pos, Offset(angle, 0x8c00000));
             AttachMove(order, dest, 0x3c0);
             order->flags |= 0xe2;
             return 1;
@@ -193,7 +193,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         int dist = (int)_hypot(order->pos.x - unit->pos.x, order->pos.z - unit->pos.z);
         int angle = GetHeadingBetween(up2, op2);
         int radius = dist / 2;
-        Vec3 dest = unit->pos + Offset(RandomInt(0x4000) + angle - 0x2000, radius);
+        Vec3 dest = PosPlus(unit->pos, Offset(RandomInt(0x4000) + angle - 0x2000, radius));
         AttachMove(order, dest, 0x1e0);
         order->flags = 0x100e8;
         return 1;
@@ -229,14 +229,14 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 0);
         g_seams.targeting->SetWeaponTargetPos(unit, &order->pos, 0);
         int angle = GetHeadingBetween(&unit->pos, &order->pos);
-        Vec3 dest = unit->pos + Offset(angle, (unit->def->attackrunlength + 0x3c0) << 16);
+        Vec3 dest = PosPlus(unit->pos, Offset(angle, (unit->def->attackrunlength + 0x3c0) << 16));
         AttachMove(order, dest, 0x3c0);
         order->flags = 0xe2;
         return 1;
     }
     case 6: {
         g_seams.targeting->ClearWeaponTarget(unit, 0);
-        Vec3 dest = unit->pos + Offset(unit->heading, 0x5a00000);
+        Vec3 dest = PosPlus(unit->pos, Offset(unit->heading, 0x5a00000));
         AttachMove(order, dest, 0x80);
         order->flags = 0xe2;
         if (unit->health < unit->def->maxHealth / 4 * 3) {

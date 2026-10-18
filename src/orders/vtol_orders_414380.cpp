@@ -9,9 +9,8 @@
 #include <windows.h>
 struct Point { short x, y; };
 #include "../util/vec3.h"
-static inline void operator-=(Vec3& a, const Vec3& v) { a.x-=v.x; a.y-=v.y; a.z-=v.z; }
-static inline Vec3 operator-(const Vec3& a, const Vec3& v) { Vec3 r; r.x=a.x-v.x; r.y=a.y-v.y; r.z=a.z-v.z; return r; }
-static inline Vec3 operator+(const Vec3& a, const Vec3& other)
+static inline Vec3 PosMinus(const Vec3& a, const Vec3& v) { Vec3 r; r.x=a.x-v.x; r.y=a.y-v.y; r.z=a.z-v.z; return r; }
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 {
     Vec3 r;
     r.x = a.x + other.x;
@@ -163,7 +162,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
             Vec3* base=&order->target.Get()->pos;
-            Vec3 pos=*base-Offset(angle,range);
+            Vec3 pos=PosMinus(*base,Offset(angle,range));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e720*)move)->SetHeading((unsigned short)angle);
             order->SetAttachedFx((int)move);
@@ -175,8 +174,8 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit,&start);
             Vec3 bounds[2];
-            bounds[0]=order->target.Get()->pos+order->target.Get()->def->min;
-            bounds[1]=order->target.Get()->pos+order->target.Get()->def->max;
+            bounds[0]=PosPlus(order->target.Get()->pos,order->target.Get()->def->min);
+            bounds[1]=PosPlus(order->target.Get()->pos,order->target.Get()->def->max);
             EmitNanoParticles(&start,bounds,6);
         }
         if (order->target.Get()->buildLeft!=0.0f) {

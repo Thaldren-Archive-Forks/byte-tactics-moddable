@@ -212,6 +212,7 @@ struct UnitSync;
 struct Packet;
 struct Pathfinder;
 #include "../network/player.h"
+inline int Unit::Ready() { return (flags & 0x10000000) && !(flags & 0x4000); }
 
 struct Economy {                       // a unit's resources
     char unknown_0[0x8c];

@@ -16,6 +16,7 @@
 struct Player { char pad[0x108]; unsigned char allied[0x3e]; unsigned char index; int IsAllied(unsigned char p) const { return allied[p]; } };
 struct Def { char pad[0x156]; int builder; char pad15a[0x22f-0x15a]; char mobile; char pad230[0x241-0x230]; unsigned flags; char pad245[0x249-0x245]; };
 #include "../units/unit.h"
+inline int Unit::Ready() { return (flags & 0x10000000) && !(flags & 0x4000); }
 inline unsigned char Unit::PlayerIndex() { return ((Player*)player)->index; }
 
 #include "../units/unit_def.h"

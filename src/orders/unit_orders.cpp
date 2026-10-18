@@ -278,6 +278,7 @@ int __stdcall GetUnitCount(int, unsigned int);
 int __stdcall DirectionFromStep(int, int);
 
 #include "../units/unit.h"
+inline int Unit::Ready() { return (flags & 0x10000000) && !(flags & 0x4000); }
 #pragma pack(pop)
 
 inline int Order::Advance(int distance) {
