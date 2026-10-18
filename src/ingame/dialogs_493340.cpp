@@ -1300,6 +1300,7 @@ void __stdcall RunGameSteps(int showStats)
         Player* shown = &g_game->players[g_game->playerIndex];
         if (shown->displayTimer < g_game->gameTick)
             shown->displayTimer += 0x1e;
+        g_seams.los_radar->ExpireEyeballs();
 
         if (showStats && g_usePacketManager != 0) {
             g_seams.economy->UpdateResourceSharing(&g_game->players[g_game->localPlayer]);
@@ -1313,7 +1314,6 @@ void __stdcall RunGameSteps(int showStats)
     EmptyPostSimStepHook_B();
     EmptyPostSimStepHook_C();
     ExpireOldestMessage();
-    g_seams.los_radar->ExpireEyeballs();
     g_game->profileTimingBars.AccumulateProfileTime(8);
 }
 
