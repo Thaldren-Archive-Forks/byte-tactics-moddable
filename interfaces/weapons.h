@@ -5,11 +5,12 @@ struct Unit;
 struct Vec3;
 struct Point16;
 struct WeaponDef;
+struct Projectile;
 
 // Major version of the weapons interface, changed when a slot is removed or its signature changes.
 #define WEAPONS_VERSION_MAJOR 1
 // Minor version of the weapons interface, changed when a slot is added.
-#define WEAPONS_VERSION_MINOR 3
+#define WEAPONS_VERSION_MINOR 4
 
 // Projectiles and explosions.
 struct WeaponsSeam {
@@ -21,14 +22,14 @@ struct WeaponsSeam {
     int (__stdcall* SpawnProjectile)(WeaponDef* weapon, Vec3* pos, Vec3* vel, int flag);
     // Finds a weapon definition by its TDF name, or null. Hooks: none.
     WeaponDef* (__stdcall* FindWeaponByName)(char* name);
-    // Deals a weapon's area damage at a position, on behalf of an owner. Hooks: none.
-    void (__stdcall* ApplyAreaDamageAt)(void* owner, Vec3* pos);
+    // Deals a weapon's area damage at a position. Hooks: none.
+    void (__stdcall* ApplyAreaDamageAt)(WeaponDef* weapon, Vec3* pos);
     // Returns the range of one of a unit's weapons. Hooks: none.
     int (__stdcall* GetWeaponRange)(Unit* unit, unsigned int weapon);
     // Returns whether one of a unit's weapons can reach another unit. Hooks: none.
     int (__stdcall* WeaponCanReachUnit)(Unit* shooter, Unit* target, unsigned char weapon);
     // Returns the projectile of a unit's weapon that can be targeted, or null. Hooks: none.
-    int* (__stdcall* FindTargetableProjectile)(Unit* unit, unsigned int weapon);
+    Projectile* (__stdcall* FindTargetableProjectile)(Unit* unit, unsigned int weapon);
     // Returns whether a unit's weapon can reach a position from a position. Hooks: none.
     int (__stdcall* WeaponCanReachPos)(Unit* unit, Vec3* from, Vec3* to, int flags);
     // Allocates the table of weapon slots. Hooks: none.

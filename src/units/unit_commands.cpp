@@ -68,10 +68,6 @@ public:
     MissionType() {}
 };
 
-void __stdcall AddOrder(MissionType kind, int remove, Unit* owner,
-                            int id, Vec3_00487bf0* pos, int param_6, int param_7);
-void __stdcall GetOrderType(MissionType* out, int mode, Unit* unit,
-                            int target, Vec3_00487bf0* pos);
 unsigned short __stdcall FindUnitTypeId(const char* name);
 
 struct Outs_t {
@@ -122,8 +118,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             L.pos.x = (int)(L.f1 * 65536.0);
             L.pos.y = 0;
             L.pos.z = (int)(L.f2 * 65536.0);
-            GetOrderType(&out.m, 2, unit, 0, &L.pos);
-            AddOrder(out.m, 1, unit, 0, &L.pos, 0, 0);
+            out.m = g_seams.orders->GetOrderType(2, unit, 0, (Vec3*)&L.pos);
+            g_seams.orders->AddOrder(out.m, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
             processed = 1;
             break;
         }
@@ -133,8 +129,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             L.pos.x = (int)(L.f1 * 65536.0);
             L.pos.y = 0;
             L.pos.z = (int)(65536.0 * L.f2);
-            GetOrderType(&out.u, 5, unit, 0, &L.pos);
-            AddOrder(out.u, 1, unit, 0, &L.pos, 0, 0);
+            out.u = g_seams.orders->GetOrderType(5, unit, 0, (Vec3*)&L.pos);
+            g_seams.orders->AddOrder(out.u, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
             processed = 1;
             break;
         }
@@ -143,8 +139,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
             int target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
             if (target != 0) {
-                GetOrderType(&out.g, 7, unit, target, 0);
-                AddOrder(out.g, 1, unit, target, 0, 0, 0);
+                out.g = g_seams.orders->GetOrderType(7, unit, (Unit*)target, 0);
+                g_seams.orders->AddOrder(out.g, 1, unit, (Unit*)target, 0, 0, 0);
                 processed = 1;
             }
             break;
@@ -156,9 +152,9 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             L.pos.x = (int)(L.f1 * 65536.0);
             L.pos.y = 0;
             L.pos.z = (int)(L.f2 * 65536.0);
-            GetOrderType(&out.p, 9, unit, 0, &L.pos);
+            out.p = g_seams.orders->GetOrderType(9, unit, 0, (Vec3*)&L.pos);
             // The (int)(f * 30.0f) goes straight into AddOrder: no float local.
-            AddOrder(out.p, 1, unit, 0, &L.pos, (int)(M2.pf * 30.0f), 0);
+            g_seams.orders->AddOrder(out.p, 1, unit, 0, (Vec3*)&L.pos, (int)(M2.pf * 30.0f), 0);
             processed = 1;
             selected = 1;
             break;
@@ -169,8 +165,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 L.pos.x = (int)(L.f1 * 65536.0);
                 L.pos.y = 0;
                 L.pos.z = (int)(L.f2 * 65536.0);
-                GetOrderType(&out.a, 3, unit, 0, &L.pos);
-                AddOrder(out.a, 1, unit, 0, &L.pos, 0, 0);
+                out.a = g_seams.orders->GetOrderType(3, unit, 0, (Vec3*)&L.pos);
+                g_seams.orders->AddOrder(out.a, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
                 selected = 1;
                 processed = 1;
             } else {
@@ -178,7 +174,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 unsigned short id = g_seams.units->FindUnitTypeId(buf);
                 if (id != 0) {
                     // String kinds are implicit conversions in the argument, never a named temporary.
-                    AddOrder("ATTACKUTYPE", 1, unit, 0, 0, id, 0);
+                    g_seams.orders->AddOrder("ATTACKUTYPE", 1, unit, 0, 0, id, 0);
                     processed = 1;
                 }
             }
@@ -189,7 +185,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             L.n = 1;
             if (buf[1] == 'w' || buf[1] == 'W') {
                 sscanf(buf + 2, " %d", &L.n);
-                AddOrder("BUILDWEAPON", 1, unit, 0, 0, 0, L.n);
+                g_seams.orders->AddOrder("BUILDWEAPON", 1, unit, 0, 0, 0, L.n);
             } else {
                 sscanf(buf + 1, " %[a-zA-Z0-9_.] %d %f %f", buf, &L.n, &L.f1, &L.f2);
                 L.pos.x = (int)(L.f1 * 65536.0);
@@ -198,10 +194,10 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 unsigned short id = g_seams.units->FindUnitTypeId(buf);
                 if (id != 0) {
                     if (unit->motion != 0)
-                        AddOrder("MOBILEBUILD", 1, unit, 0,
-                                     &L.pos, id, L.n);
+                        g_seams.orders->AddOrder("MOBILEBUILD", 1, unit, 0,
+                                     (Vec3*)&L.pos, id, L.n);
                     else
-                        AddOrder("BUILDINGBUILD", 1, unit, 0,
+                        g_seams.orders->AddOrder("BUILDINGBUILD", 1, unit, 0,
                                      0, id, L.n);
                     processed = 1;
                 }
@@ -218,27 +214,27 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                     target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
                 if (target == 0)
                     target = (int)unit;
-                AddOrder("WAITFORATTACK", 1, unit, target,
+                g_seams.orders->AddOrder("WAITFORATTACK", 1, unit, (Unit*)target,
                              0, 0, 0);
                 processed = 1;
             } else {
                 M2.wf = 0.0f;
                 L.move = 0;
                 sscanf(buf + 1, " %f %d", &M2.wf, &L.move);
-                AddOrder("WAIT", 1, unit, 0, 0, (int)(M2.wf * 30.0f), L.move);
+                g_seams.orders->AddOrder("WAIT", 1, unit, 0, 0, (int)(M2.wf * 30.0f), L.move);
                 processed = 1;
             }
             break;
         case 'D':
         case 'd':
-            AddOrder("SELFDESTRUCTFG", 1, unit, 0, 0, 1, 0);
+            g_seams.orders->AddOrder("SELFDESTRUCTFG", 1, unit, 0, 0, 1, 0);
             // After the AddOrder call, not before it.
             processed = 1;
             selected = 1;
             break;
         case 'S':
         case 's':
-            AddOrder("MAKESELECTABLE", 1, unit, 0, 0, 0, 0);
+            g_seams.orders->AddOrder("MAKESELECTABLE", 1, unit, 0, 0, 0, 0);
             processed = 1;
             selected = 1;
             break;
@@ -255,7 +251,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
     if (processed) {
         unit->flags &= ~0x20u;
         if (selected == 0)
-            AddOrder("MAKESELECTABLE", 1, unit, 0, 0, 0, 0);
+            g_seams.orders->AddOrder("MAKESELECTABLE", 1, unit, 0, 0, 0, 0);
     }
 }
 

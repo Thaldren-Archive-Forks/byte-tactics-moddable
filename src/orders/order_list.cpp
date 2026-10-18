@@ -1969,7 +1969,7 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     if (((Target_0043d6d0*)u->player)->active != 0) {
         if (((Target_0043d6d0*)u->player)->type == 1 || ((Target_0043d6d0*)u->player)->type == 2)
-            flag = g_seams.map->CanPlaceUnitFootprint((UnitDef*)u->def, (UnitDef*)(int)u->id, *(Point16*)&cell, m) == 0;
+            flag = g_seams.map->CanPlaceUnitFootprint((UnitDef*)u->def, (unsigned short)u->id, *(Point16*)&cell, m) == 0;
     }
 
     if (flag) {

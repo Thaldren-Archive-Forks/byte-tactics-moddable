@@ -3,8 +3,7 @@
     uv run tools/coupling.py                 # writes data/subsystems.csv (keeping override) and data/coupling.csv
     uv run tools/coupling.py --check         # fail if either file differs from what the tool regenerates
     uv run tools/coupling.py --summary [S..] # print entry points, imports and sim state per subsystem
-    uv run tools/coupling.py --seams         # fail on a direct call between sim subsystems missing from data/seam_debt.csv
-    uv run tools/coupling.py --seams --write # write data/seam_debt.csv from data/coupling.csv (once, then it only shrinks)
+    uv run tools/coupling.py --seams         # fail on any direct call between sim subsystems, or from game into one
     uv run tools/test_coupling.py            # tests, on hand-written rows
 
 This is the evidence for #128: each subsystem issue (#9 to #18) starts from a draft
@@ -78,16 +77,13 @@ type (`<anon>::x`) is the same name for unrelated structs and is left out, and s
 the other accesses (deref_*), which name no item. Types shared by everything (Vec3, Point,
 Fixed) give every subsystem that touches them a row: the limit of evidence by type.
 
-Seam debt. The sim subsystems (SIM_SUBSYSTEMS) call each other only through the seams of
-interfaces/seams.h (#8). --seams reads data/coupling.csv, takes every `call` row whose `from` and
-`to` are both sim subsystems, or whose `from` is `game` and whose `to` is a sim subsystem, and
-compares the (from, to, target) triples with data/seam_debt.csv (columns from, to, target,
-sorted, one row each; the call count is not kept, so a changed count passes). A call that is
-not in the file fails, and so does a row whose call is gone: the file only shrinks. An
-`indirect` row, a shared_write row and a call to or from presentation, network, harness,
-seams or platform code is not debt. src/seams holds the code that fills the seam tables; it
-is the `seams` subsystem, so the direct calls it makes into the sim are not debt, and the
-function addresses it takes (`fn_ref` rows) are not `call` rows in any case.
+Seams. The sim subsystems (SIM_SUBSYSTEMS) call each other only through the seams of
+interfaces/seams.h (#8), and there is no list of exceptions. --seams reads data/coupling.csv, takes
+every `call` row whose `from` and `to` are both sim subsystems, or whose `from` is `game` and whose
+`to` is a sim subsystem, and fails on each one, listing it. An `indirect` row, a shared_write row and a
+call to or from presentation, network, harness, seams or platform code is not an edge. src/seams holds
+the code that fills the seam tables; it is the `seams` subsystem, so the direct calls it makes into the
+sim are not edges, and the function addresses it takes (`fn_ref` rows) are not `call` rows in any case.
 
 --summary prints, for each subsystem (or the ones named): its entry points (the phase roots
 it holds, and the functions other subsystems call, with the number of callers), its imports
@@ -115,9 +111,7 @@ STATE_CLASSES = ROOT / "data/state_classes.csv"
 SUBSYSTEMS_CSV = ROOT / "data/subsystems.csv"
 COUPLING_CSV = ROOT / "data/coupling.csv"
 SUBSYSTEM_COLUMNS = ["function", "file", "subsystem", "rule", "override"]
-SEAM_DEBT_CSV = ROOT / "data/seam_debt.csv"
 COUPLING_COLUMNS = ["from", "to", "kind", "target", "count"]
-SEAM_DEBT_COLUMNS = ["from", "to", "target"]
 SIM_SUBSYSTEMS = ["wind_meteors", "economy", "features", "ai", "pathfinding", "weapons", "targeting", "los_radar",
                   "orders", "units", "players", "map"]
 SUBSYSTEMS = SIM_SUBSYSTEMS + ["network", "game", "harness", "seams", "presentation", "platform"]
@@ -296,22 +290,13 @@ def seam_edges(coupling: list[dict]) -> set[tuple[str, str, str]]:
             if r["kind"] == "call" and r["to"] in sim and (r["from"] in sim or r["from"] == "game")}
 
 
-def seam_problems(edges: set[tuple[str, str, str]], debt: list[dict]) -> tuple[list[tuple], list[tuple]]:
-    """The sorted edges missing from the debt rows, and the sorted debt rows whose edge is gone."""
-    listed = {(r["from"], r["to"], r["target"]) for r in debt}
-    return sorted(edges - listed), sorted(listed - edges)
-
-
-def check_seams(coupling: list[dict], debt: list[dict]) -> tuple[list[str], str]:
+def check_seams(coupling: list[dict]) -> tuple[list[str], str]:
     """The failure lines, and the one-line summary when there are none."""
-    edges = seam_edges(coupling)
-    new, stale = seam_problems(edges, debt)
-    lines = ["seams: new direct call %s -> %s: %s" % edge for edge in new]
-    if new:
+    edges = sorted(seam_edges(coupling))
+    lines = ["seams: direct call %s -> %s: %s" % edge for edge in edges]
+    if edges:
         lines.append("seams: a call between sim subsystems must go through a seam (interfaces/seams.h)")
-    lines += ["seams: %s -> %s: %s is no longer a direct call; delete its row from data/seam_debt.csv" % row
-              for row in stale]
-    return lines, "seams: %d direct calls between sim subsystems, all in data/seam_debt.csv" % len(edges)
+    return lines, "seams: 0 direct calls between sim subsystems"
 
 
 def item_accesses(rows: list[list[str]], items: sc.Items) -> tuple[dict, dict]:
@@ -456,19 +441,11 @@ def main() -> None:
     parser.add_argument("--summary", nargs="*", metavar="SUBSYSTEM",
                         help="print entry points, imports and sim state of the subsystems (default all)")
     parser.add_argument("--seams", action="store_true",
-                        help="fail on a direct call between sim subsystems that data/seam_debt.csv does not list")
-    parser.add_argument("--write", action="store_true", help="with --seams: write data/seam_debt.csv")
+                        help="fail on any direct call between sim subsystems, or from game into one")
     args = parser.parse_args()
-    if args.write and not args.seams:
-        parser.error("--write goes with --seams")
     if args.seams:
         coupling = read_csv(COUPLING_CSV)
-        if args.write:
-            rows = [dict(zip(SEAM_DEBT_COLUMNS, edge)) for edge in sorted(seam_edges(coupling))]
-            SEAM_DEBT_CSV.write_text(render(SEAM_DEBT_COLUMNS, rows))
-            print("seams: %d rows written to data/seam_debt.csv" % len(rows))
-            return
-        lines, ok = check_seams(coupling, read_csv(SEAM_DEBT_CSV))
+        lines, ok = check_seams(coupling)
         if lines:
             print("\n".join(lines))
             sys.exit(1)

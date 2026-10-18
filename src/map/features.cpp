@@ -1030,7 +1030,7 @@ void __stdcall SpreadFire(Feature* f, Point16* cell)
     }
     if (f->burnweapon) {
         Vec3 pos = FootprintCentre(cell, f);
-        g_seams.weapons->ApplyAreaDamageAt(f->burnweapon, &pos);
+        g_seams.weapons->ApplyAreaDamageAt((WeaponDef*)f->burnweapon, &pos);
     }
 }
 

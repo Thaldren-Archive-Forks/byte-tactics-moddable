@@ -10,12 +10,13 @@ struct Unit;
 struct Player;
 struct _iobuf;
 struct Vec3;
+struct Projectile;
 class SquadManager;
 
 // Major version of the ai interface, changed when a slot is removed or its signature changes.
 #define AI_VERSION_MAJOR 1
 // Minor version of the ai interface, changed when a slot is added.
-#define AI_VERSION_MINOR 4
+#define AI_VERSION_MINOR 5
 
 // Computer player decisions.
 struct AiSeam {
@@ -28,7 +29,7 @@ struct AiSeam {
     // Lets a unit's player react to an attack by another unit. Hooks: none.
     void (__stdcall* ReactToAttack)(Unit* attacker, Unit* unit, int amount);
     // Marks a squad manager's owner for a network update after a damage split (thiscall in 3.1c: this in ecx, edx unused). Hooks: none.
-    void (__fastcall* MarkOwnerNetDirtyFromDamageSplit)(SquadManager* self, int unusedEdx, void* weapon, int enemyDamage, int friendlyDamage);
+    void (__fastcall* MarkOwnerNetDirtyFromDamageSplit)(SquadManager* self, int unusedEdx, Projectile* projectile, int enemyDamage, int friendlyDamage);
     // Writes a report on the AI of a player to a file. Hooks: none.
     void (__stdcall* DumpPlayerAI)(int player, _iobuf* file);
     // Resets the unit tables of the computer players and loads the default AI script again. Hooks: none.

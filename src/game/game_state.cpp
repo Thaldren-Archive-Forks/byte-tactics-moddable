@@ -515,7 +515,6 @@ void LoadGameResources();
 void InitSound();
 void ResetFrontendState();
 void __stdcall InitPacketTables(void* param_1);
-void RegisterAllOrderTypes();
 void LoadGameFonts();
 void LoadDefaultPalette();
 void LoadAllSound();
@@ -581,7 +580,7 @@ void InitGame()
     InitSound();
     ResetFrontendState();
     InitPacketTables(g_game->chatHudRing);
-    RegisterAllOrderTypes();
+    g_seams.orders->RegisterAllOrderTypes();
     LoadGameFonts();
     LoadDefaultPalette();
     LoadAllSound();
@@ -658,7 +657,6 @@ void FreeSounds();
 void FreeGameFonts();
 void ShutdownSound();
 void FreeAnimFiles();
-void ClearOrderTypeTable();
 void __stdcall ReleasePacketData(Class_00452370* obj);
 
 // FUNCTION: 0x4916a0
@@ -682,7 +680,7 @@ void ShutdownGame(void)
     g_game->offscreen = 0;
     SetRestoreSurface(0);
     RestoreScreen();
-    ClearOrderTypeTable();
+    g_seams.orders->ClearOrderTypeTable();
     GameFreeThunk((int*)g_game->options);
     g_game->options = 0;
     g_seams.units->FreeUnitInfo();
@@ -706,7 +704,6 @@ void ResetSpeech();
 void LoadTextureGafs();
 void CreateParticleLists();
 void ResetCameraState();
-void CreatePathfinder();
 void InitCommands();
 unsigned int GetTicks();
 
@@ -759,7 +756,7 @@ void LoadBattleAssets()
     g_seams.wind_meteors->InitMeteors();
     g_seams.los_radar->InitRadar();
     g_seams.players->InitPlayers();
-    CreatePathfinder();
+    g_seams.orders->CreatePathfinder();
     g_seams.weapons->InitExplosions();
     InitCommands();
     for (int i = 0; i < 10; i++)
@@ -803,7 +800,6 @@ void Force640x480Surfaces()
 
 void __cdecl CollectEndGameStats();
 void DestroyParticleLists();
-void DestroyPathfinder();
 void FreeTextureGafs();
 void CloseNetSession();
 
@@ -818,7 +814,7 @@ void ShutdownIngameSystems()
     g_seams.units->FreeUnitMemory();
     DestroyParticleLists();
     g_seams.weapons->FreeExplosions();
-    DestroyPathfinder();
+    g_seams.orders->DestroyPathfinder();
     g_seams.players->FreePlayers();
     g_seams.los_radar->FreeRadar();
     g_seams.los_radar->FreeMapResources();
