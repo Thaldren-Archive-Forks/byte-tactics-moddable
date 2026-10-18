@@ -41,7 +41,6 @@ struct Game {
 
 extern Game* g_game;
 
-unsigned short __stdcall FindFeatureAtPos(Vec3* pos, Point16* cell, Point16* size);
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 int __stdcall RandomInt(int range);
 int __stdcall GetGroundHeight(Vec3* pos);
@@ -60,7 +59,7 @@ int __stdcall ReclaimOrder(Unit* unit, Order* order, int flags)
 {
     Point16 cell;
     Point16 size;
-    unsigned short index = FindFeatureAtPos(&order->pos, &cell, &size);
+    unsigned short index = g_seams.weapons->FindFeatureAtPos(&order->pos, &cell, &size);
     if (index == 0xffff) {
         QueueUnitSpeech(unit, 7, "Reclamation failed");
         return 8;

@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by GPT-6 Astra. Names are provisional.
 // Stays in its own file: in unit_orders.cpp the first state's cell lookup loads g_game before the index, and the nano box corners need a member operator+ view of Vec3.
 #include <windows.h>
@@ -140,7 +141,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
             order->SetDeadlineTicks(30);
             return 2;
         }
-        unit->ClaimWeapons(3);
+        g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
         SnapWorldPosToFootprint(def, &order->pos);
         ((PathOrderAttach*)((char*)order + 0x12))->SetUnit(
             CreateUnit(unit->playerIndex, (short)order->type, order->pos, 0, 1, 0));

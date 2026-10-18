@@ -736,7 +736,6 @@ unsigned char __stdcall FindHostSlot();
 unsigned short __stdcall FindUnitTypeId(const char* name);
 int __stdcall RandomInt(int range);
 int __stdcall CanPlaceUnitFootprint(UnitDef* type, int a, Point16 cell, int c);
-short __stdcall FindFeatureAtPos(Vec3* pos, int a, int b);
 int __stdcall GetCellMeanHeight(Vec3* pos);
 Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId,
                            Vec3 pos, int a, int b, int c);
@@ -916,7 +915,7 @@ void __stdcall UpdatePlayers()
                                     } while (--inner != 0);
                                     zacc += hh;
                                 } while (--outer != 0);
-                                if (hits >= 9 && FindFeatureAtPos(&pos, 0, 0) == -1) {
+                                if (hits >= 9 && (short)g_seams.weapons->FindFeatureAtPos(&pos, 0, 0) == -1) {
                                     if (g_game->mapInfo->lavaWorld == 0)
                                         break;
                                     if (GetCellMeanHeight(&pos) >

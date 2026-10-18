@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by Claude Opus 5.5, finished by deepseek-v4.1-flash and GPT-6, edited by deepseek-v4.1, finished by GPT-6.1-sol, edited by Claude Opus 5.5, finished by Claude Opus 5.5. re-verified by GPT-6. Names are provisional.
 // "Attacking" order handler of aircraft (VTOL). Interrupts hand over to a
 // "VTOL_SEEKATTACK" order; the order follows its target unit and gives up
@@ -152,7 +153,7 @@ static inline void AttachMove(Order* order, const Vec3& dest, short radius);
 // 0x40f200, matched in 0x40f200.cpp; inlined into the state 0 case below.
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
@@ -165,7 +166,6 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     }
 }
 
-#include "../../interfaces/seams.h"
 
 // Stays in a file of its own: it matches only in this file's symbol context.
 // FUNCTION: 0x411f50
@@ -197,8 +197,8 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         }
         break;
     case 1: {
-        unit->ReleaseWeapons(3);
-        unit->ClaimWeapons(0);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
+        g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 0);
         // Pointer locals declared bare, then &order->pos assigned first: orders the two lea.
         Vec3* op;
         Vec3* up;
@@ -255,7 +255,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         return 2;
     }
     case 5: {
-        unit->ClaimWeapons(0);
+        g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 0);
         g_seams.targeting->SetWeaponTargetPos(unit, &order->pos, 0);
         int angle = GetHeadingBetween(&unit->pos, &order->pos);
         Vec3 dest = unit->pos + Offset(angle, (unit->def->attackrunlength + 0x3c0) << 16);

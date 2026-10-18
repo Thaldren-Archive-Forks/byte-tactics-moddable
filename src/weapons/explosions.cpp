@@ -301,7 +301,6 @@ void __stdcall DrawModel3doProjected(void* surface, Position* pos, void* model, 
 void __stdcall FillPolygon(void* surface, Point* points, int count, int flags);
 void __stdcall DrawFrameQuad(void* surface, void* pic, Point* points, void* src);
 int __stdcall RandomInt(int range);
-int __stdcall GetCellMeanHeight(Vec3* pos);
 int __stdcall StepGafSequence(GafRef* ref);
 void __stdcall RotateByAngles(Vec3* in, Vec3* out, short* angles);
 Vec3f __stdcall VectorFromTo(Vec3f from, Vec3f to);
@@ -524,7 +523,7 @@ void UpdateExplosions()
             d->angle_x += d->spin.x;
             d->angle_y += d->spin.y;
             d->angle_z += d->spin.z;
-            int r = GetCellMeanHeight(&d->pos);
+            int r = g_seams.map->GetCellMeanHeight((Vec3*)&d->pos);
             if (d->pos.y > (int)((unsigned)g_game->seaLevel << 16) || r >= (int)g_game->seaLevel) {
                 if (*(short*)((char*)&d->pos.y + 2) <= r) {
                     d->pos = old;
@@ -719,7 +718,7 @@ int __stdcall UpdateExplodedPiece(ExplodedPiece* obj)
     pos.x = inner->pos.x;
     pos.y = inner->pos.y;
     pos.z = inner->pos.z;
-    int limit = GetCellMeanHeight(&pos) << 16;
+    int limit = g_seams.map->GetCellMeanHeight((Vec3*)&pos) << 16;
     if (vy + inner->pos.y <= limit) {
         int ny = -(vy >> 1);
         int nx = obj->vel_x >> 1;

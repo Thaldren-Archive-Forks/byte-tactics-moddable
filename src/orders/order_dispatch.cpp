@@ -295,8 +295,6 @@ MissionType __stdcall GetOrderType(unsigned char mode, Unit_0043f0e0* unit,
 
 // GetOrderCursor as in 0x43e490.cpp (the annotated copy). It precedes GetOrderType in the
 // original file and is compiled first here for the compiler state it leaves; see the top.
-int __stdcall WeaponCanReachPos(Unit_0043e490* unit, void* slot, Pos_0043e490* pos, int which);
-int __stdcall WeaponCanReachUnit(Unit_0043e490* unit, Unit_0043e490* target, int which);
 int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e490* target,
                            Pos_0043e490* pos);
 
@@ -378,8 +376,8 @@ int __stdcall GetOrderCursor(unsigned char mode, Unit_0043e490* unit, Unit_0043e
             if (unit->motion)
                 return 1;
             if (target)
-                return WeaponCanReachUnit(unit, target, 0) ? 1 : 3;
-            if (!WeaponCanReachPos(unit, unit->f6a, pos, 0) || (node->f111 & 0x20000))
+                return g_seams.weapons->WeaponCanReachUnit((Unit*)unit, (Unit*)target, 0) ? 1 : 3;
+            if (!g_seams.weapons->WeaponCanReachPos((Unit*)unit, (Vec3*)unit->f6a, (Vec3*)pos, 0) || (node->f111 & 0x20000))
                 return 3;
             return 1;
         }

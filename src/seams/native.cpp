@@ -10,6 +10,7 @@
 #include "../ai/pathfinder.h"
 #include "../ai/ai_search_goal.h"
 #include "../orders/order_fx.h"
+#include "../ai/squad_manager.h"
 
 struct Player;
 
@@ -47,6 +48,29 @@ struct Vec;
 struct UnitDef;
 struct WeaponDef;
 struct Callback;
+
+struct Order;
+
+int* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
+int __stdcall WeaponCanReachPos(Unit* unit, Vec3* from, Vec3* to, int flags);
+void __stdcall AllocWeaponArray(void);
+void __stdcall FreeWeaponArray(void);
+void __stdcall LoadWeaponTypes(void);
+void __stdcall FreeWeaponTypes(void);
+void __stdcall InitExplosions(void);
+void __stdcall FreeExplosions(void);
+void __stdcall DamageUnit(Unit* source, Unit* target, int amount, int type, unsigned short extra);
+unsigned short __stdcall FindFeatureAtPos(Vec3* pos, Point16* cell, Point16* size);
+void __stdcall DetonateUnitWeapon(Unit* unit, int second);
+void __stdcall InitUnitWeaponSlots(Unit* unit);
+void __stdcall RemoveUnitProjectiles(Unit* unit);
+void __stdcall UpdateUnitWeapons(Unit* unit);
+void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int amount);
+void __stdcall AppendOrder(Unit* owner, Order* node);
+void __stdcall GetAimFromPosition(Unit* unit, Vec3* out, unsigned char weapon);
+Vec3 __stdcall GetPieceOffset(Unit* unit, int piece);
+Vec3 __stdcall GetPiecePosition(Unit* unit, int piece);
+void __stdcall MarkRecentlyDamaged(Unit* unit);
 
 float __stdcall GetEnergyUse(UnitDef* def);
 void __stdcall UpdatePlayerEconomy(Player* p);
@@ -168,6 +192,31 @@ static int __stdcall FindScriptNative(CobScript* script, const char* name)
 static int __stdcall StartScriptWithArgsNative(CobScript* script, char* name, Callback* callback, int update, int count, int a, int b, int c, int d)
 {
     return script->StartScriptWithArgs(name, callback, update, count, a, b, c, d);
+}
+
+static int __stdcall StartScriptNative(CobScript* script, const char* name, Callback* callback, int update)
+{
+    return script->StartScript(name, callback, update);
+}
+
+static int __stdcall QueryScriptNative(CobScript* script, char* name, int* p2, int* p3, int* p4, int* p5)
+{
+    return script->QueryScript(name, p2, p3, p4, p5);
+}
+
+static void __fastcall ClaimWeaponsNative(Unit* self, int unusedEdx, unsigned char index)
+{
+    self->ClaimWeapons(index);
+}
+
+static void __fastcall ReleaseWeaponsNative(Unit* self, int unusedEdx, unsigned char index)
+{
+    self->ReleaseWeapons(index);
+}
+
+static void __fastcall MarkOwnerNetDirtyFromDamageSplitNative(SquadManager* self, int unusedEdx, void* weapon, int enemyDamage, int friendlyDamage)
+{
+    self->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)weapon, enemyDamage, friendlyDamage);
 }
 
 static void __stdcall SetStateBitsNative(Unit* unit, int mask, int set)
@@ -426,6 +475,31 @@ void InstallNativeSeams()
     s_weapons.GetWeaponRange = GetWeaponRangeNative;
     s_weapons.WeaponCanReachUnit = WeaponCanReachUnit;
     s_ai.GetVisibleEnemiesInRadius = GetVisibleEnemiesInRadiusNative;
+    s_weapons.FindTargetableProjectile = FindTargetableProjectile;
+    s_weapons.WeaponCanReachPos = WeaponCanReachPos;
+    s_weapons.AllocWeaponArray = AllocWeaponArray;
+    s_weapons.FreeWeaponArray = FreeWeaponArray;
+    s_weapons.LoadWeaponTypes = LoadWeaponTypes;
+    s_weapons.FreeWeaponTypes = FreeWeaponTypes;
+    s_weapons.InitExplosions = InitExplosions;
+    s_weapons.FreeExplosions = FreeExplosions;
+    s_weapons.DamageUnit = DamageUnit;
+    s_weapons.FindFeatureAtPos = FindFeatureAtPos;
+    s_weapons.ReleaseWeapons = ReleaseWeaponsNative;
+    s_weapons.ClaimWeapons = ClaimWeaponsNative;
+    s_weapons.DetonateUnitWeapon = DetonateUnitWeapon;
+    s_weapons.InitUnitWeaponSlots = InitUnitWeaponSlots;
+    s_weapons.RemoveUnitProjectiles = RemoveUnitProjectiles;
+    s_weapons.UpdateUnitWeapons = UpdateUnitWeapons;
+    s_ai.ReactToAttack = ReactToAttack;
+    s_ai.MarkOwnerNetDirtyFromDamageSplit = MarkOwnerNetDirtyFromDamageSplitNative;
+    s_orders.AppendOrder = AppendOrder;
+    s_units.StartScript = StartScriptNative;
+    s_units.QueryScript = QueryScriptNative;
+    s_units.GetAimFromPosition = GetAimFromPosition;
+    s_units.GetPieceOffset = GetPieceOffset;
+    s_units.GetPiecePosition = GetPiecePosition;
+    s_units.MarkRecentlyDamaged = MarkRecentlyDamaged;
     s_weapons.UpdateProjectiles = UpdateProjectiles;
     s_weapons.UpdateExplosions = UpdateExplosions;
     s_weapons.SpawnProjectile = SpawnProjectile;

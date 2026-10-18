@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by Claude Opus 5.5. Names are provisional.
 // VTOL strafing attack order handler. With flags 0x10008, or with no target
 // and order flag 0x200, it queues VTOL_SEEKATTACK; on the map-edge player it
@@ -131,7 +132,7 @@ static inline Vec3 Add(const Vec3& a, const Vec3& b)
 // 0x40f200, matched in 0x40f200.cpp; inlined into the state 0 case below.
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
@@ -154,7 +155,6 @@ static inline int IsAhead(Unit* unit, Order* order)
     return (short)(Whole(toward.x) * Whole(facing.x) + Whole(toward.z) * Whole(facing.z)) > 0;
 }
 
-#include "../../interfaces/seams.h"
 
 // Stays in a file of its own: it matches only in this file's symbol context.
 // FUNCTION: 0x412d40
@@ -195,8 +195,8 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1:
-        unit->ReleaseWeapons(3);
-        unit->ClaimWeapons(0);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
+        g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 0);
         g_seams.targeting->SetWeaponTargetUnit(unit, order->target, 0);
         if (flags & 0xe0) {
             if (IsAhead(unit, order)) {

@@ -116,7 +116,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
                 if (!order->pos.x && !order->pos.z && !order->pos.y) order->pos=unit->pos;
                 order->angle=RandomInt(0x10000);
                 order->parity=order->angle&1;
-                unit->ClaimWeapons(3);
+                g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
                 if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
                 unit->SetStateBits(1,1);
                 if ((unit->motion->flags&3)==1) {
@@ -131,7 +131,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 1: {
-        unit->ReleaseWeapons(3);
+        g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
         if ((unsigned int)unit->health < (unit->def->maxHealth>>2)*3) {
             LandingPadList pads;
             GetFactoriesInRadius(unit->player->index,&unit->pos,0xf00,&pads);

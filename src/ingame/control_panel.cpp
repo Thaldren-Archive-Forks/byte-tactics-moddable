@@ -453,7 +453,6 @@ void __stdcall RefreshOrderButtons(Unit* unit);
 int __stdcall IsScreenNamed(Gui* menu, const char* name);
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4);
 void __stdcall BroadcastBuilderLink(Unit* obj, Unit* target);
-void __stdcall DamageUnit(Unit* obj, Unit* unit, int n, int kind, int flag);
 void __stdcall FinishConstruction(Unit* builder, Unit* unit);
 int __stdcall AddBuildProgress(Unit* builder, Unit* unit, float amount);
 
@@ -1353,7 +1352,7 @@ int __stdcall AddBuildProgress(Unit* builder, Unit* unit, float amount)
         unit->buildLeft = next;
         unit->flags.raw |= 0x2000;
         if (next >= 1.0f)
-            DamageUnit(unit, unit, 30000, 9, 0);
+            g_seams.weapons->DamageUnit(unit, unit, 30000, 9, 0);
     } else if (g_seams.economy->RequestEnergyAndMetal(&builder->resourceSlot, energyCharge, metalCharge)) {
         unit->health = min(hp + unit->health, unit->def->maxHealth);
         unit->buildLeft = next;
@@ -1393,7 +1392,7 @@ int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float f)
     if (n2 >= 1)
         n2 = 1;
     if (g_seams.economy->RequestEnergy(&builder->resourceSlot, &builder->resourceSlot, (float)n2)) {
-        DamageUnit(builder, unit, n1, 10, 0);
+        g_seams.weapons->DamageUnit(builder, unit, n1, 10, 0);
         result = 1;
     }
     return result;

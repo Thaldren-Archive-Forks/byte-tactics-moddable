@@ -167,6 +167,8 @@ struct Unit {
     unsigned char PlayerIndex(void);
     void SetStateBits(int, int);
     unsigned char ChooseWeapon();
+    void ClaimWeapons(unsigned char index);
+    void ReleaseWeapons(unsigned char index);
 };
 #pragma pack(pop)
 
