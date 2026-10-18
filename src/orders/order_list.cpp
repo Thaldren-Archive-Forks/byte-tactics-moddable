@@ -1174,7 +1174,7 @@ int __stdcall IssueRepairOrder(Unit* unit, Unit* target, int param_3)
 // FUNCTION: 0x43b700
 int __stdcall FindBestTargetIfFireAtWill(Unit* unit)
 {
-    if (unit->move == 2)
+    if (unit->fireOrder == 2)
         return FindWeaponTarget(unit, 0, 0);
     return 0;
 }

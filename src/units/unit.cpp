@@ -24,7 +24,7 @@ void SetMemFussyDefault(void);
 #include "../sound/sound.h"
 
 
-class Unit;
+struct Unit;
 
 #pragma pack(push, 1)
 struct Point_004898b0 {
@@ -42,12 +42,6 @@ union Flags_004898b0 {
         unsigned char rest : 3;
     } bits;
     unsigned char all;
-};
-
-struct Entry_004898b0 {                // 0x1c bytes
-    Point_004898b0 point;              // +0x0
-    char unknown_4[0x1b - 4];
-    Flags_004898b0 flags;              // +0x1b
 };
 
 // Bit 19 is a one-bit bitfield (MSVC shifts it down to test it), while bit 8
@@ -99,48 +93,9 @@ public:
     OrderBase* value;                  // +0xc
 };
 
-#pragma pack(push, 1)
-class Unit {
-public:
-    int motion;                        // +0x0
-    Entry_004898b0 weapons[3];         // +0x4
-    char unknown_58[0x6e - 0x58];
-    union {
-        int f6e;                       // +0x6e, 16.16
-        struct {
-            unsigned short f6e_fraction;
-            short f70;                 // +0x70
-        };
-    };
-    char unknown_72[0x8a - 0x72];
-    Node_00489a90* cargo;           // +0x8a, list head of the cargo count
-    char unknown_8e[4];
-    UnitDef* def;                      // +0x92
-    Player* player;                    // +0x96
-    CobScript* script;                 // +0x9a
-    void* state;                       // +0x9e
-    PathOrderAttach* head;             // +0xa2
-    char unknown_a6[0xa8 - 0xa6];
-    unsigned short id;                 // +0xa8
-    char unknown_aa[0x104 - 0xaa];
-    float buildLeft;                   // +0x104
-    short health;                      // +0x108
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char activateFlags;       // +0x10e
-    char cobStateFlags;
-    int flags;                         // +0x110
+#include "unit.h"
 
-    unsigned char GetState() { return activateFlags; }
-
-    void ReleaseWeapons(unsigned char index);
-    void ClaimWeapons(unsigned char index);
-    int CanReclaim(void *param_1);
-    int CanRepair(Unit* other);
-    int CountCargo();
-    int CanLoad(Unit* other);
-    void SetStateBits(int mask, int set);
-};
-#pragma pack(pop)
+inline unsigned char Unit::GetState() { return activateFlags; }
 
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 void __stdcall MarkSelectionOrdersDirty(Unit* unit);
@@ -158,16 +113,16 @@ void Unit::ReleaseWeapons(unsigned char index)
         this->ReleaseWeapons(1);
         index = 2;
     }
-    Entry_004898b0* e = &weapons[index];
-    if (e->flags.bits.bit1 != 0 && e->flags.bits.bit4 == 0) {
-        e->flags.bits.bit4 = 1;
+    UnitWeaponSlot* e = &weapons[index];
+    if (((Flags_004898b0*)&e->flags)->bits.bit1 != 0 && ((Flags_004898b0*)&e->flags)->bits.bit4 == 0) {
+        ((Flags_004898b0*)&e->flags)->bits.bit4 = 1;
         int i = index;
-        Point_004898b0* p = &weapons[i].point;
+        Point_004898b0* p = (Point_004898b0*)&weapons[i];
         if (p->a != 0 || p->b != (short)0x8000) {
             p->a = 0;
             p->b = (short)0x8000;
-            g_seams.units->FindScript(script, "StartBuilding");
-            g_seams.units->StartScriptWithArgs(script, "TargetCleared", 0, 0, 1, i, 0, 0, 0);
+            g_seams.units->FindScript((CobScript*)script, "StartBuilding");
+            g_seams.units->StartScriptWithArgs((CobScript*)script, "TargetCleared", 0, 0, 1, i, 0, 0, 0);
         }
     }
 }
@@ -187,17 +142,17 @@ void Unit::ClaimWeapons(unsigned char index)
         this->ClaimWeapons(1);
         index = 2;
     }
-    Entry_004898b0* e = &weapons[index];
-    if (e->flags.bits.bit1 != 0 && e->flags.bits.bit4 != 0) {
+    UnitWeaponSlot* e = &weapons[index];
+    if (((Flags_004898b0*)&e->flags)->bits.bit1 != 0 && ((Flags_004898b0*)&e->flags)->bits.bit4 != 0) {
         // Bitfield view, not a byte mask: a mask folds the element offset into the address.
-        e->flags.bits.bit4 = 0;
+        ((Flags_004898b0*)&e->flags)->bits.bit4 = 0;
         int i = index;
-        Point_004898b0* p = &weapons[i].point;
+        Point_004898b0* p = (Point_004898b0*)&weapons[i];
         if (p->a != 0 || p->b != (short)0x8000) {
             p->a = 0;
             p->b = (short)0x8000;
-            g_seams.units->FindScript(script, "StartBuilding");
-            g_seams.units->StartScriptWithArgs(script, "TargetCleared", 0, 0, 1, i, 0, 0, 0);
+            g_seams.units->FindScript((CobScript*)script, "StartBuilding");
+            g_seams.units->StartScriptWithArgs((CobScript*)script, "TargetCleared", 0, 0, 1, i, 0, 0, 0);
         }
     }
     // The guard only fires when bit 4 is *set* and then clears it, so this
@@ -241,12 +196,12 @@ int Unit::CanRepair(Unit* other)
         && (other->health != other->def->maxHealth)
         && ((other->flags & 3) != 2)) {
         if (def->flags1 & 0x800) {
-            if (!(def->flags1 & 0x200000) && other->f70 + other->def->field_170 < g_game->seaLevel)
+            if (!(def->flags1 & 0x200000) && other->yWhole + other->def->field_170 < g_game->seaLevel)
                 goto fail;
         }
         // Tests the same condition again, not an else.
         if (!(def->flags1 & 0x800)) {
-            if (other->f70 + other->def->field_170 < g_game->seaLevel - def->maxwaterdepth)
+            if (other->yWhole + other->def->field_170 < g_game->seaLevel - def->maxwaterdepth)
                 goto fail;
         }
         return 1;
@@ -260,7 +215,7 @@ fail:
 int Unit::CountCargo()
 {
     int count = 0;
-    Node_00489a90* node = cargo;
+    Node_00489a90* node = (Node_00489a90*)cargo;
     while (node) {
         if (node->owner == this)
             count++;
@@ -290,7 +245,7 @@ int Unit::CanLoad(Unit* other)
         return 0;
     if (!(ourDef->flags1 & 0x800) && theirDef->minwaterdepth >= 0)
         return 0;
-    if (other->f6e + theirDef->modelMaxY <= (g_game->seaLevel << 16))
+    if (other->pos.y + theirDef->modelMaxY <= (g_game->seaLevel << 16))
         return 0;
     if (other->buildLeft != 0.0f)           // the fcomp tests equality, not a range
         return 0;
@@ -340,17 +295,17 @@ void Unit::SetStateBits(int mask, int set)
             gained = ~old & now;
             lost = (unsigned char)newLost;
             if (gained & 1) {
-                script->StartScript("Activate", 0, 0);
+                ((CobScript*)script)->StartScript("Activate", 0, 0);
                 QueueUnitSpeech(this, 3, 0);
             }
             if (lost & 1) {
-                script->StartScript("Deactivate", 0, 0);
+                ((CobScript*)script)->StartScript("Deactivate", 0, 0);
                 QueueUnitSpeech(this, 4, 0);
             }
             if (gained & 8)
-                script->StartScript("StartBuilding", 0, 0);
+                ((CobScript*)script)->StartScript("StartBuilding", 0, 0);
             if (lost & 8)
-                script->StartScript("StopBuilding", 0, 0);
+                ((CobScript*)script)->StartScript("StopBuilding", 0, 0);
             if (gained & 4) {
                 QueueUnitSpeech(this, 0xe, 0);
                 for (link = head; link; link = link->next) {

@@ -31,10 +31,7 @@ struct Cell {
     char unknown_a[0xd - 0xa];
 };
 
-struct ShortPair_485a40 {
-    short x;                           // +0x0
-    short y;                           // +0x2
-};
+#include "../util/vec3.h"
 
 struct Entry_486360 {
     char unknown_0[0xf4];
@@ -93,7 +90,7 @@ struct UnitType {                      // 0x249 bytes
     char unknown_0[0x20];
     char name[0x20];                   // +0x20
     char unknown_40[0x14a - 0x40];
-    ShortPair_485a40 offset;           // +0x14a
+    Point16 offset;
     char unknown_14e[0x15a - 0x14e];
     int limit;                         // +0x15a
     char unknown_15e[0x16e - 0x15e];
@@ -137,9 +134,7 @@ struct Pos_00485070 {
     Fixed_00485070 z;                  // +0x8
 };
 
-struct Pos_00485a40 {
-    int x, y, z;
-};
+
 
 struct FixedParts_004853b0 {
     unsigned int frac : 16;
@@ -168,51 +163,9 @@ public:
     void UnlinkUnit(void* node);
 };
 
-union Flags_485a40 {
-    unsigned int all;
-    struct {
-        unsigned int b0 : 1;
-        unsigned int b1 : 1;
-        unsigned int b2 : 1;
-        unsigned int b3 : 1;
-        unsigned int b4 : 1;
-        unsigned int b5 : 1;
-        unsigned int b6 : 1;
-        unsigned int b7 : 1;
-        unsigned int b8 : 1;
-        unsigned int b9 : 1;
-        unsigned int b10 : 1;
-        unsigned int b11 : 1;
-        unsigned int b12 : 1;
-        unsigned int b13 : 1;
-        unsigned int b14 : 1;
-        unsigned int b15 : 1;
-        unsigned int b16 : 1;
-        unsigned int b17 : 1;
-        unsigned int moveOrder : 2;    // bits 18-19
-        unsigned int fireOrder : 2;    // bits 20-21
-        unsigned int f22_23 : 2;       // bits 22-23
-        unsigned int f24_25 : 2;       // bits 24-25
-        unsigned int f26_27 : 2;       // bits 26-27
-        unsigned int b28 : 1;
-        unsigned int b29 : 1;
-        unsigned int b30 : 1;
-        unsigned int b31 : 1;
-    } bits;
-    struct {
-        unsigned int mode : 2;         // bits 0-1
-        unsigned int unknown_bits : 12;
-        unsigned int bit14 : 1;
-        unsigned int unknown_bits2 : 17;
-    };
-};
 
-union Flags114_485a40 {
-    unsigned int all;
-    struct {
-        unsigned int b0 : 1;
-    } bits;
-};
+
+
 
 #include "../game/unit_resources.h"
 
@@ -220,58 +173,7 @@ union Flags114_485a40 {
 // to keep 0x485140 and 0x4854a0 matching (docs/c2-regalloc.md).
 #include "../util/angles.h"
 
-struct Unit {                          // 0x118 bytes
-    UnitMotion* motion;                // +0x0
-    UnitWeaponSlot weapons[3];         // +0x4, stride 0x1c
-    char unknown_58[0x64 - 0x58];
-    Angles16 angles;                   // +0x64
-    Pos_00485a40 pos;                  // +0x6a
-    ShortPair_485a40 screen;           // +0x76
-    short losCacheCellX;                    // +0x7a
-    short losCacheCellZ;                    // +0x7c
-    ShortPair_485a40 footprint;        // +0x7e
-    SpatialBucket* spatialBucket;      // +0x82
-    Unit* carrier;                     // +0x86
-    Unit* cargo;                       // +0x8a
-    Unit* cargoNext;                   // +0x8e
-    UnitType* def;                     // +0x92
-    Player* player;                    // +0x96
-    CobScript* script;                 // +0x9a
-    ObjectState_00485d40* state;       // +0x9e
-    char unknown_a2[0xa6 - 0xa2];
-    unsigned short unitDefIndex;       // +0xa6
-    unsigned short id;           // +0xa8
-    short hoverBobPhase;                    // +0xaa
-    unsigned int group;             // +0xac
-    int workTime;                      // +0xb0
-    char unknown_b4[0xb8 - 0xb4];
-    short killCount;                    // +0xb8
-    short netDirtyFlags;                    // +0xba
-    UnitResources resourceSlot;        // +0xbc
-    Unit* attacker;                    // +0xf0
-    unsigned char lastAttackerSlot;            // +0xf4
-    unsigned char lastDamageType;            // +0xf5
-    unsigned char healthPercent;            // +0xf6
-    unsigned char prevHealthPercent;            // +0xf7
-    unsigned char losSightFrameIdx;            // +0xf8
-    unsigned char transportPiece;            // +0xf9
-    unsigned char recentlyDamagedTimer;            // +0xfa
-    int postTransferHoldoff;                      // +0xfb
-    unsigned char playerIndex;            // +0xff
-    int unfinishedInitZero;                     // +0x100
-    float buildLeft;                   // +0x104
-    short health;                   // +0x108
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char activateFlags;           // +0x10e
-    struct {
-        unsigned char lo : 4;          // +0x10f
-        unsigned char hi : 4;
-    } cobStateFlags;
-    Flags_485a40 flags;                // +0x110
-    Flags114_485a40 zBufferFlag;         // +0x114
-    void ReleaseWeapons(unsigned char index);
-    void SetStateBits(int a, int b);
-};
+#include "unit.h"
 
 struct Game {
     char unknown_0[0x1b63];
@@ -618,37 +520,40 @@ int __stdcall RandomInt(int range);
 // Sets up a unit from its unit type: flags, offsets, screen position, weapon
 // targets and the squad. The screen Y projection uses the passed position Z.
 // FUNCTION: 0x485a40
-void __stdcall InitUnitFromType(Unit* unit, Pos_00485a40 pos, int param_5)
+void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
 {
-    unit->def = &g_game->unitDefs[(unsigned short)unit->unitDefIndex];
-    unit->flags.bits.b28 = 1;
-    unit->flags.bits.b29 = (unit->def->mobile == 0);
-    unit->flags.bits.b14 = 0;
-    unit->footprint = unit->def->offset;
-    unit->flags.bits.b31 = unit->def->flags.bits.hi;
-    unit->zBufferFlag.bits.b0 = unit->def->flags.bits.b7;
-    unit->flags.bits.b30 = unit->def->flags.bits.b9;
+    unit->def = (UnitDef*)&g_game->unitDefs[(unsigned short)unit->unitDefIndex];
+    unit->f110.b28 = 1;
+    unit->f110.b29 = (((UnitType*)unit->def)->mobile == 0);
+    unit->f110.b14 = 0;
+    unit->footprint = ((UnitType*)unit->def)->offset;
+    unit->f110.b31 = ((UnitType*)unit->def)->flags.bits.hi;
+    unit->zBufferBit0 = ((UnitType*)unit->def)->flags.bits.b7;
+    unit->f110.b30 = ((UnitType*)unit->def)->flags.bits.b9;
 
     if (param_5) {
         unit->buildLeft = 0;
-        unit->health = unit->def->hp;
+        unit->health = ((UnitType*)unit->def)->hp;
     } else {
         unit->buildLeft = 1.0f;
         unit->unfinishedInitZero = 0;
         unit->health = 0;
     }
 
-    unit->cobStateFlags.lo = 0;
-    unit->flags.bits.b0 = 1;
-    unit->flags.bits.b1 = 0;
-    unit->flags.bits.b2 = 0;
-    unit->flags.bits.b3 = 0;
-    unit->flags.bits.b4 = 0;
-    unit->flags.bits.b5 = 1;
-    unit->flags.bits.b10 = 0;
-    unit->flags.bits.b11 = 0;
-    unit->flags.bits.b16 = 1;
-    unit->flags.bits.b17 = 0;
+    unit->bit0 = 0;
+    unit->bit1 = 0;
+    unit->bit2 = 0;
+    unit->bit3 = 0;
+    unit->f110.b0 = 1;
+    unit->f110.b1 = 0;
+    unit->f110.b2 = 0;
+    unit->f110.b3 = 0;
+    unit->f110.b4 = 0;
+    unit->f110.b5 = 1;
+    unit->f110.b10 = 0;
+    unit->f110.b11 = 0;
+    unit->f110.b16 = 1;
+    unit->f110.b17 = 0;
     unit->healthPercent = 0;
     unit->prevHealthPercent = 0;
     unit->activateFlags = 0;
@@ -656,21 +561,21 @@ void __stdcall InitUnitFromType(Unit* unit, Pos_00485a40 pos, int param_5)
     unit->angles.pitch = 0;
     unit->pos = pos;
 
-    ShortPair_485a40 off = unit->footprint;
-    ShortPair_485a40 screen;
+    Point16 off = unit->footprint;
+    Point16 screen;
     screen.x = (short)((pos.x - off.x * 0x80000 + 0x80000) >> 20);
     screen.y = (short)((pos.z - off.y * 0x80000 + 0x80000) >> 20);
-    unit->screen = screen;
+    unit->cell = screen;
 
-    unit->angles.heading = (short)(RandomInt(unit->def->buildangle)
-                                    + (0x8000 - unit->def->buildangle / 2));
+    unit->angles.heading = (short)(RandomInt(((UnitType*)unit->def)->buildangle)
+                                    + (0x8000 - ((UnitType*)unit->def)->buildangle / 2));
     unit->angles.bank = 0;
     unit->losCacheCellX = 0;
     unit->losCacheCellZ = 0;
     unit->recentlyDamagedTimer = 0;
     unit->postTransferHoldoff = 0;
-    unit->flags.bits.b9 = (unit->player->index == g_game->playerIndex);
-    unit->flags.bits.b8 = 0;
+    unit->f110.b9 = (unit->player->index == g_game->playerIndex);
+    unit->f110.b8 = 0;
 
     for (int i = 0; i < 3; i++) {
         g_seams.targeting->ResetWeaponTarget((Unit*)unit, i);
@@ -681,16 +586,16 @@ void __stdcall InitUnitFromType(Unit* unit, Pos_00485a40 pos, int param_5)
     unit->killCount = 0;
     unit->attacker = 0;
     unit->lastAttackerSlot = 0xa;
-    unit->flags.bits.moveOrder = unit->def->flags.bits.movOrder;
-    unit->flags.bits.fireOrder = unit->def->flags.bits.fireOrder;
-    unit->flags.bits.b11 = unit->def->flags.bits.canAttack;
-    unit->flags.bits.f26_27 = 0;
-    if (unit->def->buildMenuPageCount > 1) {
-        unit->flags.bits.f22_23 = 3;
-        unit->flags.bits.f24_25 = 0;
+    unit->moveOrder = ((UnitType*)unit->def)->flags.bits.movOrder;
+    unit->fireOrder = ((UnitType*)unit->def)->flags.bits.fireOrder;
+    unit->f110.b11 = ((UnitType*)unit->def)->flags.bits.canAttack;
+    unit->f26_27 = 0;
+    if (((UnitType*)unit->def)->buildMenuPageCount > 1) {
+        unit->f22_23 = 3;
+        unit->f24_25 = 0;
     } else {
-        unit->flags.bits.f22_23 = 0;
-        unit->flags.bits.f24_25 = 0;
+        unit->f22_23 = 0;
+        unit->f24_25 = 0;
     }
 
     unit->losSightFrameIdx = 0;
@@ -766,19 +671,19 @@ ObjectState_00485d40* __stdcall CreateObjectState(Object3do* obj);
 void __stdcall InitUnitScript(Unit* self)
 {
     Object3do* obj = g_game->unitModels[self->unitDefIndex];
-    if (self->def->data) {
-        self->script = new (kSim) UnitScript;
-        self->script->SetCob(self->def->data);
-        self->state = CreatePlayerObjectState(obj, self->def->data, (int)self);  // the owner, as an int
-        ((UnitScript*)self->script)->SetObjectState(self->state);
-        self->script->StartScript("Create", 0, 1);
+    if (((UnitType*)self->def)->data) {
+        self->script = (Class_004b0a70*)new (kSim) UnitScript;
+        ((CobScript*)self->script)->SetCob(((UnitType*)self->def)->data);
+        self->state = (SpotState*)CreatePlayerObjectState(obj, ((UnitType*)self->def)->data, (int)self);
+        ((UnitScript*)self->script)->SetObjectState((ObjectState_00485d40*)self->state);
+        ((CobScript*)self->script)->StartScript("Create", 0, 1);
     } else {
         self->script = 0;
-        self->state = CreateObjectState(obj);
-        self->state->unit = self;
+        self->state = (SpotState*)CreateObjectState(obj);
+        ((ObjectState_00485d40*)self->state)->unit = self;
     }
     // Shared tail after the if/else: reloads the block in both exits.
-    self->state->drawFrame = 0;
+    ((ObjectState_00485d40*)self->state)->drawFrame = 0;
 }
 
 // The compiler-generated scalar deleting destructor of UnitScript, the
@@ -809,8 +714,8 @@ UnitScript* emit_00485e30() { return new UnitScript; }
 // FUNCTION: 0x485e50
 void __stdcall CreateUnitMotion(Unit* unit)
 {
-    unit->motion = new (kSim) UnitMotion(unit);
-    unit->angles.heading = unit->def->buildangle;
+    unit->motion = (int)new (kSim) UnitMotion(unit);
+    unit->angles.heading = ((UnitType*)unit->def)->buildangle;
 }
 
 extern void* g_weaponAimCobVtable[];
@@ -826,7 +731,7 @@ extern void* g_weaponAimCobVtable[];
 // after them, and the new expression at the end, are not: a null unit pointer
 // writes to 0xa6, then to 0, and reads 0x92. Kept as the original has it.
 // FUNCTION: 0x485e90
-void __stdcall InitUnit(int unitType, Pos_00485a40 pos, int param_5, Unit* unit)
+void __stdcall InitUnit(int unitType, Vec3 pos, int param_5, Unit* unit)
 {
     UnitType* type = &g_game->unitDefs[(unsigned short)unitType];
     if (unit) {
@@ -839,8 +744,8 @@ void __stdcall InitUnit(int unitType, Pos_00485a40 pos, int param_5, Unit* unit)
     g_seams.weapons->InitUnitWeaponSlots(unit);
     g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
-        unit->motion = new (kSim) UnitMotion(unit);
-        unit->angles.heading = unit->def->buildangle;
+        unit->motion = (int)new (kSim) UnitMotion(unit);
+        unit->angles.heading = ((UnitType*)unit->def)->buildangle;
     }
 }
 
@@ -859,7 +764,7 @@ void __stdcall AddUnitToMap(Unit* unit);
 void __stdcall SendNewUnit(Unit* unit);
 void __stdcall BroadcastBuilderLink(Unit* a, Unit* b);
 
-static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Pos_00485a40 pos,
+static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Vec3 pos,
                                                int param_5, Unit* unit)
 {
     UnitType* type = &g_game->unitDefs[unitType];
@@ -873,13 +778,13 @@ static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Pos_0048
     g_seams.weapons->InitUnitWeaponSlots(unit);
     g_seams.economy->UpdateMetalExtraction((Unit*)unit);
     if (type->mobile == 1) {
-        unit->motion = new (kSim) UnitMotion(unit);
-        unit->angles.heading = unit->def->buildangle;
+        unit->motion = (int)new (kSim) UnitMotion(unit);
+        unit->angles.heading = ((UnitType*)unit->def)->buildangle;
     }
 }
 
 // FUNCTION: 0x485f50
-Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId, Pos_00485a40 pos,
+Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId, Vec3 pos,
                                       int param_5, int mode, unsigned short id)
 {
     int off = player * 0x14b;
@@ -913,18 +818,18 @@ Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId, Pos_0048
     return 0;
 found:
     InitUnit_00485e90(typeId, pos, param_5, unit);
-    unit->flags.mode = mode;
+    unit->mode = mode;
     UpdateUnitHeight(unit);
     g_seams.map->AddUnitToMap(unit);
     SendNewUnit(unit);
     if (param_5) {
         if (type->mobile == 0)
             BroadcastBuilderLink(unit, unit);
-        if (unit->def->flags.bit18)
+        if (((UnitType*)unit->def)->flags.bit18)
             ((Unit*)unit)->SetStateBits(1, 1);
-        if (unit->def->flags.bit24) {
+        if (((UnitType*)unit->def)->flags.bit24) {
             unit->lastDamageType = 7;
-            unit->flags.bit14 = 1;
+            unit->f110.b14 = 1;
         }
     }
     g_seams.los_radar->RevealNewUnit(unit);
@@ -948,7 +853,7 @@ struct Spawn_004861d0 {                  // 0x11 bytes
     unsigned char player;                // +0x0
     unsigned short type;                 // +0x1
     unsigned short id;                   // +0x3
-    Pos_00485a40 pos;                    // +0x5
+    Vec3 pos;
 };
 #pragma pack(pop)
 
@@ -989,13 +894,13 @@ struct Result_486360 {
 // ids have to stay below a low limit.
 int __stdcall GetGroundHeight(Pos_00485070* pos);
 // Also declared for the symbol count that AllocateUnitMemory needs.
-int __stdcall FindHighestPointOnLine(Pos_00485a40 a, Pos_00485a40 b);
+int __stdcall FindHighestPointOnLine(Vec3 a, Vec3 b);
 void __stdcall EmitSmoke(Pos_00485070* pos, int a, int b, int c);
 
 // FUNCTION: 0x486360
 void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
 {
-    unsigned short id = unit->def->corpse;
+    unsigned short id = ((UnitType*)unit->def)->corpse;
     for (; depth > 1; depth--) {
         if (id >= 0xfffb) {
             return;
@@ -1003,13 +908,13 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
         id = g_game->features[id].next;
     }
     if (id < 0xfffb) {
-        void* target = g_seams.los_radar->GetMapCell(unit->screen.x, unit->screen.y);
+        void* target = g_seams.los_radar->GetMapCell(unit->cell.x, unit->cell.y);
         if (target != 0) {
             Pos_00485070* pos = (Pos_00485070*)&unit->pos;
             if (GetGroundHeight(pos) <= g_game->seaLevel) {
                 Result_486360* r = (Result_486360*)g_seams.features->PlaceFeature((Cell*)target, id, (Vec3*)pos, (Rot16*)&unit->angles, unit->playerIndex);
                 if (r != 0) {
-                    if (!(unit->def->flags.all & 0x1000000)) {
+                    if (!(((UnitType*)unit->def)->flags.all & 0x1000000)) {
                         r->velY = -11468;
                         r->velZ = 0;
                     }
@@ -1028,7 +933,7 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
 // FUNCTION: 0x486460
 int __stdcall IsUnitCommander(Unit* unit)
 {
-    return _strcmpi(g_game->names[unit->player->info->side].name, unit->def->name) == 0;
+    return _strcmpi(g_game->names[unit->player->info->side].name, ((UnitType*)unit->def)->name) == 0;
 }
 
 // A live unit that changed its type (the linked unit name at g_game+0x37f5f
@@ -1061,9 +966,9 @@ void __stdcall KillPlayerUnits(unsigned char player);
 // FUNCTION: 0x4864b0
 void __stdcall KillUnit(Unit* unit, int param_2)
 {
-    if ((unit->flags.all & 0x10000000) != 0) {
+    if ((unit->flags & 0x10000000) != 0) {
         int same = _strcmpi(g_game->names[unit->player->info->side].name,
-                            unit->def->name) == 0;
+                            ((UnitType*)unit->def)->name) == 0;
         if (same) {
             unit->player->flags &= 0xfffe;
         }
@@ -1076,12 +981,12 @@ void __stdcall KillUnit(Unit* unit, int param_2)
             amount = 0;
             flag = 0;
         } else {
-            amount = ((int)(unit->health * -100 / unit->def->maxHealth) + unit->prevHealthPercent) / 2;
+            amount = ((int)(unit->health * -100 / ((UnitType*)unit->def)->maxHealth) + unit->prevHealthPercent) / 2;
             if (amount < 1)
                 amount = 1;
             if (amount > 100)
                 amount = 100;
-            unit->script->QueryScript("Killed", &amount, &flag, 0, 0);
+            ((CobScript*)unit->script)->QueryScript("Killed", &amount, &flag, 0, 0);
         }
         if (unit->buildLeft != 0.0f) {
             flag = 0;
@@ -1138,11 +1043,11 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         unit = 0;
     else
         unit = &g_game->units[cmd->unitId];
-    if ((unit->flags.all & 0x10000000) == 0)
+    if ((unit->flags & 0x10000000) == 0)
         return;
 
     if (unit->player->index == g_game->playerIndex)
-        g_seams.los_radar->AddEyeball((Vec3*)&unit->pos, unit->def->x202, unit->def->x170, 60);
+        g_seams.los_radar->AddEyeball((Vec3*)&unit->pos, ((UnitType*)unit->def)->x202, ((UnitType*)unit->def)->x170, 60);
     Unit* parent;
     if (cmd->attackerUnitId == 0)
         parent = 0;
@@ -1166,7 +1071,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     if ((g_game->mapFlags & 2) == 2)
         g_seams.los_radar->RemoveUnitLineOfSight(unit);
     if (local == 0 && cmd->cobKilledSeverity > 0)
-        unit->script->StartScriptWithArgs(g_killedScriptName, 0, 1, 1, cmd->cobKilledSeverity, 0, 0, 0);
+        ((CobScript*)unit->script)->StartScriptWithArgs(g_killedScriptName, 0, 1, 1, cmd->cobKilledSeverity, 0, 0, 0);
 
     int credited = 0;
     switch (cmd->killType) {
@@ -1180,7 +1085,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
             if (unit->lastAttackerSlot != 10 && unit->buildLeft == 0.0f && unit->playerIndex != unit->lastAttackerSlot)
                 g_game->players[unit->lastAttackerSlot].kills++;
             int same = _strcmpi(g_game->names[unit->player->info->side].name,
-                                unit->def->name) == 0;
+                                ((UnitType*)unit->def)->name) == 0;
             if (same) {
                 if (unit->lastAttackerSlot != 10)
                     g_game->players[unit->lastAttackerSlot].commanderKills++;
@@ -1197,7 +1102,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         if (unit->player != 0 && g_game->players[g_game->localPlayer].shareVision[unit->player->index] == 0) {
             unit->player->losses++;
             int same = _strcmpi(g_game->names[unit->player->info->side].name,
-                                unit->def->name) == 0;
+                                ((UnitType*)unit->def)->name) == 0;
             if (same)
                 unit->player->commanderLosses++;
             credited = 1;
@@ -1263,7 +1168,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         Unit** par = &unit->attacker;
         float health = 1.0f - unit->buildLeft;
         float f = health;
-        f *= unit->def->x18a;
+        f *= ((UnitType*)unit->def)->x18a;
         if ((*par)->resourceSlot.player->active != 0 && (*par)->resourceSlot.player->type == 2) {
             switch (g_game->difficulty) {
             case 0:
@@ -1289,14 +1194,14 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
 
     ClearUnitRefs(unit);
     if (unit->script != 0) {
-        delete unit->script;
+        delete (CobScript*)unit->script;
         unit->script = 0;
     }
     if (unit->state != 0) {
         FreeObjectState(unit->state);
         unit->state = 0;
     }
-    UnitMotion* head = unit->motion;
+    UnitMotion* head = (UnitMotion*)unit->motion;
     if (head != 0) {
         g_seams.orders->DestroyMotionObject(head);
         operator delete(head);
@@ -1304,9 +1209,9 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     }
     unit->unitDefIndex = 0;
     // Keep this order: adjacent clears would fold into one `and`.
-    unit->flags.all &= ~0x10000000;
-    unit->def = g_game->unitDefs;
-    unit->flags.all &= ~0x30;
+    unit->flags &= ~0x10000000;
+    unit->def = (UnitDef*)g_game->unitDefs;
+    unit->flags &= ~0x30;
     unit->player->unitCount--;
     if (unit->player->unitCount == 0) {
         if (g_seams.map->GetGameType(g_game->mapInfo) == 3)
@@ -1359,7 +1264,7 @@ void __stdcall KillPlayerUnits(unsigned char player)
             Unit* last = g_game->players[player].unitsEnd;
             if (u != 0) {
                 for (; u <= last; u++) {
-                    unsigned int flags = u->flags.all;
+                    unsigned int flags = u->flags;
                     if (flags & 0x10000000) {
                         if (!(flags & 0x4000)) {
                             Player* d = u->player;
@@ -1368,7 +1273,7 @@ void __stdcall KillPlayerUnits(unsigned char player)
                                 g_seams.weapons->DamageUnit(u, u, 0x7530, 3, 0);
                             } else {
                                 g_seams.weapons->DetonateUnitWeapon(u, 1);
-                                u->flags.all |= 0x4000;
+                                u->flags |= 0x4000;
                                 g_seams.units->KillUnit(u, 3);
                             }
                         }
@@ -1416,7 +1321,7 @@ int __stdcall FindHighestPointOnLine(Vec3_004851c0 a, Vec3_004851c0 b)
             if (best < v) best = v;
             if (c->unit) {
                 Unit* o = &g_game->units[c->unit];
-                short w = (o->def->modelMaxY + o->pos.y) >> 16;
+                short w = (((UnitType*)o->def)->modelMaxY + o->pos.y) >> 16;
                 if (best < w) best = w;
             }
         }

@@ -18,13 +18,7 @@ struct FlagBits {
     unsigned int e : 12;                // bits 20-31: unit+0x110 bits 14-25
 };
 
-struct Bits10F {
-    unsigned char b0 : 1;
-    unsigned char b1 : 1;
-    unsigned char b2 : 1;
-    unsigned char b3 : 1;
-    unsigned char b4 : 4;
-};
+
 
 #include "../util/vec3.h"
 
@@ -93,69 +87,14 @@ struct SaveRec {                        // 0xb8 bytes, one saved unit
     FlagBits flags;                     // +0xb4
 };
 
-struct Piece {                          // 0x1c bytes at +0x4 + i*0x1c
-    int f0;
-    int unused;
-    int f4;
-    unsigned char* obj;
-    int fc;
-    short f10;
-    short f12;
-    short f14;
-    unsigned char f16;
-    PieceBits fl;                       // +0x1f
-};
+
 
 struct Obj {
     char gap_0[0x10a];
     unsigned char f10a;                 // +0x10a
 };
 
-struct Unit {
-    void* motion;                       // +0x0
-    Piece weapons[3];                   // +0x4
-    int extraction;                       // +0x58
-    void* list;                         // +0x5c
-    void* list2;                        // +0x60
-    Angles16 angles;                  // +0x64
-    Vec3 pos;                           // +0x6a
-    int cell;                       // +0x76
-    int losCacheCellX;                       // +0x7a
-    int footprint;                       // +0x7e
-    char gap_82[4];
-    void* carrier;                      // +0x86
-    char gap_8a[8];
-    void* def;                     // +0x92
-    char gap_96[4];
-    void* script;                     // +0x9a
-    char gap_9e[0xa];
-    unsigned short id;                  // +0xa8
-    char gap_aa[2];
-    int group;                       // +0xac
-    int workTime;                       // +0xb0
-    char gap_b4[4];
-    short killCount;                     // +0xb8
-    short netDirtyFlags;                     // +0xba
-    char resourceSlot[0x34];            // +0xbc
-    Unit* attacker;                     // +0xf0
-    unsigned char lastAttackerSlot;
-    unsigned char lastDamageType;
-    unsigned char healthPercent;
-    unsigned char prevHealthPercent;
-    unsigned char losSightFrameIdx;
-    unsigned char transportPiece;
-    unsigned char recentlyDamagedTimer;
-    char gap_fb[4];
-    unsigned char playerIndex;          // +0xff
-    char gap_100[4];
-    int buildLeft;                      // +0x104
-    short health;                    // +0x108
-    char gap_10a[4];
-    unsigned char activateFlags;
-    union { unsigned char b_10f; Bits10F bf; };
-    unsigned int flags;                 // +0x110
-    char gap_114[4];
-};
+#include "unit.h"
 
 struct Mission;
 
@@ -286,12 +225,12 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
     unit->transportPiece = rec.b8d;
     unit->lastAttackerSlot = rec.b8e;
     unit->extraction = rec.f8f;
-    unit->cell = rec.f93;
-    unit->losCacheCellX = rec.f97;
-    unit->footprint = rec.f9b;
+    *(int*)&unit->cell = rec.f93;
+    unit->losCacheCell = rec.f97;
+    *(int*)&unit->footprint = rec.f9b;
     unit->group = rec.f9f;
     g_seams.ai->SetUnitSquad(unit, rec.f9f);
-    unit->buildLeft = rec.fa7;
+    unit->speed_bits = rec.fa7;
     unit->lastDamageType = rec.bab;
     unit->healthPercent = rec.bac;
     unit->prevHealthPercent = rec.bad;
@@ -300,10 +239,10 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
     unit->recentlyDamagedTimer = rec.bb1;
     unit->activateFlags = rec.bb2;
 
-    unit->bf.b0 = rec.flags.a0;
-    unit->bf.b1 = rec.flags.a1;
-    unit->bf.b2 = rec.flags.a2;
-    unit->bf.b3 = rec.flags.a3;
+    unit->bit0 = rec.flags.a0;
+    unit->bit1 = rec.flags.a1;
+    unit->bit2 = rec.flags.a2;
+    unit->bit3 = rec.flags.a3;
     // Direct merges into unit->flags, no `u` local and no reload.
     unit->flags = (unit->flags & ~0xc) | (rec.flags.b & 0xc);
     unit->flags = (unit->flags & ~0x10) | (rec.flags.b & 0x10);
@@ -324,7 +263,7 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
     unit->flags = (unit->flags & ~0x400000) | ((rec.flags.e << 14) & 0x400000);
     unit->flags = (unit->flags & ~0x3800000) | ((rec.flags.e << 14) & 0x3800000);
 
-    g_seams.economy->LoadUnitAccounts((UnitResources*)&unit->resourceSlot, (UnitInfo*)unit, file);
+    g_seams.economy->LoadUnitAccounts(&unit->resourceSlot, (UnitInfo*)unit, file);
     if (rec.f27 != 0)
         g_seams.orders->LoadMotion((UnitMotion*)unit->motion, 0, unit, file);
 
@@ -353,21 +292,21 @@ Unit* __stdcall LoadUnit(unsigned short id, HapiBank* file)
 
     // Plain array indexing in this field order: it anchors the loop pointer.
     for (int j = 0; j < 3; j++) {
-        unit->weapons[j].f0 = rec.pieces[j].f0;
-        unit->weapons[j].f4 = rec.pieces[j].f4;
-        unit->weapons[j].obj[0x10a] = rec.pieces[j].f8b;
-        unit->weapons[j].fc = rec.pieces[j].fc;
-        unit->weapons[j].f10 = rec.pieces[j].f10;
-        unit->weapons[j].f12 = rec.pieces[j].f12;
-        unit->weapons[j].f14 = rec.pieces[j].f14;
-        unit->weapons[j].f16 = rec.pieces[j].f16;
-        unit->weapons[j].fl.b0 = rec.pieces[j].fl.b0;
-        unit->weapons[j].fl.b1 = rec.pieces[j].fl.b1;
-        unit->weapons[j].fl.b23 = rec.pieces[j].fl.b23;
-        unit->weapons[j].fl.b4 = rec.pieces[j].fl.b4;
+        *(int*)&unit->weapons[j] = rec.pieces[j].f0;
+        unit->weapons[j].aimCob.nAimCobDone = rec.pieces[j].f4;
+        ((unsigned char*)unit->weapons[j].weapon)[0x10a] = rec.pieces[j].f8b;
+        unit->weapons[j].muzzleAimFromDeltaZ = rec.pieces[j].fc;
+        unit->weapons[j].reloadTimer = rec.pieces[j].f10;
+        unit->weapons[j].fireHeading = rec.pieces[j].f12;
+        unit->weapons[j].firePitch = rec.pieces[j].f14;
+        unit->weapons[j].stockpile = rec.pieces[j].f16;
+        ((PieceBits*)&unit->weapons[j].flags)->b0 = rec.pieces[j].fl.b0;
+        ((PieceBits*)&unit->weapons[j].flags)->b1 = rec.pieces[j].fl.b1;
+        ((PieceBits*)&unit->weapons[j].flags)->b23 = rec.pieces[j].fl.b23;
+        ((PieceBits*)&unit->weapons[j].flags)->b4 = rec.pieces[j].fl.b4;
     }
 
-    if (unit->b_10f & 4)
+    if (unit->cobStateFlags & 4)
         g_seams.map->ForceNeighborFootprintReclaim(unit);
     return unit;
     }
@@ -443,14 +382,14 @@ void __stdcall SaveUnits(HapiBank* file)
             }
             rec.childB = id8b;
             // Keep this statement order: it decides the scratch register chains.
-            rec.f93 = unit->cell;
+            rec.f93 = *(int*)&unit->cell;
             rec.b8e = unit->lastAttackerSlot;
             rec.f8f = unit->extraction;
             rec.f9f = unit->group;
-            rec.f97 = unit->losCacheCellX;
-            rec.f9b = unit->footprint;
+            rec.f97 = unit->losCacheCell;
+            rec.f9b = *(int*)&unit->footprint;
             rec.bac = unit->healthPercent;
-            rec.fa7 = unit->buildLeft;
+            rec.fa7 = unit->speed_bits;
             rec.bab = unit->lastDamageType;
             rec.bb0 = unit->losSightFrameIdx;
             rec.bad = unit->prevHealthPercent;
@@ -460,28 +399,28 @@ void __stdcall SaveUnits(HapiBank* file)
             rec.fb2 = unit->activateFlags;
             unsigned int u = unit->flags;
             // Four 1-bit copies: a 4-bit field or `& 0xf` loses the zero extension.
-            rec.flags.a0 = unit->bf.b0;
-            rec.flags.a1 = unit->bf.b1;
-            rec.flags.a2 = unit->bf.b2;
-            rec.flags.a3 = unit->bf.b3;
+            rec.flags.a0 = unit->bit0;
+            rec.flags.a1 = unit->bit1;
+            rec.flags.a2 = unit->bit2;
+            rec.flags.a3 = unit->bit3;
             rec.flags.b = u & 0xfff;
             rec.flags.c = (u >> 13) & 1;
             rec.flags.e = (u >> 14) & 0xfff;
 
             // Plain array indexing in this field order: it anchors the loop pointer.
             for (int k = 0; k < 3; k++) {
-                rec.pieces[k].f0 = unit->weapons[k].f0;
-                rec.pieces[k].f4 = unit->weapons[k].f4;
-                rec.pieces[k].f8 = ((Obj*)unit->weapons[k].obj)->f10a;
-                rec.pieces[k].fc = unit->weapons[k].fc;
-                rec.pieces[k].f10 = unit->weapons[k].f10;
-                rec.pieces[k].f12 = unit->weapons[k].f12;
-                rec.pieces[k].f14 = unit->weapons[k].f14;
-                rec.pieces[k].f16 = unit->weapons[k].f16;
-                rec.pieces[k].fl.b0 = unit->weapons[k].fl.b0;
-                rec.pieces[k].fl.b1 = unit->weapons[k].fl.b1;
-                rec.pieces[k].fl.b23 = unit->weapons[k].fl.b23;
-                rec.pieces[k].fl.b4 = unit->weapons[k].fl.b4;
+                rec.pieces[k].f0 = *(int*)&unit->weapons[k];
+                rec.pieces[k].f4 = unit->weapons[k].aimCob.nAimCobDone;
+                rec.pieces[k].f8 = ((Obj*)unit->weapons[k].weapon)->f10a;
+                rec.pieces[k].fc = unit->weapons[k].muzzleAimFromDeltaZ;
+                rec.pieces[k].f10 = unit->weapons[k].reloadTimer;
+                rec.pieces[k].f12 = unit->weapons[k].fireHeading;
+                rec.pieces[k].f14 = unit->weapons[k].firePitch;
+                rec.pieces[k].f16 = unit->weapons[k].stockpile;
+                rec.pieces[k].fl.b0 = ((PieceBits*)&unit->weapons[k].flags)->b0;
+                rec.pieces[k].fl.b1 = ((PieceBits*)&unit->weapons[k].flags)->b1;
+                rec.pieces[k].fl.b23 = ((PieceBits*)&unit->weapons[k].flags)->b23;
+                rec.pieces[k].fl.b4 = ((PieceBits*)&unit->weapons[k].flags)->b4;
             }
 
             file->OpenNumberedBox(count);

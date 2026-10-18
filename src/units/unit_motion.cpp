@@ -24,18 +24,7 @@ struct UnitType_437840 {
     float windGenerator;               // +0x1d2
 };
 
-struct Unit {
-    char unknown_0[0x58];
-    float extraction;                  // +0x58
-    char unknown_5c[0x76 - 0x5c];
-    Point16_437840 cell;               // +0x76
-    char unknown_7a[0x7e - 0x7a];
-    Point16_437840 footprint;          // +0x7e
-    char unknown_82[0x92 - 0x82];
-    UnitType_437840* def;              // +0x92
-    char unknown_96[0x9a - 0x96];
-    CobScript* script;                 // +0x9a
-};
+#include "unit.h"
 
 struct Game {
     char unknown_0[0x1431f];
@@ -186,10 +175,10 @@ extern Game* g_game;
 // FUNCTION: 0x437840
 void __stdcall UpdateMetalExtraction(Unit* unit)
 {
-    if (unit->def->extractsMetal > 0.0f) {
+    if (((UnitType_437840*)unit->def)->extractsMetal > 0.0f) {
         Fixed_437840 total;
         total.value = 0;
-        Point16_437840 fp = unit->footprint;
+        Point16_437840 fp = *(Point16_437840*)&unit->footprint;
         for (int y = unit->cell.y; y < unit->cell.y + fp.y; y++) {
             for (int x = unit->cell.x; x < unit->cell.x + fp.x; x++) {
                 Cell* c = g_seams.los_radar->GetMapCell(x, y);
@@ -198,9 +187,9 @@ void __stdcall UpdateMetalExtraction(Unit* unit)
                 }
             }
         }
-        unit->extraction = unit->def->extractsMetal * 1.52587890625e-05 * (float)total.value;
+        *(float*)&unit->extraction = ((UnitType_437840*)unit->def)->extractsMetal * 1.52587890625e-05 * (float)total.value;
         if (unit->script)
-            g_seams.units->StartScriptWithArgs(unit->script, "SetSpeed", 0, 0, 1, total.parts.whole, 0, 0, 0);
+            g_seams.units->StartScriptWithArgs((CobScript*)unit->script, "SetSpeed", 0, 0, 1, total.parts.whole, 0, 0, 0);
     }
 }
 
@@ -210,9 +199,9 @@ void __stdcall UpdateMetalExtraction(Unit* unit)
 // FUNCTION: 0x437910
 void __stdcall UpdateWindGenerator(Unit* unit)
 {
-    if (unit->def->windGenerator > 0.0f && g_game->windEnabled) {
-        unit->script->StartScriptWithArgs("SetDirection", 0, 0, 1, g_game->windDirection, 0, 0, 0);
-        unit->script->StartScriptWithArgs("SetSpeed", 0, 0, 1, g_game->windSpeed << 4, 0, 0, 0);
+    if (((UnitType_437840*)unit->def)->windGenerator > 0.0f && g_game->windEnabled) {
+        ((CobScript*)unit->script)->StartScriptWithArgs("SetDirection", 0, 0, 1, g_game->windDirection, 0, 0, 0);
+        ((CobScript*)unit->script)->StartScriptWithArgs("SetSpeed", 0, 0, 1, g_game->windSpeed << 4, 0, 0, 0);
     }
 }
 
