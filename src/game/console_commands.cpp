@@ -490,7 +490,6 @@ void __stdcall SaveGameFile(char* path, char* description, int gameId);
 short __stdcall FindUnitTypeId(char* name);
 void __stdcall KillUnitsOfType(short id);
 void __stdcall ReloadUnitType(unsigned short id);
-extern void ResetAIPlayers();
 extern void ClearCameraFollowState(void);
 void FUN_004161f0();
 void __stdcall WriteScreenshot(char* name, char* description, int x, int y, int w, int h);
@@ -522,7 +521,6 @@ void __stdcall FillPolygon(void* surface, Point_00417f60* points, int count, int
 void __stdcall FillRectangle(void* surface, Rect* rect, int color);
 void __stdcall DrawCellContours(void* surface, Point_00417f60* corners, unsigned char* heights);
 Unit* __stdcall FindNextSelectedUnit(int, int);
-void __stdcall DumpPlayerAI(int player, FILE* file);
 
 // Creates (truncates) memdump.txt and closes it again; the argument is unused.
 // FUNCTION: 0x416240
@@ -1118,7 +1116,7 @@ void __stdcall CmdReload(CommandArgs* args)
 // FUNCTION: 0x4174d0
 void __stdcall CmdReloadAIProfiles(int arg1)
 {
-    ResetAIPlayers();
+    g_seams.ai->ResetAIPlayers();
 }
 
 // FUNCTION: 0x4174e0
@@ -1701,7 +1699,7 @@ void __stdcall CmdPrintWeights(CommandArgs* args)
                 && p->index != 10) {
                 FILE* f = fopen(args->GetArg(2, DAT_005119b8), "w+b");
                 if (f != 0) {
-                    DumpPlayerAI(args->GetIntArg(1, 0), f);
+                    g_seams.ai->DumpPlayerAI(args->GetIntArg(1, 0), f);
                     fclose(f);
                 }
             }

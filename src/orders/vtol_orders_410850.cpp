@@ -85,7 +85,7 @@ static inline Vec3 Offset(short angle, int distance)
 
 // Keeps a declared constructor (never inlined); UnitList below is a separate class.
 class LandingPadList : public std::vector<Unit*> { public: LandingPadList(); };
-void __stdcall GetFactoriesInRadius(int, Vec3*, int, std::vector<Unit*>*);
+#include "../../interfaces/seams.h"
 class UnitList : public std::vector<Unit*> {};
 
 class GroundAllyVisitor {
@@ -99,7 +99,7 @@ void __stdcall VisitObjectsInRange(Vec3*, int, const GroundAllyVisitor&);
 // IsDamaged, FindPads and SearchRange stay small helpers: the vector calls
 // inline or not according to the original.
 static inline int IsDamaged(Unit* u) { return (unsigned int)u->health < (u->def->maxHealth>>2)*3; }
-static inline void FindPads(Unit* u, std::vector<Unit*>* pads) { GetFactoriesInRadius(u->player->index,&u->pos,0xf00,pads); }
+static inline void FindPads(Unit* u, std::vector<Unit*>* pads) { g_seams.ai->GetFactoriesInRadius(u->player->index,&u->pos,0xf00,pads); }
 static inline int SearchRange(Unit* u) { return u->def->range<<16; }
 static inline int Patrol(Unit* unit, Order* order, int flags)
 {

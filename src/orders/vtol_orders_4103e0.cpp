@@ -84,7 +84,6 @@ static inline int Contains(unsigned int* bits, unsigned short index) { return bi
 static inline Vec3 Offset(short angle, int distance) { Vec3 v; v.x=-FUN_004b70ef(angle,distance); v.y=0; v.z=-FUN_004b7123(angle,distance); return v; }
 
 class LandingPadList : public std::vector<Unit*> { public: LandingPadList(); };
-void __stdcall GetFactoriesInRadius(int, Vec3*, int, std::vector<Unit*>*);
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int param_6, int param_7);
 int __stdcall GetOrderName(Unit* obj);
@@ -134,7 +133,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
         if ((unsigned int)unit->health < (unit->def->maxHealth>>2)*3) {
             LandingPadList pads;
-            GetFactoriesInRadius(unit->player->index,&unit->pos,0xf00,&pads);
+            g_seams.ai->GetFactoriesInRadius(unit->player->index,&unit->pos,0xf00,&pads);
             if (!pads.empty()) {
                 order->SetAttachedFx(0);
                 Unit* pad=pads[RandomInt(pads.count())];

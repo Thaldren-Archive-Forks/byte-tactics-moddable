@@ -375,8 +375,6 @@ extern Game* g_game;
 void __stdcall RegisterOrderTypes(void* table, int id);
 void __stdcall AppendOrder(Unit* owner, Order* node);
 int __stdcall RandomInt(int range);
-void __stdcall GetVisibleEnemiesInRadius(int player, Vec3* pos, int radius, int flags,
-                                         std::vector<Unit*>* out);
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, void* flags);
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, const char* text);
 void __stdcall UpdateBuildMenuIfFocusUnit(Unit* unit);
@@ -461,7 +459,7 @@ int __stdcall WaitOrder(Unit* unit, Order* order, int flags)
 {
     if(order->radius) {
         std::vector<Unit*> units;
-        GetVisibleEnemiesInRadius(unit->playerIndex,&unit->pos,order->radius,0,&units);
+        g_seams.ai->GetVisibleEnemiesInRadius(unit->playerIndex,&unit->pos,order->radius,0,&units);
         if(!units.empty()) return 5;
         if(order->wait<=0) return 5;
         int delay=RandomInt(30)+150;
@@ -597,7 +595,7 @@ int __stdcall GuardNoMoveOrder(Unit* unit, Order* order, int flags)
         break;
     case 3: {
         std::vector<Unit*> units;
-        GetVisibleEnemiesInRadius(unit->playerIndex, &order->pos, 0x280, 0, &units);
+        g_seams.ai->GetVisibleEnemiesInRadius(unit->playerIndex, &order->pos, 0x280, 0, &units);
         if (!units.empty()) {
             order->target.SetUnit(units[RandomInt(units.size())]);
             g_seams.targeting->SetWeaponTargetUnit(unit, order->target.owner, 0);

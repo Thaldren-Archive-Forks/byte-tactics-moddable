@@ -52,12 +52,7 @@ public:
     CommandArgs* InitArgs();
 };
 
-// 0x40-byte set (512 bits).
-class UnitTypeSet {
-public:
-    int bits[16];
-    void AddTypeOrCategory(char* text, int* out);
-};
+#include "../units/unit_type_set.h"
 
 struct WeaponDef {                     // 0x115 bytes
     char unknown_0[0x111];
@@ -252,7 +247,6 @@ struct Unit {                          // 0x118 bytes
     };
     char unknown_114[4];
 
-    void SetStateBits(int which, int on);
     int Ready() const;
 };
 
@@ -562,38 +556,25 @@ void __stdcall SetUnitLimits(int player, UnitTypeSet* set, int value, int param_
 int __stdcall IsUnderLimit(int player, unsigned short id, int value);
 typedef void (__stdcall* Command_00406f00)(CommandArgs* args);
 void __stdcall RegisterCommand(const char* name, Command_00406f00 fn, int flags);
-void __stdcall NotifyUnitRefs(Unit*, int);
+#include "../../interfaces/seams.h"
 int __stdcall RandomInt(int);
-void __stdcall DeleteOrders(Unit*, int);
-int __stdcall IssueAttackOrder(Unit*, Unit*, int);
-unsigned int __stdcall GetOrderFlags(Unit*);
 void __stdcall QueueUnitSpeechIfNotVisible(Unit*, int, int);
 void __stdcall SetUnitSquad(Unit* unit, int squad);
 void __stdcall GetBasePosition(int index, Vec3* out);
 unsigned short __stdcall ChooseBuildOption(unsigned int player, Unit* unit);
 int __stdcall GetBuilderCount(unsigned int player);
-MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit, Unit* target, Vec3* pos);
-void __stdcall AddOrder(MissionType kind, int remove, Unit* unit, Unit* target, Vec3* pos, int param_6, int param_7);
-float __stdcall GetNetEnergy(Economy* economy);
 void __stdcall QueueBuildOrder(char* name, Unit* unit, int count);
 int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
 void __stdcall MakeHeap(Elem_0040cc40* first, Elem_0040cc40* last, int*, Elem_0040cc40*);
 void __stdcall PopHeapFirst(Elem_0040cc40* first, Elem_0040cc40* last, Elem_0040cc40* dest,
                             Elem_0040cc40 val, int*);
-int __stdcall CanPlaceUnitFootprint(UnitDef* type, short a, Point16 cell, int b);
-int __stdcall CanBuildAt(UnitDef* type, Point16 cell, int a, int b);
 int GetBuildSiteMetal(void);
 
 void EnableAICommands();
 int __stdcall ExecuteCommandText(char* text, int len, CommandArgs* vars, int param_4);
-void LoadDefaultAIScript();
 int __stdcall GetWeaponRange(Unit*, unsigned char);
 void __stdcall GetVisibleEnemiesInRadius(int player, const Vec* pos, int radius, int flags, std::vector<Unit*>* out);
-float __stdcall GetNetEnergy(Player*);
-float __stdcall GetNetMetal(Player*);
-float __stdcall GetEnergyIncome(Player*);
-float __stdcall GetMetalIncome(Player*);
 int __stdcall IsCountBelowAiLimit(int, unsigned short, int);
 int __stdcall GetBuildRating(unsigned int player, unsigned short id);
 void __stdcall GetBasePosition(int index, Struct_0040ba80* out);
@@ -697,7 +678,7 @@ void __stdcall CmdWeight(CommandArgs* args)
         int count;
         UnitTypeSet set;
         memset(&set, 0, sizeof(set));
-        set.AddTypeOrCategory(args->GetArg(1, DAT_005119b8), &count);
+        g_seams.units->UnitTypeSetAddTypeOrCategory(&set, args->GetArg(1, DAT_005119b8), &count);
         float value = args->GetFloatArg(2, 0);
         // A narrow index, as in 0x406e40: MSVC then counts the loop down in a
         // separate register.
@@ -716,7 +697,7 @@ void __stdcall CmdLimit(CommandArgs* args)
         int count;
         UnitTypeSet set;
         memset(&set, 0, sizeof(set));
-        set.AddTypeOrCategory(args->GetArg(1, DAT_005119b8), &count);
+        g_seams.units->UnitTypeSetAddTypeOrCategory(&set, args->GetArg(1, DAT_005119b8), &count);
         int value = args->GetIntArg(2, 0);
         // A narrow index: MSVC then counts the loop down in a separate
         // register instead of testing the player offset.
@@ -761,16 +742,14 @@ void SquadManager::MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50* obj, int a, in
     }
 }
 
-#include "../../interfaces/seams.h"
-
 // FUNCTION: 0x406f80
 void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
 {
-    NotifyUnitRefs(unit,16);
+    g_seams.units->NotifyUnitRefs(unit,16);
     if (attacker && !attacker->unitDefIndex) attacker=0;
     if ((unit->def->flags2&0x1000) && unit->player->active && unit->player->type==2) {
         unit->player->ai->nextAction=RandomInt(300)+g_game->gameTick+30;
-        DeleteOrders(unit,0);
+        g_seams.orders->DeleteOrders(unit,0);
     }
     if (attacker && unit->player->active && (unit->player->type==1 || unit->player->type==2) &&
         (unit->def->flags1&0x10010000) && unit->buildLeft==Zero_004fc968 && !unit->player->allied[attacker->player->index]) {
@@ -778,7 +757,7 @@ void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
         if ((!unit->list || (unit->list->flags&0x20000)) &&
             !Contains(unit->def->categories,attacker->unitDefIndex) &&
             !Contains(unit->def->weaponCategories[0],attacker->unitDefIndex) && g_seams.weapons->WeaponCanReachUnit(unit,attacker,0))
-            ordered=IssueAttackOrder(unit,attacker,0);
+            ordered=g_seams.orders->IssueAttackOrder(unit,attacker,0);
         if (!ordered && (unit->flags&0x300000)) {
             for (unsigned char i=0;i<3;++i) {
                 UnitWeaponSlot* weapon=&unit->weapons[i];
@@ -791,7 +770,7 @@ void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
             }
         }
     }
-    if (!(GetOrderFlags(unit)&0x80) && (unit->lastAttackerSlot!=unit->playerIndex || unit->lastDamageType==1))
+    if (!(g_seams.orders->GetOrderFlags(unit)&0x80) && (unit->lastAttackerSlot!=unit->playerIndex || unit->lastDamageType==1))
         QueueUnitSpeechIfNotVisible(unit,2,0);
 }
 
@@ -1147,11 +1126,11 @@ void __stdcall UpdateConverter(Unit* unit)
 {
     Economy* economy = unit->economy;
     if (economy->cost + economy->cost < economy->energy) {
-        if (GetNetEnergy(economy) > Zero_004fc968 && RandomInt(5) != 0) {
-            unit->SetStateBits(1, 1);
+        if (g_seams.players->GetNetEnergy((Player*)economy) > Zero_004fc968 && RandomInt(5) != 0) {
+            g_seams.units->SetStateBits(unit, 1, 1);
         }
     } else {
-        unit->SetStateBits(1, 0);
+        g_seams.units->SetStateBits(unit, 1, 0);
     }
 }
 
@@ -1167,10 +1146,10 @@ void BuildTimer::OnTimer()
         if ((u->flags & 0x20000000) && (u->flags & 0x10000000) && !(u->flags & 0x4000)) {
             if (u->def->makesMetal) {
                 if (u->economy->cost + u->economy->cost < u->economy->energy) {
-                    if (GetNetEnergy(u->economy) > Zero_004fc968 && RandomInt(5))
-                        u->SetStateBits(1, 1);
+                    if (g_seams.players->GetNetEnergy((Player*)u->economy) > Zero_004fc968 && RandomInt(5))
+                        g_seams.units->SetStateBits(u, 1, 1);
                 } else
-                    u->SetStateBits(1, 0);
+                    g_seams.units->SetStateBits(u, 1, 0);
             } else if (u->def->count && !u->list) {
                 unsigned short id = ChooseBuildOption(player, u);
                 if (id)
@@ -1546,7 +1525,7 @@ void ResetAIPlayers()
             g_playerAI[i]->InitUnitTables();
         }
     }
-    LoadDefaultAIScript();
+    g_seams.players->LoadDefaultAIScript();
 }
 
 // Initialises the two placement-grid blocks of the object: spacing0/offset0
@@ -1598,7 +1577,7 @@ bool PlayerAI::FindCellNearFeatures(UnitDef* type, Vec3* pos, std::vector<Elem_0
         int d = DistSq(cell, center);
         if (limit >= 0 && d > limit + 160)
             break;
-        if (CanBuildAt(type, cell, 0, 0) && GetBuildSiteMetal() > best) {
+        if (g_seams.map->CanBuildAt(type, cell, 0, 0) && GetBuildSiteMetal() > best) {
             result = cell;
             best = GetBuildSiteMetal();
             if (limit == -1)
@@ -1642,7 +1621,7 @@ bool PlayerAI::FindRandomPlacementCell(UnitDef* type, Vec3* pos, int range, Poin
         Point16 cell = WorldToCell(v, *(Point16*)&type->f14a);
         cell.x = cell.x / spacing.x * spacing.x + offset.x + RandomInt(spacing.x - margin - type->footprintx);
         cell.y = cell.y / spacing.y * spacing.y + offset.y + RandomInt(spacing.y - margin - type->footprintz);
-        if (CanPlaceUnitFootprint(type, 0, cell, 1) && GetBuildSiteMetal() <= threshold) {
+        if (g_seams.map->CanPlaceUnitFootprint(type, 0, cell, 1) && GetBuildSiteMetal() <= threshold) {
             if (out)
                 *out = cell;
             return true;
@@ -1857,17 +1836,17 @@ int __stdcall GetBuildRating(int player,unsigned short type)
     Player* p=&g_game->players[player];
     if(p->energy<50.0f) return 0;
     if(p->metal<25.0f) return 0;
-    if(g_game->mapInfo->GetGameType()==1 && (g_game->unitDefs[type].flags1&0x20)) return 0;
+    if(g_seams.map->GetGameType(g_game->mapInfo)==1 && (g_game->unitDefs[type].flags1&0x20)) return 0;
     int energyCap=min(1000,(int)p->energyCapacity);
     int metalCap=min(500,(int)p->metalCapacity);
     int energy=(int)Max(0.0f,(energyCap-p->energy)*0.125f);
     int metal=(int)Max(0.0f,(metalCap-p->metal)*0.25f);
-    if(GetNetEnergy(p)<1.0f) energy+=20;
-    if(GetNetMetal(p)<1.0f) metal+=20;
-    if(GetEnergyIncome(p)<50.0f) energy+=100;
-    else if(GetEnergyIncome(p)<200.0f) energy+=10;
-    if(GetMetalIncome(p)<3.0f) metal+=100;
-    else if(GetMetalIncome(p)<5.0f) metal+=20;
+    if(g_seams.players->GetNetEnergy(p)<1.0f) energy+=20;
+    if(g_seams.players->GetNetMetal(p)<1.0f) metal+=20;
+    if(g_seams.players->GetEnergyIncome(p)<50.0f) energy+=100;
+    else if(g_seams.players->GetEnergyIncome(p)<200.0f) energy+=10;
+    if(g_seams.players->GetMetalIncome(p)<3.0f) metal+=100;
+    else if(g_seams.players->GetMetalIncome(p)<5.0f) metal+=20;
     int metal2=min(max(metal,0),100);
     int energy2=min(max(energy-metal2,0),100);
     int normal=max(100-metal2-energy2,0);
@@ -1972,8 +1951,8 @@ void __stdcall DumpPlayerAI(int player, FILE* file)
     default: strcpy(buffer,"INVALID"); break;
     }
     fprintf(file,"controller: %s\r\n",buffer);
-    fprintf(file,"terrain:    '%s'\r\n",g_game->mapInfo->GetNameSlot(1));
-    fprintf(file,"profile:    '%s'\r\n",g_game->mapInfo->GetNameSlot(7));
+    fprintf(file,"terrain:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->mapInfo,1));
+    fprintf(file,"profile:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->mapInfo,7));
     const char* difficulties[]={"EASY","MEDIUM","HARD"};
     fprintf(file,"difficulty: '%s'\r\n",difficulties[g_game->difficulty]);
     fprintf(file,"================================================\r\n");

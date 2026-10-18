@@ -464,7 +464,6 @@ int __stdcall GetGroundHeight(Vec3*);
 int __stdcall CanPlaceFootprintAt(Unit*, Vec3*);
 void __stdcall AttachUnitToPiece(Unit*, Unit*, int, int);
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
-void __stdcall GetFactoriesInRadius(int, Vec3*, int, std::vector<Unit*>*);
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
 int __stdcall IssueRepairOrder(Unit*, Unit*, int);
 void __stdcall AppendOrder(Unit*, Order*);
@@ -907,7 +906,7 @@ class UnitList : public std::vector<Unit*> {};
 
 static inline void FindPads(Unit* u, std::vector<Unit*>* pads)
 {
-    GetFactoriesInRadius(u->player->index,&u->pos,0xf00,pads);
+    g_seams.ai->GetFactoriesInRadius(u->player->index,&u->pos,0xf00,pads);
 }
 
 static inline int SearchRange(Unit* u)
@@ -1308,7 +1307,7 @@ static inline int Land(Unit* unit, Order* order)
 {
     if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
         std::vector<Unit*> pads;
-        GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &pads);
+        g_seams.ai->GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &pads);
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad = pads[RandomInt(pads.size())];
@@ -1476,7 +1475,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         order->flags = 0x100e8;
         if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
             std::vector<Unit*> v;
-            GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &v);
+            g_seams.ai->GetFactoriesInRadius(unit->player->index, &unit->pos, 0xf00, &v);
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];
