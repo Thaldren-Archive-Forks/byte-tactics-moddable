@@ -297,6 +297,7 @@ void EnterMainMenuState();
 void __stdcall EnableKeyCommands(Gui* p);
 void RefreshUnitInfo();
 void RunFrontendStateMachine();
+void HarnessStartSkirmish();
 void HideSoftwareCursor();
 void PreBattleFrame();
 void CampaignSetupFrame();
@@ -442,6 +443,7 @@ void ReturnToMainMenuFrame()
 void MenuFrame()
 {
     RefreshUnitInfo();
+    HarnessStartSkirmish();
     RunFrontendStateMachine();
     if (g_game->bit2 && g_game->mapInfo->GetGameType() == 1) {
         HideSoftwareCursor();

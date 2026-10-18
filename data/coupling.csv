@@ -353,6 +353,7 @@ game,harness,call,HarnessCrtSeed,2
 game,harness,call,HarnessGameSeed,1
 game,harness,call,HarnessInit,1
 game,harness,call,HarnessPhase,1
+game,harness,call,HarnessStartSkirmish,1
 game,harness,call,HarnessTestMode,1
 game,harness,shared_write,Game::difficulty,1
 game,harness,shared_write,Game::localPlayer,1
@@ -2505,7 +2506,6 @@ presentation,game,shared_write,Ref_004b8b30::value,1
 presentation,game,shared_write,Vec3::x,2
 presentation,game,shared_write,Vec3::z,2
 presentation,game,shared_write,g_game,115
-presentation,harness,call,HarnessStartSkirmish,1
 presentation,harness,call,HarnessViewRand,19
 presentation,harness,shared_write,Game::difficulty,1
 presentation,harness,shared_write,g_explodedPieces,1

@@ -226,8 +226,7 @@ struct Game {
 };
 
 // The game's movement classes: 0x20-byte entries in a 32-entry table.
-class MovementClass {
-public:
+struct MovementClass {
     int* name;                         // +0x0
     short footprintX;                  // +0x4
     short footprintZ;                  // +0x6
@@ -383,8 +382,8 @@ int __stdcall GetObjectHeight(void* obj);
 void* __stdcall LoadCobScript(char* path);
 void __stdcall StripExtension(char* text);
 void __stdcall BindModelTextures(void* obj, char* name);
-short __stdcall FindOrLoadFeatureType(char* name);
-void* __stdcall FindMovementClass(char* name);
+unsigned short __stdcall FindOrLoadFeatureType(char* name);
+MovementClass* __stdcall FindMovementClass(char* name);
 char* __stdcall FindWeaponByName(char* name);
 void LoadUnitInfo();
 

@@ -74,7 +74,7 @@ import capstone
 from check import ROOT
 from linkcheck import IMPORT_LIBS, LIBDIR, address_of, archive_symbols, read_object
 from place import (CODE, COPIED, DATASRC, FUNCTIONS, GAPCODE, GLOBALDATA, GLOBALS, LIBCODE, LIBDATA,
-                   OBJDATA, PROGRESS, REL_DIR32, REL_REL32, Image, Obj, Placer, Sec, layout, load_rows,
+                   OBJDATA, PROGRESS, REL_DIR32, REL_REL32, Image, Obj, Placer, Sec, Sym, layout, load_rows,
                    undecorate)
 
 OUT = ROOT / "build/link"
@@ -713,6 +713,184 @@ def find_copies(img: Image, placer: Placer) -> list[tuple[Copy, object]]:
     return out
 
 
+def original_refs(code: bytes, va: int, lo_img: int, hi_img: int) -> list[tuple[int, str]]:
+    """(offset, kind) of each place the original's code refers to something
+    outside itself, in order: "rel" for the rel32 field of a call, jmp or jcc
+    that leaves [va + 1, va + len(code)), "abs" for a 32-bit immediate or
+    displacement that holds an address in [lo_img, hi_img)."""
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    md.detail = True
+    out: list[tuple[int, str]] = []
+    pos = 0
+    while pos < len(code):
+        ins = next(md.disasm(code[pos:], va + pos, 1), None)
+        if ins is None:
+            pos += 1
+            continue
+        b = bytes(ins.bytes)
+        rel = 1 if b[0] in (0xE8, 0xE9) and ins.size == 5 else (
+            2 if b[0] == 0x0F and 0x80 <= b[1] <= 0x8F and ins.size == 6 else None)
+        if rel is not None:
+            target = (ins.address + ins.size + struct.unpack_from("<i", b, rel)[0]) & 0xFFFFFFFF
+            if not va < target < va + len(code):
+                out.append((pos + rel, "rel"))
+        else:
+            for off, width in sorted(((ins.imm_offset, ins.imm_size), (ins.disp_offset, ins.disp_size))):
+                if width == 4 and lo_img <= struct.unpack_from("<I", b, off)[0] < hi_img:
+                    out.append((pos + off, "abs"))
+        pos += ins.size
+    return out
+
+
+def jump_table_start(sec: Sec, lo: int, hi: int, obj: Obj) -> int:
+    """Where a switch's table of code addresses begins in a piece: the first
+    of a run of relocations against the piece's own section, four bytes
+    apart. hi if there is none."""
+    own = sorted(off for off, symidx, rtype in sec.relocs
+                 if rtype == REL_DIR32 and lo <= off <= hi - 4 and obj.syms[symidx].section == sec.index)
+    for a, b in zip(own, own[1:]):
+        if b == a + 4:
+            return a
+    return hi
+
+
+def reference_problem(refs: list[tuple[int, str]], relocs: list[tuple[int, str]], off: int
+                      ) -> tuple[str, int | None] | None:
+    """Whether the relocation at offset off of a piece is a reference of the
+    original's code too. refs are the original's (original_refs), relocs the
+    object's, both as (offset, "rel" or "abs") and relative to the start of
+    the function. The relocation, and every reference before
+    it, must be at the same offset and of the same kind as the original's
+    reference of the same index.
+    Returns (what is wrong, the original's offset at that index) or None."""
+    kind = dict(relocs)[off]
+    k = relocs.index((off, kind))
+    for i in range(k + 1):
+        theirs = refs[i] if i < len(refs) else None
+        if theirs is None:
+            return f"the object's reference number {i + 1} has no counterpart in the original's code", None
+        if theirs[0] != relocs[i][0]:
+            return (f"reference number {i + 1} is at {relocs[i][0]:#x} in the object, "
+                    f"{theirs[0]:#x} in the original's code"), theirs[0]
+        if theirs[1] != relocs[i][1]:
+            return (f"reference number {i + 1} is {relocs[i][1]} in the object, "
+                    f"{theirs[1]} in the original's code"), theirs[0]
+    return None
+
+
+def target_problem(rtype: int, name: str, target: int, text: tuple[int, int], slots: set[int]) -> str | None:
+    """Whether what the original points at is the kind of thing name stands
+    for: a function (a rel32 branch, or a data-less name's address), an
+    import slot (a name `__imp_`), or data (a variable)."""
+    in_text = text[0] <= target < text[0] + text[1]
+    if name.startswith("__imp_"):
+        return None if target in slots else "an import slot, but the original's is not one"
+    if rtype == REL_REL32:
+        return None if in_text else "a function, but the original's target is not in .text"
+    if target in slots:
+        return "not an import, but the original points at an import slot"
+    if name.startswith("?") and "@@3" in name and in_text:
+        return "a variable, but the original's target is in .text"
+    return None
+
+
+class Positional:
+    """Checks every reference a name no object defines gets its meaning from
+    (see the module docstring) before the link relies on it: the original's
+    code must have a reference of the same kind at that place, to the same
+    kind of thing. A function whose references moved (a call inserted at its
+    top) would be bound to whatever the original holds at the old offsets."""
+
+    def __init__(self, img: Image, namer: Namer):
+        self.img = img
+        self.text = namer.sections[".text"]
+        self.slots = set(img.imports().values())
+        self.absolutes = namer.placer.absolutes
+        self.cache: dict = {}
+        self.problems: dict[tuple, str] = {}
+
+    def function(self, obj: Obj, sec: Sec, lo: int, hi: int, va: int) -> tuple:
+        key = (id(obj), sec.index, lo, hi, va)
+        if key not in self.cache:
+            end = jump_table_start(sec, lo, hi, obj)
+            kinds = {REL_DIR32: "abs", REL_REL32: "rel"}
+            relocs = sorted((off - lo, kinds[rtype]) for off, symidx, rtype in sec.relocs
+                            if rtype in kinds and lo <= off <= end - 4 and obj.syms[symidx].section >= 0
+                            and obj.syms[symidx].name not in self.absolutes)
+            code = bytes(self.img.pristine[va - self.img.base: va - self.img.base + end - lo])
+            refs = original_refs(code, va, self.img.base + 0x1000, self.img.base + self.img.size)
+            self.cache[key] = (refs, relocs)
+        return self.cache[key]
+
+    def problem(self, label: str, obj: Obj, sec: Sec, lo: int, hi: int, va: int, off: int,
+                rtype: int, sym: Sym, target: int) -> str | None:
+        """What is wrong with using the original's code at off (the field of a
+        relocation against sym, which the original points at target) as the
+        meaning of sym, or None if it passes. A site the check does not cover
+        (past the jump table) fails too."""
+        refs, relocs = self.function(obj, sec, lo, hi, va)
+        at = dict(relocs)
+        if off - lo not in at:
+            return (f"  {label} at {va:#x} in {obj.path.name}: {sym.name} is referenced at offset {off - lo:#x}"
+                    ", past the function's jump table or where no reference is checked")
+        found = reference_problem(refs, relocs, off - lo)
+        if found is None:
+            wrong = target_problem(rtype, sym.name, target, self.text, self.slots)
+            if wrong is None:
+                return None
+            k = relocs.index((off - lo, at[off - lo]))
+            found = (f"the name stands for {wrong}", refs[k][0])
+        what, theirs = found
+        return (f"  {label} at {va:#x} in {obj.path.name}: {sym.name} is referenced at offset {off - lo:#x}"
+                f" (the original's code: {'none' if theirs is None else hex(theirs)}): {what}")
+
+    def prune_votes(self, placer: Placer, copies: list) -> dict[str, list[str]]:
+        """Take out of placer.ref_targets the votes of the sites that are no
+        reference of the original's (a changed function's shifted ones), where
+        another site of the name gives it its meaning. Returns the names that
+        have no such site: their votes stay, and carve() rejects the name if
+        it binds one."""
+        good: Counter = Counter()
+        bad: dict[str, list] = defaultdict(list)
+        for obj, sec, lo, hi, va, label in code_work(placer, copies):
+            for off, symidx, rtype in sec.relocs:
+                sym = obj.syms[symidx]
+                if (rtype not in (REL_DIR32, REL_REL32) or not lo <= off <= hi - 4
+                        or not (sym.sclass == IMAGE_SYM_CLASS_EXTERNAL or sym.section == 0)
+                        or sym.section < 0 or sym.name in self.absolutes):
+                    continue
+                target = site_targets(self.img, sec, off, rtype, va + off - lo)
+                found = self.problem(label, obj, sec, lo, hi, va, off, rtype, sym, target)
+                if found:
+                    bad[sym.name].append((target, found))
+                else:
+                    good[sym.name] += 1
+        for name, sites in bad.items():
+            if good[name]:
+                for target, _ in sites:
+                    votes = placer.ref_targets[name]
+                    votes[target] -= 1
+                    if votes[target] <= 0:
+                        del votes[target]
+                if name in placer.learned and placer.ref_targets[name]:
+                    placer.learned[name] = placer.ref_targets[name].most_common(1)[0][0]
+        return {name: [found for _, found in sites] for name, sites in bad.items() if not good[name]}
+
+    def reject(self, *site) -> None:
+        """Record a failure if the site is not a reference of the original's."""
+        found = self.problem(*site)
+        if found:
+            self.problems[found] = found + " [the original's code is where it points a file's own static or function]"
+
+    def fail(self) -> None:
+        if self.problems:
+            lines = sorted(self.problems.values())
+            raise SystemExit(
+                f"carve: {len(lines):,} reference(s) would bind to what the original holds at their "
+                "offset, where the original's code has no such reference. Define the name (a declaration "
+                "that binds to a defined symbol) or move the change out of placed code:\n" + "\n".join(lines))
+
+
 def site_targets(img: Image, sec: Sec, off: int, rtype: int, site: int) -> int:
     """The address the original's field at site points at, with sec's addend
     at off taken out."""
@@ -721,8 +899,17 @@ def site_targets(img: Image, sec: Sec, off: int, rtype: int, site: int) -> int:
     return ((theirs - ours) if rtype == REL_DIR32 else (site + 4 + theirs - ours)) & 0xFFFFFFFF
 
 
-def retargets(img: Image, placer: Placer, namer: Namer,
-              copies: list) -> dict[str, list[tuple[int, int, str, int]]]:
+def code_work(placer: Placer, copies: list) -> list[tuple]:
+    """(object, section, lo, hi, address of lo, label) of each placed function
+    and of each identical copy of one."""
+    work = [(p.obj, p.sec, p.lo, p.hi, p.va, p.label) for p in placer.pieces
+            if p.source in (CODE, GAPCODE) and not p.obj.library]
+    work += [(c.obj, c.sec, 0, c.size, piece.va - piece.lo, f"copy of {piece.label}") for c, piece in copies]
+    return work
+
+
+def retargets(img: Image, placer: Placer, namer: Namer, copies: list,
+              guard: "Positional | None" = None) -> dict[str, list[tuple[int, int, str, int]]]:
     """Object file name -> [(section, relocation offset, symbol, addend)]: the
     references of placed functions (and of byte-identical copies of them) to
     file statics and to other functions of their own file, pointed where the
@@ -738,10 +925,7 @@ def retargets(img: Image, placer: Placer, namer: Namer,
     out: dict[str, list] = defaultdict(list)
     data_lo = namer.sections[".rdata"][0]
     data_hi = namer.sections[".data"][0] + namer.sections[".data"][1]
-    work = [(p.obj, p.sec, p.lo, p.hi, p.va) for p in placer.pieces
-            if p.source in (CODE, GAPCODE) and not p.obj.library]
-    work += [(c.obj, c.sec, 0, c.size, piece.va - piece.lo) for c, piece in copies]
-    for obj, sec, lo, hi, va in work:
+    for obj, sec, lo, hi, va, label in code_work(placer, copies):
         for off, symidx, rtype in sec.relocs:
             if rtype not in (REL_DIR32, REL_REL32) or not lo <= off <= hi - 4:
                 continue
@@ -758,6 +942,8 @@ def retargets(img: Image, placer: Placer, namer: Namer,
                 named = namer.name(target, f"call to {sym.name}")
                 if named:
                     out[obj.path.name].append((sec.index, off, named[0], ours + named[1]))
+                    if guard:
+                        guard.reject(label, obj, sec, lo, hi, va, off, rtype, sym, target)
             elif (sym.sclass == IMAGE_SYM_CLASS_STATIC and rtype == REL_DIR32
                   and target_sec.chars & SCN_MEM_WRITE and data_lo <= img.u32(site) < data_hi):
                 at = sym.value + (ours if sym.name.startswith(".") else 0)
@@ -767,6 +953,8 @@ def retargets(img: Image, placer: Placer, namer: Namer,
                 named = namer.name(img.u32(site), f"static {sym.name}")
                 if named:
                     out[obj.path.name].append((sec.index, off, named[0], named[1]))
+                    if guard:
+                        guard.reject(label, obj, sec, lo, hi, va, off, rtype, sym, img.u32(site))
     return out
 
 
@@ -878,6 +1066,8 @@ def carve(objects: list[Path], verbose: bool = False) -> Carved:
                 site = piece.va + off - piece.lo
                 placer.ref_targets[sym.name][site_targets(img, copy.sec, off, rtype, site)] += 1
     defined_names = {n for info in infos for n in info.defs}
+    guard = Positional(img, namer)
+    unsupported = guard.prune_votes(placer, copies)
     # Data names no object defines that no placed code uses (an unplaced
     # copy's): what their address holds in the layout.
     data_refs = {n for info in infos for n, is_func in info.refs.items() if not is_func}
@@ -914,10 +1104,15 @@ def carve(objects: list[Path], verbose: bool = False) -> Carved:
                 inner[name] = named              # a field or an entry of a global
         data_names = carve_data(img, placer, namer, {t for t in truth.values() if isinstance(t, int)},
                                 OUT / "origdata.obj")
-        moved = retargets(img, placer, namer, copies)
+        moved = retargets(img, placer, namer, copies, guard)
         if not namer.wanted:
             break
         runs = kept_runs(img, placer, namer.wanted, runs)
+    bound = set(truth) | set(inner) | {n for n, t in placer.learned.items()
+                                       if any(a <= t < a + size for a, size in namer.gaps)}
+    for name in bound & set(unsupported):
+        guard.problems[name] = unsupported[name][0] + " [no other use of the name lines up]"
+    guard.fail()
     aliases = {n: (t[0] if isinstance(t, tuple) else data_names[t]) for n, t in truth.items()
                if isinstance(t, tuple) or t in data_names}
     # One definition of each global: the others become statics nothing uses,

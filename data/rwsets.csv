@@ -7249,7 +7249,6 @@ address,function,file,kind,target
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,GetServiceProviderIndex
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,HAPINET_guaranteepackets
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,HAPINET_quitgame
-0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,HarnessStartSkirmish
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,HideSoftwareCursor
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,InitLobbiedConnection
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,InitPacketManager
@@ -28789,6 +28788,7 @@ address,function,file,kind,target
 0x496b10,ReturnToMainMenuFrame,src/game/main_loop.cpp,function,
 0x496b10,ReturnToMainMenuFrame,src/game/main_loop.cpp,global_read,g_game
 0x496bb0,MenuFrame,src/game/main_loop.cpp,call,BlitMenuLayers
+0x496bb0,MenuFrame,src/game/main_loop.cpp,call,HarnessStartSkirmish
 0x496bb0,MenuFrame,src/game/main_loop.cpp,call,HideSoftwareCursor
 0x496bb0,MenuFrame,src/game/main_loop.cpp,call,Mission::GetGameType
 0x496bb0,MenuFrame,src/game/main_loop.cpp,call,RefreshUnitInfo

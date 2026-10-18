@@ -309,7 +309,7 @@ void __stdcall AddNetPlayer(int param);
 void __stdcall QuitApp(int param);
 void __stdcall HAPINET_guaranteepackets(int param);
 void __stdcall HAPINET_quitgame(int param);
-void __stdcall InitPacketManager(int param1, int param2);
+int __stdcall InitPacketManager(int param1, int param2);
 void __stdcall OpenMainMenu(void);
 void __stdcall SaveSettings(void);
 int __stdcall InitLobbiedConnection(void);
@@ -1079,14 +1079,11 @@ static int UseServiceCalls(void)
     return 0;
 }
 
-void HarnessStartSkirmish();
-
 // The front-end state machine of frontend.cpp (line numbers in the
 // CheckFrontendStateChange calls are the original __LINE__ values).
 // FUNCTION: 0x426e80
 void RunFrontendStateMachine(void)
 {
-    HarnessStartSkirmish();
     UpdateSubState();
 
     switch ((unsigned char)g_game->frontendMenuState) {
