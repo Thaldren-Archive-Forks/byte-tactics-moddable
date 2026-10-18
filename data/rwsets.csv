@@ -8995,18 +8995,21 @@ address,function,file,kind,target
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,LoadFeatures
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,LoadMappingData
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,LoadMetalPlotmap
-0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,LoadMeteors
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,LoadPlayerFeaturesPlotmap
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,LoadPlayers
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,LoadUnits
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,MissionConditions::LoadConditions
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,call,ReadCameraPosition
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,field_read,Game::victoryConditions
+0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,field_read,Seams::wind_meteors
+0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,field_read,WindMeteorsSeam::LoadMeteors
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,field_write,Game::loaded
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,field_write,Game::unitLimitIni
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,function,
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,global_read,g_game
+0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,global_read,g_seams
 0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,global_read,g_summaryAccountName
+0x432610,LoadSavedGameState,src/game/settings_campaign.cpp,indirect_call,indirect via void (*)(HapiBank *) __attribute__((stdcall)) [WindMeteorsSeam::LoadMeteors]
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,HapiBank::CloseBank
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,HapiBank::InitBank
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,HapiBank::NewBank
@@ -9024,7 +9027,6 @@ address,function,file,kind,target
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,SaveFeatures
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,SaveMappingData
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,SaveMetalPlotmap
-0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,SaveMeteors
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,SavePlayerFeaturesPlotmap
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,SavePlayers
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,call,SaveSurface
@@ -9052,6 +9054,8 @@ address,function,file,kind,target
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,field_read,Options_004326b0::mapping
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,field_read,PlayerEntry_004326b0::info
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,field_read,PlayerInfo::side
+0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,field_read,Seams::wind_meteors
+0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,field_read,WindMeteorsSeam::SaveMeteors
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,function,
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,global_escape,g_betweenMissionsKey
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,global_escape,g_buildDateFormat
@@ -9076,7 +9080,9 @@ address,function,file,kind,target
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,global_maybe_written,g_radarImageBoxName
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,global_read,g_game
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,global_read,g_saveBankName
+0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,global_read,g_seams
 0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,global_read,g_summaryAccountName
+0x4326b0,SaveGameFile,src/game/settings_campaign.cpp,indirect_call,indirect via void (*)(HapiBank *) __attribute__((stdcall)) [WindMeteorsSeam::SaveMeteors]
 0x432a80,LoadCampaignRegistryName,src/game/settings_campaign.cpp,call,ReadRegistryData
 0x432a80,LoadCampaignRegistryName,src/game/settings_campaign.cpp,call,memset
 0x432a80,LoadCampaignRegistryName,src/game/settings_campaign.cpp,call,strcpy
@@ -9445,13 +9451,10 @@ address,function,file,kind,target
 0x435d30,Mission::RefreshMapList,src/map/map_list.cpp,field_write,Mission::multi
 0x435d30,Mission::RefreshMapList,src/map/map_list.cpp,function,
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,BuildDataPath
-0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,DisableMeteors
-0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,EnableMeteors
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,FindTranslation
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,GameFreeThunk
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,GetFloat
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,GetLocalizedString
-0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,MeteorParams::LoadMeteorDefaults
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,Mission::BuildCampaignFilePath
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,Mission::GetNameSlot
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,Mission::LoadBriefing
@@ -9460,7 +9463,6 @@ address,function,file,kind,target
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,MissionConditions::RegisterConditions
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,MissionConditions::~MissionConditions
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,OpenMessageBox
-0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,SetMeteorParams
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,ShowErrorBox
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfFile::LoadFile
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,call,TdfFile::ResetCurrentRecord
@@ -9499,7 +9501,12 @@ address,function,file,kind,target
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,Mission::rules
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,Mission::type
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,Mission::units
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,Seams::wind_meteors
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,TdfFile::current
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,WindMeteorsSeam::DisableMeteors
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,WindMeteorsSeam::EnableMeteors
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,WindMeteorsSeam::LoadMeteorDefaults
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_read,WindMeteorsSeam::SetMeteorParams
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_write,Game::lineOfSight
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_write,Game::mapping
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,field_write,Game::maxUnits
@@ -9538,6 +9545,11 @@ address,function,file,kind,target
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,function,
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,global_maybe_written,DAT_005119b8
 0x435da0,Mission::LoadMission,src/map/map_list.cpp,global_read,g_game
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,global_read,g_seams
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::DisableMeteors]
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::EnableMeteors]
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,indirect_call,indirect via void (*)(MeteorParams *) __attribute__((fastcall)) [WindMeteorsSeam::LoadMeteorDefaults]
+0x435da0,Mission::LoadMission,src/map/map_list.cpp,indirect_call,indirect via void (*)(MeteorParams *) __attribute__((stdcall)) [WindMeteorsSeam::SetMeteorParams]
 0x436860,Mission::SelectSchema,src/map/map_list.cpp,call,FatalError
 0x436860,Mission::SelectSchema,src/map/map_list.cpp,call,TdfFile::ResetCurrentRecord
 0x436860,Mission::SelectSchema,src/map/map_list.cpp,call,TdfFile::SelectRecord
@@ -9780,16 +9792,19 @@ address,function,file,kind,target
 0x437c90,CMemoryCache::ReleaseHandle,src/units/unit_motion.cpp,field_read,Chunk_00437a30::size
 0x437c90,CMemoryCache::ReleaseHandle,src/units/unit_motion.cpp,field_write,Chunk_00437a30::owner
 0x437c90,CMemoryCache::ReleaseHandle,src/units/unit_motion.cpp,function,
-0x437cd0,InitMeteors,src/map/meteors.cpp,call,FindWeaponByName
 0x437cd0,InitMeteors,src/map/meteors.cpp,field_read,<anon>::meteor
+0x437cd0,InitMeteors,src/map/meteors.cpp,field_read,Seams::weapons
+0x437cd0,InitMeteors,src/map/meteors.cpp,field_read,WeaponsSeam::FindWeaponByName
 0x437cd0,InitMeteors,src/map/meteors.cpp,function,
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_maybe_written,g_meteorWeaponName
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_read,g_game
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_read,g_meteorSpawnInterval
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_read,g_meteorWeapon
+0x437cd0,InitMeteors,src/map/meteors.cpp,global_read,g_seams
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_write,g_meteorActive
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_write,g_meteorNextStrikeTime
 0x437cd0,InitMeteors,src/map/meteors.cpp,global_write,g_meteorWeapon
+0x437cd0,InitMeteors,src/map/meteors.cpp,indirect_call,indirect via char *(*)(char *) __attribute__((stdcall)) [WeaponsSeam::FindWeaponByName]
 0x437d30,EmptyShutdownPreCleanup,src/map/meteors.cpp,function,
 0x437d40,EnableMeteors,src/map/meteors.cpp,function,
 0x437d40,EnableMeteors,src/map/meteors.cpp,global_write,g_meteorsEnabled
@@ -9809,18 +9824,19 @@ address,function,file,kind,target
 0x437d60,SetMeteorParams,src/map/meteors.cpp,global_write,g_meteorSpawnMagnitude
 0x437de0,UpdateMeteors,src/map/meteors.cpp,call,FUN_004b70ef
 0x437de0,UpdateMeteors,src/map/meteors.cpp,call,FUN_004b7123
-0x437de0,UpdateMeteors,src/map/meteors.cpp,call,SpawnProjectile
 0x437de0,UpdateMeteors,src/map/meteors.cpp,call,StartShower
 0x437de0,UpdateMeteors,src/map/meteors.cpp,call,bx_game_rand
 0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Game::gameTick
 0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Point16::x
 0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Point16::y
-0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Vec3_00437de0::x
-0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Vec3_00437de0::y
-0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Vec3_00437de0::z
-0x437de0,UpdateMeteors,src/map/meteors.cpp,field_write,Vec3_00437de0::x
-0x437de0,UpdateMeteors,src/map/meteors.cpp,field_write,Vec3_00437de0::y
-0x437de0,UpdateMeteors,src/map/meteors.cpp,field_write,Vec3_00437de0::z
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Seams::weapons
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Vec3::x
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Vec3::y
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Vec3::z
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,WeaponsSeam::SpawnProjectile
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_write,Vec3::x
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_write,Vec3::y
+0x437de0,UpdateMeteors,src/map/meteors.cpp,field_write,Vec3::z
 0x437de0,UpdateMeteors,src/map/meteors.cpp,function,
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_read,g_game
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_read,g_meteorActive
@@ -9833,8 +9849,10 @@ address,function,file,kind,target
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_read,g_meteorTarget
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_read,g_meteorWeapon
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_read,g_meteorsEnabled
+0x437de0,UpdateMeteors,src/map/meteors.cpp,global_read,g_seams
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_write,g_meteorActive
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_write,g_meteorNextHitTime
+0x437de0,UpdateMeteors,src/map/meteors.cpp,indirect_call,"indirect via int (*)(WeaponDef *, Vec3 *, Vec3 *, int) __attribute__((stdcall)) [WeaponsSeam::SpawnProjectile]"
 0x438070,StartMeteorShower,src/map/meteors.cpp,call,AddPoints
 0x438070,StartMeteorShower,src/map/meteors.cpp,call,MakePoint
 0x438070,StartMeteorShower,src/map/meteors.cpp,call,bx_game_rand
@@ -27565,7 +27583,6 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,GetTicks
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,InitCommands
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,InitExplosions
-0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,InitMeteors
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,InitPlayers
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,InitRadar
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,InitUnitCategories
@@ -27582,10 +27599,12 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,ResetChatHudIndices
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,ResetSpeech
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,ResolveFeatureLinks
-0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,UpdateWind
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,call,memset
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_maybe_written,Game::chatRecipients
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Game::mapInfo
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,Seams::wind_meteors
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,WindMeteorsSeam::InitMeteors
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,WindMeteorsSeam::UpdateWind
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_write,Game::assemPts
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_write,Game::bit0_37ebe
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_write,Game::bit11_37ebe
@@ -27617,8 +27636,11 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,function,
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,global_escape,g_cdActivitySampleRing
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,global_read,g_game
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,global_read,g_seams
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,global_write,g_cdActivityRingWriteIdx
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,global_write,g_scorePanelSlidePos
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((cdecl)) [WindMeteorsSeam::UpdateWind]
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::InitMeteors]
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,AllocSurface
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,GameFreeThunk
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,GetScreenHeight
@@ -27643,7 +27665,6 @@ address,function,file,kind,target
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,CollectEndGameStats
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,DestroyParticleLists
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,DestroyPathfinder
-0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,EmptyShutdownPreCleanup
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,FreeDownloadMenus
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,FreeExplosions
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,call,FreeMapResources
@@ -27666,12 +27687,16 @@ address,function,file,kind,target
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Game::sound
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Game::tempProjectedPts
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Game::tempXformPts
+0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,Seams::wind_meteors
+0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_read,WindMeteorsSeam::EmptyShutdownPreCleanup
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_write,Game::assemPts
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_write,Game::netGameFlagsWord
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_write,Game::tempProjectedPts
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,field_write,Game::tempXformPts
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,function,
 0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,global_read,g_game
+0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,global_read,g_seams
+0x491b60,ShutdownIngameSystems,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::EmptyShutdownPreCleanup]
 0x491c60,ShutdownIngameAndQuit,src/game/game_state.cpp,call,BlankScreen
 0x491c60,ShutdownIngameAndQuit,src/game/game_state.cpp,call,QuitApp
 0x491c60,ShutdownIngameAndQuit,src/game/game_state.cpp,call,RemoveLocalPlayers
@@ -44266,6 +44291,8 @@ address,function,file,kind,target
 ,InsideExplored,src/graphics/particles.cpp,field_read,Player::exploredHeight
 ,InsideExplored,src/graphics/particles.cpp,field_read,Player::exploredWidth
 ,InsideExplored,src/graphics/particles.cpp,function,
+,InstallNativeSeams,src/seams/native.cpp,field_read,<anon>::function
+,InstallNativeSeams,src/seams/native.cpp,field_write,<anon>::member
 ,InstallNativeSeams,src/seams/native.cpp,field_write,EconomySeam::UpdateResourceSharing
 ,InstallNativeSeams,src/seams/native.cpp,field_write,FeaturesSeam::UpdateFeatures
 ,InstallNativeSeams,src/seams/native.cpp,field_write,PlayersSeam::UpdatePlayers
@@ -44282,10 +44309,31 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::weapons
 ,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::wind_meteors
 ,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::UpdateAllUnits
+,InstallNativeSeams,src/seams/native.cpp,field_write,WeaponsSeam::FindWeaponByName
+,InstallNativeSeams,src/seams/native.cpp,field_write,WeaponsSeam::SpawnProjectile
 ,InstallNativeSeams,src/seams/native.cpp,field_write,WeaponsSeam::UpdateExplosions
 ,InstallNativeSeams,src/seams/native.cpp,field_write,WeaponsSeam::UpdateProjectiles
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::CmdMeteor
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::DisableMeteors
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::EmptyShutdownPreCleanup
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::EnableMeteors
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::InitMeteors
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::LoadMeteorDefaults
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::LoadMeteors
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::SaveMeteors
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::SetMeteorParams
 ,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::UpdateMeteors
 ,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::UpdateWind
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,CmdMeteor
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,DisableMeteors
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,EmptyShutdownPreCleanup
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,EnableMeteors
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,FindWeaponByName
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,InitMeteors
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,LoadMeteors
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,SaveMeteors
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,SetMeteorParams
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,SpawnProjectile
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateAllUnits
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateExplosions
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateFeatures
