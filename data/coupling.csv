@@ -41,8 +41,8 @@ ai,orders,shared_write,Unit::group,1
 ai,orders,shared_write,Vec3::x,100
 ai,orders,shared_write,Vec3::y,72
 ai,orders,shared_write,Vec3::z,100
-ai,pathfinding,shared_write,Point16::x,8
-ai,pathfinding,shared_write,Point16::y,8
+ai,pathfinding,shared_write,Point16::x,7
+ai,pathfinding,shared_write,Point16::y,7
 ai,platform,call,CommandArgs::GetArg,3
 ai,platform,call,CommandArgs::GetFloatArg,1
 ai,platform,call,CommandArgs::GetIntArg,1
@@ -57,6 +57,8 @@ ai,platform,call,RandomInt,12
 ai,platform,call,RegisterCommand,1
 ai,platform,call,operator delete,2
 ai,platform,call,operator new,5
+ai,platform,shared_write,Point16::x,1
+ai,platform,shared_write,Point16::y,1
 ai,players,call,GetEnergyIncome,1
 ai,players,call,GetMetalIncome,1
 ai,players,call,GetNetEnergy,3
@@ -232,7 +234,7 @@ features,orders,shared_write,Point16::x,15
 features,orders,shared_write,Vec3::x,100
 features,orders,shared_write,Vec3::y,72
 features,orders,shared_write,Vec3::z,100
-features,pathfinding,shared_write,Point16::x,8
+features,pathfinding,shared_write,Point16::x,7
 features,platform,call,BuildDataPath,1
 features,platform,call,CommandArgs::GetArg,1
 features,platform,call,FatalError,1
@@ -258,6 +260,7 @@ features,platform,call,TdfRecord::GetFieldInt,1
 features,platform,call,TdfRecord::GetFieldString,4
 features,platform,call,operator delete,3
 features,platform,call,operator new,1
+features,platform,shared_write,Point16::x,1
 features,players,shared_write,Point16::x,1
 features,players,shared_write,Vec3::x,5
 features,players,shared_write,Vec3::y,5
@@ -1234,8 +1237,8 @@ map,pathfinding,shared_write,Grid::cells,11
 map,pathfinding,shared_write,Grid::count,4
 map,pathfinding,shared_write,Grid::height,2
 map,pathfinding,shared_write,Grid::width,9
-map,pathfinding,shared_write,Point16::x,8
-map,pathfinding,shared_write,Point16::y,8
+map,pathfinding,shared_write,Point16::x,7
+map,pathfinding,shared_write,Point16::y,7
 map,platform,call,BuildDataPath,2
 map,platform,call,ComputeChecksum,1
 map,platform,call,FatalError,1
@@ -1274,6 +1277,8 @@ map,platform,call,TdfRecord::GetSubRecordCount,1
 map,platform,call,Translate,3
 map,platform,call,operator delete,12
 map,platform,call,operator new,7
+map,platform,shared_write,Point16::x,1
+map,platform,shared_write,Point16::y,1
 map,players,call,MissionConditions::FreeConditions,1
 map,players,call,MissionConditions::RegisterConditions,1
 map,players,call,MissionConditions::~MissionConditions,1
@@ -1693,8 +1698,9 @@ orders,network,shared_write,FeatureDamagePacket::z,1
 orders,network,shared_write,Unit::angles,1
 orders,network,shared_write,Unit::flags,2
 orders,network,shared_write,Unit::pos,1
-orders,pathfinding,shared_write,Point16::x,8
-orders,pathfinding,shared_write,Point16::y,8
+orders,pathfinding,shared_write,PathGoal::target,1
+orders,pathfinding,shared_write,Point16::x,7
+orders,pathfinding,shared_write,Point16::y,7
 orders,pathfinding,shared_write,Unit::cell,1
 orders,platform,call,HapiBank::GetStringItem,3
 orders,platform,call,HapiBank::HasItem,4
@@ -1707,6 +1713,8 @@ orders,platform,call,RandomInt,33
 orders,platform,call,operator delete,20
 orders,platform,call,operator new,56
 orders,platform,call,operator==,3
+orders,platform,shared_write,Point16::x,1
+orders,platform,shared_write,Point16::y,1
 orders,players,call,GiveUnitToPlayer,1
 orders,players,shared_write,Game::pathfinder,1
 orders,players,shared_write,Point16::x,1
@@ -1887,6 +1895,8 @@ pathfinding,orders,shared_write,Point16::y,13
 pathfinding,platform,call,GameFreeThunk,1
 pathfinding,platform,call,operator delete,3
 pathfinding,platform,call,operator new,1
+pathfinding,platform,shared_write,Point16::x,1
+pathfinding,platform,shared_write,Point16::y,1
 pathfinding,players,shared_write,Point16::x,1
 pathfinding,players,shared_write,Point16::y,1
 pathfinding,presentation,shared_write,Grid::cells,1
@@ -2269,8 +2279,8 @@ players,orders,shared_write,Vec3::z,100
 players,pathfinding,shared_write,Player::active,1
 players,pathfinding,shared_write,Player::index,1
 players,pathfinding,shared_write,Player::type,1
-players,pathfinding,shared_write,Point16::x,8
-players,pathfinding,shared_write,Point16::y,8
+players,pathfinding,shared_write,Point16::x,7
+players,pathfinding,shared_write,Point16::y,7
 players,platform,call,CommandArgs::InitArgs,1
 players,platform,call,ExecuteCommandText,1
 players,platform,call,GameAllocIgnoreTag,1
@@ -2294,6 +2304,8 @@ players,platform,call,Translate,2
 players,platform,call,WriteRegistryDword,1
 players,platform,call,operator delete,3
 players,platform,call,operator new,5
+players,platform,shared_write,Point16::x,1
+players,platform,shared_write,Point16::y,1
 players,platform,shared_write,_MEMORYSTATUS::dwLength,2
 players,presentation,call,ClearSelectedGadget,1
 players,presentation,call,FocusCommander,1
@@ -2732,8 +2744,8 @@ presentation,orders,shared_write,g_game,57
 presentation,pathfinding,shared_write,Game::numPlayers,1
 presentation,pathfinding,shared_write,Player::active,1
 presentation,pathfinding,shared_write,Player::index,1
-presentation,pathfinding,shared_write,Point16::x,8
-presentation,pathfinding,shared_write,Point16::y,8
+presentation,pathfinding,shared_write,Point16::x,7
+presentation,pathfinding,shared_write,Point16::y,7
 presentation,pathfinding,shared_write,g_game,4
 presentation,platform,call,AddTimer,3
 presentation,platform,call,AllocNotifyNop,1
@@ -2822,6 +2834,8 @@ presentation,platform,call,WriteBufferToFile,3
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
 presentation,platform,shared_write,GafFrame::pixelsOrLayers,1
+presentation,platform,shared_write,Point16::x,1
+presentation,platform,shared_write,Point16::y,1
 presentation,platform,shared_write,StringRef::data,5
 presentation,platform,shared_write,g_game,14
 presentation,players,call,EnableReporter,1
@@ -3418,8 +3432,8 @@ units,orders,shared_write,Vec3::z,100
 units,pathfinding,shared_write,Game::unitsPerPlayer,1
 units,pathfinding,shared_write,MovementClass::footprintX,2
 units,pathfinding,shared_write,MovementClass::footprintZ,2
-units,pathfinding,shared_write,Point16::x,8
-units,pathfinding,shared_write,Point16::y,8
+units,pathfinding,shared_write,Point16::x,7
+units,pathfinding,shared_write,Point16::y,7
 units,pathfinding,shared_write,Unit::cell,1
 units,pathfinding,shared_write,Unit::motion,2
 units,pathfinding,shared_write,Unit::unitDefIndex,1
@@ -3485,6 +3499,8 @@ units,platform,call,Unguarded_insert,1
 units,platform,call,operator delete,6
 units,platform,call,operator new,8
 units,platform,shared_write,Game::unitDefs,1
+units,platform,shared_write,Point16::x,1
+units,platform,shared_write,Point16::y,1
 units,platform,shared_write,UnitDef::unitname,1
 units,players,call,KillPlayerUnits,1
 units,players,call,MissionConditions::NotifyUnitCreated,1
@@ -3737,7 +3753,7 @@ weapons,orders,shared_write,Vec3::x,100
 weapons,orders,shared_write,Vec3::y,72
 weapons,orders,shared_write,Vec3::z,100
 weapons,orders,shared_write,WeaponDef::range,9
-weapons,pathfinding,shared_write,Point16::x,8
+weapons,pathfinding,shared_write,Point16::x,7
 weapons,platform,call,BindModelTextures,1
 weapons,platform,call,BuildDataPath,3
 weapons,platform,call,CrossProduct,1
@@ -3764,6 +3780,7 @@ weapons,platform,call,TdfRecord::GetRecordName,1
 weapons,platform,call,VectorFromTo,1
 weapons,platform,call,operator delete,1
 weapons,platform,call,operator new,4
+weapons,platform,shared_write,Point16::x,1
 weapons,players,shared_write,Point16::x,1
 weapons,players,shared_write,Unit::flags,5
 weapons,players,shared_write,Unit::health,1
@@ -3902,8 +3919,8 @@ wind_meteors,orders,shared_write,Point16::y,13
 wind_meteors,orders,shared_write,Vec3::x,100
 wind_meteors,orders,shared_write,Vec3::y,72
 wind_meteors,orders,shared_write,Vec3::z,100
-wind_meteors,pathfinding,shared_write,Point16::x,8
-wind_meteors,pathfinding,shared_write,Point16::y,8
+wind_meteors,pathfinding,shared_write,Point16::x,7
+wind_meteors,pathfinding,shared_write,Point16::y,7
 wind_meteors,platform,call,BuildDataPath,1
 wind_meteors,platform,call,CommandArgs::GetIntArg,1
 wind_meteors,platform,call,FatalError,1
@@ -3917,6 +3934,8 @@ wind_meteors,platform,call,TdfFile::~TdfFile,1
 wind_meteors,platform,call,TdfRecord::GetFieldDouble,1
 wind_meteors,platform,call,TdfRecord::GetFieldInt,1
 wind_meteors,platform,call,TdfRecord::GetFieldString,1
+wind_meteors,platform,shared_write,Point16::x,1
+wind_meteors,platform,shared_write,Point16::y,1
 wind_meteors,players,shared_write,Point16::x,1
 wind_meteors,players,shared_write,Point16::y,1
 wind_meteors,players,shared_write,Vec3::x,5
