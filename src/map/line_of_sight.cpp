@@ -12,6 +12,7 @@
 // in. 0x481d50, 0x482270 and 0x4843c0 keep their own files
 // (docs/split-modules.md).
 #include <memory>
+#include "../state/block.h"
 #include <string.h>
 #include <math.h>
 #include <stddef.h>
@@ -658,7 +659,7 @@ void __stdcall InitUnitSightCircleReveal(SightQuery* params)
 // FUNCTION: 0x482c20
 void BuildDerivedLayers(void)
 {
-    Rec* rec = new Rec;
+    Rec* rec = new (kSim) Rec;
     g_game->overflowBucket = rec;
     g_game->overflowBucket->flags = 0x1f;
 
@@ -677,7 +678,7 @@ void BuildDerivedLayers(void)
     int count2 = (h2 * w2 + 7) & 0xfffffff8;
     grid2->count = count2;
 
-    grid2->cells = count2 != 0 ? (FogCell*)new Rec[count2] : 0;
+    grid2->cells = count2 != 0 ? (FogCell*)new (kSim) Rec[count2] : 0;
     int outer;
     unsigned char* cells2 = (unsigned char*)grid2->cells;
     unsigned char* cellp = (unsigned char*)g_game->heightMap;
@@ -753,7 +754,7 @@ void BuildDerivedLayers(void)
     operator delete(grid1->cells);
     int count1 = (h1 * w1 + 7) & 0xfffffff8;
     grid1->count = count1;
-    grid1->cells = count1 != 0 ? (FogCell*)operator new(count1 * 2) : 0;
+    grid1->cells = count1 != 0 ? (FogCell*)SimAlloc(count1 * 2) : 0;
     for (int hf = 0; hf < grid1->count; hf++) {
         ((unsigned char*)grid1->cells)[hf * 2] = 0;
         ((unsigned char*)grid1->cells)[hf * 2 + 1] = 0xff;
@@ -1084,7 +1085,7 @@ void LoadTntMap()
     mapSettings->mapValues = (unsigned short*)dst;
     memcpy(dst, info.tile_map_src, a.n * 2);
     a.n = mapSettings->width * mapSettings->height;
-    unsigned char* plot = (unsigned char*)GameAllocIgnoreTag("PLOT MEMORY", a.n * 0xd);
+    unsigned char* plot = (unsigned char*)SimAlloc(a.n * 0xd);
     mapSettings->cells = (Cell*)plot;
     int fill = g_game->mapInfo->surfaceMetal;
     if (fill < 0 || info.version < 0x2000)
@@ -1215,7 +1216,7 @@ void LoadTntMap()
     ClearBorderFeatures();
     unsigned int total2 = (unsigned int)(mapSettings->width * mapSettings->height) * 2;
     unsigned int half = total2 / 4;
-    int* mapped = (int*)GameAllocIgnoreTag("MAPPED MEMORY", half);
+    int* mapped = (int*)SimAlloc(half);
     mapSettings->visibilityMask = (unsigned short*)mapped;
     memset(mapped, 0, half);
     int sx = mapSettings->screenTilesX + 0xc;
@@ -1227,7 +1228,7 @@ void LoadTntMap()
     mapSettings->sortLineCount = (int*)GameAllocIgnoreTag("SORT LINE COUNT", mapSettings->sortRowCount << 1);
     g_seams.features->StampFeatureMetal();
     g_game->count = 0;
-    g_game->eyes = (Eye*)GameAllocIgnoreTag("EYEBALL MEMORY", 0x2d0);
+    g_game->eyes = (Eye*)SimAlloc(0x2d0);
     mapSettings->featureReproduceCursor = 0;
     g_game->loadProgress = 100;
     // REGION r5 end

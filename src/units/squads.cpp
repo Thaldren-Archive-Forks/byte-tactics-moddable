@@ -1,6 +1,7 @@
 // Decompiled by Opus and deepseek-v4.1-flash. Names are provisional.
 
 #include <vector>
+#include "../state/block.h"
 #include <algorithm>
 
 class Squad;
@@ -54,7 +55,7 @@ void __stdcall AddOrder(MissionType kind, int remove, Unit* owner, Unit* id, int
 // FUNCTION: 0x480190
 void __stdcall CreateSquads(PlayerView* owner)
 {
-    owner->squads = (Squad*)GameAllocIgnoreTag("SQUADS", 10 * sizeof(Squad));
+    owner->squads = (Squad*)SimAlloc(10 * sizeof(Squad));
     for (int i = 0; i < 10; i++)
         new (&owner->squads[i]) Squad((int)owner, i);
 }

@@ -3,6 +3,7 @@
 // swap (lea [edx+ebx+4] against the original's [ebx+edx+4]; docs/c2-regalloc.md,
 // "Symbol ids").
 #include <string.h>
+#include "../state/block.h"
 
 // 0x30-byte element of the feature animation table: a doubly linked list of
 // free/used slots, next at +0, prev at +2.
@@ -67,7 +68,7 @@ void __stdcall InitFeatureAnimPool(List_00421f20* list)
 {
     AnimManager_00421f20* m = &g_game->anim;
 
-    m->anim = (AnimEntry_00421f20*)GameAllocIgnoreTag("FEATURE ANIM DATA", 0x18000);
+    m->anim = (AnimEntry_00421f20*)SimAlloc(0x18000);
     memset(m->anim, 0, 0x18000);
     m->activeHead = -1;
     m->idleHead = -1;
@@ -79,7 +80,7 @@ void __stdcall InitFeatureAnimPool(List_00421f20* list)
     m->anim[0].prev = -1;
     m->anim[0x7ff].next = -1;
 
-    m->featureUnit = (FeatureUnit_00421f20*)GameAllocIgnoreTag("Feature Unit", 0x118);
+    m->featureUnit = (FeatureUnit_00421f20*)SimAlloc(0x118);
     memset(m->featureUnit, 0, 0x118);
     m->featureUnit->flags_110 |= 0x200;
     m->featureUnit->flags_110 |= 0x20000000;

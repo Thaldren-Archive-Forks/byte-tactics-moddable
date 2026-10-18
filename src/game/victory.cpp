@@ -1,6 +1,7 @@
 // Decompiled by Opus, space-bunny-free, deepseek-v4.1-flash, Haiku, Space Bunny Free, Sonnet and GPT-6. Names are provisional.
 
 #include <string.h>
+#include "../state/block.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -468,99 +469,99 @@ void MissionConditions::RegisterConditions(Param_0048e010* p)
     // call folds to test instead of cmp against the zero register.
     int r1 = p->reader->GetFieldInt("KillEnemyCommander", 0);
     if (r1 != 0) {
-        AddCondition(victory, &victoryCount, new VictoryKillEnemyCommander);
+        AddCondition(victory, &victoryCount, new (kSim) VictoryKillEnemyCommander);
     }
     int r2 = p->reader->GetFieldInt("DestroyAllUnits", 0);
     if (r2 != 0) {
-        AddCondition(victory, &victoryCount, new VictoryDestroyAllUnits);
+        AddCondition(victory, &victoryCount, new (kSim) VictoryDestroyAllUnits);
     }
     int r3 = p->reader->GetFieldInt("KillAllMobileUnits", 0);
     if (r3 != 0) {
-        AddCondition(victory, &victoryCount, new VictoryKillAllMobileUnits);
+        AddCondition(victory, &victoryCount, new (kSim) VictoryKillAllMobileUnits);
     }
     int r4 = p->reader->GetFieldString(buf, "BuildUnitType", 0x100, (char*)&DAT_005119b8);
     if (r4 != 0) {
-        AddCondition(victory, &victoryCount, new VictoryBuildUnitType(buf));
+        AddCondition(victory, &victoryCount, new (kSim) VictoryBuildUnitType(buf));
     }
     int r5 = p->reader->GetFieldString(buf, "CaptureUnitType", 0x100, (char*)&DAT_005119b8);
     if (r5 != 0) {
-        AddCondition(victory, &victoryCount, new VictoryCaptureUnitType(buf));
+        AddCondition(victory, &victoryCount, new (kSim) VictoryCaptureUnitType(buf));
     }
     int r6 = p->reader->GetFieldString(buf, "KillAllOfType", 0x100, (char*)&DAT_005119b8);
     if (r6 != 0) {
-        AddCondition(victory, &victoryCount, new VictoryKillAllOfType(buf));
+        AddCondition(victory, &victoryCount, new (kSim) VictoryKillAllOfType(buf));
     }
     int r7 = p->reader->GetFieldString(buf, "KillUnitType", 0x100, (char*)&DAT_005119b8);
     if (r7 != 0) {
         int n;
         sscanf(buf, "%[a-zA-Z],%i", stype, &n);
-        AddCondition(victory, &victoryCount, new VictoryKillUnitType(stype, n));
+        AddCondition(victory, &victoryCount, new (kSim) VictoryKillUnitType(stype, n));
     }
     int r8 = p->reader->GetFieldString(buf, "MoveUnitToRadius", 0x100, (char*)&DAT_005119b8);
     if (r8 != 0) {
         int a, b, c;
         sscanf(buf, "%[a-zA-Z],%i,%i,%i", stype, &a, &b, &c);
-        AddCondition(victory, &victoryCount, new VictoryMoveUnitToRadius(stype, a, b, c));
+        AddCondition(victory, &victoryCount, new (kSim) VictoryMoveUnitToRadius(stype, a, b, c));
     }
     int r9 = p->reader->GetFieldString(buf, "UnitTypePassesX", 0x100, (char*)&DAT_005119b8);
     if (r9 != 0) {
         int n;
         sscanf(buf, "%[a-zA-Z],%i", stype, &n);
-        AddCondition(victory, &victoryCount, new VictoryUnitTypePassesX(stype, n));
+        AddCondition(victory, &victoryCount, new (kSim) VictoryUnitTypePassesX(stype, n));
     }
     int r10 = p->reader->GetFieldString(buf, "UnitTypePassesZ", 0x100, (char*)&DAT_005119b8);
     if (r10 != 0) {
         int n;
         sscanf(buf, "%[a-zA-Z],%i", stype, &n);
-        AddCondition(victory, &victoryCount, new VictoryUnitTypePassesZ(stype, n));
+        AddCondition(victory, &victoryCount, new (kSim) VictoryUnitTypePassesZ(stype, n));
     }
     {
         int t = p->reader->GetFieldInt("VictoryTimerRunsOut", 0);
         if (t > 0) {
-            AddCondition(victory, &victoryCount, new VictoryTimerRunsOut(t));
+            AddCondition(victory, &victoryCount, new (kSim) VictoryTimerRunsOut(t));
         }
     }
     int r11 = p->reader->GetFieldInt("CommanderKilled", 0);
     if (r11 != 0) {
-        AddCondition(defeat, &defeatCount, new DefeatCommanderKilled);
+        AddCondition(defeat, &defeatCount, new (kSim) DefeatCommanderKilled);
     }
     int r12 = p->reader->GetFieldInt("AllUnitsKilled", 0);
     if (r12 != 0) {
-        AddCondition(defeat, &defeatCount, new DefeatAllUnitsKilled);
+        AddCondition(defeat, &defeatCount, new (kSim) DefeatAllUnitsKilled);
     }
     int r13 = p->reader->GetFieldString(buf, "AllUnitsKilledOfType", 0x100, (char*)&DAT_005119b8);
     if (r13 != 0) {
-        AddCondition(defeat, &defeatCount, new DefeatAllUnitsKilledOfType(buf));
+        AddCondition(defeat, &defeatCount, new (kSim) DefeatAllUnitsKilledOfType(buf));
     }
     int r14 = p->reader->GetFieldString(buf, "UnitTypeKilled", 0x100, (char*)&DAT_005119b8);
     if (r14 != 0) {
         int n;
         sscanf(buf, "%[a-zA-Z],%i", stype, &n);
-        AddCondition(defeat, &defeatCount, new DefeatUnitTypeKilled(stype, n));
+        AddCondition(defeat, &defeatCount, new (kSim) DefeatUnitTypeKilled(stype, n));
     }
     {
         int t = p->reader->GetFieldInt("DeathTimerRunsOut", 0);
         if (t > 0) {
-            AddCondition(defeat, &defeatCount, new DefeatDeathTimerRunsOut(t));
+            AddCondition(defeat, &defeatCount, new (kSim) DefeatDeathTimerRunsOut(t));
         }
     }
     {
         int t = p->reader->GetFieldInt("AnyUnitPassesX", -1);
         if (t >= 0) {
-            AddCondition(defeat, &defeatCount, new DefeatAnyUnitPassesX(t));
+            AddCondition(defeat, &defeatCount, new (kSim) DefeatAnyUnitPassesX(t));
         }
     }
     {
         int t = p->reader->GetFieldInt("AnyUnitPassesZ", -1);
         if (t >= 0) {
-            AddCondition(defeat, &defeatCount, new DefeatAnyUnitPassesZ(t));
+            AddCondition(defeat, &defeatCount, new (kSim) DefeatAnyUnitPassesZ(t));
         }
     }
     if (victoryCount == 0) {
-        AddCondition(victory, &victoryCount, new VictoryDestroyAllUnits);
+        AddCondition(victory, &victoryCount, new (kSim) VictoryDestroyAllUnits);
     }
     if (defeatCount == 0) {
-        AddCondition(defeat, &defeatCount, new DefeatAllUnitsKilled);
+        AddCondition(defeat, &defeatCount, new (kSim) DefeatAllUnitsKilled);
     }
 }
 
@@ -1396,7 +1397,7 @@ void MissionConditions::LoadConditions(HapiBank* file)
 int MissionConditions::AllVictoryConditionsMet()
 {
     if (victoryCount == 0) {
-        victory[victoryCount] = new VictoryDestroyAllUnits;
+        victory[victoryCount] = new (kSim) VictoryDestroyAllUnits;
         victoryCount++;
     }
     for (int i = 0; i < victoryCount; i++) {
@@ -1410,7 +1411,7 @@ int MissionConditions::AllVictoryConditionsMet()
 int MissionConditions::AnyDefeatConditionMet()
 {
     if (defeatCount == 0) {
-        defeat[defeatCount] = new DefeatAllUnitsKilled;
+        defeat[defeatCount] = new (kSim) DefeatAllUnitsKilled;
         defeatCount++;
     }
     for (int i = 0; i < defeatCount; i++) {
@@ -1883,9 +1884,9 @@ void PackedPosGoal::DeserializeNetUnitState(BitReader* reader)
     }
     int kind = reader->ReadBits(2);
     if (kind == 1)
-        target = new Class_0044e080(owner, reader);
+        target = new (kSim) Class_0044e080(owner, reader);
     else if (kind == 2)
-        target = new AirManeuverOrder((Owner_0044e9c0*)owner, reader);
+        target = new (kSim) AirManeuverOrder((Owner_0044e9c0*)owner, reader);
     int state = reader->ReadBits(2);
     owner->obj->SetFlightMode((Unit*)owner, state);
 }

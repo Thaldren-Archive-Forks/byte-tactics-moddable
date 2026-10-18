@@ -3,6 +3,7 @@
 // initialising and freeing them, the metal and energy transfers, the per-tick
 // player update, the unit line-of-sight loop and the camera setup.
 #include <stdio.h>
+#include "../state/block.h"
 #include <string.h>
 
 #include "../map/mission.h"
@@ -389,7 +390,7 @@ stamp:
     goto back;
 guard:
     if (!p->econ) {
-        p->econ = new UnitResources;
+        p->econ = new (kSim) UnitResources;
     }
     g_seams.economy->Reset(p->econ, p->team);
     p->flags &= 0xfffe;
@@ -407,7 +408,7 @@ guard:
     operator delete(p->buffer);
     int& sz = p->exploredSize;
     sz = (h * w + 7) & ~7;
-    p->buffer = sz ? operator new(sz) : 0;
+    p->buffer = sz ? SimAlloc(sz) : 0;
     // Both references are load-bearing (`sz` also for the first block). With `memset(p->buffer, 0, p->exploredSize)`
     // MSVC propagates the phi and the size into the inlined memset, which puts
     // the phi in edi and stores it from edi; the original reloads [esi+0x7c]
@@ -420,7 +421,7 @@ guard:
     CreateSquads(p);
     // Keep `||` with both tests as written: the branch layout depends on it.
     if (!p->active || p->type != 3) {
-        p->unit = new SquadManager(p);
+        p->unit = new (kSim) SquadManager(p);
         CreatePlayerAI(p->team);
     }
 }
