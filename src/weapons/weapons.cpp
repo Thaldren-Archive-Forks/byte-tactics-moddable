@@ -542,6 +542,8 @@ struct Source_00499c10 {
     short heading;                     // +0x16
 };
 
+#include "../../interfaces/seams.h"
+
 // Fixed-point trig helpers written in assembly.
 int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
@@ -552,7 +554,7 @@ void __stdcall RockUnit(Object_00499c10* obj, Source_00499c10* src)
     short angle = src->heading - obj->heading;
     int a = -FUN_004b70ef(angle, 800);
     int b = -FUN_004b7123(angle, 800);
-    obj->anims->StartScriptWithArgs("RockUnit", 0, 0, 2, b, a, 0, 0);
+    g_seams.units->StartScriptWithArgs(obj->anims, "RockUnit", 0, 0, 2, b, a, 0, 0);
 }
 
 #include "../ai/squad_manager.h"
@@ -580,7 +582,7 @@ void __stdcall ApplyWeaponHit(Weapon_499c70* weapon, Unit* target)
             a = damage;
         else
             b = damage;
-        attacker->player->ai->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)weapon, a, b);
+        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(attacker->player->ai, 0, (void*)weapon, a, b);
     }
 }
 
@@ -712,7 +714,6 @@ void __stdcall UntrackProjectile(Projectile_00499eb0* projectile)
     projectile->flags |= 2;
 }
 
-#include "../../interfaces/seams.h"
 void __stdcall AccumulateScreenShake(int a, int b, int c);void __stdcall AddExplosionEffect(Vec3_0049b720* position, void* value, int a, int b);
 void __stdcall EmitWhiteSmoke(Vec3_0049b720* position, int value);
 // The sound id stays unsigned int: gives the original's zero extension.
@@ -770,7 +771,7 @@ void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
                     a = damage;
                 else
                     b = damage;
-                source->player->ai->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)projectile, a & 0xffff, b & 0xffff);
+                g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(source->player->ai, 0, (void*)projectile, a & 0xffff, b & 0xffff);
                 return;
             }
         } else {
@@ -1434,8 +1435,6 @@ struct Proj_0049b3e0 {
 };
 #pragma pack(pop)
 
-int __stdcall GetGroundHeight(Vec3_0049b3e0* pos);
-
 // FUNCTION: 0x49b3e0
 Vec3_0049b3e0* __stdcall GetProjectileAimPoint(Proj_0049b3e0* p)
 {
@@ -1456,7 +1455,7 @@ Vec3_0049b3e0* __stdcall GetProjectileAimPoint(Proj_0049b3e0* p)
     }
     if (flag) {
         p->start = p->target;
-        p->start.y.value = max(GetGroundHeight(&p->target), g_game->seaLevel) << 16;
+        p->start.y.value = max(g_seams.units->GetGroundHeight((Vec3*)&p->target), g_game->seaLevel) << 16;
         return &p->start;
     }
     return &p->target;
@@ -1780,11 +1779,11 @@ int __stdcall FireLineOfSightProjectile(Fire_0049c9c0* fire, Unit* unit,
     proj->f_4e = param_5;
 
     proj->f_60 = fire->shot->burst;
-    unit->anims->StartScript(g_fireScriptNames[(fire->f_1b >> 2) & 3], 0, 0);
+    g_seams.units->StartScript(unit->anims, g_fireScriptNames[(fire->f_1b >> 2) & 3], 0, 0);
     short angle = unit->f_1a[((fire->f_1b >> 2) & 3) * 7].angle - unit->heading;
     int a = -FUN_004b70ef(angle, 800);
     int b = -FUN_004b7123(angle, 800);
-    unit->anims->StartScriptWithArgs("RockUnit", 0, 0, 2, b, a, 0, 0);
+    g_seams.units->StartScriptWithArgs(unit->anims, "RockUnit", 0, 0, 2, b, a, 0, 0);
 
     if (fire->shot->flags.b.startSmoke)
         EmitWeaponSmoke(p3, 9);
@@ -1860,11 +1859,11 @@ int __stdcall FireVLaunchProjectile(Shot_0049cc20* shot, Unit* unit, Vec3* pos,
     proj->targetUnit = param_5;
     proj->interceptedProjectile = param_6;
     proj->active = shot->def->burst;
-    unit->anims->StartScript(g_fireScriptNames[(shot->flags >> 2) & 3], 0, 0);
+    g_seams.units->StartScript(unit->anims, g_fireScriptNames[(shot->flags >> 2) & 3], 0, 0);
     short angle = unit->aim_0049cc20[(shot->flags >> 2) & 3][0][0] - unit->heading;
     int a = -FUN_004b70ef(angle, 800);
     int b = -FUN_004b7123(angle, 800);
-    unit->anims->StartScriptWithArgs("RockUnit", 0, 0, 2, b, a, 0, 0);
+    g_seams.units->StartScriptWithArgs(unit->anims, "RockUnit", 0, 0, 2, b, a, 0, 0);
     if (shot->def->flags.b.startSmoke)
         EmitWeaponSmoke(pos, 9);
     return 1;
@@ -1934,11 +1933,11 @@ int __stdcall FireBallisticProjectile(Shot_0049cde0* shot, Unit* unit, Vec3* pos
         // active before targetUnit: the reverse of the natural order is the original's.
         proj->active = shot->def->burst;
         proj->targetUnit = param_5;
-        unit->anims->StartScript(g_fireScriptNames[(shot->flags >> 2) & 3], 0, 0);
+        g_seams.units->StartScript(unit->anims, g_fireScriptNames[(shot->flags >> 2) & 3], 0, 0);
         short angle = unit->aim_0049cde0[(shot->flags >> 2) & 3][0] - unit->heading;
         int a = -FUN_004b70ef(angle, 800);
         int b = -FUN_004b7123(angle, 800);
-        unit->anims->StartScriptWithArgs("RockUnit", 0, 0, 2, b, a, 0, 0);
+        g_seams.units->StartScriptWithArgs(unit->anims, "RockUnit", 0, 0, 2, b, a, 0, 0);
         if (shot->def->flags.b.startSmoke)
             EmitWeaponSmoke(pos, 9);
         return 1;
@@ -2235,7 +2234,6 @@ void __stdcall ApplyWeaponFirePacket(int arg1, WeaponFirePacket* ev)
 void Unused_0049d580(int a, int b, int c, int d, int e, int f);
 #pragma pack(pop)
 
-void __stdcall GetAimFromPosition(Unit* obj, Vec3* out, unsigned char weapon);
 void __stdcall GetWeaponPiecePosition(Unit* obj, Vec3* out, unsigned char weapon, int piece);
 short __stdcall SolveLaunchAngle(int dx, int dy, int dz, int speed, float pitch);
 // The weapon parameter must stay an unsigned char.
@@ -2260,7 +2258,7 @@ int __stdcall FireTurretWeapon(Unit* fire, Unit* unit,
         int ok;
         if (def->flags.b.ballistic) {
             Vec3 p;
-            GetAimFromPosition(fire, &p, unit->f_1b >> 2 & 3);
+            g_seams.units->GetAimFromPosition(fire, &p, unit->f_1b >> 2 & 3);
             int dx = p.x - point->x;
             int dy = p.y - point->y;
             int dz = p.z - point->z;
@@ -2384,7 +2382,7 @@ int __stdcall AimWithinTolerance(Unit* unit, Aim_0049d880* aim, short angle1, sh
 int __stdcall CalcAimAngles(Unit* unit, Unit* target, short* out_heading, short* out_pitch, int weapon, Vec3* point)
 {
     Vec3 p;
-    GetAimFromPosition(unit, &p, weapon);
+    g_seams.units->GetAimFromPosition(unit, &p, weapon);
     int dx = p.x - point->x;
     // Read through the 16.16 union and initialised before the heading: loads only the high word.
     Fixed dy;
@@ -2709,12 +2707,12 @@ void __stdcall InitUnitWeaponSlots(Unit* unit)
         Vec3 a;
         GetWeaponPiecePosition(unit, &a, frame.i, -1);
         Vec3 b;
-        GetAimFromPosition(unit, &b, frame.i);
+        g_seams.units->GetAimFromPosition(unit, &b, frame.i);
         s->muzzleAimFromDeltaZ = (a.z - b.z) * 1.25;
         if (s->weapon->reloadTime > frame.maxTime)
             frame.maxTime = s->weapon->reloadTime;
     }
-    unit->script->StartScriptWithArgs("SetMaxReloadTime", 0, 0, 1, frame.maxTime * 1000 / 30, 0, 0, 0);
+    g_seams.units->StartScriptWithArgs(unit->script, "SetMaxReloadTime", 0, 0, 1, frame.maxTime * 1000 / 30, 0, 0, 0);
 }
 
 // The three aim script names. The original's array has three elements, with
@@ -2762,7 +2760,7 @@ void __stdcall UpdateUnitWeapons(Unit* unit) {
                 unsigned short angle;
                 int ok;
                 if (t->flags.b.ballistic) {
-                    GetAimFromPosition(unit, &aim, (unsigned char)((e->flags >> 2) & 3));
+                    g_seams.units->GetAimFromPosition(unit, &aim, (unsigned char)((e->flags >> 2) & 3));
                     SubtractVec3(&aim, &pos, &dx, &dy, &dz);
                     heading = (unsigned short)(FUN_004b715a(dx, dz) - unit->heading);
                     angle = SolveLaunchAngle(dx, dy, dz, t->speed, t->pitch);
@@ -2778,7 +2776,7 @@ void __stdcall UpdateUnitWeapons(Unit* unit) {
                     e->f_16 = heading;
                     e->f_8 = 0;
                     // Name read afresh for each call, no cached local: lets the two tails merge.
-                    unit->script->StartScriptWithArgs(g_aimScriptNames[(e->flags >> 2) & 3], (Callback*)&e->name, 0, 2,
+                    g_seams.units->StartScriptWithArgs(unit->script, g_aimScriptNames[(e->flags >> 2) & 3], (Callback*)&e->name, 0, 2,
                                                heading, angle, 0, 0);
                     SendScriptCallByName(unit, g_aimScriptNames[(e->flags >> 2) & 3], 2, heading, angle, 0, 0);
                     e->flags |= 1;
@@ -2789,7 +2787,7 @@ void __stdcall UpdateUnitWeapons(Unit* unit) {
             bool armed = attached->flags.b.vLaunch;
             if (armed && (!attached->flags.b.stockpile || e->f_1a) && !(e->flags & 1)) {
                 e->f_8 = 0;
-                unit->script->StartScriptWithArgs(g_aimScriptNames[(e->flags >> 2) & 3], (Callback*)&e->name, 0, 2, 0, 0,
+                g_seams.units->StartScriptWithArgs(unit->script, g_aimScriptNames[(e->flags >> 2) & 3], (Callback*)&e->name, 0, 2, 0, 0,
                                            0, 0);
                 SendScriptCallByName(unit, g_aimScriptNames[(e->flags >> 2) & 3], 2, 0, 0, 0, 0);
                 e->flags |= 1;

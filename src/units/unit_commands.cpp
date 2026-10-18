@@ -414,8 +414,7 @@ struct OwnershipTransferPacket {       // 0x18 bytes
 
 int __stdcall GetPlayerDpid(Player* player);
 void __stdcall BroadcastPacket(int who, OwnershipTransferPacket* packet, int size);
-void __stdcall DamageUnit(Unit* source, Unit* target, int amount, int type,
-                            unsigned short extra);
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x488570
 void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPacket* p)
@@ -447,7 +446,7 @@ void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPack
             pk.stockpile1 = a ? unit->weapons[1].stockpile : 0;
             pk.stockpile2 = a ? unit->weapons[2].stockpile : 0;
             BroadcastPacket(unit->player->id, &pk, 0x18);
-            DamageUnit(0, unit, 30000, 4, 0);
+            g_seams.weapons->DamageUnit(0, unit, 30000, 4, 0);
             return;
         }
     }
@@ -480,7 +479,7 @@ void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPack
             n->weapons[1].stockpile = unit->weapons[1].stockpile;
         if (n->weapons[2].flags & 2)
             n->weapons[2].stockpile = unit->weapons[2].stockpile;
-        DamageUnit(0, unit, 30000, 4, 0);
+        g_seams.weapons->DamageUnit(0, unit, 30000, 4, 0);
     }
     n->SetStateBits(unit->activateFlags, 1);
     n->SetStateBits(~unit->activateFlags, 0);

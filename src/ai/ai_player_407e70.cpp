@@ -158,7 +158,7 @@ static inline Vec3_00407d40 Offset(int angle, int distance)
 }
 
 int __stdcall SumUnitRatingsInRange(int index, Vec3_00407d40* pos, int range);
-int __stdcall WeaponCanReachPos(Unit* unit, Vec3_00407d40* from, Vec3_00407d40* to, int flags);
+#include "../../interfaces/seams.h"
 MissionType __stdcall GetOrderType(unsigned char mode, Unit* unit,
                                       Unit* target, Vec3_00407d40* pos);
 void __stdcall AddOrder(MissionType kind, int remove, Unit* unit,
@@ -209,7 +209,7 @@ void SpatialTimer::OnTimer()
          it != ((Group_00407e90*)group)->units.end(); ++it) {
         Unit* u = *it;
         if (((UnitDefFlags_00407e90*)u->def)->flag4) {
-            if (u->motion || WeaponCanReachPos(u, &u->pos, &best, 0)) {
+            if (u->motion || g_seams.weapons->WeaponCanReachPos(u, (Vec3*)&u->pos, (Vec3*)&best, 0)) {
                 MissionType kind = GetOrderType(3, u, 0, &best);
                 if (kind.index)
                     AddOrder(kind, 0, u, 0, &best, 0, 0);

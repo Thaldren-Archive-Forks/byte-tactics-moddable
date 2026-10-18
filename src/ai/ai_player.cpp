@@ -565,12 +565,10 @@ void __stdcall RegisterCommand(const char* name, Command_00406f00 fn, int flags)
 void __stdcall NotifyUnitRefs(Unit*, int);
 int __stdcall RandomInt(int);
 void __stdcall DeleteOrders(Unit*, int);
-int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
 unsigned int __stdcall GetOrderFlags(Unit*);
 void __stdcall QueueUnitSpeechIfNotVisible(Unit*, int, int);
 void __stdcall SetUnitSquad(Unit* unit, int squad);
-int* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
 void __stdcall GetBasePosition(int index, Vec3* out);
 unsigned short __stdcall ChooseBuildOption(unsigned int player, Unit* unit);
 int __stdcall GetBuilderCount(unsigned int player);
@@ -779,15 +777,15 @@ void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
         int ordered=0;
         if ((!unit->list || (unit->list->flags&0x20000)) &&
             !Contains(unit->def->categories,attacker->unitDefIndex) &&
-            !Contains(unit->def->weaponCategories[0],attacker->unitDefIndex) && WeaponCanReachUnit(unit,attacker,0))
+            !Contains(unit->def->weaponCategories[0],attacker->unitDefIndex) && g_seams.weapons->WeaponCanReachUnit(unit,attacker,0))
             ordered=IssueAttackOrder(unit,attacker,0);
         if (!ordered && (unit->flags&0x300000)) {
             for (unsigned char i=0;i<3;++i) {
                 UnitWeaponSlot* weapon=&unit->weapons[i];
-                if ((weapon->flags&2) && (weapon->flags&0x10) && WeaponCanReachUnit(unit,attacker,i) &&
+                if ((weapon->flags&2) && (weapon->flags&0x10) && g_seams.weapons->WeaponCanReachUnit(unit,attacker,i) &&
                     !((unsigned char)(weapon->weapon->flags>>26)&1)) {
                     Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
-                    if (!target || !WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
+                    if (!target || !g_seams.weapons->WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
                         g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);
                 }
             }
@@ -1216,7 +1214,7 @@ void SquadManager::AssignSquads()
 void __stdcall RetargetWeapon(Unit* unit, unsigned int weapon)
 {
     if (unit->weapons[weapon].weapon->flag30) {
-        int* p = FindTargetableProjectile(unit, weapon);
+        int* p = g_seams.weapons->FindTargetableProjectile(unit, weapon);
         if (p)
             g_seams.targeting->SetWeaponTargetPos(unit, (Vec3*)(p + 1), weapon);
         else

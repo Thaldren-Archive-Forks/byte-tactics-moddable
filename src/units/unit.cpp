@@ -146,6 +146,8 @@ void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 void __stdcall MarkSelectionOrdersDirty(Unit* unit);
 int __stdcall BroadcastPacket(int player, void* data, int size);
 
+#include "../../interfaces/seams.h"
+
 // The twin of ClaimWeapons (0x4898b0) with bit 4 the other way round: it
 // requires bit 4 clear and then sets it.
 // FUNCTION: 0x489800
@@ -164,8 +166,8 @@ void Unit::ReleaseWeapons(unsigned char index)
         if (p->a != 0 || p->b != (short)0x8000) {
             p->a = 0;
             p->b = (short)0x8000;
-            script->FindScript("StartBuilding");
-            script->StartScriptWithArgs("TargetCleared", 0, 0, 1, i, 0, 0, 0);
+            g_seams.units->FindScript(script, "StartBuilding");
+            g_seams.units->StartScriptWithArgs(script, "TargetCleared", 0, 0, 1, i, 0, 0, 0);
         }
     }
 }
@@ -194,8 +196,8 @@ void Unit::ClaimWeapons(unsigned char index)
         if (p->a != 0 || p->b != (short)0x8000) {
             p->a = 0;
             p->b = (short)0x8000;
-            script->FindScript("StartBuilding");
-            script->StartScriptWithArgs("TargetCleared", 0, 0, 1, i, 0, 0, 0);
+            g_seams.units->FindScript(script, "StartBuilding");
+            g_seams.units->StartScriptWithArgs(script, "TargetCleared", 0, 0, 1, i, 0, 0, 0);
         }
     }
     // The guard only fires when bit 4 is *set* and then clears it, so this

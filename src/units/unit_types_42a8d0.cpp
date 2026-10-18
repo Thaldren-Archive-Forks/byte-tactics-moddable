@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by Claude Opus 5.5. Names are provisional.
 // The unit type loader: loads every Weapons\*.tdf into the weapon TDF table,
 // reads the UNITINFO section of every units\*.fbi into the unit type table at

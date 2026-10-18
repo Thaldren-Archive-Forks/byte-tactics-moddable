@@ -62,7 +62,6 @@ Vec3 __stdcall AddVec3(const Vec3&, const Vec3&);
 void __stdcall AppendOrderToTail(Unit*, Order*);
 
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);
-int __stdcall WeaponCanReachUnit(Unit*, Unit*, unsigned char);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
 void __stdcall AppendOrder(Unit*, Order*);
 int __stdcall RandomInt(int);
@@ -98,7 +97,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
         case 0:
             if (unit->motion && (unit->def->flags1&0x800)) {
                 order->AnnounceStatusIfFlagged("Guarding");
-                unit->ClaimWeapons(3);
+                g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
                 if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
                 unit->SetStateBits(1,1);
                 if ((unit->motion->flags&3)==1) {
@@ -114,7 +113,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             }
             return 7;
         case 1:
-            unit->ReleaseWeapons(3);
+            g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
             return 1;
         case 2: {
             Unit* attacker=order->target->attacker;
@@ -132,7 +131,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                                 if (!((weapon->flags&2) && weapon->flags&0x10 && ((unsigned char)(weapon->def->flags >> 26)&1) == 0)) {
                                 } else {
                                     Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
-                                    if (!target || !WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
+                                    if (!target || !g_seams.weapons->WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
                                         g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);
                                 }
                                 ++i;

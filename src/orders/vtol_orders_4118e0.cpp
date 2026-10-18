@@ -1,3 +1,4 @@
+#include "../../interfaces/seams.h"
 // Decompiled by Claude Opus 5.5. Names are provisional.
 // "Landing" order handler of air units landing on a pad unit (the order's
 // target). State 0 prepares the order (PrepVtolClimb) and picks a random
@@ -130,7 +131,7 @@ static inline Vec3 Add(const Vec3& a, const Vec3& b)
 // 0x40f200, matched in 0x40f200.cpp; inlined into the state 0 case below.
 void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
-    unit->ClaimWeapons(3);
+    g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
         AttachUnitToPiece(unit, 0, -1, 2);
     unit->SetStateBits(1, 1);
