@@ -11421,13 +11421,11 @@ address,function,file,kind,target
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,function,
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,global_escape,DAT_00512370
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,global_escape,g_movementClasses
-0x440940,BuildAllPassMaps,src/units/movement_class.cpp,global_escape,g_serialPortNumber
 0x440940,BuildAllPassMaps,src/units/movement_class.cpp,global_read,g_game
 0x440a00,FreeMovementClasses,src/units/movement_class.cpp,call,FreeA
 0x440a00,FreeMovementClasses,src/units/movement_class.cpp,call,FreeC
 0x440a00,FreeMovementClasses,src/units/movement_class.cpp,function,
 0x440a00,FreeMovementClasses,src/units/movement_class.cpp,global_escape,DAT_00512370
-0x440a00,FreeMovementClasses,src/units/movement_class.cpp,global_escape,g_serialPortNumber
 0x440a40,RefreshAllPassMaps,src/units/movement_class.cpp,call,MovementClass::RefreshPassMap
 0x440a40,RefreshAllPassMaps,src/units/movement_class.cpp,field_escape,MovementClassTable::entries
 0x440a40,RefreshAllPassMaps,src/units/movement_class.cpp,field_read,MovementClass::name
@@ -27665,7 +27663,6 @@ address,function,file,kind,target
 0x490fe0,ReopenCdAudio,src/game/game_state.cpp,function,
 0x490fe0,ReopenCdAudio,src/game/game_state.cpp,global_escape,DAT_0051e848
 0x490fe0,ReopenCdAudio,src/game/game_state.cpp,global_escape,g_cdListsDiscEntries
-0x490fe0,ReopenCdAudio,src/game/game_state.cpp,global_escape,g_savegameSideList
 0x490fe0,ReopenCdAudio,src/game/game_state.cpp,global_maybe_written,g_cdListsDiscEntries
 0x490fe0,ReopenCdAudio,src/game/game_state.cpp,global_read,g_cachedCdTrackTypes
 0x490fe0,ReopenCdAudio,src/game/game_state.cpp,global_read,g_game

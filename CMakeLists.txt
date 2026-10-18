@@ -29,6 +29,7 @@ if(NOT LINK_ORDER_RESULT EQUAL 0)
   message(FATAL_ERROR "tools/sources.py --link-order failed")
 endif()
 string(REPLACE "\n" ";" SOURCES "${LINK_ORDER}")
+option(BT_DATA_ORDER "Lay the game's data out in 3.1c's order" ON)
 option(BITEXACT_ROUTE "Route the game logic's CRT calls to lib/bitexact" ON)
 if(BITEXACT_ROUTE)
   list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/util/math_4b70a0.cpp")
@@ -187,11 +188,16 @@ target_include_directories(extra SYSTEM PRIVATE "${MSVC5_INCLUDE}")
 
 file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/alias_objects.rsp"
   CONTENT "$<JOIN:$<TARGET_OBJECTS:game>;$<TARGET_OBJECTS:data>;$<TARGET_OBJECTS:extra>,\n>\n")
+if(BT_DATA_ORDER)
+  set(DATA_ORDER_FLAG "")
+else()
+  set(DATA_ORDER_FLAG --no-data-order)
+endif()
 add_custom_command(
   OUTPUT "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/objs/objects.rsp"
   COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/aliases.py"
           --objects "@${CMAKE_BINARY_DIR}/alias_objects.rsp" --libs ${SYSTEM_LIBS} ${IMPORT_LIBS} ${ZLIB_OBJECTS}
-          --winmain 0x49e830 --patch-dir "${CMAKE_BINARY_DIR}/objs" --out "${CMAKE_BINARY_DIR}/aliases.obj"
+          --winmain 0x49e830 ${DATA_ORDER_FLAG} --patch-dir "${CMAKE_BINARY_DIR}/objs" --out "${CMAKE_BINARY_DIR}/aliases.obj"
   DEPENDS game data extra bitexact ${ZLIB_TARGETS} $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> ${IMPORT_LIBS}
           "${CMAKE_SOURCE_DIR}/tools/aliases.py"
   VERBATIM COMMAND_EXPAND_LISTS)

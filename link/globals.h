@@ -470,7 +470,7 @@ extern int g_gafEncodeOutputSize;                                               
 extern unsigned char DAT_0051fdb4[4];                                                                           // 0x51fdb4, 4 bytes; nothing refers to it
 extern TranslationTable* g_translations;                                                                        // 0x51fdb8, 4 bytes; 1 of 1 files
 extern unsigned char DAT_0051fdbc[4];                                                                           // 0x51fdbc, 4 bytes; nothing refers to it
-extern char g_language[256];                                                                                    // 0x51fdc0, 256 bytes; 1 of 1 files
+extern char g_language[64];                                                                                     // 0x51fdc0, 64 bytes; 1 of 1 files
 extern int g_edgeSpan;                                                                                          // 0x51fef0, 4 bytes; 1 of 1 files
 extern int g_edgeHighIndexB;                                                                                    // 0x51fef4, 4 bytes; 1 of 1 files
 extern Chunk* g_edgeTable;                                                                                      // 0x51fef8, 4 bytes; 1 of 1 files
@@ -791,12 +791,6 @@ extern long g_squashThreadLockTicket;                                           
 //   0x51fc78 g_closeHandler: part of another global: g_timerSlots+0xa0
 //   0x51fc7c g_closeHandlerArg: part of another global: g_timerSlots+0xa4
 //   0x51fc80 g_timerCount: part of another global: g_timerSlots+0xa8
-//   0x51fe00 g_screenLockCount: part of another global: g_language+0x40
-//   0x51fe08 g_screenLocks: part of another global: g_language+0x48
-//   0x51fe40 g_edgeSpanB: part of another global: g_language+0x80
-//   0x51fe48 g_edgeListPrev: part of another global: g_language+0x88
-//   0x51fe98 g_edgeLowIndexB: part of another global: g_language+0xd8
-//   0x51fea0 g_edgeListNext: part of another global: g_language+0xe0
 //   0x528a58 std::IH::IU?$pair::?$_Tree::_Nilrefs: defined in src/debug/debug_lib_4db610.cpp
 
 #endif
