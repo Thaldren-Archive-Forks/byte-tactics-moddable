@@ -17,11 +17,11 @@ column of data/functions.csv:
 
     game      game functions (the default)
     gap       a function inside a `gap` region: inline assembly and more
-              per-file flags are allowed (tools/gapcheck.py checks it)
+              per-file flags are allowed
     library   only `library` functions: runtime library code built with the
-              game's options, which tools/place.py places as library code
+              game's options
     data      no functions and at least one `// GLOBAL:`: the game's data as
-              source (docs/linking.md), which tools/place.py places by address
+              source
 
 The builds link the objects in a fixed order that does not depend on folders
 (link_order): data first, then gap, library and game code, each kind by the
@@ -197,8 +197,7 @@ def link_key(src: Path | str) -> tuple:
 
 def link_order(paths: list[Path]) -> list[Path]:
     """Data first, then gap code, library code and game code, each in address
-    order: the order the builds link the objects in (tools/link.py leaves the
-    gap code out: tools/gapcheck.py builds it). Data files keep their names'
+    order: the order the builds link the objects in. Data files keep their names'
     order (their globals are placed by address anyway). Anything that counts
     or picks among the files goes through this order too, so that where a file
     lives never changes a result."""
@@ -223,7 +222,7 @@ def find_global(address: int) -> Path | None:
 
 def gap_sources() -> dict[int, Path]:
     """Gap region -> the file holding its code: the one that annotates a
-    function inside it. One file holds one region (tools/gapcheck.py)."""
+    function inside it. One file holds one region."""
     out: dict[int, Path] = {}
     for src in source_files():
         for a in function_addresses(src):
@@ -254,10 +253,7 @@ _gap_annotations: list[tuple[int, str]] | None = None
 def gap_annotations() -> list[tuple[int, str]]:
     """(address, name) for every name only gap sources spell: the function a
     `// FUNCTION:` annotation defines, and a global a `// GLOBAL:` annotation
-    marks on the declaration of it. Gap code is checked by tools/gapcheck.py,
-    not by tools/progress.py, so no match there learns these names; without
-    them in data/symbols.csv a rename loses tools/globals.py's definition of
-    the global and adds tools/place.py relocation rows."""
+    marks on the declaration of it."""
     global _gap_annotations
     if _gap_annotations is None:
         out: list[tuple[int, str]] = []

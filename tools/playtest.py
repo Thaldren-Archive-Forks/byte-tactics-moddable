@@ -1,17 +1,15 @@
 """Play-test builds of TotalA.exe under Wine, each run fenced off from the rest.
 
-    uv run tools/playtest.py --exe orig,carve --scenario full
-    uv run tools/playtest.py --exe orig --exe carve --scenario arm,core --repeat 2 --parallel 4
-    uv run tools/playtest.py --exe orig+carve --scenario mp --trap-stubs
+    uv run tools/playtest.py --exe orig,modern --scenario full
+    uv run tools/playtest.py --exe orig --exe modern --scenario arm,core --repeat 2 --parallel 4
+    uv run tools/playtest.py --exe orig+modern --scenario mp
     uv run tools/playtest.py --list
     uv run tools/playtest.py --exe build/reference/HEAD/TotalA.exe --testmode reference/scenarios/skirmish2.txt
 
-`--exe` takes `orig` (orig/TotalA.exe), `place` (build/place/TotalA.exe from
-tools/place.py), `carve` (build/link/TotalA.exe from tools/link.py --carve),
-`modern` (build/modern/TotalA.exe from the CMake build) or
-the path of an exe; `orig+carve` runs orig in a scenario's first instance and
-carve in the others. A scenario is a script in tools/playtest/<name>.txt (the
-step language is described in docs/linking.md). Every pair of scenario and
+`--exe` takes `orig` (orig/TotalA.exe), `modern` (build/modern/TotalA.exe from
+the CMake build) or the path of an exe; `orig+modern` runs orig in a scenario's
+first instance and modern in the others. A scenario is a script in
+tools/playtest/<name>.txt. Every pair of scenario and
 exe is one run, and `--parallel` runs that many at once. `--trap-stubs` plays
 a copy of an ordinary link whose stubs fault when reached (see stub_traps).
 
@@ -69,13 +67,9 @@ ZERO_FILL_SWITCH = "-memset=0"
 POISON_SWITCH = "-memset=0xcdcdcdcd"
 EXES = {
     "orig": ROOT / "orig/TotalA.exe",
-    "place": ROOT / "build/place/TotalA.exe",
-    "carve": ROOT / "build/link/TotalA.exe",
     "modern": ROOT / "build/modern/TotalA.exe",
 }
 BUILD_HINTS = {
-    "place": "uv run tools/place.py",
-    "carve": "uv run tools/link.py --carve",
     "modern": "cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake"
     " && cmake --build build/modern",
 }
@@ -1188,8 +1182,8 @@ class Run:
 
 
 def resolve_exes(values: list[str]) -> list[list[tuple[str, Path]]]:
-    """Each --exe choice: the exe of each instance, `orig+carve` giving the
-    first instance orig and the second (and any more) carve."""
+    """Each --exe choice: the exe of each instance, `orig+modern` giving the
+    first instance orig and the second (and any more) modern."""
     out = []
     for v in values:
         for choice in v.split(","):
@@ -1212,7 +1206,7 @@ def resolve_exes(values: list[str]) -> list[list[tuple[str, Path]]]:
 def stub_traps(exe: Path, out: Path) -> str:
     """Write a copy of an ordinary link whose stubs fault when reached.
 
-    tools/link.py --carve fills the names nothing defines from stubs.obj: a
+    A link fills the names nothing defines from stubs.obj: a
     function stub returns 0, and the data stub DAT_00000000 is a zero-filled
     word where the original reads address 0. In the copy every function stub
     starts with int3 and every reference to a data stub holds 0 again, so a
@@ -1318,7 +1312,7 @@ def summary(session: Path, runs: list[Run], shots: dict[str, list[str]]) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--exe", action="append", default=[],
-                    help="orig, place, carve, modern or a path (repeat, or commas); A+B: A in instance 1, B in the others")
+                    help="orig, modern or a path (repeat, or commas); A+B: A in instance 1, B in the others")
     ap.add_argument("--scenario", action="append", default=[], help="a tools/playtest/ scenario (repeat, or commas)")
     ap.add_argument("--repeat", type=int, default=1, help="run each pair this many times")
     ap.add_argument("--parallel", type=int, default=0, help="runs at once (default: all of them, at most 3)")

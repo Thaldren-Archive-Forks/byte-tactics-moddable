@@ -39,7 +39,7 @@ class ObjectInfo:
 
 
 def read_object(src: str, data: bytes) -> ObjectInfo:
-    """The external symbols of one COFF object (coff.py skips the auxiliary
+    """The external symbols of one COFF object (it reads the auxiliary
     records, which hold each COMDAT section's selection)."""
     info = ObjectInfo(src)
     _, nsects, _, symptr, nsyms, opthdr, _ = struct.unpack_from("<HHIIIHH", data, 0)
