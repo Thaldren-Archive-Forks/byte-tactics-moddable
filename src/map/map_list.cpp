@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "mission.h"
+#include "../../interfaces/seams.h"
 
 class StringRef;
 
@@ -94,9 +95,6 @@ void __stdcall BuildDataPath(char* out, const char* dir, const char* name, const
 void __stdcall ShowErrorBox(const char* text, const char* caption);
 char* __stdcall FindTranslation(char* name);
 int __stdcall GetLocalizedString(TdfFile* obj, char* buf, const char* key, int size, char* def);
-void EnableMeteors();
-void DisableMeteors();
-void __stdcall SetMeteorParams(MeteorParams* p);
 void* __cdecl GameReallocTagged(void* p, const char* name, unsigned int size);
 void __stdcall SetCursorMode(int n);
 void __stdcall ListDirectory(const char* pattern, int flags, std::vector<StringRef>* out);
@@ -976,13 +974,13 @@ int Mission::LoadMission(char* map)
         meteor.duration = GetFloat(parser.current, "MeteorDuration");
         meteor.interval = GetFloat(parser.current, "MeteorInterval");
         if (meteor.radius == 0 || meteor.density == 0.0f || meteor.duration == 0.0f || meteor.interval == 0.0f)
-            meteor.LoadMeteorDefaults();
-        EnableMeteors();
+            g_seams.wind_meteors->LoadMeteorDefaults(&meteor);
+        g_seams.wind_meteors->EnableMeteors();
     } else {
-        DisableMeteors();
-        meteor.LoadMeteorDefaults();
+        g_seams.wind_meteors->DisableMeteors();
+        g_seams.wind_meteors->LoadMeteorDefaults(&meteor);
     }
-    SetMeteorParams(&meteor);
+    g_seams.wind_meteors->SetMeteorParams(&meteor);
     LoadMissionData(schema, &parser);
     return 1;
 }
