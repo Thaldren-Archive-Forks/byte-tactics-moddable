@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../../interfaces/seams.h"
 #include <math.h>
 #include <memory.h>
 #include <vector>
@@ -1269,6 +1268,8 @@ static void Wait_0043b7c0(Order* node, int n)
     node->flags6 |= 1;
     node->wakeFrame = g_game->frame + when;
 }
+
+#include "../../interfaces/seams.h"
 
 // Clears the unit's three weapon targets.
 static void ClearTargets_0043b7c0(Unit* unit)

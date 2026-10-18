@@ -5,7 +5,6 @@
 // order). The ground twin is 0x406300.
 #include <stdio.h>
 #include "../util/vec3.h"
-#include "../../interfaces/seams.h"
 static inline Vec3 operator+(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 struct Unit;
 struct Order;
@@ -48,6 +47,8 @@ public:
     void SetAltitude(int);
     void SetApproachRadius(int);
 };
+
+#include "../../interfaces/seams.h"
 struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x14233]; int overflowBucket; };
 #pragma pack(pop)
 extern Game* g_game;

@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
-#include "../../interfaces/seams.h"
 
 #include "../util/tdf.h"
 #include "../util/hapi_bank.h"
@@ -538,6 +537,8 @@ unsigned short __stdcall GetCellFeature(Cell* cell)
     }
     return cell->feature;
 }
+
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x421eb0
 Vec3 __stdcall GetFootprintCentre(Point16* cell, Feature* def)

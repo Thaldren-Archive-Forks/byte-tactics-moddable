@@ -7,7 +7,6 @@
 
 #include "../util/hapi_bank.h"
 #include "mission_conditions.h"
-#include "../../interfaces/seams.h"
 
 class Mission;
 
@@ -168,6 +167,8 @@ HapiBank* __stdcall OpenHapiBank(char* name)
     }
     return obj;
 }
+
+#include "../../interfaces/seams.h"
 
 // Reads the game summary section and every subsystem's saved state.
 // FUNCTION: 0x432610

@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include "../util/vec3.h"
-#include "../../interfaces/seams.h"
 static inline Vec3 operator+(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 class UnitMotion;
@@ -31,6 +30,8 @@ struct Order { Unit* Target() { return target; } Vec3* Position() { return &pos;
     void ReattachFxToUnit();
     void MergeFlagsFromTable(int k);
 };
+
+#include "../../interfaces/seams.h"
 
 #pragma pack(pop)
 int __stdcall IssueAttackOrder(Unit*, Unit*, int);

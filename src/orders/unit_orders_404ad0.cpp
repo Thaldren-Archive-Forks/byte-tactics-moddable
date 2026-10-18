@@ -5,7 +5,6 @@
 // copy `box.hi = box.lo` gives the early store of hi.x and puts order in
 // edi and the feature in esi.
 #include <windows.h>
-#include "../../interfaces/seams.h"
 
 #include "box.h"
 
@@ -36,6 +35,8 @@ struct Game {
     char unknown_14273[0x38a47 - 0x14273];
     int gameTick;                      // +0x38a47
 };
+
+#include "../../interfaces/seams.h"
 #pragma pack(pop)
 
 extern Game* g_game;

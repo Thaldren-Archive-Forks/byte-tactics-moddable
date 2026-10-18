@@ -63,7 +63,6 @@ struct Chunk_00437a30 {
 };
 
 #include "../graphics/gaf_frame.h"
-#include "../../interfaces/seams.h"
 
 struct Vertex_458810 { int x; int y; int z; };
 
@@ -171,6 +170,8 @@ void CMemoryCache::DrawObjectPieces(Vec3_458810* result, List_458810* list, Vec3
         }
     }
 }
+
+#include "../../interfaces/seams.h"
 
 extern Game* g_game;
 

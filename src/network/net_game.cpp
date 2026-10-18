@@ -2847,7 +2847,6 @@ void __stdcall BroadcastBuilderLink(Unit* obj, Unit* target)
 #include <algorithm>
 #include <time.h>
 
-#include "../../interfaces/seams.h"
 #pragma pack(push, 1)
 
 // Unused here: the symbol ids this declaration takes keep the allocation (docs/c2-regalloc.md).
@@ -3890,6 +3889,8 @@ int CountCombatPlayers()
     }
     return count;
 }
+
+#include "../../interfaces/seams.h"
 
 // Shared-resource tick: every 60 game ticks, if the local player is over its
 // energy (or metal) reserve and has the matching flag, give up to a third (a

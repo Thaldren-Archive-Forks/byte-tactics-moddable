@@ -2341,7 +2341,6 @@ int __stdcall FireTurretWeapon(Unit* fire, Unit* unit,
 
 #include <stdlib.h>
 
-#include "../../interfaces/seams.h"
 
 struct Aim_0049d880 {
     char unknown_0[0xc];
@@ -2718,6 +2717,8 @@ void __stdcall InitUnitWeaponSlots(Unit* unit)
     }
     unit->script->StartScriptWithArgs("SetMaxReloadTime", 0, 0, 1, frame.maxTime * 1000 / 30, 0, 0, 0);
 }
+
+#include "../../interfaces/seams.h"
 
 // The three aim script names. The original's array has three elements, with
 // the string "AimTertiary" right after it, so a weapon index of 3 would read

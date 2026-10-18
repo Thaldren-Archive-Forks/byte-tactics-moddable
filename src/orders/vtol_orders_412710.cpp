@@ -10,7 +10,6 @@
 
 #include <math.h>
 #include <vector>
-#include "../../interfaces/seams.h"
 
 // Kept local, not util/vec3.h: its free operators inline differently from these members and the code size changes.
 struct Vec3 {
@@ -165,6 +164,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         order->flags |= flags | 0xe0;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id, Vec3* pos, int param_6, int param_7);

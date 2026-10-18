@@ -272,7 +272,6 @@ struct SideName {
 
 // The mouse record at g_game+0x2c76: copied by 0x41cc60, read by 0x41cd50.
 #include "../gui/mouse_event.h"
-#include "../../interfaces/seams.h"
 
 struct CursorState {
     MouseEvent start;                 // +0x0, the mouse when the scroll began
@@ -1288,6 +1287,8 @@ void __stdcall FinishConstruction(Unit* unit, Unit* target)
             g_game->ordersPanelFlags.raw |= 0x10;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // Adds build progress to a unit under construction: `amount` build points
 // (negative when it is being taken apart) move the remaining fraction at

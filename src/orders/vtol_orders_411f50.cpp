@@ -10,7 +10,6 @@
 #include <windows.h>
 #include <math.h>
 #include <vector>
-#include "../../interfaces/seams.h"
 
 struct Point { short x, y; };
 // Kept local, not util/vec3.h: the header's symbol ids change this function's registers.
@@ -164,6 +163,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         order->flags |= flags | 0xe0;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // Stays in a file of its own: it matches only in this file's symbol context.
 // FUNCTION: 0x411f50

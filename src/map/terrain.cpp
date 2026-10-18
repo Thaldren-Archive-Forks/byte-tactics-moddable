@@ -27,7 +27,6 @@
 #include <string.h>
 #include <math.h>
 #include <vector>
-#include "../../interfaces/seams.h"
 #include <shlobj.h>
 
 struct Unit;
@@ -1122,6 +1121,8 @@ void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& v
         }
     }
 }
+
+#include "../../interfaces/seams.h"
 
 void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);

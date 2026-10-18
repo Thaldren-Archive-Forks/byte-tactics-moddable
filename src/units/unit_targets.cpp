@@ -9,7 +9,6 @@
 #include <stdlib.h>
 
 #include "cob_script.h"
-#include "../../interfaces/seams.h"
 #include "../util/angles.h"
 
 class Unit;
@@ -632,6 +631,8 @@ void __stdcall SetWeaponTargetPos(char* param_1, int* param_2, int param_3)
     }
     *(unsigned short*)(param_1 + 0xba) &= 0x83ff;
 }
+
+#include "../../interfaces/seams.h"
 
 // Clears target entry `index` (the same reset as ResetWeaponTarget) unless it is
 // already clear, then tells the unit's script "StartBuilding" and

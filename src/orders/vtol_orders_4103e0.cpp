@@ -15,7 +15,6 @@ public:
 };
 }
 #include "../util/vec3.h"
-#include "../../interfaces/seams.h"
 struct Order;
 #include "mission_type.h"
 
@@ -43,6 +42,8 @@ struct Unit {
     void ClaimWeapons(int);
     void SetStateBits(int, int);
 };
+
+#include "../../interfaces/seams.h"
 #include "order.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep

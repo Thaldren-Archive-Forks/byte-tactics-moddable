@@ -9,7 +9,6 @@
 #include <imagehlp.h>
 #include "ta_types.h"
 #include <string.h>
-#include "../../interfaces/seams.h"
 
 // Unused here: the symbol ids these declarations take keep the allocation
 // (docs/c2-regalloc.md), standing in for the placeholder class ta_types.h
@@ -105,6 +104,8 @@ static inline void FreeFeatureList()
     delete s_featureTdfParsers;
     s_featureTdfParsers = 0;
 }
+
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x424c00
 void __stdcall LoadFeatures(HapiBank* file)

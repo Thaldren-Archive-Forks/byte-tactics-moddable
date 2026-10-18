@@ -9,7 +9,6 @@
 #include <math.h>
 
 #include "../util/vec3.h"
-#include "../../interfaces/seams.h"
 
 // The whole part (high 16 bits) of a 16.16 coordinate.
 static inline short Whole(const int& v) { return ((short*)&v)[1]; }
@@ -153,6 +152,8 @@ static inline int IsAhead(Unit* unit, Order* order)
     Vec3 facing = DirectionFromAngle(unit->heading, dist);
     return (short)(Whole(toward.x) * Whole(facing.x) + Whole(toward.z) * Whole(facing.z)) > 0;
 }
+
+#include "../../interfaces/seams.h"
 
 // Stays in a file of its own: it matches only in this file's symbol context.
 // FUNCTION: 0x412d40

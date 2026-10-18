@@ -11,7 +11,6 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
-#include "../../interfaces/seams.h"
 
 #include "../util/tdf.h"
 
@@ -148,6 +147,8 @@ static inline void LoadFeatureSeqOnce(TdfRecord* rec, char* key, char* seqname, 
         *out = 0;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // The return value is the full old count (0x422e40.cpp declares it unsigned
 // short).

@@ -8,7 +8,6 @@
 #include <string.h>
 #include <vector>
 #include <list>
-#include "../../interfaces/seams.h"
 // Included only for its symbols: it puts LoadUnitFbi's yardmap stores back
 // in the original's base/index order (docs/c2-regalloc.md).
 #include <malloc.h>
@@ -569,6 +568,8 @@ static inline unsigned int ReplaceFlagField(unsigned int flags, unsigned int val
 {
     return flags & ~(mask << shift) | (value & mask) << shift;
 }
+
+#include "../../interfaces/seams.h"
 
 // Included only for its symbols, here so the functions above keep their own
 // numbers: with <malloc.h> it puts LoadUnitFbi's yardmap stores back in the

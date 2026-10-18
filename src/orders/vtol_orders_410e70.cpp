@@ -7,7 +7,6 @@
 // Kept: the flags/health block's register allocation depends on this include.
 #include <windows.h>
 #include <vector>
-#include "../../interfaces/seams.h"
 
 // Kept local, not util/vec3.h: the header's symbol ids change this function's registers.
 struct Vec3 {
@@ -118,6 +117,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         order->flags |= flags | 0xe0;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 static inline void Dummy(void) {}
 // Stays in a file of its own: it matches only in this file's symbol context.

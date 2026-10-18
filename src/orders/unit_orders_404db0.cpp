@@ -1,7 +1,6 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
 // Stays in its own file: in unit_orders.cpp the feature pointer is added up in the other operand order and lstrcpynA is called directly instead of through the import.
 #include <windows.h>
-#include "../../interfaces/seams.h"
 
 #include "box.h"
 
@@ -111,6 +110,8 @@ struct FeatureDamagePacket {
     short x;
     short z;
 };
+
+#include "../../interfaces/seams.h"
 #pragma pack(pop)
 
 extern Game* g_game;

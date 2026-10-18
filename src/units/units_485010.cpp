@@ -217,7 +217,6 @@ union Flags114_485a40 {
 };
 
 #include "../game/unit_resources.h"
-#include "../../interfaces/seams.h"
 
 // This header's symbol ids replace those of three declarations that were here
 // to keep 0x485140 and 0x4854a0 matching (docs/c2-regalloc.md).
@@ -613,6 +612,8 @@ void FreeUnitMemory(void)
         GameFreeThunk(g_game->units);
     g_game->units = 0;
 }
+
+#include "../../interfaces/seams.h"
 
 void __stdcall SetUnitSquad(Unit* unit, int param_2);
 int __stdcall RandomInt(int range);

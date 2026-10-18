@@ -22,7 +22,6 @@
 #include <ddraw.h>
 #include <dsound.h>
 #include <dplay.h>
-#include "../../interfaces/seams.h"
 #include <stdio.h>
 struct Unit;
 void __stdcall CopyDwordIfNonNull(Unit**, Unit* const*);
@@ -769,6 +768,8 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
     }
     return 7;
 }
+
+#include "../../interfaces/seams.h"
 
 // Adds two integer 3-vectors and returns the sum by value.
 #pragma auto_inline(off)

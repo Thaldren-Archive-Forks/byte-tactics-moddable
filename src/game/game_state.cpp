@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-#include "../../interfaces/seams.h"
 
 #include "../map/mission.h"
 
@@ -692,6 +691,8 @@ void ShutdownGame(void)
     ReleasePacketData((Class_00452370*)g_game->chatHudRing);
     FreeOtaEnumCacheAndMission();
 }
+
+#include "../../interfaces/seams.h"
 
 // Resets the game state for a new match: clears the scratch fields and flags
 // in g_game, runs the per-subsystem reset functions, allocates the three

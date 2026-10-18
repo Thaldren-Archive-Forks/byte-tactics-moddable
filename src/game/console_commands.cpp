@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include "../../interfaces/seams.h"
 // Only for its symbol ids: it puts 0x4181d0 in the window it matches in.
 #include <wctype.h>
 
@@ -595,6 +594,8 @@ void __stdcall CmdBurnAll(int arg1)
 {
     RemoveAllFeatures();
 }
+
+#include "../../interfaces/seams.h"
 
 // Console command handler (same family as 0x4163d0); the argument is unused.
 // FUNCTION: 0x4163a0

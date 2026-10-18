@@ -197,7 +197,6 @@ public:
 #pragma pack(pop)
 
 #include "../game/unit_resources.h"
-#include "../../interfaces/seams.h"
 
 extern Game* g_game;
 
@@ -232,6 +231,8 @@ void __stdcall LoadUnits(HapiBank* file)
         }
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // Loads one unit (and, recursively, the units it carries or is built by) from the "Units"
 // section of a saved game: finds its 0xb8-byte record by id, creates the unit and copies the

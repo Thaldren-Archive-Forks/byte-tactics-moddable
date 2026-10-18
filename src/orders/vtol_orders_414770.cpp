@@ -2,7 +2,6 @@
 // <stdio.h> (or another header, see tools/headers.py) is needed only for
 // compiler state: without it the energy + metal sum loads metal first.
 #include <stdio.h>
-#include "../../interfaces/seams.h"
 
 #include "box.h"
 
@@ -103,6 +102,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         order->flags |= flags | 0xe0;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // Order handler "Reclaiming" (second variant, driven by a Class_0044e2d0
 // move object rather than the turn/approach states of 0x404ad0).

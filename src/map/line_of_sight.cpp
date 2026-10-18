@@ -16,7 +16,6 @@
 #include <math.h>
 #include <stddef.h>
 #include <algorithm>
-#include "../../interfaces/seams.h"
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -969,6 +968,8 @@ struct MapSettings {
     Cell* cells;                       // +0x8c
     unsigned short* mapValues;         // +0x90
 };
+
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x483610
 void LoadTntMap()

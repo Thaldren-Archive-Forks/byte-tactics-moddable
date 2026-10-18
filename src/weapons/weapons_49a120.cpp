@@ -32,7 +32,6 @@ struct CellPos_0049a120 {
 
 #include "weapon_def.h"
 #include "../util/vec3.h"
-#include "../../interfaces/seams.h"
 
 // Not units/unit_def.h: the header takes 0x49a120 out of its symbol-id window.
 struct UnitDef_0049a120 {
@@ -204,6 +203,8 @@ static inline Vec3_0049a120 Sub(const Vec3_0049a120& a, const Vec3_0049a120& b)
     r.z = a.z - b.z;
     return r;
 }
+
+#include "../../interfaces/seams.h"
 
 // Splash damage: every unit and feature within the weapon's radius of `pos`
 // takes damage that falls off from the centre, and weapons in flight close

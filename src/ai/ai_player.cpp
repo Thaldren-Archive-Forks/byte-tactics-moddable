@@ -33,7 +33,6 @@
 #include <vector>
 #include <windows.h>
 
-#include "../../interfaces/seams.h"
 
 #pragma pack(push, 1)
 
@@ -773,6 +772,8 @@ void SquadManager::MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50* obj, int a, in
         t->flag5 = 1;
     }
 }
+
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x406f80
 void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)

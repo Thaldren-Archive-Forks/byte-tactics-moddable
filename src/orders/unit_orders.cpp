@@ -29,7 +29,6 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 #include <vector>
 
 #include "../util/vec3.h"
-#include "../../interfaces/seams.h"
 
 // The whole part (high 16 bits) of a 16.16 coordinate: the fractional half the
 // file's own Vec3 carried before the shared one.
@@ -367,6 +366,8 @@ inline int Order::Advance(int distance) {
     step++;
     return 1;
 }
+
+#include "../../interfaces/seams.h"
 
 extern Game* g_game;
 

@@ -38,7 +38,6 @@ public:
 #include "../units/unit_def.h"
 
 #include "../network/player.h"
-#include "../../interfaces/seams.h"
 
 struct Unit {
     char unknown_0[0x58];
@@ -278,6 +277,8 @@ static int UseEnergyD(Unit* u, float v)
     AddIncomeDB(u, &u->resourceSlot.res[0].produced, -v);
     return 0;
 }
+
+#include "../../interfaces/seams.h"
 
 // FUNCTION: 0x401360
 void __stdcall UpdatePlayerEconomy(Player* p)

@@ -47,7 +47,6 @@ struct Unit {
 };
 
 #include "../network/player_info.h"
-#include "../../interfaces/seams.h"
 
 // Keeps its own view: InitPlayerSlot clears the halves of the energy and metal totals apart, which player.h's doubles do not.
 struct Player {
@@ -346,6 +345,8 @@ void ResetPlayerSlots()
     g_game->chatHudWriteIdx = 0;
     g_game->chatHudReadIdx = 0;
 }
+
+#include "../../interfaces/seams.h"
 
 void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);

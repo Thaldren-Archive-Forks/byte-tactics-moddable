@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../interfaces/seams.h"
 #include <algorithm>
 #include <time.h>
 // Needed: without it the x87 schedule of the map-name block differs.
@@ -1140,6 +1139,8 @@ void __stdcall MinimapCursorToWorldPos(Pos_00498d00* out)
     out->z.whole = g_game->mapPixelHeight * dy / g_game->minimapGadgetH;
     out->y.whole = GetGroundHeight(out);
 }
+
+#include "../../interfaces/seams.h"
 // Turns a screen point into a world position. The caller copies the 24-byte
 // view rectangle at g_game+0x2c76 onto its own stack and passes the address, so
 // this function sees a snapshot of the view.
