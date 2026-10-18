@@ -6,6 +6,7 @@
 // (VTOL_RECLAIM).
 #include <vector>
 
+#include "../state/block.h"
 #include "../util/vec3.h"
 
 #include "mission_type.h"
@@ -74,7 +75,7 @@ inline void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0((Order*)order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0((Order*)order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
@@ -89,7 +90,7 @@ static inline int Land(Unit* unit, Order* order)
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad = pads[RandomInt(pads.size())];
-            AppendOrder(unit, new Order("VTOL_LANDING", pad, 0, 0, 0, 0));
+            AppendOrder(unit, new (kSim) Order("VTOL_LANDING", pad, 0, 0, 0, 0));
             order->flags = 0;
             return 1;
         }
@@ -131,7 +132,7 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
         case 1: {
             if (flags & 0xe0)
                 return 6;
-            Class_0044e2d0* obj = new Class_0044e2d0(order, order->pos);
+            Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
             obj->SetAltitude(unit->def->altitude);
             order->SetAttachedFx((OrderFx*)obj);
             order->SetDeadlineTicks(0x2d);
@@ -151,7 +152,7 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
                     }
                     if (unit->CanRepair(target) && target->buildLeft != 0.0f) {
                         order->SetAttachedFx(0);
-                        AppendOrder(unit, new Order("VTOL_HELPBUILD", target, 0, 0, 0, 0));
+                        AppendOrder(unit, new (kSim) Order("VTOL_HELPBUILD", target, 0, 0, 0, 0));
                         order->flags = 0;
                         return 3;
                     }
@@ -167,25 +168,25 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
                 // Amounts read through GetEnergy/GetMetal and Total: gives the x87 load order.
                 if (unit->player->GetMetal() < unit->player->metalCapacity * 0.2 && metal) {
                     order->SetAttachedFx(0);
-                    AppendOrder(unit, new Order("VTOL_RECLAIM", 0, metal, 0, 0, 0));
+                    AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, metal, 0, 0, 0));
                     order->flags = 0;
                     return 3;
                 }
                 if (unit->player->GetEnergy() < unit->player->energyCapacity * 0.2 && energy) {
                     order->SetAttachedFx(0);
-                    AppendOrder(unit, new Order("VTOL_RECLAIM", 0, energy, 0, 0, 0));
+                    AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, energy, 0, 0, 0));
                     order->flags = 0;
                     return 3;
                 }
                 if (metal && Total(unit->player->GetMetal(), metalAmount) <= unit->player->metalCapacity) {
                     order->SetAttachedFx(0);
-                    AppendOrder(unit, new Order("VTOL_RECLAIM", 0, metal, 0, 0, 0));
+                    AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, metal, 0, 0, 0));
                     order->flags = 0;
                     return 3;
                 }
                 if (energy && Total(unit->player->GetEnergy(), energyAmount) <= unit->player->energyCapacity) {
                     order->SetAttachedFx(0);
-                    AppendOrder(unit, new Order("VTOL_RECLAIM", 0, energy, 0, 0, 0));
+                    AppendOrder(unit, new (kSim) Order("VTOL_RECLAIM", 0, energy, 0, 0, 0));
                     order->flags = 0;
                     return 3;
                 }

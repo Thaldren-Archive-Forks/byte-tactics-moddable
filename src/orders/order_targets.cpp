@@ -12,6 +12,7 @@
 // which moves 0x44e3c0's registers).
 // Keep the header include: without it the operand order of 0x44d560's sum flips.
 #include <memory.h>
+#include "../state/block.h"
 #include "../util/hapi_bank.h"
 #include <stdlib.h>
 #include <vector>
@@ -2629,7 +2630,7 @@ void PatrolGoal::FillWaypointWorldPos(Vec3_004907e0* out, int unused, int n)
 // FUNCTION: 0x44f6a0
 void CreatePathfinder()
 {
-    g_game->pathfinder = new Pathfinder;
+    g_game->pathfinder = new (kSim) Pathfinder;
 }
 
 // Deletes the object at g_game+0x14207 and clears the pointer.

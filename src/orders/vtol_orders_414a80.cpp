@@ -1,4 +1,5 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
+#include "../state/block.h"
 #include "../util/vec3.h"
 
 static inline Vec3 Sub(const Vec3& a, const Vec3& b)
@@ -112,7 +113,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
     unit->SetStateBits(1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, unit->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
         order->SetAttachedFx((int)obj);
         order->flags |= flags | 0xe0;
@@ -152,7 +153,7 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         Point origin = unit->footprint;
         Point cell = WorldToCell(order->pos, origin);
         CellToWorldPos(cell, &order->pos, origin);
-        Class_0044e2d0* obj = new Class_0044e2d0(order, order->target.Get()->pos);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->target.Get()->pos);
         order->SetAttachedFx((int)obj);
         order->flags |= 0x100e8;
         QueueUnitSpeech(unit, 11, 0);

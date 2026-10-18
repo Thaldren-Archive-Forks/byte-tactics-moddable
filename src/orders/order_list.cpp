@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <iterator>
 
+#include "../state/block.h"
 #include "../util/hapi_bank.h"
 
 #pragma pack(push, 1)
@@ -605,7 +606,7 @@ void __stdcall EnsurePatrolReturnOrder(Unit* p, Order* item)
         }
     }
     if (add) {
-        Order* child = new Order(item->kind, 0, &p->pos, 0, 0, 0);
+        Order* child = new (kSim) Order(item->kind, 0, &p->pos, 0, 0, 0);
         InsertBefore(p, child, 0);
     }
     item->flags |= 0x8000;
@@ -873,7 +874,7 @@ void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id,
 {
     // The constructor's owner argument is the fourth parameter, not `owner`,
     // which stays in its stack slot.
-    Order* obj = new Order(kind, (Unit*)id, pos, param_6, param_7, 0);
+    Order* obj = new (kSim) Order(kind, (Unit*)id, pos, param_6, param_7, 0);
 
     if (remove == 0 && !(obj->flags & 0x40))
         // Link and head passed separately so the two loads of owner->list stay.
@@ -1162,14 +1163,14 @@ int __stdcall IssueAttackOrder(Unit* unit, Unit* target, int param_3)
         return 0;
     if ((unit->flags & 0xc0000) == 0x40000 && !param_3) {
         MissionType kind2 = GetOrderType(2, unit, 0, &unit->pos);
-        Order* cmd = new Order(kind2, 0, &unit->pos, 0, 0, 0);
+        Order* cmd = new (kSim) Order(kind2, 0, &unit->pos, 0, 0, 0);
         Insert(unit, cmd, (cmd->flags & 0x40000) ? unit->list2 : unit->list);
-        Order* cmd2 = new Order(kind, target, 0, 0, 0, unit->def->maneuverleashlength);
+        Order* cmd2 = new (kSim) Order(kind, target, 0, 0, 0, unit->def->maneuverleashlength);
         cmd2->start.x = PosXWhole(unit);
         cmd2->start.y = PosZWhole(unit);
         Insert(unit, cmd2, (cmd2->flags & 0x40000) ? unit->list2 : unit->list);
     } else {
-        Order* cmd3 = new Order(kind, target, 0, 0, 0, 0);
+        Order* cmd3 = new (kSim) Order(kind, target, 0, 0, 0, 0);
         Insert(unit, cmd3, (cmd3->flags & 0x40000) ? unit->list2 : unit->list);
     }
     return 1;
@@ -1192,9 +1193,9 @@ int __stdcall IssueRepairOrder(Unit* unit, Unit* target, int param_3)
     unsigned int f = unit->flags & 0xc0000;
     if (f == 0 && !param_3) {
         MissionType kind2 = GetOrderType(2, unit, 0, &unit->pos);
-        Order* cmd = new Order(kind2, 0, &unit->pos, 0, 0, 0);
+        Order* cmd = new (kSim) Order(kind2, 0, &unit->pos, 0, 0, 0);
         Insert(unit, cmd, (cmd->flags & 0x40000) ? unit->list2 : unit->list);
-        Order* cmd2 = new Order(kind, target, 0, 0, 0, unit->def->range);
+        Order* cmd2 = new (kSim) Order(kind, target, 0, 0, 0, unit->def->range);
         cmd2->start.x = PosXWhole(unit);
         cmd2->start.y = PosZWhole(unit);
         Insert(unit, cmd2, (cmd2->flags & 0x40000) ? unit->list2 : unit->list);
@@ -1202,15 +1203,15 @@ int __stdcall IssueRepairOrder(Unit* unit, Unit* target, int param_3)
         return 1;
     } else if (f == 0x40000 && !param_3) {
         MissionType kind2 = GetOrderType(2, unit, 0, &unit->pos);
-        Order* cmd = new Order(kind2, 0, &unit->pos, 0, 0, 0);
+        Order* cmd = new (kSim) Order(kind2, 0, &unit->pos, 0, 0, 0);
         Insert(unit, cmd, (cmd->flags & 0x40000) ? unit->list2 : unit->list);
-        Order* cmd2 = new Order(kind, target, 0, 0, 0, unit->def->maneuverleashlength);
+        Order* cmd2 = new (kSim) Order(kind, target, 0, 0, 0, unit->def->maneuverleashlength);
         cmd2->start.x = PosXWhole(unit);
         cmd2->start.y = PosZWhole(unit);
         Insert(unit, cmd2, (cmd2->flags & 0x40000) ? unit->list2 : unit->list);
         return 1;
     } else if (f == 0x80000 && !param_3) {
-        Order* cmd3 = new Order(kind, target, 0, 0, 0, 0);
+        Order* cmd3 = new (kSim) Order(kind, target, 0, 0, 0, 0);
         Insert(unit, cmd3, (cmd3->flags & 0x40000) ? unit->list2 : unit->list);
         return 1;
     } else {
@@ -1229,7 +1230,7 @@ int __stdcall FindBestTargetIfFireAtWill(Unit* unit)
 // FUNCTION: 0x43b730
 void __stdcall EnqueueOrderType(Unit* p, unsigned char type)
 {
-    Order* child = new Order(type, 0, 0, 0, 0, 0);
+    Order* child = new (kSim) Order(type, 0, 0, 0, 0, 0);
     child->flags |= 0x4000;
     InsertBefore(p, child, (child->flags & 0x40000) ? p->list2 : p->list);
 }
@@ -1255,7 +1256,7 @@ void __stdcall MoveOrderToTail(Unit* owner, Order* node)
 // inlining its body, so the call stays.
 static void InsertCommand(Unit* p, unsigned char type)
 {
-    Order* child = new Order(type, 0, 0, 0, 0, 0);
+    Order* child = new (kSim) Order(type, 0, 0, 0, 0, 0);
     child->flags |= 0x4000;
     InsertOrderBefore(p, child, (child->flags & 0x40000) ? p->list2 : p->list);
 }
@@ -2104,14 +2105,14 @@ UnitMotion::UnitMotion(Unit* unit)
     movementClass = unit->def->movementclass;
     if (unit->target->active != 0 && unit->target->type == 3) {
         if (unit->def->flag_800)
-            obj = (Iface_0043dd20*)new PackedPosGoal(unit);
+            obj = (Iface_0043dd20*)new (kSim) PackedPosGoal(unit);
         else
-            obj = (Iface_0043dd20*)new PatrolGoal(unit);
+            obj = (Iface_0043dd20*)new (kSim) PatrolGoal(unit);
     } else {
         if (unit->def->flag_800)
-            obj = (Iface_0043dd20*)new LiteGoal(unit);
+            obj = (Iface_0043dd20*)new (kSim) LiteGoal(unit);
         else
-            obj = (Iface_0043dd20*)new AiSearchGoal(unit);
+            obj = (Iface_0043dd20*)new (kSim) AiSearchGoal(unit);
     }
 }
 
