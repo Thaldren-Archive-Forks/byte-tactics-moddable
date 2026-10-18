@@ -243,6 +243,17 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
     return results
 
 
+def with_steps_per_frame(scenarios: dict[str, Path], steps: int, directory: Path) -> dict[str, Path]:
+    """Copies of the scenarios in `directory`, each ending with a steps_per_frame line (a later line replaces an earlier one)."""
+    directory.mkdir(parents=True, exist_ok=True)
+    copies = {}
+    for name, path in scenarios.items():
+        text = path.read_text()
+        copies[name] = directory / path.name
+        copies[name].write_text(text + ("" if text.endswith("\n") else "\n") + f"steps_per_frame {steps}\n")
+    return copies
+
+
 def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) -> str | None:
     """A description of the first tick at which the digests differ, or None."""
     for a, b in zip(stored, got):
@@ -254,7 +265,8 @@ def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) 
     return None
 
 
-def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = False, poison: bool = False) -> None:
+def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = False, poison: bool = False,
+                 steps_per_frame: int | None = None) -> None:
     scenarios = scenario_files()
     stored = {p.stem: p for p in sorted(TRACES.glob("*.txt"))} if TRACES.is_dir() else {}
     if quick:
@@ -274,8 +286,15 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
         except tracediff.Error as e:
             fail(str(e))
 
+    played = scenarios
+    scratch = ROOT / "build/scratch" / f"steps-per-frame-{os.getpid()}"
+    if steps_per_frame is not None:
+        played = with_steps_per_frame(scenarios, steps_per_frame, scratch)
     t0 = time.time()
-    results = play_all(exe, scenarios, game_dir, parallel, expected, poison)
+    try:
+        results = play_all(exe, played, game_dir, parallel, expected, poison)
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
     wall = time.time() - t0
     bad: list[str] = []
     for name in scenarios:
@@ -373,6 +392,8 @@ def main() -> None:
     ap.add_argument("--poison", action="store_true",
                     help="--check: play the scenarios with new game allocations filled with 0xCD; list the bytes whose starting value reaches hashed state; a difference is expected for real uninitialised reads")
     ap.add_argument("--exe", metavar="PATH", help="--check: the exe to check (build/modern/TotalA.exe)")
+    ap.add_argument("--steps-per-frame", type=int, metavar="N",
+                    help="--check: play every scenario with steps_per_frame N (1 to 8) and compare with the stored traces")
     ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
     ap.add_argument("--parallel", type=int, default=default_parallel(), metavar="N",
                     help="--traces, --check: scenarios played at once (default: half the CPUs, at most 6)")
@@ -385,6 +406,10 @@ def main() -> None:
         ap.error("--poison needs --check")
     if args.quick and not args.check:
         ap.error("--quick needs --check; it cannot be used with --traces")
+    if args.steps_per_frame is not None and not args.check:
+        ap.error("--steps-per-frame needs --check")
+    if args.steps_per_frame is not None and not 1 <= args.steps_per_frame <= 8:
+        ap.error("--steps-per-frame takes 1 to 8")
     if args.exe and not args.check:
         ap.error("--exe needs --check")
     if args.traces:
@@ -394,7 +419,7 @@ def main() -> None:
         ap.error("--check needs --exe: the gate is the modern build, --exe build/modern/TotalA.exe")
     if not Path(args.exe).is_file():
         ap.error(f"{args.exe} is not a file")
-    check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison)
+    check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison, args.steps_per_frame)
 
 
 if __name__ == "__main__":

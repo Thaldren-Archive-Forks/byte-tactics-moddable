@@ -357,6 +357,7 @@ game,harness,call,HarnessGameSeed,1
 game,harness,call,HarnessInit,1
 game,harness,call,HarnessPhase,1
 game,harness,call,HarnessStartSkirmish,1
+game,harness,call,HarnessStepsPerFrame,1
 game,harness,call,HarnessTestMode,1
 game,harness,shared_write,Game::difficulty,1
 game,harness,shared_write,Game::localPlayer,1

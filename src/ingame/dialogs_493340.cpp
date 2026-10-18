@@ -1168,6 +1168,7 @@ void OpenMain2Layout()
 }
 
 int HarnessTestMode();
+unsigned HarnessStepsPerFrame();
 
 // Frame pacing: measures the time since the last call, finds the slowest
 // active player (the one with the lowest tick counter that still has units),
@@ -1181,7 +1182,7 @@ int HarnessTestMode();
 void UpdateFramePacing()
 {
     if (HarnessTestMode()) {
-        g_game->simStepsPending = 1;
+        g_game->simStepsPending = (int)HarnessStepsPerFrame();
         return;
     }
     unsigned int now = GetTicks();

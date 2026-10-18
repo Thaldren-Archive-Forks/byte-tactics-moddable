@@ -1769,6 +1769,7 @@ s_players@src/harness/harness.cpp,,static,platform,platform,platform: only the d
 s_players@src/seams/native.cpp,,static,,platform,none: only code outside every walk touches it,,,,,1:InstallNativeSeams,1:InstallNativeSeams,"Engine configuration: a seam table filled once by InstallNativeSeams, outside the game state block."
 s_scenarioPath@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,2:HarnessInit?|OpenTrace?,,Test harness state (src/harness/harness.cpp).
 s_started@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,rw,,1:HarnessStartSkirmish,1:HarnessStartSkirmish,Test harness state (src/harness/harness.cpp).
+s_stepsPerFrame@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,r,,1:ReadKey,2:HarnessStepsPerFrame|ReadKey,Test harness state (src/harness/harness.cpp).
 s_targetNames@src/harness/harness.cpp,,static,platform,platform,platform: only the debug library or the test harness touches it,,,,,,1:DumpValue,Test harness state (src/harness/harness.cpp).
 s_targeting@src/seams/native.cpp,,static,,platform,none: only code outside every walk touches it,,,,,1:InstallNativeSeams,1:InstallNativeSeams,"Engine configuration: a seam table filled once by InstallNativeSeams, outside the game state block."
 s_teleport@src/graphics/particles.cpp,,static,,view,none: no access found,,,,,,,Particle manager object (graphics/particles.cpp): view.

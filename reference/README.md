@@ -51,6 +51,7 @@ Defaults are the ones in `LoadSettings`, never the registry.
 | `view_seed` | 1 | Seed of the presentation random generator (screen shake, particles, menu effects) |
 | `fpu_control_word` | `0x9001F` | Expected `_control87` value, ignoring the infinity-control bit; the run exits 2 if it differs |
 | `ticks` | required | Game ticks to play (30 per second of game time) |
+| `steps_per_frame` | 1 | Game ticks run between two drawn frames, 1 to 8; the traces must not depend on it |
 | `map` | required | Map name, the rest of the line (names have spaces) |
 | `difficulty` | 1 | AI difficulty 0 to 2, one value for all computer players |
 | `commander_death` | 1 | 1: the game ends when a commander dies |
@@ -343,6 +344,9 @@ tick 1: "Environment Initialization Failed"), `dialog-crt` (the "Microsoft Visua
 Library" box, as for R6025) or `dialog-cavedog` (the fatal error box). `reference.py` tries a run
 once more after a nonzero exit or `dialog-directx`; any other dialog, a hang and a failure after
 tick 1 are reported as they are.
+
+`--check --steps-per-frame <n>` (1 to 8) plays every scenario with that `steps_per_frame` and compares with
+the stored traces; it is a check on presentation code, not the gate.
 
 The full `--check` is what a pull request's gate needs.
 

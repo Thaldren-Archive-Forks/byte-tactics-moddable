@@ -29627,6 +29627,7 @@ address,function,file,kind,target
 0x495200,OpenMain2Layout,src/ingame/dialogs_493340.cpp,function,
 0x495200,OpenMain2Layout,src/ingame/dialogs_493340.cpp,global_read,g_game
 0x495230,UpdateFramePacing,src/ingame/dialogs_493340.cpp,call,GetTicks
+0x495230,UpdateFramePacing,src/ingame/dialogs_493340.cpp,call,HarnessStepsPerFrame
 0x495230,UpdateFramePacing,src/ingame/dialogs_493340.cpp,call,HarnessTestMode
 0x495230,UpdateFramePacing,src/ingame/dialogs_493340.cpp,call,floor
 0x495230,UpdateFramePacing,src/ingame/dialogs_493340.cpp,field_escape,Game::players
@@ -45634,6 +45635,8 @@ address,function,file,kind,target
 ,HarnessStartSkirmish,src/harness/harness.cpp,global_read,s_started@src/harness/harness.cpp
 ,HarnessStartSkirmish,src/harness/harness.cpp,global_read,s_testMode@src/harness/harness.cpp
 ,HarnessStartSkirmish,src/harness/harness.cpp,global_write,s_started@src/harness/harness.cpp
+,HarnessStepsPerFrame,src/harness/harness.cpp,function,
+,HarnessStepsPerFrame,src/harness/harness.cpp,global_read,s_stepsPerFrame@src/harness/harness.cpp
 ,HarnessTestMode,src/harness/harness.cpp,function,
 ,HarnessTestMode,src/harness/harness.cpp,global_read,s_testMode@src/harness/harness.cpp
 ,HarnessViewRand,src/harness/harness.cpp,function,
@@ -48906,6 +48909,7 @@ address,function,file,kind,target
 ,ReadKey,src/harness/harness.cpp,deref_read,*char
 ,ReadKey,src/harness/harness.cpp,function,
 ,ReadKey,src/harness/harness.cpp,global_maybe_written,s_map@src/harness/harness.cpp
+,ReadKey,src/harness/harness.cpp,global_read,s_stepsPerFrame@src/harness/harness.cpp
 ,ReadKey,src/harness/harness.cpp,global_read,s_ticks@src/harness/harness.cpp
 ,ReadKey,src/harness/harness.cpp,global_write,s_commanderDeath@src/harness/harness.cpp
 ,ReadKey,src/harness/harness.cpp,global_write,s_crtSeed@src/harness/harness.cpp
@@ -48919,6 +48923,7 @@ address,function,file,kind,target
 ,ReadKey,src/harness/harness.cpp,global_write,s_losType@src/harness/harness.cpp
 ,ReadKey,src/harness/harness.cpp,global_write,s_mapLine@src/harness/harness.cpp
 ,ReadKey,src/harness/harness.cpp,global_write,s_mapping@src/harness/harness.cpp
+,ReadKey,src/harness/harness.cpp,global_write,s_stepsPerFrame@src/harness/harness.cpp
 ,ReadKey,src/harness/harness.cpp,global_write,s_ticks@src/harness/harness.cpp
 ,ReadKey,src/harness/harness.cpp,global_write,s_viewSeed@src/harness/harness.cpp
 ,ReadMasked,src/harness/harness.cpp,deref_read,*unsigned char
