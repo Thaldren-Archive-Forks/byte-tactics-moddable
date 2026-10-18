@@ -41,14 +41,13 @@ static UnitsSeam s_units;
 static PlayersSeam s_players;
 static MapSeam s_map;
 
+static void __fastcall LoadMeteorDefaultsNative(MeteorParams* params)
+{
+    params->LoadMeteorDefaults();
+}
+
 void InstallNativeSeams()
 {
-    union {
-        void (MeteorParams::*member)();
-        void (__fastcall* function)(MeteorParams*);
-    } loadMeteorDefaults;
-    loadMeteorDefaults.member = &MeteorParams::LoadMeteorDefaults;
-
     s_wind_meteors.UpdateWind = UpdateWind;
     s_wind_meteors.UpdateMeteors = UpdateMeteors;
     s_wind_meteors.InitMeteors = InitMeteors;
@@ -56,7 +55,7 @@ void InstallNativeSeams()
     s_wind_meteors.EnableMeteors = EnableMeteors;
     s_wind_meteors.DisableMeteors = DisableMeteors;
     s_wind_meteors.SetMeteorParams = SetMeteorParams;
-    s_wind_meteors.LoadMeteorDefaults = loadMeteorDefaults.function;
+    s_wind_meteors.LoadMeteorDefaults = LoadMeteorDefaultsNative;
     s_wind_meteors.SaveMeteors = SaveMeteors;
     s_wind_meteors.LoadMeteors = LoadMeteors;
     s_wind_meteors.CmdMeteor = CmdMeteor;
