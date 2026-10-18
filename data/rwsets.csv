@@ -2102,7 +2102,7 @@ address,function,file,kind,target
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,global_read,g_seams
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,indirect_call,"indirect via int (*)(Unit *, Unit *, unsigned char) __attribute__((stdcall)) [WeaponsSeam::WeaponCanReachUnit]"
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,indirect_call,"indirect via int (*)(Unit *, unsigned int) __attribute__((stdcall)) [WeaponsSeam::GetWeaponRange]"
-0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(int, const Vec3 *, int, int, std::vector<Unit *> *) __attribute__((stdcall)) [AiSeam::GetVisibleEnemiesInRadius]"
+0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(int, const Vec3 *, int, int, std::vector<Unit *, std::allocator<Unit *>> *) __attribute__((stdcall)) [AiSeam::GetVisibleEnemiesInRadius]"
 0x40ba80,GetBasePosition,src/ai/ai_player.cpp,call,operator=
 0x40ba80,GetBasePosition,src/ai/ai_player.cpp,deref_read,*Struct_0040ba80
 0x40ba80,GetBasePosition,src/ai/ai_player.cpp,deref_write,*Struct_0040ba80
