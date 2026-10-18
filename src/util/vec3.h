@@ -15,6 +15,10 @@ struct Vec3 {
 struct Point16 {
     short x;
     short y;
+    int operator!=(const Point16& o) const
+    {
+        return x != o.x || y != o.y;
+    }
 };
 
 #endif

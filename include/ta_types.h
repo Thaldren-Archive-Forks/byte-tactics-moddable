@@ -7554,50 +7554,7 @@ struct Class_0044ec20 {  // 0x26 bytes, 1 view
     void FUN_0044ec20(short);
 };
 
-class PathGoal {        // 0xc bytes, 15 views
-public:
-    Base_00490a10* field_4;  // +0x4
-    Unit* owner;  // +0x8
-    virtual ~PathGoal(void);
-    PathGoal(Unit*);
-    virtual void SetPathOrder(void*);
-    virtual void TickTowardGoal(void);
-    virtual void FillWaypointWorldPos(int, int, int);
-    virtual void ExportGoalPose(int, int, int);
-    virtual int HasReadyWaypoints(void);
-    virtual int TryClaimRepath(void);
-    virtual int HasNetUnitState(void);
-    virtual void SerializeNetUnitState(int);
-    virtual void DeserializeNetUnitState(int);
-    virtual void DeserializeNetUnitState(void);
-    virtual void DrawOnSurface(int);
-    virtual void DrawOnSurface(void);
-};
-
-class AiSearchGoal : public PathGoal {          // 0x68 bytes, 10 views
-public:
-    Point16 points[20];  // +0xc
-    int count;  // +0x5c
-    int field_60;  // +0x60
-    unsigned char active : 1;  // +0x64
-    unsigned char flag_1 : 1;
-    unsigned char flag_2 : 1;
-    unsigned char flag_3 : 1;
-    unsigned char : 4;
-    char unknown_65[3];
-    virtual ~AiSearchGoal(void);
-    AiSearchGoal(int);
-    virtual void SetPathOrder(void*);
-    virtual void TickTowardGoal(void);
-    virtual void FillWaypointWorldPos(int, int, int);
-    virtual int HasReadyWaypoints(void);
-    virtual int TryClaimRepath(void);
-    virtual int HasNetUnitState(void);
-    virtual void SerializeNetUnitState(int);
-    virtual void DrawOnSurface(int);
-    void SetWaypoints(Point16*, int);
-    void TruncateWaypointsFrom(int);
-};
+#include "../src/ai/ai_search_goal.h"
 
 class Class_0044f570 : public PathGoal {        // 0x1c bytes, 3 views
 public:

@@ -7,6 +7,9 @@
 #include "../util/vec3.h"
 #include "../map/mission.h"
 #include "../units/unit.h"
+#include "../ai/pathfinder.h"
+#include "../ai/ai_search_goal.h"
+#include "../orders/order_fx.h"
 
 struct Player;
 
@@ -115,22 +118,6 @@ void __stdcall UpdateSensorRadarAndCloak(void);
 struct DamagedAllyCollector;
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
 
-class Pathfinder {
-public:
-    ~Pathfinder();
-    void RunSearches();
-    void AbortIfGoalMatch(int goal);
-};
-
-class AiSearchGoal {
-public:
-    void SetWaypoints(Point16* points, int count);
-};
-
-class OrderFx {
-public:
-    void AddFlags(int flags);
-};
 
 
 static void __stdcall ResetNative(UnitResources* self, unsigned char playerIndex)
