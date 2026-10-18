@@ -613,8 +613,8 @@ Order::~Order()
     }
     if (flags & 0x400000) {
         Unit* obj = unit;
-        int index = obj->script->FindScript("StopBuilding");
-        obj->script->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
+        int index = g_seams.units->FindScript(obj->script, "StopBuilding");
+        g_seams.units->StartScriptWithArgsByIndex(obj->script, index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
         flags &= ~0x400000;
     }
@@ -634,7 +634,7 @@ Order::~Order()
     if (!(flags & 0x10000)) {
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
     }
-    ((UnitRef*)&link)->Unlink();
+    g_seams.units->UnitRefUnlink((UnitRef*)&link);
 }
 
 // The real resolver at 0x43a360 (matched in its own file), defined here without
