@@ -331,8 +331,8 @@ void __stdcall AddBeCarriedOrder(Unit* p)
 // FUNCTION: 0x438590
 void __stdcall StartBuildingScript(Unit* obj, Order* target, unsigned short param_3)
 {
-    int index = obj->script->FindScript("StartBuilding");
-    obj->script->StartScriptWithArgsByIndex(index, 0, 0, 1, param_3, 0, 0, 0);
+    int index = g_seams.units->FindScript(obj->script, "StartBuilding");
+    g_seams.units->StartScriptWithArgsByIndex(obj->script, index, 0, 0, 1, param_3, 0, 0, 0);
     SendScriptCall(obj, index, 1, param_3, 0, 0, 0);
     target->flags |= 0x400000;
 }
@@ -341,8 +341,8 @@ void __stdcall StartBuildingScript(Unit* obj, Order* target, unsigned short para
 void __stdcall StopBuildingScript(Unit* obj, Order* target)
 {
     if (target->flags & 0x400000) {
-        int index = obj->script->FindScript("StopBuilding");
-        obj->script->StartScriptWithArgsByIndex(index, 0, 0, 0, 0, 0, 0, 0);
+        int index = g_seams.units->FindScript(obj->script, "StopBuilding");
+        g_seams.units->StartScriptWithArgsByIndex(obj->script, index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
         target->flags &= ~0x400000;
     }
@@ -646,7 +646,7 @@ short __stdcall ResolveUnitTypeKey(HapiBank* file, unsigned short id)
     char key[0x80];
     sprintf(key, "UTYPENAME%4d", id);
     if (file->HasItem(key))
-        return FindUnitTypeId(file->GetStringItem(key, 0));
+        return g_seams.units->FindUnitTypeId(file->GetStringItem(key, 0));
     int i, n = 0;
     unsigned short k = 0;
     for (i = 1; i < g_game->unitDefCount; i++, n++) {
@@ -739,7 +739,7 @@ Order::Order(Unit* punit, HapiBank* file, char* name)
         return;
 
     unit = punit;
-    link.SetUnit(LoadUnit(desc.ownerType, file));
+    link.SetUnit(g_seams.units->LoadUnit(desc.ownerType, file));
 
     kind = desc.kind;
     flag5 = desc.flag5;

@@ -182,7 +182,7 @@ int __stdcall LoadSavedGameState(HapiBank* file)
     g_seams.map->LoadMetalPlotmap(file);
     g_seams.map->LoadPlayerFeaturesPlotmap(file);
     g_seams.map->LoadMappingData(file);
-    LoadUnits(file);
+    g_seams.units->LoadUnits(file);
     g_seams.wind_meteors->LoadMeteors(file);
     g_seams.players->LoadConditions(g_game->victoryConditions, 0, file);
     g_game->loaded = 1;
@@ -241,7 +241,7 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
         SaveSurface(g_game->finalSurface, &file);
         WriteCameraPosition(&file);
         g_seams.players->SavePlayers(&file);
-        SaveUnits(&file);
+        g_seams.units->SaveUnits(&file);
         g_seams.map->SaveMappingData(&file);
         g_seams.features->SaveFeatures(&file);
         g_seams.map->SavePlayerFeaturesPlotmap(&file);

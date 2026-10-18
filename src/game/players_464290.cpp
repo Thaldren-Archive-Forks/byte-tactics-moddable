@@ -878,7 +878,7 @@ void __stdcall UpdatePlayers()
                                 g_game->players[FindHostSlot()].info;
                             // `unsigned int` with the 0xffff mask: avoids a spilled raw result.
                             unsigned int typeId;
-                            typeId = FindUnitTypeId(
+                            typeId = g_seams.units->FindUnitTypeId(
                                 &g_game->startPos[0x232 *
                                     g_game->players[g_game->localPlayer].info->side]) & 0xffff;
                             int bound = 9999;
@@ -924,7 +924,7 @@ void __stdcall UpdatePlayers()
                             } while (--bound > 0);
 
                             {
-                                Unit* unit = CreateUnit(
+                                Unit* unit = g_seams.units->CreateUnit(
                                     g_game->localPlayer, typeId, pos, 1, 1, 0);
                                 SetStartingStorageBonus(pi,
                                              self->metal * 100,

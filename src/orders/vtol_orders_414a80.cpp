@@ -109,8 +109,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
     g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
-        AttachUnitToPiece(unit, 0, -1, 2);
-    unit->SetStateBits(1, 1);
+        g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
+    g_seams.units->SetStateBits(unit, 1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
@@ -138,7 +138,7 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
                 QueueUnitSpeech(unit, 7, "Reclamation failed");
                 return 7;
             }
-            if (!unit->CanReclaim(target)) {
+            if (!g_seams.units->CanReclaim(unit, 0, target)) {
                 QueueUnitSpeech(unit, 7, "That unit cannot be reclaimed");
                 return 8;
             }
@@ -167,13 +167,13 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         int range = 0;
         range = unit->def->buildRange;
         int square = Square(delta);
-        if (square <= range * range && unit->CanReclaim(order->target.Get())) {
+        if (square <= range * range && g_seams.units->CanReclaim(unit, 0, order->target.Get())) {
             if (order->duration >= 15) {
                 g_seams.weapons->DamageUnit(unit, order->target.Get(), order->elapsed, 5, 0);
                 order->duration = 0;
             }
             Vec3 start;
-            GetNanoPiecePosition(order->source, &start);
+            g_seams.units->GetNanoPiecePosition(order->source, &start);
             Vec3 bounds[2];
             bounds[1] = order->target.Get()->pos;
             bounds[0] = order->target.Get()->pos;

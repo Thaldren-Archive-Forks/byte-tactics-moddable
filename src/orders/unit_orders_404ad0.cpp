@@ -82,7 +82,7 @@ int __stdcall ReclaimOrder(Unit* unit, Order* order, int flags)
         Vec3 pos;
         pos.x = (size.x + cell.x * 2) << 19;
         pos.z = (size.y + cell.y * 2) << 19;
-        pos.y = (RandomInt(f->height) + GetGroundHeight(&pos)) << 16;
+        pos.y = (RandomInt(f->height) + g_seams.units->GetGroundHeight(&pos)) << 16;
         StartBuildingScript(unit, order, GetHeadingBetween(&unit->pos, &pos) - unit->heading);
         return 1;
     }
@@ -98,11 +98,11 @@ int __stdcall ReclaimOrder(Unit* unit, Order* order, int flags)
         unit->workTime = g_game->gameTick + 300;
         if (order->time > 15) {
             Vec3 nano;
-            GetNanoPiecePosition(unit, &nano);
+            g_seams.units->GetNanoPiecePosition(unit, &nano);
             Box box;
             box.lo.x = cell.x << 20;
             box.lo.z = cell.y << 20;
-            box.lo.y = GetGroundHeight(&box.lo) << 16;
+            box.lo.y = g_seams.units->GetGroundHeight(&box.lo) << 16;
             box.hi = box.lo;
             box.hi.x += f->footprintX << 20;
             box.hi.z += f->footprintZ << 20;

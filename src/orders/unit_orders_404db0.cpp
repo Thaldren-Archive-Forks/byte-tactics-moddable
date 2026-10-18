@@ -166,7 +166,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         Vec3 pos;
         pos.x = (size.x + cell.x * 2) << 19;
         pos.z = (size.y + cell.y * 2) << 19;
-        pos.y = (RandomInt(f->height) + GetGroundHeight(&pos)) << 16;
+        pos.y = (RandomInt(f->height) + g_seams.units->GetGroundHeight(&pos)) << 16;
         StartBuildingScript(unit, order, GetHeadingBetween(&unit->pos, &pos) - unit->angles.heading);
         return 1;
     }
@@ -181,7 +181,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
                 break;
             }
         }
-        order->unitType = FindUnitTypeId(name);
+        order->unitType = g_seams.units->FindUnitTypeId(name);
         if (!order->unitType) {
             QueueUnitSpeech(unit, 7, "Ressurection failed");
             return 8;
@@ -193,11 +193,11 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
     case 4:
         if (order->time--) {
             Vec3 nano;
-            GetNanoPiecePosition(unit, &nano);
+            g_seams.units->GetNanoPiecePosition(unit, &nano);
             Box box;
             box.lo.x = cell.x << 20;
             box.lo.z = cell.y << 20;
-            box.lo.y = GetGroundHeight(&box.lo) << 16;
+            box.lo.y = g_seams.units->GetGroundHeight(&box.lo) << 16;
             box.hi = box.lo;
             box.hi.x += f->footprintX << 20;
             box.hi.z += f->footprintZ << 20;
@@ -209,7 +209,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 5: {
-        order->target.SetUnit(CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
+        order->target.SetUnit(g_seams.units->CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
         if (!order->target.owner) {
             QueueUnitSpeech(unit, 7, "Unable to create any more units");
             order->SetDeadlineTicks(300);

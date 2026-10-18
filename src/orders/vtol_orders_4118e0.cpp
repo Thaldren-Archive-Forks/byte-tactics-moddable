@@ -133,8 +133,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
     g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
-        AttachUnitToPiece(unit, 0, -1, 2);
-    unit->SetStateBits(1, 1);
+        g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
+    g_seams.units->SetStateBits(unit, 1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
@@ -155,7 +155,7 @@ int __stdcall FindLandingPad(Unit* unit, int pad)
     pads[1] = -1;
     pads[2] = -1;
     pads[3] = -1;
-    unit->script->QueryScript("QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
+    g_seams.units->QueryScript(unit->script, "QueryLandingPad", &pads[0], &pads[1], &pads[2], &pads[3]);
     for (int i = 0; i < 4; i++) {
         if (pads[i] != -1 && g_seams.map->IsPadSlotFree(unit, pads[i])) {
             return pads[i];
@@ -236,7 +236,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
             ((Class_0044e2d0*)obj)->SetAltitude(unit->cargo->def->field_170);
         else
             ((Class_0044e2d0*)obj)->SetAltitude(0);
-        unit->script->StartScript("EndTransport", 0, 1);
+        g_seams.units->StartScript(unit->script, "EndTransport", 0, 1);
         order->SetAttachedFx((int)obj);
         order->SetDeadlineTicks(0xf);
         order->state = 5;
@@ -252,11 +252,11 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
             return 0;
         }
         if (unit->cargo) {
-            unit->script->StartScript("EndTransport", 0, 0);
-            AttachUnitToPiece(unit->cargo, order->target.owner, order->angle, 0);
+            g_seams.units->StartScript(unit->script, "EndTransport", 0, 0);
+            g_seams.units->AttachUnitToPiece(unit->cargo, order->target.owner, order->angle, 0);
             dropped = 1;
         } else {
-            AttachUnitToPiece(unit, order->target.owner, order->angle, 0);
+            g_seams.units->AttachUnitToPiece(unit, order->target.owner, order->angle, 0);
         }
         if (!dropped && unit->health < unit->def->maxHealth
             && (order->target.owner->def->flags1 & 0x200)

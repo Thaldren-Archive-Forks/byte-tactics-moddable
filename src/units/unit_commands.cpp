@@ -18,6 +18,8 @@ struct Vec3_00487bf0 {
 #include "../util/angles.h"
 
 #include "../network/player.h"
+#include "../util/vec3.h"
+#include "../../interfaces/seams.h"
 
 struct Def_00488310 {
     char unknown_0[0x1fa];
@@ -141,7 +143,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
         case 'G':
         case 'g': {
             sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
-            int target = FindMissionUnit(buf, table, 0);
+            int target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
             if (target != 0) {
                 GetOrderType(&out.g, 7, unit, target, 0);
                 AddOrder(out.g, 1, unit, target, 0, 0, 0);
@@ -175,7 +177,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 processed = 1;
             } else {
                 sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
-                unsigned short id = FindUnitTypeId(buf);
+                unsigned short id = g_seams.units->FindUnitTypeId(buf);
                 if (id != 0) {
                     // String kinds are implicit conversions in the argument, never a named temporary.
                     AddOrder("ATTACKUTYPE", 1, unit, 0, 0, id, 0);
@@ -195,7 +197,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 L.pos.x = (int)(L.f1 * 65536.0);
                 L.pos.y = 0;
                 L.pos.z = (int)(65536.0 * L.f2);
-                unsigned short id = FindUnitTypeId(buf);
+                unsigned short id = g_seams.units->FindUnitTypeId(buf);
                 if (id != 0) {
                     if (unit->motion != 0)
                         AddOrder("MOBILEBUILD", 1, unit, 0,
@@ -215,7 +217,7 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 count = sscanf(buf + 2, " %[a-zA-Z0-9.]", buf);
                 int target = 0;
                 if (count == 1)
-                    target = FindMissionUnit(buf, table, 0);
+                    target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
                 if (target == 0)
                     target = (int)unit;
                 AddOrder("WAITFORATTACK", 1, unit, target,
@@ -245,9 +247,9 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
         case 'I':
         case 'i': {
             sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
-            int target = FindMissionUnit(buf, table, 0);
+            int target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
             if (target != 0)
-                AttachUnitToPiece(unit, target, -1, 0);
+                g_seams.units->AttachUnitToPiece(unit, (Unit*)target, -1, 0);
             break;
         }
         }
@@ -313,7 +315,6 @@ void __stdcall FatalError(char* message);
 // Included only for its declarations, which the symbol counter of CreateMissionUnits needs.
 #include <memory.h>
 #include <vector>
-#include "../../interfaces/seams.h"
 
 // std::vector<Unit*> is specialised here rather than taken from <vector>
 // because MSVC 5 inlines _Ufill's body into the real (count, value)
@@ -359,7 +360,7 @@ void __cdecl CreateMissionUnits()
     std::vector<Unit*> units(n);       // loops re-read mapInfo->unitCount themselves
     for (int i = 0; i < g_game->mapInfo->unitCount; i++) {
         MissionUnit* e = &g_game->mapInfo->units[i];
-        UnitType_00488b10* item = FindUnitType(e->name);
+        UnitType_00488b10* item = (UnitType_00488b10*)g_seams.units->FindUnitType(e->name);
         if (item == 0) {
             units[i] = 0;
             continue;
@@ -373,7 +374,7 @@ void __cdecl CreateMissionUnits()
             FatalError(buf);
         }
         g_seams.map->SnapWorldPosToFootprint((UnitDef*)item, (Vec3*)&e->pos);
-        Unit* u = CreateUnit((unsigned char)(e->player - 1), item->id, e->pos, 1, 1, 0);
+        Unit* u = g_seams.units->CreateUnit((unsigned char)(e->player - 1), item->id, *(Vec3*)&e->pos, 1, 1, 0);
         if (u) {
             // The mask is 0xffffff80, not 0x80: keeps the byte zero-extension.
             u->flags = (u->flags & ~0x8000) | ((e->flags & 0xffffff80) << 8);
@@ -455,7 +456,7 @@ void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPack
     if (other->type != 1 && other->type != 2)
         return;
 
-    Unit* n = CreateUnit(other->index, unit->unitDefIndex, unit->pos, 1, unit->flags & 3, 0);
+    Unit* n = g_seams.units->CreateUnit(other->index, unit->unitDefIndex, *(Vec3*)&unit->pos, 1, unit->flags & 3, 0);
     if (!n)
         return;
     n->flags &= 0xffc3ffff;
@@ -481,8 +482,8 @@ void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPack
             n->weapons[2].stockpile = unit->weapons[2].stockpile;
         g_seams.weapons->DamageUnit(0, unit, 30000, 4, 0);
     }
-    n->SetStateBits(unit->activateFlags, 1);
-    n->SetStateBits(~unit->activateFlags, 0);
+    g_seams.units->SetStateBits(n, unit->activateFlags, 1);
+    g_seams.units->SetStateBits(n, ~unit->activateFlags, 0);
 }
 
 // A quicksort of a range of item pointers ordered by ComparePlayers through a

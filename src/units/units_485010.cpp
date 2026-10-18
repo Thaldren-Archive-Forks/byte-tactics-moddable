@@ -1372,7 +1372,7 @@ void __stdcall KillPlayerUnits(unsigned char player)
                             } else {
                                 g_seams.weapons->DetonateUnitWeapon(u, 1);
                                 u->flags.all |= 0x4000;
-                                KillUnit(u, 3);
+                                g_seams.units->KillUnit(u, 3);
                             }
                         }
                     }

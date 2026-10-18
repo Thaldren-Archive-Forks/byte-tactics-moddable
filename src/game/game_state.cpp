@@ -688,7 +688,7 @@ void ShutdownGame(void)
     ClearOrderTypeTable();
     GameFreeThunk((int*)g_game->options);
     g_game->options = 0;
-    FreeUnitInfo();
+    g_seams.units->FreeUnitInfo();
     ReleasePacketData((Class_00452370*)g_game->chatHudRing);
     g_seams.map->FreeOtaEnumCacheAndMission();
 }
@@ -739,16 +739,16 @@ void LoadBattleAssets()
     ResetSpeech();
     LoadTextureGafs();
     g_seams.features->LoadFeatureFileList();
-    InitUnitCategories();
+    g_seams.units->InitUnitCategories();
     g_seams.features->NopAfterFeatureEnum();
     CreateParticleLists();
     g_seams.weapons->AllocWeaponArray();
     g_seams.weapons->LoadWeaponTypes();
     g_seams.los_radar->LoadTntMap();
     ResetCameraState();
-    LoadUnitTypes();
-    LoadDownloadMenus();
-    AllocateUnitMemory();
+    g_seams.units->LoadUnitTypes();
+    g_seams.units->LoadDownloadMenus();
+    g_seams.units->AllocateUnitMemory();
     g_seams.features->ResolveFeatureLinks();
     g_seams.features->FreeFeatureFileList();
     g_seams.map->BuildAllPassMaps();
@@ -830,7 +830,7 @@ void ShutdownIngameSystems()
     g_game->sound->SetTrackCategory(4);
     CollectEndGameStats();
     g_seams.wind_meteors->EmptyShutdownPreCleanup();
-    FreeUnitMemory();
+    g_seams.units->FreeUnitMemory();
     DestroyParticleLists();
     g_seams.weapons->FreeExplosions();
     DestroyPathfinder();
@@ -843,13 +843,13 @@ void ShutdownIngameSystems()
     g_game->assemPts = 0;
     g_game->tempProjectedPts = 0;
     g_game->tempXformPts = 0;
-    FreeDownloadMenus();
-    FreeUnitTypes();
+    g_seams.units->FreeDownloadMenus();
+    g_seams.units->FreeUnitTypes();
     g_seams.weapons->FreeWeaponTypes();
     FreeTextureGafs();
     g_seams.weapons->FreeWeaponArray();
-    FreeMovementClasses();
-    FreeUnitCategories();
+    g_seams.units->FreeMovementClasses();
+    g_seams.units->FreeUnitCategories();
     if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
         CloseNetSession();
     }

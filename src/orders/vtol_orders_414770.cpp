@@ -93,8 +93,8 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 {
     g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
-        AttachUnitToPiece(unit, 0, -1, 2);
-    unit->SetStateBits(1, 1);
+        g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
+    g_seams.units->SetStateBits(unit, 1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
@@ -149,11 +149,11 @@ int __stdcall VtolReclaimOrder(Unit* unit, Order* order, int flags)
         unit->workTime = g_game->gameTick + 300;
         if (order->time > 30) {
             Vec3 nano;
-            GetNanoPiecePosition(unit, &nano);
+            g_seams.units->GetNanoPiecePosition(unit, &nano);
             Box box;
             box.lo.x = cell.x << 20;
             box.lo.z = cell.y << 20;
-            box.lo.y = GetGroundHeight(&box.lo) << 16;
+            box.lo.y = g_seams.units->GetGroundHeight(&box.lo) << 16;
             box.hi = box.lo;
             box.hi.x += f->footprintX << 20;
             box.hi.z += f->footprintZ << 20;

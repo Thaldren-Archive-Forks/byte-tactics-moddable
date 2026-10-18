@@ -116,8 +116,8 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
                 order->angle=RandomInt(0x10000);
                 order->parity=order->angle&1;
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
-                if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
-                unit->SetStateBits(1,1);
+                if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
+                g_seams.units->SetStateBits(unit, 1,1);
                 if ((unit->motion->flags&3)==1) {
                     unit->motion->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);

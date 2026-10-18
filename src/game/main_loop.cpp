@@ -90,6 +90,7 @@ struct Vec3_00437320 {
 };
 
 #include "../map/mission.h"
+#include "../util/vec3.h"
 #include "../../interfaces/seams.h"
 
 union Fixed_00496ee0 {
@@ -443,7 +444,7 @@ void ReturnToMainMenuFrame()
 // FUNCTION: 0x496bb0
 void MenuFrame()
 {
-    RefreshUnitInfo();
+    g_seams.units->RefreshUnitInfo();
     HarnessStartSkirmish();
     RunFrontendStateMachine();
     if (g_game->bit2 && g_seams.map->GetGameType(g_game->mapInfo) == 1) {
@@ -585,9 +586,9 @@ void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
 
     FixedPos_00496ee0 pos;
     if (g_seams.map->GetStartPosition(g_game->net, 0, (Vec3*)&pos, startpos)) {
-        unsigned short id = FindUnitTypeId(
+        unsigned short id = g_seams.units->FindUnitTypeId(
             g_game->names[g_game->players[team].info->side].name);
-        CreateUnit(team, id, pos, 1, 1, 0);
+        g_seams.units->CreateUnit(team, id, *(Vec3*)&pos, 1, 1, 0);
     } else {
         char buf[128];
         sprintf(buf,

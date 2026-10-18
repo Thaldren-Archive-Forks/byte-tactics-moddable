@@ -152,7 +152,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
         g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
         g_seams.map->SnapWorldPosToFootprint(def, &order->pos);
         ((PathOrderAttach*)((char*)order + 0x12))->SetUnit(
-            CreateUnit(unit->playerIndex, (short)order->type, order->pos, 0, 1, 0));
+            g_seams.units->CreateUnit(unit->playerIndex, (short)order->type, order->pos, 0, 1, 0));
         if (!order->target) {
             QueueUnitSpeech(unit, 7, "Unable to create any more units");
             order->SetDeadlineTicks(300);
@@ -169,9 +169,9 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
     case 3: {
         int rate = 0;
         rate = unit->def->buildRate;
-        if (AddBuildProgress(unit, order->target, (float)(rate / 30))) {
+        if (g_seams.units->AddBuildProgress(unit, order->target, (float)(rate / 30))) {
             Vec3 start;
-            GetNanoPiecePosition(unit, &start);
+            g_seams.units->GetNanoPiecePosition(unit, &start);
             Vec3 bounds[2];
             bounds[0] = order->target->pos + order->target->def->min;
             bounds[1] = order->target->pos + order->target->def->max;

@@ -197,6 +197,7 @@ struct View_00498da0 {
 };
 
 #include "../map/cell.h"
+#include "../util/vec3.h"
 
 struct Slot_00497180 {                  // 0x18 bytes
     int kind;                           // +0x0, 1 or 2 when the slot is in use
@@ -674,8 +675,8 @@ void __cdecl LoadMatch(void*)
                 g_seams.map->GetStartPosition(((Mission*)g_game->mapInfo), 0, (Vec3*)&pos, which);
                 if (rec->active != 0 && rec->team == 1)
                     start = pos;
-                unsigned short id = FindUnitTypeId(g_game->sideNames[side].name + 4);
-                CreateUnit(rec->kind, id, pos, 1, 1, 0);
+                unsigned short id = g_seams.units->FindUnitTypeId(g_game->sideNames[side].name + 4);
+                g_seams.units->CreateUnit(rec->kind, id, *(Vec3*)&pos, 1, 1, 0);
                 int s1 = pl->energy * 100;
                 int s2 = pl->metal * 100;
                 rec->flags_149.started = 1;
@@ -1120,7 +1121,7 @@ void __stdcall MinimapCursorToWorldPos(Pos_00498d00* out)
     memset(out, 0, sizeof(Pos_00498d00));
     out->x.whole = g_game->mapPixelWidth * dx / g_game->minimapGadgetW;
     out->z.whole = g_game->mapPixelHeight * dy / g_game->minimapGadgetH;
-    out->y.whole = GetGroundHeight(out);
+    out->y.whole = g_seams.units->GetGroundHeight((Vec3*)out);
 }
 
 // Turns a screen point into a world position. The caller copies the 24-byte

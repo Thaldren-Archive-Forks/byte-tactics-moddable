@@ -69,8 +69,8 @@ inline void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags
 {
     g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
     if (unit->carrier)
-        AttachUnitToPiece(unit, 0, -1, 2);
-    unit->SetStateBits(1, 1);
+        g_seams.units->AttachUnitToPiece(unit, 0, -1, 2);
+    g_seams.units->SetStateBits(unit, 1, 1);
     if ((unit->motion->flags & 3) == 1) {
         unit->motion->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0((Order*)order, unit->pos);
@@ -144,12 +144,12 @@ int __stdcall VtolRepairPatrolOrder(Unit* unit, Order* order, unsigned int flags
                 g_seams.map->VisitObjectsInRange(&unit->pos, range, (UnitVisitor*)&collector);
                 if (!units.empty()) {
                     Unit* target = units[RandomInt(units.size())];
-                    if (unit->CanRepair(target) && target->buildLeft == 0.0f) {
+                    if (g_seams.units->CanRepair(unit, 0, target) && target->buildLeft == 0.0f) {
                         if (IssueRepairOrder(unit, target, 0))
                             return 6;
                         return 3;
                     }
-                    if (unit->CanRepair(target) && target->buildLeft != 0.0f) {
+                    if (g_seams.units->CanRepair(unit, 0, target) && target->buildLeft != 0.0f) {
                         order->SetAttachedFx(0);
                         AppendOrder(unit, new (kSim) Order("VTOL_HELPBUILD", target, 0, 0, 0, 0));
                         order->flags = 0;

@@ -147,8 +147,8 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
                 if (!unit->def->canBuild) return 7;
                 order->AnnounceStatusIfFlagged("Building");
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
-                if (unit->carrier) AttachUnitToPiece(unit,0,-1,2);
-                unit->SetStateBits(1,1);
+                if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
+                g_seams.units->SetStateBits(unit, 1,1);
                 if ((unit->motion->flags&3)==1) {
                     unit->motion->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
@@ -186,10 +186,10 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
         }
         int rate=0; rate=unit->def->buildRate;
         // The ok local is needed: it adds a register candidate that keeps order in esi.
-        int ok=AddBuildProgress(unit,order->target.Get(),(float)(rate/30));
+        int ok=g_seams.units->AddBuildProgress(unit,order->target.Get(),(float)(rate/30));
         if (ok) {
             Vec3 start;
-            GetNanoPiecePosition(unit,&start);
+            g_seams.units->GetNanoPiecePosition(unit,&start);
             Vec3 bounds[2];
             bounds[0]=order->target.Get()->pos+order->target.Get()->def->min;
             bounds[1]=order->target.Get()->pos+order->target.Get()->def->max;

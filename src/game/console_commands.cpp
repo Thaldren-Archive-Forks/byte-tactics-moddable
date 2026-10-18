@@ -640,7 +640,7 @@ void __stdcall CmdSelectable(int unused)
 void __stdcall CmdKill(CommandArgs* args)
 {
     if (args->count == 1) {
-        KillAllUnits();
+        g_seams.units->KillAllUnits();
     } else {
         g_seams.players->KillPlayerUnits(args->GetIntArg(1, 0));
     }
@@ -1111,10 +1111,10 @@ void __stdcall CmdSave(CommandArgs* args)
 void __stdcall CmdReload(CommandArgs* args)
 {
     if (args->count > 1) {
-        short id = FindUnitTypeId(args->GetArg(1, DAT_005119b8));
+        short id = g_seams.units->FindUnitTypeId(args->GetArg(1, DAT_005119b8));
         if (id) {
-            KillUnitsOfType(id);
-            ReloadUnitType(id);
+            g_seams.units->KillUnitsOfType(id);
+            g_seams.units->ReloadUnitType(id);
         }
     }
 }
@@ -1279,7 +1279,7 @@ void __stdcall DefaultCommandHandler(CommandArgs* args)
         if (MatchWildcard(def->unitname,args->GetArg(0,DAT_005119b8))) {
             if (count) pos.x-=def->modelMinX;
             g_seams.map->SnapWorldPosToFootprint(def,&pos);
-            CreateUnit(args->GetIntArg(1,0),i,pos,1,1,0);
+            g_seams.units->CreateUnit(args->GetIntArg(1,0),i,pos,1,1,0);
             pos.x+=def->modelMaxX+0x200000;
             if (pos.x >= (g_game->mapPixelWidth<<16)) { pos.x=0xa00000; pos.z+=0xa00000; }
             ++count;

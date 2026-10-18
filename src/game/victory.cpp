@@ -754,7 +754,7 @@ int VictoryBuildUnitType::IsSatisfied()
         return 1;
     }
     if (id == 0) {
-        id = FindUnitTypeId(name);
+        id = g_seams.units->FindUnitTypeId(name);
     }
     g_game->units.ForEach(this);
     return satisfied;
@@ -829,7 +829,7 @@ int VictoryKillAllOfType::VisitUnit(Unit* unit)
 void VictoryKillAllOfType::OnUnitDied(Unit* unit)
 {
     if (satisfied == 0 && unit->playerIndex == 1 && _strcmpi(name, unit->def->name) == 0) {
-        id = FindUnitTypeId(name);
+        id = g_seams.units->FindUnitTypeId(name);
         count = 0;
         g_game->units2.ForEach(this);
         if (count <= 1) {
@@ -1211,7 +1211,7 @@ int DefeatAllUnitsKilledOfType::VisitUnit(Unit* unit)
 void DefeatAllUnitsKilledOfType::OnUnitDied(Unit* unit)
 {
     if (_strcmpi(name, unit->def->name) == 0) {
-        id = FindUnitTypeId(name);
+        id = g_seams.units->FindUnitTypeId(name);
         count = 0;
         g_game->units.ForEach(this);
         g_game->units2.ForEach(this);
