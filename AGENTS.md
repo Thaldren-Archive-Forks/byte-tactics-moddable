@@ -18,9 +18,10 @@ hooks) that the plan builds on.
 
 ## Words used here
 
-- **Reference:** the matching build (this source compiled with Visual C++ 5.0)
-  plus the test harness from #3. It is 3.1c's game logic, and it is what
-  conformity is measured against.
+- **Reference:** the `reference` branch (cut from `moddable` at 875d19d5),
+  compiled with Visual C++ 5.0 and built by `uv run tools/reference.py
+  --traces`. With the test harness from #3 it is 3.1c's game logic, and it is
+  what conformity is measured against.
 - **Traces:** per-tick, per-phase hashes of the game state from a test-mode run
   (#3). Two builds conform when their traces are identical.
 - **Gate:** the checks a change must pass before it merges. The issue says
@@ -37,8 +38,8 @@ it. Upstream Byte Tactics has no `moddable` branch.
 
 ```sh
 gh auth status
-ls toolchain/msvc5-sp3/BIN/CL.EXE orig/TotalA.exe
-uv run tools/check.py 0x401070      # must print MATCH
+clang-cl --version                  # must report 22.1.8
+ls toolchain/msvc5-sp3/INCLUDE toolchain/msvc5-sp3/LIB orig/TotalA.exe
 ```
 
 A first-time setup follows `CONTRIBUTING.md`. If any check fails, stop and
@@ -93,31 +94,28 @@ and let the maintainer decide (`docs/team.md`), rather than working around it.
 ## 4. Pass the gate
 
 Run every check the issue names. The gate for a change to game code is
-identical traces for the scenario suite, on both builds:
+identical traces for the scenario suite on the modern build:
 
 ```sh
 export WINEARCH=win64
-uv run tools/reference.py HEAD --check --game-dir ~/.ta      # the reference
 cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake   # once
 cmake --build build/modern
-uv run tools/reference.py HEAD --check --exe build/modern/TotalA.exe --game-dir ~/.ta
+uv run tools/reference.py --check --exe build/modern/TotalA.exe --game-dir ~/.ta
 ```
 
-Each must report every scenario equal. The reference check also runs checkall
-on the build, and its "not allowlisted, changed: none" line must hold: every
-function outside `reference/changed.txt` still matches 3.1c. Run the modern
-check on a fresh prefix (remove `build/playtest/prefix` first).
-`reference/README.md`, "Gate", says which changes need the gate.
+It must report every scenario equal. Run it on a fresh prefix (remove
+`build/playtest/prefix` first). `reference/README.md`, "Gate", says which
+changes need it.
 
 **When traces diverge**, the divergence report names the first tick, phase and
 field that differ. Find the smallest part of your change that causes it, and
 fix that part. Only report a check as passing when you ran it and it passed.
 
 **When a change touches the reference build** (the harness in #3, the
-bit-exact maths in #4), the matching rules apply to it. The reference is a
-build of a `moddable` commit (`uv run tools/reference.py HEAD`). The matching
-guides were not carried over: read `docs/agent-guide.md` and
-`docs/c2-regalloc.md` on `main` (frozen at upstream's 8aad1812) first.
+bit-exact maths in #4), it lands on the `reference` branch too: see
+`reference/README.md`. The matching rules apply there, and the matching guides
+(`docs/agent-guide.md`, `docs/c2-regalloc.md`) are on `main` (frozen at
+upstream's 8aad1812).
 
 ## 5. Open a pull request
 
@@ -158,9 +156,11 @@ one of three forms:
 3. `// FUNCTION: 0x4b6c30` address markers, which tie a function to the
    reference so a trace divergence can be looked up there.
 
-The lint also allows the `GLOBAL:`, `ENTRY:` and `FLAGS:` lines, because the
-matching tools read them as build input, not commentary; they go when #89
-removes the matching tools.
+The lint also allows the `GLOBAL:`, `ENTRY:` and `FLAGS:` lines, because tools
+and the build read them as input, not commentary: `tools/sources.py` reads
+`GLOBAL:`, `tools/aliases.py` and `tools/rename.py` read `ENTRY:`, and
+`CMakeLists.txt` and `tools/rename.py` read `FLAGS:`. `FUNCTION:` markers are
+read by `tools/sources.py`, `tools/rwsets.py` and `tools/rename.py`.
 
 Code that looks wrong but is deliberate, such as a 3.1c quirk, is documented by
 a quirk flag whose name says what it does (#1), or by a `TODO(#n)` pointing at

@@ -6,8 +6,8 @@
 Checks the lines RANGE adds (git diff -U0, as tools/commentlint.py does)
 inside a `// FUNCTION: 0x...` block, which runs from its marker to the next
 marker or the end of the file. A block is checked when its address is listed
-in data/game_logic.csv (written by tools/crtcalls.py from the matching
-build's reachability), or when the marker line itself is added in a file under
+in data/game_logic.csv (written from the matching
+build's reachability, by the reference branch's tools/crtcalls.py), or when the marker line itself is added in a file under
 GAME_LOGIC_DIRS, so a new function is covered before the csv is regenerated.
 
 Flagged, outside comments and string literals:

@@ -23,7 +23,7 @@ Hold it against each of these, and record a finding for every miss:
 
 - **Spec:** every task in the linked issue is done or listed under "Left out" with a reason you accept, and its "Done when" holds. Nothing outside the issue slipped in.
 - **The gate, re-run by you:** run every check the issue names, in the worktree. A claimed result you couldn't reproduce is a finding. CI's `checks` job must be green.
-- **Conformity:** behaviour changes only behind a quirk flag that's off by default, or in a mod; with no mods, traces match the reference (until #3 lands, every game-logic function still MATCHes).
+- **Conformity:** behaviour changes only behind a quirk flag that's off by default, or in a mod; with no mods, traces match the reference (the modern build's `reference.py --check --exe`).
 - **The plan's boundaries** (`AGENTS.md` step 3): determinism, state only in the state block, subsystems through seams, presentation through the player view, platform through the host interface.
 - **Correctness:** use the `code-review` skill on the pull request for bugs.
 - **House rules:** comments only in the three forms (`AGENTS.md`, "Comments in code"), commit messages in the house format ending with `Assisted-by:`, a pull request body with `Closes #N`, the checks and "Left out".

@@ -140,7 +140,24 @@ foreach(lib KERNEL32 USER32 GDI32 ADVAPI32 SHELL32 WINMM)
   list(APPEND IMPORT_LIBS "${CMAKE_BINARY_DIR}/${lib}.lib")
 endforeach()
 
-file(GLOB ZLIB_OBJECTS "${CMAKE_SOURCE_DIR}/toolchain/thirdparty/zlib-1.0.4/*.obj")
+set(ZLIB_DIR "${CMAKE_SOURCE_DIR}/toolchain/thirdparty/zlib-1.0.4")
+set(ZLIB_SOURCES "")
+foreach(name adler32 compress crc32 deflate gzio infblock infcodes inffast inflate inftrees infutil trees uncompr zutil)
+  if(EXISTS "${ZLIB_DIR}/${name}.c")
+    list(APPEND ZLIB_SOURCES "${ZLIB_DIR}/${name}.c")
+  endif()
+endforeach()
+set(ZLIB_OBJECTS "")
+set(ZLIB_TARGETS "")
+if(ZLIB_SOURCES)
+  add_library(zlib OBJECT ${ZLIB_SOURCES})
+  target_include_directories(zlib SYSTEM PRIVATE "${MSVC5_INCLUDE}")
+  target_compile_options(zlib PRIVATE
+    -fms-compatibility -fms-extensions -fms-compatibility-version=11.00 -fno-strict-aliasing -fwrapv -mno-sse
+    /Gz /Zp1 /Gy /GS- -w -vfsoverlay "${CMAKE_BINARY_DIR}/overlay.json")
+  set(ZLIB_OBJECTS "$<TARGET_OBJECTS:zlib>")
+  set(ZLIB_TARGETS zlib)
+endif()
 
 option(BT_COMPILE_ONLY "Configure for building the game and bitexact targets only (no orig/TotalA.exe)" OFF)
 if(BT_COMPILE_ONLY)
@@ -175,8 +192,9 @@ add_custom_command(
   COMMAND "${UV}" run --project "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/tools/aliases.py"
           --objects "@${CMAKE_BINARY_DIR}/alias_objects.rsp" --libs ${SYSTEM_LIBS} ${IMPORT_LIBS} ${ZLIB_OBJECTS}
           --winmain 0x49e830 --patch-dir "${CMAKE_BINARY_DIR}/objs" --out "${CMAKE_BINARY_DIR}/aliases.obj"
-  DEPENDS game data extra bitexact $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> ${IMPORT_LIBS}
-          "${CMAKE_SOURCE_DIR}/tools/aliases.py")
+  DEPENDS game data extra bitexact ${ZLIB_TARGETS} $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> ${IMPORT_LIBS}
+          "${CMAKE_SOURCE_DIR}/tools/aliases.py"
+  VERBATIM COMMAND_EXPAND_LISTS)
 
 add_custom_command(
   OUTPUT "${CMAKE_BINARY_DIR}/TotalA.exe"
@@ -184,6 +202,6 @@ add_custom_command(
           /libpath:${CMAKE_BINARY_DIR}/lib /opt:noref,noicf /incremental:no /safeseh:no /force:multiple /map:${CMAKE_BINARY_DIR}/TotalA.map
           "@${CMAKE_BINARY_DIR}/objs/objects.rsp" "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/TotalA.res"
           ${ZLIB_OBJECTS} ${IMPORT_LIBS} ${SYSTEM_LIBS}
-  DEPENDS game data extra $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/TotalA.res" ${IMPORT_LIBS}
-  VERBATIM)
+  DEPENDS game data extra ${ZLIB_TARGETS} $<TARGET_OBJECTS:game> $<TARGET_OBJECTS:data> $<TARGET_OBJECTS:extra> "${CMAKE_BINARY_DIR}/aliases.obj" "${CMAKE_BINARY_DIR}/TotalA.res" ${IMPORT_LIBS}
+  VERBATIM COMMAND_EXPAND_LISTS)
 add_custom_target(TotalA ALL DEPENDS "${CMAKE_BINARY_DIR}/TotalA.exe")
