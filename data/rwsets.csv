@@ -1790,8 +1790,8 @@ address,function,file,kind,target
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,WeaponsSeam::FindTargetableProjectile
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,function,
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,global_read,g_seams
+0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via Projectile *(*)(Unit *, unsigned int) __attribute__((stdcall)) [WeaponsSeam::FindTargetableProjectile]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via Unit *(*)(Unit *, unsigned char, int) __attribute__((stdcall)) [TargetingSeam::FindWeaponTarget]"
-0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via int *(*)(Unit *, unsigned int) __attribute__((stdcall)) [WeaponsSeam::FindTargetableProjectile]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, Unit *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetUnit]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, Vec3 *, int) __attribute__((stdcall)) [TargetingSeam::SetWeaponTargetPos]"
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::ClearWeaponTarget]"
@@ -7227,7 +7227,7 @@ address,function,file,kind,target
 0x4239c0,SpreadFire,src/map/features.cpp,global_read,g_game
 0x4239c0,SpreadFire,src/map/features.cpp,global_read,g_seams
 0x4239c0,SpreadFire,src/map/features.cpp,indirect_call,"indirect via Cell *(*)(int, int) __attribute__((stdcall)) [LosRadarSeam::GetMapCell]"
-0x4239c0,SpreadFire,src/map/features.cpp,indirect_call,"indirect via void (*)(void *, Vec3 *) __attribute__((stdcall)) [WeaponsSeam::ApplyAreaDamageAt]"
+0x4239c0,SpreadFire,src/map/features.cpp,indirect_call,"indirect via void (*)(WeaponDef *, Vec3 *) __attribute__((stdcall)) [WeaponsSeam::ApplyAreaDamageAt]"
 0x423bf0,ReplaceFeatureWithBurnt,src/map/features.cpp,call,PlaceFeature
 0x423bf0,ReplaceFeatureWithBurnt,src/map/features.cpp,call,RemoveFeature
 0x423bf0,ReplaceFeatureWithBurnt,src/map/features.cpp,field_read,Feature::burnt
@@ -30698,7 +30698,7 @@ address,function,file,kind,target
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Weapon_499c70::owner
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,function,
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,global_read,g_seams
-0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, void *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
+0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, Projectile *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,call,DamageUnit
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,call,FUN_004b715a
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,call,Find_00499cd0
@@ -30780,7 +30780,7 @@ address,function,file,kind,target
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,global_read,g_game
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,global_read,g_seams
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,indirect_call,indirect via Cell *(*)(Vec3 *) __attribute__((stdcall)) [LosRadarSeam::GetMapCellAtPosition]
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, void *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, Projectile *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
 0x49a0c0,ApplyAreaDamageAt,src/weapons/weapons.cpp,call,ApplyAreaDamage
 0x49a0c0,ApplyAreaDamageAt,src/weapons/weapons.cpp,call,memset
 0x49a0c0,ApplyAreaDamageAt,src/weapons/weapons.cpp,call,operator=
@@ -30862,7 +30862,7 @@ address,function,file,kind,target
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via Cell *(*)(int, int) __attribute__((stdcall)) [LosRadarSeam::GetMapCell]"
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via Vec3 (*)(Point16 *, Feature *) __attribute__((stdcall)) [FeaturesSeam::GetFootprintCentre]"
 0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via void (*)(Cell *, int, int, WeaponDef *) __attribute__((stdcall)) [FeaturesSeam::DamageFeature]"
-0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, void *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
+0x49a120,ApplyAreaDamage,src/weapons/weapons_49a120.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, Projectile *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
 0x49a850,VectorLength,src/weapons/weapons.cpp,call,bx_sqrt
 0x49a850,VectorLength,src/weapons/weapons.cpp,field_read,Vec3i_0049a850::x
 0x49a850,VectorLength,src/weapons/weapons.cpp,field_read,Vec3i_0049a850::y

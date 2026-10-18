@@ -89,7 +89,7 @@ float __stdcall GetNetMetal(Player* player);
 void __stdcall LoadDefaultAIScript(void);
 void __stdcall NotifyUnitRefs(Unit* unit, int event);
 
-int* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
+Projectile* __stdcall FindTargetableProjectile(Unit* unit, unsigned int weapon);
 int __stdcall WeaponCanReachPos(Unit* unit, Vec3* from, Vec3* to, int flags);
 void __stdcall AllocWeaponArray(void);
 void __stdcall FreeWeaponArray(void);
@@ -317,9 +317,9 @@ static void __fastcall ReleaseWeaponsNative(Unit* self, int unusedEdx, unsigned 
     self->ReleaseWeapons(index);
 }
 
-static void __fastcall MarkOwnerNetDirtyFromDamageSplitNative(SquadManager* self, int unusedEdx, void* weapon, int enemyDamage, int friendlyDamage)
+static void __fastcall MarkOwnerNetDirtyFromDamageSplitNative(SquadManager* self, int unusedEdx, Projectile* projectile, int enemyDamage, int friendlyDamage)
 {
-    self->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)weapon, enemyDamage, friendlyDamage);
+    self->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)projectile, enemyDamage, friendlyDamage);
 }
 
 static void __fastcall SquadManagerTickIfActiveNative(SquadManager* self, int unusedEdx)
@@ -402,9 +402,9 @@ static int __stdcall GetCellMeanHeightNative(Vec3* pos)
     return GetCellMeanHeight((Pos_00485070*)pos);
 }
 
-static void __stdcall ApplyAreaDamageAtNative(void* owner, Vec3* pos)
+static void __stdcall ApplyAreaDamageAtNative(WeaponDef* weapon, Vec3* pos)
 {
-    ApplyAreaDamageAt(owner, (Vec3_0049a0c0*)pos);
+    ApplyAreaDamageAt(weapon, (Vec3_0049a0c0*)pos);
 }
 
 static WeaponDef* __stdcall FindWeaponByNameNative(char* name)
