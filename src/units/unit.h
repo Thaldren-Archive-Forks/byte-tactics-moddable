@@ -1,6 +1,10 @@
 #ifndef UNIT_H
 #define UNIT_H
 
+#ifndef TA_TYPES_H
+#include "../util/vec3.h"
+#endif
+
 class TdfRecord;
 struct UnitMotion;
 struct Mover;
@@ -11,8 +15,6 @@ struct Player;
 class Class_004b0a70;
 struct SpotState;
 class PathOrderAttach;
-struct Vec3;
-struct Point16;
 
 #pragma pack(push, 1)
 struct Unit {
