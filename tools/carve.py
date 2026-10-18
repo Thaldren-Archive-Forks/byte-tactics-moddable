@@ -826,11 +826,13 @@ class Positional:
                 rtype: int, sym: Sym, target: int) -> str | None:
         """What is wrong with using the original's code at off (the field of a
         relocation against sym, which the original points at target) as the
-        meaning of sym, or None."""
+        meaning of sym, or None if it passes. A site the check does not cover
+        (past the jump table) fails too."""
         refs, relocs = self.function(obj, sec, lo, hi, va)
         at = dict(relocs)
         if off - lo not in at:
-            return None
+            return (f"  {label} at {va:#x} in {obj.path.name}: {sym.name} is referenced at offset {off - lo:#x}"
+                    ", past the function's jump table or where no reference is checked")
         found = reference_problem(refs, relocs, off - lo)
         if found is None:
             wrong = target_problem(rtype, sym.name, target, self.text, self.slots)
@@ -854,7 +856,8 @@ class Positional:
             for off, symidx, rtype in sec.relocs:
                 sym = obj.syms[symidx]
                 if (rtype not in (REL_DIR32, REL_REL32) or not lo <= off <= hi - 4
-                        or not (sym.sclass == IMAGE_SYM_CLASS_EXTERNAL or sym.section == 0)):
+                        or not (sym.sclass == IMAGE_SYM_CLASS_EXTERNAL or sym.section == 0)
+                        or sym.section < 0 or sym.name in self.absolutes):
                     continue
                 target = site_targets(self.img, sec, off, rtype, va + off - lo)
                 found = self.problem(label, obj, sec, lo, hi, va, off, rtype, sym, target)
