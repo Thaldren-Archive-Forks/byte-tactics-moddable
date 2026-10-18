@@ -25,6 +25,7 @@
 #include <tchar.h>
 #include <time.h>
 #include <float.h>
+#include "../util/tdf.h"
 namespace ta {
 #include <ta_types.h>
 }
@@ -57,44 +58,6 @@ void SetCameraPosition(int, int, int);
 void StartScreenShake(int, int, int);
 void AccumulateScreenShake(int, int, int);
 int RegisterUnitOrders();
-
-// Keeps its own view of the parser classes: the shared tdf.h has no
-// TdfFile::LoadBuffer, which this file calls, so it cannot take the header.
-class TdfRecord {
-public:
-    int FindFieldValue(char* key);
-    int GetFieldInt(char* key, int def);
-    double GetFieldDouble(char* key, double def);
-    int GetFieldString(char* dst, char* key, int size, char* def);
-};
-
-// A parsed TDF file; the getters read the current section.
-class TdfFile {
-public:
-    int root;
-    TdfRecord* current;                // +0x4, the current section
-    int flags;                         // +0x8
-    TdfFile();
-    ~TdfFile();
-
-    int GetString(char* dst, char* key, int size, char* def)
-    {
-        return current->GetFieldString(dst, key, size, def);
-    }
-    int GetInt(char* key, int def) { return current->GetFieldInt(key, def); }
-    double GetDouble(char* key, double def) { return current->GetFieldDouble(key, def); }
-    char* GetValue(char* key) { return (char*)current->FindFieldValue(key); }
-    int LoadFile(char* path);
-    void LoadBuffer(char* data, int size, int flag, char* name);
-    int SelectRecord(char* name);
-    void ResetCurrentRecord();
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void Unload();
-    int GetCurrentRecord();
-    void StripComments(char* text);
-    int SelectRecordAt(int index);
-    void SetCurrentRecord(int record);
-};
 
 // The override file (units\NAME.OVR).
 class HapiBank {

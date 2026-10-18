@@ -30,41 +30,8 @@ struct TdfField {
 
 void __cdecl GameFreeThunk(int* param_1);
 
-#pragma pack(push, 1)
-// Two wrapper levels around the vector: with one, ~TdfField is called out of line.
-struct Inner_004c51b0 {
-    std::vector<TdfField> v;
-};
-
-struct Entries_004c51b0 {
-    Inner_004c51b0 v;
-};
-
-class TdfRecord {
-public:
-    int* name;                                 // +0x0
-    std::vector<TdfRecord*> children;        // +0x4
-    char unknown_14;                           // +0x14
-    Entries_004c51b0 entries;                  // +0x15
-
-    ~TdfRecord()
-    {
-        if (name)
-            GameFreeThunk(name);
-        for (TdfRecord** p = children.begin(); p < children.end(); p++)
-            delete *p;
-    }
-};
-#pragma pack(pop)
-
-class TdfFile {
-public:
-    TdfRecord* root;
-    int current;
-    int flags;
-
-    ~TdfFile();
-};
+#include <new>
+#include "tdf.h"
 
 // Own file: needs its own view of TdfRecord (see the note in TdfFile, tdf.cpp).
 // FUNCTION: 0x4c2eb0

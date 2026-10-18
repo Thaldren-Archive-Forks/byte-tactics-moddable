@@ -671,7 +671,7 @@ struct Class_004bbd00_File;
 struct Class_004bbd00_Other;
 struct Class_004bce10;
 struct Class_004be010;
-class TdfFile;
+#include "../src/util/tdf.h"
 class Class_004c2f60;
 class Class_004c3240;
 class Class_004c33a0;
@@ -693,7 +693,6 @@ class Class_004c45e0;
 class Class_004c4630;
 class Class_004c4760;
 class Class_004c4800;
-class TdfRecord;
 class Class_004c5470;
 class Class_004c54a0;
 class Class_004c54d0;
@@ -2365,102 +2364,7 @@ struct Point16 {  // 0x4 bytes, 113 views
     int operator!=(Point16&);
 };
 
-struct Unit {  // 0x118 bytes, 462 views
-    int field_0;  // +0x0
-    TdfRecord* current;       // +0x4
-    int field_8;  // +0x8
-    UnitMotion* type;      // +0xc
-    Mover* f10;  // +0x10
-    char unknown_14[2];
-    short field_16;  // +0x16
-    short field_18;  // +0x18
-    char unknown_1a;  // +0x1a
-    unsigned char f_1b;  // +0x1b
-    char unknown_1c[2];
-    unsigned char field_1e;  // +0x1e
-    unsigned char f_1f;  // +0x1f
-    int field_20;  // +0x20
-    char unknown_24[2];
-    int field_26;  // +0x26
-    char unknown_2a[2];
-    Mover* f2c;  // +0x2c
-    char unknown_30[10];
-    unsigned char b3a;  // +0x3a
-    unsigned char f_3b;  // +0x3b
-    char unknown_3c[12];
-    Limits_0043e490* f48;  // +0x48
-    char unknown_4c[10];
-    unsigned char b56;  // +0x56
-    unsigned char f_57;  // +0x57
-    int field_58;  // +0x58
-    Order* list;  // +0x5c
-    Order* list2;  // +0x60
-    short field_64;  // +0x64
-    short heading;  // +0x66
-    short field_68;  // +0x68
-    Vec3 pos;  // +0x6a
-    Point16 pos_76;  // +0x76
-    int field_7a;  // +0x7a
-    Point16 footprint;  // +0x7e
-    int field_82;  // +0x82
-    int field_86;  // +0x86
-    Unit* cargo;  // +0x8a
-    Unit* next;  // +0x8e
-    UnitDef* def;  // +0x92
-    Player* player;  // +0x96
-    Class_004b0a70* script;  // +0x9a
-    SpotState* state;  // +0x9e
-    PathOrderAttach* head;  // +0xa2
-    unsigned short field_a6;  // +0xa6
-    unsigned short id;  // +0xa8
-    unsigned short fix_lo;  // +0xaa
-    int field_ac;  // +0xac
-    int timeout;  // +0xb0
-    char unknown_b4[4];
-    unsigned short f_b8;  // +0xb8
-    unsigned short unknown_ba : 2;  // +0xba
-    unsigned short dirty : 1;
-    unsigned short : 13;
-    float field_bc;  // +0xbc
-    char unknown_c0[20];
-    float metal;  // +0xd4
-    char unknown_d8[4];
-    int f_dc;  // +0xdc
-    char unknown_e0[4];
-    unsigned short field_e4;  // +0xe4
-    unsigned short f_e6;  // +0xe6
-    char unknown_e8[4];
-    Player* player_ec;  // +0xec
-    Unit* attacker;  // +0xf0
-    unsigned char field_f4;  // +0xf4
-    unsigned char orderKind;  // +0xf5
-    unsigned char field_f6;  // +0xf6
-    unsigned char field_f7;  // +0xf7
-    unsigned char field_f8;  // +0xf8
-    unsigned char field_f9;  // +0xf9
-    unsigned char field_fa;  // +0xfa
-    int field_fb;  // +0xfb
-    unsigned char owner;  // +0xff
-    int field_100;  // +0x100
-    union { float speed; int speed_bits; };  // +0x104
-    short health;  // +0x108
-    char unknown_10a[4];
-    unsigned char field_10e;  // +0x10e
-    unsigned char bit0 : 1;  // +0x10f
-    unsigned char bit1 : 1;
-    unsigned char bit2 : 1;
-    unsigned char bit3 : 1;
-    unsigned char unknown_10f : 4;
-    unsigned int flags;  // +0x110
-    int pad114;  // +0x114
-    Unit(void);
-    ~Unit(void);
-    int SelectRecord(char*);
-    int Ready(void);
-    unsigned char GetState(void);
-    unsigned char PlayerIndex(void);
-    void SetStateBits(int, int);
-};
+#include "../src/units/unit.h"
 
 struct UnitDef {  // 0x249 bytes, 220 views
     char name[32];  // +0x0
@@ -4471,20 +4375,6 @@ public:
     void LoadBuffer(char*, int, int, char*);
 };
 
-class TdfRecord {       // 0x21 bytes, 66 views
-public:
-    char* name;  // +0x0
-    int unknown_4;  // +0x4
-    TdfRecord** first;       // +0x8
-    TdfRecord** last;       // +0xc
-    char unknown_10[9];
-    Entry* first_19;  // +0x19
-    Entry* last_1d;  // +0x1d
-    TdfRecord* FindChild(char*);
-    int GetFieldInt(char*, int);
-    int GetFieldString(char*, char*, unsigned int, char*);
-    void CopyRecordName(char*, unsigned int);
-};
 
 struct Grid {  // 0x10 bytes, 9 views
     unsigned char* cells;  // +0x0
@@ -5944,14 +5834,6 @@ struct Elem_00434a60 {  // 0x8 bytes, 1 view
     ~Elem_00434a60(void);
 };
 
-class TdfFile {         // 0xc bytes, 9 views
-public:
-    int field_0;  // +0x0
-    void* current;  // +0x4
-    int field_8;  // +0x8
-    TdfFile(void);
-    ~TdfFile(void);
-};
 
 class Class_00434f70 {  // 0xdc4 bytes, 1 view
 public:
@@ -5981,63 +5863,7 @@ struct Buffer_00434ff0 {  // 0x8 bytes, 3 views
     int size;  // +0x4
 };
 
-class Mission {  // 0xec4 bytes, 139 views
-public:
-    int unknown_0;  // +0x0
-    char campaign[256];  // +0x4
-    char names[9][256];  // +0x104
-    int field_a04;  // +0xa04
-    TdfFile list;         // +0xa08
-    char text_a14[256];  // +0xa14
-    char text_b14[256];  // +0xb14
-    int field_c14;  // +0xc14
-    int field_c18;  // +0xc18
-    int field_c1c;  // +0xc1c
-    int field_c20;  // +0xc20
-    char description[128];  // +0xc24
-    char planet[128];  // +0xca4
-    int* field_d24;  // +0xd24
-    int field_d28;  // +0xd28
-    int field_d2c;  // +0xd2c
-    int threshold;  // +0xd30
-    int minWindSpeed;  // +0xd34
-    int maxWindSpeed;  // +0xd38
-    int field_d3c;  // +0xd3c
-    float tidalStrength;  // +0xd40
-    int field_d44;  // +0xd44
-    int f_d48;  // +0xd48
-    int waterDoesDamage;  // +0xd4c
-    int waterDamage;  // +0xd50
-    float killMul;  // +0xd54
-    float timeMul;  // +0xd58
-    float pos_x[10];  // +0xd5c
-    float pos_y[10];  // +0xd84
-    Entry_00487af0* list_dac;  // +0xdac
-    int count;  // +0xdb0
-    Entry* entries;  // +0xdb4
-    int entry_count;  // +0xdb8
-    Buffer_00434ff0 buffer2;  // +0xdbc
-    char memory[128];  // +0xdc4
-    char numPlayers[128];  // +0xe44
-    Mission(int);
-    ~Mission(void);
-    char* GetMissionName(int);
-    char* GetName(int);
-    int GetGameType(void);
-    int GetBriefing(void);
-    int GetNameSlot(int);
-    int GetTerrainLength(void);
-    int LoadMissionByName(char*);
-    int GetMissionName(void);
-    int AdvanceMission(void);
-    int SelectSchema(int, Unit*, char*);
-    int GetStartPosition(Vec3*, int);
-    void LoadCampaign(char*);
-    void SelectMission(int);
-    int LoadMission(char*);
-    void LoadBriefing(void);
-    void BuildCampaignFilePath(int, char*, char*, char*);
-};
+#include "../src/map/mission.h"
 
 class Class_0048dfb0 {  // 0x88 bytes, 3 views
 public:
@@ -7728,50 +7554,7 @@ struct Class_0044ec20 {  // 0x26 bytes, 1 view
     void FUN_0044ec20(short);
 };
 
-class PathGoal {        // 0xc bytes, 15 views
-public:
-    Base_00490a10* field_4;  // +0x4
-    Unit* owner;  // +0x8
-    virtual ~PathGoal(void);
-    PathGoal(Unit*);
-    virtual void SetPathOrder(void*);
-    virtual void TickTowardGoal(void);
-    virtual void FillWaypointWorldPos(int, int, int);
-    virtual void ExportGoalPose(int, int, int);
-    virtual int HasReadyWaypoints(void);
-    virtual int TryClaimRepath(void);
-    virtual int HasNetUnitState(void);
-    virtual void SerializeNetUnitState(int);
-    virtual void DeserializeNetUnitState(int);
-    virtual void DeserializeNetUnitState(void);
-    virtual void DrawOnSurface(int);
-    virtual void DrawOnSurface(void);
-};
-
-class AiSearchGoal : public PathGoal {          // 0x68 bytes, 10 views
-public:
-    Point16 points[20];  // +0xc
-    int count;  // +0x5c
-    int field_60;  // +0x60
-    unsigned char active : 1;  // +0x64
-    unsigned char flag_1 : 1;
-    unsigned char flag_2 : 1;
-    unsigned char flag_3 : 1;
-    unsigned char : 4;
-    char unknown_65[3];
-    virtual ~AiSearchGoal(void);
-    AiSearchGoal(int);
-    virtual void SetPathOrder(void*);
-    virtual void TickTowardGoal(void);
-    virtual void FillWaypointWorldPos(int, int, int);
-    virtual int HasReadyWaypoints(void);
-    virtual int TryClaimRepath(void);
-    virtual int HasNetUnitState(void);
-    virtual void SerializeNetUnitState(int);
-    virtual void DrawOnSurface(int);
-    void SetWaypoints(Point16*, int);
-    void TruncateWaypointsFrom(int);
-};
+#include "../src/ai/ai_search_goal.h"
 
 class Class_0044f570 : public PathGoal {        // 0x1c bytes, 3 views
 public:

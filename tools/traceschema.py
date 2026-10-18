@@ -18,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TRACE_FORMAT = 3
 TYPES = ROOT / "include/ta_types.h"
+MOVED_TYPES = [ROOT / "src/units/unit.h"]
 OUT = ROOT / "src/harness/trace_schema.h"
 
 BASE_SIZES: dict[str, int] = {
@@ -883,7 +884,7 @@ METEOR_DECLS: dict[str, str] = {
 
 class Schema:
     def __init__(self):
-        self.text = TYPES.read_text(encoding="latin-1")
+        self.text = "\n".join(p.read_text(encoding="latin-1") for p in [TYPES, *MOVED_TYPES])
         self.cache = {}
         self.errors = []
 

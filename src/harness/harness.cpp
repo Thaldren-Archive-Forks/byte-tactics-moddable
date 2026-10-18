@@ -6,13 +6,7 @@
 #include <float.h>
 #include <time.h>
 
-#define Mission MissionView
-#define TdfRecord TdfRecordView
-#define TdfFile TdfFileView
 #include "../../include/ta_types.h"
-#undef Mission
-#undef TdfRecord
-#undef TdfFile
 #include "../map/mission.h"
 #include "condition_class.h"
 #include "../../interfaces/seams.h"

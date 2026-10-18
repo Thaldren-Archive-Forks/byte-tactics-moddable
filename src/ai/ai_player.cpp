@@ -438,16 +438,7 @@ struct Feature {
 
 #include "../map/cell.h"
 
-class Mission {
-public:
-    char unknown_0[0xd30];
-    union {
-        int surfaceMetal;              // +0xd30
-        int threshold;
-    };
-    const char* GetNameSlot(int);
-    int GetGameType();
-};
+#include "../map/mission.h"
 
 // A view of a Player slot: name is Player::name at +0x2b, control is Player::type
 // at +0x73, read through the array at +0x1b8e. It stays a local PlayerInfo: any
@@ -1937,7 +1928,7 @@ int __stdcall FindBuildPosition(int player, const Vec3* from, UnitDef* type, Vec
     Vec3 pos=MoveTowards(from,(const Vec3*)&ai->centre,ai->searchRadius<<16);
     Point16 cell;
     int result;
-    if (type->extractsMetal!=0.0f && g_game->mapInfo->threshold<RandomInt(255))
+    if (type->extractsMetal!=0.0f && g_game->mapInfo->surfaceMetal<RandomInt(255))
         result=ai->FindCellNearFeatures(type,&pos,&ai->cells,ai->searchRadius*4,&cell);
     else result=ai->FindRandomPlacementCell(type,&pos,ai->searchRadius,&cell);
     if (result) {

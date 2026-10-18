@@ -5,6 +5,11 @@
 #include "../units/movement_class.h"
 #include "../units/cob_script.h"
 #include "../util/vec3.h"
+#include "../map/mission.h"
+#include "../units/unit.h"
+#include "../ai/pathfinder.h"
+#include "../ai/ai_search_goal.h"
+#include "../orders/order_fx.h"
 
 struct Player;
 
@@ -42,17 +47,6 @@ struct Vec;
 struct UnitDef;
 struct WeaponDef;
 struct Callback;
-
-struct Unit {
-    unsigned char ChooseWeapon();
-    void SetStateBits(int mask, int set);
-};
-
-class Mission {
-public:
-    int GetGameType();
-    char* GetNameSlot(int index);
-};
 
 float __stdcall GetEnergyUse(UnitDef* def);
 void __stdcall UpdatePlayerEconomy(Player* p);
@@ -124,22 +118,6 @@ void __stdcall UpdateSensorRadarAndCloak(void);
 struct DamagedAllyCollector;
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor);
 
-class Pathfinder {
-public:
-    ~Pathfinder();
-    void RunSearches();
-    void AbortIfGoalMatch(int goal);
-};
-
-class AiSearchGoal {
-public:
-    void SetWaypoints(Point16* points, int count);
-};
-
-class OrderFx {
-public:
-    void AddFlags(int flags);
-};
 
 
 static void __stdcall ResetNative(UnitResources* self, unsigned char playerIndex)

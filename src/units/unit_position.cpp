@@ -54,12 +54,7 @@ struct Spawn;
 struct UnitType;
 struct Player;
 
-class Mission {
-public:
-    char unknown_0[0xd4c];
-    int waterDoesDamage;               // +0xd4c
-    int waterDamage;                   // +0xd50
-};
+#include "../map/mission.h"
 
 #include "../network/player.h"
 
