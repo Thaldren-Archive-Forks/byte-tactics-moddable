@@ -16,29 +16,29 @@ class TdfRecord;
 #pragma pack(push, 1)
 struct TdfRecordList {
     char unknown_0[4];
-    TdfRecord** first;                 // +0x4
-    TdfRecord** last;                  // +0x8
-    TdfRecord** end;                   // +0xc
+    TdfRecord** first;
+    TdfRecord** last;
+    TdfRecord** end;
 };
 
 struct TdfFieldList {
     char unknown_0[4];
-    TdfField* first;                   // +0x4
-    TdfField* last;                    // +0x8
-    TdfField* end;                     // +0xc
+    TdfField* first;
+    TdfField* last;
+    TdfField* end;
 };
 
 struct TdfEntries {
-    char less;                         // +0x0
-    TdfFieldList v;                    // +0x1
+    char less;
+    TdfFieldList v;
 };
 
 class TdfRecord {
 public:
-    char* name;                             // +0x00
-    TdfRecordList children;                 // +0x04
-    TdfEntries entries;                     // +0x14
-    char* text;                             // +0x25
+    char* name;
+    TdfRecordList children;
+    TdfEntries entries;
+    char* text;
 
     TdfRecord(char* name, char* text, char** nextblock, char* filename);
     ~TdfRecord();

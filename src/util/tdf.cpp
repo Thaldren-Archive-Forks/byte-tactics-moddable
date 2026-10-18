@@ -323,7 +323,7 @@ static inline char* SkipSpace(char* p)
 // rewritten on the real <vector> instead of a hand-made one.
 //  * Both vectors are constructed by the header's own constructor, which is
 //    the hoisted `mov al, [esp+7]` copy of the allocator temporary, and the
-//    sub-section is added with Kids(this).push_back(), whose inlined
+//    sub-section is added with children.push_back(), whose inlined
 //    insert(end(), x) keeps &children in ebx for the whole function.
 //  * The entries are a sorted vector of key/value handle pairs behind a byte
 //    at +0x14 (the same shape as the global map in 0x4c54f0, whose lookup is
