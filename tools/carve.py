@@ -754,6 +754,42 @@ def jump_table_start(sec: Sec, lo: int, hi: int, obj: Obj) -> int:
     return hi
 
 
+def marker_address(name: str, markers: dict[str, int]) -> int | None:
+    """The address a source marker gives the function a decorated name
+    stands for, or None for a name marker_table does not know."""
+    return markers.get(name)
+
+
+def marker_table(placer: Placer, defined: set[str]) -> dict[str, int]:
+    """Decorated name -> marker address, for the plain functions (no class or
+    template spelling) some object defines. A function the layout placed has
+    the address of its piece. Another is keyed by its undecorated name in
+    data/symbols.csv, unless two decorated names (overloads) share that name:
+    then neither is in the table, and the positional guard decides."""
+    table: dict[str, int] = {}
+    for piece in placer.pieces:
+        if piece.source not in (CODE, GAPCODE) or piece.obj.library:
+            continue
+        for sym in piece.obj.syms.values():
+            if (sym.sclass == IMAGE_SYM_CLASS_EXTERNAL and sym.section == piece.sec.index
+                    and piece.lo <= sym.value < piece.hi and plain_function(sym.name)):
+                table[sym.name] = piece.va + sym.value - piece.lo
+    spellings: dict[str, set[str]] = defaultdict(set)
+    for name in defined | set(table):
+        m = plain_function(name)
+        if m:
+            spellings[m.group(1)].add(name)
+    for base, names in spellings.items():
+        if base in placer.symbols and len(names) == 1:
+            table.setdefault(next(iter(names)), placer.symbols[base])
+    return table
+
+
+def plain_function(name: str) -> "re.Match | None":
+    m = re.fullmatch(r"\?(\w+)@@Y[A-Z].*", name)
+    return None if m is None or "$" in name else m
+
+
 def reference_problem(refs: list[tuple[int, str]], relocs: list[tuple[int, str]], off: int
                       ) -> tuple[str, int | None] | None:
     """Whether the relocation at offset off of a piece is a reference of the
@@ -801,11 +837,12 @@ class Positional:
     kind of thing. A function whose references moved (a call inserted at its
     top) would be bound to whatever the original holds at the old offsets."""
 
-    def __init__(self, img: Image, namer: Namer):
+    def __init__(self, img: Image, namer: Namer, defined: set[str]):
         self.img = img
         self.text = namer.sections[".text"]
         self.slots = set(img.imports().values())
         self.absolutes = namer.placer.absolutes
+        self.markers = marker_table(namer.placer, defined)
         self.cache: dict = {}
         self.problems: dict[tuple, str] = {}
 
@@ -834,6 +871,12 @@ class Positional:
             return (f"  {label} at {va:#x} in {obj.path.name}: {sym.name} is referenced at offset {off - lo:#x}"
                     ", past the function's jump table or where no reference is checked")
         found = reference_problem(refs, relocs, off - lo)
+        marked = marker_address(sym.name, self.markers)
+        if marked is not None and rtype == REL_REL32 and found is not None:
+            return None
+        if marked is not None and rtype == REL_REL32 and found is None and target != marked:
+            return (f"  {label} at {va:#x} in {obj.path.name}: {sym.name} is referenced at offset {off - lo:#x}"
+                    f": the original points at {target:#x}, the marker says {marked:#x}")
         if found is None:
             wrong = target_problem(rtype, sym.name, target, self.text, self.slots)
             if wrong is None:
@@ -843,6 +886,36 @@ class Positional:
         what, theirs = found
         return (f"  {label} at {va:#x} in {obj.path.name}: {sym.name} is referenced at offset {off - lo:#x}"
                 f" (the original's code: {'none' if theirs is None else hex(theirs)}): {what}")
+
+    @staticmethod
+    def unvote(placer: Placer, name: str, target: int) -> None:
+        votes = placer.ref_targets[name]
+        votes[target] -= 1
+        if votes[target] <= 0:
+            del votes[target]
+
+    @staticmethod
+    def conflict(label: str, obj: Obj, va: int, name: str, marked: int, positional: int) -> str:
+        return (f"  {label} at {va:#x} in {obj.path.name}: {name} has the marker address {marked:#x}"
+                f" but the original's code points at {positional:#x}")
+
+    def bind_markers(self, placer: Placer, names: set[str]) -> None:
+        """Bind each name that has a marker and no position left to learn
+        from to the marker's address; fail where the position disagrees."""
+        for name in sorted(names):
+            marked = marker_address(name, self.markers)
+            if marked is None:
+                continue
+            votes = placer.ref_targets.get(name)
+            if votes:
+                top = votes.most_common(1)[0][0]
+                if top != marked:
+                    found = (f"  {name} has the marker address {marked:#x}"
+                             f" but the original's code points at {top:#x}")
+                    self.problems[found] = found
+            else:
+                placer.ref_targets[name][marked] += 1
+                placer.learned.setdefault(name, marked)
 
     def prune_votes(self, placer: Placer, copies: list) -> dict[str, list[str]]:
         """Take out of placer.ref_targets the votes of the sites that are no
@@ -860,6 +933,17 @@ class Positional:
                         or sym.section < 0 or sym.name in self.absolutes):
                     continue
                 target = site_targets(self.img, sec, off, rtype, va + off - lo)
+                marked = marker_address(sym.name, self.markers)
+                if marked is not None:
+                    refs, relocs = self.function(obj, sec, lo, hi, va)
+                    if off - lo in dict(relocs):
+                        if reference_problem(refs, relocs, off - lo) is not None:
+                            self.unvote(placer, sym.name, target)
+                            continue
+                        if target != marked:
+                            found = self.conflict(label, obj, va, sym.name, marked, target)
+                            self.problems[found] = found
+                            continue
                 found = self.problem(label, obj, sec, lo, hi, va, off, rtype, sym, target)
                 if found:
                     bad[sym.name].append((target, found))
@@ -868,10 +952,7 @@ class Positional:
         for name, sites in bad.items():
             if good[name]:
                 for target, _ in sites:
-                    votes = placer.ref_targets[name]
-                    votes[target] -= 1
-                    if votes[target] <= 0:
-                        del votes[target]
+                    self.unvote(placer, name, target)
                 if name in placer.learned and placer.ref_targets[name]:
                     placer.learned[name] = placer.ref_targets[name].most_common(1)[0][0]
         return {name: [found for _, found in sites] for name, sites in bad.items() if not good[name]}
@@ -937,13 +1018,17 @@ def retargets(img: Image, placer: Placer, namer: Namer, copies: list,
             (ours,) = struct.unpack_from("<I", sec.data, off)
             if target_sec.is_code:
                 target = site_targets(img, sec, off, rtype, site)
+                positional = target
+                marked = marker_address(sym.name, guard.markers if guard else {})
+                if marked is not None and rtype == REL_REL32:
+                    target = marked
                 if placer.address_in(obj, sym.section, sym.value) == target:
                     continue             # its own code, placed where the original's is (an EH stub)
                 named = namer.name(target, f"call to {sym.name}")
                 if named:
                     out[obj.path.name].append((sec.index, off, named[0], ours + named[1]))
                     if guard:
-                        guard.reject(label, obj, sec, lo, hi, va, off, rtype, sym, target)
+                        guard.reject(label, obj, sec, lo, hi, va, off, rtype, sym, positional)
             elif (sym.sclass == IMAGE_SYM_CLASS_STATIC and rtype == REL_DIR32
                   and target_sec.chars & SCN_MEM_WRITE and data_lo <= img.u32(site) < data_hi):
                 at = sym.value + (ours if sym.name.startswith(".") else 0)
@@ -1066,8 +1151,10 @@ def carve(objects: list[Path], verbose: bool = False) -> Carved:
                 site = piece.va + off - piece.lo
                 placer.ref_targets[sym.name][site_targets(img, copy.sec, off, rtype, site)] += 1
     defined_names = {n for info in infos for n in info.defs}
-    guard = Positional(img, namer)
+    guard = Positional(img, namer, defined_names)
     unsupported = guard.prune_votes(placer, copies)
+    called = {n for info in infos for n, is_func in info.refs.items() if is_func}
+    guard.bind_markers(placer, (called | set(placer.ref_targets)) - defined_names)
     # Data names no object defines that no placed code uses (an unplaced
     # copy's): what their address holds in the layout.
     data_refs = {n for info in infos for n, is_func in info.refs.items() if not is_func}
@@ -1081,7 +1168,7 @@ def carve(objects: list[Path], verbose: bool = False) -> Carved:
         gap_names = carve_gaps(img, namer, entries, placer.learned, OUT / "gaps.obj")
         truth: dict[str, tuple[str, int] | int] = {}
         inner: dict[str, tuple[str, int]] = {}
-        targets = {n: t.most_common(1)[0][0] for n, t in placer.ref_targets.items()}
+        targets = {n: t.most_common(1)[0][0] for n, t in placer.ref_targets.items() if t}
         for name in data_refs:
             if name not in targets:
                 a = address_of(name, placer.symbols)
