@@ -805,7 +805,7 @@ class Positional:
         self.img = img
         self.text = namer.sections[".text"]
         self.slots = set(img.imports().values())
-        self.absolutes = namer.placer.absolutes          # __except_list: no address to refer to
+        self.absolutes = namer.placer.absolutes
         self.cache: dict = {}
         self.problems: dict[tuple, str] = {}
 
@@ -830,7 +830,7 @@ class Positional:
         refs, relocs = self.function(obj, sec, lo, hi, va)
         at = dict(relocs)
         if off - lo not in at:
-            return None              # inside the function's table of code addresses
+            return None
         found = reference_problem(refs, relocs, off - lo)
         if found is None:
             wrong = target_problem(rtype, sym.name, target, self.text, self.slots)
@@ -1105,8 +1105,6 @@ def carve(objects: list[Path], verbose: bool = False) -> Carved:
         if not namer.wanted:
             break
         runs = kept_runs(img, placer, namer.wanted, runs)
-    # A name no object defines is bound by the original's code at the sites
-    # that use it: one of them must be a reference of the original's too.
     bound = set(truth) | set(inner) | {n for n, t in placer.learned.items()
                                        if any(a <= t < a + size for a, size in namer.gaps)}
     for name in bound & set(unsupported):

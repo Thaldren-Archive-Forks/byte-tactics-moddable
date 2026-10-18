@@ -23,9 +23,7 @@ def push_addr(addr: int) -> bytes:
     return b"\x68" + struct.pack("<I", addr)
 
 
-# push 0x450000; call far; push esi; call far; ret
 ORIGINAL = push_addr(0x450000) + call(0x1000) + b"\x56" + call(0x2000) + b"\xc3"
-# The same function with one call inserted at the top.
 SHIFTED = call(0x3000) + ORIGINAL
 
 
