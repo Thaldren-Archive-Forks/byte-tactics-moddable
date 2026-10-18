@@ -114,7 +114,7 @@ Vec3 __stdcall GetPiecePosition(Unit* obj, int param);
 int __stdcall GetGroundHeight(Vec3* pos);
 int __cdecl FUN_004b715a(int a, int b);
 void __stdcall SetYardOpen(Unit* unit, int flag);
-int __stdcall IsUnitVisibleToPlayer(Player* player, Unit* unit);
+#include "../../interfaces/seams.h"
 void __stdcall EmitThrustParticles(int, int, int, int, short);
 void __stdcall EmitWakeParticles(int, int, int, short);
 void __stdcall EmitWhiteSmoke(int, short);
@@ -414,7 +414,7 @@ void UnitScript::PlaySoundNoop(int)
 // FUNCTION: 0x480eb0
 void UnitScript::EmitSfx(int a, int b)
 {
-    if (!IsUnitVisibleToPlayer(&g_game->players[g_game->playerIndex], state->unit))
+    if (!g_seams.los_radar->IsUnitVisibleToPlayer(&g_game->players[g_game->playerIndex], state->unit))
         return;
     UpdateObjectState(state->unit);
 

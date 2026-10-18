@@ -266,7 +266,7 @@ int __stdcall GetGroundHeight(Vec3* pos);
 void __stdcall AlignUnitToGround(Unit* unit);
 void __stdcall RemoveUnitFromMap(Unit* unit);
 void __stdcall AddUnitToMap(Unit* unit);
-void __stdcall UpdateUnitLineOfSight(Unit* unit);
+#include "../../interfaces/seams.h"
 int __cdecl FUN_004b715a(int x, int z);
 int __cdecl GetLocalDpid();
 int __stdcall BroadcastPacket(int player, void* data, int size);
@@ -389,7 +389,7 @@ int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param_5)
         // The (short) cast gives the in-place two-bit mask.
         unit->flags = (unit->flags & 0xfffffffc) | (short)(param_5 & 3);
         AddUnitToMap(unit);
-        UpdateUnitLineOfSight(unit);
+        g_seams.los_radar->UpdateUnitLineOfSight(unit);
     }
     unit->flags |= 0x10000;
     return unit->flags;
@@ -761,7 +761,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
         // The (unsigned short) cast stops the int colour getting a frame home.
         u->f110.bits.colour = (unsigned int)(unsigned short)colour;
         AddUnitToMap(u);
-        UpdateUnitLineOfSight(u);
+        g_seams.los_radar->UpdateUnitLineOfSight(u);
     }
     u->f110.bits.b16 = 1;
     u->angles = tail;

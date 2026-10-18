@@ -582,8 +582,6 @@ int __cdecl FUN_004b7123(short angle, int scale);
 void __stdcall MakeHeap(Elem_0040cc40* first, Elem_0040cc40* last, int*, Elem_0040cc40*);
 void __stdcall PopHeapFirst(Elem_0040cc40* first, Elem_0040cc40* last, Elem_0040cc40* dest,
                             Elem_0040cc40 val, int*);
-Cell* __stdcall GetMapCell(int x, int y);
-int __stdcall IsUnitVisibleToPlayer(Player*, Unit*);
 int __stdcall CanPlaceUnitFootprint(UnitDef* type, short a, Point16 cell, int b);
 int __stdcall CanBuildAt(UnitDef* type, Point16 cell, int a, int b);
 int GetBuildSiteMetal(void);
@@ -1666,7 +1664,7 @@ void PlayerAI::BuildFeatureCells()
     cells.clear();
     int w = g_game->mapWidthTiles;
     for (int y = 0; y < g_game->mapHeightTiles; y++) {
-        Cell* row = GetMapCell(0, y);
+        Cell* row = g_seams.los_radar->GetMapCell(0, y);
         for (int x = 0; x < w; x++) {
             if (row[x].feature < 0xfffb) {
                 Feature* f = &g_game->features[row[x].feature];

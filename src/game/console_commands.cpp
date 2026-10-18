@@ -487,7 +487,6 @@ void __stdcall IssueOrderToSelection(void* a, int b, MissionType kind, int d, in
 void SaveSettings();
 void KillAllUnits(void);
 void __stdcall KillPlayerUnits(unsigned char player);
-void __stdcall RecalculateLineOfSight(int flag);
 void __stdcall SetLightVector(int x, int y, int z);
 void __stdcall TransferEnergy(unsigned char a, int b, float c, int d);
 void __stdcall TransferMetal(unsigned char a, int b, float c, int d);
@@ -710,7 +709,7 @@ void __stdcall CmdFShadow(int unused)
 void __stdcall CmdLOSType(int unused)
 {
     g_game->mapFlags.bit2 = !g_game->mapFlags.bit2;
-    RecalculateLineOfSight(0);
+    g_seams.los_radar->RecalculateLineOfSight(0);
 }
 
 // FUNCTION: 0x4166c0
@@ -914,7 +913,7 @@ void __stdcall CmdLOS(int unused)
 {
     g_game->mapFlags.bit1 = !g_game->mapFlags.bit1;
     SaveSettings();
-    RecalculateLineOfSight(0);
+    g_seams.los_radar->RecalculateLineOfSight(0);
 }
 
 // Toggles bit 0 of the game flags at +0x14281 (0x416d50 toggles bit 1).
@@ -923,7 +922,7 @@ void __stdcall CmdMapping(int unused)
 {
     g_game->mapFlags.bit0 = !g_game->mapFlags.bit0;
     SaveSettings();
-    RecalculateLineOfSight(1);
+    g_seams.los_radar->RecalculateLineOfSight(1);
 }
 
 // FUNCTION: 0x416db0
@@ -1158,7 +1157,7 @@ void __stdcall CmdNowISee(void*)
     p = (unsigned short*)((char*)p_game + 0x14281);
     *p = *p & 0xfffd;
 
-    RecalculateLineOfSight(1);
+    g_seams.los_radar->RecalculateLineOfSight(1);
 }
 
 // Same reset sequence as InitCommands, run as a callback after FUN_004161f0.

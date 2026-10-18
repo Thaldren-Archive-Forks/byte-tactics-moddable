@@ -65,7 +65,7 @@ struct Pos_00465ac0 {                   // 16.16 fixed point
 
 extern Game* g_game;
 
-int __stdcall IsPointVisible(Map_00465ac0* map, Position_00465ac0* pos);
+#include "../../interfaces/seams.h"
 
 // the player's explored byte map, inlined where the game map flags ask for it
 static inline int IsExplored(Map_00465ac0* map, Position_00465ac0* pos)
@@ -103,11 +103,11 @@ static inline int IsExplored2(Map_00465ac0* map, Position_00465ac0* pos)
 // IsVisible and IsVisible2 stay single ternaries, not an if with two returns.
 static inline int IsVisible(Map_00465ac0* map, Position_00465ac0* pos)
 {
-    return (g_game->mapFlags & 2) == 2 ? IsExplored(map, pos) : IsPointVisible(map, pos);
+    return (g_game->mapFlags & 2) == 2 ? IsExplored(map, pos) : g_seams.ai->IsPointVisible((Player*)map, (Vec3*)pos);
 }
 static inline int IsVisible2(Map_00465ac0* map, Position_00465ac0* pos)
 {
-    return (g_game->mapFlags & 2) == 2 ? IsExplored2(map, pos) : IsPointVisible(map, pos);
+    return (g_game->mapFlags & 2) == 2 ? IsExplored2(map, pos) : g_seams.ai->IsPointVisible((Player*)map, (Vec3*)pos);
 }
 // Branchy shape stays: lets nothing range-track the value.
 static inline int IsExplored3(Map_00465ac0* map, Position_00465ac0* pos)

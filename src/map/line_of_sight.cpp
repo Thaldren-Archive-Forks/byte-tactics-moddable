@@ -377,7 +377,6 @@ void __stdcall EraseFrameDithered(void* surface, void* bmp, int x, int y, int co
 void __stdcall FillRectangle(void* surface, Rect* rect, int color);
 void __stdcall GrayRectangle(void* surface, Rect* rect);
 void __stdcall DitherRectangle(void* surface, Rect* rect, int color);
-int __stdcall GetGroundHeight(Vec3* pos);
 void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
 
@@ -983,7 +982,7 @@ void LoadTntMap()
     int* tnt;
 
     // REGION r1 begin
-    tnt = (int*)(g_game->mapInfo)->GetNameSlot(1);
+    tnt = (int*)g_seams.map->GetNameSlot(g_game->mapInfo, 1);
     tnt = LoadFileWithProgress(tnt);
     info.version = *tnt;
     switch (info.version) {
@@ -1463,7 +1462,7 @@ void __stdcall ClampWorldPosToTerrain(int x, int y, Vec3* out)
     for (i = 0x80; i >= 0; i -= 0x10) {
         // z comes from the counter, not from a variable of its own.
         p.z = (t + i) << 16;
-        p.y = max(GetGroundHeight(&p), g_game->seaLevel) << 16;
+        p.y = max(g_seams.units->GetGroundHeight(&p), g_game->seaLevel) << 16;
         s1 = ((short*)&p.z)[1] - (((short*)&p.y)[1] >> 1);
         if (s1 <= y)
             goto found;
@@ -1474,11 +1473,11 @@ found:
     {
         Vec3 q = p;
         q.z = p.z + 0x100000;
-        q.y = max(GetGroundHeight(&q), g_game->seaLevel) << 16;
+        q.y = max(g_seams.units->GetGroundHeight(&q), g_game->seaLevel) << 16;
         s2 = ((short*)&q.z)[1] - (((short*)&q.y)[1] >> 1);
         if ((s1 < s2 && y >= s1) || y <= s2) {
             p.z = p.z + ((y - s1) << 20) / (s2 - s1);
-            p.y = max(GetGroundHeight(&p), g_game->seaLevel) << 16;
+            p.y = max(g_seams.units->GetGroundHeight(&p), g_game->seaLevel) << 16;
         }
     }
 done:

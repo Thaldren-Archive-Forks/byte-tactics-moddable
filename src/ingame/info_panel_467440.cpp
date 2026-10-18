@@ -116,8 +116,7 @@ public:
 
 extern Game* g_game;
 
-void __stdcall VisitObjectsInRange(Vec3_00467440* pos, int range, void* visitor);
-bool __stdcall HasReadyUnitInRange(int player, Vec3_00467440* p, int range);
+#include "../../interfaces/seams.h"
 
 static inline int IsExplored_00467440(PlayerInfo_00467440* p, UnitPos_00467440* pos)
 {
@@ -182,7 +181,7 @@ void UpdateSensorRadarAndCloak(void)
                 v.radarRangeSq = t;
                 v.sonarRangeSq = s;
                 v.pos = u->pos.vec;
-                VisitObjectsInRange(pp, (int)a << 16, &v);
+                g_seams.map->VisitObjectsInRange((Vec3*)pp, (int)a << 16, &v);
             }
         }
     }
@@ -195,13 +194,13 @@ void UpdateSensorRadarAndCloak(void)
                 int r = (int)u->def->radardistancejam << 16;
                 Vec3_00467440* pp = &u->pos.vec;
                 RadarJamVisitor v;
-                VisitObjectsInRange(pp, r, &v);
+                g_seams.map->VisitObjectsInRange((Vec3*)pp, r, &v);
             }
             if (u->def->sonardistancejam != 0) {
                 int r2 = (int)u->def->sonardistancejam << 16;
                 Vec3_00467440* pp2 = &u->pos.vec;
                 SonarJamVisitor v;
-                VisitObjectsInRange(pp2, r2, &v);
+                g_seams.map->VisitObjectsInRange((Vec3*)pp2, r2, &v);
             }
         }
     }
@@ -211,7 +210,7 @@ void UpdateSensorRadarAndCloak(void)
             char c = u->player->type;
             if (c == 1 || c == 2) {
                 if (u->def->flags2 & 0x2000) {
-                    if (HasReadyUnitInRange(u->playerIndex, &u->pos.vec, u->def->mincloakdistance)) {
+                    if (g_seams.ai->HasReadyUnitInRange(u->playerIndex, (Vec3*)&u->pos.vec, u->def->mincloakdistance)) {
                         // Written through an int& so the flags load stays after the store.
                         int& b0 = u->workTime;
                         b0 = g_game->gameTick + 0x5a;
