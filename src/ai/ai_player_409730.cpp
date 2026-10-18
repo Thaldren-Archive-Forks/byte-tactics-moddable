@@ -266,7 +266,6 @@ extern Game* g_game;
 
 #include "../../interfaces/economy.h"
 
-// The part of Seams this file reads: its own <vector> keeps interfaces/seams.h out.
 struct Seams {
     void* wind_meteors;
     EconomySeam* economy;
