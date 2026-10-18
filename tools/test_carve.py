@@ -146,20 +146,13 @@ class MarkerBinding(unittest.TestCase):
         placer = SimpleNamespace(ref_targets=defaultdict(Counter, votes), learned={})
         return check, placer
 
-    def test_marked_callee_without_a_reference_binds_to_its_marker(self):
-        check, placer = self.setup({})
-        check.bind_markers(placer, {self.NAME})
-        self.assertEqual(placer.learned, {self.NAME: VA + 0x200})
-        self.assertEqual(placer.ref_targets[self.NAME].most_common(1)[0][0], VA + 0x200)
-        self.assertEqual(check.problems, {})
-
     def test_overloads_bind_each_to_its_own_marker(self):
         stdcall, cdecl = "?F@@YGXPAD@Z", "?F@@YAXPBD@Z"
         check, placer = self.setup({stdcall: Counter({VA + 0x200: 1})})
         check.markers = {stdcall: VA + 0x200, cdecl: VA + 0x900}
         check.bind_markers(placer, {stdcall, cdecl})
         self.assertEqual(check.problems, {})
-        self.assertEqual(placer.learned, {cdecl: VA + 0x900})
+        self.assertEqual(placer.learned, {})
 
     def test_shifted_call_to_an_overload_never_takes_the_other_marker(self):
         stdcall, cdecl = "?F@@YGXPAD@Z", "?F@@YAXPBD@Z"

@@ -913,9 +913,6 @@ class Positional:
                     found = (f"  {name} has the marker address {marked:#x}"
                              f" but the original's code points at {top:#x}")
                     self.problems[found] = found
-            else:
-                placer.ref_targets[name][marked] += 1
-                placer.learned.setdefault(name, marked)
 
     def prune_votes(self, placer: Placer, copies: list) -> dict[str, list[str]]:
         """Take out of placer.ref_targets the votes of the sites that are no
