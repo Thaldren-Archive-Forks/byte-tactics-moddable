@@ -1,37 +1,30 @@
-"""Build a test-mode exe from any commit of this repository.
+"""The conformity gate: play the scenarios and compare their digests with reference/traces/.
 
-    uv run tools/reference.py HEAD
-    uv run tools/reference.py a1b2c3d
-    uv run tools/reference.py HEAD --traces     # write reference/traces/
-    uv run tools/reference.py HEAD --check      # compare against reference/traces/
-    uv run tools/reference.py HEAD --check --quick    # a fixed subset, not the gate
-    uv run tools/reference.py --check --exe build/x/TotalA.exe
+    uv run tools/reference.py --check --exe build/modern/TotalA.exe    # the gate
+    uv run tools/reference.py --check --exe build/modern/TotalA.exe --quick    # a fixed subset, not the gate
+    uv run tools/reference.py --traces          # rewrite reference/traces/ from the reference branch
 
-Checks the commit out in build/reference/<ref>, links it with its own tools
-(the conformity harness is part of its src/), and leaves TotalA.exe,
-SMACKW32.DLL and commit.txt there. It then runs checkall over every annotated
-function and reports which ones no longer MATCH, against the allowlist in the
-commit's own reference/changed.txt. Exits 1 if the build fails or a function
-outside the allowlist does not MATCH.
+`--check --exe` plays every scenario in reference/scenarios/ (`--parallel N` at a
+time, default half the CPUs and at most 6, under Wine through tools/playtest.py)
+and compares the digest of each tick (tools/tracedigest.py) with the stored one.
+On the first difference it builds the reference from the commit the trace
+records, prints tools/tracediff.py's report for that scenario and exits 1. A
+missing or extra trace or scenario exits 1. `--quick` restricts `--check` to the
+scenarios named in QUICK.
 
 Every scenario is played with new game allocations zeroed (the game's own -memset=0 switch, through
 tools/playtest.py --testmode). `--check --poison` fills them with 0xCD instead (-memset=0xcdcdcdcd); a
 table that reads uninitialised bytes may then differ from the stored digests, and the report lists those.
 
-`--traces` then plays every scenario in reference/scenarios/ (`--parallel N` at a
-time, default half the CPUs and at most 6, under Wine through tools/playtest.py) and writes reference/traces/<scenario>.txt:
-the header of the run's trace.txt and one digest per tick (tools/tracedigest.py).
-`--check` plays the same scenarios and compares the digests with the stored ones.
-On the first difference it builds the reference from the commit the trace
-records, prints tools/tracediff.py's report for that scenario and exits 1. A
-missing or extra trace or scenario exits 1. `--exe` checks a given exe instead
-of building the ref. `--quick` restricts `--check` to the scenarios named in QUICK.
+`--traces` checks out origin/reference in build/reference/branch, runs that
+branch's own `tools/reference.py HEAD --traces` there (it links the matching
+build with the original compiler and plays the scenarios), and copies the
+traces it wrote into reference/traces/.
 Set WINEARCH=win64 for Wine; `--game-dir` names the game's
 install.
 """
 
 import argparse
-import csv
 import os
 import shutil
 import subprocess
@@ -112,43 +105,6 @@ def build(directory: Path, sha: str) -> None:
     for name in ("TotalA.exe", "SMACKW32.DLL"):
         shutil.copyfile(directory / "build/link" / name, directory / name)
     (directory / "commit.txt").write_text(sha + "\n")
-
-
-def run_checkall(directory: Path, addresses: list[str]) -> dict[int, str]:
-    proc = subprocess.run(["uv", "run", "tools/checkall.py", *addresses], cwd=directory, env=REF_ENV,
-                          stdout=subprocess.PIPE, text=True)
-    results = {int(a, 16): "no result from checkall" for a in addresses}
-    for line in proc.stdout.splitlines():
-        if line.strip():
-            results[int(line.split()[0], 16)] = line
-    return results
-
-
-def is_match(line: str) -> bool:
-    return line.endswith("->  MATCH")
-
-
-def checkall(directory: Path) -> dict[int, str]:
-    with open(directory / "data/progress.csv", newline="") as f:
-        addresses = [row["address"] for row in csv.DictReader(f)]
-    return run_checkall(directory, addresses)
-
-
-def read_allowlist(directory: Path) -> dict[int, str]:
-    path = directory / "reference/changed.txt"
-    if not path.is_file():
-        fail(f"{path.relative_to(directory)} is missing from {directory.relative_to(ROOT)}")
-    allowed = {}
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if line and not line.startswith("#"):
-            address, _, name = line.partition(" ")
-            allowed[int(address, 16)] = name.strip()
-    return allowed
-
-
-def label(address: int, name: str) -> str:
-    return f"{address:#x} {name}".rstrip()
 
 
 def clock(seconds: float) -> str:
@@ -287,27 +243,6 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
     return results
 
 
-def write_traces(sha: str, exe: Path, game_dir: str | None, parallel: int) -> None:
-    scenarios = scenario_files()
-    if not scenarios:
-        fail(f"no scenarios in {SCENARIOS.relative_to(ROOT)}")
-    t0 = time.time()
-    results = play_all(exe, scenarios, game_dir, parallel)
-    rendered = {}
-    for name, (header, digests, elapsed, _) in results.items():
-        if not digests or any(k not in header for k in ("game_seed", "crt_seed", "view_seed")):
-            fail(f"{name}: the run produced no complete trace; the stored traces are untouched")
-        header = {**header, "commit": sha, "scenario": str(scenarios[name].relative_to(ROOT))}
-        rendered[name] = tracedigest.render(header, digests)
-    TRACES.mkdir(parents=True, exist_ok=True)
-    for old in TRACES.glob("*.txt"):
-        old.unlink()
-    for name, (header, digests, elapsed, _) in results.items():
-        (TRACES / f"{name}.txt").write_text(rendered[name])
-        print(f"wrote {(TRACES / f'{name}.txt').relative_to(ROOT)}: {len(digests)} ticks, {clock(elapsed)}")
-    print(f"{len(results)} traces, commit {sha}, total {clock(time.time() - t0)}")
-
-
 def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) -> str | None:
     """A description of the first tick at which the digests differ, or None."""
     for a, b in zip(stored, got):
@@ -389,24 +324,47 @@ def build_cached(sha: str) -> Path:
     return directory
 
 
+def reference_branch() -> Path:
+    git("fetch", "-q", "origin", "reference", check=False)
+    directory = ROOT / "build/reference/branch"
+    prepare_worktree(directory, resolve("origin/reference"))
+    return directory
+
+
+def write_traces(game_dir: str | None, parallel: int) -> None:
+    directory = reference_branch()
+    cmd = ["uv", "run", "tools/reference.py", "HEAD", "--traces", "--parallel", str(parallel)]
+    if game_dir:
+        cmd += ["--game-dir", game_dir]
+    if subprocess.run(cmd, cwd=directory, env=REF_ENV).returncode:
+        fail("tools/reference.py --traces failed on the reference branch")
+    produced = sorted((directory / "reference/traces").glob("*.txt"))
+    if not produced:
+        fail("the reference branch wrote no traces; reference/traces/ is untouched")
+    TRACES.mkdir(parents=True, exist_ok=True)
+    for old in TRACES.glob("*.txt"):
+        old.unlink()
+    for path in produced:
+        shutil.copyfile(path, TRACES / path.name)
+    print(f"{len(produced)} traces copied to {TRACES.relative_to(ROOT)}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("ref", nargs="?", help="branch, tag or commit to build")
-    ap.add_argument("--traces", action="store_true", help="play every scenario and write reference/traces/")
+    ap.add_argument("--traces", action="store_true", help="rewrite reference/traces/ from the reference branch")
     ap.add_argument("--check", action="store_true", help="play every scenario and compare with reference/traces/")
     ap.add_argument("--quick", action="store_true",
                     help="--check: play only the fixed quick subset (not the gate)")
     ap.add_argument("--poison", action="store_true",
                     help="--check: play the scenarios with new game allocations filled with 0xCD; list the bytes whose starting value reaches hashed state; a difference is expected for real uninitialised reads")
-    ap.add_argument("--exe", metavar="PATH", help="--check: check this exe instead of building the ref")
+    ap.add_argument("--exe", metavar="PATH", help="--check: the exe to check (build/modern/TotalA.exe)")
     ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
     ap.add_argument("--parallel", type=int, default=default_parallel(), metavar="N",
                     help="--traces, --check: scenarios played at once (default: half the CPUs, at most 6)")
     args = ap.parse_args()
     if args.parallel < 1:
         ap.error("--parallel takes 1 or more")
-    ref = args.ref
-    if args.traces == args.check and (args.traces or args.exe):
+    if args.traces == args.check:
         ap.error("give one of --traces and --check")
     if args.poison and not args.check:
         ap.error("--poison needs --check")
@@ -414,43 +372,14 @@ def main() -> None:
         ap.error("--quick needs --check; it cannot be used with --traces")
     if args.exe and not args.check:
         ap.error("--exe needs --check")
-    if args.exe and not Path(args.exe).is_file():
-        ap.error(f"{args.exe} is not a file")
-    if not args.exe and not ref:
-        ap.error("give a ref to build")
-    if args.exe:
-        check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison)
-        return
-
-    sha = resolve(ref)
-    directory = ROOT / "build/reference" / ref
-    for name in OUTPUTS:
-        (directory / name).unlink(missing_ok=True)
-
-    prepare_worktree(directory, sha)
-    allowed = read_allowlist(directory)
-    build(directory, sha)
-    results = checkall(directory)
-
-    matching = {a for a, line in results.items() if is_match(line)}
-    changed = sorted(a for a in allowed if a in results and a not in matching)
-    unchanged = sorted(a for a in allowed if a in matching)
-    unlisted = sorted(a for a in results if a not in matching and a not in allowed)
-
-    print(f"reference {ref} @ {sha}: {directory.relative_to(ROOT)}/TotalA.exe")
-    print(f"checkall: {len(results)} functions, {len(matching)} MATCH")
-    print("  allowlisted, changed:   " + (", ".join(label(a, allowed[a]) for a in changed) or "none"))
-    print("  allowlisted, unchanged: " + (", ".join(label(a, allowed[a]) for a in unchanged) or "none"))
-    if unlisted:
-        print("  not allowlisted, changed:")
-        for a in unlisted:
-            print(f"    {results[a]}")
-        sys.exit(1)
-    print("  not allowlisted, changed: none")
     if args.traces:
-        write_traces(sha, directory / "TotalA.exe", args.game_dir, args.parallel)
-    elif args.check:
-        check_traces(directory / "TotalA.exe", args.game_dir, args.parallel, args.quick, args.poison)
+        write_traces(args.game_dir, args.parallel)
+        return
+    if not args.exe:
+        ap.error("--check needs --exe: the gate is the modern build, --exe build/modern/TotalA.exe")
+    if not Path(args.exe).is_file():
+        ap.error(f"{args.exe} is not a file")
+    check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison)
 
 
 if __name__ == "__main__":
