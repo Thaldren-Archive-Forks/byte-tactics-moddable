@@ -27,11 +27,13 @@ Every change is classed, and the class decides which bump it needs:
 
 A bump with nothing changed is fine. A version that goes down fails.
 
-A stand-in retype is a parameter or return type that was exactly `int*`, `void*` or `char*` (const
-and volatile included) and is now a pointer to a struct, class or union. It has the same size and goes
-in the same register or stack slot, so it is additive. Any other retype is breaking: one struct pointer
-for another, a different width, a value for a pointer, a different calling convention. Each stand-in
-retype is printed as its own line.
+A retype is a parameter or return type that changed in a slot. Once an `interfaces-v*` tag exists, every
+retype is breaking (even `void*` to `Foo*`). Until then (the baseline is the merge base), a retype that
+keeps the 4-byte argument slot of each parameter and of the return value, and the calling convention, is
+additive and reported as `retype (before interfaces-v1)`: a minor bump is enough. Pointer to pointer,
+pointer to an integer of 4 bytes or less, and a small integer to another small integer keep the slot. A
+retype that changes a slot is breaking: a by-value struct, a double, an added or removed parameter, a
+different calling convention. Each retype is printed as its own line.
 
 Layouts and signatures come from clang-cl (LLVM 22.1.8, as cmake/clang-cl-i686.cmake) with the flags
 of the modern build, on a one-line translation unit that includes the header: `-Xclang
@@ -64,7 +66,8 @@ LAYOUT_START = re.compile(r"^\*\*\* Dumping AST Record Layout\s*$", re.M)
 LAYOUT_MEMBER = re.compile(r"^\s*(\d+(?::\d+-\d+)?)\s*\|(\s*)(.*?)\s*$")
 LAYOUT_SIZE = re.compile(r"^\s*\|\s*\[sizeof=(\d+), align=(\d+)")
 STAND_IN = re.compile(r"(?:(?:const|volatile) )*(?:int|void|char) \*(?: (?:const|volatile))*")
-STRUCT_POINTER = re.compile(r"(?:(?:const|volatile) )*([A-Za-z_]\w*) \*(?: (?:const|volatile))*")
+POINTER = re.compile(r".*\*(?: (?:const|volatile))*$")
+SMALL_INTEGER = {"int", "unsigned", "signed", "short", "char", "long", "bool", "const", "volatile"}
 JSON_START = re.compile(r'^\{\n  "id"', re.M)
 
 
@@ -85,7 +88,6 @@ class Interface:
     minor: int = 0
     slots: dict = field(default_factory=dict)
     layouts: dict = field(default_factory=dict)
-    records: set = field(default_factory=set)
 
 
 @dataclass
@@ -190,7 +192,6 @@ def load_interface(header: Path, scratch: Path) -> Interface:
     for node in tree["inner"]:
         if node.get("isImplicit") or node["kind"] != "CXXRecordDecl" or "name" not in node:
             continue
-        iface.records.add(node["name"])
         if not node.get("completeDefinition"):
             continue
         slots, data = [], False
@@ -209,16 +210,18 @@ def load_interface(header: Path, scratch: Path) -> Interface:
     return iface
 
 
-def is_stand_in_retype(old: str, new: str, records: set) -> bool:
-    """Whether an `int*`, `void*` or `char*` became a pointer to a struct, class or union."""
-    target = STRUCT_POINTER.fullmatch(new)
-    return bool(STAND_IN.fullmatch(old)) and target is not None and target.group(1) in records
+def keeps_slot(old: str, new: str) -> bool:
+    """Whether two types both fill exactly one 4-byte argument slot: a pointer, or an integer of 4 bytes or less."""
+    def one_slot(text: str) -> bool:
+        words = text.split()
+        return bool(POINTER.match(text)) or (bool(words) and words.count("long") < 2 and set(words) <= SMALL_INTEGER)
+    return one_slot(old) and one_slot(new)
 
 
-def compare_signature(where: str, old: Signature, new: Signature, records: set) -> list[Change]:
+def compare_signature(where: str, old: Signature, new: Signature, tagged: bool) -> list[Change]:
     if old == new:
         return []
-    if old.conv != new.conv or len(old.params) != len(new.params):
+    if tagged or old.conv != new.conv or len(old.params) != len(new.params):
         return [Change("breaking", "%s: %s -> %s" % (where, old.text(), new.text()))]
     out = []
     pairs = [("return", old.ret, new.ret)] + [("param %d" % (i + 1), a, b)
@@ -226,12 +229,12 @@ def compare_signature(where: str, old: Signature, new: Signature, records: set) 
     for label, a, b in pairs:
         if a == b:
             continue
-        kind = "standin" if is_stand_in_retype(a, b, records) else "breaking"
+        kind = "retype" if keeps_slot(a, b) else "breaking"
         out.append(Change(kind, "%s %s: %s -> %s" % (where, label, a, b)))
     return out
 
 
-def compare_slots(record: str, old: list, new: list, records: set) -> list[Change]:
+def compare_slots(record: str, old: list, new: list, tagged: bool) -> list[Change]:
     out = []
     old_names, new_names = [n for n, _ in old], [n for n, _ in new]
     old_by, new_by = dict(old), dict(new)
@@ -251,7 +254,7 @@ def compare_slots(record: str, old: list, new: list, records: set) -> list[Chang
         else:
             out.append(Change("breaking", "slot inserted before the end: %s.%s" % (record, name)))
     for name in common_old:
-        out += compare_signature("%s.%s" % (record, name), old_by[name], new_by[name], records)
+        out += compare_signature("%s.%s" % (record, name), old_by[name], new_by[name], tagged)
     return out
 
 
@@ -267,8 +270,8 @@ def compare_layout(record: str, old: tuple, new: tuple) -> list[Change]:
     return []
 
 
-def compare_interfaces(old: Interface, new: Interface) -> list[Change]:
-    """Every change from old to new, each of kind additive, standin, breaking or layout."""
+def compare_interfaces(old: Interface, new: Interface, tagged: bool) -> list[Change]:
+    """Every change from old to new, each of kind additive, retype, breaking or layout."""
     changes = []
     for record in old.slots:
         if record not in new.slots:
@@ -277,7 +280,7 @@ def compare_interfaces(old: Interface, new: Interface) -> list[Change]:
         if record not in old.slots:
             changes.append(Change("additive", "new struct: %s" % record))
         else:
-            changes += compare_slots(record, old.slots[record], slots, new.records)
+            changes += compare_slots(record, old.slots[record], slots, tagged)
     for record, layout in new.layouts.items():
         if record in old.layouts:
             changes += compare_layout(record, old.layouts[record], layout)
@@ -287,7 +290,7 @@ def compare_interfaces(old: Interface, new: Interface) -> list[Change]:
 def judge(old: Interface, new: Interface, changes: list[Change]) -> Result:
     """The verdict on the changes, given the version bump."""
     kinds = {c.kind for c in changes}
-    details = [c.text if c.kind != "standin" else "stand-in retype, " + c.text for c in changes]
+    details = [c.text if c.kind != "retype" else "retype (before interfaces-v1), " + c.text for c in changes]
     major_up, minor_up = new.major > old.major, new.minor > old.minor
     versions = "%d.%d -> %d.%d" % (old.major, old.minor, new.major, new.minor)
 
@@ -316,7 +319,7 @@ def bump_text(old: Interface, new: Interface) -> str:
     return "minor %d->%d" % (old.minor, new.minor)
 
 
-def diff_headers(old_path: Path, new_path: Path, scratch: Path) -> Result:
+def diff_headers(old_path: Path, new_path: Path, scratch: Path, tagged: bool) -> Result:
     """The verdict for one interface header against its baseline."""
     name = new_path.stem if new_path.exists() else old_path.stem
     if not old_path.exists():
@@ -327,15 +330,15 @@ def diff_headers(old_path: Path, new_path: Path, scratch: Path) -> Result:
     new = load_interface(new_path, scratch / "new")
     if not new.major and not new.minor and not old.major and not old.minor:
         return Result(name, True, "skipped (no version macros)")
-    return judge(old, new, compare_interfaces(old, new))
+    return judge(old, new, compare_interfaces(old, new, tagged))
 
 
-def diff_dirs(old_dir: Path, new_dir: Path) -> list[Result]:
+def diff_dirs(old_dir: Path, new_dir: Path, tagged: bool) -> list[Result]:
     """The verdicts for every header in either directory, sorted by name."""
     names = sorted({p.name for p in old_dir.glob("*.h")} | {p.name for p in new_dir.glob("*.h")})
     with tempfile.TemporaryDirectory(prefix="abidiff-") as tmp:
         def one(name: str) -> Result:
-            return diff_headers(old_dir / name, new_dir / name, Path(tmp) / name)
+            return diff_headers(old_dir / name, new_dir / name, Path(tmp) / name, tagged)
         with ThreadPoolExecutor() as pool:
             return list(pool.map(one, names))
 
@@ -347,10 +350,10 @@ def git(*args: str) -> str:
     return run.stdout
 
 
-def baseline_ref() -> str:
-    """The newest interfaces-v* tag, else the merge base of HEAD and the base branch."""
+def baseline_ref() -> tuple[str, bool]:
+    """The baseline ref and whether an interfaces-v* tag exists: the newest tag, else the merge base of HEAD and the base branch."""
     tags = git("tag", "-l", "interfaces-v*", "--sort=-v:refname").split()
-    return tags[0] if tags else git("merge-base", "HEAD", BASE_BRANCH).strip()
+    return (tags[0], True) if tags else (git("merge-base", "HEAD", BASE_BRANCH).strip(), False)
 
 
 def extract_baseline(ref: str, target: Path) -> None:
@@ -384,11 +387,12 @@ def main() -> None:
         print("\n".join(lines))
         print("%d int*, void* or char* in slot signatures" % len(lines))
         return
-    ref = args.base or baseline_ref()
+    ref, tagged = baseline_ref()
+    ref = args.base or ref
     with tempfile.TemporaryDirectory(prefix="abidiff-base-") as tmp:
         extract_baseline(ref, Path(tmp))
-        results = diff_dirs(Path(tmp), ROOT / "interfaces")
-    print("baseline: %s" % ref)
+        results = diff_dirs(Path(tmp), ROOT / "interfaces", tagged)
+    print("baseline: %s (%s)" % (ref, "interfaces-v* tag exists" if tagged else "before interfaces-v1"))
     for result in results:
         print("%s: %s" % (result.name, result.summary))
         for line in result.details:

@@ -18,6 +18,7 @@ def header(slots: list[str], major: int = 1, minor: int = 0, data: str = "int a;
     return """struct Unit;
 struct Player;
 struct Foo;
+struct UnitDef;
 #define T_VERSION_MAJOR %d
 #define T_VERSION_MINOR %d
 struct TSeam {
@@ -27,14 +28,14 @@ struct Data { %s };
 """ % (major, minor, "\n".join(slots), data)
 
 
-def verdict(old: str, new: str) -> abidiff.Result:
+def verdict(old: str, new: str, tagged: bool = True) -> abidiff.Result:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "old").mkdir()
         (root / "new").mkdir()
         (root / "old/t.h").write_text(old)
         (root / "new/t.h").write_text(new)
-        (result,) = abidiff.diff_dirs(root / "old", root / "new")
+        (result,) = abidiff.diff_dirs(root / "old", root / "new", tagged)
     return result
 
 
@@ -92,6 +93,9 @@ class RetypedSlotTest(unittest.TestCase):
             self.assertFalse(result.ok)
             self.assertIn("needs a major bump", result.summary)
 
+    def test_unit_pointer_to_player_pointer_is_breaking_with_a_tag(self):
+        self.check(SLOT_A, "int (__stdcall* A)(Player* unit);")
+
     def test_width_change(self):
         self.check("int (__stdcall* A)(int x);", "int (__stdcall* A)(short x);")
 
@@ -105,32 +109,47 @@ class RetypedSlotTest(unittest.TestCase):
         self.check("int (__stdcall* A)(int* x);", "int (__stdcall* A)(int x);")
 
 
-class StandInTest(unittest.TestCase):
+class RetypeBeforeTagTest(unittest.TestCase):
     old = header(["int (__stdcall* A)(void* weapon);", SLOT_B])
     new = ["int (__stdcall* A)(Foo* weapon);", SLOT_B]
 
     def test_minor_bump_passes(self):
-        result = verdict(self.old, header(self.new, minor=1))
+        result = verdict(self.old, header(self.new, minor=1), tagged=False)
         self.assertTrue(result.ok, result)
         self.assertEqual(result.summary, "ok (additive, minor 0->1)")
-        self.assertEqual(result.details, ["stand-in retype, TSeam.A param 1: void * -> Foo *"])
+        self.assertEqual(result.details, ["retype (before interfaces-v1), TSeam.A param 1: void * -> Foo *"])
 
     def test_no_bump_fails(self):
-        self.assertFalse(verdict(self.old, header(self.new)).ok)
+        self.assertFalse(verdict(self.old, header(self.new), tagged=False).ok)
 
-    def test_const_char_and_return_count(self):
-        old = header(["char* (__stdcall* A)(const char* name);"])
-        result = verdict(old, header(["Foo* (__stdcall* A)(const Foo* name);"], minor=1))
-        self.assertTrue(result.ok, result)
-        self.assertEqual(len(result.details), 2)
+    def test_major_bump_needs_an_adapter(self):
+        result = verdict(self.old, header(self.new, major=2), tagged=False)
+        self.assertIn("adapter required (#9)", result.summary)
 
-    def test_unsigned_char_is_not_a_stand_in(self):
-        old = header(["int (__stdcall* A)(unsigned char* p);"])
-        self.assertFalse(verdict(old, header(["int (__stdcall* A)(Foo* p);"], minor=1)).ok)
+    def test_after_the_tag_it_is_breaking(self):
+        result = verdict(self.old, header(self.new, minor=1))
+        self.assertFalse(result.ok)
+        self.assertIn("needs a major bump", result.summary)
+        self.assertIn("adapter required (#9)", verdict(self.old, header(self.new, major=2)).summary)
 
-    def test_pointer_to_non_struct_is_not_a_stand_in(self):
-        old = header(["int (__stdcall* A)(void* p);"])
-        self.assertFalse(verdict(old, header(["int (__stdcall* A)(long* p);"], minor=1)).ok)
+    def test_slot_keeping_retypes_pass(self):
+        for a, b in (("Unit*", "Player*"), ("UnitDef*", "unsigned short"), ("int", "short"), ("char*", "int")):
+            old = header(["int (__stdcall* A)(%s p);" % a])
+            result = verdict(old, header(["int (__stdcall* A)(%s p);" % b], minor=1), tagged=False)
+            self.assertTrue(result.ok, (a, b, result))
+
+    def test_slot_changing_retypes_fail(self):
+        for a, b in (("int", "double"), ("int", "Foo"), ("Foo*", "long long")):
+            old = header(["int (__stdcall* A)(%s p);" % a])
+            result = verdict(old, header(["int (__stdcall* A)(%s p);" % b], minor=1), tagged=False)
+            self.assertFalse(result.ok, (a, b))
+            self.assertIn("needs a major bump", result.summary)
+
+    def test_calling_convention_and_return_type(self):
+        old = header(["int (__stdcall* A)(Foo* p);"])
+        self.assertFalse(verdict(old, header(["int (__fastcall* A)(Foo* p);"], minor=1), tagged=False).ok)
+        self.assertFalse(verdict(old, header(["void (__stdcall* A)(Foo* p);"], minor=1), tagged=False).ok)
+        self.assertTrue(verdict(old, header(["Foo* (__stdcall* A)(Foo* p);"], minor=1), tagged=False).ok)
 
 
 class MovedFieldTest(unittest.TestCase):
