@@ -167,7 +167,7 @@ struct Spawn {
     unsigned char player;              // +0x00
     unsigned short type;               // +0x01
     unsigned short id;                 // +0x03
-    PosVec3 pos;                          // +0x05
+    PosVec3 pos;
     union {
         Angles16 words;                // +0x11
         Tail32 dword;                  // +0x11
