@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
+#include "../../interfaces/seams.h"
 // Only for its symbol ids: it puts 0x4181d0 in the window it matches in.
 #include <wctype.h>
 
@@ -479,7 +480,6 @@ extern signed char g_dirDeltaX[], g_dirDeltaZ[];
 
 void __stdcall AddMessage(char* text, int key, int value, int last);
 extern void RemoveAllFeatures();
-void* __stdcall GetMapCell(int x, int y);
 void __stdcall RemoveFeature(void* target, int flag);
 short __stdcall FindFeatureType(char* name);
 void* __stdcall PlaceFeature(void* target, unsigned short id, void* pos, void* active,
@@ -601,7 +601,7 @@ void __stdcall CmdBurnAll(int arg1)
 void __stdcall CmdBurnOne(void* args)
 {
     if (g_game->cellFeature < 0xfffb) {
-        void* target = GetMapCell(g_game->point.x, g_game->point.y);
+        void* target = g_seams.los_radar->GetMapCell(g_game->point.x, g_game->point.y);
         RemoveFeature(target, 1);
     }
 }
@@ -611,7 +611,7 @@ void __stdcall CmdFeature(CommandArgs* args)
 {
     unsigned short id = FindFeatureType(args->GetArg(1, DAT_005119b8));
     if (id != 0xffff) {
-        void* target = GetMapCell(g_game->point.x, g_game->point.y);
+        void* target = g_seams.los_radar->GetMapCell(g_game->point.x, g_game->point.y);
         PlaceFeature(target, id, 0, 0, 10);
     }
 }

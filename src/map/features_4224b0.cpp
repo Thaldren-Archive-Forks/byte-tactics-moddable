@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include "../../interfaces/seams.h"
 
 #include "../util/tdf.h"
 
@@ -100,7 +101,6 @@ void* __cdecl GameReallocTagged(void* p, const char* name, unsigned int size);
 void* __stdcall LoadObject3d(const char* name);
 Gaf_004224b0* __stdcall LoadGaf(char* path);
 Seq_004224b0* __stdcall FindGafEntry(Gaf_004224b0* gaf, const char* name);
-char* __stdcall FindWeaponByName(char* name);
 void __stdcall InitGafSequence(Ref_004224b0* ref, Seq_004224b0* src, int index);
 
 // FindFeatureFile, inlined
@@ -234,7 +234,7 @@ int __stdcall LoadFeatureType(char* name)
         def->nodrawundergray = 1;
     def->sparktime = (short)(entry->current->GetFieldDouble("sparktime", 0.0) * 30.0);
     entry->current->GetFieldString(seqname, "burnweapon", 0x100, DAT_005119b8);
-    def->burnweapon = FindWeaponByName(seqname);
+    def->burnweapon = (char*)g_seams.weapons->FindWeaponByName(seqname);
     def->ref.index = 0;
     def->ref.value = 0;
     def->ref.kind = 0;
