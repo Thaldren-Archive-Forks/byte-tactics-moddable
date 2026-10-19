@@ -2328,10 +2328,7 @@ struct Order_004021f0 {  // 0x3e bytes, 1 view
     int waitLimit;  // +0x3a
 };
 
-struct Box {  // 0x18 bytes, 7 views
-    Vec3 lo;  // +0x0
-    Vec3 hi;  // +0xc
-};
+#include "../src/orders/box.h"
 
 struct Order_4 {  // 0x3e bytes, 1 view
     char unknown_0[5];
