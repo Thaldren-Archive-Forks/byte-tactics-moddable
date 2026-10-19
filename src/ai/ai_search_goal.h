@@ -12,6 +12,7 @@ class BitWriter;
 class BitReader;
 class AiSearchGoal;
 
+#pragma pack(push, 1)
 class PathGoal {
 public:
     Base_00490a10* target;
@@ -59,5 +60,8 @@ public:
     void SetWaypoints(Point16* src, int n);
     void TruncateWaypointsFrom(int n);
 };
+#pragma pack(pop)
+
+static_assert(sizeof(AiSearchGoal) == 0x65, "AiSearchGoal");
 
 #endif

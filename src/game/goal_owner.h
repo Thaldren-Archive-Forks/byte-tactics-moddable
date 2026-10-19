@@ -6,6 +6,7 @@
 #include "../util/vec3.h"
 
 struct UnitDef;
+struct Order;
 class UnitMotion;
 
 struct Target_00490880 {
@@ -32,7 +33,7 @@ struct Struct_004907e0 {
         UnitMotion* obj;
     };
     char pad4[0x5c - 0x4];
-    Target_0044f2a0* list;
+    Order* list;
     char pad60[0x64 - 0x60];
     Angles16 angles;
     union {
