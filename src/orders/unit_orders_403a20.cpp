@@ -27,25 +27,7 @@ struct UnitDef {
     char pad214[0x249-0x214];
 };
 #include "../units/unit.h"
-struct Order {
-    char pad0[5]; unsigned char state;
-    unsigned int flags;
-    char padA[0x16-0xa]; Unit* target;
-    char pad1A[8]; Vec3 pos;
-    char pad2E[8]; int type;
-    int unused; int retries;
-    void AttachBuildFootprintMarker(PointS16, PointS16);
-    void SetDeadlineTicks(int);
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    Order(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    void AttachApproachRadiusGoal(Vec3* pos, int radius);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-};
+#include "order.h"
 #include "../game/game.h"
 #pragma pack(pop)
 extern Game* g_game;
@@ -99,7 +81,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
         PointS16 cell = WorldToCell(order->pos, def->origin);
         CellToWorld(def->origin, cell, &order->pos);
         order->retries = 0;
-        order->AttachBuildFootprintMarker(cell, def->origin);
+        order->AttachBuildFootprintMarker((*(Point16*)&cell), (*(Point16*)&def->origin));
         order->flags = 0xe0;
         return 1;
     }

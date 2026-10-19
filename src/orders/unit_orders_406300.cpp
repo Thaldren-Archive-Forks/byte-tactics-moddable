@@ -10,17 +10,14 @@ class UnitMotion;
 struct Player;
 struct Unit;
 struct Order;
-class MissionType { public: unsigned char index; MissionType() {} MissionType(const char*); int operator==(const MissionType& v) const { return index==v.index; } };
+#include "mission_type.h"
 
 #pragma pack(push, 1)
 struct WeaponDef { char pad0[0x111]; unsigned int flags; };
 #include "../units/unit_def.h"
 struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index; };
 #include "../units/unit.h"
-struct Order { Unit* Target() { return target; } Vec3* Position() { return &pos; } char pad0[4]; MissionType kind; unsigned char state; unsigned int flags; char pada[12]; Unit* target; char pad1a[8]; Vec3 pos; char pad2e[8]; int radius; char pad3a[8]; unsigned int capabilities; void AnnounceStatusIfFlagged(const char*); void SetAttachedFx(int); void AttachApproachRadiusGoal(Vec3*, int); void SetDeadlineTicks(int); Order(MissionType, Unit*, Vec3*, int, int, int); char unknown_46[0x10];           // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-};
+#include "order.h"
 
 #include "../../interfaces/seams.h"
 
@@ -49,8 +46,8 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
     case 0: {
         order->AnnounceStatusIfFlagged("Guarding");
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
-        order->radius=(unit->footprint.x + order->target->footprint.x + 2) << 4;
-        int distance=order->radius << 16;
+        order->approachRadius=(unit->footprint.x + order->target->footprint.x + 2) << 4;
+        int distance=order->approachRadius << 16;
         short angle=RandomInt(0x10000);
         order->pos=Offset(angle,distance);
         return 1;
@@ -81,11 +78,11 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
         }
         if (order->target->list && order->target->list->kind.index &&
             (unit->def->flags1&0x40) && (order->target->def->flags1&0x40) &&
-            (order->target->list->capabilities&0x100000) && unit!=order->target->list->Target()) {
+            (order->target->list->flags_42&0x100000) && unit!=order->target->list->Target()) {
             int building=order->target->list->kind=="MobileBuild" ||
                          order->target->list->kind=="BuildingBuild";
             Order* other=order->target->list;
-            int actionable=((other->capabilities&0x200) && other->target) || (other->capabilities&0x400);
+            int actionable=((other->flags_42&0x200) && other->target) || (other->flags_42&0x400);
             MissionType kind;
             if (!building && actionable) {
                 order->SetAttachedFx(0);
@@ -103,7 +100,7 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
         }
 follow:
         Vec3 pos=order->target->pos+order->pos;
-        order->AttachApproachRadiusGoal(&pos,order->radius/2);
+        order->AttachApproachRadiusGoal(&pos,order->approachRadius/2);
         order->SetDeadlineTicks(30);
         order->flags|=0x18;
         return 2;

@@ -35,11 +35,7 @@ struct PathOrder;
 struct MissionOrder;
 struct TdfParser;
 
-class MissionType {
-public:
-    unsigned char index;
-    MissionType(const char* name);
-};
+#include "../orders/mission_type.h"
 
 struct PlayerData {
     char unknown_0[0x95];

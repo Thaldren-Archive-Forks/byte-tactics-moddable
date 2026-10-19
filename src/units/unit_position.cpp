@@ -37,7 +37,7 @@ class BitWriter;
 class BitReader;
 struct Block;
 struct Beacon;
-struct Order;
+struct OrderView;
 struct Spawn;
 struct UnitType;
 struct Player;
@@ -73,19 +73,7 @@ struct UnitType {
 // The +0x110 flag word, one bit view per function that reads it.
 
 
-// What a unit's +0 points at: its motion, the serialisation interface at +0
-// and the int of 0x48b200 at +0x20. 0x48ab70's two bit field is at +0x2e.
-class UnitMotion {
-public:
-    PlayerData* player;                // +0x00
-    char unknown_4[0x20 - 4];
-    int speed;                         // +0x20
-    char unknown_24[0x2e - 0x24];
-    unsigned char bits_2e : 2;         // +0x2e
-    char unknown_2f[0x8a - 0x2f];
-
-    void UpdateMotion(Unit* u);
-};
+#include "../orders/unit_motion.h"
 
 // The serialisation interface behind a unit's owner: the writer 0x48b710 calls
 // slot +0x20, the reader 0x48b920 slot +0x24.
@@ -119,7 +107,7 @@ public:
 
 // The seven byte order record the caller at 0x48aac0 builds on its stack and
 // 0x48ab70 and 0x48b3f0 read.
-struct Order {
+struct OrderView {
     unsigned char type;                // +0x00
     unsigned short id1;                // +0x01
     unsigned short id2;                // +0x03
@@ -164,7 +152,7 @@ void __stdcall AlignUnitToGround(Unit* unit);
 int __cdecl FUN_004b715a(int x, int z);
 int __cdecl GetLocalDpid();
 int __stdcall BroadcastPacket(int player, void* data, int size);
-void __stdcall ApplyAttachUnit(Order* order);
+void __stdcall ApplyAttachUnit(OrderView* order);
 void __stdcall DeselectIfIneligible(Unit* u);
 void __stdcall UpdateWindGenerator(Unit* u);
 void __stdcall UpdateUnitHeight(Unit* u);
@@ -287,7 +275,7 @@ int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param_5)
 // FUNCTION: 0x48aac0
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4)
 {
-    Order packet;
+    OrderView packet;
     if ((unit->flags & 0x10000000) && !(unit->flags & 0x20000000) && unit->cargo == 0
         && (target == 0
             || ((target->flags & 0x10000000) && target != unit && target->carrier == 0))) {
@@ -329,7 +317,7 @@ void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4)
 // +0x241 set. DeselectIfIneligible then refreshes the order, and it is only reached on
 // the paths that got that far: every test that fails jumps past it.
 // FUNCTION: 0x48ab70
-void __stdcall ApplyAttachUnit(Order* order)
+void __stdcall ApplyAttachUnit(OrderView* order)
 {
     extern Game* g_game;
     Unit* u = !order->id1 ? 0 : &g_game->units[order->id1];
@@ -367,7 +355,7 @@ void __stdcall ApplyAttachUnit(Order* order)
                             u->carrier = 0;
                             g_seams.map->SpatialBucketPrependUnit((SpatialBucket*)u->spatialBucket, 0, u);
                         }
-                        ((UnitMotion*)u->motion)->bits_2e = order->param2;
+                        ((UnitMotion*)u->motion)->mode = order->param2;
                         if (u->player->active) {
                             unsigned char k = u->player->type;
                             if (k == 1 || k == 2) {
@@ -610,7 +598,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     u->SetStateBits((unsigned char)~state, zero);
     int colour = reader->ReadBits(2);
     if (reader->ReadBit()) {
-        Order order;
+        OrderView order;
         order.id1 = u->id;
         order.id2 = (unsigned short)reader->ReadBits(0xf);
         // `param` before `param2`: the reverse order hoists the byte store above the reads.
@@ -620,7 +608,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
         return;
     }
     if (u->carrier) {
-        Order order;
+        OrderView order;
         order.id1 = u->id;
         order.id2 = 0;
         order.param = 0xff;

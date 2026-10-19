@@ -24,17 +24,10 @@ static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 }
 
 struct Unit;
-class UnitMotion {
-public:
-    char unknown_0[0x22];
-    short field_22;                    // +0x22
-    char unknown_24[0x2e - 0x24];
-    unsigned char flags;               // +0x2e
-    void SetFlightMode(Unit* unit, int state);
-};
+#include "unit_motion.h"
 #include "../state/block.h"
 #include "path_order_attach.h"
-class MissionType { public: unsigned char index; MissionType(const char*); };
+#include "mission_type.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep the
 // allocation of the functions after the merged views (docs/c2-regalloc.md).
@@ -53,31 +46,7 @@ struct Struct_Unit96 {
     char pad0[0x146]; unsigned char slotIndex;
 };
 #include "../units/unit.h"
-struct Order {
-    char pad0[5]; unsigned char state; unsigned int flags;
-    char padA[0x12 - 0xa]; PathOrderAttach target;
-    Vec3 pos;
-    PointS16 start;
-    char pad32[0x3e - 0x32]; int range;
-    unsigned int flags_42;
-    char pad46[0x4a - 0x46]; int next;
-    void AnnounceStatusIfFlagged(const char*);
-    void SetAttachedFx(int);
-    void SetDeadlineTicks(int);
-    Order(MissionType type, Unit* target, Vec3* pos, int c, int d, int e);
-    char unknown_4e[0x8];
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
-    Order(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    void AttachApproachRadiusGoal(Vec3* pos, int radius);
-    void AttachBuildFootprintMarker(PointS16 cell, PointS16 size);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-};
+#include "order.h"
 struct Struct_Game391e9 {
     char pad0[0xd3c]; int gravity;
 };
@@ -130,7 +99,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -142,10 +111,10 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
 {
     if (flags & 0x1000a) {
         if (!order->next && (unit->flags & 0x300000))
-            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", order->target.owner, &order->pos, 0, 0, 0));
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", order->target, &order->pos, 0, 0, 0));
         return 5;
     }
-    Unit* target = order->target.owner;
+    Unit* target = order->target;
     if (!target && (order->flags_42 & 0x200)) {
         if (!order->next)
             AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
@@ -213,12 +182,12 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         int time = (int)(x * ((UnitMotion*)unit->motion)->field_22) + 1;
         time += def->attackrunlength;
         Class_0044e2d0* obj;
-        if (order->target.owner)
-            obj = (Class_0044e2d0*)new (kSim) Class_0044e190(order, order->target.owner);
+        if (order->target)
+            obj = (Class_0044e2d0*)new (kSim) Class_0044e190(order, order->target);
         else
             obj = new (kSim) Class_0044e2d0(order, order->pos);
         obj->SetApproachRadius(time);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->SetDeadlineTicks(1);
         order->flags |= 0x100e8;
         return 2;
@@ -260,5 +229,5 @@ static inline void AttachMove(Order* order, const Vec3& dest, short radius)
 {
     Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
     obj->SetApproachRadius(radius);
-    order->SetAttachedFx((int)obj);
+    order->SetAttachedFx((OrderFx*)obj);
 }

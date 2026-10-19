@@ -184,37 +184,14 @@ struct UnitType_0043cd20 {           // 0x249 bytes
 
 #include "../units/cob_script.h"
 
-// The command kind, one byte wide, but not a POD type.
-class MissionType {
-public:
-    unsigned char index;
-
-    MissionType() {}
-};
+#include "mission_type.h"
 
 struct Unit;
 class Order;
 
-// The 0x10-byte link at +0x12: its constructor puts the object in its
-// owner's list; 0x489650 is its destructor.
-class PathOrderAttach {
-public:
-    void* vptr;                      // +0x0
-    Unit* owner;                     // +0x4
-    PathOrderAttach* next;           // +0x8
-    void* value;                     // +0xc, the object the link belongs to
+#include "path_order_attach.h"
 
-    void SetValue(void* v) { value = v; }
-
-    PathOrderAttach(Unit* o, int v);
-    void SetUnit(Unit* o);
-};
-
-// The base class: one virtual slot, its vtable at 0x4fd2cc.
-class OrderBase {
-public:
-    virtual void OrStatusFlags(unsigned int);  // slot 0: 0x43a1e0, empty
-};
+#include "order_base.h"
 
 class Order : public OrderBase {
 public:
@@ -883,39 +860,7 @@ class PatrolGoal { public: char unknown[0x1c]; PatrolGoal(Unit* unit); };
 class AiSearchGoal { public: char unknown[0x65]; AiSearchGoal(Unit* unit); };
 class Class_0043db50 { public: void UpdateSfxOccupy(Unit* u); };
 
-class UnitMotion {
-public:
-    Iface_0043dd20* obj;               // +0x0
-    int movementClass;                 // +0x4
-    Vec3 velocity;
-    Vec3 p2;
-    int speed;                         // +0x20
-    short turn;                        // +0x24, turn this tick
-    int pathLockStamp;                 // +0x26
-    int lastMoveTick;                  // +0x2a
-    union {
-        unsigned char flags;           // +0x2e
-        struct {
-            unsigned char mode : 2;    // bits 0-1
-            unsigned char flag : 1;    // bit 2
-            unsigned char rest : 5;
-        };
-    };
-
-    void UpdateVelocityFromHeading(Unit* unit, int amount);
-    void SteerGroundUnit(Unit* unit);
-    void ApplyBankAndPitch(Unit* owner, Vec3* v);
-    void SetFlightMode(Unit* owner, int state);
-    void SteerAircraft(Unit* unit);
-    void UpdatePosition(Unit* unit);
-    void UpdateMoveRate(Unit* unit);
-    UnitMotion(Unit* unit);
-    void DestroyObject();
-    void UpdateMotion(Unit* u);
-    void ApplyClampedTurnDelta(Unit* unit, short amount);
-    void SaveMotion(Unit* info, HapiBank* file);
-    void LoadMotion(Unit* unit, HapiBank* file);
-};
+#include "unit_motion.h"
 #pragma pack(pop)
 
 extern Game* g_game;

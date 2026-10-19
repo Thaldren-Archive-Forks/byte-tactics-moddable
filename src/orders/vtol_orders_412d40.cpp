@@ -40,25 +40,7 @@ struct UnitDef {
     char pad21e[0x241 - 0x21e]; unsigned int flags;
 };
 #include "../units/unit.h"
-struct Order {
-    char pad0[5]; unsigned char state; unsigned int flags;
-    char padA[0x16 - 0xa]; Unit* target;
-    char pad1a[0x22 - 0x1a]; Vec3 pos;
-    short x; short z;
-    char pad32[0x36 - 0x32]; int ticks;
-    char pad3a[0x3e - 0x3a]; int range;
-    unsigned int flags_42;
-    char pad46[4]; int next;
-    void AnnounceStatusIfFlagged(const char*);
-    void SetAttachedFx(int);
-    void SetDeadlineTicks(int);
-    Order(MissionType type, int a, Vec3* b, int c, int d, int e);
-    char unknown_4e[0x8];
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void MergeFlagsFromTable(int k);
-    void Wait();
-    int Advance(int distance);
-};
+#include "order.h"
 #include "../game/game.h"
 class Class_0044e2d0 {
 public:
@@ -69,15 +51,7 @@ public:
 };
 #pragma pack(pop)
 
-// Not air_maneuver_order.h: its symbol ids would move 0x412d40 out of its window.
-#pragma pack(push, 2)
-class AirManeuverOrder {
-public:
-    char unknown_0[0x2c];
-    AirManeuverOrder(Order* order, const Vec3& a, const Vec3& b);
-    void SetAltitude(int);
-};
-#pragma pack(pop)
+#include "air_maneuver_order.h"
 
 extern Game* g_game;
 
@@ -121,7 +95,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -142,12 +116,12 @@ static inline int IsAhead(Unit* unit, Order* order)
 int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
 {
     if (flags & 0x10008) {
-        if (order->next == 0 && (unit->flags & 0x300000))
-            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", (int)order->target, &order->pos, 0, 0, 0));
+        if (*(int*)&order->next == 0 && (unit->flags & 0x300000))
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", order->target, &order->pos, 0, 0, 0));
         return 5;
     }
     if (order->target == 0 && (order->flags_42 & 0x200)) {
-        if (order->next == 0)
+        if (*(int*)&order->next == 0)
             AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
         return 5;
     }
@@ -160,7 +134,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         obj->SetApproachRadius(0x80);
         order->flags |= 0xe0;
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         return 2;
     }
     if (order->range && (int)_hypot(unit->xWhole - order->x, unit->zWhole - order->z) >= order->range)
@@ -185,7 +159,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
                 Vec3 to = Offset(unit->heading, unit->def->maxvelocity);
                 AirManeuverOrder* obj = new (kSim) AirManeuverOrder(order, from, to);
                 obj->SetAltitude(unit->def->altitude);
-                order->SetAttachedFx((int)obj);
+                order->SetAttachedFx(obj);
                 order->SetDeadlineTicks(RandomInt(0x1e) + 0x3c);
                 order->ticks = 0;
                 return 2;
@@ -202,7 +176,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
                 Vec3 p = order->target->pos;
                 p.x += ((UnitMotion*)order->target->motion)->velocity.x * 45;
                 p.z += ((UnitMotion*)order->target->motion)->velocity.z * 45;
-                order->SetAttachedFx((int)new (kSim) AirManeuverOrder(order, p,
+                order->SetAttachedFx(new (kSim) AirManeuverOrder(order, p,
                     Sum(((UnitMotion*)order->target->motion)->velocity, Offset(order->target->heading, order->target->def->maxvelocity / 2))));
             }
             order->SetDeadlineTicks(0x2d);
@@ -210,7 +184,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
             return 2;
         }
         order->SetAttachedFx(0);
-        AppendOrder(unit, new (kSim) Order("VTOL_EVADE", (int)order->target, 0, 0, 0, 0));
+        AppendOrder(unit, new (kSim) Order("VTOL_EVADE", order->target, 0, 0, 0, 0));
         order->ticks = 0;
         order->flags = 0;
         return 0;
