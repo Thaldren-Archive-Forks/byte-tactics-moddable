@@ -842,9 +842,7 @@ public:
     virtual int v5();
 };
 
-class PackedPosGoal { public: char unknown[0x27]; PackedPosGoal(Unit* unit); };
-class LiteGoal { public: char unknown[0x28]; LiteGoal(Unit* unit); };
-class PatrolGoal { public: char unknown[0x1c]; PatrolGoal(Unit* unit); };
+#include "order_goals.h"
 class AiSearchGoal { public: char unknown[0x65]; AiSearchGoal(Unit* unit); };
 class Class_0043db50 { public: void UpdateSfxOccupy(Unit* u); };
 

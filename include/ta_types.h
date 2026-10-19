@@ -7218,15 +7218,7 @@ public:
     int FUN_0044f5b0(void);
 };
 
-class PatrolGoal {      // 0x1c bytes, 1 view
-public:
-    void* vtable;  // +0x0
-    int field_4;  // +0x4
-    Owner_0044f5c0* owner;  // +0x8
-    Point16 points[3];  // +0xc
-    int count;  // +0x18
-    void FUN_0044f5c0(BitReader*);
-};
+#include "../src/orders/order_goals.h"
 
 class Class_0044f650 {  // 0x1c bytes, 1 view
 public:
@@ -12598,24 +12590,6 @@ public:
     PackedGoal(Unit*);
     virtual void TickTowardGoal(void);
     virtual void ExportGoalPose(int, int, int);
-};
-
-class LiteGoal : public PackedGoal {            // 0x28 bytes, 4 views
-public:
-    LiteGoal(Unit*);
-    virtual void SetPathOrder(void*);
-    virtual void TickTowardGoal(void);
-    virtual int HasNetUnitState(void);
-    virtual void SerializeNetUnitState(int);
-};
-
-class PackedPosGoal : public PackedGoal {       // 0x28 bytes, 6 views
-public:
-    virtual ~PackedPosGoal(void);
-    PackedPosGoal(Unit*);
-    virtual void DeserializeNetUnitState(int);
-    virtual void FUN_00490690(void);
-    void FUN_00490880(void);
 };
 
 class Class_00490650 {  // 0x28 bytes, 1 view
