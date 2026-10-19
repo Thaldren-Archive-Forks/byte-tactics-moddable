@@ -133,20 +133,7 @@ struct Mover {
 };
 
 // The player object at the unit's +0x96.
-struct PlayerView {
-    char unknown_0[0x8c];
-    float energy;                      // +0x8c
-    float GetEnergy() { return energy; }
-    char unknown_90[8];
-    float metal;                       // +0x98
-    float GetMetal() { return metal; }
-    char unknown_9c[8];
-    float energyCapacity;              // +0xa4
-    float metalCapacity;               // +0xa8
-    char unknown_ac[0x108 - 0xac];
-    unsigned char allied[0x3e];        // +0x108
-    unsigned char index;               // +0x146
-};
+#include "../network/player.h"
 
 #include "../units/unit_def.h"
 
@@ -227,8 +214,8 @@ class Class_0044e720 { public: void SetHeading(int); };
 class GroundAllyVisitor {
 public:
     virtual void CollectGroundAlly(Unit*);
-    GroundAllyVisitor(PlayerView* o, std::vector<Unit*>* u, Unit* s) : owner(o), units(u), self(s) {}
-    PlayerView* owner;
+    GroundAllyVisitor(Player* o, std::vector<Unit*>* u, Unit* s) : owner(o), units(u), self(s) {}
+    Player* owner;
     std::vector<Unit*>* units;
     Unit* self;
 };
@@ -238,8 +225,8 @@ public:
 class RepairableUnitVisitor {
 public:
     virtual void CollectRepairableUnit(Unit*);
-    RepairableUnitVisitor(PlayerView* o, std::vector<Unit*>* v, Unit* s) : owner(o), units(v), self(s) {}
-    PlayerView* owner;
+    RepairableUnitVisitor(Player* o, std::vector<Unit*>* v, Unit* s) : owner(o), units(v), self(s) {}
+    Player* owner;
     std::vector<Unit*>* units;
     Unit* self;
 };
@@ -698,7 +685,7 @@ class UnitList : public std::vector<Unit*> {};
 
 static inline void FindPads(Unit* u, std::vector<Unit*>* pads)
 {
-    g_seams.ai->GetFactoriesInRadius(((PlayerView*)u->player)->index,&u->pos,0xf00,pads);
+    g_seams.ai->GetFactoriesInRadius(((Player*)u->player)->index,&u->pos,0xf00,pads);
 }
 
 static inline int SearchRange(Unit* u)
@@ -721,7 +708,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     }
     UnitList units;
     int range=SearchRange(unit);
-    GroundAllyVisitor visitor((PlayerView*)unit->player,&units,unit);
+    GroundAllyVisitor visitor((Player*)unit->player,&units,unit);
     g_seams.map->VisitObjectsInRange(&unit->pos,range,(UnitVisitor*)&visitor);
     if (!units.empty()) {
         order->SetAttachedFx(0);
@@ -1099,7 +1086,7 @@ static inline int Land(Unit* unit, Order* order)
 {
     if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
         std::vector<Unit*> pads;
-        g_seams.ai->GetFactoriesInRadius(((PlayerView*)unit->player)->index, &unit->pos, 0xf00, &pads);
+        g_seams.ai->GetFactoriesInRadius(((Player*)unit->player)->index, &unit->pos, 0xf00, &pads);
         if (!pads.empty()) {
             order->SetAttachedFx(0);
             Unit* pad = pads[RandomInt(pads.size())];
@@ -1135,7 +1122,7 @@ void RepairableUnitVisitor::CollectRepairableUnit(Unit* unit)
 {
     if (unit == self) return;
     unsigned int index = 0;
-    index = ((PlayerView*)unit->player)->index;
+    index = ((Player*)unit->player)->index;
     if (!owner->allied[index]) return;
     unsigned int kind = unit->flags & 3;
     if ((unsigned char)kind != 1) return;
@@ -1267,7 +1254,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
         order->flags = 0x100e8;
         if ((unsigned int)unit->health < (unit->def->maxHealth >> 2) * 3) {
             std::vector<Unit*> v;
-            g_seams.ai->GetFactoriesInRadius(((PlayerView*)unit->player)->index, &unit->pos, 0xf00, &v);
+            g_seams.ai->GetFactoriesInRadius(((Player*)unit->player)->index, &unit->pos, 0xf00, &v);
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];

@@ -10,9 +10,22 @@
 #include "../../interfaces/rand_stream.h"
 
 class HapiBank;
-class MissionCondition;
 struct Param_0048e010;
 struct Unit;
+
+class MissionCondition {
+public:
+    int satisfied;
+    int celebrated;
+
+    MissionCondition() { satisfied = celebrated = 0; }
+    virtual int IsSatisfied();
+    virtual void OnUnitDied(Unit* unit);
+    virtual void OnUnitCaptured(Unit* unit);
+    virtual void OnUnitCreated(Unit* unit);
+    virtual void SaveState(HapiBank* file);
+    virtual void LoadState(HapiBank* file);
+};
 
 class MissionConditions {
 public:

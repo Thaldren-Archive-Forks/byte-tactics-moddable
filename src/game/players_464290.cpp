@@ -36,79 +36,7 @@ struct UnitDef;
 #include "../network/player_info.h"
 #include "../../interfaces/seams.h"
 
-// Keeps its own view: InitPlayerSlot clears the halves of the energy and metal totals apart, which player.h's doubles do not.
-struct Player {
-    int active;                        // +0x00
-    int index;                         // +0x04
-    char unknown_8[0xc - 8];
-    int lobbyDataSynced;               // +0x0c
-    char unknown_10[0x18 - 0x10];
-    int syncTick;                      // +0x18
-    char unknown_1c[0x21 - 0x1c];
-    unsigned char keepaliveFlags;      // +0x21
-    unsigned char rejectReason;        // +0x22
-    char unknown_23[0x27 - 0x23];
-    PlayerInfo* info;                  // +0x27
-    char name[30];                     // +0x2b
-    char fullName[0x67 - 0x49];        // +0x49
-    Unit* units;                       // +0x67
-    Unit* units_end;                   // +0x6b
-    unsigned short firstIndex;         // +0x6f
-    unsigned short lastIndex;          // +0x71
-    unsigned char type;                // +0x73
-    SquadManager* unit;                // +0x74
-    char unknown_78[0x7c - 0x78];
-    void* buffer;                      // +0x7c
-    int exploredWidth;                 // +0x80
-    int exploredHeight;                // +0x84
-    int exploredSize;                  // +0x88
-    float energy;                      // +0x8c
-    int energyIncome;
-    float energyUsage;                 // +0x94
-    float metal;                       // +0x98
-    int metalIncome;
-    int metalUsage;
-    int energyCapacity;
-    int metalCapacity;
-    int totalEnergyProduced;           // +0xac
-    int totalEnergyProducedHi;         // +0xb0, high half of the double
-    int totalMetalProduced;            // +0xb4
-    int totalMetalProducedHi;          // +0xb8, high half of the double
-    int totalEnergyConsumed;           // +0xbc
-    int totalEnergyConsumedHi;         // +0xc0, high half of the double
-    int totalMetalConsumed;            // +0xc4
-    int totalMetalConsumedHi;          // +0xc8, high half of the double
-    int energyWasted;                  // +0xcc
-    int energyWastedHi;                // +0xd0, high half of the double
-    int metalWasted;                   // +0xd4
-    int metalWastedHi;                 // +0xd8, high half of the double
-    char unknown_dc[0xe4 - 0xdc];
-    int shareMetal;                    // +0xe4
-    int shareEnergy;                   // +0xe8
-    UnitResources* econ;               // +0xec
-    int updateTime;                    // +0xf0
-    int winLoseTime;                   // +0xf4
-    int displayTimer;                  // +0xf8
-    short kills;                       // +0xfc
-    short losses;                      // +0xfe
-    short unused_100;                  // +0x100
-    short unused_102;                  // +0x102
-    short commanderKills;              // +0x104
-    short commanderLosses;             // +0x106
-    unsigned char team_108[11];        // +0x108
-    unsigned char team_113[11];        // +0x113
-    unsigned char team_11e[11];        // +0x11e
-    unsigned char team_129[11];        // +0x129
-    unsigned char team_134[11];        // +0x134
-    unsigned char alliance;            // +0x13f
-    int unitsCreated;                  // +0x140
-    unsigned short unitCount;          // +0x144
-    unsigned char team;                // +0x146
-    unsigned char startPos;            // +0x147
-    unsigned char rank;                // +0x148
-    unsigned short flags;              // +0x149
-    void Clear() { active = 0; type = 0; }
-};
+#include "../network/player.h"
 
 struct SkirmishPlayerSlot {            // 0x18 bytes
     int controller;                    // +0x0
@@ -116,10 +44,6 @@ struct SkirmishPlayerSlot {            // 0x18 bytes
     int metal;                         // +0xc
     int energy;                        // +0x10
     int unknown_14;
-};
-
-struct Menu {
-    char unknown_0[0x40];
 };
 
 struct Form {
@@ -143,72 +67,7 @@ struct Gadget {
     int selected;                      // +0x60
 };
 
-struct Game {
-    char unknown_0[0xc];
-    Map* displayContext;               // +0x0c
-    char unknown_10[0x519 - 0x10];
-    Menu gui;                          // +0x519
-    char unknown_559[0x1a3f - 0x559];
-    // Unused but must stay: the info pointer is addressed one slot below players.
-    PlayerInfo* infos[11];             // +0x1a3f (addressing only, see above)
-    char unknown_1a6b[0x1b63 - 0x1a6b];
-    Player players[11];                // +0x1b63
-    char unknown_299c[0x29a0 - 0x299c];
-    SkirmishPlayerSlot* options;       // +0x29a0
-    char unknown_29a4[0x2a3e - 0x29a4];
-    unsigned short chatHudWriteIdx;    // +0x2a3e
-    unsigned short chatHudReadIdx;     // +0x2a40
-    unsigned char localPlayer;         // +0x2a42
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x2c28 - 0x2a44];
-    int playerIds[11];                 // +0x2c28
-    char unknown_2c54[0x14207 - 0x2c54];
-    Pathfinder* pathfinder;            // +0x14207
-    char unknown_1420b[0x14223 - 0x1420b];
-    int mapWidthWorld;                 // +0x14223
-    int mapHeightWorld;                // +0x14227
-    char unknown_1422b[0x14233 - 0x1422b];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x1427f - 0x1423b];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x14281 - 0x14280];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x142ef - 0x14283];
-    short minimapBlinkCounter;         // +0x142ef
-    unsigned short blinkOn : 1;        // +0x142f1, bit 0
-    unsigned short rest_142f1 : 15;
-    char unknown_142f3[0x1439b - 0x142f3];
-    UnitDef* unitDefs;                // +0x1439b
-    char unknown_1439f[0x37eee - 0x1439f];
-    int difficulty;                    // +0x37eee
-    char unknown_37ef2[0x37ef6 - 0x37ef2];
-    int battleCommanderDeath;          // +0x37ef6
-    char unknown_37efa[0x37f5f - 0x37efa];
-    char startPos[0x38a47 - 0x37f5f];  // +0x37f5f, 0x232-byte records
-    unsigned int gameTick;             // +0x38a47
-    char unknown_38a4b[0x38d6b - 0x38a4b];
-    int pendingSaveStore;              // +0x38d6b
-    char unknown_38d6f[0x391e9 - 0x38d6f];
-    Mission* mapInfo;                  // +0x391e9
-    MissionConditions* victoryConditions;           // +0x391ed
-    char unknown_391f1[0x39239 - 0x391f1];
-    short endGameCountdown;            // +0x39239
-    // unsigned short bitfields: the only spelling that gives a direct
-    // `or byte ptr [m], K`.
-    union {
-        unsigned short w;
-        struct {
-            unsigned short padb2 : 2;
-            unsigned short bit2 : 1;
-            unsigned short bit3 : 1;
-            unsigned short bit4 : 1;
-            unsigned short bit5 : 1;
-            unsigned short bit6 : 1;
-            unsigned short rest2 : 9;
-        } b;
-    } endGameFlags;                    // +0x3923b
-};
+#include "game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -222,34 +81,34 @@ void __stdcall SetupPlayerSlot(int player, char type)
     // Declared after p: puts the pointer in the addressing-mode index slot.
     int idx = player & 0xff;
 
-    memset(p->team_108, 0, 11);
-    memset(p->team_113, 0, 11);
-    memset(p->team_11e, 0, 11);
-    memset(p->team_129, 0, 11);
-    memset(p->team_134, 0, 11);
+    memset(p->allied, 0, 11);
+    memset(p->alliedBy, 0, 11);
+    memset(p->shareLos, 0, 11);
+    memset(p->shareVision, 0, 11);
+    memset(p->shareMapping, 0, 11);
     int t = type;
     p->type = t;
     if (t != 3) {
         p->info->kind = t;
     }
-    p->team_113[idx] = 1;
-    p->unit = 0;
-    p->team = (char)player;
+    p->alliedBy[idx] = 1;
+    p->ai = 0;
+    p->index = (char)player;
     p->rank = (char)player;
-    p->team_108[idx] = 1;
+    p->allied[idx] = 1;
     p->active = 1;
     p->startPos = (char)player;
     p->alliance = 5;
     p->info->bit5 = 0;
-    p->index = player & 0xff;
+    p->id = player & 0xff;
     p->lobbyDataSynced = 0;
     p->rejectReason = 0;
 
     if (p->active != 0 && (p->type == 1 || p->type == 2)) {
-        p->info->memory = g_game->displayContext->field_620 / 0x100000 + 1;
+        p->info->memory = ((Map*)g_game->unknown_c)->field_620 / 0x100000 + 1;
     }
 
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
+    if (g_seams.map->GetGameType(g_game->net) == 1) {
         if (type == 1) {
             sprintf(p->name, Translate("Player"));
         } else if (type == 2) {
@@ -263,7 +122,7 @@ void __stdcall SetupPlayerSlot(int player, char type)
         strcpy(p->fullName, p->name);
     }
 
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 2) {
+    if (g_seams.map->GetGameType(g_game->net) == 2) {
         if (type == 1) {
             sprintf(p->name, Translate("Player"));
         } else if (type == 2) {
@@ -297,13 +156,13 @@ void ResetPlayerSlots()
 
     p = &g_game->players[0];
     for (i = 0; i <= 10; i++, p++) {
-        memset(p->team_108, 0, 11);
-        memset(p->team_113, 0, 11);
+        memset(p->allied, 0, 11);
+        memset(p->alliedBy, 0, 11);
         memset(p->info, 0, 0xb9);
         sprintf(p->name, "Player %d First", i);
         sprintf(p->fullName, "Player %d Second", i);
-        p->team_108[i] = 1;
-        p->team_113[i] = 1;
+        p->allied[i] = 1;
+        p->alliedBy[i] = 1;
         // Inlined helper: separate stores let the reload of p->info be hoisted.
         p->Clear();
         p->info->kind = 0;
@@ -313,25 +172,25 @@ void ResetPlayerSlots()
         p->info->color = (char)i;
         p->info->side = 0;
         strcpy(p->info->map, DAT_005119b8);
-        p->unit = 0;
+        p->ai = 0;
         p->lobbyDataSynced = 0;
         p->syncTick = 0;
-        p->units = 0;
-        p->units_end = 0;
+        p->unitsBegin = 0;
+        p->unitsEnd = 0;
         p->firstIndex = 0;
         p->lastIndex = 0;
         p->unitCount = 0;
         // Stays before unitsCreated = 0.
         p->keepaliveFlags &= 0xfe;
         p->unitsCreated = 0;
-        p->index = -1;
-        p->team = 10;
+        p->id = -1;
+        p->index = 10;
         p->alliance = 5;
         p->info->bit5 = 0;
     }
 
-    g_game->chatHudWriteIdx = 0;
-    g_game->chatHudReadIdx = 0;
+    g_game->tail = 0;
+    g_game->head = 0;
 }
 
 
@@ -340,17 +199,17 @@ void __cdecl operator delete(void* p);
 // FUNCTION: 0x464700
 void __stdcall InitPlayerSlot(Player* p)
 {
-    p->updateTime = g_game->gameTick;
-    p->winLoseTime = g_game->gameTick;
+    p->updateTime = (unsigned int)g_game->ticks;
+    p->winLoseTime = (unsigned int)g_game->ticks;
     // The third stamp runs here but is written after the clears: C2 has to number its location after theirs.
     goto stamp;
 back:
-    p->totalEnergyProduced = 0;
-    p->totalMetalProduced = 0;
-    p->totalEnergyConsumed = 0;
-    p->totalMetalConsumed = 0;
-    p->energyWasted = 0;
-    p->metalWasted = 0;
+    p->totalEnergyProducedLo = 0;
+    p->totalMetalProducedLo = 0;
+    p->totalEnergyConsumedLo = 0;
+    p->totalMetalConsumedLo = 0;
+    p->energyWastedLo = 0;
+    p->metalWastedLo = 0;
     p->energy = 0;
     p->energyIncome = 0;
     p->energyUsage = 0;
@@ -369,13 +228,13 @@ back:
     p->metalWastedHi = 0;
     goto guard;
 stamp:
-    p->displayTimer = g_game->gameTick;
+    p->displayTimer = (unsigned int)g_game->ticks;
     goto back;
 guard:
     if (!p->econ) {
         p->econ = new (kSim) UnitResources;
     }
-    g_seams.economy->Reset(p->econ, p->team);
+    g_seams.economy->Reset(p->econ, p->index);
     p->flags &= 0xfffe;
     p->kills = 0;
     p->losses = 0;
@@ -384,14 +243,14 @@ guard:
     p->unused_102 = p->unused_100 = -1;
     // w declared first: puts height/2 in edi and width/2 in ebx.
     int w, h;
-    h = g_game->mapHeightTiles / 2;
-    w = g_game->mapWidthTiles / 2;
+    h = g_game->height / 2;
+    w = g_game->width / 2;
     p->exploredWidth = w;
     p->exploredHeight = h;
-    operator delete(p->buffer);
+    operator delete(p->explored);
     int& sz = p->exploredSize;
     sz = (h * w + 7) & ~7;
-    p->buffer = sz ? SimAlloc(sz) : 0;
+    p->explored = sz ? (unsigned char*)SimAlloc(sz) : 0;
     // Both references are load-bearing (`sz` also for the first block). With `memset(p->buffer, 0, p->exploredSize)`
     // MSVC propagates the phi and the size into the inlined memset, which puts
     // the phi in edi and stores it from edi; the original reloads [esi+0x7c]
@@ -399,13 +258,13 @@ guard:
     // stops that propagation, and it also stops the scheduler from hoisting
     // the size load `mov ecx, [esi+0x88]` above the phi store (with the size
     // read directly the load comes first, the original has it second).
-    void*& bref = p->buffer;
+    unsigned char*& bref = p->explored;
     memset(bref, 0, sz);
     g_seams.ai->CreateSquads(p);
     // Keep `||` with both tests as written: the branch layout depends on it.
     if (!p->active || p->type != 3) {
-        p->unit = new (kSim) SquadManager(p);
-        g_seams.ai->CreatePlayerAI(p->team);
+        p->ai = new (kSim) SquadManager(p);
+        g_seams.ai->CreatePlayerAI(p->index);
     }
 }
 
@@ -424,7 +283,7 @@ void __cdecl GameFreeThunk(char* text);
 void LoadDefaultAIScript()
 {
     int size;
-    char* name = g_seams.map->GetNameSlot(g_game->mapInfo, 7);
+    char* name = g_seams.map->GetNameSlot(g_game->net, 7);
     char* text = HAPI_LoadFile(name, &size);
     if (text == 0) {
         text = HAPI_LoadFile("ai\\default.txt", &size);
@@ -462,7 +321,7 @@ void InitPlayers()
 void RebuildAIFeatureCells()
 {
     for (char i = 0; i < 10; i++) {
-        if (g_game->players[i].unit) {
+        if (g_game->players[i].ai) {
             g_seams.ai->RebuildFeatureCells(i);
         }
     }
@@ -654,7 +513,7 @@ void __stdcall TransferEnergy(unsigned char from, unsigned char to, float amount
 // FUNCTION: 0x464da0
 void __stdcall RefreshOwnedUnitsLineOfSight(Player* range)
 {
-    for (Unit* u = range->units; u <= range->units_end; u++) {
+    for (Unit* u = range->unitsBegin; u <= range->unitsEnd; u++) {
         if (u->flags & 0x10000000) {
             g_seams.los_radar->UpdateUnitLineOfSight(u);
         }
@@ -676,7 +535,7 @@ void __stdcall ContinueWatchingCallback(Gadget* gadget)
     PlaySoundByName("BigButton", 0);
     if (IsGadgetNamed(screen, gadget->selected, "CHOICE1")) {
         BroadcastPlayerInfo();
-        g_game->endGameFlags.b.bit4 = 0;
+        g_game->bits.flag4 = 0;
         ReportGameEvent(4);
         return;
     }
@@ -684,8 +543,8 @@ void __stdcall ContinueWatchingCallback(Gadget* gadget)
         ClearSelectedGadget(gadget);
         return;
     }
-    g_game->endGameFlags.b.bit2 = 1;
-    g_game->endGameFlags.b.bit4 = 0;
+    g_game->bits.flag2 = 1;
+    g_game->bits.flag4 = 0;
 }
 
 extern char g_choice2GadgetName[];
@@ -704,18 +563,18 @@ void __stdcall RenderLayer(Menu* menu, int value);
 // FUNCTION: 0x464e70
 void ShowContinueWatchingDialog()
 {
-    Screen* screen = LoadGuiLayer(&g_game->gui, g_yesNoGuiName, 0x900);
+    Screen* screen = LoadGuiLayer(&g_game->gui_519, g_yesNoGuiName, 0x900);
     if (screen) {
         Form* form;
-        SetKeyboardInput(&g_game->gui, 1);
+        SetKeyboardInput(&g_game->gui_519, 1);
         form = screen->form;
-        SetTranslatedTextByName(&g_game->gui, g_choice1GadgetName, g_yesText, 0);
-        SetTranslatedTextByName(&g_game->gui, g_choice2GadgetName, g_noText, 0);
-        SetTranslatedTextByName(&g_game->gui, g_titleGadgetName, g_continueWatchingTitle, 0);
+        SetTranslatedTextByName(&g_game->gui_519, g_choice1GadgetName, g_yesText, 0);
+        SetTranslatedTextByName(&g_game->gui_519, g_choice2GadgetName, g_noText, 0);
+        SetTranslatedTextByName(&g_game->gui_519, g_titleGadgetName, g_continueWatchingTitle, 0);
         strcpy(form->choice1, g_choice1GadgetName);
         strcpy(form->choice2, g_choice2GadgetName);
         screen->callback = ContinueWatchingCallback;
-        RenderLayer(&g_game->gui, 0x40);
+        RenderLayer(&g_game->gui_519, 0x40);
     }
 }
 
@@ -767,7 +626,7 @@ void __stdcall UpdatePlayers()
 // FUNCTION: 0x464f80
 void __stdcall UpdatePlayersOnStream(RandStream stream)
 {
-    g_seams.pathfinding->RunSearches(g_game->pathfinder);
+    g_seams.pathfinding->RunSearches((Pathfinder*)g_game->pathfinder);
     // bl is declared before the guard and pi before the first goto, or the jump
     // is rejected.
     unsigned char bl = 0;
@@ -787,7 +646,7 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
             if (t != 1 && t != 2 && t != 3)
                 goto next_bl;
         }
-        if (pi->team == 0xa)
+        if (pi->index == 0xa)
             goto next_bl;
         {
             // Fresh pointer for the whole second group: stops it being merged with
@@ -798,18 +657,18 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
             unsigned char t2 = pi2->type;
             if (t2 != 1 && t2 != 2 && t2 != 3)
                 goto next_bl;
-            if (pi2->team == 0xa)
+            if (pi2->index == 0xa)
                 goto next_bl;
         }
 
-        if (pi->unit != 0)
-            g_seams.ai->SquadManagerTickIfActive(pi->unit, 0);
+        if (pi->ai != 0)
+            g_seams.ai->SquadManagerTickIfActive(pi->ai, 0);
 
         g_seams.ai->UpdatePlayerAI(bl);
 
         {
-            Unit* u = pi->units;
-            while (u <= pi->units_end) {
+            Unit* u = pi->unitsBegin;
+            while (u <= pi->unitsEnd) {
                 if (u->flags & 0x10000000)
                     g_seams.los_radar->UpdateUnitLineOfSight(u);
                 u = (Unit*)((char*)u + 0x118);
@@ -819,22 +678,22 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
         if (bl == g_game->playerIndex)
             g_seams.los_radar->DrawRadarUnits();
 
-        if ((unsigned int)pi->updateTime > g_game->gameTick)
+        if ((unsigned int)pi->updateTime > (unsigned int)g_game->ticks)
             goto next_bl;
         pi->updateTime += 0x1e;
 
         if (bl == g_game->localPlayer) {
-            if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
-                if (g_game->victoryConditions->CheckVictory() == 0) {
-                    if (g_game->victoryConditions->CheckDefeat(stream) != 0) {
+            if (g_seams.map->GetGameType(g_game->net) == 1) {
+                if (g_game->list_391ed->CheckVictory() == 0) {
+                    if (g_game->list_391ed->CheckDefeat(stream) != 0) {
                         if (g_game->endGameCountdown < 0) {
                             g_game->endGameCountdown = 4;
                         } else {
                             g_game->endGameCountdown--;
                             if (g_game->endGameCountdown < 0) {
-                                g_game->endGameFlags.w |= 4;
-                                g_game->endGameFlags.w &= 0xffef;
-                                g_game->endGameFlags.b.bit6 = 1;
+                                g_game->endGameFlags |= 4;
+                                g_game->endGameFlags &= 0xffef;
+                                g_game->bits.flag6 = 1;
                             }
                         }
                     }
@@ -850,22 +709,22 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
                     } else {
                         g_game->endGameCountdown--;
                         if (g_game->endGameCountdown < 0) {
-                            g_game->endGameFlags.w |= 4;
-                            g_game->endGameFlags.b.bit4 = 1;
-                            g_game->endGameFlags.b.bit5 = 1;
+                            g_game->endGameFlags |= 4;
+                            g_game->bits.flag4 = 1;
+                            g_game->bits.flag5 = 1;
                         }
                     }
                     goto skip508;
                 }
             } else if ((pi->active == 0 ||
                         (pi->info->flags_9b & 0x40) == 0) &&
-                       g_game->victoryConditions->CheckDefeat(stream) != 0) {
+                       g_game->list_391ed->CheckDefeat(stream) != 0) {
                 if (g_game->endGameCountdown < 0) {
                     g_game->endGameCountdown = 4;
                 } else {
                     g_game->endGameCountdown--;
                     if (g_game->endGameCountdown < 0) {
-                        if (g_game->battleCommanderDeath == 2) {
+                        if (g_game->commanderDeath == 2) {
                             PlayerInfo* self =
                                 g_game->players[FindHostSlot()].info;
                             // `unsigned int` with the 0xffff mask: avoids a spilled raw result.
@@ -877,19 +736,19 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
                             int typeOff = typeId * 0x249;
                             Vec3 pos;
                             do {
-                                int cx = g_game->mapWidthWorld / 10;
-                                int cy = g_game->mapHeightWorld / 10;
-                                pos.x = (RandomInt(g_game->mapWidthWorld - 2 * cx) + cx) << 16;
+                                int cx = g_game->baseX / 10;
+                                int cy = g_game->baseY / 10;
+                                pos.x = (RandomInt(g_game->baseX - 2 * cx) + cx) << 16;
                                 pos.y = 0;
-                                pos.z = (RandomInt(g_game->mapHeightWorld - 2 * cy) + cy) << 16;
+                                pos.z = (RandomInt(g_game->baseY - 2 * cy) + cy) << 16;
                                 // Declared in the order hh, hits, zacc, outer, hw: places the
                                 // `shl` where the original has it.
-                                int hh = g_game->mapHeightTiles << 16;
+                                int hh = g_game->height << 16;
                                 int hits = 0;
                                 unsigned int zacc =
                                     (unsigned int)pos.z - (unsigned int)hh;
                                 int outer = 3;
-                                int hw = g_game->mapWidthTiles << 16;
+                                int hw = g_game->width << 16;
                                 do {
                                     unsigned int xacc =
                                         (unsigned int)pos.x - (unsigned int)hw;
@@ -899,7 +758,7 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
                                     do {
                                         cell.x = xacc >> 20;
                                         if (g_seams.map->CanPlaceUnitFootprint(
-                                                (UnitDef*)((char*)g_game->unitDefs + typeOff),
+                                                (UnitDef*)((char*)g_game->defs + typeOff),
                                                 0, cell, 1) != 0)
                                             hits++;
                                         xacc += hw;
@@ -907,7 +766,7 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
                                     zacc += hh;
                                 } while (--outer != 0);
                                 if (hits >= 9 && (short)g_seams.weapons->FindFeatureAtPos(&pos, 0, 0) == -1) {
-                                    if (g_game->mapInfo->lavaWorld == 0)
+                                    if (g_game->net->lavaWorld == 0)
                                         break;
                                     if (g_seams.map->GetCellMeanHeight(&pos) >
                                         (int)g_game->seaLevel)
@@ -975,10 +834,10 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
     skip508:
         if (pi->active != 0) {
             unsigned char t = pi->type;
-            if ((t == 1 || t == 2 || t == 3) && pi->team != 0xa) {
+            if ((t == 1 || t == 2 || t == 3) && pi->index != 0xa) {
                 if ((pi->unitCount != 0 || pi->unitsCreated == 0) &&
                     (t == 1 || t == 2)) {
-                    if ((g_game->endGameFlags.w & 4) == 0 &&
+                    if ((g_game->endGameFlags & 4) == 0 &&
                         g_game->endGameCountdown < 0) {
                         g_seams.economy->UpdatePlayerEconomy(pi);
                     }
@@ -989,7 +848,7 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
         if (bl == g_game->playerIndex) {
             g_seams.los_radar->UpdateSensorRadarAndCloak();
             g_seams.los_radar->UpdateRadarMapped();
-            if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
+            if (g_seams.map->GetGameType(g_game->net) == 3) {
                 g_economyPacketTick++;
                 if ((g_economyPacketTick & 3) == 0)
                     SendPlayerEconomy(pi, 0, 0);
@@ -998,7 +857,7 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
         goto next_bl;
 
     watch_check:
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 3 &&
+        if (g_seams.map->GetGameType(g_game->net) == 3 &&
             pi->rejectReason == 0) {
             if ((g_game->players[FindHostSlot()].info->flags_9b & 0x80) != 0 ||
                 CountActiveAIPlayers() > 0) {
@@ -1009,27 +868,27 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
                     g_seams.los_radar->RecalculateLineOfSight(1);
                     BroadcastPlayerInfo();
                     if (CountActiveAIPlayers() == 0) {
-                        Screen* dlg = LoadGuiLayer(&g_game->gui, "YESORNO.GUI", 0x900);
+                        Screen* dlg = LoadGuiLayer(&g_game->gui_519, "YESORNO.GUI", 0x900);
                         if (dlg != 0) {
-                            SetKeyboardInput(&g_game->gui, 1);
+                            SetKeyboardInput(&g_game->gui_519, 1);
                             Form* w = dlg->form;
-                            SetTranslatedTextByName(&g_game->gui, "CHOICE1", "Yes", 0);
-                            SetTranslatedTextByName(&g_game->gui, "CHOICE2", "No", 0);
-                            SetTranslatedTextByName(&g_game->gui, "TITLE",
+                            SetTranslatedTextByName(&g_game->gui_519, "CHOICE1", "Yes", 0);
+                            SetTranslatedTextByName(&g_game->gui_519, "CHOICE2", "No", 0);
+                            SetTranslatedTextByName(&g_game->gui_519, "TITLE",
                                          "You're out!  Continue Watching?", 0);
                             strcpy(w->choice1, "CHOICE1");
                             strcpy(w->choice2, "CHOICE2");
                             dlg->callback = ContinueWatchingCallback;
-                            RenderLayer(&g_game->gui, 0x40);
+                            RenderLayer(&g_game->gui_519, 0x40);
                         }
                         goto skip508;
                     }
                     if (CountCombatPlayers() <= 0)
                         goto skip508;
-                    OpenMessageBox(&g_game->gui,
+                    OpenMessageBox(&g_game->gui_519,
                                  Translate("You are placed in watch mode because you are hosting AI players which are still alive.  If you exit, they will be terminated."),
                                  500, 1, 1);
-                    g_game->endGameFlags.w &= 0xffef;
+                    g_game->endGameFlags &= 0xffef;
                     goto skip508;
                 }
                 goto skip508;
@@ -1037,14 +896,14 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
         }
 
     flags82e:
-        g_game->endGameFlags.w |= 4;
-        g_game->endGameFlags.w &= 0xffef;
+        g_game->endGameFlags |= 4;
+        g_game->endGameFlags &= 0xffef;
         if (pi->rejectReason == 0)
-            g_game->endGameFlags.b.bit6 = 1;
+            g_game->bits.flag6 = 1;
         goto skip508;
 
     check230:
-        if (g_game->victoryConditions->CheckVictory() != 0)
+        if (g_game->list_391ed->CheckVictory() != 0)
             goto countdown_extra;
         goto skip508;
 
@@ -1054,9 +913,9 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
         } else {
             g_game->endGameCountdown--;
             if (g_game->endGameCountdown < 0) {
-                g_game->endGameFlags.w |= 4;
-                g_game->endGameFlags.b.bit4 = 1;
-                g_game->endGameFlags.b.bit5 = 1;
+                g_game->endGameFlags |= 4;
+                g_game->bits.flag4 = 1;
+                g_game->bits.flag5 = 1;
             }
         }
         goto skip508;
@@ -1066,8 +925,8 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
             break;
     }
 
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3 &&
-        g_game->battleCommanderDeath != 2 &&
+    if (g_seams.map->GetGameType(g_game->net) == 3 &&
+        g_game->commanderDeath != 2 &&
         CountCombatPlayers() == 0) {
         if (g_game->endGameCountdown < 0) {
             g_game->endGameCountdown = 4;
@@ -1075,9 +934,9 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
         }
         g_game->endGameCountdown--;
         if (g_game->endGameCountdown < 0) {
-            g_game->endGameFlags.w |= 4;
-            g_game->endGameFlags.w &= 0xffef;
-            g_game->endGameFlags.b.bit6 = 1;
+            g_game->endGameFlags |= 4;
+            g_game->endGameFlags &= 0xffef;
+            g_game->bits.flag6 = 1;
         }
     }
 }
@@ -1098,16 +957,16 @@ void InitPlayerResources()
     for (int i = 0; i < 10; i++) {
         Player* player = &g_game->players[i];
         if (g_game->pendingSaveStore == 0) {
-            switch (g_seams.map->GetGameType(g_game->mapInfo)) {
+            switch (g_seams.map->GetGameType(g_game->net)) {
             case 1:
-                SetStartingStorageBonus(player, (int)g_game->mapInfo->startMetal[i],
-                             (int)g_game->mapInfo->startEnergy[i]);
-                player->energy = g_game->mapInfo->startEnergy[i];
-                player->metal = g_game->mapInfo->startMetal[i];
+                SetStartingStorageBonus(player, (int)g_game->net->startMetal[i],
+                             (int)g_game->net->startEnergy[i]);
+                player->energy = g_game->net->startEnergy[i];
+                player->metal = g_game->net->startMetal[i];
                 break;
             case 2:
-                player->energy = (float)g_game->options[i].energy;
-                player->metal = (float)g_game->options[i].metal;
+                player->energy = (float)((SkirmishPlayerSlot*)g_game->options)[i].energy;
+                player->metal = (float)((SkirmishPlayerSlot*)g_game->options)[i].metal;
                 break;
             case 3: {
                 int index = FindHostSlot();
@@ -1132,7 +991,7 @@ void __stdcall LoadPlayerControllers(HapiBank* file)
     char name[16];
     for (int i = 0; i < 10; i++) {
         Player* player = &g_game->players[i];
-        int* slot = &g_game->options[i].controller;
+        int* slot = &((SkirmishPlayerSlot*)g_game->options)[i].controller;
         sprintf(name, "Player%i", i);
         if (file->OpenAccount(name)) {
             *slot = file->GetIntegerItem("Controller", 0);
@@ -1147,10 +1006,10 @@ void __stdcall LoadPlayerControllers(HapiBank* file)
 // FUNCTION: 0x466580
 void UpdateBlink()
 {
-    if (g_game->minimapBlinkCounter > 0) {
-        g_game->minimapBlinkCounter--;
+    if (g_game->blinkTimer > 0) {
+        g_game->blinkTimer--;
         return;
     }
-    g_game->minimapBlinkCounter = 7;
-    g_game->blinkOn = !g_game->blinkOn;
+    g_game->blinkTimer = 7;
+    g_game->bits_142f1.blinkOn = !g_game->bits_142f1.blinkOn;
 }

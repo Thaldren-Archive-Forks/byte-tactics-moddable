@@ -70,21 +70,7 @@ class SquadScoutTimer;
 #include "../units/unit_def.h"
 
 // Keeps its own view: the declarations of player.h move the symbol ids that 0x402b70, 0x404730 and 0x405d90 match at.
-struct PlayerView {
-    int active;                        // +0x0
-    char unknown_4[0x73 - 0x4];
-    unsigned char type;                // +0x73
-    char unknown_74[0x8c - 0x74];
-    float energy;                      // +0x8c
-    char unknown_90[0x98 - 0x90];
-    float metal;                       // +0x98
-    char unknown_9c[0xa4 - 0x9c];
-    float energyCapacity;              // +0xa4
-    float metalCapacity;               // +0xa8
-    char unknown_ac[0x108 - 0xac];
-    unsigned char allied[0x3e];        // +0x108
-    unsigned char index;               // +0x146
-};
+#include "../network/player.h"
 
 #include "../weapons/weapon_def.h"
 
@@ -942,10 +928,10 @@ struct FeatureDamagePacket {
 
 class DamagedAllyCollector {
 public:
-    PlayerView* owner;
+    Player* owner;
     std::vector<Unit*>* units;
     Unit* self;
-    DamagedAllyCollector(PlayerView* o, std::vector<Unit*>* v, Unit* s) : owner(o), units(v), self(s) {}
+    DamagedAllyCollector(Player* o, std::vector<Unit*>* v, Unit* s) : owner(o), units(v), self(s) {}
     virtual void CollectDamagedAlly(Unit*);
 };
 
