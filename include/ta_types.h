@@ -19,6 +19,7 @@
 #include "../src/graphics/nano_particle_vector.h"
 #include "../src/units/squad.h"
 #include "../src/network/packet_ring.h"
+#include "../src/network/packet_receiver.h"
 #include "../src/network/sub_00460f60.h"
 
 #pragma pack(push, 1)
@@ -7971,18 +7972,6 @@ struct Class_00462bf0 {  // 0x10 bytes, 1 view
 struct F0_00462d30_2 {  // 0x4 bytes, 1 view
     int field_0;  // +0x0
     F0_00462d30_2(void);
-};
-
-class PacketReceiver {  // 0x230 bytes, 1 view
-public:
-    char unknown_0[20];
-    Link_00462ed0* link;  // +0x14
-    char* buffer;  // +0x18
-    char* spare;  // +0x1c
-    char unknown_20[520];
-    int capacity;  // +0x228
-    int length;  // +0x22c
-    int ResetReceiveBuffer(void);
 };
 
 struct Link_00462ed0 {  // 0x10 bytes, 1 view
