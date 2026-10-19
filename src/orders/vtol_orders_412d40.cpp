@@ -42,13 +42,7 @@ struct UnitDef {
 #include "../units/unit.h"
 #include "order.h"
 #include "../game/game.h"
-class Class_0044e2d0 {
-public:
-    char unknown_0[0x36];
-    Class_0044e2d0(Order* order, const Vec3& pos);
-    void SetAltitude(int);
-    void SetApproachRadius(short);
-};
+#include "path_fx.h"
 #pragma pack(pop)
 
 #include "air_maneuver_order.h"
@@ -95,7 +89,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -134,7 +128,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         obj->SetApproachRadius(0x80);
         order->flags |= 0xe0;
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         return 2;
     }
     if (order->range && (int)_hypot(unit->xWhole - order->x, unit->zWhole - order->z) >= order->range)

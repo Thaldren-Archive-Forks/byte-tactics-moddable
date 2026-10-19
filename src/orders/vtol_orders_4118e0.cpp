@@ -48,19 +48,7 @@ void __stdcall DrawUnit(void*, Unit*);
 #include "order.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall DirectionFromStep(int, int);
-class Class_0044e2d0 {
-public:
-    char unknown_0[0x36];
-    Class_0044e2d0(Order* order, const Vec3& pos);
-    void SetAltitude(int);
-    void SetApproachRadius(short);
-};
-class Class_0044e250 {
-public:
-    char unknown_0[0x36];
-    // The pad index parameters are int, not char: the original loads a full dword.
-    Class_0044e250(Order* order, Unit* unit, int value);
-};
+#include "path_fx.h"
 #pragma pack(pop)
 
 int __stdcall RandomInt(int);
@@ -98,7 +86,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -153,7 +141,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         order->angle += 0x4000;
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         obj->SetApproachRadius(0x80);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags = 0xe8;
         order->state = 1;
         return 2;
@@ -162,7 +150,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target, -1);
         // The setters live in Class_0044e2d0; obj is another constructor view of the same object.
         ((Class_0044e2d0*)obj)->SetApproachRadius(0xa0);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags = 0xe8;
         return 1;
     }
@@ -175,7 +163,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         }
         Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target, order->angle);
         ((Class_0044e2d0*)obj)->SetApproachRadius(0x30);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags = 0xe8;
         return 1;
     }
@@ -196,7 +184,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         else
             ((Class_0044e2d0*)obj)->SetAltitude(0);
         g_seams.units->StartScript((CobScript*)unit->script, "EndTransport", 0, 1);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->SetDeadlineTicks(0xf);
         order->state = 5;
         order->flags |= 0xe8;

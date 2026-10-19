@@ -51,18 +51,7 @@ struct Struct_Game391e9 {
     char pad0[0xd3c]; int gravity;
 };
 #include "../game/game.h"
-class Class_0044e2d0 {
-public:
-    char unknown_0[0x36];
-    Class_0044e2d0(Order* order, const Vec3& pos);
-    void SetAltitude(int);
-    void SetApproachRadius(short);
-};
-class Class_0044e190 {
-public:
-    char unknown_0[0x36];
-    Class_0044e190(Order* order, Unit* unit);
-};
+#include "path_fx.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -99,7 +88,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -187,7 +176,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         else
             obj = new (kSim) Class_0044e2d0(order, order->pos);
         obj->SetApproachRadius(time);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->SetDeadlineTicks(1);
         order->flags |= 0x100e8;
         return 2;
@@ -229,5 +218,5 @@ static inline void AttachMove(Order* order, const Vec3& dest, short radius)
 {
     Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
     obj->SetApproachRadius(radius);
-    order->SetAttachedFx((OrderFx*)obj);
+    order->SetAttachedFx(obj);
 }

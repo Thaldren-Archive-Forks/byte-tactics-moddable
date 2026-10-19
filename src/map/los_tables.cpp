@@ -130,9 +130,7 @@ struct Elem_004336c0 {
 
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void CopyDwordIfNonNull(int*, int*);
-struct ApproachRadius { int GetType(); };
-struct RingApproach { int GetType(); };
-struct PointMarker { int GetType(); };
+#include "../orders/approach_areas.h"
 int FUN_00490200();
 int GetBuildRating(int, unsigned short);
 

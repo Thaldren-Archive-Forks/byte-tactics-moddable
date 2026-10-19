@@ -719,11 +719,6 @@ struct UnitType_0044ea60 {
     char unknown_0[0x1ba];
     unsigned short max_turn;           // +0x1ba
 };
-
-struct Object_0044ea60 {
-    char unknown_0[0x92];
-    UnitType_0044ea60* type;           // +0x92
-};
 #pragma pack(pop)
 
 #pragma pack(push, 2)
@@ -811,17 +806,10 @@ struct Target_0044f1a0 {
     unsigned char occupyFlags;         // +0x2e
 };
 
-struct Target_0044f2a0 {
-    char unknown_0[0x42];
-    unsigned int flags;                // +0x42
-};
+#include "order_target_types.h"
 
 // A 16.16 fixed-point coordinate: the low word is the fraction, the high
 // word the signed integer part the path points store.
-union Coord_0044f2a0 {
-    int fixed;
-    short half[2];
-};
 
 struct Vec3_004907e0 {
     Coord_0044f2a0 x;
@@ -917,18 +905,6 @@ public:
     virtual void DrawOnSurface(void*);              // slot 10, 0x417e00
     void SetWaypoints(Point_0044f080* src, int n);
     void TruncateWaypointsFrom(int n);
-};
-
-struct Target_0044f5c0 {
-    char unknown_0[0x2e];
-    unsigned char flag_0 : 1;          // +0x2e bit 0
-    unsigned char flag_1 : 1;          // +0x2e bit 1
-    unsigned char flag_2 : 1;          // +0x2e bit 2
-    unsigned char flag_rest : 5;
-};
-
-struct Owner_0044f5c0 {
-    Target_0044f5c0* target;           // +0x0
 };
 
 struct Point_0044f5c0 {
@@ -2129,7 +2105,7 @@ int AirManeuverOrder::FillWorldPos(Vec3_0044e740* out)
         v.x = other.x;
         v.y = other.z;
         short step = diff;
-        unsigned short max = ((Object_0044ea60*)self)->type->max_turn;
+        unsigned short max = ((UnitType_0044ea60*)((Object_0044ea60*)self)->type)->max_turn;
         if (step >= (max >> 3))
             step = max >> 3;
         else if (step <= -(max >> 3))
