@@ -2296,18 +2296,7 @@ struct Order_00402160 {  // 0x1a bytes, 1 view
     int field_16;  // +0x16
 };
 
-class PathOrderAttach {  // 0x10 bytes, 25 views
-public:
-    Unit* owner;  // +0x4
-    PathOrderAttach* next;  // +0x8
-    int value;  // +0xc
-    virtual ~PathOrderAttach(void);
-    PathOrderAttach(PathOrderAttach&);
-    PathOrderAttach(Unit*, int);
-    virtual void Unknown_0(void);
-    void SetValue(void*);
-    void SetUnit(Unit*);
-};
+#include "../src/orders/path_order_attach.h"
 
 struct Order_004021f0 {  // 0x3e bytes, 1 view
     char unknown_0[5];

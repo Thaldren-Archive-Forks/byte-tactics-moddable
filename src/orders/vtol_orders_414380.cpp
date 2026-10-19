@@ -27,7 +27,7 @@ class Class_0044e720 { public: void SetHeading(int); };
 class Class_0044e6c0 { public: void SetAltitude(int); };
 #include "mission_type.h"
 
-class PathOrderAttach { public: void SetUnit(Unit*); };
+#include "path_order_attach.h"
 #pragma pack(push, 1)
 struct UnitDef {
     char pad0[0x14a]; PointS16 origin;

@@ -64,16 +64,7 @@ class SquadScoutTimer;
 
 #include "mission_type.h"
 
-class PathOrderAttach {
-public:
-    Unit* owner;                       // +0x4
-    PathOrderAttach* next;             // +0x8
-    int value;                         // +0xc
-
-    virtual ~PathOrderAttach();
-    void SetUnit(Unit* o);
-    Unit* Get() { return owner; }
-};
+#include "path_order_attach.h"
 
 #pragma pack(push, 1)
 struct UnitDef {
