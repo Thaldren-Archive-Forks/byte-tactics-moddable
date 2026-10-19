@@ -73,20 +73,10 @@ public:
 
 class __declspec(novtable) PointMarker : public OrderFx {
 public:
-    union {
-        struct {
-            int x1;
-            int x2;
-            int y1;
-            int y2;
-        };
-        struct {
-            int a;
-            int b;
-            int c;
-            int d;
-        } r;
-    };
+    int x1;
+    int x2;
+    int y1;
+    int y2;
 
     PointMarker(int owner, HapiBank* file, char* name);
     PointMarker(Order* owner, Point16 pos, Point16 size);
@@ -98,6 +88,32 @@ public:
     int Serialize(int unused, HapiBank* file, char* name);
     void AppendGoalCell(void* cells);
 };
+
+struct ApproachRadiusRecord {
+    int reserved;
+    Vec3 v;
+};
+
+struct RingApproachRecord {
+    int reserved;
+    int pos;
+    int inner;
+    int outer;
+    int innerSq;
+    int outerSq;
+};
+
+struct PointMarkerRecord {
+    int reserved;
+    int x1;
+    int x2;
+    int y1;
+    int y2;
+};
+
+static_assert(sizeof(ApproachRadiusRecord) == 16, "ApproachRadiusRecord size");
+static_assert(sizeof(RingApproachRecord) == 24, "RingApproachRecord size");
+static_assert(sizeof(PointMarkerRecord) == 20, "PointMarkerRecord size");
 #pragma pack(pop)
 
 #endif
