@@ -4,6 +4,7 @@
 // the cursor blit thread and the two spin locks it takes.
 #include <windows.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 
 #include "../graphics/gaf_frame.h"
 
@@ -70,8 +71,6 @@ int __stdcall UnlockPrimary(void* unused, RECT* r1, RECT* r2);
 void __stdcall ResetClipRect(void* d);
 void* __stdcall AllocSurface(char* name, int width, int height);
 void __stdcall FreeSurface(void* obj);
-int __stdcall StartThread(void* start, unsigned int stack, void* param);
-void __stdcall SleepMilliseconds(unsigned int ms);
 void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 void __cdecl GameFreeThunk(void* p);
 
@@ -90,14 +89,14 @@ static inline void GetRect(Event_4c2d60* out)
 static inline LONG LockMouse()
 {
     while (1) {
-        LONG r = InterlockedExchange(&g_gfxBlitLockHeld, 0x4d4f5553);
+        LONG r = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d4f5553);
         if (r == 0) {
             g_gfxBlitLockOwner = 0x4d4f5553;
             return 0;
         }
         if (g_gfxBlitLockOwner == 0x4d4f5553)
             return r;
-        WaitForSingleObject(g_gfxBlitLockEvent, INFINITE);
+        host_event_wait(g_gfxBlitLockEvent, HOST_WAIT_FOREVER);
     }
 }
 
@@ -105,8 +104,8 @@ static inline void UnlockMouse(LONG held)
 {
     if (held == 0) {
         g_gfxBlitLockOwner = 0;
-        InterlockedExchange(&g_gfxBlitLockHeld, 0);
-        SetEvent(g_gfxBlitLockEvent);
+        host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0);
+        host_event_set(g_gfxBlitLockEvent);
     }
 }
 
@@ -114,14 +113,14 @@ static inline void UnlockMouse(LONG held)
 static inline LONG LockMain()
 {
     while (1) {
-        LONG r = InterlockedExchange(&g_gfxBlitLockHeld, 0x4d41494e);
+        LONG r = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
         if (r == 0) {
             g_gfxBlitLockOwner = 0x4d41494e;
             return 0;
         }
         if (g_gfxBlitLockOwner == 0x4d41494e)
             return r;
-        WaitForSingleObject(g_gfxBlitLockEvent, INFINITE);
+        host_event_wait(g_gfxBlitLockEvent, HOST_WAIT_FOREVER);
     }
 }
 
@@ -129,8 +128,8 @@ static inline void UnlockMain(LONG held)
 {
     if (held == 0) {
         g_gfxBlitLockOwner = 0;
-        InterlockedExchange(&g_gfxBlitLockHeld, 0);
-        SetEvent(g_gfxBlitLockEvent);
+        host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0);
+        host_event_set(g_gfxBlitLockEvent);
     }
 }
 
@@ -306,12 +305,12 @@ void __cdecl MouseThreadProc(int param)
     Obj_004c2380* o = (Obj_004c2380*)param;
     SetThreadPriority(GetCurrentThread(), 2);
     while (o->pending == 0) {
-        int start = GetTickCount() + 0x21;
+        int start = host_time_ms() + 0x21;
         LONG held = LockMouse();
         if (o->sprite != 0)
             RedrawMouseCursor(o);
         UnlockMouse(held);
-        Sleep(max(1, start - (int)GetTickCount()));
+        host_sleep_ms(max(1, start - (int)host_time_ms()));
     }
     o->pending = 0;
 }
@@ -321,7 +320,7 @@ void __cdecl MouseThreadProc(int param)
 int __stdcall StartMouseThread(Obj_004c2380* s)
 {
     s->pending = 0;
-    s->running = StartThread((void*)MouseThreadProc, 0x8000, s);
+    s->running = host_thread_start((void (__cdecl*)(void*))MouseThreadProc, 0x8000, s);
     if (s->running) {
         s->mode = 1;
         return 1;
@@ -340,7 +339,7 @@ int __stdcall StopMouseThread(Obj_004c2380* s)
     while (s->pending != 0) {
         if (++tries > 20)
             return 0;
-        SleepMilliseconds(100);
+        host_sleep_ms(100);
     }
     s->running = 0;
     return 1;
@@ -395,7 +394,7 @@ void __stdcall InitMouse(int count, int start)
     p->pending = 0;
     if (start == 1) {
         p->pending = 0;
-        p->running = StartThread((void*)MouseThreadProc, 0x8000, p);
+        p->running = host_thread_start((void (__cdecl*)(void*))MouseThreadProc, 0x8000, p);
         if (p->running != 0)
             p->mode = 1;
     } else {
@@ -421,7 +420,7 @@ void ShutdownMouse()
                 while (1) {
                     if (++i > 20)
                         break;
-                    SleepMilliseconds(100);
+                    host_sleep_ms(100);
                     if (!o->pending) {
                         o->running = 0;
                         break;

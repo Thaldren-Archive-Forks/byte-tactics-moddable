@@ -3,6 +3,7 @@
 // cursor helpers.
 #include <windows.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 
 #pragma pack(push, 2)
 struct Queue_004c1ab0 {
@@ -221,10 +222,10 @@ void InitBlitLock()
 {
     g_gfxBlitLockHeld = 0;
     if (g_gfxBlitLockEvent) {
-        ResetEvent(g_gfxBlitLockEvent);
+        host_event_reset(g_gfxBlitLockEvent);
         return;
     }
-    g_gfxBlitLockEvent = CreateEventA(NULL, FALSE, FALSE, NULL);
+    g_gfxBlitLockEvent = host_event_create(0, 0);
 }
 
 // FUNCTION: 0x4c22d0

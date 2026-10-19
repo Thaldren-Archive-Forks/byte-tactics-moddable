@@ -9,6 +9,7 @@
 #include <mmsystem.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 // <stdio.h> must stay: the header state decides StartStream's multiply register.
 #include <stdio.h>
 #include <dsound.h>
@@ -23,7 +24,6 @@ extern int __stdcall GetVolumeSerial(char drive);
 
 extern HWND g_cdPlayerWindow;
 
-void __stdcall SleepMilliseconds(unsigned int ms);
 
 extern int g_cdFadeVolume;
 extern int g_cdCategorySavedTrack[];
@@ -1297,10 +1297,10 @@ void InitLzssLock()
 {
     g_squashThreadLockTicket = 0;
     if (g_squashThreadLockEvent != 0) {
-        ResetEvent(g_squashThreadLockEvent);
+        host_event_reset(g_squashThreadLockEvent);
         return;
     }
-    g_squashThreadLockEvent = CreateEventA(0, 0, 0, 0);
+    g_squashThreadLockEvent = host_event_create(0, 0);
 }
 
 // FUNCTION: 0x4d0a10

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../../interfaces/host.h"
 
 struct Node_004d0b10;
 extern Node_004d0b10* g_squashDictTree;
@@ -236,10 +237,10 @@ int __stdcall LzssCompress(unsigned char *dest, unsigned char *src, int len) {
         int count;
         int own;
     } state;
-    int tid = (int)GetCurrentThreadId();
+    int tid = (int)host_thread_id();
 
     while (1) {
-        int r = InterlockedExchange(&g_squashThreadLockTicket, tid);
+        int r = host_atomic_exchange((int*)&g_squashThreadLockTicket, tid);
         if (r == 0) {
             g_lzssLockOwner = tid;
             state.own = 0;
@@ -249,7 +250,7 @@ int __stdcall LzssCompress(unsigned char *dest, unsigned char *src, int len) {
             state.own = r;
             break;
         }
-        WaitForSingleObject(g_squashThreadLockEvent, -1);
+        host_event_wait(g_squashThreadLockEvent, HOST_WAIT_FOREVER);
     }
     base = dest;
     end = src + len;
@@ -258,8 +259,8 @@ int __stdcall LzssCompress(unsigned char *dest, unsigned char *src, int len) {
         printf("Could not alloc decompression window.\n");
         if (state.own == 0) {
             g_lzssLockOwner = 0;
-            InterlockedExchange(&g_squashThreadLockTicket, 0);
-            SetEvent(g_squashThreadLockEvent);
+            host_atomic_exchange((int*)&g_squashThreadLockTicket, 0);
+            host_event_set(g_squashThreadLockEvent);
         }
         return -1;
     }
@@ -268,8 +269,8 @@ int __stdcall LzssCompress(unsigned char *dest, unsigned char *src, int len) {
         printf("Could not alloc compression tree.\n");
         if (state.own == 0) {
             g_lzssLockOwner = 0;
-            InterlockedExchange(&g_squashThreadLockTicket, 0);
-            SetEvent(g_squashThreadLockEvent);
+            host_atomic_exchange((int*)&g_squashThreadLockTicket, 0);
+            host_event_set(g_squashThreadLockEvent);
         }
         return -1;
     }
@@ -388,8 +389,8 @@ int __stdcall LzssCompress(unsigned char *dest, unsigned char *src, int len) {
     int written = (int)(dest - base);
     if (state.own == 0) {
         g_lzssLockOwner = 0;
-        InterlockedExchange(&g_squashThreadLockTicket, 0);
-        SetEvent(g_squashThreadLockEvent);
+        host_atomic_exchange((int*)&g_squashThreadLockTicket, 0);
+        host_event_set(g_squashThreadLockEvent);
     }
     return written;
 }
@@ -414,13 +415,13 @@ int __stdcall LzssExpand(unsigned char* dest, unsigned char* src)
 {
     unsigned char* base;
     int own;
-    int tid = (int)GetCurrentThreadId();
+    int tid = (int)host_thread_id();
     int i;
     int pos;
     unsigned mask;
     unsigned char flags;
     while (1) {
-        int r = InterlockedExchange(&g_squashThreadLockTicket, tid);
+        int r = host_atomic_exchange((int*)&g_squashThreadLockTicket, tid);
         if (r == 0) {
             g_lzssLockOwner = tid;
             own = 0;
@@ -430,7 +431,7 @@ int __stdcall LzssExpand(unsigned char* dest, unsigned char* src)
             own = r;
             break;
         }
-        WaitForSingleObject(g_squashThreadLockEvent, -1);
+        host_event_wait(g_squashThreadLockEvent, HOST_WAIT_FOREVER);
     }
     base = dest;
     g_squashWindow = (char*)calloc(1, 0x1011);
@@ -438,8 +439,8 @@ int __stdcall LzssExpand(unsigned char* dest, unsigned char* src)
         printf("Could not alloc decompression window.\n");
         if (own == 0) {
             g_lzssLockOwner = 0;
-            InterlockedExchange(&g_squashThreadLockTicket, 0);
-            SetEvent(g_squashThreadLockEvent);
+            host_atomic_exchange((int*)&g_squashThreadLockTicket, 0);
+            host_event_set(g_squashThreadLockEvent);
         }
         return -1;
     }
@@ -484,8 +485,8 @@ int __stdcall LzssExpand(unsigned char* dest, unsigned char* src)
     int n = (int)(dest - base);
     if (own == 0) {
         g_lzssLockOwner = 0;
-        InterlockedExchange(&g_squashThreadLockTicket, 0);
-        SetEvent(g_squashThreadLockEvent);
+        host_atomic_exchange((int*)&g_squashThreadLockTicket, 0);
+        host_event_set(g_squashThreadLockEvent);
     }
     return n;
 }

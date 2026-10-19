@@ -7,6 +7,7 @@
 
 #include "../util/hapi_bank.h"
 #include "../../interfaces/seams.h"
+#include "../host/settings_io.h"
 #include "mission_conditions.h"
 
 class Mission;
@@ -63,9 +64,6 @@ void __stdcall ReadCameraPosition(HapiBank* file);
 void __stdcall SaveSurface(void* surface, void* file);
 void __stdcall WriteCameraPosition(void* file);
 
-extern int __stdcall ReadRegistryData(const char* app, const char* key, char* buf, int* size);
-extern void __stdcall WriteRegistryString(const char* app, const char* key, const char* value);
-extern int __stdcall WriteRegistryDword(const char* param1, const char* param2, int param3);
 
 // Allocates a 4-byte object, initialises it, and opens it with the given
 // name and two global strings; frees it and returns 0 on failure.
@@ -219,7 +217,7 @@ void __stdcall LoadCampaignRegistryName(int core, char* name)
     else
         strcpy(key, "ArmCamp");
     core = 26; // the original reuses the dead first argument slot for the size
-    if (ReadRegistryData("Total Annihilation", key, name, &core) == 0) {
+    if (SettingGetString("Total Annihilation", key, name, &core) == 0) {
         memset(name, 0x55, 0x19);
         name[0x19] = 0;
     }
@@ -234,18 +232,18 @@ void __stdcall SaveCampaignRegistryName(int core, char* name)
     else
         strcpy(key, "ArmCamp");
     name[0x19] = 0;
-    WriteRegistryString("Total Annihilation", key, name);
+    SettingSetString("Total Annihilation", key, name);
 }
 
 // Saves the "AllMissions" flag (bit 0 of g_game+0x38d7f) to the registry.
 // FUNCTION: 0x432b60
 void SaveAllMissionsSetting()
 {
-    WriteRegistryDword("Total Annihilation", "AllMissions", g_game->flags_38d7f & 1);
+    SettingSetInt("Total Annihilation", "AllMissions", g_game->flags_38d7f & 1);
 }
 
 // FUNCTION: 0x432b80
 void SaveNumSkirmishPlayers()
 {
-    WriteRegistryDword("Total Annihilation", "NumSkirmishPlayers", g_game->playerCount);
+    SettingSetInt("Total Annihilation", "NumSkirmishPlayers", g_game->playerCount);
 }

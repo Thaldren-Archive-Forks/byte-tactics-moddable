@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../../interfaces/host.h"
 #include "../state/game_rand.h"
 
 // DirectPlay 3 DPNAME (the toolchain's DirectX 3 <dplay.h> lacks it).
@@ -1359,7 +1360,7 @@ int __stdcall JoinLobbyGame(Player* p)
                 SetCursorMode(0x13);
                 if (GetDisplay()->flag) {
                     ToggleFullScreen();
-                    Sleep(500);
+                    host_sleep_ms(500);
                 }
                 FatalError(Translate("Timed out while connecting to DirectPlay lobby!"));
             } else {
@@ -1455,7 +1456,7 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
             if (result == 0) {
                 if (GetDisplay()->flag) {
                     ToggleFullScreen();
-                    Sleep(500);
+                    host_sleep_ms(500);
                 }
                 FatalError(Translate("Unable to connect to DirectPlay lobby."));
             }
@@ -2826,7 +2827,6 @@ extern char DAT_00512c98[];
 
 int __stdcall HAPINET_guaranteepackets(int enable);
 int __stdcall RequestPlayerColor(int color);
-void __stdcall SleepMilliseconds(unsigned int ms);
 void __stdcall SendPlayerEconomy(Player* from, Player* to, unsigned char flag);
 int __stdcall HAPINET_initlobbiedconnection(void* p);
 void __stdcall SetMissionType(int a);
@@ -2931,7 +2931,7 @@ void SendNetHeartbeat()
 
             LatencyPacket msg;
             msg.type = 2;
-            msg.sendTick = GetTickCount();
+            msg.sendTick = host_time_ms();
             msg.echoTick = 0;
             msg.targetPlayerNetId = p->id;
 
@@ -3030,7 +3030,7 @@ void __stdcall HandlePing(LatencyPacket* p)
         if (g_usePacketManager != 0) {
             g_packetManager.SendAllQueued(1);
         }
-        p->echoTick = GetTickCount();
+        p->echoTick = host_time_ms();
         int packets_were_guaranteed = HAPINET_guaranteepackets(0);
         SendPacketToPlayer(g_game->lobby1, p->targetPlayerNetId, p, 0xd);
         if (g_usePacketManager != 0) {
@@ -3054,7 +3054,7 @@ void __stdcall HandlePing(LatencyPacket* p)
     unsigned char other = FindPlayerIndex(g_game->lobby2);
     // No bound check on either index: an id of -1 makes FindPlayerIndex
     // return 10, the spare eleventh slot (the table has 11, see docs/bugs.md).
-    g_game->players[other].ping = GetTickCount() - p->sendTick;
+    g_game->players[other].ping = host_time_ms() - p->sendTick;
 }
 
 // Returns 0 when no player is in state 3. Otherwise every active player of
@@ -3412,7 +3412,7 @@ int BroadcastPendingViewState()
             }
         }
     }
-    SleepMilliseconds(0xfa);
+    host_sleep_ms(0xfa);
     return result;
 }
 

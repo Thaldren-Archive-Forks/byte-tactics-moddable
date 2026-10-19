@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 // Included only for its symbol ids: DrawHelpPage matches only with it
 // (docs/c2-regalloc.md).
 #include <math.h>
@@ -1234,8 +1235,8 @@ void __stdcall UpdateSolarSystem(Gui* arg1, Gadget* arg2)
 void __stdcall UpdatePlanet(Gui* arg1, Gadget* arg2)
 {
     void* surface = arg1->layer->entries->surface;
-    if (g_briefingPlanetNextTick <= GetTickCount()) {
-        g_briefingPlanetNextTick = GetTickCount() + 0x19;
+    if (g_briefingPlanetNextTick <= host_time_ms()) {
+        g_briefingPlanetNextTick = host_time_ms() + 0x19;
         if (((Sound *)g_game->field_10)->IsStreamActive() == 0) {
             if (GetButtonStageByName(arg1, "SHUTUP")) {
                 SetButtonStageByName(arg1, "SHUTUP", 0);
