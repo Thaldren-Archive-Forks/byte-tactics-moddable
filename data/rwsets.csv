@@ -50155,8 +50155,6 @@ address,function,file,kind,target
 ,SquadManagerDeleteTimersNative,src/seams/native.cpp,function,
 ,SquadManagerTickIfActiveNative,src/seams/native.cpp,call,SquadManager::TickIfActive
 ,SquadManagerTickIfActiveNative,src/seams/native.cpp,function,
-,SquadTimer::SquadTimer,src/ai/ai_player_407d40.cpp,field_read,SquadManager::index
-,SquadTimer::SquadTimer,src/ai/ai_player_407d40.cpp,function,
 ,SquadTimer::~SquadTimer,src/ai/squad_timer.h,function,
 ,Square,src/orders/vtol_orders_414a80.cpp,field_read,Vec3::x
 ,Square,src/orders/vtol_orders_414a80.cpp,field_read,Vec3::z
