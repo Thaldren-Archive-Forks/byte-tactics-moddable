@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <time.h>
 #include <new>
+#include "../state/game_rand.h"
 
 // Appends a string (with its terminating zero) to DEBUG.FIL, creating the
 // file if it cannot be opened for appending.
@@ -250,7 +251,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (hSem != (HANDLE)lzero)
         return -1;
     CreateSemaphoreA(NULL, 1, 1, g_appName);
-    srand(HarnessCrtSeed(time(0)));
+    GameSrand(RAND_STREAM_MAIN, HarnessCrtSeed(time(0)));
     if (ParseCommandLine(lpCmdLine, g_appName) == 0)
         return 1;
     InitDisplayDefaults(&g_displayContext);

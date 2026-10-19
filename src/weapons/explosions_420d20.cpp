@@ -1,6 +1,7 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
 #include <math.h>
 #include <stdlib.h>
+#include "../state/game_rand.h"
 
 // The aligned frame (`and esp, -8`) comes from the default flags here, no /Op:
 // MSVC 5 aligns the frame itself once enough doubles live in stack slots.
@@ -22,7 +23,7 @@ GafFrame* BuildExplosionFrame(int size)
         double dy2 = dy * dy * 1.33;
         for (int x = 0; x < size; x++) {
             double dx = half - x;
-            double d = (double)(int)(rand() * (__int64)10 / 0x8000) + sqrt(dx * dx + dy2);
+            double d = (double)(int)(GameRand(RAND_STREAM_LOAD) * (__int64)10 / 0x8000) + sqrt(dx * dx + dy2);
             unsigned char c = 32 - (unsigned char)(int)(d / half * 32.0);
             if (c >= 0x22)
                 img->pixelsOrLayers[y * size + x] = 0xff;

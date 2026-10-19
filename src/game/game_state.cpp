@@ -9,6 +9,7 @@
 #include <windows.h>
 
 #include "../map/mission.h"
+#include "../state/game_rand.h"
 #include "../../interfaces/seams.h"
 
 struct Display_00491a70;
@@ -288,10 +289,15 @@ int __stdcall RandomInt(int range);
 // FUNCTION: 0x490c40
 void __cdecl UpdateWind()
 {
+    g_seams.wind_meteors->UpdateWindOnStream(RAND_STREAM_MAIN);
+}
+
+void __cdecl UpdateWindOnStream(RandStream stream)
+{
     if (g_game->windCounter < g_game->gameTick) {
         // The __int64 cast keeps the _allmul/_alldiv calls; keep this one
         // expression with no temporary.
-        g_game->windCounter += ((int)((__int64)rand() * 10 / 0x8000) + 5) * 30;
+        g_game->windCounter += ((int)((__int64)GameRand(stream) * 10 / 0x8000) + 5) * 30;
 
         // Separate statements: one expression changes how the low bound is added.
         int range = g_game->windSpeedMax - g_game->windSpeedMin;
@@ -742,7 +748,7 @@ void LoadBattleAssets()
     g_seams.map->BuildAllPassMaps();
     g_game->windSpeedDenominator = 5000;
     g_game->windCounter = 0;
-    g_seams.wind_meteors->UpdateWind();
+    g_seams.wind_meteors->UpdateWindOnStream(RAND_STREAM_LOAD);
     g_game->tempXformPts = GameAllocIgnoreTag("TEMP XFORM PTS", 0x960);
     g_game->tempProjectedPts = GameAllocIgnoreTag("TEMP PROJECTED PTS", 0x640);
     g_game->assemPts = GameAllocIgnoreTag("ASSEM PTS", 0xa0);

@@ -762,6 +762,11 @@ static const float kHundred = 100.0f;
 // FUNCTION: 0x464f80
 void __stdcall UpdatePlayers()
 {
+    g_seams.players->UpdatePlayersOnStream(RAND_STREAM_MAIN);
+}
+
+void __stdcall UpdatePlayersOnStream(RandStream stream)
+{
     g_seams.pathfinding->RunSearches(g_game->pathfinder);
     // bl is declared before the guard and pi before the first goto, or the jump
     // is rejected.
@@ -821,7 +826,7 @@ void __stdcall UpdatePlayers()
         if (bl == g_game->localPlayer) {
             if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
                 if (g_game->victoryConditions->CheckVictory() == 0) {
-                    if (g_game->victoryConditions->CheckDefeat() != 0) {
+                    if (g_game->victoryConditions->CheckDefeat(stream) != 0) {
                         if (g_game->endGameCountdown < 0) {
                             g_game->endGameCountdown = 4;
                         } else {
@@ -854,7 +859,7 @@ void __stdcall UpdatePlayers()
                 }
             } else if ((pi->active == 0 ||
                         (pi->info->flags_9b & 0x40) == 0) &&
-                       g_game->victoryConditions->CheckDefeat() != 0) {
+                       g_game->victoryConditions->CheckDefeat(stream) != 0) {
                 if (g_game->endGameCountdown < 0) {
                     g_game->endGameCountdown = 4;
                 } else {
