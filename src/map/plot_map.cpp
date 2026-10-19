@@ -68,7 +68,7 @@ void __stdcall SavePlayerFeaturesPlotmap(HapiBank* file)
         }
         file->OpenNamedBox("Plotmap");
         file->WriteBox(buf, size);
-        delete buf;
+        delete[] buf;
     }
 }
 

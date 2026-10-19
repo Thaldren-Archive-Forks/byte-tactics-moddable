@@ -1,0 +1,63 @@
+file,line,warning,function,verdict,flag,reason
+src/ai/ai_player.cpp,1724,format-security,DumpPlayerAI (0x40c250),bug-harmless,,"DumpPlayerAI passes the formatted line to fprintf as a format; only a percent sign in a unit name changes the dump file text, no game state"
+src/debug/debug_lib.cpp,486,format,FormatBlockInfo (0x4d8790),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,490,format,FormatBlockInfo (0x4d8790),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,835,format,ReportException (0x4d8e60),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,865,format,ReportException (0x4d8e60),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,1052,format,StackTrace::FormatStackReport (0x4d9ca0),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,4264,format,FormatCallStack (0x4dea00),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,4360,format,FormatSystemInfo (0x4ded60),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,4383,format,FormatSystemInfo (0x4ded60),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,4392,format,FormatSystemInfo (0x4ded60),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/debug/debug_lib.cpp,4396,format,FormatSystemInfo (0x4ded60),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/frontend/multi.cpp,3654,parentheses,HandleBattleRoomClick (0x447b10),bug-harmless,,"documented 3.1c precedence bug (docs/bugs.md): the ally sound test reduces to the allied flag; only which UI sound plays, no traced value"
+src/frontend/multi.cpp,4139,constant-logical-operand,RefreshBattleRoomRows (0x448c70),not-a-bug,,the || 0 is deliberate and has no effect
+src/frontend/multi.cpp,4572,format-security,HandleUnitCountSlider (0x44be70),not-a-bug,,"sprintf of the translated text ""No Limit"" as the format: the string has no percent sign"
+src/frontend/multi.cpp,4635,pointer-bool-conversion,LoadUnitPortrait (0x44c0d0),not-a-bug,,"name is an inline char array, so the test is always true as in the original; lobby UI code"
+src/frontend/multi.cpp,4781,pointer-bool-conversion,OpenUnitRestrictions (0x44c7e0),not-a-bug,,"name is an inline char array, so the test is always true as in the original; lobby UI code"
+src/game/game_load.cpp,811,fortify-source,LoadingScreenFrame (0x497f40),not-a-bug,,the 4-byte object and the gap byte after it form one 8-byte region in the original layout (link/data.cpp g_loadingBarFlashAlpha[8]); loading screen only
+src/game/game_load.cpp,812,fortify-source,LoadingScreenFrame (0x497f40),not-a-bug,,"g_loadingBarPrevPercent is followed by DAT_0051e825 in link/data.cpp as in the original, so the sixth byte stays in the same region; loading screen only"
+src/game/game_load.cpp,847,array-bounds,LoadingScreenFrame (0x497f40),not-a-bug,,writes byte 19 of the rect local on purpose (comment: keeps the store from being removed); the local is used within the loading function only
+src/game/game_state.cpp,726,array-bounds,UpdateBattleHoverMode (0x491cc0),not-a-bug,,g_game->table is a larger table typed as one element; index 0x13 is the cursor animation as in the original
+src/game/main.cpp,233,cast-calling-convention,GameMain (0x49e830),not-a-bug,,"atexit calls the handler with no arguments, so stdcall and cdecl behave the same for AtexitNoOp"
+src/game/main_loop.cpp,244,array-bounds,InitFrame (0x496a60),not-a-bug,,g_game->table is a larger table typed as one element; index 0x13 is the cursor animation as in the original
+src/game/players_464290.cpp,113,format-security,SetupPlayerSlot (0x464290),not-a-bug,,sprintf of a translated name as the format: the strings have no percent sign
+src/game/players_464290.cpp,127,format-security,SetupPlayerSlot (0x464290),not-a-bug,,sprintf of a translated name as the format: the strings have no percent sign
+src/game/players_464290.cpp,130,format-security,SetupPlayerSlot (0x464290),not-a-bug,,sprintf of a translated name as the format: the strings have no percent sign
+src/game/players_464290.cpp,132,format-security,SetupPlayerSlot (0x464290),not-a-bug,,sprintf of a translated name as the format: the strings have no percent sign
+src/game/players_464290.cpp,342,delete-incomplete,FreePlayers (0x464a00),not-a-bug,,"delete of a void pointer calls operator delete(void*) with no destructor, as MSVC 5 does"
+src/game/players_464290.cpp,355,delete-incomplete,FreePlayers (0x464a00),not-a-bug,,"delete of a void pointer calls operator delete(void*) with no destructor, as MSVC 5 does"
+src/graphics/display.cpp,722,int-to-pointer-cast,InitEnvironment (0x4b5980),not-a-bug,,resource id 103 passed as a pointer to LoadCursorA (MAKEINTRESOURCE form); window setup only
+src/graphics/draw.cpp,332,tautological-pointer-compare,DrawPixel (0x4bee60),not-a-bug,,dead branch kept from the original: the address of a global is never null; drawing only
+src/graphics/draw.cpp,427,tautological-pointer-compare,DrawPolyline (0x4bf060),not-a-bug,,dead branch kept from the original: the address of a global is never null; drawing only
+src/graphics/draw.cpp,499,tautological-pointer-compare,DrawPolylines (0x4bf260),not-a-bug,,dead branch kept from the original: the address of a global is never null; drawing only
+src/graphics/draw.cpp,724,tautological-pointer-compare,DrawRectangle (0x4bf8c0),not-a-bug,,dead branch kept from the original: the address of a global is never null; drawing only
+src/graphics/draw.cpp,738,tautological-pointer-compare,DrawRectangle (0x4bf8c0),not-a-bug,,dead branch kept from the original: the address of a global is never null; drawing only
+src/graphics/draw.cpp,752,tautological-pointer-compare,DrawRectangle (0x4bf8c0),not-a-bug,,dead branch kept from the original: the address of a global is never null; drawing only
+src/graphics/draw.cpp,766,tautological-pointer-compare,DrawRectangle (0x4bf8c0),not-a-bug,,dead branch kept from the original: the address of a global is never null; drawing only
+src/graphics/particles.cpp,1086,cast-calling-convention,InitParticlePool (0x471c80),not-a-bug,,"atexit calls the handler with no arguments, so stdcall and cdecl behave the same"
+src/graphics/particles.cpp,1138,new-returns-null,??2ParticleSystem@@SGPAXI@Z (0x471d10),not-a-bug,,class operator new returns null on purpose; the build passes -fno-assume-sane-operator-new so the callers keep their null checks
+src/graphics/particles_472630.cpp,43,new-returns-null,ParticleSystem::operator new,not-a-bug,,class operator new returns null on purpose; the build passes -fno-assume-sane-operator-new so the callers keep their null checks
+src/gui/dialogs.cpp,1434,fortify-source,LerpPaletteRange (0x4acae0),bug-harmless,,"LerpPaletteRange copies 0x400 bytes through a 768-byte buffer, but nothing calls the function"
+src/ingame/camera.cpp,122,tautological-pointer-compare,RestoreCameraPosition (0x41d3f0),not-a-bug,,"valid is an inline array, so the test is always true as in the original; camera presentation"
+src/ingame/info_panel.cpp,766,format-extra-args,DrawUnitBuilderProbe (0x4685a0),bug-harmless,,"extra sprintf arguments are ignored; debug text drawn on the panel, no game state"
+src/ingame/info_panel.cpp,860,format-security,DrawStatusPanel (0x4689c0),not-a-bug,,"sprintf of the translated text ""Normal"" as the format: the string has no percent sign"
+src/ingame/info_panel_46a860.cpp,340,format,DrawUnitInfoPanel (0x46a860),not-a-bug,,"name is the first field of UnitDef (offset 0), so %s of the pointer prints the name"
+src/ingame/selection_48cf30.cpp,12,pragma-pack,file scope,not-a-bug,,the pack(1) push covers the rest of the file by design; nothing follows the end of the file
+src/map/plot_map.cpp,71,mismatched-new-delete,SavePlayerFeaturesPlotmap (0x484df0),bug-harmless,,delete on a new[] buffer of bytes: the CRT delete[] is delete for a type with no destructor; fixed with delete[]
+src/network/hapinet.cpp,694,format,HAPINET_enumproviders (0x4ca330),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
+src/network/net_condenser.cpp,114,format,NetCondenser::Accumulate (0x44f940),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; log line only"
+src/network/net_condenser.cpp,136,format,NetCondenser::ReceivePacket (0x44f9c0),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; log line only"
+src/network/net_condenser.cpp,174,format,NetCondenser::ReceivePacket (0x44f9c0),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; log line only"
+src/network/net_condenser.cpp,194,format,NetCondenser::ReceivePacket (0x44f9c0),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; log line only"
+src/network/packets.cpp,725,alloc-size,PacketChannel::InitPools (0x461db0),not-a-bug,,0x43e is the real size of the members: sizeof is 0x440 only from tail padding that no code reads or copies
+src/network/packets.cpp,849,alloc-size,PacketChannel::GrowPools (0x461fd0),not-a-bug,,0x43e is the real size of the members: sizeof is 0x440 only from tail padding that no code reads or copies
+src/orders/order_targets.cpp,689,pragma-pack,file scope,not-a-bug,,the pack(2) push covers the rest of the file by design; nothing follows the end of the file
+src/sound/sound.cpp,711,pointer-bool-conversion,SpeechQueue::PlaySpeech (0x47fd70),not-a-bug,,redundant test of a local array; the following tests decide
+src/units/unit_commands.cpp,633,delete-incomplete,FreeUnitCategories (0x488bf0),not-a-bug,,"delete of a void pointer calls operator delete(void*) with no destructor, as MSVC 5 does"
+src/util/hpi.cpp,346,shift-op-parentheses,HAPI_readfromfile (0x4bb7c0),not-a-bug,,"the shifted operand is a difference of two multiples of 64K, evaluated as the original; archive file IO, not traced"
+src/util/hpi.cpp,1122,tautological-pointer-compare,SaveStartDirectory (0x4bce10),not-a-bug,,redundant test of a local array; archive path code
+src/util/hpi.cpp,1368,format-security,HAPI_PackDirectory (0x4bd160),not-a-bug,,copyright text has no percent sign
+src/util/sqsh.cpp,779,format,SquashDumpHeader (0x4d1c00),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; debug printf"
+src/util/sqsh.cpp,780,format,SquashDumpHeader (0x4d1c00),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; debug printf"
+src/weapons/explosions.cpp,732,vexing-parse,StartExplodePiece (0x421620),not-a-bug,,"a block-scope declaration of HarnessTestMode, not a call"
