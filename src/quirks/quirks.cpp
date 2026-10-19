@@ -62,7 +62,10 @@ bool QuirksParse(const char* spec, Quirks* out, char* err, int errLen)
     char token[96];
     const char* p = NextToken(spec, token, sizeof token);
     if (token[0] == '\0') {
-        Fail(err, errLen, "empty quirk spec, expected a preset", "");
+        if (err != NULL && errLen > 0)
+            _snprintf(err, errLen, "empty quirk spec, expected a preset");
+        if (err != NULL && errLen > 0)
+            err[errLen - 1] = '\0';
         return false;
     }
     if (strcmp(token, "3.1c") == 0)
@@ -138,4 +141,15 @@ bool QuirksAllOff(const Quirks& q)
             return false;
     }
     return true;
+}
+
+bool QuirksFlipFirstSim(Quirks* q)
+{
+    for (int i = 0; i < s_quirkCount; i++) {
+        if (s_quirks[i].sim) {
+            q->*s_quirks[i].member = !(q->*s_quirks[i].member);
+            return true;
+        }
+    }
+    return false;
 }

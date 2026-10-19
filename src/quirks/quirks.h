@@ -23,4 +23,7 @@ unsigned QuirksHash(const Quirks& q);
 // True when every flag, sim or view, is off.
 bool QuirksAllOff(const Quirks& q);
 
+// Flips the first sim-scope flag, to test that a change during a match is caught; returns false if there is none.
+bool QuirksFlipFirstSim(Quirks* q);
+
 #endif

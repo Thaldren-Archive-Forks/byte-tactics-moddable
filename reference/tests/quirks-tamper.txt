@@ -1,0 +1,14 @@
+# Human Arm commander on The Pass moves, then attacks the Core commander, then the whole slot moves; twenty seconds.
+game_seed 201
+crt_seed 1201
+view_seed 2201
+map The Pass
+start_positions fixed
+ticks 300
+player0.controller human
+player0.side Arm
+player1.controller ai
+player1.side Core
+order 5 0:ARMCOM:1 move 700 300
+order 100 0:ARMCOM:1 attack 1:CORCOM:1
+quirks_tamper 100
