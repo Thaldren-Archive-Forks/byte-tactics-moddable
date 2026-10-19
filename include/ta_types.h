@@ -2869,11 +2869,7 @@ public:
     int GetIntArg(int, int);
 };
 
-class SquadManager {    // 0x1 bytes, 3 views
-public:
-    char unknown_0[1];
-    void MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50*, int, int);
-};
+#include "../src/ai/squad_manager.h"
 
 struct Obj_00406f50 {  // 0x6b bytes, 26 views
     UnitMotion* type;      // +0x0
@@ -2907,19 +2903,6 @@ struct Obj_00406f50 {  // 0x6b bytes, 26 views
     unsigned short flagRest : 14;
     void SetOwner(Unit*);
     void Setup(Unit*);
-};
-
-struct AI {  // 0x3d bytes, 28 views
-    Player* target;  // +0x0
-    unsigned char field_4;  // +0x4
-    int countdown;  // +0x5
-    int field_9;  // +0x9
-    int field_d;  // +0xd
-    Base* timers[10];  // +0x11
-    void* cursor;  // +0x39
-    AI(Player*);
-    void TickIfActive(void);
-    void DeleteTimers(void);
 };
 
 class Class_004071f0 {  // 0x4 bytes, 3 views
@@ -18973,73 +18956,9 @@ public:
     void ApplyByte(char*, unsigned char*, unsigned char, unsigned char, unsigned char);
 };
 
-class Base {  // 0x14 bytes, 26 views
-public:
-    AI* owner;  // +0x4
-    void* field_8;  // +0x8
-    int field_c;  // +0xc
-    unsigned int field_10;  // +0x10
-    virtual ~Base(void);
-    Base(Base&);
-    Base(AI*, void*);
-    virtual void Fire(void);
-    virtual void unused0(int);
-    virtual void Func(int);
-    virtual void OnTimer(void);
-    int CountGroupUnitsInRadius(Vec*, int);
-    int TryGetBaseBuildOrScoutCentroid(Vec3*);
-    int GetAveragePosition(Vec3*);
-};
+#include "../src/ai/squad_timer.h"
 
 #include "../src/ai/group.h"
-
-class Class_00407560 {  // 0xc bytes, 2 views
-public:
-    void* vtable;  // +0x0
-    Owner_00407560* owner;  // +0x4
-    Group* group;  // +0x8
-    void RebalanceAssaultGroupByCentroid(int, int);
-};
-
-struct Owner_00407560 {  // 0x31 bytes, 1 view
-    char unknown_0[17];
-    Class_00407560* members[8];  // +0x11
-};
-
-class AssaultTimer : public Base {    // 0x28 bytes, 4 views
-public:
-    int field_14;  // +0x14
-    int field_18;  // +0x18
-    int field_1c;  // +0x1c
-    int field_20;  // +0x20
-    int field_24;  // +0x24
-    AssaultTimer(AssaultTimer&);
-    AssaultTimer(AI*, void*, int, int);
-    virtual void OnTimer(void);
-};
-
-struct Owner_2 {  // 0x29 bytes, 1 view
-    char unknown_0[21];
-    Base* a;  // +0x15
-    char unknown_19[8];
-    Base* b;  // +0x21
-    Base* c;  // +0x25
-};
-
-class EscortTimer : public Base {     // 0x18 bytes, 4 views
-public:
-    int field_14;  // +0x14
-    EscortTimer(EscortTimer&);
-    EscortTimer(AI*, void*, int);
-    virtual void OnTimer(void);
-};
-
-class SquadScoutTimer : public Base {  // 0x14 bytes, 4 views
-public:
-    SquadScoutTimer(SquadScoutTimer&);
-    SquadScoutTimer(AI*, void*);
-    virtual void OnTimer(void);
-};
 
 struct FixedParts_00407ae0 {  // 0x4 bytes, 1 view
     unsigned int frac : 16;  // +0x0
@@ -19048,24 +18967,6 @@ struct FixedParts_00407ae0 {  // 0x4 bytes, 1 view
 
 union Fixed_00407ae0 {  // 0x4 bytes, 1 view
     union { int value; FixedParts_00407ae0 parts; };  // +0x0
-};
-
-class SpatialTimer : public Base {    // 0x3c bytes, 4 views
-public:
-    Vec3 best;  // +0x14
-    Vec3 probe;  // +0x20
-    Vec3 step;  // +0x2c
-    int bestRating;  // +0x38
-    SpatialTimer(SpatialTimer&);
-    SpatialTimer(AI*, void*);
-    virtual void OnTimer(void);
-};
-
-class ScoutTimer : public Base {      // 0x14 bytes, 4 views
-public:
-    ScoutTimer(ScoutTimer&);
-    ScoutTimer(AI*, void*);
-    virtual void OnTimer(void);
 };
 
 class Class_00408620 {  // 0x14 bytes, 1 view
@@ -19086,13 +18987,6 @@ struct Info_00408670 {  // 0x9c bytes, 1 view
 struct Unit_00408670 {  // 0x9a bytes, 1 view
     char unknown_0[150];
     Info_00408670* info;  // +0x96
-};
-
-class Class_00408810 : public Base {  // 0x14 bytes, 4 views
-public:
-    Class_00408810(Class_00408810&);
-    Class_00408810(AI*, void*);
-    virtual void OnTimer(void);
 };
 
 class Class_00408830 {  // 0x4 bytes, 3 views

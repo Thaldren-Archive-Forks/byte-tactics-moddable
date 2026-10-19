@@ -123,23 +123,23 @@ static inline int MapRange()
 // FUNCTION: 0x408100
 void ScoutTimer::OnTimer()
 {
-    field_c = g_game->gameTick + 90;
+    next = g_game->gameTick + 90;
     Vec3 origin;
-    GetBasePosition(field_10, &origin);
+    GetBasePosition(player, &origin);
     std::vector<Unit_00408100*>::iterator it;
-    for (it = ((Group_00408100*)field_8)->units.begin(); it != ((Group_00408100*)field_8)->units.end(); ++it) {
+    for (it = ((Group_00408100*)group)->units.begin(); it != ((Group_00408100*)group)->units.end(); ++it) {
         Unit_00408100* u = *it;
         if (u->def->count
             && (!(unsigned char)u->def->flag12
-                || (GetBuilderCount(field_10) < 5 && g_game->gameTick >= (unsigned int)owner->field_d))
+                || (GetBuilderCount(player) < 5 && g_game->gameTick >= (unsigned int)owner->nextAction))
             && (!u->list || !(u->list->flags & 8))) {
-            unsigned short idx = ChooseBuildOption(field_10, u);
+            unsigned short idx = ChooseBuildOption(player, u);
             if (idx) {
                 Vec3 pos;
                 pos.x = 0;
                 pos.y = 0;
                 pos.z = 0;
-                int ok = FindBuildPosition(field_10, &u->pos, &g_game->unitDefs[idx], &pos);
+                int ok = FindBuildPosition(player, &u->pos, &g_game->unitDefs[idx], &pos);
                 if (u->def->flag12) {
                     // Assigned to a local first: in the comparison it follows _ftol.
                     int range = MapRange();
@@ -156,12 +156,12 @@ void ScoutTimer::OnTimer()
             }
         }
     }
-    for (it = ((Group_00408100*)field_8)->units.begin(); it != ((Group_00408100*)field_8)->units.end(); ++it) {
+    for (it = ((Group_00408100*)group)->units.begin(); it != ((Group_00408100*)group)->units.end(); ++it) {
         Unit_00408100* u = *it;
         // Declared in the loop body: keeps the u->def load below the copy.
         Vec3 target;
         if ((!u->list || (u->list->flags & 0x4000))
-            && (!(unsigned char)u->def->flag12 || GetBuilderCount(field_10) >= 5)) {
+            && (!(unsigned char)u->def->flag12 || GetBuilderCount(player) >= 5)) {
             target = origin;
             if (u->def->flag12) {
                 origin.y = u->pos.y;
