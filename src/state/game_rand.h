@@ -16,7 +16,7 @@ unsigned int __cdecl GameHoldrand(RandStream stream);
 class GameShuffleDraw {
 public:
     explicit GameShuffleDraw(RandStream s) : stream(s) {}
-    // Draws once from the stream and returns a number in [0, d), with the multi-draw widening of the STL for d above 0x7fff.
+    // Draws once from the stream and returns a number in [0, d), widening the value the STL's way for d above 0x7fff.
     int operator()(int d);
 
 private:
