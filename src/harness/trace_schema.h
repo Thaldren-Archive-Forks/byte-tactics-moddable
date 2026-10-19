@@ -221,7 +221,7 @@ static const TraceField kPlayerFields[] = {
     { "firstIndex", 0x6f, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "lastIndex", 0x71, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "type", 0x73, 1, TF_SCALAR, TT_NONE, 0x0 },
-    { "", 0x74, 4, TF_POINTER, TT_HEAP, 0x0 },
+    { "ai", 0x74, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "groups", 0x78, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "explored", 0x7c, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "exploredWidth", 0x80, 4, TF_SCALAR, TT_NONE, 0x0 },
