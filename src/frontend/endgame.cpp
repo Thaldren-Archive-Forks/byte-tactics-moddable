@@ -168,31 +168,7 @@ struct Options {
     int difficulty;                    // +0x228
 };
 
-class Player {                         // 0x14b bytes
-public:
-    Player();
-    int active;                        // +0x00
-    char unknown_4[0x22 - 0x4];
-    unsigned char message;             // +0x22
-    char unknown_23[0x27 - 0x23];
-    PlayerInfo* info;                  // +0x27
-    char name[0x73 - 0x2b];            // +0x2b
-    unsigned char type;                // +0x73
-    char unknown_74[0xac - 0x74];
-    double totalEnergyProduced;        // +0xac
-    double totalMetalProduced;         // +0xb4
-    char unknown_bc[0xcc - 0xbc];
-    double energyWasted;               // +0xcc
-    double metalWasted;                // +0xd4
-    char unknown_dc[0xfc - 0xdc];
-    short kills;                       // +0xfc
-    short losses;                      // +0xfe
-    char unknown_100[0x140 - 0x100];
-    int unitsCreated;                  // +0x140
-    char unknown_144[0x146 - 0x144];
-    char index;                        // +0x146
-    char unknown_147[0x14b - 0x147];
-};
+#include "../network/player.h"
 
 struct Game {
     int unknown_0;
@@ -1032,12 +1008,12 @@ void __stdcall RunEndGameState()
             ReportGameEvent(7);
             g_game->state=1;
             Player* player=&g_game->players[g_game->localPlayer];
-            if(player->message && player->message!=2) {
-                const char* name=GetRejectReasonText(player->message);
+            if(player->rejectReason && player->rejectReason!=2) {
+                const char* name=GetRejectReasonText(player->rejectReason);
                 OpenMessageBox(&g_game->gui,Translate(name),320,1,1);
                 MarkChanged(&g_game->gui);
                 MarkLayerChanged(&g_game->gui);
-                player->message=0;
+                player->rejectReason=0;
             }
         } else { g_game->lastFrame=0; g_game->state=2; }
         break;
