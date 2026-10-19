@@ -9,55 +9,8 @@ class TdfFile;
 #include "../graphics/rect.h"
 
 #pragma pack(push, 1)
-struct Side_00431a60 {                  // 0x232 bytes
-    char name[0x1e];                    // +0x00
-    char nameprefix[4];                 // +0x1e
-    char commander[0x20];               // +0x22
-    Rect logo;                          // +0x42
-    Rect energyBar;                     // +0x52
-    Rect energyNum;                     // +0x62
-    Rect metalBar;                      // +0x72
-    Rect metalNum;                      // +0x82
-    Rect totalUnits;                    // +0x92
-    Rect totalTime;                     // +0xa2
-    Rect energyMax;                     // +0xb2
-    Rect metalMax;                      // +0xc2
-    Rect energy0;                       // +0xd2
-    Rect metal0;                        // +0xe2
-    Rect energyProduced;                // +0xf2
-    Rect energyConsumed;                // +0x102
-    Rect metalProduced;                 // +0x112
-    Rect metalConsumed;                 // +0x122
-    Rect logo2;                         // +0x132
-    Rect unitName;                      // +0x142
-    Rect damageBar;                     // +0x152
-    Rect unitEnergyMake;                // +0x162
-    Rect unitEnergyUse;                 // +0x172
-    Rect unitMetalMake;                 // +0x182
-    Rect unitMetalUse;                  // +0x192
-    Rect missionText;                   // +0x1a2
-    Rect unitName2;                     // +0x1b2
-    Rect damageBar2;                    // +0x1c2
-    Rect nameBlock;                     // +0x1d2
-    Rect description;                   // +0x1e2
-    Rect reload[3];                     // +0x1f2
-    int energyColor;                    // +0x222
-    int metalColor;                     // +0x226
-    int sideNumber;                     // +0x22a
-    void* font;                         // +0x22e
-};
+#include "game.h"
 
-struct Game {
-    char unknown_0[0x148d7];
-    union {
-        void* logos;                   // +0x148d7
-        int field_148d7;
-    };
-    void* logos32;                     // +0x148db
-    char unknown_148df[0x37f39 - 0x148df];
-    int sideCount;                     // +0x37f39
-    Side_00431a60 sideDefs[5];         // +0x37f3d, stride 0x232
-};
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -83,9 +36,9 @@ void LoadLogos()
 // FUNCTION: 0x431920
 void FreeLogos(void)
 {
-    int val = g_game->field_148d7;
+    int val = ((int)g_game->logos);
     GameFreeThunk((int*)val);
-    g_game->field_148d7 = 0;
+    g_game->logos = (void*)(0);
 }
 
 // Parses the x1/y1/x2/y2 fields of the current TDF node into four ints.
@@ -255,5 +208,5 @@ void __stdcall LoadSideData(void)
         s++;
     }
     parser.Unload();
-    g_game->sideCount = side;
+    g_game->sides = side;
 }

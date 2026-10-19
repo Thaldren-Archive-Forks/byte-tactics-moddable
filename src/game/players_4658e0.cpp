@@ -21,14 +21,7 @@ struct Map_004658e0 {
     char unknown_0[0x7c];
     ByteMap_004658e0 explored;
 };
-struct Game {
-    char unknown_0[0x2a43];
-    unsigned char playerIndex;
-    char unknown_2a44[0x14273 - 0x2a44];
-    unsigned short* visibilityMask;
-    char unknown_14277[0x14281 - 0x14277];
-    unsigned short mapFlags;
-};
+#include "game.h"
 #pragma pack(pop)
 extern Game* g_game;
 struct Pos_004658e0 {

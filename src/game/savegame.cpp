@@ -65,68 +65,34 @@ struct Save_00492df0 {
 // (0x491ec0, 0x493060), as a raw byte pointer (0x492b10) and as the message
 // buffer (0x492360, 0x492df0); the flags at +0x2a44 are read both as the
 // b0..b3 bitfield union (0x492360) and as bits0/bit2/bits3 (0x492df0).
-struct Game {
-    char unknown_0[0x519];
-    union {
-        char message[0x1b8a - 0x519];    // +0x519
-        char menu[1];
-        Gui gui;
+union Flags_2a44 {
+    unsigned short value;
+    struct {
+        unsigned short b0 : 1;
+        unsigned short b1 : 1;
+        unsigned short b2 : 1;
+        unsigned short b3 : 1;
+        unsigned short rest : 12;
     };
-    SideData* p1b8a;                     // +0x1b8a
-    char unknown_1b8e[0x1cd5 - 0x1b8e];
-    SideData* p1cd5;                     // +0x1cd5
-    char unknown_1cd9[0x29a0 - 0x1cd9];
-    SkirmishInfo* options;               // +0x29a0
-    char unknown_29a4[0x2a3c - 0x29a4];
-    short numPlayers;                    // +0x2a3c
-    char unknown_2a3e[0x2a44 - 0x2a3e];
-    // Bitfield union: reads give shr/test instead of a folded byte test.
-    union Flags_2a44 {
-        unsigned short value;
-        struct {
-            unsigned short b0 : 1;
-            unsigned short b1 : 1;
-            unsigned short b2 : 1;
-            unsigned short b3 : 1;
-            unsigned short rest : 12;
-        };
-        struct {
-            unsigned short bits0_2a44 : 2;
-            unsigned short bit2_2a44 : 1;
-            unsigned short bits3_2a44 : 13;
-        };
-    } netGameFlags;                      // +0x2a44
-    char unknown_2a46[0x2cbe - 0x2a46];
-    unsigned char cursorMode;            // +0x2cbe
-    char unknown_2cbf[0x148cf - 0x2cbf];
-    void* cursorHourglass;               // +0x148cf
-    char unknown_148d3[0x37eee - 0x148d3];
-    int difficulty;                      // +0x37eee
-    int side;                            // +0x37ef2
-    char unknown_37ef6[0x38a51 - 0x37ef6];
-    unsigned short flag_38a51 : 1;       // +0x38a51, bit 0
-    unsigned short bits_38a51 : 15;
-    char unknown_38a53[0x38c6b - 0x38a53];
-    char saveName[0x38d6b - 0x38c6b];    // +0x38c6b
-    HapiBank* pendingSaveStore;          // +0x38d6b
-    char unknown_38d6f[0x391cf - 0x38d6f];
-    char campaignMissionStatus[0x391e9 - 0x391cf]; // +0x391cf
-    Mission* mapInfo;                    // +0x391e9
-    char unknown_391ed[0x391f1 - 0x391ed];
-    int frontendState;                   // +0x391f1
-    void (*handler)();                   // +0x391f5
-    char unknown_391f9[0x3923b - 0x391f9];
-    union Flags_3923b {
-        unsigned short value;
-        struct {
-            unsigned short b0 : 1;
-            unsigned short b1 : 1;
-            unsigned short b2 : 1;
-            unsigned short b3 : 1;
-            unsigned short rest : 12;
-        };
-    } endGameFlags;                       // +0x3923b
+    struct {
+        unsigned short bits0_2a44 : 2;
+        unsigned short bit2_2a44 : 1;
+        unsigned short bits3_2a44 : 13;
+    };
 };
+
+union Flags_3923b {
+    unsigned short value;
+    struct {
+        unsigned short b0 : 1;
+        unsigned short b1 : 1;
+        unsigned short b2 : 1;
+        unsigned short b3 : 1;
+        unsigned short rest : 12;
+    };
+};
+
+#include "game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -348,8 +314,8 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
         return;
 
     if (IsCurrentGadgetNamed(gadget, "CANCEL")) {
-        if (g_game->netGameFlags.b2)
-            DisableKeyCommands(g_game->message);
+        if ((*(union Flags_2a44*)&g_game->netGameFlags_2a44).b2)
+            DisableKeyCommands(g_game->message_519);
         if (g_savegameFileNames)
             GameFreeThunk(g_savegameFileNames);
         if (g_savegameDescs)
@@ -379,19 +345,19 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
         switch (type) {
         case 1:
             if (!FindGameCdDrive(0)) {
-                OpenMessageBox(g_game->message,
+                OpenMessageBox(g_game->message_519,
                     Translate("Please insert the Campaign CD (Disc 2) and try again"),
                     200, 1, 1);
-                ClearSelectedGadget((Gui*)g_game->message);
+                ClearSelectedGadget((Gui*)g_game->message_519);
                 return;
             }
             break;
         case 2:
             if (!FindGameCdDrive(1)) {
-                OpenMessageBox(g_game->message,
+                OpenMessageBox(g_game->message_519,
                     Translate("Please insert the Multiplayer CD (Disc 1) and try again"),
                     200, 1, 1);
-                ClearSelectedGadget((Gui*)g_game->message);
+                ClearSelectedGadget((Gui*)g_game->message_519);
                 return;
             }
             break;
@@ -400,32 +366,32 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
         }
         RegisterDataArchives();
         BlankScreen();
-        if (g_game->cursorMode != 20) {
-            g_game->cursorMode = 20;
-            SetCursorAnimation(g_game->message, g_game->cursorHourglass);
+        if (((unsigned char)g_game->cursorMode) != 20) {
+            g_game->cursorMode = (char)(20);
+            SetCursorAnimation(g_game->message_519, ((void*)g_game->cursorHourglass));
         }
-        if (g_game->netGameFlags.b2)
-            DisableKeyCommands(g_game->message);
+        if ((*(union Flags_2a44*)&g_game->netGameFlags_2a44).b2)
+            DisableKeyCommands(g_game->message_519);
         PlaySoundByName("SMLBUTTON", 0);
         e = FindGadgetChecked(entries, "GAMES");
-        sprintf(g_game->saveName, "%s\\%s", g_savegameDir,
+        sprintf(g_game->saveName_38c6b, "%s\\%s", g_savegameDir,
                 SkipTextLines(g_savegameFileNames, e->u.list.selected));
-        if (g_game->netGameFlags.b2)
+        if ((*(union Flags_2a44*)&g_game->netGameFlags_2a44).b2)
             ShutdownIngameSystems();
-        g_game->endGameFlags.b3 = 1;
+        (*(union Flags_3923b*)&g_game->endGameFlags_3923b).b3 = 1;
 
-        g_game->pendingSaveStore = OpenHapiBank(g_game->saveName);
-        if (g_game->pendingSaveStore == 0)
+        g_game->pendingSaveStore = (int)(OpenHapiBank(g_game->saveName_38c6b));
+        if (((HapiBank*)g_game->pendingSaveStore) == 0)
             goto invalid;
-        (g_game->pendingSaveStore)->OpenAccount("summary");
-        g_seams.map->SetMissionType((g_game->pendingSaveStore)->GetIntegerItem("Gametype", 0));
-        char* campaign = (g_game->pendingSaveStore)->GetStringItem("Campaign", 0);
+        (((HapiBank*)g_game->pendingSaveStore))->OpenAccount("summary");
+        g_seams.map->SetMissionType((((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("Gametype", 0));
+        char* campaign = (((HapiBank*)g_game->pendingSaveStore))->GetStringItem("Campaign", 0);
         if (campaign != 0)
-            g_seams.map->LoadCampaign(g_game->mapInfo, 0, campaign);
-        g_game->side = (g_game->pendingSaveStore)->GetIntegerItem("Side", 0);
-        g_game->difficulty = (g_game->pendingSaveStore)->GetIntegerItem("Difficulty", 0);
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
-            if (g_game->side == 0) {
+            g_seams.map->LoadCampaign(g_game->net, 0, campaign);
+        g_game->flag_37ef2 = (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("Side", 0);
+        g_game->difficulty = (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("Difficulty", 0);
+        if (g_seams.map->GetGameType(g_game->net) == 1) {
+            if (g_game->flag_37ef2 == 0) {
                 g_game->p1b8a->bSideId = 0;
                 g_game->p1cd5->bSideId = 1;
             } else {
@@ -433,35 +399,35 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
                 g_game->p1cd5->bSideId = 0;
             }
         }
-        char* mission = (g_game->pendingSaveStore)->GetStringItem("Mission", 0);
+        char* mission = (((HapiBank*)g_game->pendingSaveStore))->GetStringItem("Mission", 0);
         if (mission == 0)
             goto invalid;
         if (strlen(mission) == 0)
             goto invalid;
-        if (g_seams.map->LoadMissionByName(g_game->mapInfo, 0, mission) == 0)
+        if (g_seams.map->LoadMissionByName(g_game->net, 0, mission) == 0)
             goto invalid;
-        strcpy((char*)&g_game->options->aMapName[0], mission);
-        char* thumbs = (g_game->pendingSaveStore)->GetStringItem("Thumbs", 0);
+        strcpy((char*)&((SkirmishInfo*)g_game->options)->aMapName[0], mission);
+        char* thumbs = (((HapiBank*)g_game->pendingSaveStore))->GetStringItem("Thumbs", 0);
         strncpy(g_game->campaignMissionStatus, thumbs, 0x19);
         if (strlen(g_game->campaignMissionStatus) != 0x19)
             InitMissionStatus();
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 2) {
-            (g_game->pendingSaveStore)->OpenAccount("summary");
-            g_game->numPlayers =
-                (short)(g_game->pendingSaveStore)->GetIntegerItem("Players", 0);
-            g_game->options->commanderDeath =
-                (g_game->pendingSaveStore)->GetIntegerItem("CommanderDeath", 1);
-            g_game->options->fixedLocations =
-                (g_game->pendingSaveStore)->GetIntegerItem("Location", 1);
-            g_game->options->mapping =
-                (g_game->pendingSaveStore)->GetIntegerItem("Mapping", 1);
-            g_game->options->lineOfSight =
-                (g_game->pendingSaveStore)->GetIntegerItem("LineOfSight", 1);
-            g_game->options->losType =
-                (g_game->pendingSaveStore)->GetIntegerItem("LineOfSightType", 1);
+        if (g_seams.map->GetGameType(g_game->net) == 2) {
+            (((HapiBank*)g_game->pendingSaveStore))->OpenAccount("summary");
+            g_game->field_2a3c =
+                (unsigned short)((short)(((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("Players", 0));
+            ((SkirmishInfo*)g_game->options)->commanderDeath =
+                (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("CommanderDeath", 1);
+            ((SkirmishInfo*)g_game->options)->fixedLocations =
+                (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("Location", 1);
+            ((SkirmishInfo*)g_game->options)->mapping =
+                (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("Mapping", 1);
+            ((SkirmishInfo*)g_game->options)->lineOfSight =
+                (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("LineOfSight", 1);
+            ((SkirmishInfo*)g_game->options)->losType =
+                (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("LineOfSightType", 1);
         }
-        g_game->netGameFlags.b2 = 1;
-        g_game->frontendState = 2;
+        (*(union Flags_2a44*)&g_game->netGameFlags_2a44).b2 = 1;
+        g_game->mode_391f1 = 2;
         g_game->handler = MenuFrame;
         SetCloseHandler(LeaveNetGameCallback, 0);
         if (g_savegameFileNames)
@@ -477,15 +443,15 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
             GameFreeThunk(g_savegameRadarPreview);
         g_savegameRadarPreview = 0;
         PopUntilNamedLayout(1);
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 1 &&
-            (g_game->pendingSaveStore)->HasItem("BetweenMissions")) {
-            g_game->netGameFlags.b3 = 1;
-            if (g_game->pendingSaveStore) {
-                DeleteSave_00492360(g_game->pendingSaveStore);
-                g_game->pendingSaveStore = 0;
+        if (g_seams.map->GetGameType(g_game->net) == 1 &&
+            (((HapiBank*)g_game->pendingSaveStore))->HasItem("BetweenMissions")) {
+            (*(union Flags_2a44*)&g_game->netGameFlags_2a44).b3 = 1;
+            if (((HapiBank*)g_game->pendingSaveStore)) {
+                DeleteSave_00492360(((HapiBank*)g_game->pendingSaveStore));
+                g_game->pendingSaveStore = (int)(0);
             }
-            g_game->netGameFlags.b2 = 0;
-            g_game->frontendState = 2;
+            (*(union Flags_2a44*)&g_game->netGameFlags_2a44).b2 = 0;
+            g_game->mode_391f1 = 2;
             g_game->handler = MenuFrame;
             SetCloseHandler(LeaveNetGameCallback, 0);
             SetFrontendState(0xe, 0x48c, "c:\\cavedog\\wargame\\wargame.cpp");
@@ -494,10 +460,10 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
         return;
     }
 invalid:
-    if (g_game->pendingSaveStore) {
-        DeleteSave_00492360(g_game->pendingSaveStore);
+    if (((HapiBank*)g_game->pendingSaveStore)) {
+        DeleteSave_00492360(((HapiBank*)g_game->pendingSaveStore));
     }
-    g_game->pendingSaveStore = 0;
+    g_game->pendingSaveStore = (int)(0);
     OpenMessageBox(gadget, Translate("Invalid savegame file"), 0x140, 1, 1);
     ClearSelectedGadget(gadget);
 }
@@ -594,8 +560,8 @@ void __stdcall SaveGameScreenHandler(Gui* gadget)
         return;
     }
     if (IsCurrentGadgetNamed(gadget, "CANCEL")) {
-        if (g_game->netGameFlags.bit2_2a44)
-            DisableKeyCommands(g_game->message);
+        if ((*(union Flags_2a44*)&g_game->netGameFlags_2a44).bit2_2a44)
+            DisableKeyCommands(g_game->message_519);
         PlaySoundByName("Previous", 0);
         return;
     }
@@ -615,15 +581,15 @@ void __stdcall SaveGameScreenHandler(Gui* gadget)
             ClearSelectedGadget(gadget);
         return;
     }
-    if (g_game->netGameFlags.bit2_2a44)
-        DisableKeyCommands(g_game->message);
+    if ((*(union Flags_2a44*)&g_game->netGameFlags_2a44).bit2_2a44)
+        DisableKeyCommands(g_game->message_519);
     PlaySoundByName("smlbutton", 0);
     int index = FindGadgetIndex(entries, "GAMENAME", 3);
     char* text = entries[index].u.text;
     if (strlen(text) != 0) {
         save.games = (int)FindGadgetChecked(entries, "GAMES");
-        BuildDataPath(g_game->saveName, g_savegameDir, text, "SAV");
-        SaveGameFile(g_game->saveName, text, time(0));
+        BuildDataPath(g_game->saveName_38c6b, g_savegameDir, text, "SAV");
+        SaveGameFile(g_game->saveName_38c6b, text, time(0));
     }
 }
 
@@ -632,7 +598,7 @@ void ShowSaveGameScreen()
 {
     int local;
 
-    g_game->flag_38a51 |= 1;
+    g_game->bits_38a51_2.flag_38a51 |= 1;
     Layer* layer = LoadGuiLayer(&g_game->gui, "LOADGAME.GUI", 0x880);
     layer->handler = (void (__stdcall*)(void*))SaveGameScreenHandler;
     layer->data = g_game;
@@ -662,31 +628,31 @@ void ShowSaveGameScreen()
 // FUNCTION: 0x4931d0
 void ShowLoadGameScreen()
 {
-    Gadget_004931d0* gadget = LoadGuiLayer((char*)&g_game->message[0], "LOADGAME.GUI", 0x980);
+    Gadget_004931d0* gadget = LoadGuiLayer((char*)&g_game->message_519[0], "LOADGAME.GUI", 0x980);
     gadget->handler = LoadGameScreenHandler;
     gadget->context = g_game;
     LoadPictureCached("DLOADGAME2", 0, 0, 0);
     int count;
     if (ListSavedGames(&count) == 0) {
-        CloseTopScreen((char*)&g_game->message[0]);
-        OpenMessageBox((char*)&g_game->message[0],
+        CloseTopScreen((char*)&g_game->message_519[0]);
+        OpenMessageBox((char*)&g_game->message_519[0],
                      Translate("There are no saved games to choose from"),
                      0x140, 1, 1);
         return;
     }
     g_savegameSideList = BuildSideList();
-    ConfigureListBoxByName((char*)&g_game->message[0], "GAMES", g_savegameDescs, count, 0);
-    SetGadgetActiveByName((char*)&g_game->message[0], "DELETE", 0);
-    SetGadgetActiveByName((char*)&g_game->message[0], "GAMENAME", 0);
+    ConfigureListBoxByName((char*)&g_game->message_519[0], "GAMES", g_savegameDescs, count, 0);
+    SetGadgetActiveByName((char*)&g_game->message_519[0], "DELETE", 0);
+    SetGadgetActiveByName((char*)&g_game->message_519[0], "GAMENAME", 0);
     Entry_004931d0* entry = FindGadgetChecked(gadget->info, "GAMES");
     if (entry != 0) {
         entry->handler = (void*)SavedGameSelectHandler;
     }
     ShowSavedGameInfo();
-    SetKeyboardInput((char*)&g_game->message[0], 1);
+    SetKeyboardInput((char*)&g_game->message_519[0], 1);
     OrLabelAttribs();
-    SetGadgetActiveByName((char*)&g_game->message[0], "SaveGame", 0);
-    EnableKeyCommands((char*)&g_game->message[0]);
-    RenderLayer((char*)&g_game->message[0], 0x40);
+    SetGadgetActiveByName((char*)&g_game->message_519[0], "SaveGame", 0);
+    EnableKeyCommands((char*)&g_game->message_519[0]);
+    RenderLayer((char*)&g_game->message_519[0], 0x40);
     ((char*)g_game)[0x38a51] |= 1;
 }

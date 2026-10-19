@@ -14,14 +14,7 @@ struct Guid_0046bf30 {
 // The game state LoadReporterDll and ShutdownScoreTables share: the network game
 // at +0x4e5 and the service provider GUID it copies out at +0x39201.
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14];
-    char session[1];                   // +0x14
-    char unknown_15[0x4e5 - 0x15];
-    char* dplConnection;               // +0x4e5
-    char unknown_4e9[0x39201 - 0x4e9];
-    char providerGuid[16];             // +0x39201
-};
+#include "game.h"
 #pragma pack(pop)
 
 struct PlayerInfo_0046bce0 {     // 0x18 bytes
@@ -188,7 +181,7 @@ int __stdcall LoadReporterDll(int* count, int names)
 
     ShutdownScoreTables();
 
-    net = g_game->dplConnection;
+    net = ((char*)g_game->field_4e5);
     if (net != 0) {
         memcpy(g_game->providerGuid, net + 0x10, 16);
     }
@@ -272,7 +265,7 @@ void ShutdownScoreTables()
     g_hapinetOnlineReport = 0;
     RISetCallbacks(0, 0);
     if (g_reporterDll != 0) {
-        HAPINET_uninitmultiplay(g_game->session);
+        HAPINET_uninitmultiplay(g_game->session_14_1);
         if (g_riTerminate != 0)
             g_riTerminate();
         FreeLibrary(g_reporterDll);
