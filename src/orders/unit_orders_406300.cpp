@@ -13,7 +13,7 @@ struct Order;
 class MissionType { public: unsigned char index; MissionType() {} MissionType(const char*); int operator==(const MissionType& v) const { return index==v.index; } };
 
 #pragma pack(push, 1)
-struct WeaponDef { char pad0[0x111]; unsigned int flags; };
+#include "../weapons/weapon_def.h"
 #include "../units/unit_def.h"
 struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index; };
 #include "../units/unit.h"
@@ -63,7 +63,7 @@ int __stdcall FollowGroundOrder(Unit* unit, Order* order, int flags)
             if (unit->flags & 0x300000) {
                 for (unsigned char i=0;i<3;++i) {
                     UnitWeaponSlot* weapon=&unit->weapons[i];
-                    if ((weapon->flags&2) && (weapon->flags&0x10) && !((unsigned char)(((WeaponDef*)weapon->weapon)->flags >> 26)&1)) {
+                    if ((weapon->flags&2) && (weapon->flags&0x10) && !((unsigned char)(((WeaponDef*)weapon->weapon)->flags.value >> 26)&1)) {
                         Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
                         if (!target || !g_seams.weapons->WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
                             g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);

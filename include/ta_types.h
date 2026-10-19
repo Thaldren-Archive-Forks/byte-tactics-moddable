@@ -14,6 +14,7 @@
 #include <map>
 #include "../src/game/unit_resources.h"
 #include "../src/weapons/unit_weapon_slot.h"
+#include "../src/weapons/weapon_def.h"
 
 #pragma pack(push, 1)
 
@@ -2800,17 +2801,6 @@ struct Weapon {  // 0x1c bytes, 6 views
     char unknown_c[11];
     unsigned char flags;  // +0x17
     char unknown_18[4];
-};
-
-struct WeaponDef {  // 0x115 bytes, 7 views
-    char unknown_0[104];
-    int field_68;  // +0x68
-    char unknown_6c[92];
-    int field_c8;  // +0xc8
-    char unknown_cc[16];
-    int range;  // +0xdc
-    char unknown_e0[49];
-    unsigned int flags;  // +0x111
 };
 
 struct Order_13 {  // 0x3a bytes, 1 view

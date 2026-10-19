@@ -153,15 +153,7 @@ struct PlayerView {
     unsigned char index;               // +0x146
 };
 
-struct WeaponDef {
-    char unknown_0[0xc0];
-    float energyCost;                  // +0xc0 (TDF energypershot)
-    float metalCost;                   // +0xc4 (TDF metalpershot)
-    char unknown_c8[0xe4 - 0xc8];
-    unsigned short buildTime;          // +0xe4
-    char unknown_e6[0x111 - 0xe6];
-    unsigned int flags;                // +0x111
-};
+#include "../weapons/weapon_def.h"
 
 #include "../game/game.h"
 
@@ -719,16 +711,16 @@ int __stdcall BuildWeaponOrder(Unit* unit, Order* order, int unused)
         // fixes the fild order; total stays after the ternary.
         float fnext, ftotal, fprev;
         int prev = order->progress;
-        int next = prev + 5 < t->buildTime ? prev + 5 : t->buildTime;
-        int total = t->buildTime;
+        int next = prev + 5 < t->reloadTime ? prev + 5 : t->reloadTime;
+        int total = t->reloadTime;
         fnext = next;
         ftotal = total;
         fprev = prev;
-        int metalCharge = (int)(fnext * t->metalCost / ftotal) - (int)(fprev * t->metalCost / ftotal);
-        energyCharge = (int)(fnext * t->energyCost / ftotal) - (int)(fprev * t->energyCost / ftotal);
+        int metalCharge = (int)(fnext * t->metalPerShot / ftotal) - (int)(fprev * t->metalPerShot / ftotal);
+        energyCharge = (int)(fnext * t->energyPerShot / ftotal) - (int)(fprev * t->energyPerShot / ftotal);
         if (g_seams.economy->RequestEnergyAndMetal(&unit->resourceSlot, energyCharge, metalCharge)) {
             order->progress = next;
-            if (next >= t->buildTime)
+            if (next >= t->reloadTime)
                 return 1;
             order->SetDeadlineTicks(5);
             return 2;

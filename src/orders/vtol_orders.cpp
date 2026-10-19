@@ -130,12 +130,7 @@ public:
 };
 
 #pragma pack(push, 1)
-struct WeaponDef {
-    char unknown_0[0xdc];
-    int range;                         // +0xdc
-    char unknown_e0[0x111 - 0xe0];
-    unsigned int flags;                // +0x111
-};
+#include "../weapons/weapon_def.h"
 
 struct Weapon {
     char unknown_0[8];
