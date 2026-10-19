@@ -29,14 +29,7 @@ struct Entry_0042f740 {
 struct IDirectSoundBuffer;
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x33a0f];
-    int soundCount;                    // +0x33a0f
-    IDirectSoundBuffer** sounds[1];    // +0x33a13
-    char unknown_33a17[0x37e13 - 0x33a17];
-    Entry_0042f740* soundCategories;   // +0x37e13
-    int soundCategoryCount;            // +0x37e17
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -85,8 +78,8 @@ int __stdcall ReadSoundEntry(Source_0042f450* source, char* key, int* out)
 // FUNCTION: 0x42f580
 void LoadSoundCategories()
 {
-    g_game->soundCategoryCount = 0;
-    g_game->soundCategories = 0;
+    g_game->entry_count = 0;
+    g_game->entries_37e13 = 0;
     TdfFile obj;
     char name[32];
     char path[256];
@@ -94,12 +87,12 @@ void LoadSoundCategories()
 
     BuildDataPath(path, "gamedata", "sound", "TDF");
     if (obj.LoadFile(path)) {
-        g_game->soundCategoryCount = obj.root->GetSubRecordCount();
-        int size = g_game->soundCategoryCount * 0x160;
-        g_game->soundCategories = (Entry_0042f740*)GameAllocIgnoreTag("Sound Categories", size);
-        memset(g_game->soundCategories, 0, size);
-        for (int i = 0; i < g_game->soundCategoryCount; i++) {
-            char* rec = (char*)g_game->soundCategories + i * 0x160;
+        g_game->entry_count = obj.root->GetSubRecordCount();
+        int size = g_game->entry_count * 0x160;
+        g_game->entries_37e13 = (Entry_0042f740*)GameAllocIgnoreTag("Sound Categories", size);
+        memset(g_game->entries_37e13, 0, size);
+        for (int i = 0; i < g_game->entry_count; i++) {
+            char* rec = (char*)g_game->entries_37e13 + i * 0x160;
             obj.ResetCurrentRecord();
             if (obj.SelectRecordAt(i)) {
                 obj.current->CopyRecordName(rec, 0x3f);
@@ -125,9 +118,9 @@ void LoadSoundCategories()
 // FUNCTION: 0x42f740
 void FreeSoundCategories()
 {
-    if (g_game->soundCategoryCount > 0) {
-        for (int i = 0; i < g_game->soundCategoryCount; i++) {
-            Entry_0042f740* e = &g_game->soundCategories[i];
+    if (g_game->entry_count > 0) {
+        for (int i = 0; i < g_game->entry_count; i++) {
+            Entry_0042f740* e = &g_game->entries_37e13[i];
             for (int j = 0; j < 0x18; j++) {
                 if (e->slots[j].count > 0) {
                     GameFreeThunk(e->slots[j].a);
@@ -135,10 +128,10 @@ void FreeSoundCategories()
                 }
             }
         }
-        GameFreeThunk((int*)g_game->soundCategories);
+        GameFreeThunk((int*)g_game->entries_37e13);
     }
-    g_game->soundCategoryCount = 0;
-    g_game->soundCategories = 0;
+    g_game->entry_count = 0;
+    g_game->entries_37e13 = 0;
 }
 
 // Loads gamedata\allsound.TDF and registers every "sound" entry found in it
@@ -175,7 +168,7 @@ void FreeSounds()
 {
     FreeSoundCategories();
     for (int i = 0; i < g_game->soundCount; i++)
-        FreeSoundSet(g_game->sounds[i]);
+        FreeSoundSet((*(IDirectSoundBuffer ** (*)[1])&g_game->soundIds)[i]);
     g_game->soundCount = 0;
 }
 
