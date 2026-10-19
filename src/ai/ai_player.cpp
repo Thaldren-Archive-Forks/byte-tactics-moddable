@@ -79,70 +79,9 @@ struct Order {
     unsigned int flags;                // +0x42
 };
 
-union Fixed {                          // a 16.16 fixed-point value
-    int value;
-    struct {
-        unsigned short fraction;
-        short whole;
-    };
 };
 
-// Own Vec3, not vec3.h: each coordinate is also a Fixed or two words, and it has
-// operator+ and operator-.
-#define VEC3_H
-struct Vec3 {
-    union {
-        int x;
-        Fixed xf;
-        struct {
-            unsigned short xFrac;
-            short xWhole;
-        };
-    };
-    union {
-        int y;
-        Fixed yf;
-        struct {
-            unsigned short yFrac;
-            short yWhole;
-        };
-    };
-    union {
-        int z;
-        Fixed zf;
-        struct {
-            unsigned short zFrac;
-            short zWhole;
-        };
-    };
-
-    Vec3 operator+(Vec3& o) { Vec3 r; r.x = x + o.x; r.y = y + o.y; r.z = z + o.z; return r; }
-    Vec3 operator-(Vec3& o) { Vec3 r; r.x = x - o.x; r.y = y - o.y; r.z = z - o.z; return r; }
-    void operator+=(Vec3& v) { x += v.x; y += v.y; z += v.z; }
-    int Length() const
-    {
-        // One double local per component: `(double)x * x` reorders the sum.
-        double fx = x;
-        double fy = y;
-        double fz = z;
-        return (int)sqrt(fx * fx + fy * fy + fz * fz);
-    }
-    void Scale(int s)                  // s is 16.16 fixed point
-    {
-        x = (int)(((__int64)x * s) >> 16);
-        y = (int)(((__int64)y * s) >> 16);
-        z = (int)(((__int64)z * s) >> 16);
-    }
-};
-
-static inline Vec3 operator-(const Vec3& p, const Vec3& q)
-{
-    Vec3 r;
-    r.x = p.x - q.x;
-    r.y = p.y - q.y;
-    r.z = p.z - q.z;
-    return r;
-}
+#include "../util/vec3.h"
 
 // The 3-argument constructor, as a helper: the joined file's symbol count
 // needs Vec3 to have no user constructors (0x40bfe0's MoveTowards inlining).
@@ -154,11 +93,6 @@ static inline Vec3 MakeVec3(int x, int y, int z)
     v.z = z;
     return v;
 }
-
-struct Point16 {
-    short x;
-    short y;
-};
 
 struct Sub_00409520 {
     char unknown_0[0xd4];
@@ -805,9 +739,9 @@ int SquadTimer::GetAveragePosition(Vec3* out)
         return 0;
     int x = 0, y = 0, z = 0;
     for (std::vector<Unit*>::iterator it = g->units.begin(); it != g->units.end(); ++it) {
-        x += (*it)->pos.xf.whole;
-        y += (*it)->pos.yf.whole;
-        z += (*it)->pos.zf.whole;
+        x += (*it)->pos.xWhole;
+        y += (*it)->pos.yWhole;
+        z += (*it)->pos.zWhole;
     }
     // Built as a temporary and assigned whole: per-field stores interleave with the divisions.
     *out = MakeVec3(x / n << 16, y / n << 16, z / n << 16);
@@ -823,8 +757,8 @@ int SquadTimer::CountGroupUnitsInRadius(Vec3* pos, int radius)
     Unit* last = group->player->unitsEnd;
     for (; u <= last; ++u) {
         if (u->group == group->id) {
-            int dz = pos->z - u->pos.zf.value;
-            int dx = pos->x - u->pos.xf.value;
+            int dz = pos->z - u->pos.z;
+            int dx = pos->x - u->pos.x;
             int distance = (int)(((__int64)dx * dx) >> 32) + (int)(((__int64)dz * dz) >> 32);
             if (distance <= squared)
                 ++count;

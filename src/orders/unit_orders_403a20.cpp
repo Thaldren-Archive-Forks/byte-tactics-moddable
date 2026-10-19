@@ -4,19 +4,7 @@
 #include <windows.h>
 #include <math.h>
 struct Point { short x, y; };
-struct Point16 { short x, y; };
-// Kept local, not util/vec3.h: its free operators inline differently from these members and the code size changes.
-#define VEC3_H
-struct Vec3 {
-    int x, y, z;
-    Vec3 operator+(const Vec3& other) const {
-        Vec3 r;
-        r.x = x + other.x;
-        r.y = y + other.y;
-        r.z = z + other.z;
-        return r;
-    }
-};
+#include "../util/vec3.h"
 struct Unit;
 #include "mission_type.h"
 
@@ -71,12 +59,12 @@ static inline Point WorldToCell(Vec3 v, Point origin)
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
-static inline Point16 ToPoint16(Point p)
+static inline Point16 WorldToCell16(Vec3 v, Point origin)
 {
-    Point16 r;
-    r.x = p.x;
-    r.y = p.y;
-    return r;
+    Point16 c;
+    c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
+    c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
+    return c;
 }
 static inline void CellToWorld(Point origin, Point c, Vec3* v)
 {
@@ -123,7 +111,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
                 return 8;
             }
         }
-        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, ToPoint16(WorldToCell(order->pos, Definitions()[order->type].origin)), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, WorldToCell16(order->pos, Definitions()[order->type].origin), 1)) {
             if (!order->retries)
                 QueueUnitSpeech(unit, 7, "Waiting for target area to clear");
             else if (order->retries > 10) {
