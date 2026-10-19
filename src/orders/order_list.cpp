@@ -248,20 +248,8 @@ static inline short PosZWhole(Unit* unit) { return *(short*)((char*)&unit->pos +
 // One 25-byte record of the global order-type table at 0x512344 (a
 // std::vector's _First): the status text at +0, a per-kind notify callback at
 // +4, the draw mask at +0xc and its name at +0x15.
-struct Elem_0043c390 {
-    int value;                         // +0x0, the status string
-    int (__stdcall* notify)(void* unit, Order* obj, unsigned int code); // +4
-    char unknown_8[0xc - 8];
-    int drawMask;                      // +0xc, the flags 0x439b30 masks
-    char unknown_10[0x11 - 0x10];
-    unsigned int flags;                // +0x11, default flags of the kind
-    char* name;                        // +0x15
+#include "order_type_entry.h"
 
-    // Only so the explicit instantiation of the rest of the vector compiles.
-    int operator<(const Elem_0043c390&) const { return 0; }
-    int operator==(const Elem_0043c390&) const { return 0; }
-    int operator!=(const Elem_0043c390&) const { return 0; }
-};
 
 #pragma pack(pop)
 
@@ -850,9 +838,7 @@ public:
     virtual int v5();
 };
 
-class PackedPosGoal { public: char unknown[0x27]; PackedPosGoal(Unit* unit); };
-class LiteGoal { public: char unknown[0x28]; LiteGoal(Unit* unit); };
-class PatrolGoal { public: char unknown[0x1c]; PatrolGoal(Unit* unit); };
+#include "order_goals.h"
 #pragma pack(push, 1)
 #include "../ai/ai_search_goal.h"
 #pragma pack(pop)

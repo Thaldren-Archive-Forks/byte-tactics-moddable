@@ -5902,15 +5902,7 @@ struct Owner_0043ad50 {  // 0x64 bytes, 1 view
     Node_0043ad50* list_b;  // +0x60
 };
 
-struct Elem_0043c390 {  // 0x19 bytes, 8 views
-    char unknown_0[4];
-    int (__stdcall *notify)(void*, Order*, int);  // +0x4
-    char unknown_8[13];
-    char* name;  // +0x15
-    int operator<(Elem_0043c390&);
-    int operator==(Elem_0043c390&);
-    int operator!=(Elem_0043c390&);
-};
+#include "../src/orders/order_type_entry.h"
 
 class MissionOrderTable {  // 0xc bytes, 1 view
 public:
@@ -6425,50 +6417,7 @@ public:
     Class_0044ce20(int);
 };
 
-class Class_0044e2d0 : public Class_0044ce20 {  // 0x36 bytes, 23 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    int field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    char unknown_32[4];
-    Class_0044e2d0(Class_0044e2d0&);
-    Class_0044e2d0(Order*, Vec3&);
-};
-
-class Class_0044e190 : public Class_0044ce20 {  // 0x36 bytes, 3 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Unit* field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    int field_32;  // +0x32
-    Class_0044e190(Class_0044e190&);
-    Class_0044e190(Order*, Unit*);
-};
-
-class Class_0044e250 : public Class_0044ce20 {  // 0x36 bytes, 3 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Unit* field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    char unknown_32[4];
-    Class_0044e250(Class_0044e250&);
-    Class_0044e250(Order*, int, short);
-};
+#include "../src/orders/path_fx.h"
 
 class Class_0044e740 : public Class_0044ce20 {  // 0x2c bytes, 8 views
 public:
@@ -6486,21 +6435,6 @@ public:
     void FUN_0044ec10(int);
 };
 
-class Class_0044e330 : public Class_0044ce20 {  // 0x36 bytes, 2 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    int field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    char unknown_32[4];
-    Class_0044e330(Class_0044e330&);
-    Class_0044e330(Order*, int, Vec3&);
-};
-
 class Class_0044d010 : public Class_0044ce20 {  // 0x14 bytes, 3 views
 public:
     Vec3 v;  // +0x8
@@ -6513,21 +6447,6 @@ public:
     Rect r;  // +0x8
     Class_0044d930(int, HapiBank*, char*);
     int FUN_0044d9a0(int, HapiBank*, char*);
-};
-
-class Class_0044de80 : public Class_0044ce20 {  // 0x36 bytes, 2 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Unit* field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    int field_32;  // +0x32
-    Class_0044de80(Class_0044de80&);
-    Class_0044de80(int, HapiBank*, char*);
 };
 
 #include "../src/orders/order_fx.h"
@@ -6575,12 +6494,7 @@ struct Header_0044d010_2 {  // 0x10 bytes, 1 view
     Vec3 v;  // +0x4
 };
 
-class ApproachRadius {  // 0xc bytes, 1 view
-public:
-    char unknown_0[8];
-    Point16 pos;  // +0x8
-    void FUN_0044d0e0(std::vector<Point16>*);
-};
+#include "../src/orders/approach_areas.h"
 
 class Class_0044d290 {  // 0x14 bytes, 1 view
 public:
@@ -6719,16 +6633,6 @@ public:
     int FUN_0044d800(Unit*);
 };
 
-class RingApproach {    // 0x14 bytes, 1 view
-public:
-    char unknown_0[8];
-    short x;  // +0x8
-    short y;  // +0xa
-    int inner;  // +0xc
-    int outer;  // +0x10
-    int FUN_0044d840(int, int);
-};
-
 class Class_0044d910 {  // 0x4 bytes, 1 view
 public:
     virtual ~Class_0044d910(void);
@@ -6753,16 +6657,6 @@ public:
     int y1;  // +0x10
     int y2;  // +0x14
     void FUN_0044da00(std::vector<Point16>*);
-};
-
-struct PointMarker {     // 0x18 bytes, 1 view
-    char unknown_0[4];
-    char* mapPtr;  // +0x4
-    int x1;  // +0x8
-    int x2;  // +0xc
-    int y1;  // +0x10
-    int y2;  // +0x14
-    int FUN_0044dc60(int*);
 };
 
 struct Pos16_44dc60 {  // 0x4 bytes, 1 view
@@ -7034,10 +6928,7 @@ public:
 
 #include "../src/orders/air_maneuver_order.h"
 
-struct Object_0044ea60 {  // 0x96 bytes, 1 view
-    char unknown_0[146];
-    UnitDef* type;  // +0x92
-};
+#include "../src/orders/order_target_types.h"
 
 class Class_0044eb40 {  // 0x2c bytes, 1 view
 public:
@@ -7127,20 +7018,11 @@ public:
     virtual int KeepAfterComplete(void);
 };
 
-union Coord_0044f2a0 {  // 0x4 bytes, 1 view
-    union { int fixed; short half[2]; };  // +0x0
-};
-
 struct Struct_004907e0 {  // 0x76 bytes, 1 view
     char unknown_0[92];
     Target_0044f2a0* field_5c;  // +0x5c
     char unknown_60[10];
     Vec3 pos;  // +0x6a
-};
-
-struct Target_0044f2a0 {  // 0x46 bytes, 1 view
-    char unknown_0[66];
-    unsigned int field_42;  // +0x42
 };
 
 struct Class_0044f480 {  // 0x68 bytes, 1 view
@@ -7194,27 +7076,7 @@ public:
     int FUN_0044f5b0(void);
 };
 
-class PatrolGoal {      // 0x1c bytes, 1 view
-public:
-    void* vtable;  // +0x0
-    int field_4;  // +0x4
-    Owner_0044f5c0* owner;  // +0x8
-    Point16 points[3];  // +0xc
-    int count;  // +0x18
-    void FUN_0044f5c0(BitReader*);
-};
-
-struct Owner_0044f5c0 {  // 0x4 bytes, 1 view
-    Target_0044f5c0* target;  // +0x0
-};
-
-struct Target_0044f5c0 {  // 0x2f bytes, 1 view
-    char unknown_0[46];
-    unsigned char flag_0 : 1;  // +0x2e
-    unsigned char flag_1 : 1;
-    unsigned char flag_2 : 1;
-    unsigned char flag_rest : 5;
-};
+#include "../src/orders/order_goals.h"
 
 class Class_0044f650 {  // 0x1c bytes, 1 view
 public:
@@ -12586,24 +12448,6 @@ public:
     PackedGoal(Unit*);
     virtual void TickTowardGoal(void);
     virtual void ExportGoalPose(int, int, int);
-};
-
-class LiteGoal : public PackedGoal {            // 0x28 bytes, 4 views
-public:
-    LiteGoal(Unit*);
-    virtual void SetPathOrder(void*);
-    virtual void TickTowardGoal(void);
-    virtual int HasNetUnitState(void);
-    virtual void SerializeNetUnitState(int);
-};
-
-class PackedPosGoal : public PackedGoal {       // 0x28 bytes, 6 views
-public:
-    virtual ~PackedPosGoal(void);
-    PackedPosGoal(Unit*);
-    virtual void DeserializeNetUnitState(int);
-    virtual void FUN_00490690(void);
-    void FUN_00490880(void);
 };
 
 class Class_00490650 {  // 0x28 bytes, 1 view

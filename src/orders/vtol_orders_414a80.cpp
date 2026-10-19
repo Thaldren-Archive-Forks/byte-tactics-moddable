@@ -42,12 +42,7 @@ struct UnitDef {
 
 #include "order.h"
 
-class Class_0044e2d0 {
-public:
-    char unknown_0[0x36];
-    Class_0044e2d0(Order* order, const Vec3& pos);
-    void SetAltitude(int);
-};
+#include "path_fx.h"
 #pragma pack(pop)
 
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, const char* text);
@@ -75,7 +70,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -114,7 +109,7 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         Point cell = WorldToCell(order->pos, origin);
         CellToWorldPos(cell, &order->pos, origin);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->target->pos);
-        order->SetAttachedFx((OrderFx*)obj);
+        order->SetAttachedFx(obj);
         order->flags |= 0x100e8;
         QueueUnitSpeech(unit, 11, 0);
         return 1;
