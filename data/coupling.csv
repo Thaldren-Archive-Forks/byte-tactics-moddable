@@ -1013,6 +1013,7 @@ harness,game,shared_write,Game::difficulty,4
 harness,game,shared_write,Game::field_2a3c,5
 harness,game,shared_write,Game::localPlayer,13
 harness,game,shared_write,Game::playerIndex,8
+harness,game,shared_write,g_quirks,1
 harness,los_radar,shared_write,Game::field_2a3c,1
 harness,los_radar,shared_write,Game::localPlayer,3
 harness,los_radar,shared_write,Game::playerIndex,14
@@ -1032,6 +1033,7 @@ harness,platform,call,GetMemSetValue,1
 harness,platform,call,IsMemSet,1
 harness,platform,call,host_exit,2
 harness,platform,call,host_log,3
+harness,platform,shared_write,g_quirks,1
 harness,players,call,HarnessConditionClass,1
 harness,players,call,ResetPlayerSlots,1
 harness,players,shared_write,Game::difficulty,3

@@ -32485,10 +32485,12 @@ address,function,file,kind,target
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,strchr
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,strcpy
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,strlen
+0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,strncpy
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,strtok
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,deref_read,*char
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,deref_write,*char
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,field_read,Game_0049ee30::lockFlags
+0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,field_read,Quirks::boundLanguageCopy
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,field_write,DirectXRegisterApp::dwSize
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,field_write,DirectXRegisterApp::lpGUID
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,field_write,DirectXRegisterApp::lpszApplicationName
@@ -32504,7 +32506,9 @@ address,function,file,kind,target
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,global_escape,DAT_004fcfb8
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,global_maybe_written,g_preferredLanguage
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,global_read,g_game
+0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,global_read,g_quirks
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,global_write,g_cmdlineDisplaySeed
+0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,global_write,g_preferredLanguage
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,indirect_call,"indirect via int (*)(HWND, DirectXRegisterApp *) __attribute__((stdcall)) [func]"
 0x49f540,ChdirToExeDirectory,src/game/main.cpp,call,GetModuleFileNameA
 0x49f540,ChdirToExeDirectory,src/game/main.cpp,call,SetCurrentDirectoryA
@@ -39185,9 +39189,11 @@ address,function,file,kind,target
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,operator new
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,strcpy
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,strlen
+0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,call,strncpy
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,field_escape,TdfField::value
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,field_escape,TranslationTable::v
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,field_maybe_written,TranslationTable::v
+0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,field_read,Quirks::boundLanguageCopy
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,field_read,StringRef::ptr
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,field_read,TdfField::key
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,field_read,TdfFile::current
@@ -39195,7 +39201,9 @@ address,function,file,kind,target
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,global_escape,g_language
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,global_maybe_written,DAT_005119b8
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,global_maybe_written,g_language
+0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,global_read,g_quirks
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,global_read,g_translations
+0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,global_write,g_language
 0x4c54f0,LoadTranslations,src/util/tdf_4c54f0.cpp,global_write,g_translations
 0x4c5740,Translate,src/util/tdf_4c54f0.cpp,call,begin
 0x4c5740,Translate,src/util/tdf_4c54f0.cpp,call,end

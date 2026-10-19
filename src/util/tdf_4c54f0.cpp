@@ -107,6 +107,7 @@ static inline StringRef* InsertNew(TranslationTable* s, TdfField* e, const Strin
 }
 
 #include "tdf.h"
+#include "../quirks/quirks.h"
 
 // Reloads one TDF file into the global map (g_translations):
 // frees the old map when the section name changed, builds a new one and inserts
@@ -128,8 +129,12 @@ void __stdcall LoadTranslations(char* filename, char* section)
     }
     g_translations = new TranslationTable(alloc);
     AllocNotifyNop((int)g_translations);
-    // TODO(#40): copies section unbounded into the 0x40-byte g_language, over the screen-lock and edge-list globals after it
-    strcpy(g_language, section);
+    if (g_quirks.boundLanguageCopy) {
+        strncpy(g_language, section, 0x3f);
+        g_language[0x3f] = 0;
+    } else {
+        strcpy(g_language, section);
+    }
     {
         TdfFile f;
         char value[256];
