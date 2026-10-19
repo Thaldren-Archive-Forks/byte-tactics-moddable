@@ -18991,13 +18991,7 @@ public:
     int GetAveragePosition(Vec3*);
 };
 
-struct Group {  // 0x20 bytes, 7 views
-    void* player;  // +0x0
-    int id;  // +0x4
-    char unknown_8[8];
-    std::vector<Unit*> units;  // +0x10
-    void Send(unsigned char, int, Unit*, Vec3*, int, int);
-};
+#include "../src/ai/group.h"
 
 class Class_00407560 {  // 0xc bytes, 2 views
 public:

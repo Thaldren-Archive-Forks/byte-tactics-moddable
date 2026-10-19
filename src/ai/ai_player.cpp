@@ -186,14 +186,7 @@ struct Economy {                       // a unit's resources
     float cost;                        // +0x98
 };
 
-struct Group {                         // 0x20 bytes, one of a player's squads
-    Player* player;                    // +0x0
-    int id;                            // +0x4
-    char unknown_8[0x10 - 0x8];
-    std::vector<Unit*> units;          // +0x10
-
-    void Send(unsigned char mode, int remove, Unit* target, Vec3* pos, int flags, int extra);
-};
+#include "group.h"
 
 void __stdcall OrderSquad(Player*, int, unsigned char, int, Unit*, Vec3*, int, int);
 
