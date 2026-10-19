@@ -19391,7 +19391,7 @@ address,function,file,kind,target
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_maybe_written,PlayerFrameInfo::tail
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_read,FrameQueue::fromId
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_read,FrameQueue::toId
-0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_read,Game::gameTick
+0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_read,Game::ticks
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_read,Net_00462f30::from
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_read,Net_00462f30::to
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,field_read,PacketReceiver::buffer

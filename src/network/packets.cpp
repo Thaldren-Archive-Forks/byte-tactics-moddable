@@ -1429,7 +1429,7 @@ int PacketReceiver::ResetReceiveBuffer()
 int PacketReceiver::ReceiveFrame(void* net, unsigned char* data, int* size)
 {
     Net_00462f30* hnet = (Net_00462f30*)net;
-    int tick = g_game->gameTick;
+    int tick = g_game->ticks;
     PlayerFrameInfo* entry;
     unsigned int i;
     void* src;
