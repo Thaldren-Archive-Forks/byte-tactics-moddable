@@ -40,32 +40,7 @@ struct UnitDef {
 
 #include "../units/unit_ref.h"
 
-struct Order {
-    char unknown_0[5];
-    unsigned char state;               // +0x5
-    unsigned int flags;                // +0x6
-    char unknown_a[0xe - 0xa];
-    Unit* source;                      // +0xe
-    UnitRef target;                    // +0x12
-    Vec3 pos;                          // +0x22
-    char unknown_2e[0x36 - 0x2e];
-    int elapsed;                       // +0x36
-    int duration;                      // +0x3a
-    void AnnounceStatusIfFlagged(const char*);
-    void SetAttachedFx(int);
-    void SetDeadlineTicks(int);
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
-    Order(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    void AttachApproachRadiusGoal(Vec3* pos, int radius);
-    void AttachBuildFootprintMarker(Point cell, Point size);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-};
+#include "order.h"
 
 class Class_0044e2d0 {
 public:
@@ -100,7 +75,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -113,7 +88,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
 // FUNCTION: 0x414a80
 int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
 {
-    Unit* target = order->target.Get();
+    Unit* target = order->target;
     if (!target || (flags & 0x10008))
         return 5;
     switch (order->state) {
@@ -138,8 +113,8 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         Point origin = *(Point*)&unit->footprint;
         Point cell = WorldToCell(order->pos, origin);
         CellToWorldPos(cell, &order->pos, origin);
-        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->target.Get()->pos);
-        order->SetAttachedFx((int)obj);
+        Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->target->pos);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= 0x100e8;
         QueueUnitSpeech(unit, 11, 0);
         return 1;
@@ -148,25 +123,25 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         if (flags & 0x40)
             return 9;
         order->flags |= 0x10008;
-        Vec3 delta = Sub(unit->pos, order->target.Get()->pos);
+        Vec3 delta = Sub(unit->pos, order->target->pos);
         int range = 0;
         range = unit->def->buildRange;
         int square = Square(delta);
-        if (square <= range * range && g_seams.units->CanReclaim(unit, 0, order->target.Get())) {
+        if (square <= range * range && g_seams.units->CanReclaim(unit, 0, order->target)) {
             if (order->duration >= 15) {
-                g_seams.weapons->DamageUnit(unit, order->target.Get(), order->elapsed, 5, 0);
+                g_seams.weapons->DamageUnit(unit, order->target, order->elapsed, 5, 0);
                 order->duration = 0;
             }
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(order->source, &start);
             Vec3 bounds[2];
-            bounds[1] = order->target.Get()->pos;
-            bounds[0] = order->target.Get()->pos;
-            bounds[0].x += order->target.Get()->def->min.x;
-            bounds[0].z += order->target.Get()->def->min.z;
-            bounds[1].x += order->target.Get()->def->max.x;
-            bounds[1].z += order->target.Get()->def->max.z;
-            bounds[1].y += order->target.Get()->def->max.y;
+            bounds[1] = order->target->pos;
+            bounds[0] = order->target->pos;
+            bounds[0].x += order->target->def->min.x;
+            bounds[0].z += order->target->def->min.z;
+            bounds[1].x += order->target->def->max.x;
+            bounds[1].z += order->target->def->max.z;
+            bounds[1].y += order->target->def->max.y;
             EmitReverseNanoParticles(bounds, &start, 6);
             order->SetDeadlineTicks(2);
             order->duration += 2;

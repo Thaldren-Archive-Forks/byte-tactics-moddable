@@ -2219,14 +2219,7 @@ struct PlayerRes_00401360 {  // 0xc bytes, 1 view
     float used;  // +0x8
 };
 
-class MissionType {     // 0x1 bytes, 46 views
-public:
-    unsigned char index;  // +0x0
-    MissionType(char*);
-    MissionType(void);
-    int GetTableEntry(void);
-    int operator==(MissionType&);
-};
+#include "../src/orders/mission_type.h"
 
 class Class_00438880 {  // 0x46 bytes, 30 views
 public:
@@ -2305,18 +2298,7 @@ struct Order_00402160 {  // 0x1a bytes, 1 view
     int field_16;  // +0x16
 };
 
-class PathOrderAttach {  // 0x10 bytes, 25 views
-public:
-    Unit* owner;  // +0x4
-    PathOrderAttach* next;  // +0x8
-    int value;  // +0xc
-    virtual ~PathOrderAttach(void);
-    PathOrderAttach(PathOrderAttach&);
-    PathOrderAttach(Unit*, int);
-    virtual void Unknown_0(void);
-    void SetValue(void*);
-    void SetUnit(Unit*);
-};
+#include "../src/orders/path_order_attach.h"
 
 struct Order_004021f0 {  // 0x3e bytes, 1 view
     char unknown_0[5];
@@ -2330,10 +2312,7 @@ struct Order_004021f0 {  // 0x3e bytes, 1 view
     int waitLimit;  // +0x3a
 };
 
-struct Box {  // 0x18 bytes, 7 views
-    Vec3 lo;  // +0x0
-    Vec3 hi;  // +0xc
-};
+#include "../src/orders/box.h"
 
 struct Order_4 {  // 0x3e bytes, 1 view
     char unknown_0[5];
@@ -2453,39 +2432,7 @@ struct UnitDef {  // 0x249 bytes, 220 views
     unsigned int MaxHealth(void);
 };
 
-struct Order {  // 0x56 bytes, 87 views
-    void* vtable;  // +0x0
-    unsigned char kind;  // +0x4
-    unsigned char state;  // +0x5
-    unsigned int low : 15;  // +0x6
-    unsigned int waiting : 1;
-    unsigned int high : 16;
-    unsigned int wakeFrame;  // +0xa
-    Unit* unit;  // +0xe
-    char unknown_12[4];
-    Unit* target;  // +0x16
-    char unknown_1a[8];
-    Vec3 pos;  // +0x22
-    Point16 start;  // +0x2e
-    int field_32;  // +0x32
-    int field_36;  // +0x36
-    int unused;  // +0x3a
-    int range;  // +0x3e
-    unsigned int flags;  // +0x42
-    int field_46;  // +0x46
-    Order* next;  // +0x4a
-    int field_4e;  // +0x4e
-    void* attached;  // +0x52
-    Order(int, ListOwner_0043a1f0*, Vec3*, int, int, int);
-    ~Order(void);
-    Order(Order&);
-    Order(Unit*, HapiBank*, char*);
-    void OrStatusFlags(unsigned int);
-    Unit* Target(void);
-    int SerializeToSave(Unit*, File_0043a970*, char*);
-    Vec3* Position(void);
-    void Wait(void);
-};
+#include "../src/orders/order.h"
 
 struct Order_5 {  // 0x42 bytes, 1 view
     char unknown_0[5];
@@ -3025,64 +2972,7 @@ struct Player {  // 0x14b bytes, 312 views
     float GetMetal(void);
 };
 
-struct UnitMotion {      // 0x115 bytes, 58 views
-    Handler_004388d0* handler;  // +0x0
-    void* owner;  // +0x4
-    Vec3 p1;  // +0x8
-    Vec3 p2;  // +0x14
-    int field_20;  // +0x20
-    short field_24;  // +0x24
-    unsigned int lastTick;  // +0x26
-    int age;  // +0x2a
-    unsigned char mode : 2;  // +0x2e
-    unsigned char flag : 1;
-    unsigned char rest : 5;
-    char unknown_2f[53];
-    Table_00499cd0* table;  // +0x64
-    int f_68;  // +0x68
-    int f_6c;  // +0x6c
-    int f_70;  // +0x70
-    void* field_74;  // +0x74
-    void* field_78;  // +0x78
-    void* splash;  // +0x7c
-    char unknown_80[72];
-    float pitch;  // +0xc8
-    int field_cc;  // +0xcc
-    int field_d0;  // +0xd0
-    unsigned short field_d4;  // +0xd4
-    unsigned short field_d6;  // +0xd6
-    char unknown_d8[4];
-    int range;  // +0xdc
-    int field_e0;  // +0xe0
-    char unknown_e4[2];
-    unsigned short f_e6;  // +0xe6
-    unsigned short turnRate;  // +0xe8
-    unsigned short f_ea;  // +0xea
-    unsigned short burstRate;  // +0xec
-    unsigned short spread;  // +0xee
-    unsigned short f0;  // +0xf0
-    unsigned short lifeRand;  // +0xf2
-    unsigned short sound;  // +0xf4
-    unsigned short sound1;  // +0xf6
-    unsigned short sound2;  // +0xf8
-    unsigned short smokeRate;  // +0xfa
-    unsigned short fc;  // +0xfc
-    unsigned short sound_fe;  // +0xfe
-    char unknown_100[4];
-    short f_104;  // +0x104
-    unsigned short field_106;  // +0x106
-    unsigned short field_108;  // +0x108
-    unsigned char team;  // +0x10a
-    char unknown_10b[1];
-    unsigned char field_10c;  // +0x10c
-    unsigned char field_10d;  // +0x10d
-    unsigned char field_10e;  // +0x10e
-    char unknown_10f[2];
-    unsigned int flags;  // +0x111
-    UnitMotion(Unit*);
-    void DestroyObject(void);
-    void UpdateMotion(Unit*);
-};
+#include "../src/orders/unit_motion.h"
 
 struct Slot_4b62d0 {  // 0x10 bytes, 5 views
     int counter;  // +0x4
@@ -6074,11 +5964,7 @@ struct Obj_00439e30 {  // 0x64 bytes, 1 view
     Node_00439e30* list2;  // +0x60
 };
 
-class OrderBase {       // 0x4 bytes, 6 views
-public:
-    virtual void OrStatusFlags(unsigned int);
-    virtual void Notify(int);
-};
+#include "../src/orders/order_base.h"
 
 struct PointInit_0043a1f0 : public Point16 {  // 0x4 bytes, 1 view
     PointInit_0043a1f0(short, short);
@@ -6777,11 +6663,7 @@ public:
     Class_0044de80(int, HapiBank*, char*);
 };
 
-class OrderFx {         // 0x4 bytes, 1 view
-public:
-    void** vtable;  // +0x0
-    void* FUN_0044ce50(unsigned char);
-};
+#include "../src/orders/order_fx.h"
 
 class Class_0044ce70 {  // 0x4 bytes, 1 view
 public:
@@ -7283,18 +7165,7 @@ public:
     Class_0044e9c0(Owner_0044e9c0*, BitReader*);
 };
 
-class AirManeuverOrder {  // 0x2c bytes, 1 view
-public:
-    char unknown_0[8];
-    short field_8;  // +0x8
-    Vec3 target;  // +0xa
-    Vec3 other;  // +0x16
-    short field_22;  // +0x22
-    unsigned short heading;  // +0x24
-    char unknown_26[2];
-    Object_0044ea60* self;  // +0x28
-    int FUN_0044ea60(Vec3*);
-};
+#include "../src/orders/air_maneuver_order.h"
 
 struct Object_0044ea60 {  // 0x96 bytes, 1 view
     char unknown_0[146];

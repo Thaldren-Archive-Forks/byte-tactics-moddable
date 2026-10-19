@@ -66,8 +66,6 @@ struct Group_00408100 {
     std::vector<Unit_00408100*> units; // +0x10
 };
 
-inline MissionType::MissionType() {}
-
 
 
 extern Game_00408100* g_game;

@@ -580,10 +580,7 @@ public:
 #include "../../interfaces/seams.h"
 
 #pragma pack(push, 2)
-struct Order {
-    char unknown_0[0xe];
-    Unit* unit;                        // +0xe
-};
+#include "order.h"
 
 struct Source_0044e250 {
     char unknown_0[0xe];
