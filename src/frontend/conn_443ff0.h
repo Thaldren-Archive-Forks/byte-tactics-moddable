@@ -8,7 +8,7 @@ struct Conn_443ff0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Conn_443ff0) == 8, "Conn_443ff0");
 #endif
 

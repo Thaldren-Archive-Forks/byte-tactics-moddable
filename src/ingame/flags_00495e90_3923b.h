@@ -12,7 +12,7 @@ union Flags_00495e90_3923b {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Flags_00495e90_3923b) == 2, "Flags_00495e90_3923b");
 #endif
 

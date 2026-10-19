@@ -11,7 +11,7 @@ struct Flags_00495e90_37f06 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Flags_00495e90_37f06) == 2, "Flags_00495e90_37f06");
 #endif
 

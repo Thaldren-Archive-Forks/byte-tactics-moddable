@@ -9,7 +9,7 @@ struct Sub_004679a0_b {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Sub_004679a0_b) == 56, "Sub_004679a0_b");
 #endif
 

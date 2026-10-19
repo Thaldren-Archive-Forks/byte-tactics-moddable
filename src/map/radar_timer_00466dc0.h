@@ -32,7 +32,7 @@ union RadarTimer_00466dc0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(RadarTimer_00466dc0) == 4, "RadarTimer_00466dc0");
 #endif
 

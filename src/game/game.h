@@ -1265,7 +1265,7 @@ struct Game {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 #include <stddef.h>
 static_assert(sizeof(Game) == 0x3924d, "Game is 0x3924d bytes");
 static_assert(offsetof(Game, unknown_0) == 0x0, "unknown_0");

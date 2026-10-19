@@ -7,7 +7,7 @@ struct Name_004864b0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Name_004864b0) == 562, "Name_004864b0");
 #endif
 

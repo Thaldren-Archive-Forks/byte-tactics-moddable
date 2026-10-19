@@ -14,7 +14,7 @@ struct BitFlags_004197d0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(BitFlags_004197d0) == 1, "BitFlags_004197d0");
 #endif
 

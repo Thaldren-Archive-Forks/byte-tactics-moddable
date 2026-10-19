@@ -15,7 +15,7 @@ struct PieceFrame {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(PieceFrame) == 32, "PieceFrame");
 #endif
 

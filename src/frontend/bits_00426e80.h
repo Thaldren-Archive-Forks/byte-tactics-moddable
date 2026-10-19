@@ -12,7 +12,7 @@ struct Bits_00426e80 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Bits_00426e80) == 2, "Bits_00426e80");
 #endif
 

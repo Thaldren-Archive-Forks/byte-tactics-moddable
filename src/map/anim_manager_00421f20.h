@@ -19,7 +19,7 @@ struct AnimManager_00421f20 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(AnimManager_00421f20) == 120, "AnimManager_00421f20");
 #endif
 

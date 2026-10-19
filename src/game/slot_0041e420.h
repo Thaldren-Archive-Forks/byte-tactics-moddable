@@ -9,7 +9,7 @@ struct Slot_0041e420 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Slot_0041e420) == 58, "Slot_0041e420");
 #endif
 

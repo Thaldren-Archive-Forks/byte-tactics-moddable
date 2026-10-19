@@ -13,7 +13,7 @@ struct ClockFlags_0042f9a0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(ClockFlags_0042f9a0) == 2, "ClockFlags_0042f9a0");
 #endif
 

@@ -9,7 +9,7 @@ union Flags16_00499200 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Flags16_00499200) == 2, "Flags16_00499200");
 #endif
 

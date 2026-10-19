@@ -11,7 +11,7 @@ struct ConnInfo_443ff0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(ConnInfo_443ff0) == 24, "ConnInfo_443ff0");
 #endif
 

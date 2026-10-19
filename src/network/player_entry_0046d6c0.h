@@ -8,7 +8,7 @@ struct PlayerEntry_0046d6c0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(PlayerEntry_0046d6c0) == 331, "PlayerEntry_0046d6c0");
 #endif
 

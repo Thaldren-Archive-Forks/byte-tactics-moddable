@@ -7,7 +7,7 @@ union LoadFlags_00497f40 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(LoadFlags_00497f40) == 2, "LoadFlags_00497f40");
 #endif
 

@@ -13,7 +13,7 @@ struct CursorState_0041cc60 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(CursorState_0041cc60) == 44, "CursorState_0041cc60");
 #endif
 

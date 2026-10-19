@@ -17,7 +17,7 @@ struct Zero11_004917d0 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Zero11_004917d0) == 11, "Zero11_004917d0");
 #endif
 

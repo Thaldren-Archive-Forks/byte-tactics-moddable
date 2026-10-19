@@ -45,7 +45,7 @@ struct Side_00431a60 {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 static_assert(sizeof(Side_00431a60) == 562, "Side_00431a60");
 #endif
 
