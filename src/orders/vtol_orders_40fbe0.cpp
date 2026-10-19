@@ -39,7 +39,7 @@ public:
 };
 
 #include "../../interfaces/seams.h"
-struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x14233]; int overflowBucket; };
+#include "../game/game.h"
 #pragma pack(pop)
 extern Game* g_game;
 short __stdcall GetHeadingBetween(Vec3*, Vec3*);
@@ -68,8 +68,8 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
     if (order->target && !(flags&0x48)) {
         if (unit->spatialBucket==g_game->overflowBucket) {
             Vec3 center;
-            center.x=(g_game->width/2)<<16;
-            center.z=(g_game->height/2)<<16;
+            center.x=(g_game->mapWidth/2)<<16;
+            center.z=(g_game->mapHeight/2)<<16;
             short angle=GetHeadingBetween(&unit->pos,&center);
             Vec3 pos=AddVec3(unit->pos,Direction(angle,0x3200000));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);

@@ -7,7 +7,7 @@
 #include "../state/block.h"
 #include "../state/block.h"
 #include <windows.h>
-struct Point { short x, y; };
+struct PointS16 { short x, y; };
 #include "../util/vec3.h"
 static inline Vec3 PosMinus(const Vec3& a, const Vec3& v) { Vec3 r; r.x=a.x-v.x; r.y=a.y-v.y; r.z=a.z-v.z; return r; }
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
@@ -30,7 +30,7 @@ class MissionType { public: unsigned char index; MissionType(const char*); };
 class PathOrderAttach { public: void SetUnit(Unit*); };
 #pragma pack(push, 1)
 struct UnitDef {
-    char pad0[0x14a]; Point origin;
+    char pad0[0x14a]; PointS16 origin;
     char pad14e[8]; int canBuild; char pad15a[4]; Vec3 min, max;
     char pad176[0x1fe-0x176]; unsigned short buildRate;
     char pad200[0x212-0x200]; unsigned short buildRange;
@@ -61,7 +61,7 @@ struct Order {
     int unused; int retries;
     void AnnounceStatusIfFlagged(const char*);
     void SetAttachedFx(int);
-    void AttachBuildFootprintMarker(Point, Point);
+    void AttachBuildFootprintMarker(PointS16, PointS16);
     void SetDeadlineTicks(int);
     // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
     void ReattachFxToUnit();
@@ -77,14 +77,11 @@ struct Order {
     Vec3* Position();
     int Advance(int distance);
 };
-struct Game {
-    char pad0[0x1439b]; UnitDef* unitDefs;
-    char pad1439f[0x38a47-0x1439f]; unsigned int tick;
-};
+#include "../game/game.h"
 class Class_0044e2d0 { public: char data[0x36]; Class_0044e2d0(Order*,const Vec3&); };
 #pragma pack(pop)
 extern Game* g_game;
-static inline UnitDef* Definitions() { return g_game->unitDefs; }
+static inline UnitDef* Definitions() { return g_game->defs; }
 union Fixed { int value; struct { unsigned short fraction; short whole; }; };
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
 void __stdcall MarkSelectionOrdersDirty(Unit*);
@@ -93,19 +90,19 @@ int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
 void __stdcall EmitNanoParticles(Vec3*, Vec3*, int);
-static inline Point WorldToCell(Vec3 v, Point origin)
+static inline PointS16 WorldToCell(Vec3 v, PointS16 origin)
 {
-    Point c;
+    PointS16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
-static inline void CellToWorld(Point origin, Point c, Vec3* v)
+static inline void CellToWorld(PointS16 origin, PointS16 c, Vec3* v)
 {
     v->x = (origin.x + c.x * 2) << 19;
     v->z = (origin.y + c.y * 2) << 19;
 }
-void __stdcall CellToWorldPos(Point,Vec3*,Point);
+void __stdcall CellToWorldPos(PointS16,Vec3*,PointS16);
 int __cdecl FUN_004b70ef(short,int);
 int __cdecl FUN_004b7123(short,int);
 short __cdecl FUN_004b715a(int,int);
@@ -157,7 +154,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
         MarkSelectionOrdersDirty(unit);
         return 1;
     case 3: {
-        if (g_game->tick%150==0) {
+        if ((unsigned int)g_game->ticks%150==0) {
             int angle=GetHeadingBetween(&unit->pos,&order->target.Get()->pos);
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;

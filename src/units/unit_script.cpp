@@ -44,18 +44,7 @@ struct ObjectState {
 
 #include "../network/player.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                 // +0x1b63
-    char unknown_2851[0x2a43 - 0x2851];
-    unsigned char playerIndex;          // +0x2a43
-    char unknown_2a44[0x1427f - 0x2a44];
-    unsigned char seaLevel;             // +0x1427f
-    char unknown_14280[0x14357 - 0x14280];
-    Unit* units;                        // +0x14357
-    char unknown_1435b[0x147f7 - 0x1435b];
-    void* sources[6];                   // +0x147f7
-};
+#include "../game/game.h"
 
 // The 0x30-byte record StartExplodePiece consumes.
 struct Header_00481140 {

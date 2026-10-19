@@ -565,18 +565,7 @@ struct Owner_0044e080;
 class Pathfinder;
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14207];
-    Pathfinder* pathfinder;            // +0x14207
-    char unknown_1420b[0x1427f - 0x1420b];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x142b7 - 0x14280];
-    int overflowBucket;                // +0x142b7
-    char unknown_142bb[0x14357 - 0x142bb];
-    Unit* units;                       // +0x14357
-    char unknown_1435b[0x38a47 - 0x1435b];
-    unsigned int gameTick;             // +0x38a47
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -2428,7 +2417,7 @@ void AiSearchGoal::TickTowardGoal()
 AiSearchGoal* AiSearchGoal::TryClaimRepath()
 {
     if (flags & 2) {
-        unsigned int limit = g_game->gameTick;
+        unsigned int limit = (unsigned int)g_game->ticks;
         if (limit >= repathClaimTick + 0x3c) {
             repathClaimTick = limit;
             return this;
@@ -2453,7 +2442,7 @@ int AiSearchGoal::HasReadyWaypoints()
 // FUNCTION: 0x44f2a0
 void AiSearchGoal::SetPathOrder(void* param)
 {
-    g_seams.pathfinding->AbortIfGoalMatch(g_game->pathfinder, this);
+    g_seams.pathfinding->AbortIfGoalMatch((Pathfinder *)g_game->pathfinder, this);
     if (target)
         ((OrderFx*)target)->AddFlags(0x80);
     active = 0;
@@ -2495,7 +2484,7 @@ void AiSearchGoal::SetPathOrder(void* param)
             }
         }
     }
-    if (repathClaimTick <= g_game->gameTick - 10)
+    if (repathClaimTick <= (unsigned int)g_game->ticks - 10)
         repathClaimTick = 0;
     flag_3 = 1;
 }
@@ -2506,7 +2495,7 @@ void AiSearchGoal::SetPathOrder(void* param)
 // FUNCTION: 0x44f450
 AiSearchGoal::~AiSearchGoal()
 {
-    g_seams.pathfinding->AbortIfGoalMatch(g_game->pathfinder, this);
+    g_seams.pathfinding->AbortIfGoalMatch((Pathfinder *)g_game->pathfinder, this);
 }
 
 // Slot 7: true when there is something to send: flag 3 of +0x64 (the path changed) is
@@ -2600,13 +2589,13 @@ void PatrolGoal::FillWaypointWorldPos(Vec3_004907e0* out, int unused, int n)
 // FUNCTION: 0x44f6a0
 void CreatePathfinder()
 {
-    g_game->pathfinder = new (kSim) Pathfinder;
+    (*(Pathfinder **)&g_game->pathfinder) = new (kSim) Pathfinder;
 }
 
 // Deletes the object at g_game+0x14207 and clears the pointer.
 // FUNCTION: 0x44f6e0
 void DestroyPathfinder()
 {
-    g_seams.pathfinding->Destroy(g_game->pathfinder);
-    g_game->pathfinder = 0;
+    g_seams.pathfinding->Destroy((Pathfinder *)g_game->pathfinder);
+    (*(Pathfinder **)&g_game->pathfinder) = 0;
 }

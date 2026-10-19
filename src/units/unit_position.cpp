@@ -113,37 +113,9 @@ public:
 
 #include "unit.h"
 
-union F14373 {
-    struct {
-        unsigned int b0 : 1;
-        unsigned int b1 : 1;
-        unsigned int rest : 30;
-    } bits;
-    unsigned int all;
-};
+#include "f14373.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                // +0x1b63
-    char unknown_1c3f[0x2a44 - 0x1b63 - 10 * 0x14b];
-    unsigned char netGameFlags;        // +0x2a44
-    char unknown_2a45[0x1427f - 0x2a45];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x14353 - 0x14280];
-    int activeUnitTickCount;           // +0x14353
-    Unit* units;                       // +0x14357
-    char unknown_1435b[0x14371 - 0x1435b];
-    short autoFollowTicks;             // +0x14371
-    F14373 autoFollowFlags;            // +0x14373
-    char unknown_14377[0x14393 - 0x14377];
-    int unitDefCountBits;              // +0x14393, bit count for the type index
-    char unknown_14397[0x37ee6 - 0x14397];
-    unsigned short maxUnits;           // +0x37ee6, the unit count
-    char unknown_37ee8[0x38a47 - 0x37ee8];
-    int gameTick;                      // +0x38a47
-    char unknown_38a4b[0x391e9 - 0x38a4b];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 
 // The seven byte order record the caller at 0x48aac0 builds on its stack and
 // 0x48ab70 and 0x48b3f0 read.
@@ -426,7 +398,7 @@ void __stdcall UpdateAllUnits(void)
     int off;
     // Declared after the locals, not at file scope: its symbol id must follow off's.
     extern Game* g_game;
-    cnt = &g_game->activeUnitTickCount;
+    cnt = &g_game->f14353;
     *cnt = 0;
     i = 0;
     off = 0;
@@ -466,7 +438,7 @@ void __stdcall UpdateAllUnits(void)
                             }
                         }
                         // Unsigned `% 30` (here and below) keeps the original's `div`.
-                        if ((unsigned int)g_game->gameTick % 30 == 0) {
+                        if ((unsigned int)g_game->ticks % 30 == 0) {
                             int v = u->health * 100 / ((UnitType*)u->def)->f1fa;
                             if (v < 0) {
                                 v = 0;
@@ -481,14 +453,14 @@ void __stdcall UpdateAllUnits(void)
                         if (pl->active != 0) {
                             unsigned char k3 = pl->type;
                             if (k3 == 1 || k3 == 2) {
-                                if (g_game->mapInfo->waterDoesDamage != 0
-                                    && g_game->mapInfo->waterDamage != 0
-                                    && (unsigned int)g_game->gameTick % 30 == 0 && u->yWhole <= g_game->seaLevel
+                                if (g_game->net->waterDoesDamage != 0
+                                    && g_game->net->waterDamage != 0
+                                    && (unsigned int)g_game->ticks % 30 == 0 && u->yWhole <= g_game->seaLevel
                                     && !((UnitType*)u->def)->f241.bits.floats) {
-                                    g_seams.weapons->DamageUnit(0, u, g_game->mapInfo->waterDamage, 0xb, 0);
+                                    g_seams.weapons->DamageUnit(0, u, g_game->net->waterDamage, 0xb, 0);
                                 }
                                 if (((UnitType*)u->def)->f200 != 0 && u->health < ((UnitType*)u->def)->f1fa
-                                    && (g_game->gameTick & 7) == 0) {
+                                    && (g_game->ticks & 7) == 0) {
                                     int n = ((UnitType*)u->def)->f200 * 8;
                                     AddRepairProgress(u, u, (float)(n / 30));
                                 }
@@ -518,9 +490,9 @@ void __stdcall UpdateAllUnits(void)
         }
     if (g_game->autoFollowFlags.bits.b1) {
         if (!IsKeyDown(0xf9)) {
-            g_game->autoFollowTicks--;
-            if (g_game->autoFollowTicks <= 0) {
-                g_game->autoFollowTicks = 0x5a;
+            (*(short*)&g_game->autoFollowTicks)--;
+            if ((short)g_game->autoFollowTicks <= 0) {
+                (*(short*)&g_game->autoFollowTicks) = 0x5a;
                 CycleSelection();
                 CycleCameraFollow(0);
             }
@@ -700,8 +672,8 @@ void __stdcall SendUnitStates(Player* p)
     BitWriter stream;
     stream.WriteBits(0x2c, 8);
     stream.WriteBits(0, 0x10);
-    stream.WriteBits(g_game->gameTick, 0x20);
-    p->syncTick = g_game->gameTick;
+    stream.WriteBits(g_game->ticks, 0x20);
+    p->syncTick = g_game->ticks;
     for (Unit* u = p->unitsBegin; u <= p->unitsEnd; u++) {
         if (!(u->flags & 0x10000000))
             continue;
@@ -718,7 +690,7 @@ void __stdcall SendUnitStates(Player* p)
             break;
     }
     stream.WriteBits(-1, 0x10);
-    int i = g_game->gameTick % g_game->maxUnits;
+    int i = g_game->ticks % g_game->field_37ee6;
     stream.data[stream.index] |= 1 << stream.bit;
     stream.bit++;
     if (stream.bit == 0x20) {
@@ -794,5 +766,5 @@ void __stdcall ReceiveUnitStates(Player* p, unsigned int* data)
     }
 
     if (reader.ReadBit())
-        ReadUnitState(&reader, &p->unitsBegin[tick % g_game->maxUnits]);
+        ReadUnitState(&reader, &p->unitsBegin[tick % g_game->field_37ee6]);
 }

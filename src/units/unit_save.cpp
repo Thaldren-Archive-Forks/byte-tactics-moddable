@@ -98,12 +98,7 @@ struct Obj {
 
 struct Mission;
 
-struct Game {
-    char unknown_0[0x14357];
-    Unit* units;                        // +0x14357
-    char unknown_1435b[0x391e9 - 0x1435b];
-    Mission* mapInfo;                   // +0x391e9
-};
+#include "../game/game.h"
 
 class MissionUnit {
 public:
@@ -458,14 +453,14 @@ int __stdcall FindMissionUnit(char* name, Struct_00487af0* param_2, int value)
 
     if (value) {
         while (*Elem_00487af0(param_2->field_4, i++) != value) {
-            if (i >= g_game->mapInfo->unitCount)
+            if (i >= g_game->net->unitCount)
                 return 0;
         }
     }
-    if (i >= g_game->mapInfo->unitCount)
+    if (i >= g_game->net->unitCount)
         return 0;
-    for (; i < g_game->mapInfo->unitCount; i++) {
-        MissionUnit* e = &g_game->mapInfo->units[i];
+    for (; i < g_game->net->unitCount; i++) {
+        MissionUnit* e = &g_game->net->units[i];
         if (e->ident && _strcmpi(e->ident, name) == 0 && param_2->field_4[i])
             return param_2->field_4[i];
         if (e->name && _strcmpi(e->name, name) == 0 && param_2->field_4[i])

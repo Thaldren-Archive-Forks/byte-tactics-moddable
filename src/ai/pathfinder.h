@@ -53,7 +53,7 @@ struct PathCell {
     unsigned short node;
 };
 
-struct Grid {
+struct PathGrid {
     PathCell* cells;
     unsigned int width;
     unsigned int height;
@@ -274,7 +274,7 @@ public:
 #pragma pack(push, 1)
 class Pathfinder : public OpenHeap {
 public:
-    Grid grid;
+    PathGrid grid;
     Point16 start;
     Point16 found;
     int goalX;

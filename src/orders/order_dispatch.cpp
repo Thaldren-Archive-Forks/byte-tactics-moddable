@@ -164,28 +164,7 @@ union Flags245_0043f0e0 {
     };
 };
 
-struct Game {
-    char unknown_0[0x2a42];
-    unsigned char localPlayer;    // +0x2a42
-    unsigned char playerIndex;    // +0x2a43
-    char unknown_2a44[0x14233 - 0x2a44];
-    int mapWidthTiles;  // +0x14233
-    char unknown_14237[0x14253 - 0x14237];
-    union {
-        int unitCount;    // +0x14253
-        int featureCount;
-    };
-    char unknown_14257[0x1426f - 0x14257];
-    struct Feature_0043e490* features; // +0x1426f
-    unsigned short* visibilityMask; // +0x14273
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;  // +0x1427f
-    char unknown_14280[0x37efa - 0x14280];
-    union {
-        int interfaceType; // +0x37efa
-        int multiplayer;
-    };
-};
+#include "../game/game.h"
 
 struct Node_0043f0e0 {
     char unknown_0[0x111];
@@ -314,14 +293,14 @@ static inline Feature_0043e490* GetFeature(Cell* cell) {
     if (id < 0xfffb) {
         if (id >= g_game->featureCount)
             return 0;
-        return &g_game->features[id];
+        return &((struct Feature_0043e490 *)g_game->features)[id];
     }
     if (id != 0xfffe)
         return 0;
-    id = (cell - (cell->offsetY * g_game->mapWidthTiles + cell->offsetX))->feature;
+    id = (cell - (cell->offsetY * g_game->width + cell->offsetX))->feature;
     if (id >= 0xfffb)
         return 0;
-    return &g_game->features[id];
+    return &((struct Feature_0043e490 *)g_game->features)[id];
 }
 
 // Returns `result` from the calling function when the unit's def has `mask`
@@ -490,16 +469,16 @@ static inline Thing_0043f0e0* Lookup(Pos_0043f0e0* pos) {
         return 0;
     unsigned short id = cell->feature;
     if (id < 0xfffb) {
-        if (id >= g_game->unitCount)
+        if (id >= g_game->featureCount)
             return 0;
-        return (Thing_0043f0e0*)((char*)g_game->features + (id << 8));
+        return (Thing_0043f0e0*)((char*)(struct Feature_0043e490 *)g_game->features + (id << 8));
     }
     if (id != 0xfffe)
         return 0;
-    id = (cell - (cell->offsetY * g_game->mapWidthTiles + cell->offsetX))->feature;
+    id = (cell - (cell->offsetY * g_game->width + cell->offsetX))->feature;
     if (id >= 0xfffb)
         return 0;
-    return (Thing_0043f0e0*)((char*)g_game->features + (id << 8));
+    return (Thing_0043f0e0*)((char*)(struct Feature_0043e490 *)g_game->features + (id << 8));
 }
 
 // FUNCTION: 0x43f0e0

@@ -116,19 +116,7 @@ struct Owner_0040eb70 {
 
 #include "../network/player.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x2a3c - 0x2851];
-    unsigned short numPlayers;         // +0x2a3c, the number of players
-    char unknown_2a3e[0x14233 - 0x2a3e];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x14273 - 0x1423b];
-    unsigned short* visibilityMask;    // +0x14273, one bit per player
-    char unknown_14277[0x1434f - 0x14277];
-    unsigned short unitsPerPlayer;     // +0x1434f
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -203,9 +191,9 @@ int Pathfinder::GetCellState(int x, int y)
     int cx = (x >> 1) + (owner->footprintX >> 2);
     int cy = (y >> 1) + (owner->footprintZ >> 2);
     // `g_game->mapWidthTiles >> 1` stays written twice, not held in a local.
-    if (cx >= (g_game->mapWidthTiles >> 1) || cy >= (g_game->mapHeightTiles >> 1))
+    if (cx >= (g_game->width >> 1) || cy >= (g_game->height >> 1))
         return 0;
-    if (!((1 << player) & g_game->visibilityMask[cy * (g_game->mapWidthTiles >> 1) + cx]))
+    if (!((1 << player) & g_game->visibilityMask[cy * (g_game->width >> 1) + cx]))
         return 2;
     return g_seams.units->MovementClassGet(owner, x, y);
 }
@@ -600,8 +588,8 @@ Pathfinder::Pathfinder()
     memset(&grid.cells, 0, sizeof(grid.cells));
 
     int w, h;
-    h = g_game->mapHeightTiles;
-    w = g_game->mapWidthTiles;
+    h = g_game->height;
+    w = g_game->width;
     grid.width = w;
     grid.height = h;
     operator delete(grid.cells);
@@ -650,7 +638,7 @@ Pathfinder::~Pathfinder()
 // FUNCTION: 0x40eb70
 void Pathfinder::RunSearches()
 {
-    unsigned short players = g_game->numPlayers;
+    unsigned short players = g_game->field_2a3c;
     if (players == 0)
         return;
     int share = stepsPerTick / players;

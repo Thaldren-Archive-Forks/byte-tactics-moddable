@@ -104,15 +104,15 @@ struct Vec3Init_0043a1f0 : Vec3 {
     Vec3Init_0043a1f0(int a, int b, int c) { x = a; y = b; z = c; }
 };
 
-struct Point {
+struct PointS16 {
     short x, y;
-    Point() {}
-    Point(int a, int b) : x(a), y(b) {}
+    PointS16() {}
+    PointS16(int a, int b) : x(a), y(b) {}
 };
 
 // A 4-byte point of two shorts, and the temporary the constructor builds it
 // through (the derived type is what makes the compiler keep the temporary).
-struct PointInit_0043a1f0 : Point {
+struct PointInit_0043a1f0 : PointS16 {
     PointInit_0043a1f0(short a, short b) { x = a; y = b; }
 };
 
@@ -229,8 +229,8 @@ public:
     void* unit;                      // +0xe
     PathOrderAttach link;            // +0x12
     Vec3 pos;
-    Point start;                     // +0x2e
-    Point cached;                    // +0x32
+    PointS16 start;
+    PointS16 cached;
     int id;                          // +0x36
     int amount;                      // +0x3a
     int progress;                    // +0x3e
@@ -263,24 +263,7 @@ struct WeaponDef {
 // declarations dropped above and below (docs/c2-regalloc.md).
 #include "../weapons/unit_weapon_slot.h"
 
-struct Game {
-    char unknown_0[0x14263];
-    int gravity;                       // +0x14263
-    char unknown_14267[0x1427f - 0x14267];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x142b7 - 0x14280];
-    int overflowBucket;                // +0x142b7
-    char unknown_142bb[0x1438f - 0x142bb];
-    int unitDefCount;                  // +0x1438f
-    char unknown_14393[0x1439b - 0x14393];
-    UnitType_0043cd20* unitDefs;       // +0x1439b
-    char unknown_1439f[0x38a47 - 0x1439f];
-    union {
-        unsigned int frame;            // +0x38a47
-        int field_38a47;               // +0x38a47
-        unsigned int gameTick;         // +0x38a47
-    };
-};
+#include "../game/game.h"
 
 #include "../units/unit.h"
 
@@ -585,7 +568,7 @@ void __stdcall EnsurePatrolReturnOrder(Unit* p, Order* item)
 // FUNCTION: 0x43a0c0
 Order::Order(unsigned char k, Unit* o, Vec3* p, int a, int b, int c)
     : kind(k), link(o, 0), start(PointInit_0043a1f0(0, 0)), cached(PointInit_0043a1f0(0, 0)),
-      id(a), amount(b), progress(c), created(g_game->gameTick)
+      id(a), amount(b), progress(c), created((unsigned int)g_game->ticks)
 {
     // Through the inline method: a plain `link.value = this` reorders the
     // position pointer's compare before the vtable store.
@@ -622,8 +605,8 @@ void __stdcall WriteUnitTypeNameKey(HapiBank* file, unsigned short id)
 {
     char key[0x80];
     sprintf(key, "UTYPENAME%4d", id);
-    if (!file->HasItem(key) && id >= 1 && id < g_game->unitDefCount)
-        file->SetStringItem(key, g_game->unitDefs[id].name);
+    if (!file->HasItem(key) && id >= 1 && id < g_game->count_1438f)
+        file->SetStringItem(key, ((UnitType_0043cd20 *)g_game->defs)[id].name);
 }
 
 // Resolves a unit definition slot number to a unit type id. The parsed text
@@ -640,8 +623,8 @@ short __stdcall ResolveUnitTypeKey(HapiBank* file, unsigned short id)
         return g_seams.units->FindUnitTypeId(file->GetStringItem(key, 0));
     int i, n = 0;                     // n counts every table entry, k only the
     unsigned short k = 0;             // ones without flag bit 5
-    for (i = 1; i < g_game->unitDefCount; i++, n++) {
-        if (!(g_game->unitDefs[(unsigned short)i].flags & 0x20)) {
+    for (i = 1; i < g_game->count_1438f; i++, n++) {
+        if (!(((UnitType_0043cd20 *)g_game->defs)[(unsigned short)i].flags & 0x20)) {
             if (k == id)
                 return n;
             k++;
@@ -1213,7 +1196,7 @@ static void Wait_0043b7c0(Order* node, int n)
 {
     unsigned int when = RandomInt(n) + 0x1e;
     node->flags6 |= 1;
-    node->wakeFrame = g_game->frame + when;
+    node->wakeFrame = (unsigned int)g_game->ticks + when;
 }
 
 
@@ -1239,7 +1222,7 @@ void __stdcall RunOrders(Unit* unit)
         node = unit->list;
         if (node == 0)
             break;
-        if (g_game->frame >= node->wakeFrame) {
+        if ((unsigned int)g_game->ticks >= node->wakeFrame) {
             node->wakeFrame = 0xffffffff;
             node->subFlags |= 1;
         }
@@ -1330,7 +1313,7 @@ void __stdcall RunSecondaryOrders(Unit* p)
 {
     Order* child = p->list2;
     while (child != 0) {
-        if (child->flags6 == 0 || g_game->frame >= child->wakeFrame) {
+        if (child->flags6 == 0 || (unsigned int)g_game->ticks >= child->wakeFrame) {
             child->flags6 = 0;
             // Case order (3, 1, 0, 2/4, 5/8/9, 6/7, default) sets the body layout.
             switch (g_missionOrderTableBegin[child->kind].notify(child->unit, child, 0)) {
@@ -1339,7 +1322,7 @@ void __stdcall RunSecondaryOrders(Unit* p)
                 // folded into one lea, which is what the original does.
                 unsigned int when = RandomInt(0xf) + 0x1e;
                 child->flags6 |= 1;
-                child->wakeFrame = g_game->frame + when;
+                child->wakeFrame = (unsigned int)g_game->ticks + when;
                 break;
             }
             case 1:
@@ -1612,7 +1595,7 @@ static inline Vec3 Offset(short angle, int distance)
     return v;
 }
 
-static inline void ClampToCell(Vec3& pos, Point cell, Point draft)
+static inline void ClampToCell(Vec3& pos, PointS16 cell, PointS16 draft)
 {
     int cx = (draft.x + cell.x * 2) << 19;
     int cz = (draft.y + cell.y * 2) << 19;
@@ -1949,10 +1932,10 @@ void UnitMotion::UpdatePosition(Unit* u)
     if (pos.x == u->pos.x && pos.z == u->pos.z && pos.y == u->pos.y && m == u->mode)
         return;
 
-    lastMoveTick = g_game->field_38a47;
-    Point draft = *(Point*)&u->footprint;
+    lastMoveTick = g_game->ticks;
+    PointS16 draft = *(PointS16*)&u->footprint;
     // Field by field, with draft.x * 0x80000 (a << 19 evaluates draft.x first).
-    Point cell;
+    PointS16 cell;
     cell.x = (pos.x - draft.x * 0x80000 + 0x80000) >> 20;
     cell.y = (pos.z - draft.y * 0x80000 + 0x80000) >> 20;
     if (cell.x == u->cell.x && cell.y == u->cell.y && m == u->mode) {
@@ -1968,7 +1951,7 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     if (flag) {
         // ClampToCell stays an inline helper taking both Points by value.
-        ClampToCell(pos, *(Point*)&u->cell, *(Point*)&u->footprint);
+        ClampToCell(pos, *(PointS16*)&u->cell, *(PointS16*)&u->footprint);
 
         if (speed > (((UnitType_0043cd20*)u->def)->maxvelocity / 2)) {
             int half = ((UnitType_0043cd20*)u->def)->maxvelocity / 2;
@@ -1989,7 +1972,7 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     g_seams.map->RemoveUnitFromMap(u);
     u->pos = pos;
-    *(Point*)&u->cell = cell;
+    *(PointS16*)&u->cell = cell;
     // The (short) cast gives the and/and/or store of the 2-bit field.
     u->mode = (short)m;
     g_seams.map->AddUnitToMap(u);

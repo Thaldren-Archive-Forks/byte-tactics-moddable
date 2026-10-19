@@ -84,23 +84,7 @@ struct Body_0048a1e0 {
 
 struct MapInfo_0048a490;
 
-struct Game {
-    char unknown_0[0x2a42];
-    unsigned char localPlayer;         // +0x2a42
-    char unknown_2a43[0x14233 - 0x2a43];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x1427f - 0x1423b];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x14287 - 0x14280];
-    unsigned char* heightMap;          // +0x14287
-    char unknown_1428b[0x14357 - 0x1428b];
-    Unit* units;                       // +0x14357
-    char unknown_1435b[0x14377 - 0x1435b];
-    MapInfo_0048a490** unitModels;     // +0x14377
-    char unknown_1437b[0x38a47 - 0x1437b];
-    int gameTick;                      // +0x38a47
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -722,7 +706,7 @@ void __cdecl FUN_004b7173(unsigned short deg, Pos2_0048a490* p);
 // FUNCTION: 0x48a490
 void __stdcall AlignUnitToGround(Unit* u)
 {
-    MapInfo_0048a490* m = g_game->unitModels[u->unitDefIndex];
+    MapInfo_0048a490* m = ((MapInfo_0048a490 **)g_game->types)[u->unitDefIndex];
     MapRow_0048a490* row = m->rows + m->count;
     if (m->count < 0)
         return;
@@ -749,16 +733,16 @@ void __stdcall AlignUnitToGround(Unit* u)
             int fx = wx & 0xf;
             unsigned gz = (unsigned)hz >> 4;
             int fz = hz & 0xf;
-            gw = g_game->mapWidthTiles;
+            gw = g_game->width;
             unsigned gx = (unsigned)wx >> 4;
             if (gx >= gw - 1)
                 return;
-            if (gz >= g_game->mapHeightTiles - 1)
+            if (gz >= g_game->height - 1)
                 return;
-            unsigned char* tb = g_game->heightMap + (gz * gw + gx) * 13;
+            unsigned char* tb = (unsigned char *)g_game->cells + (gz * gw + gx) * 13;
             int b0 = tb[4];
             // mapWidthTiles read again, not gw: keeps the allocation.
-            unsigned char* tb1 = tb + g_game->mapWidthTiles * 13;
+            unsigned char* tb1 = tb + g_game->width * 13;
             int b1 = tb1[4];
             c0 = tb[0x11];
             int c1 = tb1[0x11];
@@ -773,7 +757,7 @@ void __stdcall AlignUnitToGround(Unit* u)
                 int sea = g_game->seaLevel;
                 hs[k].h = max(H, sea);
                 // short p and `* 2048`, not `<< 11`: keeps the 0x1f mask and 16-bit add.
-                unsigned int bobClock = HarnessTestMode() ? g_game->gameTick : GetTicks();
+                unsigned int bobClock = HarnessTestMode() ? g_game->ticks : GetTicks();
                 short p = (short)(((bobClock & 0x1f) + k * 8) * 2048 + u->hoverBobPhase);
                 int s = ((UnitType*)u->def)->sight / 2;
                 // Owner kept in a local across the 64-bit helper calls.
@@ -784,7 +768,7 @@ void __stdcall AlignUnitToGround(Unit* u)
                 // The 64-bit part is one expression, not an __int64 local.
                 int w = (int)((((__int64)q << 16) / s));
                 int mm = 2 - (int)((((__int64)w * 2) >> 16));
-                unsigned int n = g_game->gameTick - o->age;
+                unsigned int n = g_game->ticks - o->age;
                 // Clamp inline as a ternary, not a separate if.
                 mm -= (unsigned int)(mm * (n < 60 ? n : 60)) / 60;
                 hs[k].h = FUN_004b7123(p, mm) + hs[k].h;

@@ -71,22 +71,7 @@ struct Order {
     int Advance(int distance);
 };
 
-struct Game {
-    char unknown_0[0x1420b];
-    FeatureSpot* spots;                // +0x1420b
-    char unknown_1420f[0x14233 - 0x1420f];
-    int mapWidthTiles;                 // +0x14233
-    char unknown_14237[0x1426f - 0x14237];
-    Feature* features;                 // +0x1426f
-    char unknown_14273[0x14287 - 0x14273];
-    Cell* heightMap;                   // +0x14287
-    char unknown_1428b[0x1439b - 0x1428b];
-    UnitDef* unitDefs;                 // +0x1439b
-    char unknown_1439f[0x38a47 - 0x1439f];
-    int gameTick;                      // +0x38a47
-    char unknown_38a4b[0x391e9 - 0x38a4b];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 
 struct FeatureDamagePacket {
     unsigned char type;
@@ -165,7 +150,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
             QueueUnitSpeech(unit, 7, "Ressurection failed");
             return 8;
         }
-        order->time = (int)(g_game->unitDefs[order->unitType].buildTime * 0.3 / (unit->def->workerTime / 30));
+        order->time = (int)(g_game->defs[order->unitType].buildTime * 0.3 / (unit->def->workerTime / 30));
         QueueUnitSpeech(unit, 11, 0);
         return 1;
     }
@@ -182,7 +167,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
             box.hi.z += f->footprintZ << 20;
             box.hi.y += f->height << 16;
             EmitNanoParticles(&nano, &box, 6);
-            unit->workTime = g_game->gameTick + 300;
+            unit->workTime = g_game->ticks + 300;
             order->SetDeadlineTicks(1);
             return 2;
         }
@@ -201,10 +186,10 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         if (spot)
             order->target.owner->angles = spot->rot;
         g_seams.features->RemoveFeature(g_seams.los_radar->GetMapCellAtPosition(&order->pos), 0);
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
+        if (g_seams.map->GetGameType(g_game->net) == 3) {
             FeatureDamagePacket packet;
-            int n = c - g_game->heightMap;
-            int w = g_game->mapWidthTiles;
+            int n = c - g_game->cells;
+            int w = g_game->width;
             packet.type = 0x0f;
             packet.sub = 0xff;
             Point16 xz;
