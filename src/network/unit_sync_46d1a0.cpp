@@ -13,29 +13,7 @@
 // vector<UnitSyncPlayer> at +0x10 and the std::map at +0x00.
 #include <list>
 #include <map>
-
-namespace std {
-
-template<class T, class A = allocator<T> > class vector {
-public:
-    typedef A::size_type size_type;
-    typedef T* iterator;
-    typedef T* const_iterator;
-    A alloc;
-    iterator _First, _Last, _End;
-
-    ~vector()
-    {
-        _Destroy(_First, _Last);
-        alloc.deallocate(_First, _End - _First);
-        _First = 0, _Last = 0, _End = 0;
-    }
-protected:
-    // Declared, not defined: the real one is the out-of-line 0x46e870.
-    void _Destroy(iterator _F, iterator _L);
-};
-
-}
+#include <vector>
 
 #pragma pack(push, 2)
 struct Elem_0046faf0 {             // the 14-byte element type
