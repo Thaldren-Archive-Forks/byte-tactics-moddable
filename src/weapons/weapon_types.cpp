@@ -49,9 +49,9 @@ struct Entry_00432cf0 {
     Entry_00432cf0(const StringRef& n, int v) : name(n), value(v) {}
 };
 
-static inline Entry_00432cf0* LowerBound(Table_00499cd0* table, const char* key) {
-    Entry_00432cf0* first = table->v.begin();
-    Entry_00432cf0* last = table->v.end();
+inline Entry_00432cf0* Table_00499cd0::LowerBound(const char* key) {
+    Entry_00432cf0* first = v.begin();
+    Entry_00432cf0* last = v.end();
     while (first != last) {
         Entry_00432cf0* mid = first + (last - first) / 2;
         if (Less(mid->name.ptr, key))
@@ -283,7 +283,7 @@ model_done:
                     w->table = new (kSim) Table_00499cd0;
                 StringRef name(key);
                 Table_00499cd0* m = w->table;
-                Entry_00432cf0* e = LowerBound(m, name.ptr);
+                Entry_00432cf0* e = m->LowerBound(name.ptr);
                 // insert called here, not in a helper (inline depth); e assigned
                 // first, then &e->value taken in each arm.
                 int* r;

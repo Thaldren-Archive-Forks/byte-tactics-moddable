@@ -10,6 +10,8 @@ struct Entry_00432cf0;
 struct Table_00499cd0 {
     char less;
     std::vector<Entry_00432cf0> v;
+
+    Entry_00432cf0* LowerBound(const char* key);
 };
 
 #pragma pack(pop)
