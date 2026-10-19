@@ -441,7 +441,7 @@ address,function,file
 0x44cec0,OrderFx::ApproxDist,src/orders/order_targets.cpp
 0x44ced0,OrderFx::AddFlags,src/orders/order_targets.cpp
 0x44cef0,OrderFx::KeepAfterComplete,src/orders/order_targets.cpp
-0x44cf00,Class_0044cf00::ContainsUnit,src/orders/order_targets.cpp
+0x44cf00,OrderFx::ContainsUnit,src/orders/order_targets.cpp
 0x44cf20,OrderFx::ContainsCell,src/orders/order_targets.cpp
 0x44cf30,OrderFx::IsFxStyle,src/orders/order_targets.cpp
 0x44cf40,TryGetDesiredHeading,src/orders/order_targets.cpp
@@ -481,7 +481,7 @@ address,function,file
 0x44e3a0,PathOrder::KeepAfterComplete,src/orders/order_targets.cpp
 0x44e3c0,PathOrder::FillWorldPos,src/orders/order_targets.cpp
 0x44e530,PathOrder::GetDesiredHeading,src/orders/order_targets.cpp
-0x44e5b0,Class_0044e5b0::IsComplete,src/orders/order_targets.cpp
+0x44e5b0,PathOrder::IsComplete,src/orders/order_targets.cpp
 0x44e6b0,PathOrder::IsFxStyle,src/orders/order_targets.cpp
 0x44e7a0,AirManeuverOrder::GetType,src/orders/order_targets.cpp
 0x44e7b0,AirManeuverOrder::Destroy,src/orders/order_targets.cpp

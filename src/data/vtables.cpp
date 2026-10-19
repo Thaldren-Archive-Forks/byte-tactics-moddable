@@ -17,9 +17,9 @@ void SerializeSave();
 namespace OrderFx { void FillGoalCells(); }
 namespace OrderFx { void ApproxDist(); }
 namespace OrderFx { void KeepAfterComplete(); }
-namespace Class_0044cf00 { void ContainsUnit(); }
 namespace OrderFx { void ContainsCell(); }
 namespace OrderFx { void IsFxStyle(); }
+namespace OrderFx { void ContainsUnit(); }
 void TryGetDesiredHeading();
 namespace OrderFx { void WriteBits(); }
 namespace ApproachRadius { void GetType(); }
@@ -52,8 +52,8 @@ namespace PathOrder { void SerializeToSave(); }
 namespace PathOrder { void KeepAfterComplete(); }
 namespace PathOrder { void FillWorldPos(); }
 namespace PathOrder { void GetDesiredHeading(); }
-namespace Class_0044e5b0 { void IsComplete(); }
 namespace PathOrder { void IsFxStyle(); }
+namespace PathOrder { void IsComplete(); }
 namespace AirManeuverOrder { void GetType(); }
 namespace AirManeuverOrder { void Destroy(); }
 namespace AirManeuverOrder { void SerializeToSave(); }
@@ -70,7 +70,7 @@ void AimCobStub();
 // GLOBAL: 0x4fd2f8
 extern VirtualFunction const g_orderFxVtable[12] = {
     OrderFx::Destroy, SerializeSave, OrderFx::GetType, OrderFx::IsFxStyle,
-    Class_0044cf00::ContainsUnit, OrderFx::ContainsCell, OrderFx::FillGoalCells, OrderFx::ApproxDist,
+    OrderFx::ContainsUnit, OrderFx::ContainsCell, OrderFx::FillGoalCells, OrderFx::ApproxDist,
     (VirtualFunction)_purecall, TryGetDesiredHeading, OrderFx::WriteBits, OrderFx::KeepAfterComplete,
 };
 
@@ -94,7 +94,7 @@ extern VirtualFunction const g_ringApproachVtable[12] = {
 // GLOBAL: 0x4fd388
 extern VirtualFunction const g_pointMarkerVtable[12] = {
     PointMarker::Destroy, PointMarker::Serialize, PointMarker::GetType, OrderFx::IsFxStyle,
-    Class_0044cf00::ContainsUnit, PointMarker::ContainsCell, PointMarker::AppendGoalCell, PointMarker::ApproxDist,
+    OrderFx::ContainsUnit, PointMarker::ContainsCell, PointMarker::AppendGoalCell, PointMarker::ApproxDist,
     PointMarker::FillWorldPos, TryGetDesiredHeading, OrderFx::WriteBits, OrderFx::KeepAfterComplete,
 };
 
@@ -102,7 +102,7 @@ extern VirtualFunction const g_pointMarkerVtable[12] = {
 // GLOBAL: 0x4fd3b8
 extern VirtualFunction const g_pathOrderVtable[12] = {
     PathOrder::Destroy, PathOrder::SerializeToSave, PathOrder::GetType, PathOrder::IsFxStyle,
-    Class_0044e5b0::IsComplete, OrderFx::ContainsCell, OrderFx::FillGoalCells, OrderFx::ApproxDist,
+    PathOrder::IsComplete, OrderFx::ContainsCell, OrderFx::FillGoalCells, OrderFx::ApproxDist,
     PathOrder::FillWorldPos, PathOrder::GetDesiredHeading, PathOrder::SerializeToBits, PathOrder::KeepAfterComplete,
 };
 

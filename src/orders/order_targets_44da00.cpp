@@ -117,29 +117,26 @@ inline void __stdcall swap(_Ty& _X, _Ty& _Y)
 
 #include <vector>
 
-struct Point_0044eec0 {
-    short x;
-    short y;
-};
+#include "../util/vec3.h"
 
 // The out-of-line copy the inlined vector::clear tail calls (0x44eef0).
-Point_0044eec0* __stdcall CopyDwordRangeUnchecked(Point_0044eec0* first, Point_0044eec0* last, Point_0044eec0* dest);
+Point16* __stdcall CopyDwordRangeUnchecked(Point16* first, Point16* last, Point16* dest);
 
 namespace std {
 template <>
-Point_0044eec0* __stdcall copy(Point_0044eec0* first, Point_0044eec0* last, Point_0044eec0* dest)
+Point16* __stdcall copy(Point16* first, Point16* last, Point16* dest)
 {
     return CopyDwordRangeUnchecked(first, last, dest);
 }
 }
 
-typedef std::vector<Point_0044eec0> Vec_0044da00;
+typedef std::vector<Point16> Vec_0044da00;
 
 #include "approach_areas.h"
 
-static Point_0044eec0 MakePoint_0044da00(int x, int y)
+static Point16 MakePoint_0044da00(int x, int y)
 {
-    Point_0044eec0 p;
+    Point16 p;
     p.x = (short)x;
     p.y = (short)y;
     return p;

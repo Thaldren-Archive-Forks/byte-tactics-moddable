@@ -5,7 +5,6 @@
 #include "order_fx.h"
 
 class BitReader;
-struct Owner_0044e9c0;
 
 #pragma pack(push, 2)
 class __declspec(novtable) AirManeuverOrder : public OrderFx {
@@ -26,7 +25,7 @@ public:
 
     AirManeuverOrder(Order* order, const Vec3& a, const Vec3& b);
     AirManeuverOrder(int owner, HapiBank* file, char* name);
-    AirManeuverOrder(Owner_0044e9c0* owner, BitReader* reader);
+    AirManeuverOrder(Unit* owner, BitReader* reader);
     void* Destroy(int flag);
     int SerializeToSave(Order* order, HapiBank* file, char* name);
     int GetDesiredHeading(unsigned short* out);
@@ -39,6 +38,24 @@ public:
     int KeepAfterComplete();
     void SetHeading(short v);
 };
+
+struct AirManeuverOrderRecord {
+    char reserved[8];
+    union {
+        int id;
+        struct {
+            unsigned short unit_id;
+            unsigned short flag;
+        };
+    };
+    Vec3 target;
+    Vec3 other;
+    short value_24;
+    unsigned short heading;
+    unsigned short value_28;
+};
+
+static_assert(sizeof(AirManeuverOrderRecord) == 0x2a, "AirManeuverOrderRecord size");
 #pragma pack(pop)
 
 #endif
