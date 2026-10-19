@@ -20,7 +20,7 @@ public:
     Unit* owner;
 
     PathGoal(Unit* p);
-    virtual ~PathGoal();
+    virtual ~PathGoal() {}
     virtual void SetPathOrder(void* param);
     virtual void TickTowardGoal();
     virtual void FillWaypointWorldPos(Vec3*, int, int);
