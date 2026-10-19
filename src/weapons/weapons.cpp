@@ -426,7 +426,7 @@ short __cdecl FUN_004b715a(int x, int z);
 void __stdcall DamageUnit(Unit* source, Unit* target,
                             int amount, int type, unsigned short extra);
 
-static inline int* Find_00499cd0(Table_00499cd0* table, char* name)
+static inline int* Find_00499cd0(const Table_00499cd0* table, char* name)
 {
     NameLess_00499cd0 less;
     Pair_00499cd0* first = (Pair_00499cd0*)table->v.begin();
