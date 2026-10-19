@@ -4342,13 +4342,7 @@ public:
 };
 
 
-struct Grid {  // 0x10 bytes, 9 views
-    unsigned char* cells;  // +0x0
-    int width;  // +0x4
-    int height;  // +0x8
-    int count;  // +0xc
-    Grid(void);
-};
+#include "../src/map/grid.h"
 
 class Class_00463be0 {  // 0x14b bytes, 3 views
 public:
