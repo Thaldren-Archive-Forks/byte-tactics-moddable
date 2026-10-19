@@ -20,8 +20,8 @@ struct Elem_0040cc40 {
     Point16 pos;                       // +0x0
     float key;                         // +0x4
     Elem_0040cc40() {}
-    // Defined out of line in ai_player.cpp (0x40a5b0), not in the class, so the compiler emits it.
-    Elem_0040cc40(const Elem_0040cc40& o);
+    // FUNCTION: 0x40a5b0
+    Elem_0040cc40(const Elem_0040cc40& o) : pos(o.pos), key(o.key) {}
     // The value is taken as a float parameter: gives the original's fld/fstp copy.
     Elem_0040cc40(short x, short y, float k) { pos.x = x; pos.y = y; key = k; }
     bool operator<(const Elem_0040cc40& o) const { return key < o.key; }
