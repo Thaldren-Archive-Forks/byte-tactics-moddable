@@ -355,7 +355,7 @@ address,function,callee,kind,file,class,notes
 0x44e250,PathOrder::PathOrder,_purecall,call,src/orders/order_targets.cpp,presentation,sites=1; address taken
 0x44e2d0,PathOrder::PathOrder,_purecall,call,src/orders/order_targets.cpp,presentation,sites=1; address taken
 0x44e330,PathOrder::PathOrder,_purecall,call,src/orders/order_targets.cpp,presentation,sites=1; address taken
-0x44e5b0,Class_0044e5b0::IsComplete,_hypot,call,src/orders/order_targets.cpp,game,sites=1
+0x44e5b0,PathOrder::IsComplete,_hypot,call,src/orders/order_targets.cpp,game,sites=1
 0x44e7b0,AirManeuverOrder::Destroy,_purecall,call,src/orders/order_targets.cpp,game,sites=1; address taken
 0x44eb60,AirManeuverOrder::IsComplete,_hypot,call,src/orders/order_targets.cpp,game,sites=1
 0x44f2a0,AiSearchGoal::SetPathOrder,_ftol,call,src/orders/order_targets.cpp,game,sites=2
