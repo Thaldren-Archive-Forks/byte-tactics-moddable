@@ -15,6 +15,7 @@
 #include <string.h>
 #include <algorithm>
 #include <time.h>
+#include "../../interfaces/host.h"
 #include "../state/game_rand.h"
 // Needed: without it the x87 schedule of the map-name block differs.
 #include <ddraw.h>
@@ -242,7 +243,6 @@ void UpdateExplosions(void);
 void __stdcall SeedRandom(int x);
 unsigned HarnessGameSeed(unsigned live);
 unsigned HarnessCrtSeed(unsigned live);
-void __stdcall SleepMilliseconds(int x);
 int __stdcall RandomInt(int x);
 unsigned char __stdcall FindHostSlot();
 void ApplyUseOnlyUnits();
@@ -299,7 +299,6 @@ void __stdcall RemapPaletteToClosestIndices(void*, void*, void*);
 void __stdcall SetCloseHandler(void (__cdecl *)(int), int);
 void __stdcall SetResolution(int, int);
 void __stdcall FatalError(char*);
-int __stdcall StartThread(void (*)(void), int, int);
 void* __stdcall GetGafFrame(void*, int);
 void __stdcall DrawFrame(void*, void*, int, int);
 void* __stdcall FindGafEntry(int, char*);
@@ -351,9 +350,6 @@ int __stdcall PointInRect(Rect* r, int x, int y);
 //   0x14b-byte records; MSVC strength-reduces it to the byte offset in ebx and
 //   that puts g_game in the SIB base. A hand-written `off += 0x14b` loop swaps
 //   the base and index.
-// - QueryPerformanceCounter's halves: the sum is written straight from the two
-//   fields, `SeedRandom(perfCount.LowPart + perfCount.HighPart)`. Through named
-//   locals the addition lands in the other register.
 // Also kept: the loading flags at +0x38d75 written as volatile
 // (the field the guide names); the +0x9b bit-6 test as a 1-bit bitfield; the
 // mission-count loop with `i++` before `def += 6`; the ten-player walks with
@@ -372,13 +368,13 @@ inline void __stdcall ApplyMissionOptionFlags(Settings_00496e10* s)
 // FUNCTION: 0x497180
 void __cdecl LoadMatch(void*)
 {
-    LARGE_INTEGER perfCount;
+    unsigned long long perfCount;
     FixedPos_497180 pos;
     FixedPos_497180 start;
     int order[10];
 
-    QueryPerformanceCounter(&perfCount);
-    SeedRandom(HarnessGameSeed(perfCount.LowPart + perfCount.HighPart));
+    perfCount = host_time_counter();
+    SeedRandom(HarnessGameSeed((unsigned int)perfCount + (unsigned int)(perfCount >> 32)));
     GameSrand(RAND_STREAM_LOAD, HarnessCrtSeed((unsigned)time(NULL)));
     g_game->ticks = 0;
 
@@ -410,7 +406,7 @@ void __cdecl LoadMatch(void*)
                     g_packetManager.SendAllQueued(1);
                 HandleNetPackets();
                 sel = FindHostSlot();
-                SleepMilliseconds(0x32);
+                host_sleep_ms(0x32);
                 if (sel == 10)
                     continue;
                 if (p->color == 0xff)
@@ -419,7 +415,7 @@ void __cdecl LoadMatch(void*)
                     continue;
                 break;
             } while (1);
-            SleepMilliseconds(0x32);
+            host_sleep_ms(0x32);
         }
 
         g_seams.map->LoadMissionByName(((Mission*)g_game->net), 0, (char*)(*(PlayerRec_00497f40(*)[10])&g_game->players)[sel].data);
@@ -469,7 +465,7 @@ void __cdecl LoadMatch(void*)
         if (g_seams.map->GetGameType(g_game->net) == 3) {
             (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).value |= 4;
             while (((*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).value & 8) == 0)
-                SleepMilliseconds(0x32);
+                host_sleep_ms(0x32);
 
             int sel = FindHostSlot();
             PlayerInfo* pl = (*(PlayerRec_00497f40(*)[10])&g_game->players)[sel].data;
@@ -802,7 +798,7 @@ void LoadingScreenFrame(void)
             }
             g_game->slots_29a4.flag40[i] = (pi->active != 0 && (pi->data->flags_9b & 0x40) != 0) ? 1 : 0;
         }
-        if (!StartThread(LoadThreadMain, 0, 0)) {
+        if (!host_thread_start((void (__cdecl*)(void*))LoadThreadMain, 0, 0)) {
             FatalError("Unable to start the loading thread!");
         }
         // Four memsets (10, 10, 6, 6 bytes); the stage bytes get one 8-byte memset.
@@ -922,7 +918,7 @@ void LoadingScreenFrame(void)
         UnlockScreen(&gadget);
         FlipScreen();
     }
-    SleepMilliseconds(200);
+    host_sleep_ms(200);
 }
 // Converts a point by the view origin at +0x2c/+0x30 (less a 0x80 by 0x20
 // border) and passes it on to ClampWorldPosToTerrain.

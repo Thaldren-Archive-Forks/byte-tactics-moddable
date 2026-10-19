@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
+#include "../../interfaces/host.h"
 // Only for its symbol ids: it puts 0x4181d0 in the window it matches in.
 #include <wctype.h>
 
@@ -1139,7 +1140,7 @@ void __stdcall CmdDebugBreak(CommandArgs* args)
         if (args->count == 0 || args->GetIntArg(1, 0) == 0) {
             if (GetDisplay()->windowed) {
                 ToggleFullScreen();
-                Sleep(500);
+                host_sleep_ms(500);
             }
             DebugBreak();
         }

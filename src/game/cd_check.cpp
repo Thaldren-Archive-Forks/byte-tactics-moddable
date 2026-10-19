@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
+#include "../../interfaces/host.h"
 
 class TdfRecord;
 
@@ -175,7 +176,7 @@ int GetCdPathMismatch(void)
 // FUNCTION: 0x41d8c0
 void* __stdcall AllocZeroedWithTickOffset(unsigned int size)
 {
-    unsigned int pad = GetTickCount() % 1000 * 7;
+    unsigned int pad = host_time_ms() % 1000 * 7;
     unsigned int total = pad + size;
     char* p = (char*)operator new(total);
     memset(p, 0, total);

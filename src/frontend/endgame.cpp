@@ -10,6 +10,7 @@
 #include <string.h>
 #include <new.h>
 #include <stdlib.h>
+#include "../../interfaces/host.h"
 
 #include "../sound/sound.h"
 
@@ -255,7 +256,7 @@ int __stdcall IsScreenNamed(Gui* menu, const char* name);
 // FUNCTION: 0x41d920
 void CreateGameObject()
 {
-    unsigned int offset = GetTickCount() % 1000 * 7;
+    unsigned int offset = host_time_ms() % 1000 * 7;
     unsigned int size = offset + sizeof(Game);
     char* mem = (char*)operator new(size);
     memset(mem, 0, size);

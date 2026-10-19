@@ -2643,7 +2643,6 @@ void WriteScreenshot(char*, char*, int, int, int, int);
 void DrawTextClipped(void*, char*, int, int, int, int);
 int OpenInputDialog(void*, char*, char*, char*, char*, int);
 int ScanDirectory(char*, char*, char*, int, int, int);
-int AccessRegistryValue(char*, char*, unsigned char*, unsigned long*, unsigned long, unsigned long);
 double DotProduct(float, float, float, float, float, float);
 void DrawFrameScaledBlended(void*, void*, int, int, double, double);
 void DrawFrameScaled(void*, void*, int, int, double, double);

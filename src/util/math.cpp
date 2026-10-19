@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../../interfaces/host.h"
 
 extern const char g_errorCaption[];  // "Error"
 extern unsigned int g_randomSeed;
@@ -14,7 +15,7 @@ extern unsigned int g_randomSeed;
 void __stdcall ShowErrorBox(const char* message, int unused)
 {
     (void)unused;
-    MessageBoxA(0, message, g_errorCaption, 0x40000);
+    host_message(NULL, g_errorCaption, message, HOST_MESSAGE_TOPMOST);
 }
 
 // Four-byte checksum of a buffer: byte sum, byte xor, sum of (index ^ byte)
