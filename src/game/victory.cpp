@@ -1275,6 +1275,7 @@ class AiSearchGoal;                    // slot 6's result
 #include "../orders/air_maneuver_order.h"
 
 #include "packed_goal.h"
+#include "../orders/order_goals.h"
 
 unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 
@@ -1346,15 +1347,6 @@ void PackedGoal::TickTowardGoal()
 // PathGoal (see order_targets_44ef20.cpp for the family): the moving
 // object that also sends its state, with a dirty bit and the owner's mode.
 // Vtable 0x4fd9b0, constructor 0x4907e0, ??_G 0x490840.
-class LiteGoal : public PackedGoal {
-public:
-    LiteGoal(Struct_004907e0* p);
-    virtual void SetPathOrder(void* param);         // slot 1, 0x490860
-    virtual void TickTowardGoal();                  // slot 2, 0x490880
-    virtual int HasNetUnitState();                  // slot 7, 0x4908b0
-    virtual void SerializeNetUnitState(BitWriter*);  // slot 8, 0x4908c0
-};
-
 // The constructor: the base constructor (0x44ef20) is out of line, the middle
 // class's (out-of-line copy at 0x4905e0) is inlined. The middle class assigns
 // its members in the body. Its vtable reference makes the
@@ -1363,8 +1355,8 @@ public:
 // 0x4fd428 is left in it.
 // FUNCTION: 0x4907e0
 // FUNCTION: 0x490840 ??_GLiteGoal@@UAEPAXI@Z
-LiteGoal::LiteGoal(Struct_004907e0* p)
-    : PackedGoal(p)
+LiteGoal::LiteGoal(Unit* p)
+    : PackedGoal((Struct_004907e0*)p)
 {
     dirty = 1;
     mode = 0;
@@ -1419,18 +1411,11 @@ void LiteGoal::SerializeNetUnitState(BitWriter* stream)
 // object that reads its state from the stream.
 // Vtable 0x4fd9e0, constructor 0x490940, destructor 0x4909e0, ??_G 0x4909a0.
 // Slots 2 and 4 are inherited from PackedGoal.
-class PackedPosGoal : public PackedGoal {
-public:
-    PackedPosGoal(Struct_004907e0* p);
-    virtual ~PackedPosGoal();                       // slot 0
-    virtual void DeserializeNetUnitState(BitReader*);  // slot 9, 0x490a10
-};
-
 // The constructor: the base constructor (0x44ef20) is out of line, the middle
 // class's constructor is inlined, as in LiteGoal's.
 // FUNCTION: 0x490940
-PackedPosGoal::PackedPosGoal(Struct_004907e0* p)
-    : PackedGoal(p)
+PackedPosGoal::PackedPosGoal(Unit* p)
+    : PackedGoal((Struct_004907e0*)p)
 {
 }
 

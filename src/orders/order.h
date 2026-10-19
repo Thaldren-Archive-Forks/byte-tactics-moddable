@@ -3,6 +3,7 @@
 
 #include "../util/vec3.h"
 #include "mission_type.h"
+#include "order_base.h"
 #include "path_order_attach.h"
 
 struct Unit;
@@ -20,8 +21,7 @@ struct Entry_0043a1f0;
 struct Vec3_0043a1f0;
 
 #pragma pack(push, 1)
-struct Order {
-    char unknown_0[4];             // +0x00, the vpointer the polymorphic views model
+struct Order : public OrderBase {
     MissionType kind;              // +0x04, index into the order-type table
     unsigned char state;           // +0x05
     union {
@@ -113,8 +113,7 @@ struct Order {
     void SetDeadlineTicks(int param);
     void ReattachFxToUnit();
     void MergeFlagsFromTable(int k);
-    void MergeFlagsFromTable(MissionType k);
-    void OrStatusFlags(unsigned int flags);
+    virtual void OrStatusFlags(unsigned int flags);
     void SetAttachedFx(OrderFx* obj);
     void AttachApproachRadiusGoal(Vec3* pos, int n);
     void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
