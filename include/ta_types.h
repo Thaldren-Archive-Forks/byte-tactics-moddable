@@ -4146,11 +4146,7 @@ struct Flags_418fd0 {  // 0x2 bytes, 2 views
     char unknown_0[2];
 };
 
-struct Arg_00419670 {  // 0x18 bytes, 15 views
-    int x;  // +0x0
-    int y;  // +0x4
-    int unknown_8[4];  // +0x8
-};
+#include "../src/ingame/arg_00419670.h"
 
 struct Flags_00419670 {  // 0x4 bytes, 1 view
     unsigned int bits_0 : 6;  // +0x0
@@ -4164,20 +4160,9 @@ union FlagsU_00419670 {  // 0x4 bytes, 1 view
     union { unsigned int raw; Flags_00419670 bits; };  // +0x0
 };
 
-struct BitFlags_004197d0 {  // 0x1 bytes, 2 views
-    unsigned char b0 : 1;  // +0x0
-    unsigned char b1 : 1;
-    unsigned char b2 : 1;
-    unsigned char b3 : 1;
-    unsigned char b4 : 1;
-    unsigned char b5 : 1;
-    unsigned char b6 : 1;
-    unsigned char b7 : 1;
-};
+#include "../src/ingame/bit_flags_004197d0.h"
 
-union Flags_004197d0 {  // 0x1 bytes, 2 views
-    union { unsigned char value; BitFlags_004197d0 bits; };  // +0x0
-};
+#include "../src/ingame/flags_004197d0.h"
 
 struct Entry {  // 0x1044 bytes, 277 views
     unsigned char type;  // +0x0
@@ -4319,17 +4304,9 @@ struct CursorState_0041cd20 {  // 0x1c bytes, 1 view
     int flag;  // +0x18
 };
 
-struct Point_0041cd50 {  // 0x8 bytes, 1 view
-    int x;  // +0x0
-    int y;  // +0x4
-};
+#include "../src/ingame/point_0041cd50.h"
 
-struct CursorState_0041cc60 {  // 0x2c bytes, 2 views
-    Arg_00419670 rect;  // +0x0
-    int flag;  // +0x18
-    Point_0041cd50 center;  // +0x1c
-    Point_0041cd50 savedScroll;  // +0x24
-};
+#include "../src/ingame/cursor_state_0041cc60.h"
 
 struct Display_0041ce90 {  // 0xf1 bytes, 1 view
     char unknown_0[64];
@@ -4419,11 +4396,7 @@ struct Button_0041e420 {  // 0xcc bytes, 2 views
     int flags;  // +0xc8
 };
 
-struct Slot_0041e420 {  // 0x3a bytes, 3 views
-    unsigned char active;  // +0x0
-    char unknown_1[29];
-    int stats[7];  // +0x1e
-};
+#include "../src/game/slot_0041e420.h"
 
 struct Amount {  // 0x8 bytes, 2 views
     int current;  // +0x0
@@ -4543,22 +4516,7 @@ struct Explosion {  // 0x30 bytes, 1 view
     ImageFrame frames[1];  // +0x28
 };
 
-struct Object3do {  // 0x34 bytes, 20 views
-    unsigned char state;  // +0x0
-    char unknown_1[3];
-    int vertexCount;  // +0x4
-    int faceCount;  // +0x8
-    int firstFace;  // +0xc
-    int f10;  // +0x10
-    int f14;  // +0x14
-    unsigned short* color;  // +0x18
-    char* name;  // +0x1c
-    int active;  // +0x20
-    void* vertices;  // +0x24
-    PieceFrame* faces;  // +0x28
-    Object3do* sibling;  // +0x2c
-    Object3do* child;  // +0x30
-};
+#include "../src/graphics/object3do.h"
 
 struct Shape {  // 0x8 bytes, 1 view
     int a;  // +0x0
@@ -4613,20 +4571,7 @@ struct Feature {  // 0x100 bytes, 32 views
     char unknown_ff;  // +0xff
 };
 
-struct Debris_00420f30 {  // 0x54 bytes, 3 views
-    int field_0;  // +0x0
-    Handle ref1;  // +0x4
-    Handle ref2;  // +0x10
-    Vec3 pos;  // +0x1c
-    Vec3 size;  // +0x28
-    Vec3 vel;  // +0x34
-    Vec3 spin;  // +0x40
-    short angle_x;  // +0x4c
-    short angle_y;  // +0x4e
-    short angle_z;  // +0x50
-    unsigned short flag : 1;  // +0x52
-    unsigned short : 15;
-};
+#include "../src/weapons/debris_00420f30.h"
 
 struct Effect {  // 0x54 bytes, 1 view
     void* model;  // +0x0
@@ -4691,22 +4636,9 @@ struct Arr_00421550 {  // 0x2c bytes, 2 views
     PieceFrame* faces;  // +0x28
 };
 
-struct FaceFlags_459830 {  // 0x4 bytes, 4 views
-    unsigned int textured : 1;  // +0x0
-    unsigned int usePic : 1;
-    unsigned int shaded : 1;
-    unsigned int rest : 29;
-};
+#include "../src/graphics/face_flags_459830.h"
 
-struct PieceFrame {  // 0x20 bytes, 9 views
-    int unknown_0;  // +0x0
-    int count;  // +0x4
-    int unknown_8;  // +0x8
-    unsigned short* indices;  // +0xc
-    char unknown_10[8];
-    unsigned short* color;  // +0x18
-    FaceFlags_459830 flags;  // +0x1c
-};
+#include "../src/graphics/piece_frame.h"
 
 struct Inner_00421550 {  // 0x26 bytes, 3 views
     Arr_00421550* f0;  // +0x0
@@ -4821,18 +4753,7 @@ struct AnimEntry_00421f20 {  // 0x30 bytes, 1 view
     char unknown_4[44];
 };
 
-struct AnimManager_00421f20 {  // 0x78 bytes, 1 view
-    char unknown_0[16];
-    AnimEntry_00421f20* anim;  // +0x10
-    FeatureUnit_00421f20* featureUnit;  // +0x14
-    int activeHead;  // +0x18
-    int idleHead;  // +0x1c
-    int freeHead;  // +0x20
-    char unknown_24[52];
-    int nameCount;  // +0x58
-    char unknown_5c[24];
-    char (*names)[256];  // +0x74
-};
+#include "../src/map/anim_manager_00421f20.h"
 
 struct FeatureUnit_00421f20 {  // 0x118 bytes, 1 view
     char unknown_0[146];
@@ -4979,86 +4900,7 @@ struct Frame_00424050 {  // 0x8 bytes, 1 view
     unsigned short originY;  // +0x6
 };
 
-struct Def_0049d270 {  // 0x115 bytes, 7 views
-    unsigned char used;  // +0x0
-    char unknown_1[31];
-    char name2[64];  // +0x20
-    char unknown_60[4];
-    Map_0042e440* sub;  // +0x64
-    int weaponvelocity;  // +0x68
-    int startvelocity;  // +0x6c
-    int weaponacceleration;  // +0x70
-    void* text;  // +0x74
-    void* anim1;  // +0x78
-    void* anim2;  // +0x7c
-    char model[64];  // +0x80
-    float energypershot;  // +0xc0
-    float metalpershot;  // +0xc4
-    float minbarrelangle;  // +0xc8
-    int shakemagnitude;  // +0xcc
-    int shakeduration;  // +0xd0
-    unsigned short damage;  // +0xd4
-    short areaofeffect;  // +0xd6
-    float edgeeffectiveness;  // +0xd8
-    int range;  // +0xdc
-    int coverage;  // +0xe0
-    short reloadtime;  // +0xe4
-    short weapontimer;  // +0xe6
-    short turnrate;  // +0xe8
-    short burst;  // +0xea
-    short burstrate;  // +0xec
-    short sprayangle;  // +0xee
-    short duration;  // +0xf0
-    short randomdecay;  // +0xf2
-    unsigned short soundstart;  // +0xf4
-    unsigned short soundhit;  // +0xf6
-    unsigned short soundwater;  // +0xf8
-    short smokedelay;  // +0xfa
-    short flighttime;  // +0xfc
-    short holdtime;  // +0xfe
-    char unknown_100[4];
-    short accuracy;  // +0x104
-    short tolerance;  // +0x106
-    short pitchtolerance;  // +0x108
-    unsigned char id;  // +0x10a
-    unsigned char firestarter;  // +0x10b
-    unsigned char rendertype;  // +0x10c
-    unsigned char color;  // +0x10d
-    unsigned char color2;  // +0x10e
-    char unknown_10f[2];
-    unsigned int lineofsight : 1;  // +0x111
-    unsigned int ballistic : 1;
-    unsigned int shellweapon : 1;
-    unsigned int beamweapon : 1;
-    unsigned int vlaunch : 1;
-    unsigned int meteor : 1;
-    unsigned int noradar : 1;
-    unsigned int paralyzer : 1;
-    unsigned int dropped : 1;
-    unsigned int startsmoke : 1;
-    unsigned int endsmoke : 1;
-    unsigned int soundtrigger : 1;
-    unsigned int guidance : 1;
-    unsigned int tracks : 1;
-    unsigned int unitsonly : 1;
-    unsigned int groundbounce : 1;
-    unsigned int waterweapon : 1;
-    unsigned int toairweapon : 1;
-    unsigned int smoketrail : 1;
-    unsigned int turret : 1;
-    unsigned int selfprop : 1;
-    unsigned int propeller : 1;
-    unsigned int noexplode : 1;
-    unsigned int burnblow : 1;
-    unsigned int twophase : 1;
-    unsigned int cruise : 1;
-    unsigned int commandfire : 1;
-    unsigned int noautorange : 1;
-    unsigned int stockpile : 1;
-    unsigned int targetable : 1;
-    unsigned int interceptor : 1;
-    unsigned int : 1;
-};
+#include "../src/weapons/def_0049d270.h"
 
 struct Packet_004244b0 {  // 0x6 bytes, 1 view
     unsigned char type;  // +0x0
@@ -5210,12 +5052,7 @@ struct Obj_00426e80 {  // 0xf2 bytes, 1 view
     unsigned short : 14;
 };
 
-struct V4i {  // 0x10 bytes, 16 views
-    unsigned long data1;  // +0x0
-    unsigned long data2;  // +0x4
-    unsigned long data3;  // +0x8
-    unsigned long data4;  // +0xc
-};
+#include "../src/frontend/v4i.h"
 
 class AIProfileParser {  // 0x98 bytes, 1 view
 public:
@@ -5525,14 +5362,9 @@ public:
     int SetAuxVolume(int, int);
 };
 
-struct Flags_00495e90_37f06 {  // 0x2 bytes, 5 views
-    char unknown_0[2];
-};
+#include "../src/ingame/flags_00495e90_37f06.h"
 
-struct MissionFlags_0042f9a0 {  // 0x2 bytes, 1 view
-    unsigned short allMissions : 1;  // +0x0
-    unsigned short : 15;
-};
+#include "../src/game/mission_flags_0042f9a0.h"
 
 struct SkirmishPlayer {  // 0x18 bytes, 2 views
     int controller;  // +0x0
@@ -5586,43 +5418,7 @@ struct Entry_00431a20 {  // 0x232 bytes, 1 view
     char unknown_4[558];
 };
 
-struct Side_00431a60 {  // 0x232 bytes, 1 view
-    char name[30];  // +0x0
-    char nameprefix[4];  // +0x1e
-    char commander[32];  // +0x22
-    Rect logo;  // +0x42
-    Rect energyBar;  // +0x52
-    Rect energyNum;  // +0x62
-    Rect metalBar;  // +0x72
-    Rect metalNum;  // +0x82
-    Rect totalUnits;  // +0x92
-    Rect totalTime;  // +0xa2
-    Rect energyMax;  // +0xb2
-    Rect metalMax;  // +0xc2
-    Rect energy0;  // +0xd2
-    Rect metal0;  // +0xe2
-    Rect energyProduced;  // +0xf2
-    Rect energyConsumed;  // +0x102
-    Rect metalProduced;  // +0x112
-    Rect metalConsumed;  // +0x122
-    Rect logo2;  // +0x132
-    Rect unitName;  // +0x142
-    Rect damageBar;  // +0x152
-    Rect unitEnergyMake;  // +0x162
-    Rect unitEnergyUse;  // +0x172
-    Rect unitMetalMake;  // +0x182
-    Rect unitMetalUse;  // +0x192
-    Rect missionText;  // +0x1a2
-    Rect unitName2;  // +0x1b2
-    Rect damageBar2;  // +0x1c2
-    Rect nameBlock;  // +0x1d2
-    Rect description;  // +0x1e2
-    Rect reload[3];  // +0x1f2
-    int energyColor;  // +0x222
-    int metalColor;  // +0x226
-    int sideNumber;  // +0x22a
-    void* font;  // +0x22e
-};
+#include "../src/game/side_00431a60.h"
 
 class Class_004b3630 {  // 0x4 bytes, 21 views
 public:
@@ -6750,15 +6546,9 @@ struct Conn_00443cb0 {  // 0x14b bytes, 1 view
     char unknown_23[296];
 };
 
-struct Conn_443ff0 {  // 0x8 bytes, 1 view
-    void* data;  // +0x0
-    int size;  // +0x4
-};
+#include "../src/frontend/conn_443ff0.h"
 
-struct ConnInfo_443ff0 {  // 0x18 bytes, 1 view
-    V4i guid;  // +0x0
-    Conn_443ff0 conn;  // +0x10
-};
+#include "../src/frontend/conn_info_443ff0.h"
 
 struct Inner_00444910 {  // 0x8 bytes, 1 view
     char unknown_0[4];
@@ -7841,13 +7631,7 @@ struct Packet_00452b70 {  // 0xe bytes, 1 view
     int extra;  // +0xa
 };
 
-struct Entry_00463ca0 {  // 0x48 bytes, 4 views
-    char text[64];  // +0x0
-    unsigned int time;  // +0x40
-    unsigned short field_44;  // +0x44
-    char field_46;  // +0x46
-    unsigned char flags;  // +0x47
-};
+#include "../src/network/entry_00463ca0.h"
 
 struct Gui_00453a50 {  // 0x20 bytes, 1 view
     char unknown_0[4];
@@ -8307,13 +8091,9 @@ struct Video_0045bb00 {  // 0x14e bytes, 1 view
     ModeList_004b5330* field_14a;  // +0x14a
 };
 
-struct Bits_0045c570 {  // 0x2 bytes, 3 views
-    char unknown_0[2];
-};
+#include "../src/sound/bits_0045c570.h"
 
-union Flags_0045c570 {  // 0x2 bytes, 3 views
-    union { unsigned short word; Bits_0045c570 bits; };  // +0x0
-};
+#include "../src/sound/flags_0045c570.h"
 
 class Class_004ce3e0 {  // 0x216 bytes, 6 views
 public:
@@ -8378,9 +8158,7 @@ union Flags_0045d280 {  // 0x2 bytes, 1 view
     union { unsigned short word; Bits_0045d280 bits; unsigned char byte; };  // +0x0
 };
 
-struct Flags_00495e90_37ebe {  // 0x2 bytes, 3 views
-    char unknown_0[2];
-};
+#include "../src/ingame/flags_00495e90_37ebe.h"
 
 struct FreeObj_0045e100 {  // 0x18 bytes, 1 view
     char unknown_0[4];
@@ -9200,21 +8978,9 @@ struct Unit_00467980 {  // 0x114 bytes, 1 view
     unsigned int flags;  // +0x110
 };
 
-struct Sub_004679a0_a {  // 0x21 bytes, 1 view
-    char unknown_0[1];
-    int field_1;  // +0x1
-    char unknown_5[8];
-    int field_d;  // +0xd
-    char unknown_11[8];
-    int field_19;  // +0x19
-    int field_1d;  // +0x1d
-};
+#include "../src/ingame/sub_004679a0_a.h"
 
-struct Sub_004679a0_b {  // 0x38 bytes, 1 view
-    char unknown_0[48];
-    int field_30;  // +0x30
-    unsigned short* lightbar;  // +0x34
-};
+#include "../src/ingame/sub_004679a0_b.h"
 
 struct Colors_00467b60 {  // 0xb bytes, 1 view
     char unknown_0[4];
@@ -9266,488 +9032,14 @@ struct FrameTimers {     // 0x50 bytes, 4 views
     void AccumulateProfileTime(int);
 };
 
-struct Game {  // 0x3924d bytes, 904 views
-    char unknown_0;  // +0x0
-    unsigned char field_1;  // +0x1
-    unsigned char field_2;  // +0x2
-    unsigned char field_3;  // +0x3
-    char* build_date;  // +0x4
-    char* build_time;  // +0x8
-    Ctx_00499890* unknown_c;  // +0xc
-    Class_004cdb40* field_10;  // +0x10
-    char session[4];  // +0x14
-    char unknown_18[1069];
-    V4i* guids;  // +0x445
-    char unknown_449[40];
-    Settings settings;  // +0x471
-    char unknown_4c1[8];
-    int lobby2;  // +0x4c9
-    int local_id;  // +0x4cd
-    char unknown_4d1[20];
-    Net_4517b0* field_4e5;  // +0x4e5
-    char unknown_4e9[4];
-    int field_4ed;  // +0x4ed
-    int netMode;  // +0x4f1
-    char unknown_4f5[4];
-    int count;  // +0x4f9
-    int field_4fd;  // +0x4fd
-    char unknown_501[16];
-    Player* slowest;  // +0x511
-    int lag;  // +0x515
-    char unknown_519[100];
-    int team_index;  // +0x57d
-    int selected;  // +0x581
-    char unknown_585[4];
-    int field_589;  // +0x589
-    char unknown_58d[2110];
-    unsigned char textColor;  // +0xdcb
-    unsigned char field_dcc;  // +0xdcc
-    char unknown_dcd[1];
-    unsigned char field_dce;  // +0xdce
-    unsigned char field_dcf;  // +0xdcf
-    char unknown_dd0[3];
-    unsigned char color2;  // +0xdd3
-    unsigned char field_dd4;  // +0xdd4
-    unsigned char field_dd5;  // +0xdd5
-    char unknown_dd6[1];
-    unsigned char field_dd7;  // +0xdd7
-    char unknown_dd8[1];
-    unsigned char unknown_dd9;  // +0xdd9
-    unsigned char field_dda;  // +0xdda
-    char unknown_ddb[1040];
-    void* surface;  // +0x11eb
-    char unknown_11ef[256];
-    Entry_00463ca0 entries[30];  // +0x12ef
-    int field_1b5f;  // +0x1b5f
-    Player players[10];  // +0x1b63
-    char unknown_2851[331];
-    int field_299c;  // +0x299c
-    Entry_00479620* options;  // +0x29a0
-    int loaded[10];  // +0x29a4
-    char unknown_29cc[4];
-    int field_29d0[11];  // +0x29d0
-    int field_29fc[10];  // +0x29fc
-    char unknown_2a24[4];
-    int field_2a28;  // +0x2a28
-    char unknown_2a2c[4];
-    Class_0046d040* field_2a30;  // +0x2a30
-    int field_2a34;  // +0x2a34
-    unsigned char* buffer;  // +0x2a38
-    unsigned short field_2a3c;  // +0x2a3c
-    unsigned short tail;  // +0x2a3e
-    unsigned short head;  // +0x2a40
-    unsigned char localPlayer;  // +0x2a42
-    unsigned char playerIndex;  // +0x2a43
-    unsigned short flags_2a44;  // +0x2a44
-    unsigned char field_2a46;  // +0x2a46
-    char unknown_2a47[4];
-    void* data[15];  // +0x2a4b
-    char unknown_2a87[20];
-    void* list;  // +0x2a9b
-    V4i* sessions;  // +0x2a9f
-    Conn_443ff0* conns;  // +0x2aa3
-    Desc_004437c0* desc;  // +0x2aa7
-    char* shared;  // +0x2aab
-    unsigned short bit0 : 1;  // +0x2aaf
-    unsigned short bit1 : 1;
-    unsigned short bits2 : 14;
-    char unknown_2ab1[155];
-    unsigned short low_2b4c : 4;  // +0x2b4c
-    unsigned short flag_2b4c : 1;
-    unsigned short rest_2b4c : 11;
-    char unknown_2b4e[28];
-    char game_info[84];  // +0x2b6a
-    unsigned char field_2bbe;  // +0x2bbe
-    unsigned char field_2bbf;  // +0x2bbf
-    unsigned char field_2bc0;  // +0x2bc0
-    char gameName[16];  // +0x2bc1
-    char unknown_2bd1[1];
-    char nickname[17];  // +0x2bd2
-    char password[11];  // +0x2be3
-    unsigned short lobbyUiDirtyFlags;  // +0x2bee
-    unsigned char mode_2bf0;  // +0x2bf0
-    unsigned char chatRecipients[11];  // +0x2bf1
-    char unknown_2bfc[44];
-    int table_2c28[10];  // +0x2c28
-    char unknown_2c50[38];
-    Arg_00419670 view;  // +0x2c76
-    short x;  // +0x2c8e
-    short y;  // +0x2c90
-    int boxStartX;  // +0x2c92
-    int boxStartHeight;  // +0x2c96
-    int boxStartZ;  // +0x2c9a
-    int boxEndX;  // +0x2c9e
-    int boxEndHeight;  // +0x2ca2
-    int boxEndZ;  // +0x2ca6
-    Vec3 pos;  // +0x2caa
-    int boxStartTick;  // +0x2cb6
-    unsigned short hoverUnitId;  // +0x2cba
-    unsigned short cellFeature;  // +0x2cbc
-    char cursorMode;  // +0x2cbe
-    char unknown_2cbf[4];
-    unsigned char orderMode;  // +0x2cc3
-    unsigned short buildTypeIndex;  // +0x2cc4
-    unsigned char pad_2cc6 : 5;  // +0x2cc6
-    unsigned char bit5_2cc6 : 1;
-    unsigned char bit6_2cc6 : 1;
-    unsigned char rest_2cc6 : 1;
-    CursorState_0041cc60 cursor;  // +0x2cc7
-    Def_0049d270 weapons[256];  // +0x2cf3
-    int projectileCount;  // +0x141f3
-    Obj_00406f50* projectiles;  // +0x141f7
-    void* field_141fb;  // +0x141fb
-    void* field_141ff;  // +0x141ff
-    void* field_14203;  // +0x14203
-    PathMap* pathfinder;  // +0x14207
-    FeatureSpot* spots;  // +0x1420b
-    Unit* unit;  // +0x1420f
-    char unknown_14213[8];
-    int list_1421b;  // +0x1421b
-    void** field_1421f;  // +0x1421f
-    int baseX;  // +0x14223
-    int baseY;  // +0x14227
-    int mapWidth;  // +0x1422b
-    int mapHeight;  // +0x1422f
-    int width;  // +0x14233
-    int height;  // +0x14237
-    int screenTilesX;  // +0x1423b
-    int screenTilesY;  // +0x1423f
-    char unknown_14243[16];
-    int featureCount;  // +0x14253
-    int scanIndex;  // +0x14257
-    int windSpeedMin;  // +0x1425b
-    int windSpeedMax;  // +0x1425f
-    int gravity;  // +0x14263
-    float tidal;  // +0x14267
-    void* radarFrame;  // +0x1426b
-    Feature* features;  // +0x1426f
-    unsigned short* visibilityMask;  // +0x14273
-    int count_14277;  // +0x14277
-    Eye_00482130* eyes;  // +0x1427b
-    unsigned char seaLevel;  // +0x1427f
-    unsigned char debugMode;  // +0x14280
-    unsigned short mapFlags;  // +0x14281
-    IconSet_00466780* iconSet;  // +0x14283
-    Cell* cells;  // +0x14287
-    unsigned short* mapValues;  // +0x1428b
-    Grid grid1;  // +0x1428f
-    Class_0047cb00* cells_1429f;  // +0x1429f
-    unsigned int width_142a3;  // +0x142a3
-    unsigned int height_142a7;  // +0x142a7
-    char unknown_142ab[4];
-    int field_142af;  // +0x142af
-    int field_142b3;  // +0x142b3
-    int overflowBucket;  // +0x142b7
-    Rect viewLimit;  // +0x142bb
-    char unknown_142cb[16];
-    void* finalSurface;  // +0x142db
-    void* mappedSurface;  // +0x142df
-    void* pictureSurface;  // +0x142e3
-    short posX;  // +0x142e7
-    short posY;  // +0x142e9
-    short width_142eb;  // +0x142eb
-    short screen_h;  // +0x142ed
-    short blinkTimer;  // +0x142ef
-    unsigned short flags_142f1;  // +0x142f1
-    int value_142f3;  // +0x142f3
-    Obj_00406f50* tracked;  // +0x142f7
-    int xs[4];  // +0x142fb
-    int ys[4];  // +0x1430b
-    unsigned char valid[4];  // +0x1431b
-    int scrollX;  // +0x1431f
-    int scrollY;  // +0x14323
-    int x2;  // +0x14327
-    int y2;  // +0x1432b
-    int value_1432f;  // +0x1432f
-    int value_14333;  // +0x14333
-    int sum_x;  // +0x14337
-    int sum_y;  // +0x1433b
-    Vec3 trackedPos;  // +0x1433f
-    short value_1434b;  // +0x1434b
-    unsigned char scrollSpeed;  // +0x1434d
-    unsigned char flags_1434e;  // +0x1434e
-    unsigned short unitsPerPlayer;  // +0x1434f
-    unsigned short poolCount;  // +0x14351
-    int f14353;  // +0x14353
-    Unit* units;  // +0x14357
-    Unit* unitsEnd;  // +0x1435b
-    unsigned short* list_1435f;  // +0x1435f
-    void* hotRadar;  // +0x14363
-    int count_14367;  // +0x14367
-    int hotRadarCount;  // +0x1436b
-    unsigned short focusUnitId;  // +0x1436f
-    unsigned short autoFollowTicks;  // +0x14371
-    unsigned int bit0_14373 : 1;  // +0x14373
-    unsigned int autoFollow : 1;
-    unsigned int rest : 30;
-    Class_0045ae80** types;  // +0x14377
-    Class_00437c80* unitTable;  // +0x1437b
-    char unknown_1437f[4];
-    void* xform;  // +0x14383
-    void* projected;  // +0x14387
-    void* field_1438b;  // +0x1438b
-    int count_1438f;  // +0x1438f
-    int unitDefCountBits;  // +0x14393
-    int unitDefEnumDirty;  // +0x14397
-    UnitDef* defs;  // +0x1439b
-    char unknown_1439f[8];
-    char field_143a7[4];  // +0x143a7
-    char unknown_143ab[1020];
-    int baseHeight;  // +0x147a7
-    int count_147ab;  // +0x147ab
-    AnimEntry_00429700* entries_147af;  // +0x147af
-    char unknown_147b3[8];
-    void* gaf_147bb;  // +0x147bb
-    void* gaf_147bf;  // +0x147bf
-    void* gaf_147c3;  // +0x147c3
-    void* gaf_147c7;  // +0x147c7
-    void* gaf_147cb;  // +0x147cb
-    void* unknown_147cf;  // +0x147cf
-    void* unknown_147d3;  // +0x147d3
-    int fire1;  // +0x147d7
-    int alfboom1;  // +0x147db
-    void* radlogo;  // +0x147df
-    void* radlogohigh;  // +0x147e3
-    void* nuclogo;  // +0x147e7
-    void* src1;  // +0x147eb
-    void* src2;  // +0x147ef
-    void* unknown_147f3;  // +0x147f3
-    void* src3;  // +0x147f7
-    int explode2;  // +0x147fb
-    int explode3;  // +0x147ff
-    int explode4;  // +0x14803
-    int explode5;  // +0x14807
-    int nuke1;  // +0x1480b
-    void* gaf_1480f;  // +0x1480f
-    unsigned short* image_14813;  // +0x14813
-    unsigned short* image_14817;  // +0x14817
-    int igpaused;  // +0x1481b
-    unsigned short* sidePanelTopSeq[5];  // +0x1481f
-    unsigned short* sidePanelBotSeq[5];  // +0x14833
-    unsigned short* sidePanelSideSeq[5];  // +0x14847
-    FrameTable* losTable;     // +0x1485b
-    void* black[4];  // +0x1485f
-    void* gray[4];  // +0x1486f
-    Src_004ab400* table[1];  // +0x1487f
-    int cursorAttack;  // +0x14883
-    int cursorAirstrike;  // +0x14887
-    int cursorTooFar;  // +0x1488b
-    int cursorCapture;  // +0x1488f
-    int cursorDefend;  // +0x14893
-    int cursorRepair;  // +0x14897
-    int cursorPatrol;  // +0x1489b
-    int cursorPickup;  // +0x1489f
-    int cursorTeleport;  // +0x148a3
-    int cursorRevive;  // +0x148a7
-    int cursorReclamate;  // +0x148ab
-    int cursorLoad;  // +0x148af
-    int cursorUnload;  // +0x148b3
-    int cursorMove;  // +0x148b7
-    int cursorSelect;  // +0x148bb
-    int cursorFindSite;  // +0x148bf
-    int cursorRed;  // +0x148c3
-    int cursorGrn;  // +0x148c7
-    unsigned short* cursorNormal;  // +0x148cb
-    int cursorHourglass;  // +0x148cf
-    int pathIcon;  // +0x148d3
-    void* logos;  // +0x148d7
-    void* logos32;  // +0x148db
-    int count_148df;  // +0x148df
-    void** blocks;  // +0x148e3
-    int count_148e7;  // +0x148e7
-    int* data_148eb;  // +0x148eb
-    int gafAnimClearedSlot;  // +0x148ef
-    int fxGaf;  // +0x148f3
-    int igTitles;  // +0x148f7
-    int vismasks;  // +0x148fb
-    int fog;  // +0x148ff
-    int field_14903;  // +0x14903
-    int array_14907[1];  // +0x14907
-    char unknown_1490b[16];
-    int count_1491b;  // +0x1491b
-    Debris_00420f30 debris[300];  // +0x1491f
-    List_00420960* lists[3];  // +0x1ab8f
-    void* explosionLensFrame;  // +0x1ab9b
-    Object3do slots[300];  // +0x1ab9f
-    char vertices[300][96];  // +0x1e88f
-    PieceFrame frames[300][6];  // +0x2590f
-    int soundCount;  // +0x33a0f
-    int soundIds[1];  // +0x33a13
-    char unknown_33a17[1020];
-    char soundNames[1][32];  // +0x33e13
-    char unknown_33e33[8160];
-    char soundFiles[256][32];  // +0x35e13
-    Entry_0042f740* entries_37e13;  // +0x37e13
-    int entry_count;  // +0x37e17
-    int screen;  // +0x37e1b
-    int width_37e1f;  // +0x37e1f
-    int field_37e23;  // +0x37e23
-    Rect rect;  // +0x37e27
-    int viewWidth;  // +0x37e37
-    int viewHeight;  // +0x37e3b
-    Sub_004679a0_a a;  // +0x37e3f
-    Sub_004679a0_b b;  // +0x37e60
-    int field_37e98;  // +0x37e98
-    unsigned short unitIndex;  // +0x37e9c
-    unsigned short unitDefIndex;  // +0x37e9e
-    char name[30];  // +0x37ea0
-    unsigned short flags_37ebe;  // +0x37ebe
-    unsigned short moveOrder : 3;  // +0x37ec0
-    unsigned short cloak : 2;
-    unsigned short activation : 2;
-    unsigned short flags_7 : 9;
-    char unknown_37ec2[2];
-    unsigned int windCounter;  // +0x37ec4
-    int windSpeedDenominator;  // +0x37ec8
-    int windX;  // +0x37ecc
-    int windY;  // +0x37ed0
-    int windZ;  // +0x37ed4
-    unsigned short windDirection;  // +0x37ed8
-    int windSpeed;  // +0x37eda
-    float windStrength;  // +0x37ede
-    int windEnabled;  // +0x37ee2
-    unsigned short field_37ee6;  // +0x37ee6
-    unsigned short lobbyInitScratch;  // +0x37ee8
-    unsigned short maxUnits;  // +0x37eea
-    unsigned short maxUnits_37eec;  // +0x37eec
-    int difficulty;  // +0x37eee
-    int flag_37ef2;  // +0x37ef2
-    int commanderDeath;  // +0x37ef6
-    int interfaceType;  // +0x37efa
-    int mode;  // +0x37efe
-    int screenchat;  // +0x37f02
-    Flags_00495e90_37f06 flags_37f06;  // +0x37f06
-    int brightness;  // +0x37f08
-    int volume1;  // +0x37f0c
-    int volume2;  // +0x37f10
-    unsigned short flags_37f14;  // +0x37f14
-    unsigned char cdMode;  // +0x37f16
-    unsigned char unitChat;  // +0x37f17
-    unsigned char unitChatText;  // +0x37f18
-    Flags_0045c570 soundFlags;  // +0x37f19
-    int width_37f1b;  // +0x37f1b
-    int height_37f1f;  // +0x37f1f
-    int textScroll;  // +0x37f23
-    int textLines;  // +0x37f27
-    int mousespeed;  // +0x37f2b
-    unsigned short uiOptionFlags;  // +0x37f2f
-    unsigned int lobbyTimeoutSecs;  // +0x37f31
-    char unknown_37f35[4];
-    int sides;  // +0x37f39
-    char names[1][562];  // +0x37f3d
-    char unknown_3816f[2248];
-    unsigned int lastTick;  // +0x38a37
-    int frames_38a3b;  // +0x38a3b
-    int scrollScale;  // +0x38a3f
-    int carry;  // +0x38a43
-    int ticks;  // +0x38a47
-    unsigned short gameSpeed;  // +0x38a4b
-    short effectiveGameSpeed;  // +0x38a4d
-    short streak;  // +0x38a4f
-    unsigned short otherFlags;  // +0x38a51
-    char installPath[1];  // +0x38a53
-    char unknown_38a54[255];
-    char text_38b53[256];  // +0x38b53
-    int movieCaptureIndex;  // +0x38c53
-    int movieOutputRate;  // +0x38c57
-    unsigned int nextMovieFrameTick;  // +0x38c5b
-    int valueSet;  // +0x38c5f
-    int valueSet_38c63;  // +0x38c63
-    int unusedAfterMovieOutputRateDirty;  // +0x38c67
-    char saveName[1];  // +0x38c6b
-    char unknown_38c6c[255];
-    int pendingSaveStore;  // +0x38d6b
-    char progress;  // +0x38d6f
-    unsigned char loadProgress;  // +0x38d70
-    unsigned char loadPctUnits;  // +0x38d71
-    unsigned char loadPercent;  // +0x38d72
-    unsigned char progress_38d73;  // +0x38d73
-    unsigned char shade;  // +0x38d74
-    unsigned short net_flags;  // +0x38d75
-    Class_00472200* lists_38d77;  // +0x38d77
-    void* moviePlayer;  // +0x38d7b
-    unsigned short flags_38d7f;  // +0x38d7f
-    int playerCount;  // +0x38d81
-    FrameTimers timers;     // +0x38d85
-    int profileBarsEnabled;  // +0x38dd5
-    Slot_0041e420 slots_38dd9[10];  // +0x38dd9
-    char unknown_3901d[58];
-    int field_39057;  // +0x39057
-    unsigned int deadline;  // +0x3905b
-    unsigned int nextTime;  // +0x3905f
-    int done;  // +0x39063
-    int steps;  // +0x39067
-    int field_3906b;  // +0x3906b
-    int savedPaletteBrightness;  // +0x3906f
-    int skip;  // +0x39073
-    void* lastFrame;  // +0x39077
-    void* image_3907b;  // +0x3907b
-    void* palette_3907f;  // +0x3907f
-    void* currentPalette;  // +0x39083
-    void* desiredPalette;  // +0x39087
-    void* fadeTable;  // +0x3908b
-    char unknown_3908f[256];
-    int maxStats[7];  // +0x3918f
-    int mission;  // +0x391ab
-    int won;  // +0x391af
-    int unitInfoHoverTrack;  // +0x391b3
-    unsigned short unitInfoHoverUnitId;  // +0x391b7
-    int unitBuilderHoverTrack;  // +0x391b9
-    unsigned short unitBuilderHoverUnitId;  // +0x391bd
-    int showRanges;  // +0x391bf
-    char unknown_391c3[4];
-    int buildListCount;  // +0x391c7
-    BuildList_0041ace0* buildLists;  // +0x391cb
-    char field_391cf[24];  // +0x391cf
-    char field_391e7;  // +0x391e7
-    char field_391e8;  // +0x391e8
-    Mission* net;  // +0x391e9
-    MissionConditions* list_391ed;  // +0x391ed
-    int mode_391f1;  // +0x391f1
-    void (__stdcall *handler)(void);  // +0x391f5
-    int fontComix;  // +0x391f9
-    void* fontSmlFont;  // +0x391fd
-    char field_39201[1];  // +0x39201
-    char unknown_39202[15];
-    int field_39211;  // +0x39211
-    int field_39215;  // +0x39215
-    int singleCommanderDeath;  // +0x39219
-    int singleMapping;  // +0x3921d
-    int singleLineOfSight;  // +0x39221
-    int singleLOSType;  // +0x39225
-    int multiCommanderDeath;  // +0x39229
-    int multiMapping;  // +0x3922d
-    int multiLineOfSight;  // +0x39231
-    int multiLOSType;  // +0x39235
-    short endGameCountdown;  // +0x39239
-    unsigned short endGameFlags;  // +0x3923b
-    int playMovie;  // +0x3923d
-    int introMovieLoop;  // +0x39241
-    char unknown_39245[4];
-    int restartMissionRequest;  // +0x39249
-    Game(void);
-    Player* Current(void);
-    Player* Current2(void);
-};
+#include "../src/game/game.h"
 
 struct Class_004c6b10 {  // 0x30 bytes, 4 views
     int data[12];  // +0x0
     void SetClipRect(Rect);
 };
 
-struct MapGrid {  // 0x90 bytes, 1 view
-    int* buf;  // +0x0
-    int** cursor;  // +0x4
-    unsigned short* count;  // +0x8
-    char unknown_c[44];
-    int width;  // +0x38
-    int height;  // +0x3c
-    char unknown_40[16];
-    int stride;  // +0x50
-    int rows;  // +0x54
-    char unknown_58[52];
-    int tiles;  // +0x8c
-};
+#include "../src/ingame/map_grid.h"
 
 struct Resources {  // 0x21 bytes, 1 view
     char owner;  // +0x0
@@ -9767,21 +9059,7 @@ struct Flags_0046a530 {  // 0x2 bytes, 1 view
     unsigned short rest : 13;
 };
 
-struct Snapshot_0046a860 {  // 0x3c bytes, 1 view
-    int orderName;  // +0x0
-    unsigned short selected;  // +0x4
-    unsigned short health;  // +0x6
-    unsigned short build;  // +0x8
-    int weapons[3];  // +0xa
-    float values[4];  // +0x16
-    unsigned short targetType;  // +0x26
-    unsigned short targetHealth;  // +0x28
-    unsigned short feature;  // +0x2a
-    int button;  // +0x2c
-    int width;  // +0x30
-    int height;  // +0x34
-    int reserved;  // +0x38
-};
+#include "../src/ingame/snapshot_0046a860.h"
 
 struct Size_0046b9d0 {  // 0x4 bytes, 1 view
     short w;  // +0x0
@@ -12220,22 +11498,9 @@ struct Cell_004848e0 {  // 0x2 bytes, 2 views
     unsigned char level1;  // +0x1
 };
 
-struct MapInfo {  // 0x7c bytes, 1 view
-    char unknown_0[36];
-    Grid* grid;  // +0x24
-    char unknown_28[16];
-    int width;  // +0x38
-    int height;  // +0x3c
-    char unknown_40[56];
-    unsigned short* visibilityMask;  // +0x78
-};
+#include "../src/map/map_info.h"
 
-struct PlayerGrid {  // 0x14b bytes, 1 view
-    unsigned char* cells;  // +0x0
-    unsigned int width;  // +0x4
-    unsigned int height;  // +0x8
-    char unknown_c[319];
-};
+#include "../src/map/player_grid.h"
 
 struct Fixed_00485330 {  // 0x4 bytes, 1 view
     unsigned short frac;  // +0x0
@@ -13710,13 +12975,7 @@ public:
     int SetCdCallback(void (__stdcall *)(void));
 };
 
-struct Zero11_004917d0 {  // 0xb bytes, 1 view
-    int a;  // +0x0
-    int b;  // +0x4
-    short c;  // +0x8
-    char d;  // +0xa
-    void Clear(void);
-};
+#include "../src/game/zero11_004917d0.h"
 
 struct Save_00492df0 {  // 0x108 bytes, 1 view
     int games;  // +0x0
@@ -13779,33 +13038,17 @@ struct Class_004cb940 {  // 0x10 bytes, 2 views
     bool WriteRows(Image_004cb940*, int, int, int, int, int, int);
 };
 
-struct Flags_00495e90_38a51 {  // 0x2 bytes, 1 view
-    unsigned short b0 : 1;  // +0x0
-    unsigned short rest : 15;
-};
+#include "../src/ingame/flags_00495e90_38a51.h"
 
-union Flags_00495e90_3923b {  // 0x2 bytes, 1 view
-    unsigned short b0 : 1;  // +0x0
-    unsigned short b1 : 1;
-    unsigned short rest : 14;
-};
+#include "../src/ingame/flags_00495e90_3923b.h"
 
 struct Sub_00496b10 {  // 0xa6 bytes, 2 views
     char unknown_0[166];
 };
 
-struct Flags_00496ce0 {  // 0x2 bytes, 1 view
-    unsigned short low : 4;  // +0x0
-    unsigned short flag : 1;
-    unsigned short rest : 11;
-};
+#include "../src/game/flags_00496ce0.h"
 
-struct Settings_00496e10 {  // 0x10 bytes, 1 view
-    int value;  // +0x0
-    int flag_4;  // +0x4
-    int flag_8;  // +0x8
-    int flag_c;  // +0xc
-};
+#include "../src/game/settings_00496e10.h"
 
 union Fixed_497180 {  // 0x4 bytes, 1 view
     union { int i; struct { short frac; short whole; } h; };  // +0x0
@@ -13828,12 +13071,7 @@ struct Settings_00496e10_2 {  // 0x10 bytes, 1 view
     int flag_c;  // +0xc
 };
 
-struct ViewFlags_497180 {  // 0x2 bytes, 1 view
-    unsigned short bit0 : 1;  // +0x0
-    unsigned short bit1 : 1;
-    unsigned short bit2 : 1;
-    unsigned short rest : 13;
-};
+#include "../src/game/view_flags_497180.h"
 
 class Class_004ce800 {  // 0x1 bytes, 2 views
 public:
@@ -13841,44 +13079,18 @@ public:
     int IsCdPlaying(void);
 };
 
-union LoadFlags_00497f40 {  // 0x2 bytes, 1 view
-    union { unsigned short value; struct { unsigned short started : 1; unsigned short loaded : 1; unsigned short b2 : 1; unsigned short b3 : 1; unsigned short rest : 12; } bits; };  // +0x0
-};
+#include "../src/game/load_flags_00497f40.h"
 
-struct PlayerSlots_00497f40 {  // 0x8c bytes, 1 view
-    int inGame[10];  // +0x0
-    int unknown_28;  // +0x28
-    int flag40[10];  // +0x2c
-    char unknown_54[56];
-};
+#include "../src/game/player_slots_00497f40.h"
 
 struct Point_00498cd0 {  // 0x8 bytes, 1 view
     int x;  // +0x0
     int y;  // +0x4
 };
 
-struct BitFlags16_00499200 {  // 0x2 bytes, 1 view
-    unsigned short b0 : 1;  // +0x0
-    unsigned short b1 : 1;
-    unsigned short b2 : 1;
-    unsigned short b3 : 1;
-    unsigned short b4 : 1;
-    unsigned short b5 : 1;
-    unsigned short b6 : 1;
-    unsigned short b7 : 1;
-    unsigned short b8 : 1;
-    unsigned short b9 : 1;
-    unsigned short b10 : 1;
-    unsigned short b11 : 1;
-    unsigned short b12 : 1;
-    unsigned short b13 : 1;
-    unsigned short b14 : 1;
-    unsigned short b15 : 1;
-};
+#include "../src/ingame/bit_flags16_00499200.h"
 
-union Flags16_00499200 {  // 0x2 bytes, 1 view
-    union { unsigned short value; BitFlags16_00499200 bits; };  // +0x0
-};
+#include "../src/ingame/flags16_00499200.h"
 
 struct Kind_00499ab0 {  // 0x8 bytes, 1 view
     char unknown_0[4];

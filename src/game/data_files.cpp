@@ -13,103 +13,7 @@ struct AnimEntry {
 };
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x519];
-    char messageBox[1];                // +0x519
-    char unknown_51a[0x1439b - 0x51a];
-    void* unitDefs;                    // +0x1439b
-    char unknown_1439f[8];
-    char paletteRgba[0x400];           // +0x143a7
-    int baseHeight;                    // +0x147a7
-    int animCount;                     // +0x147ab
-    AnimEntry* anims;                  // +0x147af
-    char pad_147b3[0x8];
-    int cannonShellSeq;                // +0x147bb
-    int plasmaSmSeq;                   // +0x147bf
-    int plasmaMdSeq;                   // +0x147c3
-    int ultraShellSeq;                 // +0x147c7
-    int plasmaSmSeq2;                  // +0x147cb
-    int smoke1;                        // +0x147cf
-    int smoke2;                        // +0x147d3
-    int fire1;                         // +0x147d7
-    int alfboom1;                      // +0x147db
-    int radlogo;                       // +0x147df
-    int radlogohigh;                   // +0x147e3
-    int nuclogo;                       // +0x147e7
-    int waterSplashSeq;                // +0x147eb
-    int lavaSplashSeq;                 // +0x147ef
-    int flameStreamSeq;                // +0x147f3
-    int explosionSeq;                  // +0x147f7
-    int explode2;                      // +0x147fb
-    int explode3;                      // +0x147ff
-    int explode4;                      // +0x14803
-    int explode5;                      // +0x14807
-    int nuke1;                         // +0x1480b
-    int shadowSeq;                     // +0x1480f
-    int endgameBadgeSeqA;              // +0x14813
-    int endgameBadgeSeqB;              // +0x14817
-    int igpaused;                      // +0x1481b
-    int sidePanelTopSeq[5];            // +0x1481f
-    int sidePanelBotSeq[5];            // +0x14833
-    int sidePanelSideSeq[5];           // +0x14847
-    int losTable;                      // +0x1485b
-    int black1Seq;                     // +0x1485f
-    int black2;                        // +0x14863
-    int black3;                        // +0x14867
-    int black4;                        // +0x1486b
-    int gray1Seq;                      // +0x1486f
-    int gray2;                         // +0x14873
-    int gray3;                         // +0x14877
-    int gray4;                         // +0x1487b
-    char pad_1487f[0x4];
-    int cursorAttack;                  // +0x14883
-    int cursorAirstrike;               // +0x14887
-    int cursorTooFar;                  // +0x1488b
-    int cursorCapture;                 // +0x1488f
-    int cursorDefend;                  // +0x14893
-    int cursorRepair;                  // +0x14897
-    int cursorPatrol;                  // +0x1489b
-    int cursorPickup;                  // +0x1489f
-    int cursorTeleport;                // +0x148a3
-    int cursorRevive;                  // +0x148a7
-    int cursorReclamate;               // +0x148ab
-    int cursorLoad;                    // +0x148af
-    int cursorUnload;                  // +0x148b3
-    int cursorMove;                    // +0x148b7
-    int cursorSelect;                  // +0x148bb
-    int cursorFindSite;                // +0x148bf
-    int cursorRed;                     // +0x148c3
-    int cursorGrn;                     // +0x148c7
-    int cursorNormal;                  // +0x148cb
-    int cursorHourglass;               // +0x148cf
-    int cursorPathIconSeq;             // +0x148d3
-    void* logos;                       // +0x148d7
-    void* logos32;                     // +0x148db
-    int blockCount;                    // +0x148df
-    void** blocks;                     // +0x148e3
-    int animplayCursorCount;           // +0x148e7
-    void** animplayCursors;            // +0x148eb
-    int gafAnimClearedSlot;            // +0x148ef
-    int fxGaf;                         // +0x148f3
-    int igTitles;                      // +0x148f7
-    int vismasks;                      // +0x148fb
-    int fog;                           // +0x148ff
-    int cursors;                       // +0x14903
-    int panelTop[5];                   // +0x14907, one int GAF per side
-    char unknown_1491b[0x33a0f - 0x1491b];
-    int soundCount;                    // +0x33a0f
-    void* sounds[0x100];               // +0x33a13
-    char soundNames[0x100][0x20];      // +0x33e13
-    char soundFiles[0x100][0x20];      // +0x35e13
-    char unknown_37e13[0x37f39 - 0x37e13];
-    int sideCount;                     // +0x37f39
-    char unknown_37f3d[0x38d6f - 0x37f3d];
-    char progress;                     // +0x38d6f
-    unsigned char loadProgress;        // +0x38d70
-    char unknown_38d71[0x391f9 - 0x38d71];
-    void* fontComix;                   // +0x391f9
-    void* fontSmlFont;                 // +0x391fd
-};
+#include "game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -141,14 +45,14 @@ void CheckGpfVersion()
             if (parser.current->GetFieldString(buf, "GPFVersion", 0x40, DAT_005119b8)) {
                 found = 1;
                 if (_strcmpi("v3.0", buf) != 0) {
-                    OpenMessageBox(g_game->messageBox,
+                    OpenMessageBox(g_game->menu,
                                  Translate("Warning!  Your copy of Revision.GPF is the wrong version for this executable.  You may experience some problems if you continue playing.  Please download the latest version of the TA patch from www.cavedog.com and reinstall the patch."),
                                  0x1e0, 1, 1);
                 }
             }
         }
         if (found == 0) {
-            OpenMessageBox(g_game->messageBox,
+            OpenMessageBox(g_game->menu,
                          Translate("Warning!  Your copy of Revision.GPF is the wrong version for this executable.  You may experience some problems if you continue playing.  Please download the latest version of the TA patch from www.cavedog.com and reinstall the patch."),
                          0x1e0, 1, 1);
         }
@@ -268,8 +172,8 @@ int __stdcall LoadSoundByName(char* name, const char* file)
     int i;
     for (i = 0; i < g_game->soundCount; i++) {
         if (name != 0) {
-            if (g_game->soundNames[i][0] != 0 &&
-                _strnicmp(g_game->soundNames[i], name, 0x20) == 0)
+            if (g_game->soundNames_33e13[i][0] != 0 &&
+                _strnicmp(g_game->soundNames_33e13[i], name, 0x20) == 0)
                 return i;
         } else {
             if (_strnicmp(g_game->soundFiles[i], file, 0x20) == 0)
@@ -278,12 +182,12 @@ int __stdcall LoadSoundByName(char* name, const char* file)
     }
     if (g_game->soundCount + 1 >= 0x100)
         return 0;
-    g_game->sounds[g_game->soundCount] = LoadSoundFile(file);
+    (*(void*(*)[256])&g_game->sounds)[g_game->soundCount] = LoadSoundFile(file);
     strncpy(g_game->soundFiles[g_game->soundCount], file, 0x20);
     if (name != 0)
-        strncpy(g_game->soundNames[g_game->soundCount], name, 0x20);
+        strncpy(g_game->soundNames_33e13[g_game->soundCount], name, 0x20);
     else
-        strcpy(g_game->soundNames[g_game->soundCount], DAT_005119b8);
+        strcpy(g_game->soundNames_33e13[g_game->soundCount], DAT_005119b8);
     g_game->soundCount++;
     return i;
 }
@@ -366,9 +270,9 @@ void* __stdcall LoadAnimGaf(char* name)
 {
     char path[256];
     int i;
-    for (i = 0; i < g_game->animCount; i++) {
-        if (_strcmpi(g_game->anims[i].name, name) == 0) {
-            return g_game->anims[i].gaf;
+    for (i = 0; i < g_game->count_147ab; i++) {
+        if (_strcmpi(((AnimEntry*)g_game->entries_147af)[i].name, name) == 0) {
+            return ((AnimEntry*)g_game->entries_147af)[i].gaf;
         }
     }
     BuildDataPath(path, "anims", name, "GAF");
@@ -376,11 +280,11 @@ void* __stdcall LoadAnimGaf(char* name)
     if (gaf == 0) {
         FatalError(path);
     }
-    g_game->anims = (AnimEntry*)GameReallocTagged(g_game->anims, "Animation Files",
-                                             (g_game->animCount + 1) * 0x44);
-    strcpy(g_game->anims[g_game->animCount].name, name);
-    g_game->anims[g_game->animCount].gaf = gaf;
-    g_game->animCount++;
+    g_game->entries_147af = (AnimEntry_00429700*)((AnimEntry*)GameReallocTagged(((AnimEntry*)g_game->entries_147af), "Animation Files",
+                                             (g_game->count_147ab + 1) * 0x44));
+    strcpy(((AnimEntry*)g_game->entries_147af)[g_game->count_147ab].name, name);
+    ((AnimEntry*)g_game->entries_147af)[g_game->count_147ab].gaf = gaf;
+    g_game->count_147ab++;
     return gaf;
 }
 
@@ -410,26 +314,26 @@ void LoadGameResources()
     g_game->fxGaf = (int)LoadAnimGaf("fx");
     // Re-read the field into gaf after each group load, not the call's result.
     gaf = (char*)g_game->fxGaf;
-    g_game->smoke1 = (int)FindGafEntry(gaf, "smoke 1");
-    g_game->smoke2 = (int)FindGafEntry(gaf, "smoke 2");
+    g_game->unknown_147cf = (void*)((int)FindGafEntry(gaf, "smoke 1"));
+    g_game->unknown_147d3 = (void*)((int)FindGafEntry(gaf, "smoke 2"));
     g_game->fire1 = (int)FindGafEntry(gaf, "fire1");
     g_game->alfboom1 = (int)FindGafEntry(gaf, "alfboom1");
     FLAG(g_game->alfboom1);
-    g_game->radlogo = (int)FindGafEntry(gaf, "radlogo");
-    g_game->radlogohigh = (int)FindGafEntry(gaf, "radlogohigh");
-    g_game->nuclogo = (int)FindGafEntry(gaf, "nuclogo");
-    g_game->waterSplashSeq = (int)FindGafEntry(gaf, "h2oboom2");
-    FLAG(g_game->waterSplashSeq);
-    g_game->lavaSplashSeq = (int)FindGafEntry(gaf, "lavasplash");
-    FLAG(g_game->lavaSplashSeq);
-    g_game->cannonShellSeq = (int)FindGafEntry(gaf, "cannonshell");
-    g_game->plasmaSmSeq = (int)FindGafEntry(gaf, "plasmasm");
-    g_game->plasmaMdSeq = (int)FindGafEntry(gaf, "plasmamd");
-    g_game->ultraShellSeq = (int)FindGafEntry(gaf, "ultrashell");
-    g_game->plasmaSmSeq2 = (int)FindGafEntry(gaf, "plasmasm");
-    g_game->flameStreamSeq = (int)FindGafEntry(gaf, "flamestream");
-    g_game->explosionSeq = (int)FindGafEntry(gaf, "explosion");
-    FLAG(g_game->explosionSeq);
+    g_game->radlogo = (void*)((int)FindGafEntry(gaf, "radlogo"));
+    g_game->radlogohigh = (void*)((int)FindGafEntry(gaf, "radlogohigh"));
+    g_game->nuclogo = (void*)((int)FindGafEntry(gaf, "nuclogo"));
+    g_game->src1 = (void*)((int)FindGafEntry(gaf, "h2oboom2"));
+    FLAG(((int)g_game->src1));
+    g_game->src2 = (void*)((int)FindGafEntry(gaf, "lavasplash"));
+    FLAG(((int)g_game->src2));
+    g_game->gaf_147bb = (void*)((int)FindGafEntry(gaf, "cannonshell"));
+    g_game->gaf_147bf = (void*)((int)FindGafEntry(gaf, "plasmasm"));
+    g_game->gaf_147c3 = (void*)((int)FindGafEntry(gaf, "plasmamd"));
+    g_game->gaf_147c7 = (void*)((int)FindGafEntry(gaf, "ultrashell"));
+    g_game->gaf_147cb = (void*)((int)FindGafEntry(gaf, "plasmasm"));
+    g_game->unknown_147f3 = (void*)((int)FindGafEntry(gaf, "flamestream"));
+    g_game->src3 = (void*)((int)FindGafEntry(gaf, "explosion"));
+    FLAG(((int)g_game->src3));
     g_game->explode2 = (int)FindGafEntry(gaf, "explode2");
     FLAG(g_game->explode2);
     g_game->explode3 = (int)FindGafEntry(gaf, "explode3");
@@ -440,17 +344,17 @@ void LoadGameResources()
     FLAG(g_game->explode5);
     g_game->nuke1 = (int)FindGafEntry(gaf, "nuke1");
     FLAG(g_game->nuke1);
-    g_game->shadowSeq = (int)FindGafEntry(gaf, "shadow");
+    g_game->gaf_1480f = (void*)((int)FindGafEntry(gaf, "shadow"));
 
     g_game->igTitles = (int)LoadAnimGaf("igtitles");
     gaf = (char*)g_game->igTitles;
-    g_game->endgameBadgeSeqA = (int)FindGafEntry(gaf, "igvictory");
-    g_game->endgameBadgeSeqB = (int)FindGafEntry(gaf, "igdefeat");
+    g_game->image_14813 = (unsigned short*)((int)FindGafEntry(gaf, "igvictory"));
+    g_game->image_14817 = (unsigned short*)((int)FindGafEntry(gaf, "igdefeat"));
     g_game->igpaused = (int)FindGafEntry(gaf, "igpaused");
 
     g_game->vismasks = (int)LoadAnimGaf("vismasks");
     gaf = (char*)g_game->vismasks;
-    g_game->losTable = (int)FindGafEntry(gaf, "vismask");
+    g_game->losTable = (FrameTable*)((int)FindGafEntry(gaf, "vismask"));
 
     g_game->fog = (int)LoadAnimGaf("fog");
     gaf = (char*)g_game->fog;
@@ -463,8 +367,8 @@ void LoadGameResources()
     g_game->gray3 = (int)FindGafEntry(gaf, "Gray3");
     g_game->gray4 = (int)FindGafEntry(gaf, "Gray4");
 
-    g_game->cursors = (int)LoadAnimGaf("cursors");
-    gaf = (char*)g_game->cursors;
+    g_game->field_14903 = (int)LoadAnimGaf("cursors");
+    gaf = (char*)g_game->field_14903;
     g_game->cursorAttack = (int)FindGafEntry(gaf, "cursorattack");
     g_game->cursorAirstrike = (int)FindGafEntry(gaf, "cursorairstrike");
     g_game->cursorTooFar = (int)FindGafEntry(gaf, "cursortoofar");
@@ -482,9 +386,9 @@ void LoadGameResources()
     g_game->cursorFindSite = (int)FindGafEntry(gaf, "cursorfindsite");
     g_game->cursorRed = (int)FindGafEntry(gaf, "cursorred");
     g_game->cursorGrn = (int)FindGafEntry(gaf, "cursorgrn");
-    g_game->cursorNormal = (int)FindGafEntry(gaf, "cursornormal");
+    g_game->cursorNormal = (unsigned short*)((int)FindGafEntry(gaf, "cursornormal"));
     g_game->cursorHourglass = (int)FindGafEntry(gaf, "cursorhourglass");
-    g_game->cursorPathIconSeq = (int)FindGafEntry(gaf, "pathicon");
+    g_game->pathIcon = (int)FindGafEntry(gaf, "pathicon");
     g_game->cursorRevive = (int)FindGafEntry(gaf, "cursorrevive");
 
     // Declared here, not at the top: keeps the TdfFile constructor after the head.
@@ -514,9 +418,9 @@ void LoadGameResources()
             char* side = (char*)LoadAnimGaf(buf);
             if (side) {
                 g_game->panelTop[i] = (int)side;
-                g_game->sidePanelTopSeq[i] = (int)FindGafEntry(side, "PANELTOP");
-                g_game->sidePanelSideSeq[i] = (int)FindGafEntry(side, "PANELSIDE");
-                g_game->sidePanelBotSeq[i] = (int)FindGafEntry(side, "PANELBOT");
+                (*(int(*)[5])&g_game->sidePanelTopSeq)[i] = (int)FindGafEntry(side, "PANELTOP");
+                (*(int(*)[5])&g_game->sidePanelSideSeq)[i] = (int)FindGafEntry(side, "PANELSIDE");
+                (*(int(*)[5])&g_game->sidePanelBotSeq)[i] = (int)FindGafEntry(side, "PANELBOT");
             }
         }
         i++;
@@ -531,17 +435,17 @@ void LoadGameResources()
 void FreeAnimFiles()
 {
     int i;
-    for (i = 0; i < g_game->animCount; i++) {
-        GameFreeThunk(g_game->anims[i].gaf);
+    for (i = 0; i < g_game->count_147ab; i++) {
+        GameFreeThunk(((AnimEntry*)g_game->entries_147af)[i].gaf);
     }
-    GameFreeThunk(g_game->anims);
-    g_game->animCount = 0;
-    g_game->anims = 0;
-    for (i = 0; i < g_game->sideCount; i++) {
+    GameFreeThunk(((AnimEntry*)g_game->entries_147af));
+    g_game->count_147ab = 0;
+    g_game->entries_147af = (AnimEntry_00429700*)(0);
+    for (i = 0; i < g_game->sides; i++) {
         g_game->panelTop[i] = 0;
     }
     g_game->gafAnimClearedSlot = g_game->fxGaf = g_game->igTitles =
-        g_game->vismasks = g_game->fog = g_game->cursors = 0;
+        g_game->vismasks = g_game->fog = g_game->field_14903 = 0;
 }
 
 // Appends an item to the game's growable "Animplay Pointers" array (the
@@ -549,9 +453,9 @@ void FreeAnimFiles()
 // FUNCTION: 0x42a0e0
 void __stdcall AddAnimplayPointer(void* item)
 {
-    g_game->animplayCursors = (void**)GameReallocTagged(g_game->animplayCursors, "Animplay Pointers", (g_game->animplayCursorCount + 1) * 4);
-    g_game->animplayCursors[g_game->animplayCursorCount] = item;
-    g_game->animplayCursorCount++;
+    g_game->data_148eb = (int*)((void**)GameReallocTagged(((void**)g_game->data_148eb), "Animplay Pointers", (g_game->count_148e7 + 1) * 4));
+    ((void**)g_game->data_148eb)[g_game->count_148e7] = item;
+    g_game->count_148e7++;
 }
 
 struct Ref_0042a140 {
@@ -598,7 +502,7 @@ void __stdcall BindModelTextures(Model_0042a140* model, const char* name)
             // Left uninitialised: initialising it to 0 changes the code.
             unsigned short* entry;
             elem->flags &= ~4;
-            for (int j = 0; j < g_game->blockCount; j++) {
+            for (int j = 0; j < g_game->count_148df; j++) {
                 entry = (unsigned short*)FindGafEntry(g_game->blocks[j], (const char*)elem->name);
                 if (entry)
                     break;
@@ -618,9 +522,9 @@ void __stdcall BindModelTextures(Model_0042a140* model, const char* name)
                 InitGafSequence((Ref_0042a140*)&elem->name, entry, 0);
                 elem->flags |= 2;
                 if (!(elem->flags & 4)) {
-                    g_game->animplayCursors = (void**)GameReallocTagged(g_game->animplayCursors, "Animplay Pointers", (g_game->animplayCursorCount + 1) * 4);
-                    g_game->animplayCursors[g_game->animplayCursorCount] = &elem->name;
-                    g_game->animplayCursorCount++;
+                    g_game->data_148eb = (int*)((void**)GameReallocTagged(((void**)g_game->data_148eb), "Animplay Pointers", (g_game->count_148e7 + 1) * 4));
+                    ((void**)g_game->data_148eb)[g_game->count_148e7] = &elem->name;
+                    g_game->count_148e7++;
                 }
                 continue;
             }
@@ -655,7 +559,7 @@ void* __stdcall LoadObject3d(const char* name)
 // FUNCTION: 0x42a320
 void LoadGameFonts()
 {
-    g_game->fontComix = LoadFontByName("COMIX");
+    g_game->fontComix = (int)(LoadFontByName("COMIX"));
     g_game->fontSmlFont = LoadFontByName("smlfont");
 }
 
@@ -664,8 +568,8 @@ void FreeGameFonts()
 {
     GameFreeThunk(g_game->fontSmlFont);
     g_game->fontSmlFont = 0;
-    GameFreeThunk(g_game->fontComix);
-    g_game->fontComix = 0;
+    GameFreeThunk(((void*)g_game->fontComix));
+    g_game->fontComix = (int)(0);
 }
 
 // FUNCTION: 0x42a400
@@ -695,7 +599,7 @@ void LoadTextureGafs()
 
     BuildDataPath(path, "textures", "*", "GAF");
     int count = CountDirectoryEntries(path, 0);
-    g_game->blockCount = count - 1;
+    g_game->count_148df = count - 1;
     void** texturePtrs = (void**)GameAllocIgnoreTag("TEXTURE PTRS", count * 4);
     g_game->blocks = texturePtrs;
     int handle = HAPI_FindFirst(path, &fd, -1, 1);
@@ -717,8 +621,8 @@ void LoadTextureGafs()
         g_game->progress = 100;
         HAPI_FindClose(handle);
     }
-    g_game->animplayCursorCount = 0;
-    g_game->animplayCursors = 0;
+    g_game->count_148e7 = 0;
+    g_game->data_148eb = (int*)(0);
 }
 
 // Frees the game's block table at +0x148e3 (each of its count entries, then
@@ -727,16 +631,16 @@ void LoadTextureGafs()
 // FUNCTION: 0x42a570
 void FreeTextureGafs()
 {
-    for (int i = 0; i < g_game->blockCount; i++) {
+    for (int i = 0; i < g_game->count_148df; i++) {
         GameFreeThunk(g_game->blocks[i]);
         g_game->blocks[i] = 0;
     }
     GameFreeThunk(g_game->blocks);
     g_game->blocks = 0;
-    if (g_game->animplayCursors) {
-        GameFreeThunk(g_game->animplayCursors);
-        g_game->animplayCursors = 0;
-        g_game->animplayCursorCount = 0;
+    if (((void**)g_game->data_148eb)) {
+        GameFreeThunk(((void**)g_game->data_148eb));
+        g_game->data_148eb = (int*)(0);
+        g_game->count_148e7 = 0;
     }
 }
 
@@ -775,7 +679,7 @@ void __stdcall ComputeUnitScriptChecksum(UnitDef* def)
     if (def->scriptChecksum)
         return;
 
-    ProtectBlockReadWrite(g_game->unitDefs);
+    ProtectBlockReadWrite(((void*)g_game->defs));
 
     char path[256];
     int size;
@@ -818,7 +722,7 @@ void __stdcall ComputeUnitScriptChecksum(UnitDef* def)
     }
 
     def->scriptChecksum ^= def->weaponHashXor;
-    ProtectBlockReadOnly(g_game->unitDefs);
+    ProtectBlockReadOnly(((void*)g_game->defs));
 }
 
 // The compiler-generated vector deleting destructor of the 12-byte class whose

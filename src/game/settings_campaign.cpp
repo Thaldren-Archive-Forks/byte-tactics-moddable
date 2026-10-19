@@ -28,41 +28,7 @@ struct Options_004326b0 {
     int location;                      // +0x118
 };
 
-struct Game {
-    char unknown_0[4];
-    char* buildDate;                   // +0x04
-    char* buildTime;                   // +0x08
-    char unknown_c[0x1b8a - 0xc];
-    PlayerEntry_004326b0 players[10];  // +0x1b8a
-    char unknown_2878[0x29a0 - 0x2878];
-    Options_004326b0* options;         // +0x29a0
-    char unknown_29a4[0x2a3c - 0x29a4];
-    unsigned short numPlayers;         // +0x2a3c
-    char unknown_2a3e[0x2a42 - 0x2a3e];
-    unsigned char localPlayer;         // +0x2a42
-    char unknown_2a43[0x142db - 0x2a43];
-    void* finalSurface;                // +0x142db
-    char unknown_142df[0x37ebe - 0x142df];
-    unsigned short flags_0 : 4;        // +0x37ebe
-    unsigned short loaded : 1;         // +0x37ebe, bit 4
-    unsigned short flags_5 : 11;
-    char unknown_37ec0[0x37eec - 0x37ec0];
-    unsigned short unitLimitIni;       // +0x37eec
-    int difficulty;                    // +0x37eee
-    char unknown_37ef2[0x38a47 - 0x37ef2];
-    int gameTick;                      // +0x38a47
-    char unknown_38a4b[0x38d7f - 0x38a4b];
-    unsigned short allMissionsFlags;   // +0x38d7f
-    int numSkirmishPlayers;            // +0x38d81
-    char unknown_38d85[0x391ab - 0x38d85];
-    int mission;                       // +0x391ab
-    char unknown_391af[0x391cf - 0x391af];
-    char campaignMissionStatus[0x19];  // +0x391cf
-    char unknown_391e8[0x391e9 - 0x391e8];
-    Mission* mapInfo;                  // +0x391e9
-    MissionConditions* victoryConditions;  // +0x391ed
-    int frontendState;                 // +0x391f1
-};
+#include "game.h"
 #pragma pack(pop)
 
 #include "../map/mission.h"
@@ -165,7 +131,7 @@ int __stdcall LoadSavedGameState(HapiBank* file)
 {
     file->OpenAccount(g_summaryAccountName);
     if (file->HasItem("maxunits"))
-        g_game->unitLimitIni = file->GetIntegerItem("maxunits", 0);
+        g_game->maxUnits_37eec = file->GetIntegerItem("maxunits", 0);
     g_seams.players->LoadPlayers(file);
     ReadCameraPosition(file);
     g_seams.features->LoadFeatures(file);
@@ -174,8 +140,8 @@ int __stdcall LoadSavedGameState(HapiBank* file)
     g_seams.map->LoadMappingData(file);
     g_seams.units->LoadUnits(file);
     g_seams.wind_meteors->LoadMeteors(file);
-    g_seams.players->LoadConditions(g_game->victoryConditions, 0, file);
-    g_game->loaded = 1;
+    g_seams.players->LoadConditions(g_game->list_391ed, 0, file);
+    g_game->bits_37ebe_2.loaded = 1;
     return 1;
 }
 
@@ -194,39 +160,39 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
     file.NewBank();
     (&file)->OpenAccount(g_summaryAccountName);
 
-    sprintf(buf, g_buildDateFormat, g_game->buildDate);
+    sprintf(buf, g_buildDateFormat, g_game->build_date);
     (&file)->SetIntegerItem(buf, 0);
-    sprintf(buf, g_buildTimeFormat, g_game->buildTime);
+    sprintf(buf, g_buildTimeFormat, g_game->build_time);
     (&file)->SetIntegerItem(buf, 0);
-    (&file)->SetIntegerItem(g_maxUnitsKey, g_game->unitLimitIni);
-    (&file)->SetStringItem(g_campaignKey, g_seams.map->GetCampaignName(g_game->mapInfo));
-    if (g_game->frontendState != 6) {
-        g_seams.map->AdvanceMission(g_game->mapInfo);
+    (&file)->SetIntegerItem(g_maxUnitsKey, g_game->maxUnits_37eec);
+    (&file)->SetStringItem(g_campaignKey, g_seams.map->GetCampaignName(g_game->net));
+    if (g_game->mode_391f1 != 6) {
+        g_seams.map->AdvanceMission(g_game->net);
     }
-    (&file)->SetStringItem(g_missionKey, g_seams.map->GetMissionName(g_game->mapInfo));
-    (&file)->SetStringItem(g_mapKey, g_seams.map->GetMissionName(g_game->mapInfo));
+    (&file)->SetStringItem(g_missionKey, g_seams.map->GetMissionName(g_game->net));
+    (&file)->SetStringItem(g_mapKey, g_seams.map->GetMissionName(g_game->net));
     (&file)->SetIntegerItem(g_difficultyKey, g_game->difficulty);
-    (&file)->SetIntegerItem(g_sideKey, g_game->players[g_game->localPlayer].info->side);
-    (&file)->SetIntegerItem(g_playersKey, g_game->numPlayers);
-    (&file)->SetIntegerItem(g_gameTypeKey, g_seams.map->GetGameType(g_game->mapInfo));
-    (&file)->SetStringItem(g_thumbsKey, g_game->campaignMissionStatus);
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 2) {
-        (&file)->SetIntegerItem(g_commanderDeathKey, g_game->options->commanderDeath);
-        (&file)->SetIntegerItem(g_locationKey, g_game->options->location);
-        (&file)->SetIntegerItem(g_mappingKey, g_game->options->mapping);
-        (&file)->SetIntegerItem(g_lineOfSightKey, g_game->options->lineOfSight);
-        (&file)->SetIntegerItem(g_lineOfSightTypeKey, g_game->options->lineOfSightType);
+    (&file)->SetIntegerItem(g_sideKey, (*(PlayerEntry_004326b0(*)[10])&g_game->players_1b8a)[g_game->localPlayer].info->side);
+    (&file)->SetIntegerItem(g_playersKey, g_game->field_2a3c);
+    (&file)->SetIntegerItem(g_gameTypeKey, g_seams.map->GetGameType(g_game->net));
+    (&file)->SetStringItem(g_thumbsKey, g_game->campaignMissionStatus_391cf);
+    if (g_seams.map->GetGameType(g_game->net) == 2) {
+        (&file)->SetIntegerItem(g_commanderDeathKey, ((Options_004326b0*)g_game->options)->commanderDeath);
+        (&file)->SetIntegerItem(g_locationKey, ((Options_004326b0*)g_game->options)->location);
+        (&file)->SetIntegerItem(g_mappingKey, ((Options_004326b0*)g_game->options)->mapping);
+        (&file)->SetIntegerItem(g_lineOfSightKey, ((Options_004326b0*)g_game->options)->lineOfSight);
+        (&file)->SetIntegerItem(g_lineOfSightTypeKey, ((Options_004326b0*)g_game->options)->lineOfSightType);
     }
-    if (g_game->frontendState != 6) {
+    if (g_game->mode_391f1 != 6) {
         (&file)->SetIntegerItem(g_betweenMissionsKey, 1);
-        g_seams.map->SelectMission(g_game->mapInfo, 0, g_game->mission);
+        g_seams.map->SelectMission(g_game->net, 0, g_game->mission);
     }
     if (description != 0) {
         (&file)->SetStringItem(g_descriptionKey, description);
     }
     (&file)->SetIntegerItem(g_gameIdKey, gameId);
-    (&file)->SetIntegerItem(g_gameTimeKey, g_game->gameTick);
-    if (g_game->frontendState == 6) {
+    (&file)->SetIntegerItem(g_gameTimeKey, g_game->ticks);
+    if (g_game->mode_391f1 == 6) {
         (&file)->OpenNamedBox(g_radarImageBoxName);
         SaveSurface(g_game->finalSurface, &file);
         WriteCameraPosition(&file);
@@ -237,7 +203,7 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
         g_seams.map->SavePlayerFeaturesPlotmap(&file);
         g_seams.map->SaveMetalPlotmap(&file);
         g_seams.wind_meteors->SaveMeteors(&file);
-        g_seams.players->SaveConditions(g_game->victoryConditions, 0, &file);
+        g_seams.players->SaveConditions(g_game->list_391ed, 0, &file);
     }
     int result = file.SaveBank(path, g_saveBankName, 1, 0);
     (&file)->CloseBank();
@@ -275,11 +241,11 @@ void __stdcall SaveCampaignRegistryName(int core, char* name)
 // FUNCTION: 0x432b60
 void SaveAllMissionsSetting()
 {
-    WriteRegistryDword("Total Annihilation", "AllMissions", g_game->allMissionsFlags & 1);
+    WriteRegistryDword("Total Annihilation", "AllMissions", g_game->flags_38d7f & 1);
 }
 
 // FUNCTION: 0x432b80
 void SaveNumSkirmishPlayers()
 {
-    WriteRegistryDword("Total Annihilation", "NumSkirmishPlayers", g_game->numSkirmishPlayers);
+    WriteRegistryDword("Total Annihilation", "NumSkirmishPlayers", g_game->playerCount);
 }

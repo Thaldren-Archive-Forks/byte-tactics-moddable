@@ -106,21 +106,7 @@ void ScaleUnitWeights(int, unsigned int*, float, int);
 void __stdcall DrawFrame(void* surface, void* header, int x, int y);
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[1];                       // +0
-    unsigned char version;                   // +1
-    unsigned char versionMinor;              // +2
-    unsigned char versionBuild;              // +3
-    char unknown_4[0xc - 4];                 // +4
-    void* displayContext;                    // +0xc
-    Sound* sound;                            // +0x10
-    char unknown_14[0x2a44 - 0x14];
-    unsigned short netGameFlags;             // +0x2a44
-    char unknown_2a46[0x37f14 - 0x2a46];
-    unsigned char musicMode;                 // +0x37f14
-    unsigned char field_37f15;               // +0x37f15
-    unsigned char cdMode;                    // +0x37f16
-};
+#include "game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -276,10 +262,10 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     InitTimers(0x1e);
     RegisterDataArchives();
     EmptyPostArchiveMountHook(DAT_005097f4);
-    g_game->displayContext = &g_displayContext;
-    g_game->version = 3;
-    g_game->versionMinor = 1;
-    g_game->versionBuild = 1;
+    g_game->unknown_c = (Ctx_00499890*)(&g_displayContext);
+    g_game->field_1 = 3;
+    g_game->field_2 = 1;
+    g_game->field_3 = 1;
     if (strlen(g_preferredLanguage) == 0) {
         size1c = 0x40;
         ReadGameRegistryValue(g_languageValueName, g_preferredLanguage, (int*)&size1c);
@@ -287,7 +273,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             strcpy(g_preferredLanguage, g_defaultLanguage);
     }
     LoadTranslations(g_translationFile, g_preferredLanguage);
-    g_game->sound = new Sound;
+    g_game->field_10 = (Class_004cdb40*)(new Sound);
     EmptyPreFrontendInitHook();
     InitGame();
 
@@ -312,30 +298,30 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     for (;;) {
         for (;;) {
-            if (g_displayContext.active == lzero && *(int*)g_game->sound != 0) {
+            if (g_displayContext.active == lzero && *(int*)((Sound*)g_game->field_10) != 0) {
                 SaveCdLists();
-                g_cdTrackCategory = g_game->sound->GetTrackCategory();
-                g_game->sound->CloseCdAudio();
+                g_cdTrackCategory = ((Sound*)g_game->field_10)->GetTrackCategory();
+                ((Sound*)g_game->field_10)->CloseCdAudio();
                 g_cdNeedsReopenAfterFocus = 1;
-            } else if (g_displayContext.active != lzero && *(int*)g_game->sound == 0
+            } else if (g_displayContext.active != lzero && *(int*)((Sound*)g_game->field_10) == 0
                        && g_cdNeedsReopenAfterFocus != 0) {
-                g_game->sound->OpenCdAudio();
-                g_game->sound->SetCdCallback(ReopenCdAudio);
-                g_game->sound->EnableCdAudio(g_game->musicMode & 1);
-                g_game->sound->SetPlaybackOrder(g_game->cdMode);
-                g_game->sound->SetTrackCategory(g_cdTrackCategory);
+                ((Sound*)g_game->field_10)->OpenCdAudio();
+                ((Sound*)g_game->field_10)->SetCdCallback(ReopenCdAudio);
+                ((Sound*)g_game->field_10)->EnableCdAudio(g_game->musicMode & 1);
+                ((Sound*)g_game->field_10)->SetPlaybackOrder(g_game->cdMode);
+                ((Sound*)g_game->field_10)->SetTrackCategory(g_cdTrackCategory);
                 ReopenCdAudio();
                 g_cdNeedsReopenAfterFocus = 0;
             }
             if (PeekMessageA(&msg, NULL, 0, 0, 0) != 0)
                 break;
-            if (g_displayContext.active == 0 && (g_game->netGameFlags & 1) == 0)
+            if (g_displayContext.active == 0 && (g_game->flags_2a44 & 1) == 0)
                 break;
             MainFrameTick();
             {
                 DWORD tick = GetTickCount();
                 if ((int)(tick - g_lastSoundReapTick) >= 100) {
-                    g_game->sound->ReapFinishedBuffers();
+                    ((Sound*)g_game->field_10)->ReapFinishedBuffers();
                     g_lastSoundReapTick = tick;
                 }
             }

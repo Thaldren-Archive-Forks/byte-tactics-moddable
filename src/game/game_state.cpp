@@ -20,175 +20,10 @@ struct Src_004ab400;
 
 #include "../network/player.h"
 
-struct Zero11_004917d0 {
-    int a;
-    int b;
-    short c;
-    char d;
-
-    void Clear()
-    {
-        a = 0;
-        b = 0;
-        c = 0;
-        d = 0;
-    }
-};
+#include "game.h"
 
 class Sound;
 
-struct Game {
-    char unknown_0[0xc];
-    Display_00491a70* displayContext;  // +0xc
-    Sound* sound; // +0x10
-    char unknown_14[0x519 - 0x14];
-    Gui gui;   // +0x519
-    char unknown_120f[0x12ef - 0x120f];
-    char chatHudRing[4];  // +0x12ef
-    char unknown_12f3[0x1b63 - 0x12f3];
-    Player players[10];            // +0x1b63
-    char unknown_2851[0x29a0 - 0x2851];
-    void* options;      // +0x29a0
-    char unknown_29a4[0x2a44 - 0x29a4];
-    union {
-        unsigned char netGameFlags;
-        unsigned short netGameFlagsWord;
-    };
-    unsigned char netOrCdSentinel;  // +0x2a46
-    char unknown_2a47[0x2bee - 0x2a47];
-    union {
-        unsigned short lobbyUiDirtyFlags;
-        struct {
-            unsigned short pad_2bee : 5;
-            unsigned short flags_2bee : 3;
-            unsigned short rest_2bee : 8;
-        };
-    };
-    char unknown_2bf0[0x2bf1 - 0x2bf0];
-    Zero11_004917d0 chatRecipients;  // +0x2bf1
-    char unknown_2bfc[0x2cba - 0x2bfc];
-    unsigned short hoverUnitId;  // +0x2cba
-    char unknown_2cbc[0x2cbe - 0x2cbc];
-    signed char cursorMode;  // +0x2cbe
-    char unknown_2cbf[0x2cc3 - 0x2cbf];
-    unsigned char orderMode;   // +0x2cc3
-    unsigned short buildTypeIndex;  // +0x2cc4
-    union {
-        unsigned char flags_2cc6;
-        struct {
-            unsigned char pad_2cc6 : 5;
-            unsigned char bit5_2cc6 : 1;
-            unsigned char bit6_2cc6 : 1;
-            unsigned char rest_2cc6 : 1;
-        };
-    };
-    char unknown_2cc7[0x1425b - 0x2cc7];
-    int windSpeedMin;  // +0x1425b
-    int windSpeedMax;  // +0x1425f
-    char unknown_14263[0x14280 - 0x14263];
-    unsigned char debugMode;  // +0x14280
-    char unknown_14281[0x14383 - 0x14281];
-    void* tempXformPts;   // +0x14383
-    void* tempProjectedPts;   // +0x14387
-    void* assemPts;   // +0x1438b
-    char unknown_1438f[0x143a7 - 0x1438f];
-    char paletteRgba[4];   // +0x143a7
-    char unknown_143ab[0x1487f - 0x143ab];
-    Src_004ab400* cursorModeSeq[1];   // +0x1487f
-    char unknown_14883[0x148cb - 0x14883];
-    unsigned short* cursorNormal;  // +0x148cb
-    char unknown_148cf[0x37e1b - 0x148cf];
-    int offscreen;             // +0x37e1b
-    int screenWidth;             // +0x37e1f
-    int screenHeight;  // +0x37e23
-    char unknown_37e27[0x37e9c - 0x37e27];
-    short unitIndex;     // +0x37e9c
-    char unknown_37e9e[0x37ea0 - 0x37e9e];
-    char mainHudLayoutName[0x1e];   // +0x37ea0
-    union {
-        unsigned short flags_37ebe;
-        struct {
-            unsigned short bit0_37ebe : 1;
-            unsigned short pad_37ebe : 10;
-            unsigned short bit11_37ebe : 1;
-            unsigned short rest_37ebe : 4;
-        };
-    };
-    char unknown_37ec0[0x37ec4 - 0x37ec0];
-    unsigned int windCounter;   // +0x37ec4
-    int windSpeedDenominator;  // +0x37ec8
-    int windVelX;   // +0x37ecc
-    char unknown_37ed0[0x37ed4 - 0x37ed0];
-    int windZ;   // +0x37ed4
-    unsigned short windDirection;   // +0x37ed8
-    int windSpeed;   // +0x37eda
-    float windFraction;   // +0x37ede
-    int windEnabled;   // +0x37ee2
-    short maxUnits;      // +0x37ee6
-    char unknown_37ee8[0x37eea - 0x37ee8];
-    short maxUnitsLobby;  // +0x37eea
-    short unitLimitIni;  // +0x37eec
-    char unknown_37eee[0x37efe - 0x37eee];
-    int chatHudFilterMode;  // +0x37efe
-    char unknown_37f02[0x37f08 - 0x37f02];
-    int gamma;         // +0x37f08
-    char unknown_37f0c[0x37f14 - 0x37f0c];
-    unsigned char musicMode;     // +0x37f14
-    char unknown_37f15[0x37f16 - 0x37f15];
-    unsigned char cdMode;        // +0x37f16
-    char unknown_37f17[0x37f2f - 0x37f17];
-    union {
-        unsigned short uiOptionFlags;
-        struct {
-            unsigned short pad_37f2f : 7;
-            unsigned short bit7_37f2f : 1;
-            unsigned short bit8_37f2f : 1;
-            unsigned short bit9_37f2f : 1;
-            unsigned short rest_37f2f : 6;
-        };
-    };
-    char unknown_37f31[0x38a37 - 0x37f31];
-    unsigned int lastSimBudgetTick;      // +0x38a37
-    char unknown_38a3b[0x38a43 - 0x38a3b];
-    int carry;         // +0x38a43
-    unsigned int gameTick;      // +0x38a47
-    union {
-        short gameSpeed;
-        unsigned short speed_38a4b;
-    };
-    short effectiveGameSpeed;  // +0x38a4d
-    char unknown_38a4f[0x38c53 - 0x38a4f];
-    int movieCaptureIndex;  // +0x38c53
-    char unknown_38c57[0x38c5f - 0x38c57];
-    int imageOutputDirDirty;  // +0x38c5f
-    int movieOutputRateDirty;  // +0x38c63
-    int unusedAfterMovieOutputRateDirty;  // +0x38c67
-    char unknown_38c6b[0x38d6b - 0x38c6b];
-    int pendingSaveStore;  // +0x38d6b
-    char unknown_38d6f[0x38d7b - 0x38d6f];
-    int moviePlayer;   // +0x38d7b
-    char unknown_38d7f[0x391e9 - 0x38d7f];
-    Mission* mapInfo;       // +0x391e9
-    char unknown_391ed[0x391f1 - 0x391ed];
-    int frontendState;   // +0x391f1
-    void (*handler)();   // +0x391f5
-    int fontComix;     // +0x391f9
-    char unknown_391fd[0x3923b - 0x391fd];
-    union {
-        unsigned short endGameFlags;
-        struct {
-            unsigned short pad0_3923b : 2;
-            unsigned short bit2_3923b : 1;
-            unsigned short pad1_3923b : 1;
-            unsigned short bit4_3923b : 1;
-            unsigned short bit5_3923b : 1;
-            unsigned short bit6_3923b : 1;
-            unsigned short rest_3923b : 9;
-        };
-    };
-    char unknown_3923d[0x39249 - 0x3923d];
-    int restartMissionRequest;  // +0x39249
-};
 #pragma pack(pop)
 
 // GLOBAL: 0x511de8
@@ -202,8 +37,8 @@ void __stdcall SetRestoreSurface(int surface);
 // FUNCTION: 0x490ac0
 void CreateOffscreenSurface()
 {
-    g_game->offscreen = AllocSurface(g_offscreenSurfaceName, g_game->screenWidth, g_game->screenHeight);
-    SetRestoreSurface(g_game->offscreen);
+    g_game->screen = AllocSurface(g_offscreenSurfaceName, g_game->width_37e1f, g_game->field_37e23);
+    SetRestoreSurface(g_game->screen);
 }
 
 // Releases the offscreen object created by 0x490ac0.
@@ -213,8 +48,8 @@ void RestoreScreen();
 // FUNCTION: 0x490b00
 void FreeOffscreenSurface()
 {
-    GameFreeThunk((int*)g_game->offscreen);
-    g_game->offscreen = 0;
+    GameFreeThunk((int*)g_game->screen);
+    g_game->screen = 0;
     SetRestoreSurface(0);
     RestoreScreen();
 }
@@ -237,7 +72,7 @@ void EndGameFrame();
 // FUNCTION: 0x490b30
 void __stdcall SetGameMode(int param)
 {
-    g_game->frontendState = param;
+    g_game->mode_391f1 = param;
     switch (param) {
     case 0:
         g_game->handler = InitFrame;
@@ -294,7 +129,7 @@ void __cdecl UpdateWind()
 
 void __cdecl UpdateWindOnStream(RandStream stream)
 {
-    if (g_game->windCounter < g_game->gameTick) {
+    if (g_game->windCounter < ((unsigned int)g_game->ticks)) {
         // The __int64 cast keeps the _allmul/_alldiv calls; keep this one
         // expression with no temporary.
         g_game->windCounter += ((int)((__int64)GameRand(stream) * 10 / 0x8000) + 5) * 30;
@@ -306,12 +141,12 @@ void __cdecl UpdateWindOnStream(RandStream stream)
         if (g_game->windSpeed != 0)
             g_game->windDirection = RandomInt(0x10000);
 
-        g_game->windVelX = -FUN_004b70ef(g_game->windDirection, g_game->windSpeed) * 2;
+        g_game->windX = -FUN_004b70ef(g_game->windDirection, g_game->windSpeed) * 2;
         g_game->windZ = -FUN_004b7123(g_game->windDirection, g_game->windSpeed) * 2;
 
-        g_game->windFraction = (float)g_game->windSpeed / (float)g_game->windSpeedDenominator;
-        if (1.0 < g_game->windFraction)
-            g_game->windFraction = 1.0f;
+        g_game->windStrength = (float)g_game->windSpeed / (float)g_game->windSpeedDenominator;
+        if (1.0 < g_game->windStrength)
+            g_game->windStrength = 1.0f;
 
         g_game->windEnabled = 1;
     } else {
@@ -322,8 +157,8 @@ void __cdecl UpdateWindOnStream(RandStream stream)
 // FUNCTION: 0x490da0
 void ResetGameSpeed()
 {
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
-        g_game->gameSpeed = 10;
+    if (g_seams.map->GetGameType(g_game->net) == 3) {
+        g_game->gameSpeed = (unsigned short)(10);
         g_game->effectiveGameSpeed = 10;
     }
     g_game->carry = 0;
@@ -342,7 +177,7 @@ void __stdcall SetGameSpeed(int speed, int broadcast)
         speed = 0x14;
     if (speed < 1)
         speed = 1;
-    if (speed != g_game->speed_38a4b) {
+    if (speed != g_game->gameSpeed) {
         char buf[100];
         int d = speed - 10;
         if (d == 0) {
@@ -353,7 +188,7 @@ void __stdcall SetGameSpeed(int speed, int broadcast)
         }
         AddMessage(buf, 2, 0, 10);
     }
-    g_game->speed_38a4b = speed;
+    g_game->gameSpeed = speed;
     g_game->effectiveGameSpeed = speed;
     if (broadcast) {
         char data[3];
@@ -367,7 +202,7 @@ void __stdcall SetGameSpeed(int speed, int broadcast)
 // FUNCTION: 0x490ee0
 void IncreaseGameSpeed()
 {
-    unsigned short value = g_game->speed_38a4b;
+    unsigned short value = g_game->gameSpeed;
     if (value < 0x14) {
         SetGameSpeed(value + 1, 1);
     }
@@ -377,7 +212,7 @@ void IncreaseGameSpeed()
 // FUNCTION: 0x490f10
 void DecreaseGameSpeed()
 {
-    unsigned short value = g_game->speed_38a4b;
+    unsigned short value = g_game->gameSpeed;
     if (value > 1) {
         SetGameSpeed(value - 1, 1);
     }
@@ -424,8 +259,8 @@ void __stdcall WriteGameRegistryValue(void* key, void* buf, int value);
 // FUNCTION: 0x490f80
 void SaveCdLists()
 {
-    for (int i = 0; i < g_game->sound->GetTrackCount(); i++) {
-        g_cdListsDiscEntries.tracks[i] = g_game->sound->GetCategoryOfTrack(i + 1);
+    for (int i = 0; i < ((Sound*)g_game->field_10)->GetTrackCount(); i++) {
+        g_cdListsDiscEntries.tracks[i] = ((Sound*)g_game->field_10)->GetCategoryOfTrack(i + 1);
     }
     WriteGameRegistryValue((void*)"CDLISTS", &g_cdListsDiscEntries, sizeof(g_cdListsDiscEntries));
 }
@@ -451,15 +286,15 @@ void ReopenCdAudio()
     char tracks[16] = {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     char buf[0x88];
 
-    int saved = g_game->sound->GetTrackCategory();
+    int saved = ((Sound*)g_game->field_10)->GetTrackCategory();
     mciSendStringA("stop cdaudio", 0, 0, 0);
     mciSendStringA("close cdaudio", 0, 0, 0);
     mciSendStringA("open cdaudio", 0, 0, 0);
-    g_game->sound->EnableCdAudio(g_game->musicMode & 1);
-    g_game->sound->SetPlaybackOrder(g_game->cdMode);
-    g_game->sound->SetTrackCategory(saved);
+    ((Sound*)g_game->field_10)->EnableCdAudio(g_game->musicMode & 1);
+    ((Sound*)g_game->field_10)->SetPlaybackOrder(g_game->cdMode);
+    ((Sound*)g_game->field_10)->SetTrackCategory(saved);
 
-    int id = g_game->sound->GetDiscSerial();
+    int id = ((Sound*)g_game->field_10)->GetDiscSerial();
     int index = 0;
     int* slot = &DAT_0051e848;
     // Test *slot != id first, with the break as its own block: else the loop is rotated.
@@ -479,13 +314,13 @@ void ReopenCdAudio()
             memcpy((char*)&g_cdListsDiscEntries + j * 0x88,
                    (char*)&g_cdListsDiscEntries + (j - 1) * 0x88, 0x88);
         memcpy(&g_cdListsDiscEntries, buf, 0x88);
-        g_game->sound->CopyTrackTypeTable(&g_cachedCdTrackTypes);
+        ((Sound*)g_game->field_10)->CopyTrackTypeTable(&g_cachedCdTrackTypes);
     }
 newdisc:
     if (index == 0x14) {
-        if (g_game->sound->GetTrackCount() == 0x10) {
-            if (g_game->sound->IsFirstTrackData() != 0) {
-                g_game->sound->CopyTrackTypeTable(tracks);
+        if (((Sound*)g_game->field_10)->GetTrackCount() == 0x10) {
+            if (((Sound*)g_game->field_10)->IsFirstTrackData() != 0) {
+                ((Sound*)g_game->field_10)->CopyTrackTypeTable(tracks);
             }
         }
         // Downward pointer walk against the addresses, not an index loop.
@@ -498,10 +333,10 @@ newdisc:
         DAT_0051e858 = *(int*)&tracks[12];
         DAT_0051e848 = id;
     }
-    if ((g_game->netGameFlags & 4) != 0 && g_game->frontendState == 6)
-        g_game->sound->PlayNextTrack();
+    if ((g_game->netGameFlags & 4) != 0 && g_game->mode_391f1 == 6)
+        ((Sound*)g_game->field_10)->PlayNextTrack();
     else
-        g_game->sound->StopCdAudio();
+        ((Sound*)g_game->field_10)->StopCdAudio();
 }
 
 extern const char g_skirmishInfoTag[];     // "SkirmishInfo"
@@ -561,23 +396,23 @@ void InitGame()
         mem.dwLength = 0x20;
         GlobalMemoryStatus(&mem);
     }
-    g_game->screenWidth = GetScreenWidth();
-    g_game->screenHeight = GetScreenHeight();
-    g_game->offscreen = AllocSurface(g_offscreenSurfaceName, g_game->screenWidth,
-                                      g_game->screenHeight);
-    SetRestoreSurface(g_game->offscreen);
+    g_game->width_37e1f = GetScreenWidth();
+    g_game->field_37e23 = GetScreenHeight();
+    g_game->screen = AllocSurface(g_offscreenSurfaceName, g_game->width_37e1f,
+                                      g_game->field_37e23);
+    SetRestoreSurface(g_game->screen);
     g_game->endGameFlags &= 0xfffe;
     g_game->endGameFlags &= 0xfffd;
     g_game->restartMissionRequest = 0;
     g_seams.map->SetMissionType(0);
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
-        g_game->gameSpeed = 10;
+    if (g_seams.map->GetGameType(g_game->net) == 3) {
+        g_game->gameSpeed = (unsigned short)(10);
         g_game->effectiveGameSpeed = 10;
     }
     g_game->carry = 0;
-    g_game->maxUnits = g_game->unitLimitIni;
-    g_game->maxUnitsLobby = g_game->maxUnits;
-    g_game->chatHudFilterMode = 3;
+    g_game->field_37ee6 = (unsigned short)(((short)g_game->maxUnits_37eec));
+    g_game->maxUnits = (unsigned short)(((short)g_game->field_37ee6));
+    g_game->mode = 3;
     g_game->uiOptionFlags &= 0xfdff;
     g_game->uiOptionFlags &= 0xff7f;
     g_game->uiOptionFlags &= 0xfeff;
@@ -590,26 +425,26 @@ void InitGame()
     LoadGameFonts();
     LoadDefaultPalette();
     LoadAllSound();
-    LoadAlphaTable(g_game->paletteRgba);
-    LoadShadeTable(g_game->paletteRgba);
-    LoadLightTable(g_game->paletteRgba);
-    MakeGrayTable(g_game->paletteRgba);
-    MakeBlueTable(g_game->paletteRgba);
-    g_game->options = GameAllocIgnoreTag(g_skirmishInfoTag, 0x22c);
+    LoadAlphaTable(g_game->field_143a7);
+    LoadShadeTable(g_game->field_143a7);
+    LoadLightTable(g_game->field_143a7);
+    MakeGrayTable(g_game->field_143a7);
+    MakeBlueTable(g_game->field_143a7);
+    g_game->options = (Entry_00479620*)(GameAllocIgnoreTag(g_skirmishInfoTag, 0x22c));
     LoadSettings();
     size = 0xaa0;
     int ok = ReadGameRegistryValue(g_cdListsKey, &g_cdListsDiscEntries, &size);
     if (ok == 0)
         memset(&g_cdListsDiscEntries, 0, 0xaa0);
-    g_game->sound->EnableCdAudio(g_game->musicMode & 1);
-    g_game->sound->SetPlaybackOrder(g_game->cdMode);
-    g_game->sound->SetCdCallback(ReopenCdAudio);
+    ((Sound*)g_game->field_10)->EnableCdAudio(g_game->musicMode & 1);
+    ((Sound*)g_game->field_10)->SetPlaybackOrder(g_game->cdMode);
+    ((Sound*)g_game->field_10)->SetCdCallback(ReopenCdAudio);
     ReopenCdAudio();
-    g_game->sound->SetTrackCategory(0);
+    ((Sound*)g_game->field_10)->SetTrackCategory(0);
     ApplyBrightnessAndVolume();
     LoadSideData();
     LoadLogos();
-    SetBrightness(0.5 - g_game->gamma * -0.041666668f);
+    SetBrightness(0.5 - g_game->brightness * -0.041666668f);
     SetCurrentGuiContext(&g_game->gui);
     SetGuiPath(&g_game->gui, g_guisDirName);
     SetAnimsPath(&g_game->gui, g_animsDirName);
@@ -624,12 +459,12 @@ void InitGame()
     SetFont(g_game->fontComix);
     g_game->debugMode = 0;
     g_game->movieCaptureIndex = 0;
-    g_game->imageOutputDirDirty = 0;
-    g_game->movieOutputRateDirty = 0;
+    g_game->valueSet = 0;
+    g_game->valueSet_38c63 = 0;
     g_game->unusedAfterMovieOutputRateDirty = 0;
     g_game->pendingSaveStore = 0;
-    g_game->moviePlayer = 0;
-    g_game->frontendState = 0;
+    g_game->moviePlayer = (void*)(0);
+    g_game->mode_391f1 = 0;
     g_game->handler = InitFrame;
     SetCloseHandler(LeaveNetGameCallback, 0);
     {
@@ -644,7 +479,7 @@ void InitGame()
         limit = 500;
     else if (limit < 20)
         limit = 20;
-    g_game->unitLimitIni = limit;
+    g_game->maxUnits_37eec = (unsigned short)(limit);
 }
 
 // Saves the per-track bytes from the CD object into the CD-list settings
@@ -668,8 +503,8 @@ void __stdcall ReleasePacketData(Class_00452370* obj);
 // FUNCTION: 0x4916a0
 void ShutdownGame(void)
 {
-    for (int i = 0; i < g_game->sound->GetTrackCount(); i++) {
-        g_cdListsDiscEntries.tracks[i] = g_game->sound->GetCategoryOfTrack(i + 1);
+    for (int i = 0; i < ((Sound*)g_game->field_10)->GetTrackCount(); i++) {
+        g_cdListsDiscEntries.tracks[i] = ((Sound*)g_game->field_10)->GetCategoryOfTrack(i + 1);
     }
     WriteGameRegistryValue((void*)"CDLISTS", &g_cdListsDiscEntries, 0xaa0);
     FreePictureCache();
@@ -682,13 +517,13 @@ void ShutdownGame(void)
     FreeGameFonts();
     ShutdownSound();
     FreeAnimFiles();
-    GameFreeThunk((int*)g_game->offscreen);
-    g_game->offscreen = 0;
+    GameFreeThunk((int*)g_game->screen);
+    g_game->screen = 0;
     SetRestoreSurface(0);
     RestoreScreen();
     g_seams.orders->ClearOrderTypeTable();
-    GameFreeThunk((int*)g_game->options);
-    g_game->options = 0;
+    GameFreeThunk((int*)((void*)g_game->options));
+    g_game->options = (Entry_00479620*)(0);
     g_seams.units->FreeUnitInfo();
     ReleasePacketData((Class_00452370*)g_game->chatHudRing);
     g_seams.map->FreeOtaEnumCacheAndMission();
@@ -717,18 +552,18 @@ unsigned int GetTicks();
 void LoadBattleAssets()
 {
     ResetChatHudIndices();
-    memset(&g_game->chatRecipients, 0, 11);
+    memset(&g_game->chatRecipients_2bf1_b, 0, 11);
     g_game->orderMode = 1;
     g_game->buildTypeIndex = 0;
     g_game->bit5_2cc6 = 0;
     g_game->bit6_2cc6 = 0;
     g_game->hoverUnitId = 0;
-    g_game->bit0_37ebe = 0;
-    g_game->bit11_37ebe = 0;
+    g_game->bits_37ebe.bit0_37ebe = 0;
+    g_game->bits_37ebe.bit11_37ebe = 0;
     g_game->restartMissionRequest = 0;
-    g_game->bit9_37f2f = 0;
-    g_game->bit7_37f2f = 0;
-    g_game->bit8_37f2f = 0;
+    g_game->bits_37f2f_1.bit9_37f2f = 0;
+    g_game->bits_37f2f_1.bit7_37f2f = 0;
+    g_game->bits_37f2f_1.bit8_37f2f = 0;
     LoadLightBar();
     ResetSpeech();
     LoadTextureGafs();
@@ -749,13 +584,13 @@ void LoadBattleAssets()
     g_game->windSpeedDenominator = 5000;
     g_game->windCounter = 0;
     g_seams.wind_meteors->UpdateWindOnStream(RAND_STREAM_LOAD);
-    g_game->tempXformPts = GameAllocIgnoreTag("TEMP XFORM PTS", 0x960);
-    g_game->tempProjectedPts = GameAllocIgnoreTag("TEMP PROJECTED PTS", 0x640);
-    g_game->assemPts = GameAllocIgnoreTag("ASSEM PTS", 0xa0);
-    g_game->lastSimBudgetTick = GetTicks();
-    g_game->gameTick = 0;
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
-        g_game->gameSpeed = 10;
+    g_game->xform = GameAllocIgnoreTag("TEMP XFORM PTS", 0x960);
+    g_game->projected = GameAllocIgnoreTag("TEMP PROJECTED PTS", 0x640);
+    g_game->field_1438b = GameAllocIgnoreTag("ASSEM PTS", 0xa0);
+    g_game->lastTick = GetTicks();
+    g_game->ticks = (int)(0);
+    if (g_seams.map->GetGameType(g_game->net) == 3) {
+        g_game->gameSpeed = (unsigned short)(10);
         g_game->effectiveGameSpeed = 10;
     }
     g_game->carry = 0;
@@ -767,12 +602,12 @@ void LoadBattleAssets()
     InitCommands();
     for (int i = 0; i < 10; i++)
         g_game->players[i].unitsCreated = 0;
-    g_game->bit2_3923b = 0;
-    g_game->bit4_3923b = 0;
-    g_game->bit5_3923b = 0;
-    g_game->bit6_3923b = 0;
-    g_game->flags_2bee = 0;
-    g_game->netOrCdSentinel = 0xff;
+    g_game->bits.flag2 = 0;
+    g_game->bits.flag4 = 0;
+    g_game->bits.flag5 = 0;
+    g_game->bits.flag6 = 0;
+    g_game->bits_2bee_2.flags_2bee = 0;
+    g_game->field_2a46 = 0xff;
     g_cdActivityRingWriteIdx = 0;
     memset(g_cdActivitySampleRing, 0, sizeof(g_cdActivitySampleRing));
     g_scorePanelSlidePos = 0;
@@ -789,18 +624,18 @@ void __stdcall SetOffscreenSurface(int surface);
 // FUNCTION: 0x491a70
 void Force640x480Surfaces()
 {
-    g_game->screenWidth = 0x280;
-    g_game->screenHeight = 0x1e0;
+    g_game->width_37e1f = 0x280;
+    g_game->field_37e23 = 0x1e0;
     if (GetScreenWidth() != 0x280 || GetScreenHeight() != 0x1e0) {
-        GameFreeThunk((int*)g_game->offscreen);
-        g_game->offscreen = 0;
+        GameFreeThunk((int*)g_game->screen);
+        g_game->screen = 0;
         SetRestoreSurface(0);
         RestoreScreen();
-        SetWindowPos(g_game->displayContext->hwnd, 0, 0, 0, 0x280, 0x1e0, 4);
+        SetWindowPos(((Display_00491a70*)g_game->unknown_c)->hwnd, 0, 0, 0, 0x280, 0x1e0, 4);
         SetResolution(0x280, 0x1e0);
-        g_game->offscreen = AllocSurface(g_offscreenSurfaceName, g_game->screenWidth, g_game->screenHeight);
-        SetRestoreSurface(g_game->offscreen);
-        SetOffscreenSurface(g_game->offscreen);
+        g_game->screen = AllocSurface(g_offscreenSurfaceName, g_game->width_37e1f, g_game->field_37e23);
+        SetRestoreSurface(g_game->screen);
+        SetOffscreenSurface(g_game->screen);
     }
 }
 
@@ -812,9 +647,9 @@ void CloseNetSession();
 // FUNCTION: 0x491b60
 void ShutdownIngameSystems()
 {
-    g_game->netGameFlagsWord &= 0xfffb;
-    g_game->sound->StopCdAudio();
-    g_game->sound->SetTrackCategory(4);
+    g_game->flags_2a44 &= 0xfffb;
+    ((Sound*)g_game->field_10)->StopCdAudio();
+    ((Sound*)g_game->field_10)->SetTrackCategory(4);
     CollectEndGameStats();
     g_seams.wind_meteors->EmptyShutdownPreCleanup();
     g_seams.units->FreeUnitMemory();
@@ -824,12 +659,12 @@ void ShutdownIngameSystems()
     g_seams.players->FreePlayers();
     g_seams.los_radar->FreeRadar();
     g_seams.los_radar->FreeMapResources();
-    GameFreeThunk((int*)g_game->assemPts);
-    GameFreeThunk((int*)g_game->tempProjectedPts);
-    GameFreeThunk((int*)g_game->tempXformPts);
-    g_game->assemPts = 0;
-    g_game->tempProjectedPts = 0;
-    g_game->tempXformPts = 0;
+    GameFreeThunk((int*)g_game->field_1438b);
+    GameFreeThunk((int*)g_game->projected);
+    GameFreeThunk((int*)g_game->xform);
+    g_game->field_1438b = 0;
+    g_game->projected = 0;
+    g_game->xform = 0;
     g_seams.units->FreeDownloadMenus();
     g_seams.units->FreeUnitTypes();
     g_seams.weapons->FreeWeaponTypes();
@@ -837,7 +672,7 @@ void ShutdownIngameSystems()
     g_seams.weapons->FreeWeaponArray();
     g_seams.units->FreeMovementClasses();
     g_seams.units->FreeUnitCategories();
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
+    if (g_seams.map->GetGameType(g_game->net) == 3) {
         CloseNetSession();
     }
 }
@@ -864,9 +699,9 @@ void __stdcall SetCursorAnimation(Obj_004ab400* p, Src_004ab400* src);
 // FUNCTION: 0x491c80
 void __stdcall SetCursorMode(int n)
 {
-    if (g_game->cursorMode != n) {
-        g_game->cursorMode = n;
-        SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->cursorModeSeq[n]);
+    if (((signed char)g_game->cursorMode) != n) {
+        g_game->cursorMode = (char)(n);
+        SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->table[n]);
     }
 }
 
@@ -879,24 +714,24 @@ int __stdcall ResolveCursorModeForSelection(unsigned char mode);
 // FUNCTION: 0x491cc0
 void __stdcall UpdateBattleHoverMode(int unused)
 {
-    unsigned char flags = g_game->flags_2cc6;
+    unsigned char flags = g_game->inputFlags;
 
     if ((flags & 2) != 0 && g_game->orderMode == 0xe) {
         UpdatePlacementGhostValidity();
         return;
     }
     if ((flags & 2) == 0 && (flags & 1) == 0) {
-        if (g_game->cursorMode != 0x13) {
-            g_game->cursorMode = 0x13;
-            SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->cursorModeSeq[0x13]);
+        if (((signed char)g_game->cursorMode) != 0x13) {
+            g_game->cursorMode = (char)(0x13);
+            SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->table[0x13]);
         }
         return;
     }
     g_game->hoverUnitId = PickUnitUnderCursor();
     int n = ResolveCursorModeForSelection(g_game->orderMode);
-    if (g_game->cursorMode != n) {
-        g_game->cursorMode = n;
-        SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->cursorModeSeq[n]);
+    if (((signed char)g_game->cursorMode) != n) {
+        g_game->cursorMode = (char)(n);
+        SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->table[n]);
     }
 }
 
@@ -911,9 +746,9 @@ int __stdcall PopUntilNamedLayout(int force)
         g_game->flags_37ebe = flags | 0x10;
         return 0;
     }
-    g_game->unitIndex = 0;
+    g_game->unitIndex = (unsigned short)(0);
     while (g_game->gui.layer) {
-        if (IsScreenNamed(&g_game->gui, g_game->mainHudLayoutName))
+        if (IsScreenNamed(&g_game->gui, g_game->name))
             return 1;
         CloseTopScreen(&g_game->gui);
     }
@@ -924,8 +759,8 @@ int __stdcall PopUntilNamedLayout(int force)
 // FUNCTION: 0x491e10
 void CloseTopScreenIfNotNamed()
 {
-    if (!IsScreenNamed(&g_game->gui, g_game->mainHudLayoutName)) {
-        g_game->unitIndex = 0;
+    if (!IsScreenNamed(&g_game->gui, g_game->name)) {
+        g_game->unitIndex = (unsigned short)(0);
         CloseTopScreen(&g_game->gui);
     }
 }

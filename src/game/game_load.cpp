@@ -21,19 +21,7 @@
 
 #pragma pack(push, 1)
 
-struct Settings_00496e10 {
-    int value;                          // +0x0
-    int flag_4;                         // +0x4
-    int flag_8;                         // +0x8
-    int flag_c;                         // +0xc
-};
-
-struct ViewFlags_497180 {               // g_game + 0x14281
-    unsigned short bit0 : 1;
-    unsigned short bit1 : 1;
-    unsigned short bit2 : 1;
-    unsigned short rest : 13;
-};
+#include "game.h"
 
 union Fixed_497180 {
     int i;                              // 16.16
@@ -69,11 +57,6 @@ struct Gadget_497180 {
     char* owner;                                 // +0xc
 };
 
-struct Menu_00497ce0 {
-    int field_51d;                      // +0x4 (g_game + 0x51d)
-    char unknown_8[0x18 - 0x8];
-    void* data;                         // +0x18 (g_game + 0x531)
-};
 
 #include "../network/player_info.h"
 
@@ -84,23 +67,7 @@ int AimCobStub(int, int, int, int);
 void EmitBubbles(int, int, int, short);
 void DrawLine(int, int, int, int, int, int);
 
-union LoadFlags_00497f40 {
-    unsigned short value;
-    struct {
-        unsigned short started : 1;
-        unsigned short loaded : 1;
-        unsigned short b2 : 1;
-        unsigned short b3 : 1;
-        unsigned short rest : 12;
-    } bits;
-};
 
-struct PlayerSlots_00497f40 {
-    int inGame[10];                     // +0x0
-    int unknown_28;                     // +0x28
-    int flag40[10];                     // +0x2c
-    char unknown_54[0x8c - 0x54];
-};
 
 // The ten player records at g_game+0x1b63 are 0x14b bytes. Three functions view
 // them under different names; the fields that disagree over the same bytes sit
@@ -212,150 +179,12 @@ struct Options_00497180 {               // at g_game+0x29a0
     int fixedloc;                       // +0x118
 };
 
-struct SideName_00497180 {              // 0x232 bytes, table at g_game+0x37f5b
-    char name[0x232];
-};
 
 // One view of the game state. The ranges two views name differently sit in
 // anonymous unions, so each function keeps the names it matched with.
 class Sound;
 #include "../util/hapi_bank.h"
 
-struct Game {
-    char unknown_0[0xc];
-    Display_00497f40* displayContext;   // +0xc
-    Sound* sound;                       // +0x10
-    char unknown_10[0x519 - 0x14];
-    union {                             // +0x519
-        Menu_00497ce0 menu;
-        struct {
-            int field_519;
-            int gaf;
-            char unknown_521[0x531 - 0x521];
-            int field_531;
-        };
-    };
-    char unknown_535[0x589 - 0x535];
-    int field_589;                      // +0x589
-    char unknown_58d[0xdcb - 0x58d];
-    union {                             // +0xdcb
-        unsigned char colors[16];
-        struct {
-            char unknown_dcb[4];
-            unsigned char color1;       // +0xdcf
-            char unknown_dd0[5];
-            unsigned char color2;       // +0xdd5
-            char unknown_dd6[5];
-        };
-    };
-    char unknown_ddb[0x11eb - 0xddb];
-    int surface;                        // +0x11eb
-    char unknown_11ef[0x1b63 - 0x11ef];
-    PlayerRec_00497f40 players[10];     // +0x1b63
-    char unknown_2851[0x29a0 - 0x2851];
-    Options_00497180* options;          // +0x29a0
-    union {                             // +0x29a4
-        PlayerSlots_00497f40 slots;
-        int loaded[10];
-    };
-    char unknown_2a30[0x2a42 - 0x2a30];
-    unsigned char localPlayer;          // +0x2a42
-    unsigned char playerIndex;          // +0x2a43
-    char unknown_2a44[0x2c76 - 0x2a44];
-    Rect_00498d00 view;                 // +0x2c76
-    Point_00498da0 point;               // +0x2c8e
-    char unknown_2c92[0x2caa - 0x2c92];
-    Pos_00498da0 pos;                   // +0x2caa
-    char unknown_2cb6[0x2cbc - 0x2cb6];
-    unsigned short cellFeature;         // +0x2cbc
-    unsigned char cursorMode;           // +0x2cbe
-    char unknown_2cbf[0x2cc6 - 0x2cbf];
-    Flags_00498da0 inputFlags;          // +0x2cc6
-    char unknown_2cc7[0x14223 - 0x2cc7];
-    int mapWidthWorld;                  // +0x14223
-    int mapHeightWorld;                 // +0x14227
-    union { int mapPixelWidth; int worldW; };    // +0x1422b
-    union { int mapPixelHeight; int worldH; };   // +0x1422f
-    char unknown_14233[0x14281 - 0x14233];
-    union {                             // +0x14281
-        ViewFlags_497180 mapFlags;
-        unsigned short mapFlagsWord;
-    };
-    char unknown_14283[0x142bb - 0x14283];
-    Rect minimapHitRect;                // +0x142bb
-    char unknown_142cb[0x142e7 - 0x142cb];
-    union { short minimapGadgetX; short originX; };  // +0x142e7
-    union { short minimapGadgetY; short originY; };  // +0x142e9
-    union { short minimapGadgetW; short screenW; };  // +0x142eb
-    union { short minimapGadgetH; short screenH; };  // +0x142ed
-    char unknown_142ef[0x1431f - 0x142ef];
-    int scrollX;                        // +0x1431f
-    int scrollY;                        // +0x14323
-    char unknown_14327[0x143a7 - 0x14327];
-    char paletteRgba[0x400];            // +0x143a7
-    char unknown_147a7[0x148cf - 0x147a7];
-    int cursorHourglass;                // +0x148cf
-    char unknown_148d3[0x37e1b - 0x148d3];
-    int offscreen;                      // +0x37e1b
-    int screenWidth;                    // +0x37e1f
-    int screenHeight;                   // +0x37e23
-    union {                             // +0x37e27
-        Rect lim;
-        struct {
-            int viewCullMinX;
-            int viewCullMinY;
-            int viewCullMaxX;
-            int viewCullMaxY;
-        };
-    };
-    int viewPixelWidth;                 // +0x37e37
-    int viewPixelHeight;                // +0x37e3b
-    char unknown_37e3f[0x37ea0 - 0x37e3f];
-    char mainHudLayoutName[0x1e];       // +0x37ea0
-    char unknown_37ebe[0x37ee6 - 0x37ebe];
-    unsigned short maxUnits;            // +0x37ee6
-    char unknown_37ee8[0x37eec - 0x37ee8];
-    unsigned short unitLimitIni;        // +0x37eec
-    char unknown_37eee[0x37ef6 - 0x37eee];
-    int battleCommanderDeath;           // +0x37ef6
-    char unknown_37efa[0x37f1b - 0x37efa];
-    int displayWidth;                   // +0x37f1b
-    int displayHeight;                  // +0x37f1f
-    char unknown_37f23[0x37f5b - 0x37f23];
-    SideName_00497180 sideNames[2];     // +0x37f5b, only the two sides are named here
-    char unknown_383bf[0x38a37 - 0x383bf];
-    unsigned int lastSimBudgetTick;     // +0x38a37
-    int simStepsPending;                // +0x38a3b
-    char pad_38a3f[0x38a47 - 0x38a3f];
-    int gameTick;                       // +0x38a47
-    char pad_38a4b[0x38a4f - 0x38a4b];
-    short speedHysteresis;              // +0x38a4f
-    unsigned short pauseFlags;          // +0x38a51
-    char unknown_38a53[0x38d6b - 0x38a53];
-    HapiBank* pendingSaveStore;         // +0x38d6b
-    // volatile: the loader thread writes these; gives the bars' byte loads.
-    volatile unsigned char progress[6]; // +0x38d6f
-    union {                             // +0x38d75
-        volatile LoadFlags_00497f40 loadingFlags;
-        struct {
-            unsigned short : 3;
-            unsigned short synced : 1;
-            unsigned short : 12;
-        } netBits;
-    };
-    char unknown_38d77[0x38d81 - 0x38d77];
-    int numSkirmishPlayers;             // +0x38d81
-    char unknown_38d85[0x391e9 - 0x38d85];
-    class Mission* mapInfo;             // +0x391e9
-    char pad_391ed[0x391f1 - 0x391ed];
-    int frontendState;                  // +0x391f1
-    void (*handler)();                  // +0x391f5
-    int fontComix;                      // +0x391f9
-    char unknown_391fd[0x39219 - 0x391fd];
-    Settings_00496e10 singleSettings;   // +0x39219
-    char unknown_39229[0x39239 - 0x39229];
-    short endGameCountdown;             // +0x39239
-};
 
 #pragma pack(pop)
 
@@ -537,10 +366,10 @@ int __stdcall PointInRect(Rect* r, int x, int y);
 // Inlined into cases 1 and 2 below (matched on its own in 0x496e10.cpp).
 inline void __stdcall ApplyMissionOptionFlags(Settings_00496e10* s)
 {
-    g_game->battleCommanderDeath = s->value;
-    g_game->mapFlags.bit2 = s->flag_c;
-    g_game->mapFlags.bit0 = s->flag_4;
-    g_game->mapFlags.bit1 = s->flag_8;
+    g_game->commanderDeath = s->value;
+    g_game->mapFlags_14281.bit2 = s->flag_c;
+    g_game->mapFlags_14281.bit0 = s->flag_4;
+    g_game->mapFlags_14281.bit1 = s->flag_8;
 }
 
 // FUNCTION: 0x497180
@@ -554,32 +383,32 @@ void __cdecl LoadMatch(void*)
     QueryPerformanceCounter(&perfCount);
     SeedRandom(HarnessGameSeed(perfCount.LowPart + perfCount.HighPart));
     GameSrand(RAND_STREAM_LOAD, HarnessCrtSeed((unsigned)time(NULL)));
-    g_game->gameTick = 0;
+    g_game->ticks = 0;
 
     // Six of these casts stay: taking more than two out in this function moves
     // the symbol state that LoadingScreenFrame's allocation depends on
     // (docs/c2-regalloc.md).
-    switch (g_seams.map->GetGameType(((Mission*)g_game->mapInfo))) {
+    switch (g_seams.map->GetGameType(((Mission*)g_game->net))) {
     case 1:
         g_nonCampaignGame = 0;
         ApplyMissionOptionFlags(&g_game->singleSettings);
         ApplyUseOnlyUnits();
         break;
     case 2:
-        g_game->maxUnits = g_game->unitLimitIni;
+        g_game->field_37ee6 = g_game->maxUnits_37eec;
         g_nonCampaignGame = 1;
-        ApplyMissionOptionFlags(&g_game->options->settings);
+        ApplyMissionOptionFlags(&((Options_00497180*)g_game->options)->settings);
         break;
     case 3: {
-        g_game->maxUnits = g_game->unitLimitIni;
+        g_game->field_37ee6 = g_game->maxUnits_37eec;
         g_nonCampaignGame = 1;
-        g_game->pauseFlags &= 0xfffe;
+        g_game->otherFlags &= 0xfffe;
 
         int sel = FindHostSlot();
         unsigned char cur = g_game->localPlayer;
-        if (g_game->players[cur].keepaliveFlags & 2) {
+        if ((*(PlayerRec_00497f40(*)[10])&g_game->players)[cur].keepaliveFlags & 2) {
             do {
-                PlayerInfo* p = g_game->players[g_game->localPlayer].data;
+                PlayerInfo* p = (*(PlayerRec_00497f40(*)[10])&g_game->players)[g_game->localPlayer].data;
                 if (g_usePacketManager)
                     g_packetManager.SendAllQueued(1);
                 HandleNetPackets();
@@ -596,31 +425,31 @@ void __cdecl LoadMatch(void*)
             SleepMilliseconds(0x32);
         }
 
-        g_seams.map->LoadMissionByName(((Mission*)g_game->mapInfo), 0, (char*)g_game->players[sel].data);
+        g_seams.map->LoadMissionByName(((Mission*)g_game->net), 0, (char*)(*(PlayerRec_00497f40(*)[10])&g_game->players)[sel].data);
         if (FindHostSlot() == 10)
             break;
 
         int sel2 = FindHostSlot();
-        PlayerInfo* p2 = g_game->players[sel2].data;
+        PlayerInfo* p2 = (*(PlayerRec_00497f40(*)[10])&g_game->players)[sel2].data;
         g_nonCampaignGame = p2->cheating;
-        g_game->battleCommanderDeath = p2->commander;
-        g_game->mapFlags.bit1 = p2->los;
-        g_game->mapFlags.bit2 = p2->losType;
-        g_game->mapFlags.bit0 = p2->mapping;
-        g_game->maxUnits = p2->maxUnits;
+        g_game->commanderDeath = p2->commander;
+        g_game->mapFlags_14281.bit1 = p2->los;
+        g_game->mapFlags_14281.bit2 = p2->losType;
+        g_game->mapFlags_14281.bit0 = p2->mapping;
+        g_game->field_37ee6 = p2->maxUnits;
         break;
     }
     default:
         break;
     }
 
-    if (g_game->pendingSaveStore != 0) {
-        g_game->pendingSaveStore->OpenAccount("summary");
-        if (g_game->pendingSaveStore->HasItem("BetweenMissions") == 0) {
-            g_seams.players->LoadPlayerControllers(g_game->pendingSaveStore);
-            if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) == 2) {
+    if (((HapiBank*)g_game->pendingSaveStore) != 0) {
+        ((HapiBank*)g_game->pendingSaveStore)->OpenAccount("summary");
+        if (((HapiBank*)g_game->pendingSaveStore)->HasItem("BetweenMissions") == 0) {
+            g_seams.players->LoadPlayerControllers(((HapiBank*)g_game->pendingSaveStore));
+            if (g_seams.map->GetGameType(((Mission*)g_game->net)) == 2) {
                 int count = 0;
-                Slot_00497180* def = g_game->options->slots;
+                Slot_00497180* def = ((Options_00497180*)g_game->options)->slots;
                 int i = 0;
                 while (i < 10) {
                     if (def->kind == 1 || def->kind == 2)
@@ -628,10 +457,10 @@ void __cdecl LoadMatch(void*)
                     i++;
                     def++;
                 }
-                int cur = g_game->numSkirmishPlayers;
+                int cur = g_game->playerCount;
                 if (count > cur)
                     cur = count;
-                g_game->numSkirmishPlayers = cur;
+                g_game->playerCount = cur;
                 ApplySlotsToGamePlayers();
             }
         }
@@ -639,35 +468,35 @@ void __cdecl LoadMatch(void*)
 
     LoadBattleAssets();
 
-    if (g_seams.map->GetGameType(g_game->mapInfo) != 1) {
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
-            g_game->loadingFlags.value |= 4;
-            while ((g_game->loadingFlags.value & 8) == 0)
+    if (g_seams.map->GetGameType(g_game->net) != 1) {
+        if (g_seams.map->GetGameType(g_game->net) == 3) {
+            (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).value |= 4;
+            while (((*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).value & 8) == 0)
                 SleepMilliseconds(0x32);
 
             int sel = FindHostSlot();
-            PlayerInfo* pl = g_game->players[sel].data;
-            g_game->mapFlags.bit0 = pl->mapping;
-            g_game->mapFlags.bit1 = pl->los;
-            g_game->mapFlags.bit2 = pl->losType;
-            g_game->battleCommanderDeath = pl->commander;
+            PlayerInfo* pl = (*(PlayerRec_00497f40(*)[10])&g_game->players)[sel].data;
+            g_game->mapFlags_14281.bit0 = pl->mapping;
+            g_game->mapFlags_14281.bit1 = pl->los;
+            g_game->mapFlags_14281.bit2 = pl->losType;
+            g_game->commanderDeath = pl->commander;
 
             for (int i = 0; i < 10; i++) {
-                PlayerRec_00497f40* rec = &g_game->players[i];
+                PlayerRec_00497f40* rec = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[i];
                 if (rec->active == 0)
                     continue;
                 unsigned char st = rec->team;
                 if (st != 1 && st != 2)
                     continue;
-                pos.x.i = (RandomInt(g_game->mapWidthWorld - 0xa0) + 0x50) << 16;
+                pos.x.i = (RandomInt(g_game->baseX - 0xa0) + 0x50) << 16;
                 pos.y.i = 0;
-                pos.z.i = (RandomInt(g_game->mapHeightWorld - 0xa0) + 0x50) << 16;
+                pos.z.i = (RandomInt(g_game->baseY - 0xa0) + 0x50) << 16;
                 if (rec->active != 0 && (rec->data->flags_9b & 0x40))
                     continue;
                 PlayerInfo* pl2 = rec->data;
                 int side = pl2->side;
                 int which = rec->startPos;
-                g_seams.map->GetStartPosition(((Mission*)g_game->mapInfo), 0, (Vec3*)&pos, which);
+                g_seams.map->GetStartPosition(((Mission*)g_game->net), 0, (Vec3*)&pos, which);
                 if (rec->active != 0 && rec->team == 1)
                     start = pos;
                 unsigned short id = g_seams.units->FindUnitTypeId(g_game->sideNames[side].name + 4);
@@ -680,26 +509,26 @@ void __cdecl LoadMatch(void*)
             }
 
             unsigned char li = g_game->localPlayer;
-            PlayerInfo* lp = g_game->players[li].data;
+            PlayerInfo* lp = (*(PlayerRec_00497f40(*)[10])&g_game->players)[li].data;
             int cx;
             int cz;
             if (lp->bit6) {
-                g_game->mapFlagsWord &= 0xfffe;
-                g_game->mapFlagsWord &= 0xfffd;
-                cx = g_game->viewPixelWidth / 2;
-                cz = g_game->viewPixelHeight / 2;
+                g_game->mapFlags &= 0xfffe;
+                g_game->mapFlags &= 0xfffd;
+                cx = g_game->viewWidth / 2;
+                cz = g_game->viewHeight / 2;
             } else {
-                cx = start.x.h.whole - g_game->viewPixelWidth / 2;
-                cz = start.z.h.whole - g_game->viewPixelHeight / 2;
+                cx = start.x.h.whole - g_game->viewWidth / 2;
+                cz = start.z.h.whole - g_game->viewHeight / 2;
             }
             SetCameraPosition(cx, cz, 0);
             ReportGameEvent(6);
-        } else if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) == 2 &&
-            g_game->pendingSaveStore == 0) {
-            if (g_game->options->fixedloc != 0) {
+        } else if (g_seams.map->GetGameType(((Mission*)g_game->net)) == 2 &&
+            ((HapiBank*)g_game->pendingSaveStore) == 0) {
+            if (((Options_00497180*)g_game->options)->fixedloc != 0) {
                 for (int i1 = 0; i1 < 10; i1++) {
                     if ((unsigned char)i1 < 10) {
-                        PlayerRec_00497f40* rec = &g_game->players[(unsigned char)i1];
+                        PlayerRec_00497f40* rec = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[(unsigned char)i1];
                         if (rec->active != 0) {
                             unsigned char st = rec->team;
                             if ((st == 1 || st == 2 || st == 3) &&
@@ -714,7 +543,7 @@ void __cdecl LoadMatch(void*)
                 int n = 0;
                 for (int i3 = 0; i3 < 10; i3++) {
                     if ((unsigned char)i3 < 10) {
-                        PlayerRec_00497f40* rec = &g_game->players[(unsigned char)i3];
+                        PlayerRec_00497f40* rec = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[(unsigned char)i3];
                         if (rec->active != 0) {
                             unsigned char st = rec->team;
                             if ((st == 1 || st == 2 || st == 3) &&
@@ -730,7 +559,7 @@ void __cdecl LoadMatch(void*)
                 int k = 0;
                 for (int i4 = 0; i4 < 10; i4++) {
                     if ((unsigned char)i4 < 10) {
-                        PlayerRec_00497f40* rec = &g_game->players[(unsigned char)i4];
+                        PlayerRec_00497f40* rec = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[(unsigned char)i4];
                         if (rec->active != 0) {
                             unsigned char st = rec->team;
                             if ((st == 1 || st == 2 || st == 3) &&
@@ -746,13 +575,13 @@ void __cdecl LoadMatch(void*)
 
     g_seams.los_radar->RecalculateLineOfSight(1);
 
-    if (g_game->pendingSaveStore != 0) {
-        g_game->pendingSaveStore->OpenAccount("summary");
-        if (g_game->pendingSaveStore->HasItem("BetweenMissions") == 0) {
-            LoadSavedGameState(g_game->pendingSaveStore);
+    if (((HapiBank*)g_game->pendingSaveStore) != 0) {
+        ((HapiBank*)g_game->pendingSaveStore)->OpenAccount("summary");
+        if (((HapiBank*)g_game->pendingSaveStore)->HasItem("BetweenMissions") == 0) {
+            LoadSavedGameState(((HapiBank*)g_game->pendingSaveStore));
             goto tail;
         }
-    } else if (g_seams.map->GetGameType(((Mission*)g_game->mapInfo)) != 1) {
+    } else if (g_seams.map->GetGameType(((Mission*)g_game->net)) != 1) {
         goto tail;
     }
     CreateMissionUnits();
@@ -761,33 +590,33 @@ void __cdecl LoadMatch(void*)
 tail:
     {
         int pnum = g_game->playerIndex;
-        PlayerRec_00497f40* rec = &g_game->players[pnum];
+        PlayerRec_00497f40* rec = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[pnum];
         LoadPictureCached(0, 0, 0, 0);
         PlayerInfo* pl = rec->data;
         int side = pl->side;
-        sprintf(g_game->mainHudLayoutName, "%sMAIN2.GUI", g_game->sideNames[side].name);
+        sprintf(g_game->name, "%sMAIN2.GUI", g_game->sideNames[side].name);
     }
     Gadget_497180* gadget =
-        LoadGuiLayer((Sub_497180*)&g_game->menu, g_game->mainHudLayoutName, 0x20);
+        LoadGuiLayer((Sub_497180*)&g_game->menu_519_18, g_game->name, 0x20);
     gadget->handler = HandleMain2LayoutEvent;
     gadget->owner = (char*)g_game;
 
-    PlayerRec_00497f40* currec = &g_game->players[g_game->localPlayer];
+    PlayerRec_00497f40* currec = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[g_game->localPlayer];
     currec->data->flags_9b |= 0x10;
     BroadcastPlayerInfo();
     UpdateNetGameInfo();
     g_seams.players->UpdatePlayersOnStream(RAND_STREAM_LOAD);
     g_seams.players->InitPlayerResources();
 
-    HapiBank* mission = g_game->pendingSaveStore;
+    HapiBank* mission = ((HapiBank*)g_game->pendingSaveStore);
     if (mission != 0) {
         mission->CloseBank();
         operator delete(mission);
-        g_game->pendingSaveStore = 0;
+        g_game->pendingSaveStore = (int)(0);
     }
     g_seams.players->RebuildAIFeatureCells();
 
-    g_game->loadingFlags.value |= 2;
+    (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).value |= 2;
 }
 //
 // Kept as written, each for the registers it gives:
@@ -806,7 +635,7 @@ tail:
 //   come out differently.
 // Reading the record address through a named base (a temp_intro the permuter
 // found) is what keeps g_game in the SIB base and the offset in the index.
-static inline char* PlayerRecordAt(Game* game, int off) { return (char*)game->players + off; }
+static inline char* PlayerRecordAt(Game* game, int off) { return (char*)(*(PlayerRec_00497f40(*)[10])&game->players) + off; }
 
 // FUNCTION: 0x497ce0
 void __stdcall DrawSyncStatus(void* surface)
@@ -814,9 +643,9 @@ void __stdcall DrawSyncStatus(void* surface)
     int off;
     extern Game* g_game;
 
-    RenderLayer(&g_game->menu, 0x40);
-    MarkLayerChanged(&g_game->menu);
-    BlitMenuLayers(&g_game->menu, 0, 0);
+    RenderLayer(&g_game->menu_519_18, 0x40);
+    MarkLayerChanged(&g_game->menu_519_18);
+    BlitMenuLayers(&g_game->menu_519_18, 0, 0);
 
     const char* text;
     if (g_game->netBits.synced) {
@@ -825,7 +654,7 @@ void __stdcall DrawSyncStatus(void* surface)
         int countA = 0;
         int countB = 0;
         for (int i = 0; i < 10; i++) {
-            PlayerRec_00497ce0* p = &g_game->players[i];
+            PlayerRec_00497ce0* p = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[i];
             if (p->present && (p->team == 1 || p->team == 2 || p->team == 3) && p->kind != 10)
                 countA++;
             if (p->present && (p->team == 1 || p->team == 2 || p->team == 3) && p->kind != 10 &&
@@ -849,10 +678,10 @@ void __stdcall DrawSyncStatus(void* surface)
             {
                 r.left = x;
                 r.right = slot + x - 2;
-                FillRectangle(surface, &r, g_game->color1);
+                FillRectangle(surface, &r, g_game->field_dcf);
                 int pc = q->percent;
                 r.right = r.left + (pc * (slot - 2)) / 100;
-                FillRectangle(surface, &r, g_game->color2);
+                FillRectangle(surface, &r, g_game->field_dd5);
                 DrawTextClipped(surface, q->name, r.left, 420, slot - 2, 0);
                 x += slot;
             }
@@ -878,17 +707,17 @@ static inline void DrawLoadingBar(void* gadget, void* lightbar, int index, unsig
 {
     unsigned int color;
     int flash;
-    color = g_game->colors[g_game->progress[index] < 100 ? 12 : 10];
+    color = g_game->colors[(*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[index] < 100 ? 12 : 10];
     SetTextColors(color, GetTextKeyColor());
-    if (g_game->progress[index] == 100 && *prev != 100) {
+    if ((*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[index] == 100 && *prev != 100) {
         alphas[slot] = 0x1e;
     }
     flash = alphas[slot];
-    *prev = g_game->progress[index];
+    *prev = (*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[index];
     DrawTextClipped(gadget, (char*)Translate(label), 0x5a, y, -1, flash);
     // Each bar's rect is written left, right, top, bottom.
     rect[0] = 0xcd;
-    rect[2] = ((int)g_game->progress[index] * 7) / 2 + 0xcd;
+    rect[2] = ((int)(*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[index] * 7) / 2 + 0xcd;
     rect[1] = y;
     rect[3] = y + 0x14;
     FillRectangle(gadget, rect, color);
@@ -917,64 +746,64 @@ void LoadingScreenFrame(void)
     PlayerInfo_00497f40* pi;
     char namebuf[100];
 
-    if (!g_game->loadingFlags.bits.started) {
-        while (g_game->field_531 != 0) {
+    if (!(*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.started) {
+        while (((int)g_game->layer) != 0) {
             CloseTopScreen(&g_game->field_519);
         }
         DisableKeyCommands(&g_game->field_519);
-        if (g_game->cursorMode != 0x14) {
-            g_game->cursorMode = 0x14;
+        if (((unsigned char)g_game->cursorMode) != 0x14) {
+            g_game->cursorMode = (char)(0x14);
             SetCursorAnimation(&g_game->field_519, (void*)g_game->cursorHourglass);
         }
         SetFont(g_game->fontComix);
         SetPaletteColors(g_game->paletteRgba, 0, 0x100);
-        if (g_seams.map->GetGameType(g_game->mapInfo) != 2) {
+        if (g_seams.map->GetGameType(g_game->net) != 2) {
             SaveSettings();
         }
-        while (g_game->field_531 != 0) {
+        while (((int)g_game->layer) != 0) {
             CloseTopScreen(&g_game->field_519);
         }
         BlankScreen();
-        g_game->screenWidth = 0x280;
-        g_game->screenHeight = 0x1e0;
+        g_game->width_37e1f = 0x280;
+        g_game->field_37e23 = 0x1e0;
         if (GetScreenWidth() != 0x280 || GetScreenHeight() != 0x1e0) {
-            GameFreeThunk((void*)g_game->offscreen);
-            g_game->offscreen = 0;
+            GameFreeThunk((void*)g_game->screen);
+            g_game->screen = 0;
             SetRestoreSurface(0);
             RestoreScreen();
-            SetWindowPos(g_game->displayContext->hwnd, 0, 0, 0, 0x280, 0x1e0, 4);
+            SetWindowPos(((Display_00497f40*)g_game->unknown_c)->hwnd, 0, 0, 0, 0x280, 0x1e0, 4);
             SetResolution(0x280, 0x1e0);
-            g_game->offscreen = (int)AllocSurface("OFFSCREEN", g_game->screenWidth, g_game->screenHeight);
-            SetRestoreSurface(g_game->offscreen);
-            SetOffscreenSurface((void*)g_game->offscreen);
+            g_game->screen = (int)AllocSurface("OFFSCREEN", g_game->width_37e1f, g_game->field_37e23);
+            SetRestoreSurface(g_game->screen);
+            SetOffscreenSurface((void*)g_game->screen);
         }
         BuildDataPath(aux, "palettes", "guipal", "PAL");
         surfaceHandle = HAPI_LoadFile((unsigned int*)aux, 0);
         RemapPaletteToClosestIndices(&g_game->field_519, g_game->paletteRgba, surfaceHandle);
         GameFreeThunk(surfaceHandle);
-        g_game->lastSimBudgetTick = GetTicks();
-        g_game->simStepsPending = 0;
-        g_game->gameTick = 0;
-        g_game->speedHysteresis = 0;
+        g_game->lastTick = GetTicks();
+        g_game->frames_38a3b = 0;
+        g_game->ticks = 0;
+        g_game->streak = 0;
         g_game->endGameCountdown = (short)0xffff;
-        g_game->screenWidth = g_game->displayWidth;
-        g_game->screenHeight = g_game->displayHeight;
+        g_game->width_37e1f = g_game->width_37f1b;
+        g_game->field_37e23 = g_game->height_37f1f;
         g_game->viewCullMinX = 0x80;
         g_game->viewCullMinY = 0x20;
-        g_game->viewCullMaxX = g_game->screenWidth - 1;
-        g_game->viewCullMaxY = g_game->screenHeight - 0x21;
-        g_game->viewPixelWidth = g_game->viewCullMaxX - g_game->viewCullMinX + 1;
-        g_game->viewPixelHeight = g_game->viewCullMaxY - g_game->viewCullMinY + 1;
+        g_game->viewCullMaxX = g_game->width_37e1f - 1;
+        g_game->viewCullMaxY = g_game->field_37e23 - 0x21;
+        g_game->viewWidth = g_game->viewCullMaxX - g_game->viewCullMinX + 1;
+        g_game->viewHeight = g_game->viewCullMaxY - g_game->viewCullMinY + 1;
         LoadPictureCached("loadgame2bg", 0, 0, 0);
-        memset(&g_game->slots, 0, sizeof(g_game->slots));
+        memset(&g_game->slots_29a4, 0, sizeof(g_game->slots_29a4));
         for (i = 0; i < 10; i++) {
-            pi = &g_game->players[i];
+            pi = &(*(PlayerRec_00497f40(*)[10])&g_game->players)[i];
             if (pi->active == 0 || (pi->control != 1 && pi->control != 2)) {
-                g_game->slots.inGame[i] = 0;
+                g_game->slots_29a4.inGame[i] = 0;
             } else {
-                g_game->slots.inGame[i] = 1;
+                g_game->slots_29a4.inGame[i] = 1;
             }
-            g_game->slots.flag40[i] = (pi->active != 0 && (pi->data->flags_9b & 0x40) != 0) ? 1 : 0;
+            g_game->slots_29a4.flag40[i] = (pi->active != 0 && (pi->data->flags_9b & 0x40) != 0) ? 1 : 0;
         }
         if (!StartThread(LoadThreadMain, 0, 0)) {
             FatalError("Unable to start the loading thread!");
@@ -984,65 +813,65 @@ void LoadingScreenFrame(void)
         memset(g_scorePanelLossFlash, 0, 10);
         memset(&g_loadingBarFlashAlpha, 0, 6);
         memset(&g_loadingBarPrevPercent, 0, 6);
-        g_game->loadingFlags.bits.started = 1;
+        (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.started = 1;
         OnlineUnload();
     }
-    if (g_game->loadingFlags.bits.loaded) {
+    if ((*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.loaded) {
         StopAllSounds();
         BlankScreen();
         FreePictureCache();
-        if (GetScreenWidth() != g_game->displayWidth || GetScreenHeight() != g_game->displayHeight) {
-            GameFreeThunk((void*)g_game->offscreen);
-            g_game->offscreen = 0;
+        if (GetScreenWidth() != g_game->width_37f1b || GetScreenHeight() != g_game->height_37f1f) {
+            GameFreeThunk((void*)g_game->screen);
+            g_game->screen = 0;
             SetRestoreSurface(0);
             RestoreScreen();
-            SetWindowPos(g_game->displayContext->hwnd, 0, 0, 0, g_game->displayWidth,
-                         g_game->displayHeight, 4);
-            SetResolution(g_game->displayWidth, g_game->displayHeight);
-            g_game->offscreen = (int)AllocSurface("OFFSCREEN", g_game->screenWidth, g_game->screenHeight);
-            SetRestoreSurface(g_game->offscreen);
+            SetWindowPos(((Display_00497f40*)g_game->unknown_c)->hwnd, 0, 0, 0, g_game->width_37f1b,
+                         g_game->height_37f1f, 4);
+            SetResolution(g_game->width_37f1b, g_game->height_37f1f);
+            g_game->screen = (int)AllocSurface("OFFSCREEN", g_game->width_37e1f, g_game->field_37e23);
+            SetRestoreSurface(g_game->screen);
         }
         DrawLightBars();
         MainLoopTick();
         ShowSoftwareCursor();
-        g_game->frontendState = 6;
+        g_game->mode_391f1 = 6;
         g_game->handler = BattleFrame;
         SetCloseHandler(HandleBattleQuitPrompt, 0);
         g_game->field_589 = 0;
-        memset((void*)g_game->progress, 0, 8);
-        g_game->sound->SetTrackCategory(0);
-        if (!g_game->sound->IsCdPlaying()) {
-            g_game->sound->PlayNextTrack();
+        memset((void*)(*(volatile unsigned char(*)[6])&g_game->progress_38d6f), 0, 8);
+        ((Sound*)g_game->field_10)->SetTrackCategory(0);
+        if (!((Sound*)g_game->field_10)->IsCdPlaying()) {
+            ((Sound*)g_game->field_10)->PlayNextTrack();
         }
         // Index players[i], not explicit offsets: keeps the SIB base and index order.
         for (i = 0; i < 10; i++) {
             // Store past rect: a byte local would be dead-store eliminated.
-            if (g_game->players[i].active != 0)
-                ((unsigned char*)rect)[19] = g_game->players[i].control;
+            if ((*(PlayerRec_00497f40(*)[10])&g_game->players)[i].active != 0)
+                ((unsigned char*)rect)[19] = (*(PlayerRec_00497f40(*)[10])&g_game->players)[i].control;
         }
         return;
     }
     for (i = 0; i < 10; i++) {
-        if (g_game->players[i].active != 0
-            && (g_game->players[i].control == 1 || g_game->players[i].control == 2)) {
-            SendProbe(g_game->players[i].id, 0);
+        if ((*(PlayerRec_00497f40(*)[10])&g_game->players)[i].active != 0
+            && ((*(PlayerRec_00497f40(*)[10])&g_game->players)[i].control == 1 || (*(PlayerRec_00497f40(*)[10])&g_game->players)[i].control == 2)) {
+            SendProbe((*(PlayerRec_00497f40(*)[10])&g_game->players)[i].id, 0);
             if (g_usePacketManager != 0)
                 (&g_packetManager)->SendAllQueued(1);
         }
     }
     HandleNetPackets();
     // Nested, not `b2 && AssignStartPositions()`: that folds to a test on the byte.
-    if (g_game->loadingFlags.bits.b2) {
+    if ((*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.b2) {
         if (AssignStartPositions() != 0) {
-            g_game->loadingFlags.bits.b2 = 0;
-            g_game->loadingFlags.bits.b3 = 1;
+            (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.b2 = 0;
+            (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.b3 = 1;
             HAPINET_guaranteepackets(0);
         }
     }
     if (g_usePacketManager != 0) {
         (&g_packetManager)->SendAllQueued(1);
     }
-    SetOffscreenSurface((void*)g_game->offscreen);
+    SetOffscreenSurface((void*)g_game->screen);
     // The result stays in a local: it gives the compare against a register.
     int ok = LockScreen(&gadget);
     if (ok != 0) {
@@ -1057,11 +886,11 @@ void LoadingScreenFrame(void)
             }
         }
         SetFont(g_game->fontComix);
-        DrawSurface(&gadget, (void*)g_game->surface, 0, 0);
-        if (g_seams.map->GetGameType(g_game->mapInfo) != 1) {
+        DrawSurface(&gadget, (void*)((int)g_game->surface), 0, 0);
+        if (g_seams.map->GetGameType(g_game->net) != 1) {
             SetTextColors(color, 0xfe);
             // Local for the strncpy source: the call comes before the length push.
-            char* name = g_seams.map->GetMissionName(g_game->mapInfo);
+            char* name = g_seams.map->GetMissionName(g_game->net);
             strncpy(namebuf, name, 100);
             namebuf[99] = 0;
             if (GetPreferredLanguage() != 0 && _strcmpi((const char*)GetPreferredLanguage(), "english") != 0) {
@@ -1076,7 +905,7 @@ void LoadingScreenFrame(void)
             }
         }
         {
-            void* light = FindGafEntry(g_game->gaf, "LIGHTBAR");
+            void* light = FindGafEntry(((int)g_game->gaf), "LIGHTBAR");
             void* lightbar = GetGafFrame(light, 0);
             *((short*)lightbar + 3) = 0;
             *((short*)lightbar + 2) = 0;
@@ -1089,7 +918,7 @@ void LoadingScreenFrame(void)
                          rect[1] + *((short*)lightbar + 3));
             DrawLoadingBar(&gadget, lightbar, 5, &DAT_0051e825, (unsigned char*)&DAT_0051e6cc, 1, "Explosions", 0x15b, rect);
         }
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
+        if (g_seams.map->GetGameType(g_game->net) == 3) {
             DrawSyncStatus(&gadget);
             SendLoadProgress();
         }
@@ -1111,12 +940,12 @@ void __stdcall OffsetWorldPosFromView(Point_00498cd0* p, View_00498cd0* view, in
 // FUNCTION: 0x498d00
 void __stdcall MinimapCursorToWorldPos(Pos_00498d00* out)
 {
-    Rect_00498d00 r = g_game->view;
-    int dx = r.x - g_game->minimapGadgetX;
-    int dy = r.y - g_game->minimapGadgetY;
+    Rect_00498d00 r = (*(struct Rect_00498d00*)&g_game->view);
+    int dx = r.x - g_game->posX;
+    int dy = r.y - g_game->posY;
     memset(out, 0, sizeof(Pos_00498d00));
-    out->x.whole = g_game->mapPixelWidth * dx / g_game->minimapGadgetW;
-    out->z.whole = g_game->mapPixelHeight * dy / g_game->minimapGadgetH;
+    out->x.whole = g_game->mapWidth * dx / g_game->width_142eb;
+    out->z.whole = g_game->mapHeight * dy / g_game->screen_h;
     out->y.whole = g_seams.units->GetGroundHeight((Vec3*)out);
 }
 
@@ -1162,27 +991,27 @@ void __stdcall UpdateCursorWorldPos(View_00498da0* r)
 {
     int mx, my;
 
-    if (PointInRect(&g_game->minimapHitRect, r->x, r->y) && !(g_game->inputFlags.value & 8)) {
-        mx = (r->x - g_game->originX) * g_game->worldW / g_game->screenW;
-        my = (r->y - g_game->originY) * g_game->worldH / g_game->screenH;
-        g_game->inputFlags.value |= 1;
-        g_game->inputFlags.value &= ~2;
+    if (PointInRect(&g_game->viewLimit, r->x, r->y) && !((*(union Flags_00498da0*)&g_game->inputFlags_2cc6).value & 8)) {
+        mx = (r->x - g_game->posX) * g_game->mapWidth / g_game->width_142eb;
+        my = (r->y - g_game->posY) * g_game->mapHeight / g_game->screen_h;
+        (*(union Flags_00498da0*)&g_game->inputFlags_2cc6).value |= 1;
+        (*(union Flags_00498da0*)&g_game->inputFlags_2cc6).value &= ~2;
     } else {
-        Rect* lim = &g_game->lim;
+        Rect* lim = &g_game->rect;
         mx = g_game->scrollX + MIN(MAX(r->x, lim->left), lim->right) - lim->left;
         my = g_game->scrollY + MIN(MAX(r->y, lim->top), lim->bottom) - lim->top;
-        g_game->inputFlags.value &= ~1;
-        g_game->inputFlags.bits.b1 = PointInRect(lim, r->x, r->y);
+        (*(union Flags_00498da0*)&g_game->inputFlags_2cc6).value &= ~1;
+        (*(union Flags_00498da0*)&g_game->inputFlags_2cc6).bits.b1 = PointInRect(lim, r->x, r->y);
     }
-    g_game->inputFlags.bits.b2 = g_game->inputFlags.bits.b0 || g_game->inputFlags.bits.b1;
-    g_seams.los_radar->ClampWorldPosToTerrain(mx, my, (Vec3*)&g_game->pos);
+    (*(union Flags_00498da0*)&g_game->inputFlags_2cc6).bits.b2 = (*(union Flags_00498da0*)&g_game->inputFlags_2cc6).bits.b0 || (*(union Flags_00498da0*)&g_game->inputFlags_2cc6).bits.b1;
+    g_seams.los_radar->ClampWorldPosToTerrain(mx, my, (Vec3*)&(*(struct Pos_00498da0*)&g_game->pos));
     {
-        Pos_00498da0* p = &g_game->pos;
+        Pos_00498da0* p = &(*(struct Pos_00498da0*)&g_game->pos);
         Point_00498da0 pt;
         Pos_00498da0 v = *p;
         pt.x = (short)(v.x >> 20);
         pt.y = (short)(v.z >> 20);
-        g_game->point = pt;
+        (*(struct Point_00498da0*)&g_game->point) = pt;
     }
-    g_game->cellFeature = g_seams.features->GetCellFeature(g_seams.los_radar->GetMapCell(g_game->point.x, g_game->point.y));
+    g_game->cellFeature = g_seams.features->GetCellFeature(g_seams.los_radar->GetMapCell((*(struct Point_00498da0*)&g_game->point).x, (*(struct Point_00498da0*)&g_game->point).y));
 }
