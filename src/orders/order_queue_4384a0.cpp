@@ -507,7 +507,7 @@ short __stdcall ResolveUnitTypeKey(HapiBank* file, unsigned short id)
         return g_seams.units->FindUnitTypeId(file->GetStringItem(key, 0));
     int i, n = 0;
     unsigned short k = 0;
-    for (i = 1; i < g_game->count_1438f; i++, n++) {
+    for (i = 1; i < g_game->unitDefCount; i++, n++) {
         if (!(((UnitType *)g_game->defs)[(unsigned short)i].flags & 0x20)) {
             if (k == id)
                 return n;
@@ -701,7 +701,7 @@ int Order::SerializeToSave(Unit* punit, HapiBank* file, char* name)
         unsigned short id = unitType;
         char buf2[0x80];
         sprintf(buf2, "UTYPENAME%4d", id);
-        if (!file->HasItem(buf2) && id >= 1 && id < g_game->count_1438f)
+        if (!file->HasItem(buf2) && id >= 1 && id < g_game->unitDefCount)
             file->SetStringItem(buf2, ((UnitType *)g_game->defs)[id].name);
     }
 

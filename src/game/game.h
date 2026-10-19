@@ -635,7 +635,7 @@ struct Game {
     void* xform;
     void* projected;
     void* field_1438b;
-    int count_1438f;
+    int unitDefCount;
     int unitDefCountBits;
     int unitDefEnumDirty;
     UnitDef* defs;

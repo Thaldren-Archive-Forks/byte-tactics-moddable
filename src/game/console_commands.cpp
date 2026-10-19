@@ -1084,7 +1084,7 @@ void __stdcall DefaultCommandHandler(CommandArgs* args)
 {
     Vec3 pos=g_game->pos;
     int count=0;
-    for (unsigned short i=1;i<g_game->count_1438f;++i) {
+    for (unsigned short i=1;i<g_game->unitDefCount;++i) {
         UnitDef* def=&g_game->defs[i];
         if (MatchWildcard(def->unitname,args->GetArg(0,DAT_005119b8))) {
             if (count) pos.x-=def->modelMinX;

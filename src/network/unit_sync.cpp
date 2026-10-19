@@ -790,7 +790,7 @@ UnitSync::UnitSync(int param)
     sub2.checksumProgress = 0;
     {
         UnitSyncEntry v;
-        for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+        for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
             unsigned int key = g_game->defs[i].fbiChecksum;
             v.x = key;
             v.y = 0;
@@ -807,7 +807,7 @@ UnitSync::UnitSync(int param)
 void UnitSync::ResetEntries()
 {
     UnitSyncEntry v;
-    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
         v.x = g_game->defs[i].fbiChecksum;
         // Dead store that must stay: the uninitialised slot is what the insert copies.
         v.y = 0;
@@ -1051,7 +1051,7 @@ void UnitSync::CheckUnitAvailable(unsigned int key, int y)
     int h = 1;
     if (y != 0) {
         if (it.ptr->value.y == 0) {
-            int n = g_game->count_1438f;
+            int n = g_game->unitDefCount;
             for (int i = 1; i < n; i++) {
                 UnitDef* def = &g_game->defs[i];
                 if (def->fbiChecksum == key) {
@@ -1203,7 +1203,7 @@ void UnitSync::ApplyToUnitTypes()
 {
     if (disabled != 0)
         return;
-    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
         UnitDef* def = &g_game->defs[i];
         UnitSyncIter it = Find(&def->fbiChecksum);
         if (it == End()) {

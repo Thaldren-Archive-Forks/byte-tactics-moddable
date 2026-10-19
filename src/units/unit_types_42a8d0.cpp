@@ -175,7 +175,7 @@ int LoadUnitInfo()
     FileList files;
     ListDirectory(path, 0, &files);
     int count = files.size() + 1;
-    g_game->count_1438f = count;
+    g_game->unitDefCount = count;
     int size = count * sizeof(UnitDef);
     g_game->defs = (UnitDef*)SimAllocTagged("UNITINFO", size);
     memset(g_game->defs, 0, size);
@@ -275,7 +275,7 @@ int LoadUnitInfo()
             size -= sizeof(UnitDef);
         }
     }
-    g_game->count_1438f = count;
+    g_game->unitDefCount = count;
     if (oldcount != count && !bad)
         ShowErrorBox(Translate("Incompatible units found.  They will be ignored.  Please download the latest version of the game."), DAT_005119b8);
     ProtectBlockReadOnly(g_game->defs);
