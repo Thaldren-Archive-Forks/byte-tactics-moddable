@@ -208,43 +208,7 @@ extern int g_packetModes[];
 extern int g_usePacketManager;
 extern int g_netFrameRateConfig;
 
-// One player's packet channel: a pool of 0x43e-byte buffers, a pool of
-// 0x20-byte packet records that point into them, and a ring of queued
-// packets that SendQueued hands to the outgoing buffer.
-class PacketChannel {
-public:
-    int bufferIndex;                   // +0x00, the buffer last handed out
-    unsigned int sendPacingTicks;      // +0x04, ticks between sends
-    PacketBuffer** buffers;            // +0x08
-    unsigned int bufferCount;          // +0x0c, the buffer count
-    int frameNumber;                   // +0x10, the frame number
-    int dpid;                          // +0x14, the player's DPID
-    unsigned int timeoutTicks;         // +0x18, the minimum retain time
-    int packetIndex;                   // +0x1c, the packet last handed out
-    unsigned int queuedBytes;          // +0x20, queued bytes
-    unsigned int nextSendTick;         // +0x24, the next send time
-    NetPacketPendingEntry* packets;    // +0x28
-    unsigned int count;                // +0x2c, the packet count
-    NetPacketPendingEntry* firstPacket;  // +0x30, the first packet in use
-    NetPacketPendingEntry* lastPacket;  // +0x34, the last packet in use
-    PacketRing queue;                  // +0x38
-
-    PacketChannel();
-    ~PacketChannel();
-    PacketBuffer* AllocBuffer();
-    NetPacketPendingEntry* AllocPacket(int frame);
-    int GetMinRetainMs();
-    int GetPacketEntry(int index);
-    int InitPools(int a1, unsigned int a2, int a3, int a4);
-    void EnqueuePacket(NetPacketPendingEntry* item);
-    int GrowPools(int growbufs, int growpackets);
-    void DequeuePacket(NetPacketPendingEntry* item);
-    void ResetChannel();
-    int SendQueued(int force);
-    int AddPacket(int frame, void* data, unsigned int size);
-    void SetMinRetainMs(unsigned int ms);
-    void SetSendPacingMs(int ms);
-};
+#include "packet_channel.h"
 
 struct Msg_00461900 {
     char unknown_0[0x10];
