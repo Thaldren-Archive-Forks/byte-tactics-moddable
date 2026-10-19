@@ -46,14 +46,26 @@ struct Player {
         };
         Grid grid;
     };
-    float energy;                      // +0x8c
+    union {                            // +0x8c
+        float energy;
+        int energyBits;
+    };
     float energyIncome;                // +0x90
     float energyUsage;                 // +0x94
-    float metal;                       // +0x98
+    union {                            // +0x98
+        float metal;
+        int metalBits;
+    };
     float metalIncome;                 // +0x9c
     float metalUsage;                  // +0xa0
-    float energyCapacity;              // +0xa4
-    float metalCapacity;               // +0xa8
+    union {                            // +0xa4
+        float energyCapacity;
+        int energyCapacityBits;
+    };
+    union {                            // +0xa8
+        float metalCapacity;
+        int metalCapacityBits;
+    };
     double totalEnergyProduced;        // +0xac
     double totalMetalProduced;         // +0xb4
     double totalEnergyConsumed;        // +0xbc
