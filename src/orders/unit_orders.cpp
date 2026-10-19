@@ -67,65 +67,7 @@ class SquadScoutTimer;
 #include "path_order_attach.h"
 
 #pragma pack(push, 1)
-struct UnitDef {
-    char unknown_0[0x14a];
-    Point16 footprint;                 // +0x14a
-    char unknown_14e[0x15e - 0x14e];
-    Box bounds;                        // +0x15e
-    char unknown_176[0x180 - 0x176];
-    short height180;                   // +0x180
-    char unknown_182[0x184 - 0x182];
-    short radius184;                   // +0x184
-    float energy;                      // +0x186
-    float metal;                       // +0x18a
-    char unknown_18e[0x1c0 - 0x18e];
-    short height;                      // +0x1c0
-    char unknown_1c2[0x1ea - 0x1c2];
-    int buildTime;                     // +0x1ea
-    char unknown_1ee[0x1fa - 0x1ee];
-    unsigned int maxHealth;            // +0x1fa
-    unsigned short workerTime;         // +0x1fe
-    char unknown_200[0x202 - 0x200];
-    short range;                       // +0x202
-    char unknown_204[0x212 - 0x204];
-    unsigned short buildRange;         // +0x212
-    char unknown_214[0x218 - 0x214];
-    unsigned short radius;             // +0x218
-    char unknown_21a[0x22a - 0x21a];
-    unsigned char capacity;            // +0x22a
-    char unknown_22b[0x231 - 0x22b];
-    unsigned int* weaponCategories[3]; // +0x231
-    unsigned int* categories;          // +0x23d
-    union {
-        unsigned int flags;            // +0x241
-        unsigned char flags241;        // +0x241, the handlers that test a byte
-        struct {
-            unsigned int low : 11;
-            unsigned int flying : 1;
-            unsigned int high : 20;
-        };
-    };
-    union {
-        unsigned char flags245;        // +0x245, AttackUTypeOrder's byte test
-        unsigned int flags245u;        // +0x245, the handlers that test a dword
-        struct {
-            unsigned int low245 : 20;
-            unsigned int countdown : 3;
-            unsigned int high245 : 9;
-        };
-        struct {
-            unsigned int lo : 12;
-            unsigned int capture : 1;
-            unsigned int hi : 19;
-        };
-    };
-    // The float casts stay: without them the 30 folds into the reciprocals.
-    float EnergyCost() { return (float)(energy * 30); }
-    float MetalCost() { return (float)(metal * 30); }
-    // maxHealth is read once through MaxHealth() and once as a plain field:
-    // two identical reads merge into one load.
-    unsigned int MaxHealth() { return maxHealth; }
-};
+#include "../units/unit_def.h"
 
 // Keeps its own view: the declarations of player.h move the symbol ids that 0x402b70, 0x404730 and 0x405d90 match at.
 struct PlayerView {
@@ -254,7 +196,7 @@ int __stdcall StopOrder(Unit* unit, Order* order, int unused)
     g_seams.targeting->ClearWeaponTarget(unit, 0);
     g_seams.targeting->ClearWeaponTarget(unit, 1);
     g_seams.targeting->ClearWeaponTarget(unit, 2);
-    if ((unit->flags & 3) == 2 && (unit->def->flags & 0x800)) {
+    if ((unit->flags & 3) == 2 && (unit->def->flags1 & 0x800)) {
         AppendOrder(unit, new (kSim) Order("VTOL_LANDIFCAN", 0, &unit->pos, 0, 0, 0));
     }
     return 5;
@@ -317,8 +259,8 @@ int __stdcall WaitForAttackOrder(int unused1, Order* obj, int unused3)
 // FUNCTION: 0x402010
 int __stdcall SelfDestructOrder(Unit* unit, Order* order, int flags)
 {
-    if(!(order->count&0xf0000000)) order->count=unit->def->countdown|0xf0000000;
-    if(!order->done && unit->def->countdown>0) {
+    if(!(order->count&0xf0000000)) order->count=unit->def->selfdestructcountdown|0xf0000000;
+    if(!order->done && unit->def->selfdestructcountdown>0) {
         int sounds[6]={22,21,20,19,18,17};
         if(flags&2) {
             if(!(unit->flags&0x4000)) { QueueUnitSpeech(unit,23,0); return 5; }
@@ -441,7 +383,7 @@ int __stdcall SelfRepairOrder(Unit* unit, Order* order, int unused)
     }
     switch (order->state) {
     case 0:
-        if (!(order->target->def->flags241 & 0x40))
+        if (!(order->target->def->flags1Byte & 0x40))
             return 7;
         if (order->target->buildLeft == 0.0f && (unit->activateFlags & 1)) {
             g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
@@ -452,17 +394,17 @@ int __stdcall SelfRepairOrder(Unit* unit, Order* order, int unused)
         if ((unsigned int)unit->health >= unit->def->maxHealth)
             return 1;
         unit->workTime = g_game->ticks + 0x96;
-        if (g_seams.units->AddRepairProgress(order->target, unit, (float)(order->target->def->workerTime / 30))) {
+        if (g_seams.units->AddRepairProgress(order->target, unit, (float)(order->target->def->buildRate / 30))) {
             Vec3 nano;
             g_seams.units->GetNanoPiecePosition(order->target, &nano);
             Box box;
             box.hi = unit->pos;
             box.lo = unit->pos;
-            box.lo.x += unit->def->bounds.lo.x;
-            box.lo.z += unit->def->bounds.lo.z;
-            box.hi.x += unit->def->bounds.hi.x;
-            box.hi.z += unit->def->bounds.hi.z;
-            box.hi.y += unit->def->bounds.hi.y;
+            box.lo.x += unit->def->modelMinX;
+            box.lo.z += unit->def->modelMinZ;
+            box.hi.x += unit->def->modelMaxX;
+            box.hi.z += unit->def->modelMaxZ;
+            box.hi.y += unit->def->modelMaxY;
             EmitNanoParticles(&nano, &box, 6);
         }
         order->SetDeadlineTicks(1);
@@ -499,7 +441,7 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
 {
     if (flags & 2) {
         if (order->target != 0) {
-            float refund = (unsigned int)((1.0f - order->target->buildLeft) * order->target->def->metal);
+            float refund = (unsigned int)((1.0f - order->target->buildLeft) * order->target->def->metalCost);
             // The (double) casts on the full refund stay: they keep refund off the FP stack.
             if (unit->resourceSlot.player->active && unit->resourceSlot.player->type == 2) {
                 switch (g_game->difficulty) {
@@ -548,7 +490,7 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         g_seams.units->QueryScript((CobScript*)unit->script, "QueryBuildInfo", &piece, 0, 0, 0);
         order->pos = g_seams.units->GetPiecePosition(unit, piece);
         UnitDef* ut = &g_game->defs[order->unitType];
-        Point16 cell = GridCell(order->pos, ut->footprint);
+        Point16 cell = GridCell(order->pos, *(Point16*)&ut->footprintx);
         if (!g_seams.map->CanPlaceUnitFootprint(ut, 0, cell, unit->flags & 3)) {
             order->SetDeadlineTicks(15);
             order->flags |= 2;
@@ -572,17 +514,17 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
     }
     case 3:
         if (order->target != 0) {
-            if (g_seams.units->AddBuildProgress(unit, order->target, (float)(unit->def->workerTime / 30))) {
+            if (g_seams.units->AddBuildProgress(unit, order->target, (float)(unit->def->buildRate / 30))) {
                 Vec3 nano;
                 g_seams.units->GetNanoPiecePosition(unit, &nano);
                 Box box;
                 box.hi = order->target->pos;
                 box.lo = order->target->pos;
-                box.lo.x += order->target->def->bounds.lo.x;
-                box.lo.z += order->target->def->bounds.lo.z;
-                box.hi.x += order->target->def->bounds.hi.x;
-                box.hi.z += order->target->def->bounds.hi.z;
-                box.hi.y += order->target->def->bounds.hi.y;
+                box.lo.x += order->target->def->modelMinX;
+                box.lo.z += order->target->def->modelMinZ;
+                box.hi.x += order->target->def->modelMaxX;
+                box.hi.z += order->target->def->modelMaxZ;
+                box.hi.y += order->target->def->modelMaxY;
                 EmitNanoParticles(&nano, &box, 6);
             }
             if (order->target->buildLeft != 0.0f) {
@@ -910,7 +852,7 @@ int __stdcall AttackKamikazeOrder(Unit* unit, Order* order, unsigned flags)
     case 0:
         if(unit->carrier) return 7;
         order->AnnounceStatusIfFlagged(0);
-        order->AttachApproachRadiusGoal(&order->pos,unit->def->radius<16?16:unit->def->radius);
+        order->AttachApproachRadiusGoal(&order->pos,(unsigned short)unit->def->kamikazedistance<16?16:(unsigned short)unit->def->kamikazedistance);
         order->SetDeadlineTicks(60);
         order->flags|=0xe0; return 1;
     case 1:
@@ -1215,7 +1157,7 @@ int __stdcall CaptureOrder(Unit* unit, Order* order, unsigned int flags)
     switch (state) {
     case 0: {
         if (!unit->motion) return 7;
-        if (!(unit->def->flags245u & 0x1000)) return 7;
+        if (!(unit->def->flags2 & 0x1000)) return 7;
         if (target->def->capture) {
             QueueUnitSpeech(unit, 7, "That unit cannot be captured");
             return 8;
@@ -1266,11 +1208,11 @@ int __stdcall CaptureOrder(Unit* unit, Order* order, unsigned int flags)
         Vec3 bounds[2];
         bounds[1] = order->link.Get()->pos;
         bounds[0] = order->link.Get()->pos;
-        bounds[0].x += order->link.Get()->def->bounds.lo.x;
-        bounds[0].z += order->link.Get()->def->bounds.lo.z;
-        bounds[1].x += order->link.Get()->def->bounds.hi.x;
-        bounds[1].z += order->link.Get()->def->bounds.hi.z;
-        bounds[1].y += order->link.Get()->def->bounds.hi.y;
+        bounds[0].x += order->link.Get()->def->modelMinX;
+        bounds[0].z += order->link.Get()->def->modelMinZ;
+        bounds[1].x += order->link.Get()->def->modelMaxX;
+        bounds[1].z += order->link.Get()->def->modelMaxZ;
+        bounds[1].y += order->link.Get()->def->modelMaxY;
         EmitReverseNanoParticles(bounds, &start, 6);
         unit->workTime = g_game->ticks + 900;
         order->elapsed += 2;
@@ -1320,7 +1262,7 @@ int __stdcall ReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags245u & 0x400)) {
+        if (unit->motion && (unit->def->flags2 & 0x400)) {
             if (!g_seams.units->CanReclaim(unit, 0, target)) {
                 QueueUnitSpeech(unit, 7, "That unit cannot be reclaimed");
                 QueueUnitSpeech(unit, 7, "Reclamation failed");
@@ -1366,11 +1308,11 @@ int __stdcall ReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
             Vec3 bounds[2];
             bounds[1] = order->link.Get()->pos;
             bounds[0] = order->link.Get()->pos;
-            bounds[0].x += order->link.Get()->def->bounds.lo.x;
-            bounds[0].z += order->link.Get()->def->bounds.lo.z;
-            bounds[1].x += order->link.Get()->def->bounds.hi.x;
-            bounds[1].z += order->link.Get()->def->bounds.hi.z;
-            bounds[1].y += order->link.Get()->def->bounds.hi.y;
+            bounds[0].x += order->link.Get()->def->modelMinX;
+            bounds[0].z += order->link.Get()->def->modelMinZ;
+            bounds[1].x += order->link.Get()->def->modelMaxX;
+            bounds[1].z += order->link.Get()->def->modelMaxZ;
+            bounds[1].y += order->link.Get()->def->modelMaxY;
             EmitReverseNanoParticles(bounds, &start, 6);
             order->SetDeadlineTicks(2);
             order->duration += 2;
@@ -1404,7 +1346,7 @@ int __stdcall RepairUnitOrder(Unit* unit, Order* order, int flags)
     }
     switch (order->state) {
     case 0:
-        if (unit->motion && (unit->def->flags241 & 0x40) && order->target->buildLeft == Zero_004fc920) {
+        if (unit->motion && (unit->def->flags1Byte & 0x40) && order->target->buildLeft == Zero_004fc920) {
             order->AnnounceStatusIfFlagged("Repairing");
             return 1;
         }
@@ -1439,17 +1381,17 @@ int __stdcall RepairUnitOrder(Unit* unit, Order* order, int flags)
             return 0;
         }
         unit->workTime = g_game->ticks + 150;
-        if (g_seams.units->AddRepairProgress(unit, order->target, (float)(unit->def->workerTime / 30))) {
+        if (g_seams.units->AddRepairProgress(unit, order->target, (float)(unit->def->buildRate / 30))) {
             Vec3 nano;
             g_seams.units->GetNanoPiecePosition(order->source, &nano);
             Box box;
             box.hi = order->target->pos;
             box.lo = order->target->pos;
-            box.lo.x += order->target->def->bounds.lo.x;
-            box.lo.z += order->target->def->bounds.lo.z;
-            box.hi.x += order->target->def->bounds.hi.x;
-            box.hi.z += order->target->def->bounds.hi.z;
-            box.hi.y += order->target->def->bounds.hi.y;
+            box.lo.x += order->target->def->modelMinX;
+            box.lo.z += order->target->def->modelMinZ;
+            box.hi.x += order->target->def->modelMaxX;
+            box.hi.z += order->target->def->modelMaxZ;
+            box.hi.y += order->target->def->modelMaxY;
             EmitNanoParticles(&nano, &box, 6);
         }
         order->SetDeadlineTicks(1);
@@ -1474,7 +1416,7 @@ int __stdcall RepairUnitNoMoveOrder(Unit* unit, Order* order, int unused)
     state = order->state;
     switch (state) {
     case 0:
-        if (!(unit->def->flags241 & 0x40)) return 7;
+        if (!(unit->def->flags1Byte & 0x40)) return 7;
         if (target->buildLeft == Zero_004fc920 && (unit->activateFlags & 1)) {
             g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
             return 1;
@@ -1485,18 +1427,18 @@ int __stdcall RepairUnitNoMoveOrder(Unit* unit, Order* order, int unused)
         if (target->flags & 0xc) return 1;
         unit->workTime = g_game->ticks + 150;
         int rate = 0;
-        rate = unit->def->workerTime;
+        rate = unit->def->buildRate;
         if (g_seams.units->AddRepairProgress(unit, order->link.Get(), (float)(rate / 30))) {
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(order->source, &start);
             Vec3 bounds[2];
             bounds[1] = order->link.Get()->pos;
             bounds[0] = order->link.Get()->pos;
-            bounds[0].x += order->link.Get()->def->bounds.lo.x;
-            bounds[0].z += order->link.Get()->def->bounds.lo.z;
-            bounds[1].x += order->link.Get()->def->bounds.hi.x;
-            bounds[1].z += order->link.Get()->def->bounds.hi.z;
-            bounds[1].y += order->link.Get()->def->bounds.hi.y;
+            bounds[0].x += order->link.Get()->def->modelMinX;
+            bounds[0].z += order->link.Get()->def->modelMinZ;
+            bounds[1].x += order->link.Get()->def->modelMaxX;
+            bounds[1].z += order->link.Get()->def->modelMaxZ;
+            bounds[1].y += order->link.Get()->def->modelMaxY;
             EmitNanoParticles(&start, bounds, 6);
         }
         order->SetDeadlineTicks(1);
@@ -1587,7 +1529,7 @@ int __stdcall ParkOrder(Unit* unit,Order* order,int flags)
         }
         {
             int size=unit->footprint.x;
-            if(unit->def->height>=0) size+=3;
+            if(unit->def->minwaterdepth>=0) size+=3;
             Point16 start=SubPoint(Convert(unit->pos),MakePoint(size*4,size*3));
             Point16 extent=MakePoint(size*8,size*6);
             order->AttachBuildFootprintMarker(start,extent);
@@ -1620,7 +1562,7 @@ int __stdcall GroundPickupOrder(Unit* unit, Order* order, unsigned char flags)
         switch(order->state) {
         case 0:
             if (!unit->motion) break;
-            if (!(unit->def->flags245u & 0x100)) break;
+            if (!(unit->def->flags2 & 0x100)) break;
             if (target->footprint.x > (short)unit->def->capacity) {
                 QueueUnitSpeech(unit, 7, "Unit is too large to transport"); return 8;
             }
@@ -1658,7 +1600,7 @@ int __stdcall GroundUnloadOrder(Unit* unit, Order* order, int flags)
     switch(order->state) {
     case 0:
         if (!unit->motion) break;
-        if (!(unit->def->flags245u&0x100)) break;
+        if (!(unit->def->flags2&0x100)) break;
         order->link.SetUnit(unit->cargo);
         if (!order->target) return 5;
         order->AnnounceStatusIfFlagged("Unloading");
@@ -1671,7 +1613,7 @@ int __stdcall GroundUnloadOrder(Unit* unit, Order* order, int flags)
     case 2:
         if (*(Unit**)&order->target->carrier!=unit) { QueueUnitSpeech(unit,13,0); return 5; }
         if (order->attempts>=3) return 9;
-        if ((unsigned char)(unit->def->flags>>12)&1)
+        if ((unsigned char)(unit->def->flags1>>12)&1)
             order->AttachApproachRadiusGoal(&order->pos,(int)(unit->def->height180*1.5));
         else order->AttachApproachRadiusGoal(&order->pos,0);
         order->flags=0xe8;
@@ -1736,7 +1678,7 @@ int __stdcall AttackUTypeOrder(Unit* unit, Order* order, int unused)
     s = order->state;
     switch (s) {
     case 0:
-        if (!(unit->def->flags245 & 0x10))
+        if (!(unit->def->flags2Byte & 0x10))
             return 7;
         order->SetDeadlineTicks(RandomInt(0x5a) + 1);
         return 1;
@@ -1798,9 +1740,9 @@ int __stdcall HelpBuildOrder(Unit* unit, Order* order, int flags)
     state = order->state;
     switch (state) {
     case 0: {
-        if (!unit->motion || !(unit->def->flags241 & 0x40)) break;
-        double x = target->def->footprint.x;
-        double y = target->def->footprint.y;
+        if (!unit->motion || !(unit->def->flags1Byte & 0x40)) break;
+        double x = target->def->footprintx;
+        double y = target->def->footprintz;
         int radius = (int)(sqrt(x * x + y + y) * 16.0) / 2;
         unsigned int range = 0;
         range = unit->def->buildRange;
@@ -1822,13 +1764,13 @@ int __stdcall HelpBuildOrder(Unit* unit, Order* order, int flags)
         return WaitIfNotInBuildStance(unit, order, 10);
     case 3: {
         int rate = 0;
-        rate = unit->def->workerTime;
+        rate = unit->def->buildRate;
         if (g_seams.units->AddBuildProgress(unit, target, (float)(rate / 30))) {
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit, &start);
             Vec3 bounds[2];
-            bounds[0] = (Vec3Sum&)order->target->pos + order->target->def->bounds.lo;
-            bounds[1] = (Vec3Sum&)order->target->pos + order->target->def->bounds.hi;
+            bounds[0] = (Vec3Sum&)order->target->pos + *(Vec3*)&order->target->def->modelMinX;
+            bounds[1] = (Vec3Sum&)order->target->pos + *(Vec3*)&order->target->def->modelMaxX;
             EmitNanoParticles(&start, (Box*)bounds, 6);
         }
         unit->workTime = g_game->ticks + 300;

@@ -36,12 +36,7 @@ void UpdateEdgeScroll();
 void CenterCameraOnRadarClick();
 void CenterCameraOnStartPosition();
 #pragma pack(push, 1)
-struct UnitDef {
-    char pad0[0x1fa]; unsigned int maxHealth;
-    char pad1fe[0x216 - 0x1fe]; unsigned short attackrunlength;
-    char pad218[0x21c - 0x218]; short altitude;
-    char pad21e[0x241 - 0x21e]; unsigned int flags;
-};
+#include "../units/unit_def.h"
 struct Struct_Unit96 {
     char pad0[0x146]; unsigned char slotIndex;
 };
@@ -117,7 +112,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             order->AnnounceStatusIfFlagged("Attacking");
             PrepVtolClimb(unit, order, 0);
             return 1;

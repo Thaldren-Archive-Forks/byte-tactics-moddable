@@ -34,11 +34,7 @@ struct Unit;
 
 
 #pragma pack(push, 1)
-struct UnitDef {
-    char pad0[0x192]; int maxvelocity;
-    char pad196[0x21c - 0x196]; short altitude;
-    char pad21e[0x241 - 0x21e]; unsigned int flags;
-};
+#include "../units/unit_def.h"
 #include "../units/unit.h"
 #include "order.h"
 #include "../game/game.h"
@@ -135,7 +131,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
         return 5;
     switch (order->state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             order->AnnounceStatusIfFlagged("Attacking");
             PrepVtolClimb(unit, order, 0);
             order->SetDeadlineTicks(1);

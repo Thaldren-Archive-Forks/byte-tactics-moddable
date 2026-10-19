@@ -148,52 +148,7 @@ struct PlayerView {
     unsigned char index;               // +0x146
 };
 
-struct UnitDef {
-    char unknown_0[0x14a];
-    Point origin;                      // +0x14a
-    char unknown_14e[0x156 - 0x14e];
-    int canBuild;                      // +0x156
-    char unknown_15a[0x15e - 0x15a];
-    Vec3 min;                          // +0x15e
-    union {
-        Vec3 max;                      // +0x16a
-        struct {
-            char unknown_16a[4];
-            union {
-                int modelMaxY;         // +0x16e, max.y
-                struct {
-                    short unknown_16e;
-                    short field_170;   // +0x170, the top half of max.y
-                };
-            };
-            short unknown_172;
-            short unknown_174;
-        };
-    };
-    char unknown_176[0x192 - 0x176];
-    int maxvelocity;                   // +0x192
-    char unknown_196[0x1fa - 0x196];
-    unsigned int maxHealth;            // +0x1fa
-    union {
-        unsigned short workerTime;     // +0x1fe
-        unsigned short buildRate;
-    };
-    char unknown_200[0x202 - 0x200];
-    short range;                       // +0x202
-    char unknown_204[0x212 - 0x204];
-    unsigned short buildRange;         // +0x212
-    char unknown_214[0x216 - 0x214];
-    unsigned short attackrunlength;    // +0x216
-    char unknown_218[0x21c - 0x218];
-    short altitude;                    // +0x21c
-    char unknown_21e[0x22a - 0x21e];
-    unsigned char capacity;            // +0x22a
-    char unknown_22b[0x231 - 0x22b];
-    unsigned int* weaponCategories[3]; // +0x231
-    unsigned int* categories;          // +0x23d
-    unsigned int flags;                // +0x241
-    unsigned int flags2;               // +0x245
-};
+#include "../units/unit_def.h"
 
 #include "../map/feature.h"
 
@@ -469,7 +424,7 @@ int __stdcall VtolEvadeOrder(Unit* unit,Order* order,int flags)
     unsigned int state=0; state=order->state;
     switch(state) {
     case 0:
-        if (unit->motion && (unit->def->flags&0x800)) {
+        if (unit->motion && (unit->def->flags1&0x800)) {
             order->side=RandomInt(2);
             Vec3 pos;
         if (order->side) pos=PosPlus(unit->pos,Offset(unit->heading-0x4000,range<<16));
@@ -546,7 +501,7 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             if (order->pos.x == 0 && order->pos.z == 0 && order->pos.y == 0)
                 order->pos = unit->pos;
             int a = RandomInt(0x10000);
@@ -623,7 +578,7 @@ int __stdcall VtolStandbyOrder(Unit* unit, Order* order, int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
             order->flags |= 0x10000;
             order->SetDeadlineTicks(1);
@@ -642,7 +597,7 @@ int __stdcall VtolStandbyOrder(Unit* unit, Order* order, int flags)
         return 1;
     }
     case 2:
-        if ((unit->def->flags & 0x800) && (unit->flags & 3) == 2) {
+        if ((unit->def->flags1 & 0x800) && (unit->flags & 3) == 2) {
             if (unit->cargo) {
                 short angle = RandomInt(0x10000);
                 Vec3 p;
@@ -679,7 +634,7 @@ int __stdcall VtolMoveOrder(Unit* unit, Order* order, int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             PrepVtolClimb(unit, order, 0);
             return 1;
         }
@@ -817,7 +772,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             order->AnnounceStatusIfFlagged("Unloading");
             order->link.SetUnit(unit->cargo);
             Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
@@ -934,7 +889,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     unsigned int state=0; state=order->state;
     switch(state) {
     case 0:
-        if (unit->motion && (unit->def->flags&0x800)) {
+        if (unit->motion && (unit->def->flags1&0x800)) {
             order->AnnounceStatusIfFlagged("Building");
             g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
             if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
@@ -952,7 +907,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     case 1: {
         UnitDef* def=&g_game->unitDefs[order->type];
         order->retries=0;
-        Point origin=def->origin;
+        Point origin=*(Point*)&def->footprintx;
         Point cell=WorldToCell(order->pos,origin);
         CellToWorldPos(cell,&order->pos,origin);
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,order->pos);
@@ -964,7 +919,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     case 2: {
         if (flags&0x40) return 8;
         UnitDef* def=&g_game->unitDefs[order->type];
-        if (!g_seams.map->CanPlaceUnitFootprint(def,0,WorldToCell16(order->pos,g_game->unitDefs[order->type].origin),1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def,0,WorldToCell16(order->pos,*(Point*)&g_game->unitDefs[order->type].footprintx),1)) {
             if (!order->retries) QueueUnitSpeech(unit,7,"Waiting for target area to clear");
             else if (order->retries>10) { QueueUnitSpeech(unit,7,"Target area was blocked"); return 8; }
             ++order->retries;
@@ -997,8 +952,8 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit,&start);
             Vec3 bounds[2];
-            bounds[0]=PosPlus(order->target->pos,order->target->def->min);
-            bounds[1]=PosPlus(order->target->pos,order->target->def->max);
+            bounds[0]=PosPlus(order->target->pos,*(Vec3*)&order->target->def->modelMinX);
+            bounds[1]=PosPlus(order->target->pos,*(Vec3*)&order->target->def->modelMaxX);
             EmitNanoParticles(&start,(Box*)bounds,6);
         }
         if (order->target->buildLeft!=0.0f) {
@@ -1064,7 +1019,7 @@ int __stdcall VtolRepairUnitOrder(Unit* unit, Order* order, int flags)
     *dst = order->target->pos;
     switch (order->state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             if (!g_seams.units->CanRepair(unit, 0, order->target)) {
                 QueueUnitSpeech(unit, 7, "Repair mission failed");
                 return 8;
@@ -1093,17 +1048,17 @@ int __stdcall VtolRepairUnitOrder(Unit* unit, Order* order, int flags)
         if ((unsigned int)order->target->health >= order->target->def->maxHealth)
             return 1;
         {
-            g_seams.units->AddRepairProgress(unit, order->target, (float)(unit->def->workerTime / 30));
+            g_seams.units->AddRepairProgress(unit, order->target, (float)(unit->def->buildRate / 30));
             Vec3 nano;
             g_seams.units->GetNanoPiecePosition(order->source, &nano);
             Box box;
             box.hi = order->target->pos;
             box.lo = order->target->pos;
-            box.lo.x += order->target->def->min.x;
-            box.lo.z += order->target->def->min.z;
-            box.hi.x += order->target->def->max.x;
-            box.hi.z += order->target->def->max.z;
-            box.hi.y += order->target->def->max.y;
+            box.lo.x += order->target->def->modelMinX;
+            box.lo.z += order->target->def->modelMinZ;
+            box.hi.x += order->target->def->modelMaxX;
+            box.hi.z += order->target->def->modelMaxZ;
+            box.hi.y += order->target->def->modelMaxY;
             EmitNanoParticles(&nano, &box, 6);
         }
         order->SetDeadlineTicks(1);
@@ -1251,7 +1206,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             order->AnnounceStatusIfFlagged("Attacking");
             PrepVtolClimb(unit, order, 0);
             return 1;
@@ -1346,7 +1301,7 @@ int __stdcall VtolPickupOrder(Unit* unit, Order* order, int flags)
             return 8;
         switch (order->state) {
         case 0:
-            if (unit->motion && (unit->def->flags & 0x800)) {
+            if (unit->motion && (unit->def->flags1 & 0x800)) {
                 if (target->footprint.x > (short)unit->def->capacity) {
                     QueueUnitSpeech(unit, 7, "Unit is too heavy to transport");
                     return 8;

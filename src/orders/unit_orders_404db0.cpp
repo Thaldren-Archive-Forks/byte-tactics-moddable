@@ -31,14 +31,7 @@ struct Cell {
     char unknown_c;
 };
 
-struct UnitDef {
-    char unknown_0[0x1ea];
-    int buildTime;                     // +0x1ea
-    char unknown_1ee[0x1fe - 0x1ee];
-    unsigned short workerTime;         // +0x1fe
-    char unknown_200[0x245 - 0x200];
-    unsigned int flags;                // +0x245
-};
+#include "../units/unit_def.h"
 
 #include "../network/player.h"
 
@@ -93,7 +86,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
     }
     switch (order->state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags2 & 0x800)) {
             order->AttachBuildFootprintMarker(cell, size);
             order->flags = 0xe0;
             return 1;
@@ -125,7 +118,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
             QueueUnitSpeech(unit, 7, "Ressurection failed");
             return 8;
         }
-        order->countdown = (int)(g_game->defs[order->unitType].buildTime * 0.3 / (unit->def->workerTime / 30));
+        order->countdown = (int)(g_game->defs[order->unitType].buildtime * 0.3 / (unit->def->buildRate / 30));
         QueueUnitSpeech(unit, 11, 0);
         return 1;
     }

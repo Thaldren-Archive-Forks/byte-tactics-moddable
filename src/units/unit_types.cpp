@@ -30,162 +30,7 @@ public:
 // words keep 0x42b370's bit groupings so its hand-written operator= still sees
 // them (bit 5 downloadable, bit 6 canbuild, bit 31 gui of flags1; bits 20..22
 // selfdestructcountdown of flags2).
-class UnitDef {
-public:
-    char name[0x20];                    // +0x000
-    char unitname[0x20];                // +0x020
-    char description[0x40];             // +0x040
-    char objectname[0x20];              // +0x080
-    char f0a0[0x1e];                    // +0x0a0
-    char aiWeight[0x40];                // +0x0be
-    char aiLimit[0x40];                 // +0x0fe
-    int f13e;                           // +0x13e
-    int f142;                           // +0x142
-    int f146;                           // +0x146
-    union {
-        int f14a;                       // +0x14a
-        struct {
-            short footprintx;           // +0x14a
-            short footprintz;           // +0x14c
-        };
-    };
-    union {
-        int f14e;                       // +0x14e
-        char* yardmap;                  // +0x14e
-    };
-    int count;                          // +0x152
-    void* ids;                          // +0x156
-    int f15a;                           // +0x15a
-    Vec3 extentmin;                     // +0x15e
-    Vec3 extentmax;                     // +0x16a
-    Vec3 extentsize;                    // +0x176
-    int radius;                         // +0x182
-    float buildcostenergy;              // +0x186
-    float buildcostmetal;               // +0x18a
-    void* data;                         // +0x18e
-    int maxvelocity;                    // +0x192
-    int maxslopevelocity;               // +0x196
-    int brakerate;                      // +0x19a
-    int acceleration;                   // +0x19e
-    int bankscale;                      // +0x1a2
-    int pitchscale;                     // +0x1a6
-    int damagemodifier;                 // +0x1aa
-    int moverate1;                      // +0x1ae
-    int moverate2;                      // +0x1b2
-    void* movementclass;                // +0x1b6
-    short turnrate;                     // +0x1ba
-    short corpse;                       // +0x1bc
-    short maxwaterdepth;                // +0x1be
-    short minwaterdepth;                // +0x1c0
-    float energymake;                   // +0x1c2
-    float energyuse;                    // +0x1c6
-    float metalmake;                    // +0x1ca
-    float extractsmetal;                // +0x1ce
-    float windgenerator;                // +0x1d2
-    float tidalgenerator;               // +0x1d6
-    float cloakcost;                    // +0x1da
-    float cloakcostmoving;              // +0x1de
-    float energystorage;                // +0x1e2
-    float metalstorage;                 // +0x1e6
-    int buildtime;                      // +0x1ea
-    char* weapons[3];                   // +0x1ee
-    int maxdamage;                      // +0x1fa
-    short workertime;                   // +0x1fe
-    short healtime;                     // +0x200
-    short sightdistance;                // +0x202
-    short radardistance;                // +0x204
-    short sonardistance;                // +0x206
-    short mincloakdistance;             // +0x208
-    short radardistancejam;             // +0x20a
-    short sonardistancejam;             // +0x20c
-    short soundcategory;                // +0x20e
-    short buildangle;                   // +0x210
-    short builddistance;                // +0x212
-    short maneuverleashlength;          // +0x214
-    short attackrunlength;              // +0x216
-    short kamikazedistance;             // +0x218
-    short sortbias;                     // +0x21a
-    short cruisealt;                    // +0x21c
-    unsigned short id;                  // +0x21e
-    char* explodeas;                    // +0x220
-    char* selfdestructas;               // +0x224
-    unsigned char maxslope;             // +0x228
-    unsigned char maxwaterslope;        // +0x229
-    char transportsize;                 // +0x22a
-    char transportcapacity;             // +0x22b
-    char waterline;                     // +0x22c
-    char makesmetal;                    // +0x22d
-    unsigned char buildMenuPageCount;   // +0x22e
-    char bmcode;                        // +0x22f
-    char defaultmissiontype;            // +0x230
-    void* weaponCategories[3];          // +0x231
-    void* nochasecategory;              // +0x23d
-    union {
-        unsigned int flags1;            // +0x241
-        struct {
-            unsigned int b00 : 2;
-            unsigned int b02 : 2;
-            unsigned int b04 : 1;
-            unsigned int downloadable : 1;
-            unsigned int canbuild : 1;
-            unsigned int b07 : 1;
-            unsigned int b08 : 1;
-            unsigned int b09 : 1;
-            unsigned int b10 : 1;
-            unsigned int b11 : 1;
-            unsigned int b12 : 1;
-            unsigned int b13 : 1;
-            unsigned int b14 : 1;
-            unsigned int b15 : 1;
-            unsigned int b16 : 1;
-            unsigned int b17 : 1;
-            unsigned int b18 : 1;
-            unsigned int b19 : 1;
-            unsigned int b20 : 1;
-            unsigned int b21 : 1;
-            unsigned int b22 : 1;
-            unsigned int b23 : 1;
-            unsigned int b24 : 1;
-            unsigned int b25 : 1;
-            unsigned int b26 : 1;
-            unsigned int b27 : 1;
-            unsigned int b28 : 1;
-            unsigned int b29 : 1;
-            unsigned int b30 : 1;
-            unsigned int gui : 1;
-        };
-    };
-    union {
-        unsigned int flags2;            // +0x245
-        struct {
-            unsigned int c00 : 1;
-            unsigned int c01 : 1;
-            unsigned int c02 : 1;
-            unsigned int c03 : 1;
-            unsigned int c04 : 1;
-            unsigned int c05 : 1;
-            unsigned int c06 : 1;
-            unsigned int c07 : 1;
-            unsigned int c08 : 1;
-            unsigned int c09 : 1;
-            unsigned int c10 : 1;
-            unsigned int c11 : 1;
-            unsigned int c12 : 1;
-            unsigned int c13 : 1;
-            unsigned int c14 : 1;
-            unsigned int c15 : 1;
-            unsigned int c16 : 1;
-            unsigned int c17 : 1;
-            unsigned int c18 : 1;
-            unsigned int c19 : 1;
-            // A 3-bit bitfield store in LoadUnitFbi, not a wider field.
-            unsigned int selfdestructcountdown : 3;
-        };
-    };
-
-    UnitDef& operator=(const UnitDef& src);
-    void AddToCategories(char* category);
-};
+#include "unit_def.h"
 
 // One 0xbd-byte downloadable build list: a count and five entries.
 struct BuildEntry_0042dcf0 {
@@ -337,16 +182,16 @@ UnitDef& UnitDef::operator=(const UnitDef& src)
     for (i = 0; i < 0x20; i++) unitname[i] = src.unitname[i];
     for (i = 0; i < 0x40; i++) description[i] = src.description[i];
     for (i = 0; i < 0x20; i++) objectname[i] = src.objectname[i];
-    for (i = 0; i < 0x1e; i++) f0a0[i] = src.f0a0[i];
+    for (i = 0; i < 0x1e; i++) side[i] = src.side[i];
     for (i = 0; i < 0x40; i++) aiWeight[i] = src.aiWeight[i];
     for (i = 0; i < 0x40; i++) aiLimit[i] = src.aiLimit[i];
 
-    f13e = src.f13e; f142 = src.f142; f146 = src.f146; f14a = src.f14a;
+    fbiChecksum = src.fbiChecksum; scriptChecksum = src.scriptChecksum; weaponHashXor = src.weaponHashXor; f14a = src.f14a;
     f14e = src.f14e; count = src.count; ids = src.ids;
-    f15a = src.f15a;
-    extentmin = src.extentmin; extentmax = src.extentmax; extentsize = src.extentsize;
-    radius = src.radius; buildcostenergy = src.buildcostenergy;
-    buildcostmetal = src.buildcostmetal; data = src.data;
+    maxThisUnit = src.maxThisUnit;
+    *(Vec3*)&modelMinX = *(Vec3*)&src.modelMinX; *(Vec3*)&modelMaxX = *(Vec3*)&src.modelMaxX; *(Vec3*)&modelSizeX = *(Vec3*)&src.modelSizeX;
+    radius = src.radius; energyCost = src.energyCost;
+    metalCost = src.metalCost; data = src.data;
     maxvelocity = src.maxvelocity; maxslopevelocity = src.maxslopevelocity;
     brakerate = src.brakerate; acceleration = src.acceleration;
     bankscale = src.bankscale; pitchscale = src.pitchscale;
@@ -355,36 +200,36 @@ UnitDef& UnitDef::operator=(const UnitDef& src)
     turnrate = src.turnrate; corpse = src.corpse;
     maxwaterdepth = src.maxwaterdepth; minwaterdepth = src.minwaterdepth;
     energymake = src.energymake; energyuse = src.energyuse;
-    metalmake = src.metalmake; extractsmetal = src.extractsmetal;
+    metalmake = src.metalmake; extractsMetal = src.extractsMetal;
     windgenerator = src.windgenerator; tidalgenerator = src.tidalgenerator;
     cloakcost = src.cloakcost; cloakcostmoving = src.cloakcostmoving;
     energystorage = src.energystorage; metalstorage = src.metalstorage;
     buildtime = src.buildtime;
     for (i = 0; i < 3; i++) weapons[i] = src.weapons[i];
-    maxdamage = src.maxdamage;
-    workertime = src.workertime; healtime = src.healtime;
-    sightdistance = src.sightdistance; radardistance = src.radardistance;
+    maxHealth = src.maxHealth;
+    buildRate = src.buildRate; healtime = src.healtime;
+    range = src.range; radardistance = src.radardistance;
     sonardistance = src.sonardistance; mincloakdistance = src.mincloakdistance;
     radardistancejam = src.radardistancejam; sonardistancejam = src.sonardistancejam;
     soundcategory = src.soundcategory; buildangle = src.buildangle;
-    builddistance = src.builddistance; maneuverleashlength = src.maneuverleashlength;
+    buildRange = src.buildRange; maneuverleashlength = src.maneuverleashlength;
     attackrunlength = src.attackrunlength; kamikazedistance = src.kamikazedistance;
-    sortbias = src.sortbias; cruisealt = src.cruisealt;
+    sortbias = src.sortbias; altitude = src.altitude;
     id = src.id;
     explodeas = src.explodeas; selfdestructas = src.selfdestructas;
     maxslope = src.maxslope; maxwaterslope = src.maxwaterslope;
-    transportsize = src.transportsize; transportcapacity = src.transportcapacity;
-    waterline = src.waterline; makesmetal = src.makesmetal;
-    buildMenuPageCount = src.buildMenuPageCount; bmcode = src.bmcode;
+    capacity = src.capacity; transportcapacity = src.transportcapacity;
+    draft = src.draft; makesMetal = src.makesMetal;
+    buildMenuPageCount = src.buildMenuPageCount; mobile = src.mobile;
     defaultmissiontype = src.defaultmissiontype;
     for (i = 0; i < 3; i++) weaponCategories[i] = src.weaponCategories[i];
-    nochasecategory = src.nochasecategory;
+    categories = src.categories;
 
     b00 = src.b00; b02 = src.b02;
-    b04 = src.b04; downloadable = src.downloadable;
+    initCloaked = src.initCloaked; downloadable = src.downloadable;
     canbuild = src.canbuild; b07 = src.b07;
     b08 = src.b08; b09 = src.b09;
-    b10 = src.b10; b11 = src.b11;
+    b10 = src.b10; flying = src.flying;
     b12 = src.b12; b13 = src.b13;
     b14 = src.b14; b15 = src.b15;
     b16 = src.b16; b17 = src.b17;
@@ -402,9 +247,9 @@ UnitDef& UnitDef::operator=(const UnitDef& src)
     c06 = src.c06; c07 = src.c07;
     c08 = src.c08; c09 = src.c09;
     c10 = src.c10; c11 = src.c11;
-    c12 = src.c12; c13 = src.c13;
-    c14 = src.c14; c15 = src.c15;
-    c16 = src.c16; c17 = src.c17;
+    capture = src.capture; c13 = src.c13;
+    c14 = src.c14; norestrict = src.norestrict;
+    wacky = src.wacky; c17 = src.c17;
     c18 = src.c18; c19 = src.c19;
     selfdestructcountdown = src.selfdestructcountdown;
 
@@ -528,19 +373,19 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             MissionHolder m(buf);
             unitdef->defaultmissiontype = m.mission.index;
             parser.current->GetFieldString(buf, "wpri_badTargetCategory", 100, g_noneString);
-            unitdef->weaponCategories[0] = GetCategoryMask(buf);
+            unitdef->weaponCategories[0] = (unsigned int*)GetCategoryMask(buf);
             parser.current->GetFieldString(buf, "wsec_badTargetCategory", 100, g_noneString);
-            unitdef->weaponCategories[1] = GetCategoryMask(buf);
+            unitdef->weaponCategories[1] = (unsigned int*)GetCategoryMask(buf);
             parser.current->GetFieldString(buf, "wspe_badTargetCategory", 100, g_noneString);
-            unitdef->weaponCategories[2] = GetCategoryMask(buf);
+            unitdef->weaponCategories[2] = (unsigned int*)GetCategoryMask(buf);
             parser.current->GetFieldString(buf, "noChaseCategory", 100, g_noneString);
-            unitdef->nochasecategory = GetCategoryMask(buf);
+            unitdef->categories = (unsigned int*)GetCategoryMask(buf);
             if (parser.current
                     ->GetFieldString(unitdef->objectname, "objectname", 0x20, DAT_005119b8) == 0) {
                 strcpy(unitdef->objectname, unitdef->unitname);
             }
-            unitdef->buildcostenergy = (float)parser.current->GetFieldInt("buildcostenergy", 0);
-            unitdef->buildcostmetal = (float)parser.current->GetFieldInt("buildcostmetal", 0);
+            unitdef->energyCost = (float)parser.current->GetFieldInt("buildcostenergy", 0);
+            unitdef->metalCost = (float)parser.current->GetFieldInt("buildcostmetal", 0);
             unitdef->maxvelocity =
                 FixedField(parser.current, "maxvelocity", Fixed(0));
             unitdef->brakerate =
@@ -559,29 +404,29 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
                 FixedField(parser.current, "moverate2", Fixed(unitdef->maxvelocity * 2));
             unitdef->turnrate =
                 (short)parser.current->GetFieldInt("turnrate", 0);
-            unitdef->waterline = (char)parser.current->GetFieldInt("waterline", 0);
-            unitdef->transportsize =
+            unitdef->draft = (char)parser.current->GetFieldInt("waterline", 0);
+            unitdef->capacity =
                 (char)parser.current->GetFieldInt("transportsize", 0);
             unitdef->transportcapacity =
                 (char)parser.current->GetFieldInt("transportcapacity", 0);
             unitdef->energymake = GETFLOAT(parser.current, "energymake");
             unitdef->energyuse = GETFLOAT(parser.current, "energyuse");
             unitdef->metalmake = GETFLOAT(parser.current, "metalmake");
-            unitdef->extractsmetal = GETFLOAT(parser.current, "extractsmetal");
-            unitdef->makesmetal = (char)parser.current->GetFieldInt("makesmetal", 0);
+            unitdef->extractsMetal = GETFLOAT(parser.current, "extractsmetal");
+            unitdef->makesMetal = (char)parser.current->GetFieldInt("makesmetal", 0);
             unitdef->windgenerator = GETFLOAT(parser.current, "windgenerator");
             unitdef->tidalgenerator = GETFLOAT(parser.current, "tidalgenerator");
             unitdef->energystorage = GETFLOAT(parser.current, "energystorage");
             unitdef->metalstorage = GETFLOAT(parser.current, "metalstorage");
             unitdef->buildtime =
                 parser.current->GetFieldInt("buildtime", 0);
-            unitdef->workertime =
+            unitdef->buildRate =
                 (short)parser.current->GetFieldInt("workertime", 0);
             unitdef->healtime =
                 (short)parser.current->GetFieldInt("healtime", 0);
-            unitdef->maxdamage =
+            unitdef->maxHealth =
                 parser.current->GetFieldInt("maxdamage", 0);
-            unitdef->sightdistance =
+            unitdef->range =
                 (short)parser.current->GetFieldInt("sightdistance", 0);
             unitdef->radardistance =
                 (short)parser.current->GetFieldInt("radardistance", 0);
@@ -591,7 +436,7 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
                 (short)parser.current->GetFieldInt("radardistancejam", 0);
             unitdef->sonardistancejam =
                 (short)parser.current->GetFieldInt("sonardistancejam", 0);
-            unitdef->bmcode = (char)parser.current->GetFieldInt("bmcode", 0);
+            unitdef->mobile = (char)parser.current->GetFieldInt("bmcode", 0);
             unsigned int value2;
             unsigned int value;
             value = parser.current->GetFieldInt("standingmoveorder", 2);
@@ -613,11 +458,11 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
                 (short)parser.current->GetFieldInt("mincloakdistance", 0);
             unitdef->buildangle =
                 (short)parser.current->GetFieldInt("buildangle", 0);
-            unitdef->builddistance =
+            unitdef->buildRange =
                 (short)parser.current->GetFieldInt("builddistance", 0);
             unitdef->sortbias =
                 (short)parser.current->GetFieldInt("sortbias", 0);
-            unitdef->cruisealt =
+            unitdef->altitude =
                 (short)parser.current->GetFieldInt("cruisealt", 0);
             value = parser.current->GetFieldInt("zbuffer", 0);
             unitdef->flags1 = SetFlagField(unitdef->flags1, value, 7, 1);
@@ -759,13 +604,13 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             char* defaultWeapon = (char*)g_game + 0x2cf3;
             parser.current->GetFieldString(weapon, "weapon1", 128, DAT_005119b8);
             char* weapon1 = (char*)g_seams.weapons->FindWeaponByName(weapon);
-            unitdef->weapons[0] = weapon1 ? weapon1 : defaultWeapon;
+            unitdef->weapons[0] = (WeaponDef*)(weapon1 ? weapon1 : defaultWeapon);
             parser.current->GetFieldString(weapon, "weapon2", 128, DAT_005119b8);
             char* weapon2 = (char*)g_seams.weapons->FindWeaponByName(weapon);
-            unitdef->weapons[1] = weapon2 ? weapon2 : defaultWeapon;
+            unitdef->weapons[1] = (WeaponDef*)(weapon2 ? weapon2 : defaultWeapon);
             parser.current->GetFieldString(weapon, "weapon3", 128, DAT_005119b8);
             char* weapon3 = (char*)g_seams.weapons->FindWeaponByName(weapon);
-            unitdef->weapons[2] = weapon3 ? weapon3 : defaultWeapon;
+            unitdef->weapons[2] = (WeaponDef*)(weapon3 ? weapon3 : defaultWeapon);
             parser.current->GetFieldString(weapon, "explodeas", 128, DAT_005119b8);
             char* explodeas = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->explodeas = explodeas ? explodeas : defaultWeapon;
@@ -773,15 +618,15 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
                 ->GetFieldString(weapon, "selfdestructas", 128, DAT_005119b8);
             char* selfdestructas = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->selfdestructas = selfdestructas ? selfdestructas : defaultWeapon;
-            if (unitdef->weapons[0] == defaultWeapon &&
-                unitdef->weapons[1] == defaultWeapon &&
-                unitdef->weapons[2] == defaultWeapon)
+            if ((char*)unitdef->weapons[0] == defaultWeapon &&
+                (char*)unitdef->weapons[1] == defaultWeapon &&
+                (char*)unitdef->weapons[2] == defaultWeapon)
                 unitdef->flags1 &= ~0x10000;
             else
                 unitdef->flags1 |= 0x10000;
             // Cleared here and again in the else branch: the original has both stores.
             unitdef->yardmap = 0;
-            if (unitdef->bmcode == 0) {
+            if (unitdef->mobile == 0) {
                 parser.current
                     ->GetFieldString(yard, "YardMap", 1024, DAT_005119b8);
                 unitdef->yardmap = (char*)SimAllocTagged(
@@ -840,13 +685,13 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
                 unitdef->yardmap = 0;
             }
             // Footprint fields read directly, no w/h locals.
-            unitdef->extentmin.x = (unitdef->footprintx * -0x100000) / 2;
-            unitdef->extentmin.z = (unitdef->footprintz * -0x100000) / 2;
-            unitdef->extentmax.x = (unitdef->footprintx << 20) / 2;
-            unitdef->extentmax.z = (unitdef->footprintz << 20) / 2;
+            unitdef->modelMinX = (unitdef->footprintx * -0x100000) / 2;
+            unitdef->modelMinZ = (unitdef->footprintz * -0x100000) / 2;
+            unitdef->modelMaxX = (unitdef->footprintx << 20) / 2;
+            unitdef->modelMaxZ = (unitdef->footprintz << 20) / 2;
             // Inline Vec3 operator- returning by value.
-            unitdef->extentsize = unitdef->extentmax - unitdef->extentmin;
-            unitdef->radius = (unitdef->extentsize.z + unitdef->extentsize.x) / 3;
+            *(Vec3*)&unitdef->modelSizeX = *(Vec3*)&unitdef->modelMaxX - *(Vec3*)&unitdef->modelMinX;
+            unitdef->radius = (unitdef->modelSizeZ + unitdef->modelSizeX) / 3;
             parser.Unload();
             // cancloak with no mincloakdistance: default to 80
             if ((unitdef->flags2 & 0x2000) && unitdef->mincloakdistance == 0)
@@ -1023,9 +868,9 @@ void LoadUnitTypes() {
         MirrorObject(model);
         BindModelTextures(model, namebuf);
         ((void **)g_game->types)[u] = model;
-        type->extentmin.y = 0;
-        type->extentmax.y = GetObjectHeight(((void **)g_game->types)[u]);
-        type->extentsize.y = type->extentmax.y - type->extentmin.y;
+        type->modelMinY = 0;
+        type->modelMaxY = GetObjectHeight(((void **)g_game->types)[u]);
+        type->modelSizeY = type->modelMaxY - type->modelMinY;
 
         strcpy(namebuf, type->unitname);
         StripExtension(namebuf);
@@ -1093,7 +938,7 @@ void LoadUnitTypes() {
                     type->count = count;
                 }
                 sprintf(objpath, "CANBUILD %s", type->unitname);
-                type->ids = SimAllocTagged(objpath, 0x3c);
+                type->ids = (unsigned short*)SimAllocTagged(objpath, 0x3c);
                 memcpy(type->ids, list, 0x3c);
             }
         }
