@@ -28,14 +28,7 @@ struct FeatureDef_00422ea0 {
 };
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14253];
-    int featureCount;                   // +0x14253
-    char unknown_14257[0x1426f - 0x14257];
-    FeatureDef_00422ea0* features;      // +0x1426f
-    char unknown_14273[0x38d72 - 0x14273];
-    unsigned char loadPercent;          // +0x38d72
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -59,7 +52,7 @@ static inline TdfFile* FindEntry(char* name)
 static inline unsigned short FindName(char* name)
 {
     for (int i = 0; i < g_game->featureCount; i++) {
-        if (_strcmpi(name, g_game->features[i].name) == 0) {
+        if (_strcmpi(name, ((FeatureDef_00422ea0 *)g_game->features)[i].name) == 0) {
             return (unsigned short)i;
         }
     }
@@ -85,7 +78,7 @@ void ResolveFeatureLinks()
     int i = 0;
     int* count = &g_game->featureCount;
     if (*count > 0) {
-        features = &g_game->features;
+        features = &(*(FeatureDef_00422ea0 **)&g_game->features);
         do {
             TdfRecord* parser = (TdfRecord*)FindEntry((*features)[i].name)->current;
             if (parser->GetFieldString(buf, "featuredead", 0x100, DAT_005119b8))

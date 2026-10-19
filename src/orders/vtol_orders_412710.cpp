@@ -87,9 +87,7 @@ int __stdcall FindWeaponTarget(Unit*, unsigned char, int);
 void __stdcall ReactToAttack(Unit*, Unit*, int);
 int __stdcall GetBuilderCount(int);
 int __stdcall GetUnitCount(int, unsigned int);
-struct Game {
-    char pad0[0x142b7]; int overflowBucket;
-};
+#include "../game/game.h"
 class Class_0044e2d0 {
 public:
     char unknown_0[0x36];

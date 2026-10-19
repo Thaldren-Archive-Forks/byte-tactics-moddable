@@ -13,7 +13,7 @@
 #include "../util/vec3.h"
 
 #pragma pack(push,1)
-struct Player { char pad[0x108]; unsigned char allied[0x3e]; unsigned char index; int IsAllied(unsigned char p) const { return allied[p]; } };
+#include "../network/player.h"
 struct Def { char pad[0x156]; int builder; char pad15a[0x22f-0x15a]; char mobile; char pad230[0x241-0x230]; unsigned flags; char pad245[0x249-0x245]; };
 #include "../units/unit.h"
 inline int Unit::Ready() { return (flags & 0x10000000) && !(flags & 0x4000); }
@@ -27,24 +27,7 @@ inline unsigned char Unit::PlayerIndex() { return ((Player*)player)->index; }
 
 #include "../map/cell.h"
 
-struct Game {
-    char unknown_0[0x14233];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x1426f - 0x1423b];
-    Feature* features;                 // +0x1426f
-    char unknown_14273[0x14357 - 0x14273];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    char unknown_1435f[0x1438f - 0x1435f];
-    int unitDefCount;                  // +0x1438f
-    char unknown_14393[0x1439b - 0x14393];
-    Def* unitDefs;                     // +0x1439b
-    char unknown_1439f[0x38a47 - 0x1439f];
-    unsigned int gameTick;             // +0x38a47
-    char unknown_38a4b[0x391e9 - 0x38a4b];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 
 #include "player_ai.h"
 #pragma pack(pop)
@@ -106,7 +89,7 @@ void PlayerAI::RefreshUnitLists()
     std::fill(counts.begin(),counts.end(),(short)0);
     for(Unit* u=g_game->units+1;u<=g_game->unitsEnd;++u) {
         if(u->Ready()) {
-            if(!owner->IsAllied(u->PlayerIndex())) {
+            if(!owner->allied[u->PlayerIndex()]) {
                 if(g_seams.los_radar->IsUnitVisibleToPlayer(owner,u) && !(u->flags&0x8000)) visible.units.push_back(u);
                 if((unsigned char)(u->flags>>8)&1) known.units.push_back(u);
             } else if(u->PlayerIndex()==owner->index && u->buildLeft==0.0) {

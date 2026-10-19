@@ -94,20 +94,17 @@ public:
     void ApplyToUnitTypes();
 };
 
-struct Game {
-    char unknown_0[0x2a30];
-    UnitSync* sync;                                // +0x2a30
-};
+#include "../game/game.h"
 
 extern Game* g_game;
 
 // FUNCTION: 0x470300 ??_GUnitSyncPlayer@@QAEPAXI@Z
 void FinishUnitSync()
 {
-    g_game->sync->ApplyToUnitTypes();
-    if (g_game->sync)
-        delete g_game->sync;
-    g_game->sync = 0;
+    ((UnitSync *)g_game->field_2a30)->ApplyToUnitTypes();
+    if ((UnitSync *)g_game->field_2a30)
+        delete (UnitSync *)g_game->field_2a30;
+    (*(UnitSync **)&g_game->field_2a30) = 0;
 }
 
 // The copy constructor. Its one caller copies a 0x5c-byte array of these.

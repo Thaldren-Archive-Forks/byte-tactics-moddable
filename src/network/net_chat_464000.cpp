@@ -1,14 +1,11 @@
 // Decompiled by Opus. Names are provisional.
-struct ChatHudEntry {
+struct ChatHudEntryView {
     char unknown_0[0x1e];
     unsigned char flags;   // +0x1e
     char unknown_1f[0x29];
 };
 
-struct Game {
-    char unknown_0[0x1318];
-    ChatHudEntry entries[30];
-};
+#include "../game/game.h"
 
 extern Game* g_game;
 int ScrollToNextMessageUnit(void);
@@ -19,10 +16,10 @@ void CycleMessageUnits(void)
 {
     int i;
     for (i = 0; i < 30; i++)
-        g_game->entries[i].flags &= ~0x20;
+        ((ChatHudEntryView*)((char*)g_game + 0x1318))[i].flags &= ~0x20;
     if (ScrollToNextMessageUnit() == 0) {
         for (i = 0; i < 30; i++)
-            g_game->entries[i].flags &= ~0x10;
+            ((ChatHudEntryView*)((char*)g_game + 0x1318))[i].flags &= ~0x10;
         ScrollToNextMessageUnit();
     }
 }

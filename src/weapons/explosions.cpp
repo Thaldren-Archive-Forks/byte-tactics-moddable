@@ -25,10 +25,7 @@ struct Vec3f {
     float z;
 };
 
-struct Point {
-    int x;
-    int y;
-};
+#include "../util/point.h"
 
 struct Fixed {
     union {
@@ -229,36 +226,7 @@ struct Debris {
     unsigned short flag : 1;           // +0x52
 };
 
-struct Game {
-    char unknown_0[0x14263];
-    int gravity;                       // +0x14263
-    char unknown_14267[0x1426f - 0x14267];
-    Feature* features;                 // +0x1426f
-    char unknown_14273[0x1427f - 0x14273];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x1431f - 0x14280];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x147eb - 0x14327];
-    GafSequence* waterSplashSeq;       // +0x147eb
-    GafSequence* lavaSplashSeq;        // +0x147ef
-    char unknown_147f3[0x147f7 - 0x147f3];
-    GafSequence* explosionSeq;         // +0x147f7
-    char unknown_147fb[0x1491b - 0x147fb];
-    int count;                         // +0x1491b
-    Debris debris[300];                // +0x1491f
-    Explosion* explosions[3];          // +0x1ab8f
-    void* explosionLensFrame;          // +0x1ab9b
-    Object3D pieces[300];              // +0x1ab9f
-    Vec3 vertices[300][8];
-    Face frames[300][6];
-    char unknown_33a0f[0x37e27 - 0x33a0f];
-    int viewport[4];                   // +0x37e27
-    char unknown_37e37[0x38d74 - 0x37e37];
-    unsigned char shade;               // +0x38d74
-    char unknown_38d75[0x391e9 - 0x38d75];
-    Net* mapInfo;                      // +0x391e9
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -316,34 +284,34 @@ inline Explosion* MakeExplosion(int count, int start, int end)
 // FUNCTION: 0x420620
 void InitExplosions()
 {
-    g_game->count = 0;
+    g_game->count_1491b = 0;
     g_game->explosionLensFrame = BuildLensFrame(22, 22, 8);
     g_explosion0Duration = 24; g_explosion0StartSize = 64; g_explosion0EndSize = 8;
     g_explosion1Duration = 30; g_explosion1StartSize = 128; g_explosion1EndSize = 16;
     g_explosion2Duration = 30; g_explosion2StartSize = 200; g_explosion2EndSize = 32;
-    g_game->explosions[0] = MakeExplosion(g_explosion0Duration / 2, g_explosion0StartSize, g_explosion0EndSize);
+    (*(Explosion * (*)[3])&g_game->lists)[0] = MakeExplosion(g_explosion0Duration / 2, g_explosion0StartSize, g_explosion0EndSize);
     g_game->shade = 20;
-    g_game->explosions[1] = MakeExplosion(g_explosion1Duration / 2, g_explosion1StartSize, g_explosion1EndSize);
+    (*(Explosion * (*)[3])&g_game->lists)[1] = MakeExplosion(g_explosion1Duration / 2, g_explosion1StartSize, g_explosion1EndSize);
     g_game->shade = 50;
-    g_game->explosions[2] = MakeExplosion(g_explosion2Duration / 2, g_explosion2StartSize, g_explosion2EndSize);
+    (*(Explosion * (*)[3])&g_game->lists)[2] = MakeExplosion(g_explosion2Duration / 2, g_explosion2StartSize, g_explosion2EndSize);
     g_game->shade = 100;
     int i;
     for (i = 0; i < 300; ++i) {
-        g_game->pieces[i].state = -1;
-        g_game->pieces[i].vertexCount = 8;
-        g_game->pieces[i].faceCount = 6;
-        g_game->pieces[i].firstFace = -1;
-        g_game->pieces[i].name = "explodepiece";
-        g_game->pieces[i].active = 0;
-        g_game->pieces[i].verts = g_game->vertices[i];
-        g_game->pieces[i].faces = g_game->frames[i];
+        (*(Object3D (*)[300])&g_game->slots)[i].state = -1;
+        (*(Object3D (*)[300])&g_game->slots)[i].vertexCount = 8;
+        (*(Object3D (*)[300])&g_game->slots)[i].faceCount = 6;
+        (*(Object3D (*)[300])&g_game->slots)[i].firstFace = -1;
+        (*(Object3D (*)[300])&g_game->slots)[i].name = "explodepiece";
+        (*(Object3D (*)[300])&g_game->slots)[i].active = 0;
+        (*(Object3D (*)[300])&g_game->slots)[i].verts = g_game->vertices_1e88f[i];
+        (*(Object3D (*)[300])&g_game->slots)[i].faces = (*(Face (*)[300][6])&g_game->frames)[i];
     }
     for (i = 0; i < 300; ++i)
         for (int j = 0; j < 6; ++j) {
-            g_game->frames[i][j].flags.raw |= 1;
-            g_game->frames[i][j].color = 200;
-            g_game->frames[i][j].nverts = 4;
-            g_game->frames[i][j].vindex = g_faceVertexIndices[j];
+            (*(Face (*)[300][6])&g_game->frames)[i][j].flags.raw |= 1;
+            (*(Face (*)[300][6])&g_game->frames)[i][j].color = 200;
+            (*(Face (*)[300][6])&g_game->frames)[i][j].nverts = 4;
+            (*(Face (*)[300][6])&g_game->frames)[i][j].vindex = g_faceVertexIndices[j];
         }
     g_debrisMemCache.InitCache(100000);
     memset(g_explodedPieces, 0, sizeof(g_explodedPieces));
@@ -355,9 +323,9 @@ void InitExplosions()
 Object3D* AllocExplodePieceObject()
 {
     for (int i = 0; i < 300; i++) {
-        if (g_game->pieces[i].state == -1) {
-            g_game->pieces[i].state = 0;
-            return &g_game->pieces[i];
+        if ((*(Object3D (*)[300])&g_game->slots)[i].state == -1) {
+            (*(Object3D (*)[300])&g_game->slots)[i].state = 0;
+            return &(*(Object3D (*)[300])&g_game->slots)[i];
         }
     }
     return 0;
@@ -369,13 +337,13 @@ void FreeExplosions(void)
     if (g_game->explosionLensFrame != 0) {
         g_debrisMemCache.FreeCache();
         for (int i = 0; i < 3; i++) {
-            if (g_game->explosions[i] != 0) {
-                for (int j = 0; j < g_game->explosions[i]->count; j++) {
-                    GameFreeThunk(g_game->explosions[i]->frames[j].image);
-                    g_game->explosions[i]->frames[j].image = 0;
+            if ((*(Explosion * (*)[3])&g_game->lists)[i] != 0) {
+                for (int j = 0; j < (*(Explosion * (*)[3])&g_game->lists)[i]->count; j++) {
+                    GameFreeThunk((*(Explosion * (*)[3])&g_game->lists)[i]->frames[j].image);
+                    (*(Explosion * (*)[3])&g_game->lists)[i]->frames[j].image = 0;
                 }
-                GameFreeThunk(g_game->explosions[i]);
-                g_game->explosions[i] = 0;
+                GameFreeThunk((*(Explosion * (*)[3])&g_game->lists)[i]);
+                (*(Explosion * (*)[3])&g_game->lists)[i] = 0;
             }
         }
         GameFreeThunk(g_game->explosionLensFrame);
@@ -388,7 +356,7 @@ void FreeExplosions(void)
 // FUNCTION: 0x420a30
 void __stdcall AddExplosionEffect(Vec3* pos, GafSequence* src, int index, int flag)
 {
-    int* pCount = &g_game->count;
+    int* pCount = &g_game->count_1491b;
     if (*pCount < 300) {
         Debris* e = (Debris*)(pCount + 1) + (*pCount)++;
         e->pos = *pos;
@@ -412,7 +380,7 @@ void __stdcall DrawExplosions(void* surface)
     int i;
     for (i = 0; i < 100; ++i)
         if (g_explodedPieces[i] && !DrawExplodedPiece(surface, g_explodedPieces[i])) g_explodedPieces[i] = 0;
-    int* pCount = &g_game->count;
+    int* pCount = &g_game->count_1491b;
     Debris* d = (Debris*)(pCount + 1);
     Position pos;
     for (i = 0; i < *pCount; ++i, d++) {
@@ -490,7 +458,7 @@ void UpdateExplosions()
             g_explodedPieces[i] = 0;
     }
 
-    int* pCount = &g_game->count;
+    int* pCount = &g_game->count_1491b;
     Debris* d = (Debris*)(pCount + 1);
     Debris* base = d;
     int n;
@@ -512,16 +480,16 @@ void UpdateExplosions()
                     d->vel.y = -(d->vel.y / 2);
                     if (*(short*)((char*)&d->vel.y + 2) <= 0) {
                         if (d->flag)
-                            AddExplosionEffect(&d->pos, g_game->explosionSeq, 0, 0);
+                            AddExplosionEffect(&d->pos, (GafSequence *)g_game->src3, 0, 0);
                         d->obj->state = 0xff;
                         d->obj = 0;
                     }
                 }
             } else {
                 if (d->flag) {
-                    Net* net = g_game->mapInfo;
+                    Net* net = (Net *)g_game->net;
                     if (net->f_d48 == 0) {
-                        GafSequence* src = net->f_d44 != 0 ? g_game->lavaSplashSeq : g_game->waterSplashSeq;
+                        GafSequence* src = net->f_d44 != 0 ? (GafSequence *)g_game->src2 : (GafSequence *)g_game->src1;
                         AddExplosionEffect(&d->pos, src, -1, 1);
                     }
                 }
@@ -681,12 +649,12 @@ int __stdcall UpdateExplodedPiece(ExplodedPiece* obj)
 
     Vec3 pos;
     if (inner->pos.y <= (int)((unsigned)g_game->seaLevel << 16)) {
-        if (obj->b4 && g_game->mapInfo->f_d48 == 0) {
+        if (obj->b4 && ((Net *)g_game->net)->f_d48 == 0) {
             GafSequence* src;
-            if (g_game->mapInfo->f_d44 != 0)
-                src = g_game->lavaSplashSeq;
+            if (((Net *)g_game->net)->f_d44 != 0)
+                src = (GafSequence *)g_game->src2;
             else
-                src = g_game->waterSplashSeq;
+                src = (GafSequence *)g_game->src1;
             pos.x = inner->pos.x;
             pos.y = inner->pos.y;
             pos.z = inner->pos.z;
@@ -713,7 +681,7 @@ int __stdcall UpdateExplodedPiece(ExplodedPiece* obj)
                 pos.x = inner->pos.x;
                 pos.y = inner->pos.y;
                 pos.z = inner->pos.z;
-                AddExplosionEffect(&pos, g_game->explosionSeq, 0, 0);
+                AddExplosionEffect(&pos, (GafSequence *)g_game->src3, 0, 0);
             }
             return 0;
         }
@@ -825,7 +793,7 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
     // first uses sets the frame slots.
     PieceRec* piece =
         (PieceRec*)((char*)unit->state + 0x22 + param->index * 0x36);
-    int* count = &g_game->count;
+    int* count = &g_game->count_1491b;
     Object3D* desc = piece->desc;
     Vec3* verts = piece->verts;
     if (param->scale == 0)

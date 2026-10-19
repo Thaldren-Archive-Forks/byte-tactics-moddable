@@ -50,15 +50,7 @@ struct Unit_0047d820 {
     unsigned char draft;                // +0x22c
 };
 
-struct Game {
-    char unknown_0[0x14233];
-    int mapWidthTiles;                  // +0x14233
-    int mapHeightTiles;                 // +0x14237
-    char unknown_1423b[0x1427f - 0x1423b];
-    unsigned char seaLevel;             // +0x1427f
-    char unknown_14280[0x14287 - 0x14280];
-    Cell* heightMap;                    // +0x14287
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -72,10 +64,10 @@ int __stdcall GetFootprintHeight(Unit_0047d820* unit, Point16 cell)
     short y = cell.y;
     Point16 fp = unit->origin;
     short x = cell.x;
-    if (x < 1 || y < 1 || x + fp.x >= g_game->mapWidthTiles || y + fp.y >= g_game->mapHeightTiles)
+    if (x < 1 || y < 1 || x + fp.x >= g_game->width || y + fp.y >= g_game->height)
         return 0;
-    int width = g_game->mapWidthTiles;
-    Cell* c = &g_game->heightMap[y * width + x];
+    int width = g_game->width;
+    Cell* c = &g_game->cells[y * width + x];
     unsigned char low = 0xff, high = 0, high2 = 0;
     int i = 0;
     for (int row = fp.y; row > 0; row--) {

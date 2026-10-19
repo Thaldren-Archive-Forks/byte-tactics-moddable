@@ -25,12 +25,7 @@ struct CondensedHeader {
     unsigned short sum;                // +0x1
 };
 
-struct Game {
-    char unknown_0[0x4ed];
-    int compressionOff;                // +0x4ed
-    char unknown_4f1[0x37f35 - 0x4f1];
-    int netSendDropPct;                // +0x37f35
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -219,7 +214,7 @@ int NetCondenser::SendPacket(void* session, int from)
 
     unsigned char flag;
     int total;
-    if (compressed + 3 < sendSize && g_game->compressionOff == 0) {
+    if (compressed + 3 < sendSize && g_game->field_4ed == 0) {
         flag = 4;
         total = compressed + 3;
     } else {

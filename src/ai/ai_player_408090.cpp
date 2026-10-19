@@ -1,12 +1,7 @@
 // Decompiled by Opus. Names are provisional.
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x2a43];
-    unsigned char playerIndex;          // +0x2a43
-    char unknown_2a44[0x14273 - 0x2a44];
-    unsigned short* visibilityMask;     // +0x14273
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 struct MapSize_00408090 {

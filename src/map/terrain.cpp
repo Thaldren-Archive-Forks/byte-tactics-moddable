@@ -97,50 +97,13 @@ struct Feature {
 #include "../units/unit.h"
 
 // Typed cells and no count: grid.h's Grid is 0x10 bytes with a byte pointer.
-struct Grid {
+struct BucketGrid {
     UnitBucket* cells;                  // +0x0
     unsigned int width;                 // +0x4
     unsigned int height;                // +0x8
 };
 
-struct Game {
-    char unknown_0[0x2a43];
-    unsigned char playerIndex;          // +0x2a43
-    char unknown_2a44[0x14233 - 0x2a44];
-    int mapWidthTiles;                  // +0x14233
-    int mapHeightTiles;                 // +0x14237
-    char unknown_1423b[0x14253 - 0x1423b];
-    int featureCount;                   // +0x14253
-    char unknown_14257[0x1426f - 0x14257];
-    union {
-        Feature* features;              // +0x1426f, the feature records
-        unsigned char* featureBytes;    // +0x1426f, one record read as bytes
-    };
-    // One member, but a union: its type keeps the symbol count CanBuildAt needs.
-    union {
-        unsigned short* visibilityMask; // +0x14273, one bit per player
-    };
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;             // +0x1427f
-    char unknown_14280[0x14281 - 0x14280];
-    unsigned short mapFlags;            // +0x14281
-    char unknown_14283[0x14287 - 0x14283];
-    Cell* heightMap;                    // +0x14287
-    char unknown_1428b[0x1429f - 0x1428b];
-    union {
-        Grid spatialGrid;               // +0x1429f
-        struct {
-            UnitBucket* buckets;            // +0x1429f
-            unsigned int bucketCols;        // +0x142a3
-        };
-    };
-    char unknown_142ab[0x142b7 - 0x142ab];
-    UnitBucket* overflowBucket;         // +0x142b7
-    char unknown_142bb[0x14357 - 0x142bb];
-    Unit* units;                        // +0x14357
-    char unknown_1435b[0x38a47 - 0x1435b];
-    int gameTick;                       // +0x38a47
-};
+#include "../game/game.h"
 
 #include "../units/movement_class.h"
 
@@ -256,7 +219,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
                 index++;
                 cell++;
             }
-            cell += g_game->mapWidthTiles - size.x;
+            cell += g_game->width - size.x;
         }
     } else if ((obj->flags & 3) == 1) {
         Cell* cell = g_seams.los_radar->GetMapCell(obj->cell.x, obj->cell.y);
@@ -282,7 +245,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
             b_next: ;
                 cell++;
             }
-            cell += g_game->mapWidthTiles - size.x;
+            cell += g_game->width - size.x;
         }
     } else {
         Cell* cell = g_seams.los_radar->GetMapCell(obj->cell.x, obj->cell.y);
@@ -308,7 +271,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
             c_next: ;
                 cell++;
             }
-            cell += g_game->mapWidthTiles - size.x;
+            cell += g_game->width - size.x;
         }
     }
 }
@@ -461,15 +424,15 @@ static int Blocked_0047d2e0(Cell* c)
     if (v < 0xfffb) {
         if ((int)v >= g_game->featureCount)
             return 1;
-        return (g_game->featureBytes[v * 0x100 + 0xfe] >> 6) & 1;
+        return (((unsigned char *)g_game->features)[v * 0x100 + 0xfe] >> 6) & 1;
     }
     if (v != 0xfffe)
         return 1;
-    Cell* ref = c - (c->offsetY * g_game->mapWidthTiles + c->offsetX);
+    Cell* ref = c - (c->offsetY * g_game->width + c->offsetX);
     unsigned short v2 = ref->feature;
     if (v2 >= 0xfffb)
         return 0;
-    return (g_game->featureBytes[v2 * 0x100 + 0xfe] >> 6) & 1;
+    return (((unsigned char *)g_game->features)[v2 * 0x100 + 0xfe] >> 6) & 1;
 }
 
 static unsigned char* Terrain_0047d2e0(
@@ -481,15 +444,15 @@ Cell* c)
     if (v < 0xfffb) {
         if ((int)v >= g_game->featureCount)
             return 0;
-        return g_game->featureBytes + v * 0x100;
+        return (unsigned char *)g_game->features + v * 0x100;
     }
     if (v != 0xfffe)
         return 0;
-    Cell* ref = c - (c->offsetY * g_game->mapWidthTiles + c->offsetX);
+    Cell* ref = c - (c->offsetY * g_game->width + c->offsetX);
     unsigned short v2 = ref->feature;
     if (v2 >= 0xfffb)
         return 0;
-    return g_game->featureBytes + v2 * 0x100;
+    return (unsigned char *)g_game->features + v2 * 0x100;
 }
 
 // FUNCTION: 0x47d2e0
@@ -500,8 +463,8 @@ int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* 
     g_lastPlaceMetalSum = 0;
     Point16 origin = unit->origin;
     // The guard reads cell.x and cell.y directly.
-    if (cell.x < 1 || cell.y < 1 || cell.x + origin.x >= g_game->mapWidthTiles ||
-        cell.y + origin.y >= g_game->mapHeightTiles)
+    if (cell.x < 1 || cell.y < 1 || cell.x + origin.x >= g_game->width ||
+        cell.y + origin.y >= g_game->height)
         return 0;
     int cols = origin.x;
     int x;
@@ -528,7 +491,7 @@ int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* 
             ok = IsSeen_0047d2e0(los, (Position_0047d2e0*)&pos, &hgt, bit);
     }
     // The cell pointer is computed before the min6/max5 initialisers.
-    Cell* c = &g_game->heightMap[cell.y * g_game->mapWidthTiles + cell.x];
+    Cell* c = &g_game->cells[cell.y * g_game->width + cell.x];
     unsigned char min6 = 0xff;
     unsigned char max5 = 0;
     unsigned char max5b = 0;
@@ -574,7 +537,7 @@ int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* 
                 ++c;
             }
             row++;
-            c = (g_game->mapWidthTiles - ((int)cols)) + c;
+            c = (g_game->width - ((int)cols)) + c;
         } while (row < origin.y);
     }
     if (found80 && !foundFE20)
@@ -616,13 +579,13 @@ int __stdcall IsFootprintClear(Unit* obj, int flag)
     short yend = q->y + r->y;
     // Stays a 4-byte Point16 copy, not two short locals.
     Point16 p = obj->cell;
-    if (p.x < 1 || p.y < 1 || xend >= g_game->mapWidthTiles || yend >= g_game->mapHeightTiles)
+    if (p.x < 1 || p.y < 1 || xend >= g_game->width || yend >= g_game->height)
         return 0;
-    int width = g_game->mapWidthTiles;
+    int width = g_game->width;
     unsigned char bit = flag ? 2 : 4;
     int n = 0;
     for (int y = p.y; y < yend; y++) {
-        Cell* c = g_game->heightMap + y * width;
+        Cell* c = g_game->cells + y * width;
         for (int x = p.x; x < xend; x++) {
             // The post-increment stays inside the mask read, not at the loop bottom.
             if ((obj->def->mask[n++] & bit) && c[x].unit != 0 && c[x].unit != obj->id)
@@ -684,7 +647,7 @@ static inline int SteepCell(Cell* c)
     }
     if (f != 0xfffe)
         return 1;
-    c = c - (c->offsetY * g_game->mapWidthTiles + c->offsetX);
+    c = c - (c->offsetY * g_game->width + c->offsetX);
     f = c->feature;
     if (f >= 0xfffb)
         return 0;
@@ -698,16 +661,16 @@ int __stdcall CanPlaceUnitFootprint(UnitDef* unit, unsigned short otherTypeId, P
     if (cell.x < 0 || cell.y < 0)
         return flags == 2;
     int fx = fp.x;
-    if (fx + cell.x >= g_game->mapWidthTiles)
+    if (fx + cell.x >= g_game->width)
         return flags == 2;
-    if (fp.y + cell.y >= g_game->mapHeightTiles)
+    if (fp.y + cell.y >= g_game->height)
         return flags == 2;
     if (!unit->mobile)
         return CanBuildAt(unit, cell, 0, 0);
-    Cell* c = &g_game->heightMap[cell.y * g_game->mapWidthTiles + cell.x];
+    Cell* c = &g_game->cells[cell.y * g_game->width + cell.x];
     // Declared ahead of the assignments: places the tolerance load.
     int minHeight, maxHeight, stride;
-    stride = g_game->mapWidthTiles - fx;
+    stride = g_game->width - fx;
     unsigned char tolerance = unit->maxslope;
     minHeight = g_game->seaLevel - unit->maxwaterdepth;
     maxHeight = g_game->seaLevel - unit->minwaterdepth;
@@ -795,7 +758,7 @@ int __stdcall GetPassMapCellValue(MovementClass* obj, Cell* cell)
         // pointer the width folds into `imul eax,[edx+0x14233]` exactly as the
         // original has it, and the two spelled index uses still share one
         // block, which is the other half the original wants.
-        int* width = &g_game->mapWidthTiles;
+        int* width = &g_game->width;
         unsigned short f2 =
             (cell - (cell->offsetY * *width + cell->offsetX))->feature;
         if (0xfffb <= (cell - (cell->offsetY * *width + cell->offsetX))->feature) {
@@ -836,15 +799,15 @@ int __stdcall GetPassMapFootprintValue(MovementClass* obj, int x, int y, int w, 
 {
     if (x < 0 || y < 0)
         return 0;
-    if (x + w >= g_game->mapWidthTiles)
+    if (x + w >= g_game->width)
         return 0;
-    if (y + h >= g_game->mapHeightTiles)
+    if (y + h >= g_game->height)
         return 0;
-    int index = y * g_game->mapWidthTiles + x;
+    int index = y * g_game->width + x;
     unsigned int result = 3;
     int row;
-    Cell* cell = &g_game->heightMap[index];
-    int rowStep = g_game->mapWidthTiles - w;
+    Cell* cell = &g_game->cells[index];
+    int rowStep = g_game->width - w;
     int minHeight = g_game->seaLevel - obj->maxWaterDepth;
     int maxHeight = g_game->seaLevel - obj->minWaterDepth;
     // Increments live in the for headers: schedules the pointer advance.
@@ -863,7 +826,7 @@ int __stdcall GetPassMapFootprintValue(MovementClass* obj, int x, int y, int w, 
                 blocked = 1;
             } else {
                 Cell* other =
-                    cell - (cell->offsetY * g_game->mapWidthTiles + cell->offsetX);
+                    cell - (cell->offsetY * g_game->width + cell->offsetX);
                 unsigned short f2 = other->feature;
                 if (f2 >= 0xfffb)
                     blocked = 0;
@@ -956,7 +919,7 @@ void __stdcall VisitObjectsInArea(Point16 pos, Point16 size, ClaimFootprintVisit
 {
     // Declared apart from its assignment: keeps the sum from fusing.
     int sumy;
-    Grid* grid = &g_game->spatialGrid;
+    BucketGrid* grid = &(*(BucketGrid*)((char*)g_game + 0x1429f));
     // Declaration order of the bounds is fixed: other orders change allocation.
     int xstart = -1 + (pos.x >> 3);
     int ystart = -1 + (pos.y >> 3);
@@ -1005,13 +968,13 @@ static inline int Clamp_0047e750(int v, unsigned int size)
 // FUNCTION: 0x47e750
 void __stdcall VisitObjectsInRect(int x1, int y1, int x2, int y2, Visitor_0047e750* visitor)
 {
-    int cx1 = Clamp_0047e750(x1 >> 23, g_game->spatialGrid.width);
-    int cy1 = Clamp_0047e750(y1 >> 23, g_game->spatialGrid.height);
-    int cx2 = Clamp_0047e750(x2 >> 23, g_game->spatialGrid.width);
-    int cy2 = Clamp_0047e750(y2 >> 23, g_game->spatialGrid.height);
+    int cx1 = Clamp_0047e750(x1 >> 23, (*(BucketGrid*)((char*)g_game + 0x1429f)).width);
+    int cy1 = Clamp_0047e750(y1 >> 23, (*(BucketGrid*)((char*)g_game + 0x1429f)).height);
+    int cx2 = Clamp_0047e750(x2 >> 23, (*(BucketGrid*)((char*)g_game + 0x1429f)).width);
+    int cy2 = Clamp_0047e750(y2 >> 23, (*(BucketGrid*)((char*)g_game + 0x1429f)).height);
     for (int y = cy1; y <= cy2; y++) {
         for (int x = cx1; x <= cx2; x++) {
-            for (Unit* o = g_game->spatialGrid.cells[g_game->spatialGrid.width * y + x].first; o != 0; o = o->cargoNext) {
+            for (Unit* o = (*(BucketGrid*)((char*)g_game + 0x1429f)).cells[(*(BucketGrid*)((char*)g_game + 0x1429f)).width * y + x].first; o != 0; o = o->cargoNext) {
                 if (o->pos.x >= x1 && o->pos.x <= x2 && o->pos.z >= y1 && o->pos.z <= y2) {
                     visitor->Visit(o);
                 }
@@ -1069,14 +1032,14 @@ static inline int Dist2_0047e890(Vec3* b, Vec3* a)
 // FUNCTION: 0x47e890
 void __stdcall VisitObjectsInRange(Vec3* pos, int range, DamagedAllyCollector& visitor)
 {
-    int cx1 = ClampX_0047e890(pos, range, g_game->spatialGrid.width);
-    int cy1 = ClampZ_0047e890(pos, range, g_game->spatialGrid.height);
-    int cx2 = ClampX2_0047e890(pos, range, g_game->spatialGrid.width);
-    int cy2 = ClampZ2_0047e890(pos, range, g_game->spatialGrid.height);
+    int cx1 = ClampX_0047e890(pos, range, (*(BucketGrid*)((char*)g_game + 0x1429f)).width);
+    int cy1 = ClampZ_0047e890(pos, range, (*(BucketGrid*)((char*)g_game + 0x1429f)).height);
+    int cx2 = ClampX2_0047e890(pos, range, (*(BucketGrid*)((char*)g_game + 0x1429f)).width);
+    int cy2 = ClampZ2_0047e890(pos, range, (*(BucketGrid*)((char*)g_game + 0x1429f)).height);
     int range2 = (int)(((__int64)range * range) >> 32);
     for (int y = cy1; y <= cy2; y++) {
         for (int x = cx1; x <= cx2; x++) {
-            for (Unit* o = g_game->spatialGrid.cells[g_game->spatialGrid.width * y + x].first; o != 0; o = o->cargoNext) {
+            for (Unit* o = (*(BucketGrid*)((char*)g_game + 0x1429f)).cells[(*(BucketGrid*)((char*)g_game + 0x1429f)).width * y + x].first; o != 0; o = o->cargoNext) {
                 if (Dist2_0047e890(pos, &o->pos) <= range2) {
                     visitor.CollectDamagedAlly(o);
                 }
