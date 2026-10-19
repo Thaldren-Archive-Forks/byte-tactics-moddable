@@ -362,17 +362,8 @@ int __stdcall OrderModeTakesTarget(unsigned char type)
 }
 
 #pragma pack(push, 1)
-struct Node_0043e490 {
-    char unknown_0[0x111];
-    union {
-        unsigned int f111; // +0x111
-        struct {
-            unsigned int b0_7 : 8;
-            unsigned int b8 : 1;
-            unsigned int b9_31 : 23;
-        } f111b;
-    };
-};
+#include "../orders/node_0043e490.h"
+
 
 struct Flags_0043e490 {
     unsigned int b0 : 1;
