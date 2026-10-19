@@ -28,7 +28,7 @@ struct Surface_4589c0 {
     unsigned int flag1 : 1;
 };
 
-struct Model_459200;
+#include "model_types.h"
 
 #include "../units/unit_def.h"
 
@@ -48,52 +48,6 @@ union UnitTypeFlags_459200 {
 struct UnitDefFlags_459200 {
     char unknown_0[0x241];
     UnitTypeFlags_459200 flags;        // +0x241
-};
-
-struct Unit_459200 {
-    char unknown_0[0x6a];
-    int pos_x;
-    int pos_y;
-    int pos_z;
-    char unknown_76[0x8a-0x76];
-    Unit_459200* cargo;
-    Unit_459200* cargoNext;
-    UnitDef* def;
-    char unknown_96[8];
-    Model_459200* state;
-    char unknown_a2[4];
-    short unitDefIndex;
-    char unknown_a8[0xff-0xa8];
-    unsigned char playerIndex;
-    char unknown_100[4];
-    float buildLeft;
-    char unknown_108[6];
-    unsigned char activateFlags;
-    char cobStateFlags;
-    int flags;
-};
-
-struct Piece_459200 {
-    int field_0;                       // +0x0
-    char unknown_4[0x22 - 0x4];
-    int field_22;                      // +0x22
-    char unknown_26[2];
-    unsigned short flags;              // +0x28
-    char unknown_2a[0x36 - 0x2a];
-};
-
-struct Model_459200 {
-    int count;                         // +0x0
-    char unknown_4[0xc - 0x4];
-    Unit_459200* owner;                // +0xc
-    GafFrame* bitmap;                  // +0x10
-    GafFrame* shadow;                  // +0x14
-    char unknown_18[0x22 - 0x18];
-    Piece_459200 pieces[1];            // +0x22
-    char unknown_58[0x6a - 0x58];
-    int pos_x;                         // +0x6a
-    int pos_y;                         // +0x6e
-    int pos_z;                         // +0x72
 };
 
 union GameFlags_459200 {
@@ -250,18 +204,18 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
         else
             DrawFrameBlended(param_2, bmp, v.p.x.whole + 0x80, z);
         for (int i = model->count - 1; i >= 0; i--) {
-            if ((1 & model->pieces[i].flags) && !(model->pieces[i].flags & 2)) {
-                    DrawPiece(model, param_2, &cv, model->pieces[i].field_0,
-                                 model->pieces[i].field_22, model->owner->playerIndex, useColor);
+            if ((1 & model->pieces[i].flags.word) && !(model->pieces[i].flags.word & 2)) {
+                    DrawPiece(model, param_2, &cv, (int)model->pieces[i].object,
+                                 (int)model->pieces[i].points, model->owner->playerIndex, useColor);
                 }
         }
         Unit_459200* unit = model->owner->cargo;
         while (unit) {
             if (!(unit->flags & 0x20000)) {
                 for (int i = unit->state->count - 1; i >= 0; i--) {
-                    Piece_459200* piece = &unit->state->pieces[i];
-                    if (piece->flags & 1) {
-                        DrawPiece(unit->state, param_2, &cv, piece->field_0, piece->field_22,
+                    Piece_459c70* piece = &unit->state->pieces[i];
+                    if (piece->flags.word & 1) {
+                        DrawPiece(unit->state, param_2, &cv, (int)piece->object, (int)piece->points,
                                      unit->state->owner->playerIndex, useColor);
                     }
                 }

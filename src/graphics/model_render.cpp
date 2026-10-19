@@ -97,9 +97,6 @@ class Surface;
 
 #include "../units/unit_def.h"
 
-struct Model_459200;
-struct Unit_459200;
-
 // The game's flags word at +0x37f06.
 union Flags_37f06 {
     unsigned short whole;
@@ -167,53 +164,6 @@ public:
     void DrawPieceEdges(GafFrame* view, Model_459200* model, int color);
     GafFrame* MakeSilhouette(GafFrame* src);
 };
-
-// A unit or feature instance: the object the piece tree and the pictures
-// belong to.
-#pragma pack(push, 1)
-struct Unit_459200 {
-    char unknown_0[0x64];
-    Vector3s angles;                   // +0x64
-    int pos_x;                         // +0x6a
-    int pos_y;                         // +0x6e
-    int pos_z;                         // +0x72
-    char unknown_76[0x86 - 0x76];
-    int carrier;                       // +0x86
-    Unit_459200* cargo;                // +0x8a
-    Unit_459200* cargoNext;            // +0x8e
-    UnitDef* def;                      // +0x92
-    char unknown_96[8];
-    Model_459200* state;               // +0x9e
-    char unknown_a2[4];
-    short unitDefIndex;                // +0xa6
-    unsigned short id;                 // +0xa8
-    char unknown_aa[0xff - 0xaa];
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[4];
-    float buildLeft;                   // +0x104
-    char unknown_108[6];
-    unsigned char activateFlags;       // +0x10e
-    char cobStateFlags;
-    unsigned int flags;                // +0x110
-    unsigned char zBufferFlag;         // +0x114
-};
-#pragma pack(pop)
-
-// The object state of one unit: a count, the draw flags, the owner and the
-// pictures, the base angles, the root piece and the piece records.
-#pragma pack(push, 2)
-struct Model_459200 {
-    int count;                         // +0x00
-    int cacheDrawCount;                // +0x04
-    int animDirty;                     // +0x08
-    Unit_459200* owner;                // +0x0c
-    GafFrame* bitmap;                  // +0x10
-    GafFrame* shadow;                  // +0x14
-    Vector3s pos;                      // +0x18
-    Piece_459c70* root;                // +0x1e
-    Piece_459c70 pieces[1];            // +0x22
-};
-#pragma pack(pop)
 
 // The cache seen by the picture builder: the same object as CMemoryCache, so
 // it derives from it rather than repeating the members (the base costs nothing).
