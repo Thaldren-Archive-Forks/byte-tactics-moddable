@@ -11,8 +11,6 @@ extern "C" int __cdecl _purecall(void);
 
 // A method several classes share a name for is declared in a namespace named
 // after its class, so the slot still names one address in data/symbols.csv.
-void FUN_00407e70();
-namespace SpatialTimer { void OnTimer(); }
 namespace OrderFx { void GetType(); }
 namespace OrderFx { void Destroy(); }
 void SerializeSave();
