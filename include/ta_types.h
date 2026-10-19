@@ -6761,11 +6761,7 @@ public:
     Class_0044de80(int, HapiBank*, char*);
 };
 
-class OrderFx {         // 0x4 bytes, 1 view
-public:
-    void** vtable;  // +0x0
-    void* FUN_0044ce50(unsigned char);
-};
+#include "../src/orders/order_fx.h"
 
 class Class_0044ce70 {  // 0x4 bytes, 1 view
 public:
