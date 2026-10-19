@@ -57,17 +57,7 @@ struct Pos_459200 {
     Fixed z;
 };
 
-// The 12-byte vector: its integer coordinates, or the three 16.16 words of a
-// position, or the three words of a direction.
-union Vec3 {
-    int v[3];
-    struct {
-        int x;
-        int y;
-        int z;
-    };
-    Pos_459200 p;
-};
+#include "../util/vec3.h"
 
 struct Vec3f { float x; float y; float z; };
 

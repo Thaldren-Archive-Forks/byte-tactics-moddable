@@ -53,28 +53,26 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 #endif
 #include <vector>
 
-// A 16.16 position or velocity, and the fixed-point halves the VTOL code
-// reads from it (the fraction and whole parts of x, y and z).
-#define VEC3_H
-struct Vec3 {
-    union { int x; struct { unsigned short xf; short xw; }; };
-    union { int y; struct { unsigned short yf; short yw; }; };
-    union { int z; struct { unsigned short zf; short zw; }; };
+#include "../util/vec3.h"
 
-    void operator+=(const Vec3& v) { x += v.x; y += v.y; z += v.z; }
-    void operator-=(const Vec3& v) { x -= v.x; y -= v.y; z -= v.z; }
-    Vec3 operator+(const Vec3& v) const { Vec3 r; r.x = x + v.x; r.y = y + v.y; r.z = z + v.z; return r; }
-    Vec3 operator-(const Vec3& v) const { Vec3 r; r.x = x - v.x; r.y = y - v.y; r.z = z - v.z; return r; }
-
-    // The horizontal distance squared, as two 32-bit products.
-    int Square() const {
-        __int64 a = x, b = z;
-        return (int)((a*a) >> 32) + (int)((b*b) >> 32);
-    }
-};
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x + b.x;
+    r.y = a.y + b.y;
+    r.z = a.z + b.z;
+    return r;
+}
+static inline Vec3 PosMinus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x - b.x;
+    r.y = a.y - b.y;
+    r.z = a.z - b.z;
+    return r;
+}
 
 struct Point { short x, y; };
-struct Point16 { short x, y; };
 struct Pair16 { short lo, hi; };
 
 struct Box {
@@ -502,12 +500,12 @@ static inline Point WorldToCell(Vec3 v, Point origin)
     return c;
 }
 
-static inline Point16 ToPoint16(Point p)
+static inline Point16 WorldToCell16(Vec3 v, Point origin)
 {
-    Point16 r;
-    r.x = p.x;
-    r.y = p.y;
-    return r;
+    Point16 c;
+    c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
+    c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
+    return c;
 }
 
 // The multiply, not a shift by 19: the shift changes the register use.
@@ -573,8 +571,8 @@ int __stdcall VtolEvadeOrder(Unit* unit,Order* order,int flags)
         if (unit->motion && (unit->def->flags&0x800)) {
             order->side=RandomInt(2);
             Vec3 pos;
-        if (order->side) pos=unit->pos+Offset(unit->heading-0x4000,range<<16);
-        else pos=unit->pos+Offset(unit->heading+0x4000,range<<16);
+        if (order->side) pos=PosPlus(unit->pos,Offset(unit->heading-0x4000,range<<16));
+        else pos=PosPlus(unit->pos,Offset(unit->heading+0x4000,range<<16));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e730*)move)->SetApproachRadius(128);
             order->SetAttachedFx((int)move);
@@ -584,8 +582,8 @@ int __stdcall VtolEvadeOrder(Unit* unit,Order* order,int flags)
         goto invalid;
     case 1: {
         Vec3 pos;
-        if (order->side) pos=unit->pos+Offset(unit->heading-0x4000,range<<17);
-        else pos=unit->pos+Offset(unit->heading+0x4000,range<<17);
+        if (order->side) pos=PosPlus(unit->pos,Offset(unit->heading-0x4000,range<<17));
+        else pos=PosPlus(unit->pos,Offset(unit->heading+0x4000,range<<17));
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         ((Class_0044e730*)move)->SetApproachRadius(128);
         order->SetAttachedFx((int)move);
@@ -728,8 +726,8 @@ int __stdcall VtolStandbyOrder(Unit* unit, Order* order, int flags)
             g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
             order->flags |= 0x10000;
             order->SetDeadlineTicks(1);
-            order->x = order->source->pos.xw;
-            order->z = order->source->pos.zw;
+            order->x = order->source->xWhole;
+            order->z = order->source->zWhole;
             return 1;
         }
         break;
@@ -931,7 +929,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         break;
     case 1: {
         Unit* cargo = order->target.owner;
-        if (g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, *(Point*)&cargo->footprint)), 1)) {
+        if (g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, WorldToCell16(order->pos, *(Point*)&cargo->footprint), 1)) {
             Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
             // Through an int local: passing the expression straight sign-extends differently.
             int h = unit->cargo->def->field_170;
@@ -947,7 +945,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         if (flags & 0x40)
             return 9;
         Unit* cargo = order->target.owner;
-        if (!g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, ToPoint16(WorldToCell(order->pos, *(Point*)&cargo->footprint)), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, WorldToCell16(order->pos, *(Point*)&cargo->footprint), 1)) {
             QueueUnitSpeech(unit, 7, "Unable to unload unit");
             return 9;
         }
@@ -1017,7 +1015,7 @@ static inline int IsAhead(Unit* unit, Order* order)
     Fixed dist;
     dist.value = 0x140000;
     Vec3 facing = DirectionFromAngle(unit->heading, dist);
-    return (short)(toward.xw * facing.xw + toward.zw * facing.zw) > 0;
+    return (short)(((Vec3Words*)&toward)->xWhole * ((Vec3Words*)&facing)->xWhole + ((Vec3Words*)&toward)->zWhole * ((Vec3Words*)&facing)->zWhole) > 0;
 }
 
 // VTOL strafing attack order handler. With flags 0x10008, or with no target
@@ -1065,7 +1063,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     case 2: {
         if (flags&0x40) return 8;
         UnitDef* def=&g_game->unitDefs[order->type];
-        if (!g_seams.map->CanPlaceUnitFootprint(def,0,ToPoint16(WorldToCell(order->pos,g_game->unitDefs[order->type].origin)),1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def,0,WorldToCell16(order->pos,g_game->unitDefs[order->type].origin),1)) {
             if (!order->retries) QueueUnitSpeech(unit,7,"Waiting for target area to clear");
             else if (order->retries>10) { QueueUnitSpeech(unit,7,"Target area was blocked"); return 8; }
             ++order->retries;
@@ -1088,7 +1086,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
             int angle=GetHeadingBetween(&unit->pos,&order->targetUnit->pos);
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
-            Vec3 pos=order->targetUnit->pos-Offset(angle,range);
+            Vec3 pos=PosMinus(order->targetUnit->pos,Offset(angle,range));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e720*)move)->SetHeading((unsigned short)angle);
             order->SetAttachedFx((int)move);
@@ -1098,8 +1096,8 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit,&start);
             Vec3 bounds[2];
-            bounds[0]=order->targetUnit->pos+order->targetUnit->def->min;
-            bounds[1]=order->targetUnit->pos+order->targetUnit->def->max;
+            bounds[0]=PosPlus(order->targetUnit->pos,order->targetUnit->def->min);
+            bounds[1]=PosPlus(order->targetUnit->pos,order->targetUnit->def->max);
             EmitNanoParticles(&start,(Box*)bounds,6);
         }
         if (order->targetUnit->buildLeft!=0.0f) {
@@ -1154,7 +1152,7 @@ int __stdcall VtolRepairUnitOrder(Unit* unit, Order* order, int flags)
         QueueUnitSpeech(unit, 7, "Repairs unsuccessful.");
         return 8;
     }
-    if (order->range && (int)_hypot(unit->pos.xw - order->x, unit->pos.zw - order->z) >= order->range)
+    if (order->range && (int)_hypot(unit->xWhole - order->x, unit->zWhole - order->z) >= order->range)
         return 5;
     if (order->targetUnit->mode != 1) {
         QueueUnitSpeech(unit, 7, "Repairs unsuccessful.");
@@ -1345,7 +1343,7 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
     // short& references: they fix the first _hypot's load order.
     short& ox = order->x;
     short& oz = order->z;
-    if (order->range && (int)_hypot(unit->pos.xw - ox, unit->pos.zw - oz) >= order->range)
+    if (order->range && (int)_hypot(unit->xWhole - ox, unit->zWhole - oz) >= order->range)
         return 5;
     int range = ((WeaponDef*)unit->weapons[0].weapon)->range;
     unsigned int state = 0;
@@ -1478,7 +1476,7 @@ int __stdcall VtolPickupOrder(Unit* unit, Order* order, int flags)
             SendScriptCallByName(unit, "BeginTransport", 1, height, 0, 0, 0);
             Vec3 offset = g_seams.units->GetPieceOffset(unit, order->piece);
             Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target.owner, -1);
-            ((Class_0044e6c0*)obj)->SetAltitude(-offset.yw);
+            ((Class_0044e6c0*)obj)->SetAltitude(-((Vec3Words*)&offset)->yWhole);
             order->SetAttachedFx((int)obj);
             order->flags = 0x100ea;
             return 1;

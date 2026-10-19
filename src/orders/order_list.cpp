@@ -19,6 +19,28 @@
 
 #include "../state/block.h"
 #include "../util/vec3.h"
+
+static inline int Vec3Length(const Vec3* v)
+{
+    double fx = v->x;
+    double fy = v->y;
+    double fz = v->z;
+    return (int)sqrt(fx * fx + fy * fy + fz * fz);
+}
+
+static inline void Vec3Scale(Vec3* v, int s)
+{
+    v->x = (int)(((__int64)v->x * s) >> 16);
+    v->y = (int)(((__int64)v->y * s) >> 16);
+    v->z = (int)(((__int64)v->z * s) >> 16);
+}
+
+static inline void Vec3Add(Vec3* v, const Vec3* o)
+{
+    v->x += o->x;
+    v->y += o->y;
+    v->z += o->z;
+}
 #include "../util/hapi_bank.h"
 
 #pragma pack(push, 1)
@@ -50,63 +72,35 @@ static inline void MulFixed(int& v, int f)
     v = (int)(((__int64)v * f) >> 16);
 }
 
-// A 16.16 position or velocity.
-struct Vec3Ex {
-    int x;
-    union {
-        int y;
-        Fixed_0043d6d0 fy;
-        struct {
-            unsigned short yFraction;
-            short yWhole;
-        };
-    };
-    int z;
-
-    Vec3Ex() {}
-    Vec3Ex(int a, int b, int c) : x(a), y(b), z(c) {}
-    int Length() const {
-        double a = x, b = y, c = z;
-        return (int)sqrt(a * a + b * b + c * c);
-    }
-    Vec3Ex operator-(const Vec3Ex& o) const {
-        Vec3Ex r;
-        r.x = x - o.x;
-        r.y = y - o.y;
-        r.z = z - o.z;
-        return r;
-    }
-    Vec3Ex& operator+=(const Vec3Ex& o) {
-        x += o.x;
-        y += o.y;
-        z += o.z;
-        return *this;
-    }
-    void Scale(int s) {
-        MulFixed(x, s);
-        MulFixed(y, s);
-        MulFixed(z, s);
-    }
-    void Add(const Vec3Ex* o)
-    {
-        x += o->x;
-        y += o->y;
-        z += o->z;
-    }
-};
-
-inline Vec3Ex operator+(const Vec3Ex& a, const Vec3Ex& b)
+static inline Vec3 OrderVec3(int a, int b, int c)
 {
-    Vec3Ex r;
+    Vec3 v;
+    v.x = a;
+    v.y = b;
+    v.z = c;
+    return v;
+}
+
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
     r.x = a.x + b.x;
     r.y = a.y + b.y;
     r.z = a.z + b.z;
     return r;
 }
+static inline Vec3 PosMinus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x - b.x;
+    r.y = a.y - b.y;
+    r.z = a.z - b.z;
+    return r;
+}
 
 // The temporary the position is built through (the derived type is what
 // makes the compiler materialise it).
-struct Vec3Init_0043a1f0 : Vec3Ex {
+struct Vec3Init_0043a1f0 : Vec3 {
     Vec3Init_0043a1f0(int a, int b, int c) { x = a; y = b; z = c; }
 };
 
@@ -139,7 +133,7 @@ struct Target_0043d6d0 {
 
 struct TargetData_0043d6d0 {
     char unknown_0[8];
-    Vec3Ex velocity;
+    Vec3 velocity;
     char unknown_14[0x20 - 0x14];
     int speed;                         // +0x20
 };
@@ -234,7 +228,7 @@ public:
     unsigned int wakeFrame;          // +0xa
     void* unit;                      // +0xe
     PathOrderAttach link;            // +0x12
-    Vec3Ex pos;
+    Vec3 pos;
     Point start;                     // +0x2e
     Point cached;                    // +0x32
     int id;                          // +0x36
@@ -246,17 +240,17 @@ public:
     unsigned int subFlags;           // +0x4e
     void* attached;                  // +0x52
 
-    Order(unsigned char k, Unit* o, Vec3Ex* p, int a, int b, int c);
-    Order(MissionType kind, Unit* o, Vec3Ex* p, int a, int b, int c);
+    Order(unsigned char k, Unit* o, Vec3* p, int a, int b, int c);
+    Order(MissionType kind, Unit* o, Vec3* p, int a, int b, int c);
     Order(unsigned char type, int a, int b, int c, int d, int e);
     ~Order();
     void SetDeadlineTicks(int param);
     // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
     void ReattachFxToUnit();
-    void AttachApproachRadiusGoal(Vec3Ex* pos, int radius);
+    void AttachApproachRadiusGoal(Vec3* pos, int radius);
     Unit* Target();
     void Wait();
-    Vec3Ex* Position();
+    Vec3* Position();
 };
 
 // The weapon a slot points to; its +0xe4 is the divisor 0x439d20 uses.
@@ -323,11 +317,11 @@ void __stdcall DeleteOrder(Unit* owner, Order* node);
 extern int __cdecl _strcmpi(const char*, const char*);
 
 
-void __stdcall DrawBuildFootprint(void* a, void* b, Order* e, Vec3Ex* p, int c);
-void __stdcall DrawUnitRangeRings(void* a, void* b, Order* e, Vec3Ex* p, int c);
-void __stdcall DrawPathAnim(void* a, void* b, Order* e, Vec3Ex* p, int c);
-void __stdcall DrawWeaponCoverage(void* a, void* b, Order* e, Vec3Ex* p, int c);
-void __stdcall DrawOrderRangeRing(void* a, void* b, Order* e, Vec3Ex* p, int c);
+void __stdcall DrawBuildFootprint(void* a, void* b, Order* e, Vec3* p, int c);
+void __stdcall DrawUnitRangeRings(void* a, void* b, Order* e, Vec3* p, int c);
+void __stdcall DrawPathAnim(void* a, void* b, Order* e, Vec3* p, int c);
+void __stdcall DrawWeaponCoverage(void* a, void* b, Order* e, Vec3* p, int c);
+void __stdcall DrawOrderRangeRing(void* a, void* b, Order* e, Vec3* p, int c);
 
 // The list-walking dispatcher of the unit: for every object linked into the unit's
 // list at +0x5c (link field at +0x4a, kind byte at +0x4) it looks up the kind's
@@ -343,8 +337,8 @@ void __stdcall DrawOrderOverlays(Unit* unit, unsigned int mask, void* obj,
 {
     // Two copies, base first: each call but bit 4's is preceded by pos = base,
     // and the loop ends with base = pos.
-    Vec3Ex base = *(Vec3Ex*)&unit->pos;
-    Vec3Ex pos = *(Vec3Ex*)&unit->pos;
+    Vec3 base = unit->pos;
+    Vec3 pos = unit->pos;
     bool done = false;
     for (Order* e = unit->list; e != 0; e = e->next) {
         if (g_missionOrderTableBegin[e->kind].drawMask & mask & 1) {
@@ -567,7 +561,7 @@ void __stdcall EnsurePatrolReturnOrder(Unit* p, Order* item)
         }
     }
     if (add) {
-        Order* child = new (kSim) Order(item->kind, 0, (Vec3Ex*)&p->pos, 0, 0, 0);
+        Order* child = new (kSim) Order(item->kind, 0, &p->pos, 0, 0, 0);
         InsertBefore(p, child, 0);
     }
     item->flags |= 0x8000;
@@ -589,7 +583,7 @@ void __stdcall EnsurePatrolReturnOrder(Unit* p, Order* item)
 // This view keeps `kind(k)` a plain member initialiser; the other file's view
 // adds a second base that rules it out.
 // FUNCTION: 0x43a0c0
-Order::Order(unsigned char k, Unit* o, Vec3Ex* p, int a, int b, int c)
+Order::Order(unsigned char k, Unit* o, Vec3* p, int a, int b, int c)
     : kind(k), link(o, 0), start(PointInit_0043a1f0(0, 0)), cached(PointInit_0043a1f0(0, 0)),
       id(a), amount(b), progress(c), created(g_game->gameTick)
 {
@@ -831,7 +825,7 @@ static inline void AddMarked(Unit* owner, Order* node)
 // 0x43ad50 does.
 // FUNCTION: 0x43adc0
 void __stdcall AddOrder(int kind, int remove, Unit* owner, void* id,
-                            Vec3Ex* pos, int param_6, int param_7)
+                            Vec3* pos, int param_6, int param_7)
 {
     // The constructor's owner argument is the fourth parameter, not `owner`,
     // which stays in its stack slot.
@@ -880,8 +874,8 @@ typedef int(__stdcall* Pred_0043c390)(const Elem_0043c390&, const Elem_0043c390&
 
 // The movement state saved as "u%04xmob".
 struct Record_0043dd70 {
-    Vec3Ex velocity;
-    Vec3Ex p2;
+    Vec3 velocity;
+    Vec3 p2;
     int speed;                         // +0x18
     short turn;                        // +0x1c
     int pathLockStamp;                 // +0x1e
@@ -895,8 +889,8 @@ public:
     virtual void v0(int);
     virtual void v1();
     virtual void v2();
-    virtual void v3(Vec3Ex* out, int first, int count);
-    virtual void v4(Vec3Ex* a, Vec3Ex* b, short* heading);
+    virtual void v3(Vec3* out, int first, int count);
+    virtual void v4(Vec3* a, Vec3* b, short* heading);
     virtual int v5();
 };
 
@@ -910,8 +904,8 @@ class UnitMotion {
 public:
     Iface_0043dd20* obj;               // +0x0
     int movementClass;                 // +0x4
-    Vec3Ex velocity;
-    Vec3Ex p2;
+    Vec3 velocity;
+    Vec3 p2;
     int speed;                         // +0x20
     short turn;                        // +0x24, turn this tick
     int pathLockStamp;                 // +0x26
@@ -927,7 +921,7 @@ public:
 
     void UpdateVelocityFromHeading(Unit* unit, int amount);
     void SteerGroundUnit(Unit* unit);
-    void ApplyBankAndPitch(Unit* owner, Vec3Ex* v);
+    void ApplyBankAndPitch(Unit* owner, Vec3* v);
     void SetFlightMode(Unit* owner, int state);
     void SteerAircraft(Unit* unit);
     void UpdatePosition(Unit* unit);
@@ -952,8 +946,8 @@ int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
 void __cdecl FUN_004b7173(short angle, int* xz);
 int __cdecl FUN_004b715a(int x, int z);
-int __stdcall GetHeadingBetween(Vec3Ex* from, Vec3Ex* to);
-MissionType __stdcall GetOrderType(unsigned char relation, Unit* unit, Unit* target, Vec3Ex* pos);
+int __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
+MissionType __stdcall GetOrderType(unsigned char relation, Unit* unit, Unit* target, Vec3* pos);
 void __stdcall AddOrder(unsigned char kind, int remove, Unit* owner, int id, int* pos, int param_6, int param_7);
 int __stdcall FindWeaponTarget(Unit* unit, int a, int b);
 int __stdcall RandomInt(int n);
@@ -1114,8 +1108,8 @@ int __stdcall IssueAttackOrder(Unit* unit, Unit* target, int param_3)
     if (!kind.index)
         return 0;
     if ((unit->flags & 0xc0000) == 0x40000 && !param_3) {
-        MissionType kind2 = GetOrderType(2, unit, 0, (Vec3Ex*)&unit->pos);
-        Order* cmd = new (kSim) Order(kind2, 0, (Vec3Ex*)&unit->pos, 0, 0, 0);
+        MissionType kind2 = GetOrderType(2, unit, 0, &unit->pos);
+        Order* cmd = new (kSim) Order(kind2, 0, &unit->pos, 0, 0, 0);
         Insert(unit, cmd, (cmd->flags & 0x40000) ? unit->list2 : unit->list);
         Order* cmd2 = new (kSim) Order(kind, target, 0, 0, 0, ((UnitType_0043cd20*)unit->def)->maneuverleashlength);
         cmd2->start.x = PosXWhole(unit);
@@ -1144,8 +1138,8 @@ int __stdcall IssueRepairOrder(Unit* unit, Unit* target, int param_3)
         return 0;
     unsigned int f = unit->flags & 0xc0000;
     if (f == 0 && !param_3) {
-        MissionType kind2 = GetOrderType(2, unit, 0, (Vec3Ex*)&unit->pos);
-        Order* cmd = new (kSim) Order(kind2, 0, (Vec3Ex*)&unit->pos, 0, 0, 0);
+        MissionType kind2 = GetOrderType(2, unit, 0, &unit->pos);
+        Order* cmd = new (kSim) Order(kind2, 0, &unit->pos, 0, 0, 0);
         Insert(unit, cmd, (cmd->flags & 0x40000) ? unit->list2 : unit->list);
         Order* cmd2 = new (kSim) Order(kind, target, 0, 0, 0, ((UnitType_0043cd20*)unit->def)->range);
         cmd2->start.x = PosXWhole(unit);
@@ -1154,8 +1148,8 @@ int __stdcall IssueRepairOrder(Unit* unit, Unit* target, int param_3)
         // Explicit `return 1;` in each case: a single trailing return splits the store blocks.
         return 1;
     } else if (f == 0x40000 && !param_3) {
-        MissionType kind2 = GetOrderType(2, unit, 0, (Vec3Ex*)&unit->pos);
-        Order* cmd = new (kSim) Order(kind2, 0, (Vec3Ex*)&unit->pos, 0, 0, 0);
+        MissionType kind2 = GetOrderType(2, unit, 0, &unit->pos);
+        Order* cmd = new (kSim) Order(kind2, 0, &unit->pos, 0, 0, 0);
         Insert(unit, cmd, (cmd->flags & 0x40000) ? unit->list2 : unit->list);
         Order* cmd2 = new (kSim) Order(kind, target, 0, 0, 0, ((UnitType_0043cd20*)unit->def)->maneuverleashlength);
         cmd2->start.x = PosXWhole(unit);
@@ -1609,16 +1603,16 @@ static inline void AddFixed(int& v, float f)
     v += (int)((double)f * 65536.0);
 }
 
-static inline Vec3Ex Offset(short angle, int distance)
+static inline Vec3 Offset(short angle, int distance)
 {
-    Vec3Ex v;
+    Vec3 v;
     v.x = -FUN_004b70ef(angle, distance);
     v.y = 0;
     v.z = -FUN_004b7123(angle, distance);
     return v;
 }
 
-static inline void ClampToCell(Vec3Ex& pos, Point cell, Point draft)
+static inline void ClampToCell(Vec3& pos, Point cell, Point draft)
 {
     int cx = (draft.x + cell.x * 2) << 19;
     int cz = (draft.y + cell.y * 2) << 19;
@@ -1658,7 +1652,7 @@ void UnitMotion::UpdateVelocityFromHeading(Unit* unit, int amount)
 
     int dist = speed;
     unsigned short angle = unit->angles.heading;
-    Vec3Ex v;
+    Vec3 v;
     v.x = -FUN_004b70ef(angle, dist);
     v.y = 0;
     v.z = -FUN_004b7123(angle, dist);
@@ -1676,11 +1670,11 @@ void UnitMotion::SteerGroundUnit(Unit* unit)
         return;
     }
 
-    Vec3Ex p[3];
+    Vec3 p[3];
     obj->v3(p, 0, 3);
 
-    Vec3Ex* ppos = (Vec3Ex*)&unit->pos;
-    Vec3Ex d = p[1] - *ppos;
+    Vec3* ppos = &unit->pos;
+    Vec3 d = PosMinus(p[1], *ppos);
     int gap1 = (int)_hypot(d.x, d.z);
 
     int dz;
@@ -1755,12 +1749,12 @@ void UnitMotion::SteerGroundUnit(Unit* unit)
 // The original calls this from SetFlightMode and SteerAircraft.
 #pragma auto_inline(off)
 // FUNCTION: 0x43d0d0
-void UnitMotion::ApplyBankAndPitch(Unit* owner, Vec3Ex* v)
+void UnitMotion::ApplyBankAndPitch(Unit* owner, Vec3* v)
 {
     // Scale and Add stay inlined methods, not separate statements on p2:
     // each field is then stored immediately.
-    p2.Scale(0xf333);
-    p2.Add(v);
+    Vec3Scale(&p2, 0xf333);
+    Vec3Add(&p2, v);
     int xz[2];
     xz[0] = p2.x;
     xz[1] = p2.z;
@@ -1779,7 +1773,7 @@ void UnitMotion::SetFlightMode(Unit* owner, int newState)
     if (mode != newState) {
         if (newState == 1) {
             speed = 0;
-            Vec3Ex zero(0, 0, 0);
+            Vec3 zero = OrderVec3(0, 0, 0);
             velocity = zero;
             ApplyBankAndPitch(owner, &zero);
             g_seams.units->SetStateBits(owner, 1, 0);
@@ -1799,15 +1793,15 @@ void UnitMotion::SetFlightMode(Unit* owner, int newState)
 // FUNCTION: 0x43d290
 void UnitMotion::SteerAircraft(Unit* unit) {
     if (mode != 2) {
-        velocity = Vec3Ex(0, 0, 0);
+        velocity = OrderVec3(0, 0, 0);
         speed = 0;
         turn = 0;
         return;
     }
 
-    Vec3Ex old = velocity;
-    Vec3Ex a;
-    Vec3Ex b;
+    Vec3 old = velocity;
+    Vec3 a;
+    Vec3 b;
     short heading;
     obj->v4(&a, &b, &heading);
 
@@ -1817,7 +1811,7 @@ void UnitMotion::SteerAircraft(Unit* unit) {
     float f18 = (float)type->acceleration * eps;
     int q = (int)(((__int64)type->acceleration << 16) / type->maxvelocity);
     int scale = 0x10000 - q;
-    velocity.Scale(scale);
+    Vec3Scale(&velocity, scale);
 
     float dist = (float)_hypot(velocity.x, velocity.z) * eps;
     float maxd = (float)((UnitType_0043cd20*)unit->def)->brakerate * eps;
@@ -1831,8 +1825,8 @@ void UnitMotion::SteerAircraft(Unit* unit) {
         velocity += Offset(unit->angles.heading, g);
     }
 
-    Vec3Ex da = *(Vec3Ex*)&unit->pos - a;
-    Vec3Ex db = velocity - b;
+    Vec3 da = PosMinus(unit->pos, a);
+    Vec3 db = PosMinus(velocity, b);
 
     if (unit->spatialBucket != g_game->overflowBucket) {
         int lim;
@@ -1902,11 +1896,11 @@ void UnitMotion::SteerAircraft(Unit* unit) {
     AddFixed(velocity.x, vx);
 #endif
     AddFixed(velocity.z, vz);
-    speed = velocity.Length();
+    speed = Vec3Length(&velocity);
 
     // Own block so the address-taken delta shares a stack slot with db.
     {
-        Vec3Ex delta = velocity - old;
+        Vec3 delta = PosMinus(velocity, old);
         ApplyBankAndPitch(unit, &delta);
     }
 }
@@ -1926,13 +1920,13 @@ void UnitMotion::UpdatePosition(Unit* u)
 {
     if (u->carrier != 0) {
         // Copy through the returned pointer, not an initialiser.
-        Vec3Ex v;
-        *(Vec3*)&v = g_seams.units->GetPiecePosition((Unit*)u->carrier, (signed char)u->transportPiece);
+        Vec3 v;
+        v = g_seams.units->GetPiecePosition((Unit*)u->carrier, (signed char)u->transportPiece);
         if (((UnitType_0043cd20*)u->def)->b19) {
             // MAX stays a macro over the Fixed union with a prvalue second operand.
-            v.fy = MAXM_0043d6d0(v.fy, MakeFixed_0043d6d0(((UnitType_0043cd20*)u->def)->draft * 0xffff + g_game->seaLevel));
+            *(Fixed_0043d6d0*)&v.y = MAXM_0043d6d0(*(Fixed_0043d6d0*)&v.y, MakeFixed_0043d6d0(((UnitType_0043cd20*)u->def)->draft * 0xffff + g_game->seaLevel));
         }
-        ((int (__stdcall*)(Unit*, Vec3Ex, int))g_seams.units->SetUnitPosition)(u, v, mode);
+        g_seams.units->SetUnitPosition(u, v, mode);
         Angles16 o = g_seams.units->GetPieceAngles((Unit*)u->carrier, (signed char)u->transportPiece);
         u->angles = o;
         if (((Path_0043d6d0*)u->carrier)->motion != 0) {
@@ -1940,7 +1934,7 @@ void UnitMotion::UpdatePosition(Unit* u)
             velocity = ((Path_0043d6d0*)u->carrier)->motion->velocity;
         } else {
             speed = 0;
-            Vec3Ex zero(0, 0, 0);
+            Vec3 zero = OrderVec3(0, 0, 0);
             velocity = zero;
         }
         u->moved = 0;
@@ -1949,8 +1943,8 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     // Assigned (not initialised) through the inline operator+: its result temporary
     // fixes the frame layout. The operands' order is the original's load order.
-    Vec3Ex pos;
-    pos = *(Vec3Ex*)&u->pos + velocity;
+    Vec3 pos;
+    pos = PosPlus(u->pos, velocity);
     int m = mode;
     if (pos.x == u->pos.x && pos.z == u->pos.z && pos.y == u->pos.y && m == u->mode)
         return;
@@ -1962,7 +1956,7 @@ void UnitMotion::UpdatePosition(Unit* u)
     cell.x = (pos.x - draft.x * 0x80000 + 0x80000) >> 20;
     cell.y = (pos.z - draft.y * 0x80000 + 0x80000) >> 20;
     if (cell.x == u->cell.x && cell.y == u->cell.y && m == u->mode) {
-        *(Vec3Ex*)&u->pos = pos;
+        u->pos = pos;
         u->moved = 1;
         return;
     }
@@ -1980,7 +1974,7 @@ void UnitMotion::UpdatePosition(Unit* u)
             int half = ((UnitType_0043cd20*)u->def)->maxvelocity / 2;
             speed = half;
             unsigned short angle = u->angles.heading;
-            Vec3Ex vec;
+            Vec3 vec;
             vec.x = -FUN_004b70ef(angle, half);
             vec.y = 0;
             // z goes through an int temporary.
@@ -1988,13 +1982,13 @@ void UnitMotion::UpdatePosition(Unit* u)
             vec.z = z;
             velocity = vec;
         }
-        *(Vec3Ex*)&u->pos = pos;
+        u->pos = pos;
         u->moved = 1;
         return;
     }
 
     g_seams.map->RemoveUnitFromMap(u);
-    *(Vec3Ex*)&u->pos = pos;
+    u->pos = pos;
     *(Point*)&u->cell = cell;
     // The (short) cast gives the and/and/or store of the 2-bit field.
     u->mode = (short)m;
@@ -2045,11 +2039,11 @@ void UnitMotion::UpdateMoveRate(Unit* unit)
 // FUNCTION: 0x43dc00
 UnitMotion::UnitMotion(Unit* unit)
 {
-    velocity = Vec3Ex(0, 0, 0);
+    velocity = OrderVec3(0, 0, 0);
     speed = 0;
     turn = 0;
     pathLockStamp = 0;
-    p2 = Vec3Ex(0, 0, 0);
+    p2 = OrderVec3(0, 0, 0);
     mode = 1;
     flag = 0;
     movementClass = ((UnitType_0043cd20*)unit->def)->movementclass;

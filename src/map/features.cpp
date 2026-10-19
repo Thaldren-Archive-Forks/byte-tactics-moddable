@@ -42,29 +42,21 @@ struct AnimPair {
     AnimSrc* shadow;
 };
 
-// Own Vec3, not vec3.h: it has constructors, operator+= and NonZero.
-struct Vec3 {
-    int x, y, z;
+#include "../util/vec3.h"
 
-    Vec3() {}
-    Vec3(int ax, int ay, int az) : x(ax), y(ay), z(az) {}
-    Vec3& operator+=(const Vec3& o)
-    {
-        x += o.x;
-        y += o.y;
-        z += o.z;
-        return *this;
-    }
-    int NonZero()
-    {
-        return x || z || y;
-    }
-};
+static inline int Vec3NonZero(Vec3* v)
+{
+    return v->x || v->z || v->y;
+}
 
-struct Point16 {
-    short x;
-    short z;
-};
+static inline Vec3 FeatureVec3(int ax, int ay, int az)
+{
+    Vec3 v;
+    v.x = ax;
+    v.y = ay;
+    v.z = az;
+    return v;
+}
 
 struct Rot16 {
     short x, y, z;
@@ -355,16 +347,7 @@ struct PlayerInfo {
     int id;                            // +0x4
 };
 
-struct Unit {
-    char unknown_0[0x96];
-    PlayerInfo* info;                  // +0x96
-    char unknown_9a[0xbc - 0x9a];
-    float energy;                      // +0xbc
-    char unknown_c0[0xd4 - 0xc0];
-    float metal;                       // +0xd4
-    char unknown_d8[0xec - 0xd8];
-    Player* player;                    // +0xec
-};
+#include "../units/unit.h"
 
 struct Weapon {
     char unknown_0[0xd4];
@@ -548,7 +531,7 @@ Vec3 __stdcall GetFootprintCentre(Point16* cell, Feature* def)
     Point16 c = *cell;
     Vec3 p;
     p.x = (f.x + c.x * 2) << 19;
-    p.z = (f.z + c.z * 2) << 19;
+    p.z = (f.y + c.y * 2) << 19;
     p.y = g_seams.units->GetGroundHeight(&p) << 16;
     return p;
 }
@@ -719,7 +702,7 @@ void PlaceMissionFeatures(void)
         if (f->flags16 & 1)
             cell = g_seams.los_radar->GetMapCell(p->x, p->y);
         else
-            cell = g_seams.los_radar->GetMapCell(p->x - f->footprint.x / 2, p->y - f->footprint.z / 2);
+            cell = g_seams.los_radar->GetMapCell(p->x - f->footprint.x / 2, p->y - f->footprint.y / 2);
         PlaceFeature(cell, id, 0, 0, 10);
     }
 }
@@ -914,7 +897,7 @@ static inline Feature* GetFeature(Cell* cell)
 // Takes the field by reference and the amount as a double; the metal add stays plain code.
 static inline void AddScaled(Unit* unit, float& res, double amount)
 {
-    if (unit->player->active && unit->player->type == 2) {
+    if (unit->owner->active && unit->owner->type == 2) {
         switch (g_game->difficulty) {
         case 1:
             res += amount * 0.7;
@@ -943,7 +926,7 @@ int __stdcall ReclaimFeature(Unit* unit, Vec3* pos)
         return 0;
     AddScaled(unit, unit->energy, f->energy);
     float metal = f->metal;
-    if (unit->player->active && unit->player->type == 2) {
+    if (unit->owner->active && unit->owner->type == 2) {
         switch (g_game->difficulty) {
         case 1:
             unit->metal += metal * 0.7;
@@ -965,7 +948,7 @@ int __stdcall ReclaimFeature(Unit* unit, Vec3* pos)
         packet.sub = 0xff;
         packet.x = x;
         packet.z = z;
-        BroadcastPacket(unit->info->id, &packet, 6);
+        BroadcastPacket(((PlayerInfo*)unit->player)->id, &packet, 6);
     }
     return 1;
 }
@@ -978,7 +961,7 @@ static inline Vec3 FootprintCentre(Point16* cell, Feature* def)
     Point16 c = *cell;
     Vec3 p;
     p.x = (f.x + c.x * 2) << 19;
-    p.z = (f.z + c.z * 2) << 19;
+    p.z = (f.y + c.y * 2) << 19;
     p.y = g_seams.units->GetGroundHeight(&p) << 16;
     return p;
 }
@@ -989,9 +972,9 @@ static inline Vec3 FootprintCentre(Point16* cell, Feature* def)
 // FUNCTION: 0x4239c0
 void __stdcall SpreadFire(Feature* f, Point16* cell)
 {
-    for (int z = cell->z - 3; z <= cell->z + 3; z++) {
+    for (int z = cell->y - 3; z <= cell->y + 3; z++) {
         for (int x = cell->x - 3; x <= cell->x + 3; x++) {
-            if (x != cell->x || z != cell->z) {
+            if (x != cell->x || z != cell->y) {
                 Cell* c = g_seams.los_radar->GetMapCell(x, z);
                 if (c && c->feature < 0xfffb && !(c->flags & 1)) {
                     Feature* g = &g_game->features[c->feature];
@@ -1008,9 +991,9 @@ void __stdcall SpreadFire(Feature* f, Point16* cell)
     Coord pz;
     px.value = cell->x << 16;
     // Computed from its own read of cell->z, before lastZ copies it.
-    pz.value = cell->z << 16;
+    pz.value = cell->y << 16;
     int lastX = cell->x;
-    int lastZ = cell->z;
+    int lastZ = cell->y;
     for (int i = 5; i; i--) {
         px.value += (int)(((__int64)g_game->windVelX * 0x20000) >> 16);
         pz.value += (int)(((__int64)g_game->windZ * 0x20000) >> 16);
@@ -1071,13 +1054,13 @@ Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature,
     int w = g_game->mapWidthTiles;
     Point16 at;
     at.x = n % w;
-    at.z = n / w;
+    at.y = n / w;
     if (at.x + f->footprint.x > w)
         return 0;
-    if (at.z + f->footprint.z > g_game->mapHeightTiles)
+    if (at.y + f->footprint.y > g_game->mapHeightTiles)
         return 0;
     // Both footprint loops walk an explicit `c++` pointer, not `row[x]`.
-    for (int z = 0; z < f->footprint.z; z++) {
+    for (int z = 0; z < f->footprint.y; z++) {
         Cell* c = &cell[z * g_game->mapWidthTiles];
         for (int x = 0; x < f->footprint.x; x++, c++) {
             if (c->feature != 0xffff && !RemoveFeature(c, 0))
@@ -1110,7 +1093,7 @@ Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature,
         cell->flag0 = 0;
     }
     cell->owner = owner;
-    for (int z2 = 0; z2 < f->footprint.z; z2++) {
+    for (int z2 = 0; z2 < f->footprint.y; z2++) {
         Cell* c = &cell[z2 * g_game->mapWidthTiles];
         for (int x = 0; x < f->footprint.x; x++, c++) {
             if (x != 0 || z2 != 0) {
@@ -1132,7 +1115,7 @@ Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature,
     int index = cell - g_game->heightMap;
     Point16 p2;
     p2.x = index % g_game->mapWidthTiles;
-    p2.z = index / g_game->mapWidthTiles;
+    p2.y = index / g_game->mapWidthTiles;
     g_seams.map->RefreshAllPassMaps(p2, f->footprint);
     return spot;
 }
@@ -1145,7 +1128,7 @@ static inline SmokePos FootprintCentreSmoke(Point16* cell, Feature* def)
     Point16 c = *cell;
     SmokePos p;
     p.x.value = (f.x + c.x * 2) << 19;
-    p.z.value = (f.z + c.z * 2) << 19;
+    p.z.value = (f.y + c.y * 2) << 19;
     p.y.value = g_seams.units->GetGroundHeight((Vec3*)&p) << 16;
     return p;
 }
@@ -1153,7 +1136,7 @@ static inline SmokePos FootprintCentreSmoke(Point16* cell, Feature* def)
 // Inlined copy of ReplaceFeatureWithBurnt: replaces a burnt-out feature with its remains.
 static inline void BurnOut(Spot* spot)
 {
-    Cell* target = g_seams.los_radar->GetMapCell(spot->cell.x, spot->cell.z);
+    Cell* target = g_seams.los_radar->GetMapCell(spot->cell.x, spot->cell.y);
     if (target != 0) {
         unsigned short id = g_game->features[spot->feature].burnt;
         RemoveFeature(target, 0);
@@ -1223,12 +1206,12 @@ void __stdcall UpdateFeatures()
         Feature* f = &g_game->features[spot->feature];
         int next = spot->prev;
         if (!f->noobject) {
-            if (spot->vel.NonZero()) {
+            if (Vec3NonZero(&spot->vel)) {
                 spot->pos += spot->vel;
                 int ground = g_seams.map->GetCellMeanHeight(&spot->pos) << 16;
                 if (spot->pos.y <= ground) {
                     spot->pos.y = ground;
-                    spot->vel = Vec3(0, 0, 0);
+                    spot->vel = FeatureVec3(0, 0, 0);
                 } else if (spot->pos.y < g_game->seaLevel << 16) {
                     spot->vel.x = 0;
                     spot->vel.y = -0x2ccc;
@@ -1258,7 +1241,7 @@ void __stdcall UpdateFeatures()
             if (spot->flags & 4)
                 StepGafSequence(&spot->shadow);
             if (spot->anim.src == 0)
-                ReplaceFeatureWithDead(spot->cell.x, spot->cell.z, 0);
+                ReplaceFeatureWithDead(spot->cell.x, spot->cell.y, 0);
         }
         i = next;
     }
@@ -1347,7 +1330,7 @@ int __stdcall RemoveFeature(Cell* cell, int flag)
         MoveFeatureSpot(cell->sf.spot, &g_game->pool.freeHead);
     }
     ClearCell(cell);
-    for (int y = 0; y < f->footprint.z; y++) {
+    for (int y = 0; y < f->footprint.y; y++) {
         Cell* row = &cell[y * g_game->mapWidthTiles];
         for (int x = 0; x < f->footprint.x; x++) {
             if (row[x].feature == 0xfffe)
@@ -1357,7 +1340,7 @@ int __stdcall RemoveFeature(Cell* cell, int flag)
     int index = cell - g_game->heightMap;
     Point16 p;
     p.x = index % g_game->mapWidthTiles;
-    p.z = index / g_game->mapWidthTiles;
+    p.y = index / g_game->mapWidthTiles;
     g_seams.map->RefreshAllPassMaps(p, f->footprint);
     return 1;
 }

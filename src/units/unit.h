@@ -147,39 +147,61 @@ struct Unit {
         };
     };
     union {
-        unsigned char activateFlags;
         struct {
-            unsigned char activate_bit0 : 1;
-            unsigned char activate_bit1 : 1;
-            unsigned char activate_bit2 : 1;
-            unsigned char activate_bit3 : 1;
-            unsigned char activate_bit4 : 1;
-            unsigned char unknown_10e : 3;
+        union {
+            unsigned char activateFlags;
+            struct {
+                unsigned char activate_bit0 : 1;
+                unsigned char activate_bit1 : 1;
+                unsigned char activate_bit2 : 1;
+                unsigned char activate_bit3 : 1;
+                unsigned char activate_bit4 : 1;
+                unsigned char unknown_10e : 3;
+            };
         };
-    };
-    union {
+        union {
+            struct {
+                unsigned char bit0 : 1;
+                unsigned char bit1 : 1;
+                unsigned char bit2 : 1;
+                unsigned char bit3 : 1;
+                unsigned char unknown_10f : 4;
+            };
+            char cobStateFlags;
+        };
+        };
         struct {
-            unsigned char bit0 : 1;
-            unsigned char bit1 : 1;
-            unsigned char bit2 : 1;
-            unsigned char bit3 : 1;
-            unsigned char unknown_10f : 4;
-        };
-        char cobStateFlags;
+            unsigned short onOff : 1;
+            unsigned short bits_10e : 15;
+        } view10e;
     };
     union {
         unsigned int flags;
         struct {
             unsigned int mode : 2;
-            unsigned int unknown_110_2 : 14;
+            unsigned int unknown_110_2 : 2;
+            unsigned int selected : 1;
+            unsigned int selectable : 1;
+            unsigned int selectState : 2;
+            unsigned int unknown_110_8 : 1;
+            unsigned int ownerIsLocal : 1;
+            unsigned int unknown_110_10 : 1;
+            unsigned int cloakOn : 1;
+            unsigned int unknown_110_12 : 1;
+            unsigned int buildLeftChanged : 1;
+            unsigned int killPending : 1;
+            unsigned int unknown_110_15 : 1;
             unsigned int moved : 1;
-            unsigned int unknown_110_17 : 1;
+            unsigned int carriedNoPiece : 1;
             unsigned int moveOrder : 2;
             unsigned int fireOrder : 2;
             unsigned int f22_23 : 2;
             unsigned int f24_25 : 2;
             unsigned int f26_27 : 2;
-            unsigned int unknown_110_28 : 4;
+            unsigned int alive : 1;
+            unsigned int immobile : 1;
+            unsigned int cargoSelectable : 1;
+            unsigned int armed : 1;
         };
         struct {
             unsigned int bits_110 : 14;
@@ -187,39 +209,11 @@ struct Unit {
             unsigned int unknown_110_15 : 17;
         } panel;
         struct {
-            unsigned int b0 : 1;
-            unsigned int b1 : 1;
-            unsigned int b2 : 1;
-            unsigned int b3 : 1;
-            unsigned int b4 : 1;
-            unsigned int b5 : 1;
-            unsigned int b6 : 1;
-            unsigned int b7 : 1;
-            unsigned int b8 : 1;
-            unsigned int b9 : 1;
-            unsigned int b10 : 1;
-            unsigned int b11 : 1;
-            unsigned int b12 : 1;
-            unsigned int b13 : 1;
-            unsigned int b14 : 1;
-            unsigned int b15 : 1;
-            unsigned int b16 : 1;
-            unsigned int b17 : 1;
-            unsigned int b18 : 1;
-            unsigned int b19 : 1;
-            unsigned int b20 : 1;
-            unsigned int b21 : 1;
-            unsigned int b22 : 1;
-            unsigned int b23 : 1;
-            unsigned int b24 : 1;
-            unsigned int b25 : 1;
-            unsigned int b26 : 1;
-            unsigned int b27 : 1;
-            unsigned int b28 : 1;
-            unsigned int b29 : 1;
-            unsigned int b30 : 1;
-            unsigned int b31 : 1;
-        } f110;
+            unsigned int bits_110_0 : 22;
+            unsigned int menuOpen : 1;
+            unsigned int page : 3;
+            unsigned int bits_110_26 : 6;
+        } menu;
     };
     union {
         int zBufferFlag;

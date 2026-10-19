@@ -17,75 +17,13 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 #pragma pack(push, 1)
 
 // Positions are read through this union (whole part at +2): gives the movsx loads.
-union Fixed {
-    int value;
-    struct {
-        unsigned short fraction;
-        short whole;
-    } parts;
-};
-
 #include "../util/vec3.h"
 #include "../util/point.h"
 #include "../graphics/rect.h"
 #include "../util/angles.h"
 #include "../units/unit_def.h"
 
-// The flags dword at +0x110 mixes plain masks with bitfields: a bitfield test
-// is a shift, a masked test is an and, and a byte test is a byte load, so the
-// union keeps every spelling the callers use.
-union UnitFlags {
-    unsigned int raw;                  // +0x110
-    unsigned char byte;                // +0x110, the low byte
-    struct {
-        unsigned int bits0 : 4;
-        unsigned int selected : 1;     // bit 4
-        unsigned int done : 1;         // bit 5
-        unsigned int state : 2;        // bits 6-7
-        unsigned int high : 24;
-    };
-    struct {
-        unsigned int bits0b : 4;
-        unsigned int bit4 : 1;         // bit 4
-        unsigned int bit5 : 1;         // bit 5
-        unsigned int bit6 : 1;         // bit 6
-        unsigned int bit7 : 1;         // bit 7
-        unsigned int bits8 : 22;
-        unsigned int bit30 : 1;        // bit 30
-        unsigned int bit31 : 1;
-    };
-    struct {
-        char unknown_110;
-        char unknown_111;
-        char unknown_112;
-        unsigned char highByte;        // +0x113
-    };
-};
-
-struct Unit {                          // 0x118 bytes
-    char unknown_0[0x64];
-    Angles16 angles;                   // +0x64
-    Fixed pos_x;                       // +0x6a
-    Fixed pos_y;                       // +0x6e
-    Fixed pos_z;                       // +0x72
-    char unknown_76[0x86 - 0x76];
-    Unit* carrier;                     // +0x86
-    char unknown_8a[0x92 - 0x8a];
-    UnitDef* def;                      // +0x92
-    char unknown_96[0xa6 - 0x96];
-    short unitDefIndex;                    // +0xa6, the type index
-    unsigned short id;                 // +0xa8
-    char unknown_aa[0xac - 0xaa];
-    int group;                      // +0xac
-    char unknown_b0[0xfb - 0xb0];
-    int postTransferHoldoff;                      // +0xfb
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x104 - 0x100];
-    float buildLeft;                   // +0x104
-    char unknown_108[0x110 - 0x108];
-    UnitFlags flags;                   // +0x110
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 // A 0x40-byte set of unit type ids, as in 0x488d30.
 class UnitTypeSet {
@@ -200,17 +138,17 @@ void CollectVisibleUnitIds(void)
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++) {
         if (u->unitDefIndex != 0) {
             UnitDef* def = u->def;
-            int ux = u->pos_x.parts.whole;
-            int uy = u->pos_y.parts.whole;
+            int ux = u->xWhole;
+            int uy = u->yWhole;
             int camy = g_game->scrollY;
             int x1 = ((short*)&def->modelMinX)[1] + ux - g_game->scrollX;
             int y2 = def->field_170 + uy;
-            int z1 = ((short*)&def->modelMinZ)[1] + u->pos_z.parts.whole - camy;
+            int z1 = ((short*)&def->modelMinZ)[1] + u->zWhole - camy;
             int x2 = ((short*)&def->modelMaxX)[1] + ux - g_game->scrollX;
             int y1 = ((short*)&def->modelMinY)[1] + uy;
-            int z2 = ((short*)&def->modelMaxZ)[1] + u->pos_z.parts.whole - g_game->scrollY;
-            if ((u->flags.raw & 3) != 1) {
-                Cell* c = GetMapCellAtPosition((Vec3*)&u->pos_x);
+            int z2 = ((short*)&def->modelMaxZ)[1] + u->zWhole - g_game->scrollY;
+            if ((u->flags & 3) != 1) {
+                Cell* c = GetMapCellAtPosition(&u->pos);
                 if (c != 0) {
                     int h = c->height;
                     if (y1 > h)
@@ -253,7 +191,7 @@ int __stdcall IsUnitVisible(char* unit)
 void ClearSelection(void)
 {
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++)
-        u->flags.raw &= 0xffffff2f;
+        u->flags &= 0xffffff2f;
     PopUntilNamedLayout(0);
 }
 
@@ -268,9 +206,9 @@ void SelectAllIdleUnits(void)
     Unit* u = pl->unitsBegin;
     if (u <= pl->unitsEnd) {
         do {
-            if ((u->flags.raw & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
-                && (u->carrier == 0 || (u->carrier->flags.raw & 0x40000000))) {
-                u->flags.raw |= 0x10;
+            if ((u->flags & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
+                && (u->carrier == 0 || (((Unit*)u->carrier)->flags & 0x40000000))) {
+                u->flags |= 0x10;
                 g_game->unitIndex = 0;
             }
             u = (Unit*)((char*)u + 0x118);
@@ -307,7 +245,7 @@ void SelectUnitsOfSameTypes(void)
     memset(selected, 0, sizeof(selected));
     {
         for (Unit* u = player->unitsBegin; u <= player->unitsEnd; u++) {
-            if (u->flags.selected) {
+            if (u->selected) {
                 unsigned int v = u->unitDefIndex & 0xffff;
                 selected[v >> 5] |= 1 << (v & 0x1f);
             }
@@ -318,7 +256,7 @@ void SelectUnitsOfSameTypes(void)
         if (f & 0x20) {
             if (u->buildLeft == 0.0f) {
                 if (u->postTransferHoldoff == 0) {
-                    if (u->carrier == 0 || (*FlagsPtr(u->carrier) & 0x40000000)) {
+                    if (u->carrier == 0 || (*FlagsPtr((Unit*)u->carrier) & 0x40000000)) {
                         unsigned int v = u->unitDefIndex & 0xffff;
                         if (selected[v >> 5] & (1 << (v & 0x1f)))
                             *FlagsPtr(u) = f | 0x10;
@@ -346,15 +284,15 @@ void __stdcall SelectUnitsByCategory(char* name, int param_2)
     Unit* u = q->unitsBegin;
 
     for (; u <= p->unitsEnd; u++) {
-        unsigned int flags = u->flags.raw;
+        unsigned int flags = u->flags;
         if ((flags & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
-            && (u->carrier == 0 || (u->carrier->flags.raw & 0x40000000))) {
+            && (u->carrier == 0 || (((Unit*)u->carrier)->flags & 0x40000000))) {
             unsigned short bits = u->unitDefIndex;
             unsigned int bit = 1 << (bits & 0x1f);
             if (mask[bits >> 5] & bit) {
-                u->flags.raw = flags | 0x10;
+                u->flags = flags | 0x10;
             } else if (param_2 == 0) {
-                u->flags.raw = flags & ~0x10;
+                u->flags = flags & ~0x10;
             }
         }
     }
@@ -374,17 +312,17 @@ void SelectAllVisibleUnits(void)
 {
     int found = 0;
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++)
-        u->flags.raw &= 0xffffff2f;
+        u->flags &= 0xffffff2f;
     PopUntilNamedLayout(0);
     unsigned short* list = g_game->visibleUnitIdList;
     for (int i = 0; i < g_game->count; i++) {
         Unit* u = &g_game->units[list[i]];
-        unsigned int flags = u->flags.raw;
+        unsigned int flags = u->flags;
         if ((flags & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
-            && (u->carrier == 0 || (u->carrier->flags.highByte & 0x40))
+            && (u->carrier == 0 || (((unsigned char*)&((Unit*)u->carrier)->flags)[3] & 0x40))
             && u->playerIndex == g_game->localPlayer) {
             found = 1;
-            u->flags.raw = flags | 0x10;
+            u->flags = flags | 0x10;
         }
     }
     if (found) {
@@ -398,7 +336,7 @@ void SelectAllVisibleUnits(void)
 void ClearUnitSelectFlags(void)
 {
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++)
-        u->flags.raw &= 0xffffff3f;
+        u->flags &= 0xffffff3f;
 }
 
 static inline Unit* GetUnit_0048c190(unsigned short i)
@@ -419,7 +357,7 @@ Unit* __stdcall FindNextSelectedUnit(Unit* unit, int dir)
         while ((unsigned short)j != p->firstIndex) {
             --j;
             Unit* v = GetUnit_0048c190((unsigned short)j);
-            if (v->flags.selected) {
+            if (v->selected) {
                 return v;
             }
         }
@@ -427,7 +365,7 @@ Unit* __stdcall FindNextSelectedUnit(Unit* unit, int dir)
         while ((unsigned short)j != x) {
             --j;
             Unit* v = GetUnit_0048c190((unsigned short)j);
-            if (v->flags.selected) {
+            if (v->selected) {
                 return v;
             }
         }
@@ -435,13 +373,13 @@ Unit* __stdcall FindNextSelectedUnit(Unit* unit, int dir)
         short j;
         for (j = x; (unsigned short)j != p->lastIndex; j++) {
             Unit* v = GetUnit_0048c190((unsigned short)(j + 1));
-            if (v->flags.selected) {
+            if (v->selected) {
                 return v;
             }
         }
         for (j = p->firstIndex - 1; (unsigned short)j != x; j++) {
             Unit* v = GetUnit_0048c190((unsigned short)(j + 1));
-            if (v->flags.selected) {
+            if (v->selected) {
                 return v;
             }
         }
@@ -456,7 +394,7 @@ void MarkLocalVisibleUnits(void)
     for (int i = 0; i < g_game->count; i++) {
         Unit* u = &g_game->units[list[i]];
         if (u->playerIndex == g_game->localPlayer)
-            u->flags.state = 1;
+            u->selectState = 1;
     }
 }
 
@@ -489,35 +427,35 @@ int __stdcall SelectUnitsInBox(void* param_1)
     int toggle = (((Select_0048c390*)param_1)->flags >> 2) & 1;
     if (!toggle) {
         for (Unit* v = g_game->units; v <= g_game->unitsEnd; v++)
-            v->flags.raw &= 0xffffff2f;
+            v->flags &= 0xffffff2f;
         PopUntilNamedLayout(0);
     }
     Player* p = &g_game->players[g_game->localPlayer];
     int count = 0;
     Unit* last;
     for (Unit* u = p->unitsBegin; u <= p->unitsEnd; u++) {
-        if ((u->flags.raw & 0x20) && u->buildLeft == 0.0f && !u->postTransferHoldoff &&
-            (!u->carrier || (u->carrier->flags.raw & 0x40000000))) {
-            int sy = (u->pos_x.parts.whole - g_game->scrollX) + 0x80;
-            int sx = (u->pos_z.parts.whole - g_game->scrollY - (u->pos_y.parts.whole >> 1)) + 0x20;
+        if ((u->flags & 0x20) && u->buildLeft == 0.0f && !u->postTransferHoldoff &&
+            (!u->carrier || (((Unit*)u->carrier)->flags & 0x40000000))) {
+            int sy = (u->xWhole - g_game->scrollX) + 0x80;
+            int sx = (u->zWhole - g_game->scrollY - (u->yWhole >> 1)) + 0x20;
             if (sy >= ymin && sy <= ymax && sx >= xmin && sx <= xmax) {
                 if (!toggle)
-                    u->flags.selected = 1;
+                    u->selected = 1;
                 else
-                    u->flags.selected = !u->flags.selected;
+                    u->selected = !u->selected;
                 found = 1;
             }
-            if (u->flags.selected) { last = u; count++; }
+            if (u->selected) { last = u; count++; }
         }
     }
     g_game->unitIndex = 0;
     for (Unit* v = g_game->units; v <= g_game->unitsEnd; v++)
-        v->flags.raw &= 0xffffff3f;
+        v->flags &= 0xffffff3f;
     unsigned short* list = g_game->visibleUnitIdList;
     for (int i = 0; i < g_game->count; i++) {
         Unit* v = &g_game->units[list[i]];
         if (v->playerIndex == g_game->localPlayer)
-            v->flags.state = 1;
+            v->selectState = 1;
     }
     if (found)
         g_game->ordersPanelFlags.byte |= 0x10;
@@ -562,9 +500,9 @@ int __stdcall HitTestUnitScreenHull(Unit* obj, Point* p)
     corners[3].x = lo.x;
     corners[3].y = lo.y;
     corners[3].z = hi.z;
-    o.x = obj->pos_x.value - (g_game->scrollX << 16);
-    o.y = obj->pos_y.value;
-    o.z = obj->pos_z.value - (g_game->scrollY << 16);
+    o.x = obj->pos.x - (g_game->scrollX << 16);
+    o.y = obj->pos.y;
+    o.z = obj->pos.z - (g_game->scrollY << 16);
     short* angles = (short*)&obj->angles;
     for (i = 0; i < 4; i++) {
         Vec3 v;
@@ -593,18 +531,18 @@ void __stdcall ClickSelectHoverUnit(Param_0048c7f0* param)
         return;
     if (unit->playerIndex != g_game->localPlayer)
         return;
-    if (!(unit->flags.raw & 0x20))
+    if (!(unit->flags & 0x20))
         return;
     if (unit->buildLeft != 0.0f)
         return;
     if (unit->postTransferHoldoff != 0)
         return;
-    if (unit->carrier != 0 && !(unit->carrier->flags.raw & 0x40000000))
+    if (unit->carrier != 0 && !(((Unit*)unit->carrier)->flags & 0x40000000))
         return;
 
     if (param->flags & 4) {
-        unit->flags.selected = !unit->flags.selected;
-        if (unit->flags.selected)
+        unit->selected = !unit->selected;
+        if (unit->selected)
             QueueUnitSpeech(unit, 1, 0);
         g_game->unitIndex = 0;
         g_game->ordersPanelFlags.flags |= 0x10;
@@ -612,15 +550,15 @@ void __stdcall ClickSelectHoverUnit(Param_0048c7f0* param)
     }
 
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++)
-        u->flags.raw &= 0xffffff2f;
+        u->flags &= 0xffffff2f;
     PopUntilNamedLayout(0);
     unsigned short* list = g_game->visibleUnitIdList;
     for (int i = 0; i < g_game->count; i++) {
         Unit* u = &g_game->units[list[i]];
         if (u->playerIndex == g_game->localPlayer)
-            u->flags.raw = u->flags.raw & 0xffffff7f | 0x40;
+            u->flags = u->flags & 0xffffff7f | 0x40;
     }
-    unit->flags.raw |= 0x10;
+    unit->flags |= 0x10;
     QueueUnitSpeech(unit, 1, 0);
     g_game->ordersPanelFlags.flags |= 0x10;
 }
@@ -628,11 +566,11 @@ void __stdcall ClickSelectHoverUnit(Param_0048c7f0* param)
 // FUNCTION: 0x48c9b0
 void __stdcall DeselectIfIneligible(Unit* unit)
 {
-    unsigned int flags = unit->flags.raw;
+    unsigned int flags = unit->flags;
     if (flags & 0x10) {
         if (!(flags & 0x20) || unit->buildLeft != 0.0f || unit->postTransferHoldoff != 0
-            || (unit->carrier != 0 && !(unit->carrier->flags.raw & 0x40000000))) {
-            unit->flags.raw = flags & ~0x10;
+            || (unit->carrier != 0 && !(((Unit*)unit->carrier)->flags & 0x40000000))) {
+            unit->flags = flags & ~0x10;
             g_game->unitIndex = 0;
             g_game->ordersPanelFlags.byte |= 0x10;
         }
@@ -648,7 +586,7 @@ void __stdcall CollectSelectedUnits(std::vector<Unit*>* list)
     list->clear();
     Player* team = &g_game->players[g_game->localPlayer];
     for (Unit* u = team->unitsBegin; u <= team->unitsEnd; u++) {
-        if (u->flags.selected)
+        if (u->selected)
             list->push_back(u);
     }
 }
@@ -673,10 +611,10 @@ void __stdcall DrawSelectedUnitOrderOverlays(void* obj, Unit** sel)
         || (sel1unit && sel1unit->def->ids)
         || (sel2unit && sel2unit->def->ids);
     for (Unit* u = team->unitsBegin; u <= team->unitsEnd; u++) {
-        if ((u->flags.raw & 0x10000000) && !(u->flags.raw & 0x4000)) {
+        if ((u->flags & 0x10000000) && !(u->flags & 0x4000)) {
             if (u == *sel || u->id == g_game->unitIndex || u->id == g_game->hoverUnitId)
                 DrawOrderOverlays(u, 0x1f, obj, sel, 1);
-            else if (u->flags.selected)
+            else if (u->selected)
                 DrawOrderOverlays(u, 0x1f, obj, sel, 0);
             else if (flag)
                 DrawOrderOverlays(u, 1, obj, sel, 1);
@@ -768,7 +706,7 @@ int __stdcall ResolveCursorModeForSelection(char arg)
 
     Player* player = &g_game->players[g_game->localPlayer];
     for (Unit* u = player->unitsBegin; u <= player->unitsEnd; u++) {
-        if (u->flags.selected)
+        if (u->selected)
             // push_back, not insert(end(), u): picks the out-of-line insert overload.
             vec.push_back(u);
     }
@@ -779,10 +717,10 @@ int __stdcall ResolveCursorModeForSelection(char arg)
     if (vec.empty()) {
         if (arg == 1 && target != 0
             && target->playerIndex == g_game->localPlayer
-            && target->flags.done
+            && target->selectable
             && target->buildLeft == 0.0f
             && target->postTransferHoldoff == 0
-            && (target->carrier == 0 || (target->carrier->flags.raw & 0x40000000)))
+            && (target->carrier == 0 || (((Unit*)target->carrier)->flags & 0x40000000)))
             return 0x0f;
         return 0x13;
     }
@@ -818,16 +756,16 @@ Unit* FindNextUnmarkedLocalUnit(void)
     Unit* u;
     for (u = player->unitsBegin; u <= player->unitsEnd; u++) {
         if (u->unitDefIndex != 0) {
-            if (u->flags.state == 0)
+            if (u->selectState == 0)
                 return u;
         }
     }
     for (Unit* p = g_game->units; p <= g_game->unitsEnd; p++) {
-        p->flags.state = 0;
+        p->selectState = 0;
     }
     for (u = player->unitsBegin; u <= player->unitsEnd; u++) {
         if (u->unitDefIndex != 0) {
-            if (u->flags.state == 0)
+            if (u->selectState == 0)
                 return u;
         }
     }
@@ -843,20 +781,20 @@ static inline Unit* PickUnit(Player* player)
     Unit* u = player->unitsBegin;
     while (u <= player->unitsEnd) {
         if (u->unitDefIndex != 0) {
-            if (u->flags.state == 0)
+            if (u->selectState == 0)
                 return u;
         }
         u++;
     }
     Unit* q = g_game->units;
     while (q <= g_game->unitsEnd) {
-        q->flags.state = 0;
+        q->selectState = 0;
         q++;
     }
     u = player->unitsBegin;
     while (u <= player->unitsEnd) {
         if (u->unitDefIndex != 0) {
-            if (u->flags.state == 0)
+            if (u->selectState == 0)
                 return u;
         }
         u++;
@@ -871,15 +809,15 @@ void FocusNextLocalUnit(void)
     if (u == 0)
         return;
     g_game->focusUnitId = u->id;
-    CenterCameraOnMapPosition((Vec3*)&u->pos_x, 1);
+    CenterCameraOnMapPosition(&u->pos, 1);
     CollectVisibleUnitIds();
     unsigned short* list = g_game->visibleUnitIdList;
     for (int i = 0; i < g_game->count; i++) {
         Unit* unit = &g_game->units[list[i]];
         if (unit->playerIndex == g_game->localPlayer)
-            unit->flags.state = 1;
+            unit->selectState = 1;
     }
-    u->flags.state = 1;
+    u->selectState = 1;
 }
 
 // Finds, in the current team's unit list, a finished unit (bit 5 of the flags
@@ -903,21 +841,20 @@ void __stdcall FocusCommander(int param_1)
     char* playerName = g_game->sideDefs[team->info->side].name;
     Unit* last = team->unitsEnd;
     for (Unit* u = team->unitsBegin; u <= last; u++) {
-        if (u->flags.done && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
-            && (u->carrier == 0 || u->carrier->flags.bit30)) {
+        if (u->selectable && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
+            && (u->carrier == 0 || ((Unit*)u->carrier)->cargoSelectable)) {
             if (strcmp(u->def->unitname, playerName) == 0) {
                 ClearCameraFollowState();
-                CenterCameraOnMapPosition((Vec3*)&u->pos_x, 1);
+                CenterCameraOnMapPosition(&u->pos, 1);
                 if (param_1 == 0)
                     return;
                 SelectStopOrder();
                 for (Unit* v = g_game->units; v <= g_game->unitsEnd; v++) {
-                    v->flags.selected = 0;
-                    v->flags.bit6 = 0;
-                    v->flags.bit7 = 0;
+                    v->selected = 0;
+                    v->selectState = 0;
                 }
                 PopUntilNamedLayout(0);
-                u->flags.selected = 1;
+                u->selected = 1;
                 g_game->ordersPanelFlags.bit4 = 1;
                 return;
             }
@@ -938,17 +875,17 @@ void __stdcall CycleSelection(void)
     Unit* last = t->unitsEnd;
 
     for (; u <= last; u++) {
-        if (u->flags.raw & 0x20) {
+        if (u->flags & 0x20) {
             if (u->buildLeft == 0.0f && u->postTransferHoldoff == 0) {
-                Unit* owner = u->carrier;
-                if (owner == 0 || (owner->flags.raw & 0x40000000)) {
+                Unit* owner = (Unit*)u->carrier;
+                if (owner == 0 || (owner->flags & 0x40000000)) {
                     if (found == 0) {
                         found = u;
                     }
-                    if (u->flags.bit4) {
+                    if (u->selected) {
                         for (Unit* q = g_game->units;
                              q <= g_game->unitsEnd; q++) {
-                            q->flags.raw &= 0xffffff2f;
+                            q->flags &= 0xffffff2f;
                         }
                         PopUntilNamedLayout(0);
                         break;
@@ -963,10 +900,10 @@ void __stdcall CycleSelection(void)
         u++;
         if (u <= t->unitsEnd) {
             do {
-                if ((u->flags.raw & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0) {
-                    Unit* owner = u->carrier;
-                    if (owner == 0 || (owner->flags.raw & 0x40000000)) {
-                        u->flags.raw |= flag;
+                if ((u->flags & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0) {
+                    Unit* owner = (Unit*)u->carrier;
+                    if (owner == 0 || (owner->flags & 0x40000000)) {
+                        u->flags |= flag;
                         g_game->unitIndex = 0;
                         goto done;
                     }
@@ -974,7 +911,7 @@ void __stdcall CycleSelection(void)
                 u++;
             } while (u <= t->unitsEnd);
         }
-        found->flags.raw |= flag;
+        found->flags |= flag;
     }
 done:
     g_game->ordersPanelFlags.flags |= flag;
@@ -988,7 +925,7 @@ void __stdcall CreateSquad(int param_1)
     Player* player = &g_game->players[g_game->localPlayer];
     for (Unit* u = player->unitsBegin; u <= player->unitsEnd; u++) {
         if (u->unitDefIndex != 0) {
-            if (u->flags.selected) {
+            if (u->selected) {
                 SetUnitSquad(u, param_1);
             } else if (u->group == param_1) {
                 SetUnitSquad(u, 0);
@@ -1018,16 +955,16 @@ bool __stdcall SelectSquad(int id, int param_2)
     // local (q, r); sharing or dropping one changes the addressing.
     Player* q = &g_game->players[g_game->localPlayer];
     for (u = q->unitsBegin; u <= q->unitsEnd; u++) {
-        if ((u->flags.byte & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
-            && (u->carrier == 0 || (u->carrier->flags.raw & 0x40000000))
+        if ((*(unsigned char*)&u->flags & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
+            && (u->carrier == 0 || (((Unit*)u->carrier)->flags & 0x40000000))
             && u->group == id && TestBit(setB, u->unitDefIndex)) {
             {
                 Player* r = &g_game->players[g_game->localPlayer];
                 for (v = r->unitsBegin;
                      v <= r->unitsEnd; v++) {
-                    if ((v->flags.raw & 0x20) && v->buildLeft == 0.0f && v->postTransferHoldoff == 0
-                        && (v->carrier == 0 || (v->carrier->flags.raw & 0x40000000))
-                        && v->group == id && (v->flags.raw & 0x80000000)) {
+                    if ((v->flags & 0x20) && v->buildLeft == 0.0f && v->postTransferHoldoff == 0
+                        && (v->carrier == 0 || (((Unit*)v->carrier)->flags & 0x40000000))
+                        && v->group == id && (v->flags & 0x80000000)) {
                         goto found_match;
                     }
                 }
@@ -1043,22 +980,22 @@ found_match:
 select_units:
     for (w = player->unitsBegin;
          w <= player->unitsEnd; w++) {
-        if ((w->flags.raw & 0x20) && w->buildLeft == 0.0f && w->postTransferHoldoff == 0
-            && (w->carrier == 0 || (w->carrier->flags.raw & 0x40000000))) {
+        if ((w->flags & 0x20) && w->buildLeft == 0.0f && w->postTransferHoldoff == 0
+            && (w->carrier == 0 || (((Unit*)w->carrier)->flags & 0x40000000))) {
             if (w->group == id) {
                 if (found) {
                     if (TestBit(setA, w->unitDefIndex)) {
-                        w->flags.raw &= ~0x10;
+                        w->flags &= ~0x10;
                     } else {
-                        w->flags.raw |= 0x10;
+                        w->flags |= 0x10;
                         cnt++;
                     }
                 } else {
-                    w->flags.raw |= 0x10;
+                    w->flags |= 0x10;
                     cnt++;
                 }
             } else if (param_2 == 0) {
-                w->flags.raw &= ~0x10;
+                w->flags &= ~0x10;
             }
         }
     }
@@ -1085,8 +1022,8 @@ int __stdcall SquadHasCtrlFMember(int id)
     if (u > end)
         return 0;
     while (u <= end) {
-        if ((u->flags.byte & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
-            && (u->carrier == 0 || (u->carrier->flags.raw & 0x40000000))
+        if ((*(unsigned char*)&u->flags & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
+            && (u->carrier == 0 || (((Unit*)u->carrier)->flags & 0x40000000))
             && u->group == id && TestBit(set, u->unitDefIndex))
             return 1;
         u++;
@@ -1106,12 +1043,12 @@ int __stdcall SquadHasReadyMember(int param_1)
 {
     Player* player = &g_game->players[g_game->localPlayer];
     for (Unit* u = player->unitsBegin; u <= player->unitsEnd; u++) {
-        unsigned int flags = u->flags.raw;
+        unsigned int flags = u->flags;
         if (flags & 0x20) {
             if (u->buildLeft == 0.0f) {
                 if (u->postTransferHoldoff == 0) {
-                    Unit* owner = u->carrier;
-                    if (owner == 0 || (owner->flags.raw & 0x40000000)) {
+                    Unit* owner = (Unit*)u->carrier;
+                    if (owner == 0 || (owner->flags & 0x40000000)) {
                         if (u->group == param_1) {
                             if (flags & 0x80000000)
                                 return 1;
