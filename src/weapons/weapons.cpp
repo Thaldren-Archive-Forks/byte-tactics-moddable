@@ -201,7 +201,6 @@ int HAPINET_enumconnections(void*, void*, unsigned long, void*, unsigned long, v
 int PickRandomReclaimableResourcesInRadius(int, int, int, int, int, int);
 int CreateUnit(int, int, int, int, int, int);
 
-struct Projectile_00499eb0;
 struct MapFeature_0049b090;
 
 // The game state, as the weapon code sees it. The time word keeps one name per
@@ -379,19 +378,12 @@ void __stdcall RockUnit(Object_00499c10* obj, Source_00499c10* src)
 
 #include "../ai/squad_manager.h"
 
-#pragma pack(push, 1)
-struct Weapon_499c70 {
-    char unknown_0[0x52];
-    Unit* attacker;                    // +0x52
-    char unknown_56[0x66 - 0x56];
-    unsigned char owner;               // +0x66
-};
-#pragma pack(pop)
+#include "projectile.h"
 
-unsigned short __stdcall ApplyWeaponDamage(Weapon_499c70* weapon, Unit* target, float scale);
+int __stdcall ApplyWeaponDamage(Projectile* weapon, Unit* target, float scale);
 
 // FUNCTION: 0x499c70
-void __stdcall ApplyWeaponHit(Weapon_499c70* weapon, Unit* target)
+void __stdcall ApplyWeaponHit(Projectile* weapon, Unit* target)
 {
     unsigned short damage = ApplyWeaponDamage(weapon, target, 1.0f);
     Unit* attacker = weapon->attacker;
@@ -402,7 +394,7 @@ void __stdcall ApplyWeaponHit(Weapon_499c70* weapon, Unit* target)
             a = damage;
         else
             b = damage;
-        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(attacker->player->ai, 0, (Projectile*)weapon, a, b);
+        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(attacker->player->ai, 0, weapon, a, b);
     }
 }
 
@@ -425,17 +417,6 @@ struct Table_00499cd0 {
     char unknown_0[5];
     Pair_00499cd0* first;           // +0x5
     Pair_00499cd0* last;            // +0x9
-};
-
-struct Weapon_00499cd0 {
-    WeaponDef* def;                 // +0x0
-    int x;                          // +0x4
-    int y;                          // +0x8
-    int z;                          // +0xc
-    char unknown_10[0x52 - 0x10];
-    Unit* attacker;                 // +0x52
-    char unknown_56[0x66 - 0x56];
-    unsigned char owner;            // +0x66
 };
 
 struct Flags_00499cd0 {
@@ -475,10 +456,10 @@ static inline int* Find_00499cd0(Table_00499cd0* table, char* name)
 // and handed to DamageUnit together with the angle from the weapon to the
 // target minus the target's heading.
 // FUNCTION: 0x499cd0
-int __stdcall ApplyWeaponDamage(Weapon_00499cd0* weapon, Unit* target,
+int __stdcall ApplyWeaponDamage(Projectile* weapon, Unit* target,
                            float scale)
 {
-    WeaponDef* def = weapon->def;
+    WeaponDef* def = weapon->type;
     int damage = def->damage;
     Table_00499cd0* table = def->table;
     if (table) {
@@ -487,8 +468,8 @@ int __stdcall ApplyWeaponDamage(Weapon_00499cd0* weapon, Unit* target,
             damage = *p;
     }
     damage = (int)(damage * scale);
-    short angle = FUN_004b715a(weapon->x - target->pos.x,
-                               weapon->z - target->pos.z) - target->heading;
+    short angle = FUN_004b715a(weapon->position.x - target->pos.x,
+                               weapon->position.z - target->pos.z) - target->heading;
     Unit* attacker = weapon->attacker;
     if (attacker) {
         int armour = attacker->killCount / 5;
@@ -501,33 +482,18 @@ int __stdcall ApplyWeaponDamage(Weapon_00499cd0* weapon, Unit* target,
         damage *= 2;
     if (flags->flag8)
         damage /= 2;
-    bool paralyzer = weapon->def->flags.b.paralyzer;
+    bool paralyzer = weapon->type->flags.b.paralyzer;
     int type = paralyzer ? 2 : 1;
     DamageUnit(attacker, target, damage, type, angle);
     return damage;
 }
 
-#pragma pack(push, 1)
-
-struct Projectile_00499eb0 {
-    WeaponDef* type;
-    Vec3_0049b720 position;
-    char unknown_10[0x52 - 0x10];
-    Unit* unit;
-    char unknown_56[0x66 - 0x56];
-    unsigned char owner;
-    char unknown_67[2];
-    // Stays unsigned short: gives the single byte OR with 2.
-    unsigned short flags;
-};
-
-#pragma pack(pop)
 
 // FUNCTION: 0x499e50
-void __stdcall UntrackProjectile(Projectile_00499eb0* projectile)
+void __stdcall UntrackProjectile(Projectile* projectile)
 {
     if (projectile == (void *)g_game->tracked) {
-        g_game->trackedPos = ((Projectile_00499eb0 *)g_game->tracked)->position;
+        g_game->trackedPos = ((Projectile *)g_game->tracked)->position;
         g_game->value_1434b = projectile->type->holdTime;
         (*(void **)&g_game->tracked) = 0;
     }
@@ -538,11 +504,10 @@ void __stdcall AccumulateScreenShake(int a, int b, int c);void __stdcall AddExpl
 void __stdcall EmitWhiteSmoke(Vec3_0049b720* position, int value);
 // The sound id stays unsigned int: gives the original's zero extension.
 void __stdcall PlaySoundAt(unsigned int sound, Vec3_0049b720* position, int value);
-int __stdcall ApplyWeaponDamage(Projectile_00499eb0* projectile, Unit* unit, float scale);
-void __stdcall ApplyAreaDamage(Projectile_00499eb0* projectile, Vec3_0049b720* position);
+void __stdcall ApplyAreaDamage(Projectile* projectile, Vec3_0049b720* position);
 
 // FUNCTION: 0x499eb0
-void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
+void __stdcall DetonateProjectile(Projectile* projectile, Unit* unit)
 {
     int hostile = 0;
     WeaponDef* type = projectile->type;
@@ -552,7 +517,7 @@ void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
         hostile = value[5] < g_game->seaLevel;
     if (!type->flags.b.noExplode) {
         if (projectile == (void *)g_game->tracked) {
-            g_game->trackedPos = ((Projectile_00499eb0 *)g_game->tracked)->position;
+            g_game->trackedPos = ((Projectile *)g_game->tracked)->position;
             g_game->value_1434b = projectile->type->holdTime;
             (*(void **)&g_game->tracked) = 0;
         }
@@ -560,7 +525,7 @@ void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
     }
     if (((Net *)g_game->net)->noSeaLevelTrigger && hostile && !unit) {
         if (projectile == (void *)g_game->tracked) {
-            g_game->trackedPos = ((Projectile_00499eb0 *)g_game->tracked)->position;
+            g_game->trackedPos = ((Projectile *)g_game->tracked)->position;
             g_game->value_1434b = projectile->type->holdTime;
             (*(void **)&g_game->tracked) = 0;
         }
@@ -583,7 +548,7 @@ void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
     if (!record->active || record->type != 3) {
         if (type->areaOfEffect <= 0x10 && unit) {
             int damage = ApplyWeaponDamage(projectile, unit, 1.0f);
-            Unit* source = projectile->unit;
+            Unit* source = projectile->attacker;
             if (source) {
                 int a = 0;
                 int b = 0;
@@ -591,7 +556,7 @@ void __stdcall DetonateProjectile(Projectile_00499eb0* projectile, Unit* unit)
                     a = damage;
                 else
                     b = damage;
-                g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(source->player->ai, 0, (Projectile*)projectile, a & 0xffff, b & 0xffff);
+                g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(source->player->ai, 0, projectile, a & 0xffff, b & 0xffff);
                 return;
             }
         } else {

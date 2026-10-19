@@ -207,10 +207,7 @@ struct Target_00406f50 {
     unsigned short bit7_15 : 9;
 };
 
-struct Obj_00406f50 {
-    char unknown_0[0x52];
-    Target_00406f50* target;           // +0x52
-};
+#include "../weapons/projectile.h"
 
 // Vtable 0x4fc980, constructor 0x407350, ??_G 0x407390.
 class SquadTimer {
@@ -604,9 +601,9 @@ void FUN_00406f40(void)
 }
 
 // FUNCTION: 0x406f50
-void SquadManager::MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50* obj, int a, int b)
+void SquadManager::MarkOwnerNetDirtyFromDamageSplit(Projectile* projectile, int a, int b)
 {
-    Target_00406f50* t = obj->target;
+    Target_00406f50* t = (Target_00406f50*)projectile->attacker;
     if (t) {
         if (a > b * 2) {
             t->flag6 = 1;
