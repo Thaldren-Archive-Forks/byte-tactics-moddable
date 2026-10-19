@@ -1030,8 +1030,8 @@ harness,orders,shared_write,Game::playerIndex,1
 harness,pathfinding,shared_write,Game::field_2a3c,1
 harness,platform,call,GetMemSetValue,1
 harness,platform,call,IsMemSet,1
-harness,platform,call,host_exit,1
-harness,platform,call,host_log,1
+harness,platform,call,host_exit,2
+harness,platform,call,host_log,3
 harness,players,call,HarnessConditionClass,1
 harness,players,call,ResetPlayerSlots,1
 harness,players,shared_write,Game::difficulty,3
