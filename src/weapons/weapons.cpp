@@ -379,6 +379,7 @@ void __stdcall RockUnit(Object_00499c10* obj, Source_00499c10* src)
 #include "../ai/squad_manager.h"
 
 #include "projectile.h"
+#include "damage_table.h"
 
 int __stdcall ApplyWeaponDamage(Projectile* weapon, Unit* target, float scale);
 
@@ -413,12 +414,6 @@ struct NameLess_00499cd0 {
 };
 
 #pragma pack(push, 1)
-struct Table_00499cd0 {
-    char unknown_0[5];
-    Pair_00499cd0* first;           // +0x5
-    Pair_00499cd0* last;            // +0x9
-};
-
 struct Flags_00499cd0 {
     unsigned short bits0_6 : 7;
     unsigned short flag7 : 1;       // bit 7, 0x80
@@ -434,8 +429,8 @@ void __stdcall DamageUnit(Unit* source, Unit* target,
 static inline int* Find_00499cd0(Table_00499cd0* table, char* name)
 {
     NameLess_00499cd0 less;
-    Pair_00499cd0* first = table->first;
-    Pair_00499cd0* last = table->last;
+    Pair_00499cd0* first = (Pair_00499cd0*)table->v.begin();
+    Pair_00499cd0* last = (Pair_00499cd0*)table->v.end();
     while (first != last) {
         Pair_00499cd0* mid = first + (last - first) / 2;
         if (less(mid->name, name))
@@ -443,7 +438,7 @@ static inline int* Find_00499cd0(Table_00499cd0* table, char* name)
         else
             last = mid;
     }
-    if (first == table->last || less(name, first->name))
+    if (first == (Pair_00499cd0*)table->v.end() || less(name, first->name))
         return 0;
     return &first->value;
 }

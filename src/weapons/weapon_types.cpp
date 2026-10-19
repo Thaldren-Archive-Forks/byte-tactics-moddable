@@ -6,6 +6,7 @@
 
 #include "../util/tdf.h"
 #include "weapon_def.h"
+#include "damage_table.h"
 
 // 3.14159265358979 / 180 is exactly the exe's 0.017453292519943278.
 #define PI 3.14159265358979
@@ -48,26 +49,18 @@ struct Entry_00432cf0 {
     Entry_00432cf0(const StringRef& n, int v) : name(n), value(v) {}
 };
 
-#pragma pack(push, 1)
-// The damage table, kept sorted by name.
-struct Table_00499cd0 {
-    char less;                     // +0x0
-    std::vector<Entry_00432cf0> v; // +0x1
-
-    Entry_00432cf0* LowerBound(const char* key) {
-        Entry_00432cf0* first = v.begin();
-        Entry_00432cf0* last = v.end();
-        while (first != last) {
-            Entry_00432cf0* mid = first + (last - first) / 2;
-            if (Less(mid->name.ptr, key))
-                first = mid + 1;
-            else
-                last = mid;
-        }
-        return first;
+static inline Entry_00432cf0* LowerBound(Table_00499cd0* table, const char* key) {
+    Entry_00432cf0* first = table->v.begin();
+    Entry_00432cf0* last = table->v.end();
+    while (first != last) {
+        Entry_00432cf0* mid = first + (last - first) / 2;
+        if (Less(mid->name.ptr, key))
+            first = mid + 1;
+        else
+            last = mid;
     }
-};
-#pragma pack(pop)
+    return first;
+}
 
 void __stdcall SetWeaponFireHandler(WeaponDef*);
 
@@ -290,7 +283,7 @@ model_done:
                     w->table = new (kSim) Table_00499cd0;
                 StringRef name(key);
                 Table_00499cd0* m = w->table;
-                Entry_00432cf0* e = m->LowerBound(name.ptr);
+                Entry_00432cf0* e = LowerBound(m, name.ptr);
                 // insert called here, not in a helper (inline depth); e assigned
                 // first, then &e->value taken in each arm.
                 int* r;

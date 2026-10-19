@@ -15,6 +15,7 @@
 #include "../src/game/unit_resources.h"
 #include "../src/weapons/unit_weapon_slot.h"
 #include "../src/weapons/weapon_def.h"
+#include "../src/weapons/damage_table.h"
 
 #pragma pack(push, 1)
 
@@ -13138,12 +13139,6 @@ struct Flags_00499cd0 {  // 0x2 bytes, 1 view
 struct NameLess_00499cd0 {  // 0x1 bytes, 1 view
     char unknown_0[1];
     unsigned char operator()(char*, char*);
-};
-
-struct Table_00499cd0 {  // 0xd bytes, 1 view
-    char unknown_0[5];
-    Pair_00419560* first;  // +0x5
-    Pair_00419560* last;  // +0x9
 };
 
 struct UnitType_499e50 {  // 0x100 bytes, 1 view
