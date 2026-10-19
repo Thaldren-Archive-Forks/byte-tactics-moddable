@@ -15,12 +15,7 @@
 #include "mission_type.h"
 
 struct Unit;
-class UnitMotion {
-public:
-    char unknown_0[0x2e];
-    unsigned char flags;               // +0x2e
-    void SetFlightMode(Unit* unit, int state);
-};
+#include "unit_motion.h"
 
 class Class_0044e6c0 { public: void SetAltitude(int); };
 class Class_0044e730 { public: void SetApproachRadius(short); };
@@ -29,27 +24,7 @@ class Class_0044e730 { public: void SetApproachRadius(short); };
 #include "../units/unit_def.h"
 #include "../network/player.h"
 #include "../units/unit.h"
-struct Order {
-    char pad0[5]; unsigned char state; unsigned int flags;
-    char padA[0x22 - 0xa]; Vec3 pos;
-    char pad2e[0x4e - 0x2e]; unsigned int subFlags;
-    void AnnounceStatusIfFlagged(const char*);
-    void SetAttachedFx(int);
-    void SetDeadlineTicks(int);
-    Order(MissionType type, int a, Vec3* b, int c, int d, int e);
-    char unknown_52[0x4];
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
-    ~Order();
-    Order(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-    int Advance(int distance);
-};
+#include "order.h"
 class Class_0044e2d0 {
 public:
     char unknown_0[0x36];
@@ -100,7 +75,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         ((Class_0044e6c0*)obj)->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -121,7 +96,7 @@ int __stdcall VtolPatrolOrder(Unit* unit, Order* order, int flags)
         Vec3 dest = AddVec3(order->pos, Offset(angle, 0x1400000));
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         ((Class_0044e730*)obj)->SetApproachRadius(0x150);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= 0xe0;
         // Landing block stays inline, no helper: the landed path returns 0
         // through the plain scope-exit destructor.
@@ -131,7 +106,7 @@ int __stdcall VtolPatrolOrder(Unit* unit, Order* order, int flags)
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];
-                AppendOrder(unit, new (kSim) Order("VTOL_LANDING", (int)target, 0, 0, 0, 0));
+                AppendOrder(unit, new (kSim) Order("VTOL_LANDING", target, 0, 0, 0, 0));
                 order->flags = 0;
                 return 0;
             }

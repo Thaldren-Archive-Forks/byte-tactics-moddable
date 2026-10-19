@@ -11,7 +11,7 @@ static inline Vec Sub(const Vec& a,const Vec& b) { Vec r; r.x=a.x-b.x; r.y=a.y-b
 struct Def { char pad[0x15e]; Vec low, high; };
 
 #include "../units/unit.h"
-struct Order { char pad[0x22]; Vec pos; };
+#include "order.h"
 #include "../game/game.h"
 #pragma pack(pop)
 extern Game* g_game;
@@ -23,7 +23,7 @@ int __stdcall TeleportOrder(Unit* unit,Order* order,int unused)
     Vec high = Add(*(Vec*)&unit->pos, ((Def*)unit->def)->high);
     for(Unit* p=g_game->units;p<=g_game->unitsEnd;++p) {
         if(p->pos.x >= low.x && p->pos.x <= high.x && p->pos.z >= low.z && p->pos.z <= high.z && p->pos.y >= low.y && p->pos.y <= high.y && unit != p) {
-            Vec dest = Sub(Add(order->pos,*(Vec*)&p->pos),*(Vec*)&unit->pos);
+            Vec dest = Sub(Add(*(Vec*)&order->pos,*(Vec*)&p->pos),*(Vec*)&unit->pos);
             EmitTeleportParticles((Vec*)&p->pos,&dest,30,5);
             g_seams.units->SetUnitPosition(p,*(Vec3*)&dest,1);
         }

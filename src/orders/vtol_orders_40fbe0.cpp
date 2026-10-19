@@ -15,20 +15,9 @@ struct Order;
 struct WeaponDef { char pad0[0xdc]; int range; char pade0[0x111-0xe0]; unsigned int flags; };
 #include "../units/unit_def.h"
 struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index; };
-class UnitMotion { public: char pad0[0x2e]; unsigned char flags; void SetFlightMode(Unit*, int); };
+#include "unit_motion.h"
 #include "../units/unit.h"
-struct Order { char pad0[4]; MissionType kind; unsigned char state; unsigned int flags; char pada[12]; Unit* target; char pad1a[8]; Vec3 pos; char pad2e[8]; int angle, parity; char pad3e[4]; unsigned int capabilities; char pad46[4]; int next; void AnnounceStatusIfFlagged(const char*); void SetAttachedFx(int); void AttachApproachRadiusGoal(Vec3*, int); void SetDeadlineTicks(int); Order(MissionType, Unit*, Vec3*, int, int, int); char unknown_4e[0x8];           // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
-    ~Order();
-    Order(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-    int Advance(int distance);
-};
+#include "order.h"
 
 class Class_0044e2d0 {
 public:
@@ -75,7 +64,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
             order->flags|=0xe0;
-            order->SetAttachedFx((int)move);
+            order->SetAttachedFx((OrderFx*)move);
             return 2;
         }
         // Copied through a pointer: assigning order->pos directly changes codegen.
@@ -92,7 +81,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                     ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     move->SetAltitude(unit->def->altitude/2);
-                    order->SetAttachedFx((int)move);
+                    order->SetAttachedFx((OrderFx*)move);
                     order->flags|=0xe0;
                 }
                 order->angle=RandomInt(0x10000);
@@ -144,9 +133,9 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             if (order->target->list && order->target->list->kind.index && (unit->def->flags1&0x40) &&
                 g_seams.units->CanRepair(unit, 0, order->target->list->target) &&
                 (order->target->def->flags1&0x40) && order->target->list &&
-                (order->target->list->capabilities&0x100000) && unit!=order->target->list->target) {
+                (order->target->list->flags_42&0x100000) && unit!=order->target->list->target) {
                 int building = order->target->list->kind=="MobileBuild" || order->target->list->kind=="BuildingBuild" || order->target->list->kind=="VTOL_MobileBuild";
-                int actionable = ((order->target->list->capabilities&0x200) && order->target->list->target) || (order->target->list->capabilities&0x400);
+                int actionable = ((order->target->list->flags_42&0x200) && order->target->list->target) || (order->target->list->flags_42&0x400);
                 MissionType kind;
                 if (!building && actionable) {
                     kind=order->target->list->kind;
@@ -173,7 +162,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             else pos=order->target->pos+Offset(angle,0x1400000);
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
-            order->SetAttachedFx((int)move);
+            order->SetAttachedFx((OrderFx*)move);
             order->SetDeadlineTicks(30);
             order->flags|=0xf8;
             return 2;

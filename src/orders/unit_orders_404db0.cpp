@@ -44,32 +44,7 @@ struct UnitDef {
 
 #include "../units/unit.h"
 
-struct Order {
-    char unknown_0[5];
-    unsigned char state;               // +0x5
-    unsigned int flags;                // +0x6
-    char unknown_a[0x12 - 0xa];
-    PathOrderAttach target;            // +0x12
-    Vec3 pos;                          // +0x22
-    char unknown_2e[0x36 - 0x2e];
-    int unitType;                      // +0x36
-    int time;                          // +0x3a
-    void AttachBuildFootprintMarker(Point16 cell, Point16 size);
-    void SetDeadlineTicks(int ticks);
-    Order(MissionType type, Unit* target, void* pos, int c, int d, int e);
-    char unknown_3e[0x18];
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
-    ~Order();
-    Order(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-    int Advance(int distance);
-};
+#include "order.h"
 
 #include "../game/game.h"
 
@@ -150,12 +125,12 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
             QueueUnitSpeech(unit, 7, "Ressurection failed");
             return 8;
         }
-        order->time = (int)(g_game->defs[order->unitType].buildTime * 0.3 / (unit->def->workerTime / 30));
+        order->countdown = (int)(g_game->defs[order->unitType].buildTime * 0.3 / (unit->def->workerTime / 30));
         QueueUnitSpeech(unit, 11, 0);
         return 1;
     }
     case 4:
-        if (order->time--) {
+        if (order->countdown--) {
             Vec3 nano;
             g_seams.units->GetNanoPiecePosition(unit, &nano);
             Box box;
@@ -173,8 +148,8 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         }
         break;
     case 5: {
-        order->target.SetUnit(g_seams.units->CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
-        if (!order->target.owner) {
+        order->link.SetUnit(g_seams.units->CreateUnit(unit->playerIndex, order->unitType, order->pos, 0, 1, 0));
+        if (!order->target) {
             QueueUnitSpeech(unit, 7, "Unable to create any more units");
             order->SetDeadlineTicks(300);
             return 2;
@@ -184,7 +159,7 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
             return 8;
         FeatureSpot* spot = &g_game->spots[c->spot];
         if (spot)
-            order->target.owner->angles = spot->rot;
+            order->target->angles = spot->rot;
         g_seams.features->RemoveFeature(g_seams.los_radar->GetMapCellAtPosition(&order->pos), 0);
         if (g_seams.map->GetGameType(g_game->net) == 3) {
             FeatureDamagePacket packet;
@@ -199,16 +174,16 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
             packet.z = xz.y;
             BroadcastPacket(unit->player->id, &packet, 6);
         }
-        order->target.owner->buildLeft = 0;
-        order->target.owner->health = 1;
+        order->target->buildLeft = 0;
+        order->target->health = 1;
         MarkSelectionOrdersDirty(unit);
         break;
     }
     case 6: {
         QueueUnitSpeech(unit, 8, "Resurrection complete");
-        MissionType kind = GetOrderType(8, unit, order->target.owner, 0);
+        MissionType kind = GetOrderType(8, unit, order->target, 0);
         if (kind.index)
-            AppendOrder(unit, new (kSim) Order(kind, order->target.owner, 0, 0, 0, 0));
+            AppendOrder(unit, new (kSim) Order(kind, order->target, 0, 0, 0, 0));
         return 5;
     }
     default:

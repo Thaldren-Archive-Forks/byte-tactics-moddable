@@ -75,20 +75,9 @@ struct ActivateFlagsPacket {
 
 extern Game* g_game;
 
-// One virtual slot, called on the object a link belongs to.
-class OrderBase {
-public:
-    virtual void OrStatusFlags(unsigned int value);
-};
+#include "../orders/order_base.h"
 
-// The links of the owner's list; the head of a unit's list is at +0xa2.
-class PathOrderAttach {
-public:
-    void* vptr;                        // +0x0
-    void* owner;                       // +0x4
-    PathOrderAttach* next;             // +0x8
-    OrderBase* value;                  // +0xc
-};
+#include "../orders/path_order_attach.h"
 
 #include "unit.h"
 
@@ -307,7 +296,7 @@ void Unit::SetStateBits(int mask, int set)
                 QueueUnitSpeech(this, 0xe, 0);
                 for (link = head; link; link = link->next) {
                     if (link->value)
-                        link->value->OrStatusFlags(0x10000);
+                        ((OrderBase*)link->value)->OrStatusFlags(0x10000);
                 }
             }
             if (lost & 4)

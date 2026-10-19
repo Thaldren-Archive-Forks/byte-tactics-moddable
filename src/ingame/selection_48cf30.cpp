@@ -27,12 +27,7 @@ public:
     OrderTypeEntry* GetTableEntry();
 };
 
-// A unit type index built from a name.
-class MissionType {
-public:
-    unsigned char index;
-    MissionType(const char* name);
-};
+#include "../orders/mission_type.h"
 
 // Not units/unit_def.h: its symbol ids move 0x48cf30 out of its window.
 struct UnitDef_0048cf30 {

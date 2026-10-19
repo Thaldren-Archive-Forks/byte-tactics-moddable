@@ -188,33 +188,14 @@ void UnitRef::UnlinkFromUnit()
     }
 }
 
-class PathOrderAttach {
-public:
-    Unit* owner;                       // +0x4
-    PathOrderAttach* next;             // +0x8
-    Listener_004896f0* value;          // +0xc
-
-    PathOrderAttach(Unit* o, int v);
-    virtual ~PathOrderAttach()
-    {
-        if (owner != 0) {
-            PathOrderAttach** pp = &owner->head;
-            while (*pp != this)
-                pp = &(*pp)->next;
-            *pp = next;
-            owner = 0;
-            next = 0;
-        }
-    }
-    void SetUnit(Unit* o);
-};
+#include "../orders/path_order_attach.h"
 
 // A link that registers itself in its owner's list (head at +0xa2) when the
 // owner is set and its flag at +0xa6 is non-zero. The only vtable slot is
 // the scalar deleting destructor (0x489600), which unlinks it again.
 // FUNCTION: 0x4895c0
 PathOrderAttach::PathOrderAttach(Unit* o, int v)
-    : value((Listener_004896f0*)v)
+    : value((void*)v)
 {
     if (o != 0 && o->unitDefIndex != 0) {
         owner = o;
@@ -240,6 +221,18 @@ PathOrderAttach::PathOrderAttach(Unit* o, int v)
 void UnitRef::Unlink()
 {
     ((PathOrderAttach*)this)->PathOrderAttach::~PathOrderAttach();
+}
+
+inline PathOrderAttach::~PathOrderAttach()
+{
+    if (owner != 0) {
+        PathOrderAttach** pp = &owner->head;
+        while (*pp != this)
+            pp = &(*pp)->next;
+        *pp = next;
+        owner = 0;
+        next = 0;
+    }
 }
 
 // Moves the link to a new owner: unlinks it from the current owner's list

@@ -1,14 +1,11 @@
-// Order: one unit order record (0x56 bytes), a node of the unit's order lists
-// at +0x5c and +0x60. The one declaration of the record for the files that call
-// its methods or read its fields; order_list.cpp and order_queue_4384a0.cpp,
-// which define the methods and own the polymorphic base, keep their own views
-// (order_list.cpp needs `kind(k)` as a member initialiser, order_queue_4384a0.cpp
-// a second base). The types behind the pointers stay private to their own files.
 #ifndef ORDER_H
 #define ORDER_H
 
+#ifndef TA_TYPES_H
 #include "../util/vec3.h"
+#endif
 #include "mission_type.h"
+#include "path_order_attach.h"
 
 struct Unit;
 class OrderFx;
@@ -36,16 +33,35 @@ struct Order {
             unsigned int waiting : 1;
             unsigned int high : 16;
         };
+        struct {
+            unsigned int flag_0 : 1;
+            unsigned int flag_1 : 1;
+            unsigned int flag_2 : 1;
+            unsigned int started : 1;
+            unsigned int flag_rest : 28;
+        } groups;
     };
     unsigned int wakeFrame;        // +0x0a
-    Unit* unit;                    // +0x0e
-    char unknown_12[4];
-    Unit* target;                  // +0x16, the link's owner
-    char unknown_1a[8];
+    union {
+        Unit* unit;
+        Unit* source;
+    };
+    union {
+        struct {
+            char unknown_12[4];
+            Unit* target;
+            char unknown_1a[8];
+        };
+        PathOrderAttach link;
+    };
     Vec3 pos;                      // +0x22
     // One-arm unions: each costs symbol ids the including files match at.
     union {
         Point16 start;             // +0x2e
+        struct {
+            short x;
+            short z;
+        };
     };
     union {
         Point16 cached;            // +0x32
@@ -99,15 +115,16 @@ struct Order {
     void SetDeadlineTicks(int param);
     void ReattachFxToUnit();
     void MergeFlagsFromTable(int k);
+    void MergeFlagsFromTable(MissionType k);
     void OrStatusFlags(unsigned int flags);
     void SetAttachedFx(OrderFx* obj);
     void AttachApproachRadiusGoal(Vec3* pos, int n);
     void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
     void AttachBuildFootprintMarker(Point16 cell, Point16 size);
     void AnnounceStatusIfFlagged(const char* text);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
+    Unit* Target() { return target; }
+    void Wait() { waiting = 1; }
+    Vec3* Position() { return &pos; }
     int Advance(int distance);
     int SerializeToSave(Unit* unit, HapiBank* file, char* name);
 };

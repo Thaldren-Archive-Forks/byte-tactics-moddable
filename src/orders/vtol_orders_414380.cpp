@@ -20,14 +20,14 @@ static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 }
 
 struct Unit;
-class UnitMotion { public: char pad0[0x2e]; unsigned char flags; void SetFlightMode(Unit*,int); };
+#include "unit_motion.h"
 
 class Class_0044e730 { public: void SetApproachRadius(int); };
 class Class_0044e720 { public: void SetHeading(int); };
 class Class_0044e6c0 { public: void SetAltitude(int); };
-class MissionType { public: unsigned char index; MissionType(const char*); };
+#include "mission_type.h"
 
-class PathOrderAttach { public: void SetUnit(Unit*); };
+#include "path_order_attach.h"
 #pragma pack(push, 1)
 struct UnitDef {
     char pad0[0x14a]; PointS16 origin;
@@ -52,31 +52,7 @@ struct UnitRef {
     // The empty do-while is a debug check that compiles to nothing.
     Unit* Get() { do {} while (0); return ptr; }
 };
-struct Order {
-    char pad0[5]; unsigned char state;
-    unsigned int flags;
-    char padA[0x12-0xa]; UnitRef target;
-    char pad1A[8]; Vec3 pos;
-    char pad2E[8]; int type;
-    int unused; int retries;
-    void AnnounceStatusIfFlagged(const char*);
-    void SetAttachedFx(int);
-    void AttachBuildFootprintMarker(PointS16, PointS16);
-    void SetDeadlineTicks(int);
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
-    ~Order();
-    Order(Unit* unit, void* file, char* name);
-    int SerializeToSave(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    void AttachApproachRadiusGoal(Vec3* pos, int radius);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-    int Advance(int distance);
-};
+#include "order.h"
 #include "../game/game.h"
 class Class_0044e2d0 { public: char data[0x36]; Class_0044e2d0(Order*,const Vec3&); };
 #pragma pack(pop)
@@ -115,7 +91,7 @@ struct Feature;
 // FUNCTION: 0x414380
 int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
 {
-    if (order->target.Get() && !(flags&8)) {
+    if (order->target && !(flags&8)) {
         if (flags&2) { MarkSelectionOrdersDirty(unit); return 5; }
         unsigned int state=0; state=order->state;
         switch(state) {
@@ -132,7 +108,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
                     ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
-                    order->SetAttachedFx((int)move);
+                    order->SetAttachedFx((OrderFx*)move);
                     order->flags|=0xe0;
                 }
                 return 1;
@@ -141,41 +117,41 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
         break;
     case 1: {
         order->retries=0;
-        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,order->target.Get()->pos);
+        Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,order->target->pos);
         ((Class_0044e730*)move)->SetApproachRadius(unit->def->buildRange);
-        order->SetAttachedFx((int)move);
+        order->SetAttachedFx((OrderFx*)move);
         order->flags=0xe0;
         return 1;
     }
     case 2:
         if (flags&0x40) return 8;
-        if (order->target.Get()->buildLeft==0.0f) return 5;
-        StartBuildingScript(unit,order,(short)GetHeadingBetween(&unit->pos,&order->target.Get()->pos));
+        if (order->target->buildLeft==0.0f) return 5;
+        StartBuildingScript(unit,order,(short)GetHeadingBetween(&unit->pos,&order->target->pos));
         MarkSelectionOrdersDirty(unit);
         return 1;
     case 3: {
         if ((unsigned int)g_game->ticks%150==0) {
-            int angle=GetHeadingBetween(&unit->pos,&order->target.Get()->pos);
+            int angle=GetHeadingBetween(&unit->pos,&order->target->pos);
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
-            Vec3* base=&order->target.Get()->pos;
+            Vec3* base=&order->target->pos;
             Vec3 pos=PosMinus(*base,Offset(angle,range));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e720*)move)->SetHeading((unsigned short)angle);
-            order->SetAttachedFx((int)move);
+            order->SetAttachedFx((OrderFx*)move);
         }
         int rate=0; rate=unit->def->buildRate;
         // The ok local is needed: it adds a register candidate that keeps order in esi.
-        int ok=g_seams.units->AddBuildProgress(unit,order->target.Get(),(float)(rate/30));
+        int ok=g_seams.units->AddBuildProgress(unit,order->target,(float)(rate/30));
         if (ok) {
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit,&start);
             Vec3 bounds[2];
-            bounds[0]=PosPlus(order->target.Get()->pos,order->target.Get()->def->min);
-            bounds[1]=PosPlus(order->target.Get()->pos,order->target.Get()->def->max);
+            bounds[0]=PosPlus(order->target->pos,order->target->def->min);
+            bounds[1]=PosPlus(order->target->pos,order->target->def->max);
             EmitNanoParticles(&start,bounds,6);
         }
-        if (order->target.Get()->buildLeft!=0.0f) {
+        if (order->target->buildLeft!=0.0f) {
             order->SetDeadlineTicks(1);
             order->flags|=0xa;
             return 2;

@@ -6,7 +6,9 @@
 #ifndef BOX_H
 #define BOX_H
 
+#ifndef TA_TYPES_H
 #include "../util/vec3.h"
+#endif
 
 struct Box {
     Vec3 lo;
