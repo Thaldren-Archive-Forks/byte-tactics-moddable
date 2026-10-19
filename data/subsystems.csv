@@ -3376,7 +3376,7 @@ EntriesLowerBound,src/util/tdf.cpp,platform,folder:src/util/,
 Entry_00432cf0::Entry_00432cf0,src/map/los_tables.h,los_radar,file:src/map/los_tables,
 Entry_40d670::Entry_40d670,src/ai/pathfind.cpp,pathfinding,file:src/ai/pathfind,
 Expired::operator(),src/map/line_of_sight.cpp,los_radar,file:src/map/line_of_sight,
-Eye::operator=,src/map/eye.h,map,default:src/map/,
+Eye::operator=,src/map/eye.h,los_radar,default:src/map/,los_radar
 FUN_004a7190_inlined,src/gui/gui.cpp,presentation,presentation,
 FUN_row,src/graphics/pcx.cpp,presentation,presentation,
 Fail,src/harness/harness.cpp,harness,folder:src/harness/,
