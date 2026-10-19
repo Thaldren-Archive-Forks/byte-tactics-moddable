@@ -6044,15 +6044,7 @@ struct Owner_0043ad50 {  // 0x64 bytes, 1 view
     Node_0043ad50* list_b;  // +0x60
 };
 
-struct Elem_0043c390 {  // 0x19 bytes, 8 views
-    char unknown_0[4];
-    int (__stdcall *notify)(void*, Order*, int);  // +0x4
-    char unknown_8[13];
-    char* name;  // +0x15
-    int operator<(Elem_0043c390&);
-    int operator==(Elem_0043c390&);
-    int operator!=(Elem_0043c390&);
-};
+#include "../src/orders/order_type_entry.h"
 
 class MissionOrderTable {  // 0xc bytes, 1 view
 public:
@@ -7078,10 +7070,7 @@ public:
 
 #include "../src/orders/air_maneuver_order.h"
 
-struct Object_0044ea60 {  // 0x96 bytes, 1 view
-    char unknown_0[146];
-    UnitDef* type;  // +0x92
-};
+#include "../src/orders/order_target_types.h"
 
 class Class_0044eb40 {  // 0x2c bytes, 1 view
 public:
@@ -7171,20 +7160,11 @@ public:
     virtual int KeepAfterComplete(void);
 };
 
-union Coord_0044f2a0 {  // 0x4 bytes, 1 view
-    union { int fixed; short half[2]; };  // +0x0
-};
-
 struct Struct_004907e0 {  // 0x76 bytes, 1 view
     char unknown_0[92];
     Target_0044f2a0* field_5c;  // +0x5c
     char unknown_60[10];
     Vec3 pos;  // +0x6a
-};
-
-struct Target_0044f2a0 {  // 0x46 bytes, 1 view
-    char unknown_0[66];
-    unsigned int field_42;  // +0x42
 };
 
 struct Class_0044f480 {  // 0x68 bytes, 1 view
@@ -7246,18 +7226,6 @@ public:
     Point16 points[3];  // +0xc
     int count;  // +0x18
     void FUN_0044f5c0(BitReader*);
-};
-
-struct Owner_0044f5c0 {  // 0x4 bytes, 1 view
-    Target_0044f5c0* target;  // +0x0
-};
-
-struct Target_0044f5c0 {  // 0x2f bytes, 1 view
-    char unknown_0[46];
-    unsigned char flag_0 : 1;  // +0x2e
-    unsigned char flag_1 : 1;
-    unsigned char flag_2 : 1;
-    unsigned char flag_rest : 5;
 };
 
 class Class_0044f650 {  // 0x1c bytes, 1 view
