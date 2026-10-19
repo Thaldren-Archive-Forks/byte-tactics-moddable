@@ -12,18 +12,7 @@ struct Sub_0041bde0 {
     unsigned char pageCount;             // +0x22e
 };
 
-struct Unit {
-    char unknown_0[0x92];
-    Sub_0041bde0* def;                   // +0x92
-    char unknown_96[0xa6 - 0x96];
-    short unitDefIndex;                      // +0xa6
-    char unknown_a8[0x110 - 0xa8];
-    unsigned int bits_110_0 : 22;
-    unsigned int menuOpen : 1;           // bit 22
-    unsigned int page : 3;               // bits 23-25
-    unsigned int bits_110_26 : 6;
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 struct Game {
     char unknown_0[0x14357];
@@ -48,21 +37,21 @@ void __stdcall StepBuildMenuPage(int toggle)
             unit = 0;
         if (unit != 0) {
             if (toggle != 0) {
-                if (!unit->menuOpen) {
-                    unit->menuOpen = 1;
-                    unit->page = 1;
-                } else if (unit->page == unit->def->pageCount - 1) {
-                    unit->menuOpen = 0;
+                if (!unit->menu.menuOpen) {
+                    unit->menu.menuOpen = 1;
+                    unit->menu.page = 1;
+                } else if (unit->menu.page == ((Sub_0041bde0*)unit->def)->pageCount - 1) {
+                    unit->menu.menuOpen = 0;
                 } else {
-                    unit->page++;
+                    unit->menu.page++;
                 }
             } else {
                 // Compared as page == pageCount - 1; keeps the original load order.
-                if (unit->page == unit->def->pageCount - 1)
-                    unit->page = 1;
+                if (unit->menu.page == ((Sub_0041bde0*)unit->def)->pageCount - 1)
+                    unit->menu.page = 1;
                 else
-                    unit->page++;
-                unit->menuOpen = 1;
+                    unit->menu.page++;
+                unit->menu.menuOpen = 1;
             }
             g_game->ordersPanelFlags |= 0x10;
         }

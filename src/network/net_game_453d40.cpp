@@ -53,15 +53,7 @@ struct WeaponDef {
 
 #include "../units/cob_script.h"
 
-class Unit {
-public:
-    char unknown_0[0x9a];
-    CobScript* script;               // +0x9a
-    char unknown_9e[0x110 - 0x9e];
-    unsigned int flags;                // +0x110
-    char unknown_114[4];
-    void SetStateBits(unsigned char, int);
-};
+#include "../units/unit.h"
 
 class UnitSync {
 public:
@@ -814,7 +806,7 @@ int HandleNetPackets()
             UnitScriptCallPacket* call = (UnitScriptCallPacket*)packet;
             Unit* unit = UnitAt(call->id);
             if (unit->flags & 0x10000000)
-                unit->script->StartScriptWithArgsByIndex(call->index, 0, 0, call->argCount,
+                ((CobScript*)unit->script)->StartScriptWithArgsByIndex(call->index, 0, 0, call->argCount,
                                              call->arg0, call->arg1, call->arg2, call->arg3);
             break;
         }
@@ -822,7 +814,7 @@ int HandleNetPackets()
             Unit* unit = UnitAt(*(unsigned short*)(packet + 1));
             if (unit->flags & 0x10000000) {
                 unit->SetStateBits(packet[3], 1);
-                unit->SetStateBits(~packet[3], 0);
+                unit->SetStateBits((unsigned char)~packet[3], 0);
             }
             break;
         }

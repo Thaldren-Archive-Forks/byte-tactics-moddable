@@ -48,15 +48,6 @@ struct Fx_00466c20 {
 
 struct WeaponDef;
 
-union Flags110_00466dc0 {
-    unsigned int all;
-    struct {
-        unsigned int :4;
-        unsigned int bit4 : 1;
-        unsigned int :27;
-    } bits;
-};
-
 struct Flags241_00466dc0 {
     unsigned int :29;
     unsigned int bit29 : 1;
@@ -136,32 +127,7 @@ struct UnitType_00466dc0 {
     unsigned char flags2;                // +0x245
 };
 
-struct Unit {
-    char unknown_0[0x4];
-    UnitWeaponSlot weapons[3];           // +0x4, stride 0x1c
-    char unknown_58[0xc];
-    Angles16 angles;                     // +0x64
-    char unknown_6a[0x2];
-    short xWhole;                        // +0x6c, the whole part of pos.x
-    char unknown_6e[2];
-    short yWhole;                        // +0x70, the whole part of pos.y
-    char unknown_72[2];
-    short zWhole;                        // +0x74, the whole part of pos.z
-    char unknown_76[0x1c];
-    UnitType_00466dc0* def;              // +0x92
-    char unknown_96[0x10];
-    short unitDefIndex;                      // +0xa6
-    short id;                      // +0xa8
-    char unknown_aa[0x50];
-    unsigned char recentlyDamagedTimer;              // +0xfa
-    char unknown_fb[0x4];
-    unsigned char playerIndex;              // +0xff
-    char unknown_100[0xe];
-    unsigned char activateFlags;             // +0x10e
-    char unknown_10f[0x1];
-    Flags110_00466dc0 flags;             // +0x110
-    char unknown_114[0x4];
-};
+#include "../units/unit.h"
 
 struct Projectile_00466dc0 {
     WeaponDef* shot;                     // +0x0
@@ -603,9 +569,9 @@ void DrawRadarUnits(void)
     Unit* end = g_game->unitsEnd;
     if (u <= end) {
         do {
-            UnitType_00466dc0*& type = u->def;
+            UnitType_00466dc0*& type = *(UnitType_00466dc0**)&u->def;
             if (u->unitDefIndex != 0) {
-                if (enabled != 0 || (u->flags.all & 0x300) != 0 ||
+                if (enabled != 0 || (u->flags & 0x300) != 0 ||
                     u->playerIndex == g_game->playerIndex) {
                     int x = u->xWhole * g_game->minimapGadgetW /
                             g_game->mapPixelWidth;
@@ -617,11 +583,11 @@ void DrawRadarUnits(void)
                                 Player_Get(u->playerIndex)->info->color),
                             x, y);
                     }
-                    if (u->id == g_game->hoverUnitId) {
+                    if ((short)u->id == g_game->hoverUnitId) {
                         DrawFrame(surface,
                             GetGafFrame(g_game->radlogohigh, 0), x, y);
                     }
-                    if (u->flags.bits.bit4) {
+                    if (u->selected) {
                         if ((u->activateFlags & 1) != 0 ||
                             (type->flags2 & 4) == 0) {
                             if (type->radardistance != 0)
