@@ -1265,6 +1265,21 @@ struct Game {
 };
 #pragma pack(pop)
 
+inline Game::Game(void)
+    : build_date("Jul 30 1998"), build_time("11:16:36"), players_1b63()
+{
+    grid1.width = 0;
+    grid1.height = 0;
+    grid1.count = 0;
+    grid1.cells = 0;
+    spatialGrid.width = 0;
+    spatialGrid.height = 0;
+    spatialGrid.count = 0;
+    spatialGrid.cells = 0;
+    field_142af = 0;
+    field_142b3 = 0;
+}
+
 inline Player* Game::Current(void) { return &players[playerIndex]; }
 
 inline Player* Game::Current2(void)
