@@ -73,19 +73,7 @@ struct UnitType {
 // The +0x110 flag word, one bit view per function that reads it.
 
 
-// What a unit's +0 points at: its motion, the serialisation interface at +0
-// and the int of 0x48b200 at +0x20. 0x48ab70's two bit field is at +0x2e.
-class UnitMotion {
-public:
-    PlayerData* player;                // +0x00
-    char unknown_4[0x20 - 4];
-    int speed;                         // +0x20
-    char unknown_24[0x2e - 0x24];
-    unsigned char bits_2e : 2;         // +0x2e
-    char unknown_2f[0x8a - 0x2f];
-
-    void UpdateMotion(Unit* u);
-};
+#include "../orders/unit_motion.h"
 
 // The serialisation interface behind a unit's owner: the writer 0x48b710 calls
 // slot +0x20, the reader 0x48b920 slot +0x24.
@@ -367,7 +355,7 @@ void __stdcall ApplyAttachUnit(Order* order)
                             u->carrier = 0;
                             g_seams.map->SpatialBucketPrependUnit((SpatialBucket*)u->spatialBucket, 0, u);
                         }
-                        ((UnitMotion*)u->motion)->bits_2e = order->param2;
+                        ((UnitMotion*)u->motion)->mode = order->param2;
                         if (u->player->active) {
                             unsigned char k = u->player->type;
                             if (k == 1 || k == 2) {

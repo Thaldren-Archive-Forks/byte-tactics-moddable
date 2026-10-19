@@ -873,39 +873,7 @@ class PatrolGoal { public: char unknown[0x1c]; PatrolGoal(Unit* unit); };
 class AiSearchGoal { public: char unknown[0x65]; AiSearchGoal(Unit* unit); };
 class Class_0043db50 { public: void UpdateSfxOccupy(Unit* u); };
 
-class UnitMotion {
-public:
-    Iface_0043dd20* obj;               // +0x0
-    int movementClass;                 // +0x4
-    Vec3 velocity;
-    Vec3 p2;
-    int speed;                         // +0x20
-    short turn;                        // +0x24, turn this tick
-    int pathLockStamp;                 // +0x26
-    int lastMoveTick;                  // +0x2a
-    union {
-        unsigned char flags;           // +0x2e
-        struct {
-            unsigned char mode : 2;    // bits 0-1
-            unsigned char flag : 1;    // bit 2
-            unsigned char rest : 5;
-        };
-    };
-
-    void UpdateVelocityFromHeading(Unit* unit, int amount);
-    void SteerGroundUnit(Unit* unit);
-    void ApplyBankAndPitch(Unit* owner, Vec3* v);
-    void SetFlightMode(Unit* owner, int state);
-    void SteerAircraft(Unit* unit);
-    void UpdatePosition(Unit* unit);
-    void UpdateMoveRate(Unit* unit);
-    UnitMotion(Unit* unit);
-    void DestroyObject();
-    void UpdateMotion(Unit* u);
-    void ApplyClampedTurnDelta(Unit* unit, short amount);
-    void SaveMotion(Unit* info, HapiBank* file);
-    void LoadMotion(Unit* unit, HapiBank* file);
-};
+#include "unit_motion.h"
 #pragma pack(pop)
 
 extern Game* g_game;

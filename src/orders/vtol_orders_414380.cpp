@@ -20,7 +20,7 @@ static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 }
 
 struct Unit;
-class UnitMotion { public: char pad0[0x2e]; unsigned char flags; void SetFlightMode(Unit*,int); };
+#include "unit_motion.h"
 
 class Class_0044e730 { public: void SetApproachRadius(int); };
 class Class_0044e720 { public: void SetHeading(int); };

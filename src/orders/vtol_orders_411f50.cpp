@@ -24,14 +24,7 @@ static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 }
 
 struct Unit;
-class UnitMotion {
-public:
-    char unknown_0[0x22];
-    short field_22;                    // +0x22
-    char unknown_24[0x2e - 0x24];
-    unsigned char flags;               // +0x2e
-    void SetFlightMode(Unit* unit, int state);
-};
+#include "unit_motion.h"
 #include "../state/block.h"
 #include "path_order_attach.h"
 #include "mission_type.h"

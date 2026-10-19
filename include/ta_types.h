@@ -3013,64 +3013,7 @@ struct Player {  // 0x14b bytes, 312 views
     float GetMetal(void);
 };
 
-struct UnitMotion {      // 0x115 bytes, 58 views
-    Handler_004388d0* handler;  // +0x0
-    void* owner;  // +0x4
-    Vec3 p1;  // +0x8
-    Vec3 p2;  // +0x14
-    int field_20;  // +0x20
-    short field_24;  // +0x24
-    unsigned int lastTick;  // +0x26
-    int age;  // +0x2a
-    unsigned char mode : 2;  // +0x2e
-    unsigned char flag : 1;
-    unsigned char rest : 5;
-    char unknown_2f[53];
-    Table_00499cd0* table;  // +0x64
-    int f_68;  // +0x68
-    int f_6c;  // +0x6c
-    int f_70;  // +0x70
-    void* field_74;  // +0x74
-    void* field_78;  // +0x78
-    void* splash;  // +0x7c
-    char unknown_80[72];
-    float pitch;  // +0xc8
-    int field_cc;  // +0xcc
-    int field_d0;  // +0xd0
-    unsigned short field_d4;  // +0xd4
-    unsigned short field_d6;  // +0xd6
-    char unknown_d8[4];
-    int range;  // +0xdc
-    int field_e0;  // +0xe0
-    char unknown_e4[2];
-    unsigned short f_e6;  // +0xe6
-    unsigned short turnRate;  // +0xe8
-    unsigned short f_ea;  // +0xea
-    unsigned short burstRate;  // +0xec
-    unsigned short spread;  // +0xee
-    unsigned short f0;  // +0xf0
-    unsigned short lifeRand;  // +0xf2
-    unsigned short sound;  // +0xf4
-    unsigned short sound1;  // +0xf6
-    unsigned short sound2;  // +0xf8
-    unsigned short smokeRate;  // +0xfa
-    unsigned short fc;  // +0xfc
-    unsigned short sound_fe;  // +0xfe
-    char unknown_100[4];
-    short f_104;  // +0x104
-    unsigned short field_106;  // +0x106
-    unsigned short field_108;  // +0x108
-    unsigned char team;  // +0x10a
-    char unknown_10b[1];
-    unsigned char field_10c;  // +0x10c
-    unsigned char field_10d;  // +0x10d
-    unsigned char field_10e;  // +0x10e
-    char unknown_10f[2];
-    unsigned int flags;  // +0x111
-    UnitMotion(Unit*);
-    void DestroyObject(void);
-    void UpdateMotion(Unit*);
-};
+#include "../src/orders/unit_motion.h"
 
 struct Slot_4b62d0 {  // 0x10 bytes, 5 views
     int counter;  // +0x4
