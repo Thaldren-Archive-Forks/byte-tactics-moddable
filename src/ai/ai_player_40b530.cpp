@@ -5,7 +5,7 @@ namespace std {
 inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest, &src); }
 }
 #include <vector>
-struct Vec { int x,y,z; };
+#include "vec.h"
 #pragma pack(push,1)
 struct Def { char pad[0x241]; unsigned flags; };
 #include "../units/unit.h"

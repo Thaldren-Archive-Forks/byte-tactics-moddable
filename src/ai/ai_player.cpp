@@ -285,11 +285,7 @@ struct PlayerInfo {
 
 #include "player_ai.h"
 
-struct Vec {
-    int x;
-    int y;
-    int z;
-};
+#include "vec.h"
 
 struct Vec3_40b0d0 {
     int x;
