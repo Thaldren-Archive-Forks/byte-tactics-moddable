@@ -1,32 +1,8 @@
 // Decompiled by GPT-5.6-Terra, finished by Sonnet 5.5. Names are provisional.
-// Stays in its own file: it needs the hand-written std::vector below (the
-// element vector's _Destroy is the out-of-line 0x46e870), which cannot share a
-// file with unit_sync.cpp's real <vector>.
 #include <list>
 #include <map>
+#include <vector>
 #include <xmemory>
-
-namespace std {
-
-template<class T, class A = allocator<T> > class vector {
-public:
-    typedef A::size_type size_type;
-    typedef T* iterator;
-    typedef T* const_iterator;
-    A alloc;
-    iterator _First, _Last, _End;
-
-    ~vector()
-    {
-        _Destroy(_First, _Last);
-        operator delete(_First);
-        _First = 0, _Last = 0, _End = 0;
-    }
-protected:
-    void _Destroy(iterator _F, iterator _L);
-};
-
-}
 
 #pragma pack(push, 2)
 struct Elem_0046faf0 {

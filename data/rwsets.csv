@@ -22345,8 +22345,8 @@ address,function,file,kind,target
 0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,call,operator-
 0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,call,operator=
 0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,call,push_back
-0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,call,raw_size
 0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,call,reserve
+0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,call,size
 0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,deref_read,*int
 0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,field_maybe_written,NanoParticles::records
 0x473d50,NanoParticles::Emit,src/graphics/particles_473d50.cpp,field_read,Fix_00473d50::half
@@ -38012,10 +38012,10 @@ address,function,file,kind,target
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,HAPI_FindNext
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,StringRef::~StringRef
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,_findclose
+0x4bca30,ListDirectory,src/util/hpi.cpp,call,end
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,insert
 0x4bca30,ListDirectory,src/util/hpi.cpp,call,strcmp
 0x4bca30,ListDirectory,src/util/hpi.cpp,field_escape,_finddata_t::name
-0x4bca30,ListDirectory,src/util/hpi.cpp,field_read,FileList::_Last
 0x4bca30,ListDirectory,src/util/hpi.cpp,field_read,FindFiles::handle
 0x4bca30,ListDirectory,src/util/hpi.cpp,field_read,FindFiles::state
 0x4bca30,ListDirectory,src/util/hpi.cpp,field_read,_finddata_t::attrib
@@ -38027,12 +38027,12 @@ address,function,file,kind,target
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,MatchWildcard
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,StringRef::~StringRef
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,_findclose
+0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,end
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,insert
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,sprintf
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,call,strcmp
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,field_escape,_finddata_t::name
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,field_maybe_written,_finddata_t::name
-0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,field_read,FileList::_Last
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,field_read,FindFiles::handle
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,field_read,FindFiles::state
 0x4bcb50,FindFilesRecursive,src/util/hpi.cpp,field_read,_finddata_t::attrib
@@ -39209,28 +39209,9 @@ address,function,file,kind,target
 0x4c58a0,GetLocalizedString,src/util/tdf_4c54f0.cpp,function,
 0x4c58a0,GetLocalizedString,src/util/tdf_4c54f0.cpp,global_escape,g_language
 0x4c58a0,GetLocalizedString,src/util/tdf_4c54f0.cpp,global_maybe_written,DAT_005119b8
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,AssignPairRange
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,AssignPairRangeBack
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,ConstructPair
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,TdfFieldVector::GetPairCount
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,_Destroy
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,_Ucopy
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,_Ufill
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,allocate
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,begin
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,deallocate
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,size
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,deref_read,*TdfField
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,field_maybe_written,std::vector<TdfField>::alloc
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,field_read,std::vector<TdfField>::_End
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,field_read,std::vector<TdfField>::_First
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,field_read,std::vector<TdfField>::_Last
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,field_write,std::vector<TdfField>::_End
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,field_write,std::vector<TdfField>::_First
-0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,field_write,std::vector<TdfField>::_Last
+0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,call,insert
 0x4c59d0,TdfFieldVector::Insert,src/util/tdf_4c59d0.cpp,function,
-0x4c5ba0,TdfFieldVector::GetPairCount,src/util/tdf_4c59d0.cpp,field_read,std::vector<TdfField>::_First
-0x4c5ba0,TdfFieldVector::GetPairCount,src/util/tdf_4c59d0.cpp,field_read,std::vector<TdfField>::_Last
+0x4c5ba0,TdfFieldVector::GetPairCount,src/util/tdf_4c59d0.cpp,call,size
 0x4c5ba0,TdfFieldVector::GetPairCount,src/util/tdf_4c59d0.cpp,function,
 0x4c5c60,TranslationTable::FindLowerBound,src/util/tdf_4c54f0.cpp,call,begin
 0x4c5c60,TranslationTable::FindLowerBound,src/util/tdf_4c54f0.cpp,call,end
@@ -51842,7 +51823,6 @@ address,function,file,kind,target
 ,_Construct,src/orders/vtol_orders.cpp,function,
 ,_Construct,src/orders/vtol_orders_410c70.cpp,call,CopyDwordIfNonNull
 ,_Construct,src/orders/vtol_orders_410c70.cpp,function,
-,_Destroy,src/ai/ai_player_409730.cpp,function,
 ,_Destroy,src/map/los_tables_433a80.cpp,call,DestroyPoint
 ,_Destroy,src/map/los_tables_433a80.cpp,call,~vector
 ,_Destroy,src/map/los_tables_433a80.cpp,field_maybe_written,Elem_00434360::v
@@ -51922,7 +51902,6 @@ address,function,file,kind,target
 ,operator delete,src/state/block.cpp,function,
 ,operator delete[],src/state/block.cpp,call,SimFree
 ,operator delete[],src/state/block.cpp,function,
-,operator new,src/ai/ai_player_409730.cpp,function,
 ,operator new,src/state/block.cpp,call,SimAlloc
 ,operator new,src/state/block.cpp,function,
 ,operator new[],src/state/block.cpp,call,SimAlloc

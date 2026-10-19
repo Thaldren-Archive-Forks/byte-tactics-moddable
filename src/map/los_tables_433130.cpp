@@ -3,42 +3,7 @@
 // class as 0x433380), where Elem_00434360 is a struct holding one
 // std::vector<Elem_00434020>; the fill value is a std::vector<Elem_00434360>.
 
-namespace std {
-    template<class T> class allocator {
-    public:
-        typedef unsigned int size_type;
-        typedef T* pointer;
-        typedef T& reference;
-        typedef T value_type;
-    };
-
-    template<class T, class A = allocator<T> > class vector {
-    public:
-        typedef A::size_type size_type;
-        typedef T* iterator;
-        A alloc;
-        iterator _First;
-        iterator _Last;
-        iterator _End;
-
-        explicit vector(const A& al = A())
-            : alloc(al), _First(0), _Last(0), _End(0) {}
-        iterator begin() { return _First; }
-        iterator end() { return _Last; }
-        size_type size() const { return _First == 0 ? 0 : (_Last - _First); }
-        // Declared only, never defined: keeps the calls out of line.
-        iterator erase(iterator first, iterator last);
-        void _Destroy(iterator first, iterator last);
-        void insert(iterator pos, size_type n, const T& x);
-        ~vector()
-        {
-            _Destroy(_First, _Last);
-            operator delete(_First);
-        }
-    };
-}
-
-void __cdecl operator delete(void* p);
+#include <vector>
 
 struct Elem_00434020 {
     unsigned short a;                  // +0x0
@@ -46,7 +11,7 @@ struct Elem_00434020 {
 };
 
 struct Elem_00434360 {
-    std::vector<Elem_00434020> v;      // +0x0
+    std::vector<Elem_00434020> v;
 };
 
 typedef std::vector<Elem_00434360> W1_00433130;
