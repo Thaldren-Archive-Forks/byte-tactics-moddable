@@ -38,17 +38,9 @@ public:
     void DispatchPacket();
 };
 
-class PacketChannel;
-
 #include "../map/mission.h"
 
-class PacketManager {
-public:
-    int SendAllQueued(int force);
-    int QueuePacket(int frame, int dpid, void* data, unsigned int len);
-    int QueueOnChannel(int frame, PacketChannel* channel, int data, int len);
-    void SetDefaultSendPacing(int param);
-};
+#include "../network/packet_manager.h"
 
 #include "../units/cob_script.h"
 

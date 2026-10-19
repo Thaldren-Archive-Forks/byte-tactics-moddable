@@ -18,6 +18,10 @@
 #include "../src/weapons/damage_table.h"
 #include "../src/graphics/nano_particle_vector.h"
 #include "../src/units/squad.h"
+#include "../src/network/packet_ring.h"
+#include "../src/network/packet_receiver.h"
+#include "../src/network/packet_manager.h"
+#include "../src/network/sub_00460f60.h"
 
 #pragma pack(push, 1)
 
@@ -7534,15 +7538,6 @@ struct Entry_00462d30_2 {  // 0x34 bytes, 2 views
     int field_30;  // +0x30
 };
 
-struct Sub_00460f60 {  // 0x1044 bytes, 1 view
-    void** items;  // +0x0
-    unsigned int count;  // +0x4
-    char unknown_8[24];
-    void* q;  // +0x20
-    char unknown_24[4128];
-    ~Sub_00460f60(void);
-};
-
 struct Buffer_461020 {  // 0x10 bytes, 1 view
     char unknown_0[12];
     int field_c;  // +0xc
@@ -7704,12 +7699,6 @@ struct Class_004615f0 {  // 0xb2fc bytes, 1 view
     int field_b2f4;  // +0xb2f4
     int field_b2f8;  // +0xb2f8
     void ClearSendBuffer(void);
-};
-
-class PacketManager {   // 0x1 bytes, 1 view
-public:
-    char unknown_0[1];
-    void ReleaseChannel(int);
 };
 
 struct Entry_004618a0 {  // 0x1044 bytes, 1 view
@@ -7885,15 +7874,6 @@ public:
     int PushPacket(int);
 };
 
-class PacketRing {      // 0x100c bytes, 3 views
-public:
-    int count;  // +0x0
-    int index;  // +0x4
-    int unused;  // +0x8
-    int buffer[1024];  // +0xc
-    int PopPacket(void);
-};
-
 class Class_00462470 {  // 0x1044 bytes, 9 views
 public:
     int field_0;  // +0x0
@@ -7987,18 +7967,6 @@ struct Class_00462bf0 {  // 0x10 bytes, 1 view
 struct F0_00462d30_2 {  // 0x4 bytes, 1 view
     int field_0;  // +0x0
     F0_00462d30_2(void);
-};
-
-class PacketReceiver {  // 0x230 bytes, 1 view
-public:
-    char unknown_0[20];
-    Link_00462ed0* link;  // +0x14
-    char* buffer;  // +0x18
-    char* spare;  // +0x1c
-    char unknown_20[520];
-    int capacity;  // +0x228
-    int length;  // +0x22c
-    int ResetReceiveBuffer(void);
 };
 
 struct Link_00462ed0 {  // 0x10 bytes, 1 view

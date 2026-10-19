@@ -202,10 +202,7 @@ extern int g_nonCampaignGame;
 
 #include "../map/mission.h"
 
-class PacketManager {
-public:
-    void SendAllQueued(int a);
-};
+#include "../network/packet_manager.h"
 
 extern PacketManager g_packetManager;
 

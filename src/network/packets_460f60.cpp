@@ -9,15 +9,7 @@ void __cdecl operator delete(void*);
 
 #include "packet_receiver.h"
 
-// One of the eleven per-player objects embedded in the global.
-struct Sub_00460f60 {
-    void** items;                      // +0x0
-    unsigned int count;                // +0x4
-    char pad[0x18];
-    void* q;                           // +0x20
-    char pad2[0x1020];
-    ~Sub_00460f60();
-};
+#include "sub_00460f60.h"
 
 // Member layout sets the order in which the destructors are inlined.
 class PacketManager {

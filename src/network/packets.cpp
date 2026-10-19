@@ -60,50 +60,7 @@ public:
     void RemovePacket(NetPacketPendingEntry* packet);
 };
 
-// The ring of queued packets (0x462370 is its push, 0x4623b0 its pop).
-class PacketRing {
-public:
-    int count;                         // +0x0
-    int readIdx;                       // +0x4
-    int writeIdx;                      // +0x8
-    NetPacketPendingEntry* buf[0x400];  // +0xc
-
-    PacketRing();
-    int PushPacket(NetPacketPendingEntry* value);
-    // Read side of the ring, out of line (0x4623b0).
-    NetPacketPendingEntry* PopPacket();
-    NetPacketPendingEntry* Peek()
-    {
-        if (count > 0)
-            return buf[readIdx];
-        return 0;
-    }
-    NetPacketPendingEntry* Pop()
-    {
-        if (count > 0) {
-            count--;
-            NetPacketPendingEntry* value = buf[readIdx];
-            readIdx++;
-            if (readIdx >= 0x400)
-                readIdx = 0;
-            return value;
-        }
-        return 0;
-    }
-    int Push(NetPacketPendingEntry* value)
-    {
-        if (count < 0x400) {
-            writeIdx = writeIdx + 1;
-            if (writeIdx >= 0x400) {
-                writeIdx = 0;
-            }
-            buf[writeIdx] = value;
-            count = count + 1;
-            return 1;
-        }
-        return 0;
-    }
-};
+#include "packet_ring.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep
 // the allocation (docs/c2-regalloc.md).
@@ -212,23 +169,7 @@ static inline void* GetFrame(FrameQueue* q, int tick, int& size)
 }
 
 #pragma pack(push, 1)
-struct GameEntry {
-    int active;                        // +0x00
-    int id;                            // +0x04
-    char unknown_8[0x14b - 8];
-};
-
-struct Game {
-    char unknown_0[0x14];
-    char session[4];                   // +0x14
-    char unknown_18[0x1b63 - 0x18];
-    GameEntry players[10];             // +0x1b63
-    char unknown_2851[0x2a3e - 0x2851];
-    unsigned short chatHudWriteIdx;    // +0x2a3e
-    unsigned short chatHudReadIdx;     // +0x2a40
-    char unknown_2a42[0x38a47 - 0x2a42];
-    int gameTick;                      // +0x38a47
-};
+#include "../game/game.h"
 
 class NetCondenser {
 public:
@@ -251,43 +192,7 @@ extern int g_packetModes[];
 extern int g_usePacketManager;
 extern int g_netFrameRateConfig;
 
-// One player's packet channel: a pool of 0x43e-byte buffers, a pool of
-// 0x20-byte packet records that point into them, and a ring of queued
-// packets that SendQueued hands to the outgoing buffer.
-class PacketChannel {
-public:
-    int bufferIndex;                   // +0x00, the buffer last handed out
-    unsigned int sendPacingTicks;      // +0x04, ticks between sends
-    PacketBuffer** buffers;            // +0x08
-    unsigned int bufferCount;          // +0x0c, the buffer count
-    int frameNumber;                   // +0x10, the frame number
-    int dpid;                          // +0x14, the player's DPID
-    unsigned int timeoutTicks;         // +0x18, the minimum retain time
-    int packetIndex;                   // +0x1c, the packet last handed out
-    unsigned int queuedBytes;          // +0x20, queued bytes
-    unsigned int nextSendTick;         // +0x24, the next send time
-    NetPacketPendingEntry* packets;    // +0x28
-    unsigned int count;                // +0x2c, the packet count
-    NetPacketPendingEntry* firstPacket;  // +0x30, the first packet in use
-    NetPacketPendingEntry* lastPacket;  // +0x34, the last packet in use
-    PacketRing queue;                  // +0x38
-
-    PacketChannel();
-    ~PacketChannel();
-    PacketBuffer* AllocBuffer();
-    NetPacketPendingEntry* AllocPacket(int frame);
-    int GetMinRetainMs();
-    int GetPacketEntry(int index);
-    int InitPools(int a1, unsigned int a2, int a3, int a4);
-    void EnqueuePacket(NetPacketPendingEntry* item);
-    int GrowPools(int growbufs, int growpackets);
-    void DequeuePacket(NetPacketPendingEntry* item);
-    void ResetChannel();
-    int SendQueued(int force);
-    int AddPacket(int frame, void* data, unsigned int size);
-    void SetMinRetainMs(unsigned int ms);
-    void SetSendPacingMs(int ms);
-};
+#include "packet_channel.h"
 
 struct Msg_00461900 {
     char unknown_0[0x10];
@@ -295,31 +200,7 @@ struct Msg_00461900 {
     int field_14;                      // +0x14
 };
 
-class PacketManager {
-public:
-    virtual ~PacketManager();
-    unsigned long m_defaultSendPacingMs;   // +0x04
-    PacketChannel channels[11];        // +0x08
-    unsigned char* buffer;             // +0xb2f4
-    unsigned int size;                 // +0xb2f8
-    unsigned int capacity;             // +0xb2fc
-    PacketReceiver member;             // +0xb300
-
-    PacketManager();
-    int AppendToSendBuffer(unsigned char* data, unsigned int len);
-    void ClearSendBuffer();
-    void NopRet_D();
-    PacketChannel* FindChannel(int dpid, int create);
-    int InitChannels(int arg1, int arg2);
-    void ReleaseChannel(int id);
-    void ReleaseAllChannels();
-    int SendAllQueued(int force);
-    int SendFrameState(int from, Msg_00461900* msg);
-    int QueueOnChannel(int frame, PacketChannel* channel, int data, int len);
-    void* QueuePacket(int frame, int dpid, void* data, unsigned int len);
-    void SetDefaultSendPacing(int rate);
-    void HandleIntegrityNop(int, int, int);
-};
+#include "packet_manager.h"
 
 // Defined in packets_460e20.cpp, whose dynamic initialiser (_$E4) and static
 // destructor (packets_460f60.cpp, _$E2) need views of their own.
@@ -508,7 +389,7 @@ PacketChannel* PacketManager::FindChannel(int dpid, int create)
     for (i = 1; i <= 10; i++) {
         int used = 0;
         // Must walk a pointer here; the outer loops stay plain array indexing.
-        GameEntry* p = &g_game->players[0];
+        Player* p = &g_game->players[0];
         for (int j = 0; j < 10; j++, p++) {
             if (p->id == channels[i].dpid) {
                 used = 1;
@@ -623,11 +504,11 @@ int PacketManager::QueueOnChannel(int frame, PacketChannel* channel, int data, i
 }
 
 // FUNCTION: 0x4619b0
-void* PacketManager::QueuePacket(int frame, int dpid, void* data, unsigned int len)
+int PacketManager::QueuePacket(int frame, int dpid, void* data, unsigned int len)
 {
     PacketChannel* obj = FindChannel(dpid, 1);
     if (obj != 0) {
-        return (void*)obj->AddPacket(frame, data, len);
+        return obj->AddPacket(frame, data, len);
     }
     return 0;
 }
@@ -1548,7 +1429,7 @@ int PacketReceiver::ResetReceiveBuffer()
 int PacketReceiver::ReceiveFrame(void* net, unsigned char* data, int* size)
 {
     Net_00462f30* hnet = (Net_00462f30*)net;
-    int tick = g_game->gameTick;
+    int tick = g_game->ticks;
     PlayerFrameInfo* entry;
     unsigned int i;
     void* src;
@@ -2049,6 +1930,6 @@ void Player::SetType(int newType)
 // FUNCTION: 0x463c80
 void ResetChatHudIndices()
 {
-    g_game->chatHudWriteIdx = 0;
-    g_game->chatHudReadIdx = 0;
+    g_game->tail = 0;
+    g_game->head = 0;
 }

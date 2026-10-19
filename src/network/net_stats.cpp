@@ -275,10 +275,7 @@ extern unsigned int g_byteRatesTick;
 extern unsigned int g_bytesSentPerSecond;
 extern unsigned int g_bytesReceivedPerSecond;
 
-class PacketManager {
-public:
-    void NopRet_D();
-};
+#include "../network/packet_manager.h"
 
 extern PacketManager g_packetManager;
 
