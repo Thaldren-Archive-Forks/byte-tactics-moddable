@@ -15,41 +15,7 @@
 #include "unit_def.h"
 
 #pragma pack(push, 1)
-struct Unit {
-    char unknown_0[0x66];
-    short heading;                     // +0x66
-    char unknown_68[0x6a - 0x68];
-    Vec3 pos;                           // +0x6a
-    int cell;                       // +0x76
-    char unknown_7a[0x86 - 0x7a];
-    Unit* carrier;                      // +0x86
-    Unit* cargo;                        // +0x8a, the first unit it carries
-    Unit* cargoNext;                    // +0x8e
-    UnitDef* def;                       // +0x92
-    char unknown_96[0xa8 - 0x96];
-    unsigned short id;                  // +0xa8
-    char unknown_aa[0xba - 0xaa];
-    unsigned short unknown_ba : 2;      // +0xba
-    // A 1-bit bitfield, not a byte: gives a single `or` in SetUnitValue.
-    unsigned short dirty : 1;
-    unsigned short unknown_ba_3 : 13;
-    char unknown_bc[0x104 - 0xbc];
-    float buildLeft;                    // +0x104
-    short health;                       // +0x108
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char on : 1;               // +0x10e bit 0
-    unsigned char on2 : 1;              // +0x10e bit 1
-    unsigned char unknown_10e : 6;
-    unsigned char bit0 : 1;             // +0x10f bit 0
-    unsigned char bit1 : 1;
-    unsigned char bit2 : 1;
-    unsigned char bit3 : 1;
-    unsigned char unknown_10f : 4;
-    unsigned int flags;                 // +0x110
-    char unknown_114[0x118 - 0x114];
-
-    void SetStateBits(int which, int on);
-};
+#include "unit.h"
 
 // The animation state of one piece of a unit's model.
 struct PieceState {                     // 0x36 bytes
@@ -170,7 +136,7 @@ int UnitScript::GetUnitValue(int which, int a, int b, int c, int d)
     Unit* unit = state->unit;
     switch (which) {
     case 1:
-        return unit->on;
+        return unit->activate_bit0;
     case 2:
         return (unit->flags >> 18) & 3;
     case 3:
@@ -248,7 +214,7 @@ int UnitScript::GetUnitValue(int which, int a, int b, int c, int d)
     case 19:
         return unit->bit3;
     case 20:
-        return unit->on2;
+        return unit->activate_bit1;
     }
     return 0;
 }
@@ -544,7 +510,7 @@ void UnitScript::AttachUnit(unsigned short id, int a, int b)
 {
     Unit* u = GetUnit(id);
     if (u != 0 && (u->flags & 0x10000000)
-        && (u->carrier == 0 || u->carrier == state->unit)) {
+        && (u->carrier == 0 || u->carrier == (int)state->unit)) {
         AttachUnitToPiece(u, state->unit, a, b);
     }
 }
@@ -555,7 +521,7 @@ void UnitScript::AttachUnit(unsigned short id, int a, int b)
 void UnitScript::DropUnit(unsigned short id)
 {
     Unit* u = GetUnit(id);
-    if (u != 0 && (u->flags & 0x10000000) && u->carrier == state->unit) {
+    if (u != 0 && (u->flags & 0x10000000) && *(Unit**)&u->carrier == state->unit) {
         if (g_seams.map->CanPlaceUnitFootprint(u->def, (unsigned short)u->id, *(Point16*)&u->cell, 1)) {
             AttachUnitToPiece(u, 0, -1, 1);
         }
@@ -583,6 +549,6 @@ int UnitScript::IsCarryingUnit(int id)
 // FUNCTION: 0x481470
 int UnitScript::GetTransporterId()
 {
-    Unit* t = state->unit->carrier;
+    Unit* t = (Unit*)state->unit->carrier;
     return t ? t->id : 0;
 }
