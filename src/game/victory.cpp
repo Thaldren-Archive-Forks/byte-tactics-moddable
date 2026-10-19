@@ -114,36 +114,7 @@ struct PlayerName {
 
 #include "../map/mission.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    union {
-        Player players[10];            // +0x1b63
-        struct {
-            char unknown_1b63[0x1bca - 0x1b63];
-            UnitList units;            // +0x1bca
-            char unknown_1bd2[0x1d15 - 0x1bd2];
-            UnitList units2;           // +0x1d15
-            char unknown_1d1d[0x1df2 - 0x1d1d];
-            short field_1df2;          // +0x1df2
-        };
-    };
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;         // +0x2a42
-    char unknown_2a43[0x1427f - 0x2a43];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x37ef6 - 0x14280];
-    int battleCommanderDeath;          // +0x37ef6
-    char unknown_37efa[0x37f3d - 0x37efa];
-    union {
-        PlayerName sideDefs[5];        // +0x37f3d, one SideDef per side
-        struct {
-            char unknown_37f3d[0x38a47 - 0x37f3d];
-            unsigned int gameTick;     // +0x38a47
-            char unknown_38a4b[0x391e9 - 0x38a4b];
-            Mission* mapInfo;          // +0x391e9
-        };
-    };
-};
+#include "game.h"
 #pragma pack(pop)
 
 // GLOBAL: 0x511de8
@@ -583,7 +554,7 @@ extern char g_celebratedKey[]; // "Celebrated"
 void VictoryKillEnemyCommander::OnUnitDied(Unit* unit)
 {
     if (unit->playerIndex == 1) {
-        if (_strcmpi(((UnitType *)unit->def)->name, g_game->sideDefs[((Link_0048ea40 *)unit->player)->owner->side].commander) == 0) {
+        if (_strcmpi(((UnitType *)unit->def)->name, (*(PlayerName(*)[5])&g_game->sideDefs)[((Link_0048ea40 *)unit->player)->owner->side].commander) == 0) {
             satisfied = 1;
             if (celebrated == 0) {
                 PlaySoundByName("Victory Condition", 0);
@@ -677,7 +648,7 @@ void VictoryKillAllMobileUnits::OnUnitDied(Unit* unit)
 {
     if (unit->playerIndex == 1 && unit->motion != 0) {
         numUnits = 0;
-        g_game->units2.ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1d15)).ForEach(this);
         if (numUnits <= 1) {
             satisfied = 1;
             if (celebrated == 0) {
@@ -735,7 +706,7 @@ int VictoryBuildUnitType::IsSatisfied()
     if (id == 0) {
         id = g_seams.units->FindUnitTypeId(name);
     }
-    g_game->units.ForEach(this);
+    (*(struct UnitList*)((char*)g_game + 0x1bca)).ForEach(this);
     return satisfied;
 }
 
@@ -810,7 +781,7 @@ void VictoryKillAllOfType::OnUnitDied(Unit* unit)
     if (satisfied == 0 && unit->playerIndex == 1 && _strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
         id = g_seams.units->FindUnitTypeId(name);
         count = 0;
-        g_game->units2.ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1d15)).ForEach(this);
         if (count <= 1) {
             satisfied = 1;
             if (celebrated == 0) {
@@ -956,7 +927,7 @@ int VictoryUnitTypePassesX::VisitUnit(Unit* unit)
 int VictoryUnitTypePassesX::IsSatisfied()
 {
     if (satisfied == 0) {
-        g_game->units.ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1bca)).ForEach(this);
     }
     return satisfied;
 }
@@ -1005,7 +976,7 @@ int VictoryUnitTypePassesZ::VisitUnit(Unit* unit)
 int VictoryUnitTypePassesZ::IsSatisfied()
 {
     if (satisfied == 0) {
-        g_game->units.ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1bca)).ForEach(this);
     }
     return satisfied;
 }
@@ -1035,7 +1006,7 @@ void VictoryUnitTypePassesZ::LoadState(HapiBank* obj)
 // FUNCTION: 0x48f610
 int VictoryTimerRunsOut::IsSatisfied()
 {
-    unsigned int game_val = g_game->gameTick;
+    unsigned int game_val = ((unsigned int)g_game->ticks);
     return game_val >= endTick;
 }
 
@@ -1065,7 +1036,7 @@ void VictoryTimerRunsOut::LoadState(HapiBank* obj)
 void DefeatCommanderKilled::OnUnitDied(Unit* unit)
 {
     if (unit->playerIndex == 0) {
-        if (_strcmpi(((UnitType *)unit->def)->name, g_game->sideDefs[((Link_0048ea40 *)unit->player)->owner->side].commander) == 0) {
+        if (_strcmpi(((UnitType *)unit->def)->name, (*(PlayerName(*)[5])&g_game->sideDefs)[((Link_0048ea40 *)unit->player)->owner->side].commander) == 0) {
             satisfied = 1;
         }
     }
@@ -1114,7 +1085,7 @@ int DefeatAllUnitsKilled::VisitUnit(Unit* unit)
 int DefeatAllUnitsKilled::IsSatisfied()
 {
     satisfied = 1;
-    g_game->units.ForEach(this);
+    (*(struct UnitList*)((char*)g_game + 0x1bca)).ForEach(this);
     return satisfied;
 }
 
@@ -1192,8 +1163,8 @@ void DefeatAllUnitsKilledOfType::OnUnitDied(Unit* unit)
     if (_strcmpi(name, ((UnitType *)unit->def)->name) == 0) {
         id = g_seams.units->FindUnitTypeId(name);
         count = 0;
-        g_game->units.ForEach(this);
-        g_game->units2.ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1bca)).ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1d15)).ForEach(this);
         if (count <= 1) {
             satisfied = 1;
         }
@@ -1241,7 +1212,7 @@ int DefeatAnyUnitPassesX::VisitUnit(Unit* unit)
 int DefeatAnyUnitPassesX::IsSatisfied()
 {
     if (satisfied == 0) {
-        g_game->units2.ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1d15)).ForEach(this);
     }
     return satisfied;
 }
@@ -1288,7 +1259,7 @@ int DefeatAnyUnitPassesZ::VisitUnit(Unit* unit)
 int DefeatAnyUnitPassesZ::IsSatisfied()
 {
     if (satisfied == 0) {
-        g_game->units2.ForEach(this);
+        (*(struct UnitList*)((char*)g_game + 0x1d15)).ForEach(this);
     }
     return satisfied;
 }
@@ -1318,7 +1289,7 @@ void DefeatAnyUnitPassesZ::LoadState(HapiBank* obj)
 // FUNCTION: 0x48fd50
 int DefeatDeathTimerRunsOut::IsSatisfied()
 {
-    unsigned int game_val = g_game->gameTick;
+    unsigned int game_val = ((unsigned int)g_game->ticks);
     return game_val >= (unsigned int)endTick;
 }
 
@@ -1343,7 +1314,7 @@ void DefeatDeathTimerRunsOut::LoadState(HapiBank* obj)
 // FUNCTION: 0x48fdf0
 void MissionConditions::SaveConditions(HapiBank* file)
 {
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
+    if (g_seams.map->GetGameType(g_game->net) == 1) {
         int i;
         for (i = 0; i < victoryCount; i++) {
             victory[i]->SaveState(file);
@@ -1357,7 +1328,7 @@ void MissionConditions::SaveConditions(HapiBank* file)
 // FUNCTION: 0x48fe60
 void MissionConditions::LoadConditions(HapiBank* file)
 {
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
+    if (g_seams.map->GetGameType(g_game->net) == 1) {
         int i;
         for (i = 0; i < victoryCount; i++) {
             victory[i]->LoadState(file);
@@ -1431,7 +1402,7 @@ int CheckAlliedVictory()
     int j;
     unsigned char state;
 
-    if (g_game->battleCommanderDeath == 2) {
+    if (g_game->commanderDeath == 2) {
         return 0;
     }
     mine = &g_game->players[g_game->localPlayer];
@@ -1504,14 +1475,14 @@ int MissionConditions::CheckDefeat()
             if (g_cdMismatchDefeatTick == 0) {
                 g_cdMismatchDefeatTick = (int)((__int64)rand() * 0x2328 / 0x8000) + 0x2328;
             }
-            if (g_cdMismatchDefeatTick <= g_game->gameTick) {
+            if (g_cdMismatchDefeatTick <= ((unsigned int)g_game->ticks)) {
                 g_cdMismatchDefeatTick = 0;
                 return 1;
             }
         }
         // The two mode cases share one body, but writing them out separately
         // is what makes MSVC lower the switch to the dec/je chain.
-        switch (g_seams.map->GetGameType(g_game->mapInfo)) {
+        switch (g_seams.map->GetGameType(g_game->net)) {
         case 1:
             return AnyDefeatConditionMet();
         case 2:

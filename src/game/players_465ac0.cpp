@@ -25,16 +25,7 @@ struct Map_00465ac0 {
     char unknown_0[0x7c];
     ByteMap_00465ac0 explored;           // +0x7c
 };
-struct Game {
-    char unknown_0[0x2a43];
-    unsigned char playerIndex;           // +0x2a43
-    char unknown_2a44[0x14273 - 0x2a44];
-    unsigned short* visibilityMask;      // +0x14273
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;              // +0x1427f
-    char debugMode;
-    unsigned short mapFlags;             // +0x14281
-};
+#include "game.h"
 #include "../units/unit_def.h"
 struct Vec3_00465ac0 {
     int x, y, z;

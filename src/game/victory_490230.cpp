@@ -38,14 +38,7 @@ public:
 #include "../../interfaces/seams.h"
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                   // +0x1b63
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;            // +0x2a42
-    char unknown_2a43[0x391e9 - 0x2a43];
-    Mission* mapInfo;                     // +0x391e9
-};
+#include "game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -86,7 +79,7 @@ int MissionConditions::CheckVictory()
 {
     if (active == 0)
         return 0;
-    switch (g_seams.map->GetGameType(g_game->mapInfo)) {
+    switch (g_seams.map->GetGameType(g_game->net)) {
     case 1:
         return AllVictoryConditionsMet();
     case 2: {

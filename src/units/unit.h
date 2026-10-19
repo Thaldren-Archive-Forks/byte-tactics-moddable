@@ -246,7 +246,7 @@ struct Unit {
 };
 #pragma pack(pop)
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 #include <stddef.h>
 static_assert(sizeof(Unit) == 0x118, "Unit is 0x118 bytes");
 static_assert(offsetof(Unit, weapons) == 0x4, "weapons");

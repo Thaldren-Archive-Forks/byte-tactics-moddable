@@ -41,11 +41,7 @@ struct Src_004ab400;
 
 #include "../network/player_info.h"
 
-struct Flags_00496ce0 {
-    unsigned short low : 4;            // +0x2b4c, bits 0-3
-    unsigned short flag : 1;           // bit 4
-    unsigned short rest : 11;
-};
+#include "game.h"
 
 struct Slot_00497080 {                 // 0x18 bytes
     char unknown_0[0xc];
@@ -76,12 +72,6 @@ struct Struct_00496e90 {
     unsigned short flag_149 : 1;       // +0x149
 };
 
-struct Settings_00496e10 {
-    int value;                         // +0x0
-    int flag_4;                        // +0x4
-    int flag_8;                        // +0x8
-    int flag_c;                        // +0xc
-};
 
 struct Vec3_00437320 {
     int x;
@@ -114,7 +104,7 @@ struct FixedPos_00496ee0 {
 // memory `or byte ptr [ecx+0x149], 1`).
 // The header's type, kept local: the info union and the +0x149 bitfield keep
 // the match (docs/c2-regalloc.md).
-struct Player {                        // 0x14b bytes, array at g_game+0x1b63
+struct PlayerView {
     int active;                        // +0x0
     int id;                            // +0x4
     char unknown_8[0x27 - 0x8];
@@ -153,113 +143,6 @@ struct Player {                        // 0x14b bytes, array at g_game+0x1b63
 // main loop reads there, so each pair sits in an anonymous union. Two views
 // name the pointer at +0x29a0 differently (team definitions, start-position
 // slots), and two name the Mission pointer at +0x391e9 (obj, net).
-struct Game {
-    char unknown_0[0x519];
-    Gui gui;                                   // +0x519
-    char unknown_120f[0x1b63 - 0x120f];
-    union {
-        Player players[10];                // +0x1b63
-        struct {
-            char unknown_1b63[0x1cd5 - 0x1b63];
-            Sub_00496db0* sub_1cd5;            // +0x1cd5
-            char unknown_1cd9[0x2851 - 0x1cd9];
-        };
-    };
-    char unknown_2851[0x29a0 - 0x2851];
-    union {
-        TeamDef_00496ee0* options;             // +0x29a0
-        Slot_00497080* slots;
-    };
-    char unknown_29a4[0x2a3c - 0x29a4];
-    unsigned short numPlayers;                 // +0x2a3c
-    char unknown_2a3e[0x2a42 - 0x2a3e];
-    unsigned char localPlayer;                 // +0x2a42
-    char unknown_2a43[0x2a44 - 0x2a43];
-    unsigned short bit0 : 1;                   // +0x2a44
-    unsigned short bit1 : 1;
-    unsigned short bit2 : 1;
-    unsigned short bit3 : 1;
-    unsigned short rest_2a44 : 12;
-    char unknown_2a46[0x2b4c - 0x2a46];
-    Flags_00496ce0 flags_2b4c;                 // +0x2b4c
-    char unknown_2b4e[0x2bbe - 0x2b4e];
-    unsigned char frontendMenuState;           // +0x2bbe
-    unsigned char frontendSubstate;            // +0x2bbf
-    char unknown_2bc0[0x2bee - 0x2bc0];
-    unsigned short pad_2bee : 5;               // +0x2bee
-    unsigned short flags_2bee : 3;
-    unsigned short rest_2bee : 8;
-    char unknown_2bf0[0x2cbe - 0x2bf0];
-    signed char cursorMode;                    // +0x2cbe
-    char unknown_2cbf[0x14281 - 0x2cbf];
-    unsigned short bit0_14281 : 1;             // +0x14281, bit 0
-    unsigned short bit1_14281 : 1;             // bit 1
-    unsigned short bit2_14281 : 1;             // bit 2
-    unsigned short rest_14281 : 13;
-    char unknown_14283[0x1487f - 0x14283];
-    Src_004ab400* cursorModeSeq[1];            // +0x1487f
-    char unknown_14883[0x37e37 - 0x14883];
-    int viewPixelWidth;                        // +0x37e37
-    int viewPixelHeight;                       // +0x37e3b
-    char unknown_37e3f[0x37e9c - 0x37e3f];
-    unsigned short unitIndex;                  // +0x37e9c
-    char unknown_37e9e[0x37ebe - 0x37e9e];
-    union {
-        unsigned short word_37ebe;
-        struct {
-            unsigned short bit0_37ebe : 1;
-            unsigned short bit1_37ebe : 1;
-            unsigned short bit2_37ebe : 1;
-            unsigned short bit3_37ebe : 1;
-            unsigned short bit4_37ebe : 1;
-            unsigned short bit5_37ebe : 1;
-            unsigned short bit6_37ebe : 1;
-            unsigned short bit7_37ebe : 1;
-            unsigned short bits8_37ebe : 3;
-            unsigned short bit11_37ebe : 1;
-            unsigned short rest_37ebe : 4;
-        };
-    };   // +0x37ebe
-    char unknown_37ec0[0x37ef6 - 0x37ec0];
-    int battleCommanderDeath;                  // +0x37ef6
-    char unknown_37efa[0x37f5f - 0x37efa];
-    union {
-        PlayerName_00496ee0 names[8];          // +0x37f5f
-        struct {
-            char unknown_37f5f[0x38a37 - 0x37f5f];
-            unsigned int lastSimBudgetTick;    // +0x38a37
-            int simStepsPending;               // +0x38a3b
-            char unknown_38a3f[0x38a47 - 0x38a3f];
-            unsigned int gameTick;             // +0x38a47
-            char unknown_38a4b[0x38a51 - 0x38a4b];
-            unsigned short paused : 1;
-            unsigned short rest_38a51 : 15;    // +0x38a51
-            char unknown_38a53[0x38b53 - 0x38a53];
-            char text_38b53[0x100];            // +0x38b53
-            int movieCaptureIndex;             // +0x38c53
-            int movieOutputRate;               // +0x38c57
-            unsigned int nextMovieFrameTick;   // +0x38c5b
-            char unknown_38c5f[0x38d75 - 0x38c5f];
-            Flags_38d75 loadingFlags;              // +0x38d75
-            char unknown_38d77[0x38d85 - 0x38d77];
-            FrameTimers profileTimingBars;     // +0x38d85
-        };
-    };
-    char unknown_390ef[0x391e9 - 0x390ef];
-    union {
-        Mission* mapInfo;                      // +0x391e9
-        Mission* net;
-    };
-    char unknown_391ed[0x391f1 - 0x391ed];
-    int frontendState;                         // +0x391f1
-    void (*handler)();                         // +0x391f5
-    char unknown_391f9[0x3923b - 0x391f9];
-    unsigned short bits_3923b : 2;             // +0x3923b
-    unsigned short flag2_3923b : 1;
-    unsigned short bit3_3923b : 1;
-    unsigned short flag4_3923b : 1;
-    unsigned short rest_3923b : 11;
-};
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -312,7 +195,7 @@ void __stdcall CreateUnit(int team, unsigned short id, FixedPos_00496ee0 pos, in
 
 static inline void Charge(int bucket)
 {
-    FrameTimers* t = &g_game->profileTimingBars;
+    FrameTimers* t = &g_game->timers;
     int now = GetMilliseconds();
     t->acc[bucket] += now - t->last;
     t->last = now;
@@ -322,7 +205,7 @@ static inline void Charge(int bucket)
 // FUNCTION: 0x496790
 void MainLoopTick()
 {
-    FrameTimers* t = &g_game->profileTimingBars;
+    FrameTimers* t = &g_game->timers;
     t->total = 0;
     for (int i = 0; i < 9; i++) {
         t->total += t->acc[i];
@@ -333,23 +216,23 @@ void MainLoopTick()
         t->total = 1;
     t->last = GetMilliseconds();
 
-    if (g_game->bit0) {
+    if (g_game->bits_2a44.bit0) {
         UpdateFramePacing();
-        if (g_game->simStepsPending != 0) {
+        if (g_game->frames_38a3b != 0) {
             RunGameSteps(1);
             CHARGE(8);
             MainLoopContinueStub();
             MainLoopContinueStub_B();
             MainLoopContinueStub_C();
-            if (g_game->loadingFlags.bit2) {
+            if ((*(struct Flags_38d75*)&g_game->loadingFlags).bit2) {
                 if (AssignStartPositions())
-                    g_game->loadingFlags.word &= 0xfffb;
+                    (*(struct Flags_38d75*)&g_game->loadingFlags).word &= 0xfffb;
                 CHARGE(0);
             }
             EmptyMainLoopHook();
             EmptyMainLoopHook_B();
             EmptyMainLoopHook_C();
-        } else if (g_game->paused) {
+        } else if (g_game->bits_38a51_2.flag_38a51) {
             if (g_usePacketManager)
                 g_packetManager.SendAllQueued(0);
             HandleNetPackets();
@@ -359,38 +242,38 @@ void MainLoopTick()
             }
             CHARGE(0);
         }
-    } else if (!g_game->bit0_37ebe) {
-        if (!g_game->paused) {
+    } else if (!g_game->bits_37ebe_1.bit0_37ebe) {
+        if (!g_game->bits_38a51_2.flag_38a51) {
             UpdateFramePacing();
-            if (g_game->simStepsPending != 0) {
+            if (g_game->frames_38a3b != 0) {
                 RunGameSteps(0);
                 CHARGE(8);
             }
         }
     }
-    if (!g_game->bit0_37ebe) {
+    if (!g_game->bits_37ebe_1.bit0_37ebe) {
         HandleGameKey();
         UpdateEdgeScroll();
     }
     CollectVisibleUnitIds();
-    unsigned short flags = g_game->word_37ebe;
+    unsigned short flags = g_game->flags_37ebe;
     // The bit 4 tests read the bitfield from memory, not a shift of the flags copy.
-    if ((flags & 0x800) || (flags & 0x65) || g_game->flags_2bee) {
-        if (g_game->bit4_37ebe)
+    if ((flags & 0x800) || (flags & 0x65) || g_game->bits_2bee_2.flags_2bee) {
+        if (g_game->bits_37ebe_1.bit4_37ebe)
             g_game->unitIndex = 0;
     } else {
-        if (g_game->bit4_37ebe) {
-            g_game->bit4_37ebe = 0;
+        if (g_game->bits_37ebe_1.bit4_37ebe) {
+            g_game->bits_37ebe_1.bit4_37ebe = 0;
             RefreshSelectionOrders();
         }
     }
     DrawBattleFrame(1, 1);
     CHARGE(8);
     EmptyMainLoopHook_B();
-    if (g_game->movieCaptureIndex > 0 && g_game->nextMovieFrameTick <= g_game->gameTick) {
+    if (g_game->movieCaptureIndex > 0 && g_game->nextMovieFrameTick <= ((unsigned int)g_game->ticks)) {
         SaveScreenshot(g_game->text_38b53, "FRAM");
         g_game->nextMovieFrameTick += 30 / g_game->movieOutputRate;
-        g_game->lastSimBudgetTick = GetTicks();
+        g_game->lastTick = GetTicks();
     }
     EmptyMainLoopHook_C();
 }
@@ -400,19 +283,19 @@ void MainLoopTick()
 // FUNCTION: 0x496a60
 void InitFrame()
 {
-    if (g_game->cursorMode != 0x13) {
-        g_game->cursorMode = 0x13;
-        SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->cursorModeSeq[0x13]);
+    if (((signed char)g_game->cursorMode) != 0x13) {
+        g_game->cursorMode = (char)(0x13);
+        SetCursorAnimation((Obj_004ab400*)&g_game->gui, g_game->table[0x13]);
     }
     ShowSoftwareCursor();
-    g_game->bit2 = 0;
-    g_game->bit3 = 0;
-    g_game->bit0 = 0;
+    g_game->bits_2a44.bit2 = 0;
+    g_game->bits_2a44.bit3 = 0;
+    g_game->bits_2a44.bit0 = 0;
     g_seams.map->SetMissionType(0);
-    g_game->flag4_3923b = 0;
-    g_game->flag2_3923b = 0;
+    g_game->bits_3923b.flag4_3923b = 0;
+    g_game->bits_3923b.flag2_3923b = 0;
     ClearKeyQueue();
-    g_game->frontendState = 2;
+    g_game->mode_391f1 = 2;
     g_game->handler = MenuFrame;
     SetCloseHandler(LeaveNetGameCallback, 0);
 }
@@ -421,15 +304,15 @@ void InitFrame()
 void ReturnToMainMenuFrame()
 {
     EnterMainMenuState();
-    g_game->bit2 = 0;
-    g_game->bit3 = 0;
-    g_game->bit0 = 0;
+    g_game->bits_2a44.bit2 = 0;
+    g_game->bits_2a44.bit3 = 0;
+    g_game->bits_2a44.bit0 = 0;
     g_seams.map->SetMissionType(0);
-    g_game->flag4_3923b = 0;
-    g_game->flag2_3923b = 0;
+    g_game->bits_3923b.flag4_3923b = 0;
+    g_game->bits_3923b.flag2_3923b = 0;
     ClearKeyQueue();
     EnableKeyCommands(&g_game->gui);
-    g_game->frontendState = 2;
+    g_game->mode_391f1 = 2;
     g_game->handler = MenuFrame;
     SetCloseHandler(LeaveNetGameCallback, 0);
 }
@@ -443,30 +326,30 @@ void MenuFrame()
     g_seams.units->RefreshUnitInfo();
     HarnessStartSkirmish();
     RunFrontendStateMachine();
-    if (g_game->bit2 && g_seams.map->GetGameType(g_game->mapInfo) == 1) {
+    if (g_game->bits_2a44.bit2 && g_seams.map->GetGameType(g_game->net) == 1) {
         HideSoftwareCursor();
-        g_game->frontendState = 4;
+        g_game->mode_391f1 = 4;
         g_game->handler = CampaignSetupFrame;
         SetCloseHandler(LeaveNetGameCallback, 0);
-    } else if (g_game->bit2 && g_seams.map->GetGameType(g_game->mapInfo) == 2) {
+    } else if (g_game->bits_2a44.bit2 && g_seams.map->GetGameType(g_game->net) == 2) {
         HideSoftwareCursor();
-        g_game->frontendState = 5;
+        g_game->mode_391f1 = 5;
         g_game->handler = LoadingScreenFrame;
         SetCloseHandler(LeaveNetGameCallback, 0);
-    } else if (g_game->frontendMenuState == 0x11) {
+    } else if (g_game->field_2bbe == 0x11) {
         // This branch and the 0x10 one stay nested ifs, each with its own copy of
         // the state change; a && chain would fold the bitfield test.
-        if (g_game->bit2) {
+        if (g_game->bits_2a44.bit2) {
             HideSoftwareCursor();
-            g_game->frontendState = 3;
+            g_game->mode_391f1 = 3;
             g_game->handler = PreBattleFrame;
             SetCloseHandler(LeaveNetGameCallback, 0);
         }
-    } else if (g_game->frontendMenuState == 0x10) {
+    } else if (g_game->field_2bbe == 0x10) {
         if (g_game->flags_2b4c.flag) {
-            if (g_game->frontendSubstate == 0x12 || g_game->frontendSubstate == 0x13) {
+            if (g_game->field_2bbf == 0x12 || g_game->field_2bbf == 0x13) {
                 HideSoftwareCursor();
-                g_game->frontendState = 3;
+                g_game->mode_391f1 = 3;
                 g_game->handler = PreBattleFrame;
                 SetCloseHandler(LeaveNetGameCallback, 0);
             }
@@ -486,12 +369,12 @@ void PreBattleFrame()
 {
     // Declared at function scope: keeps its store before the pushes.
     char msg;
-    Player* p = &g_game->players[g_game->localPlayer];
+    PlayerView* p = &(*(PlayerView(*)[10])&g_game->players)[g_game->localPlayer];
     // Each branch keeps its own copy of the state change.
     if (p->info->flags_97 & 1) {
         msg = 8;
         BroadcastPacket(p->id, &msg, 1);
-        g_game->frontendState = 5;
+        g_game->mode_391f1 = 5;
         g_game->handler = LoadingScreenFrame;
         SetCloseHandler(LeaveNetGameCallback, 0);
     } else if (g_game->flags_2b4c.flag) {
@@ -499,11 +382,11 @@ void PreBattleFrame()
             g_netHeartbeatNextTick = GetTicks() + 0x3c;
             SendNetHeartbeat();
         }
-        g_game->frontendState = 5;
+        g_game->mode_391f1 = 5;
         g_game->handler = LoadingScreenFrame;
         SetCloseHandler(LeaveNetGameCallback, 0);
     } else {
-        g_game->frontendState = 5;
+        g_game->mode_391f1 = 5;
         g_game->handler = LoadingScreenFrame;
         SetCloseHandler(LeaveNetGameCallback, 0);
     }
@@ -512,11 +395,11 @@ void PreBattleFrame()
 // FUNCTION: 0x496db0
 void CampaignSetupFrame()
 {
-    g_game->numPlayers = 2;
+    g_game->field_2a3c = 2;
     g_seams.players->SetupPlayerSlot(0, 1);
     g_seams.players->SetupPlayerSlot(1, 2);
-    g_game->sub_1cd5->flag_96 = 1;
-    g_game->frontendState = 5;
+    ((Sub_00496db0*)g_game->p1cd5)->flag_96 = 1;
+    g_game->mode_391f1 = 5;
     g_game->handler = LoadingScreenFrame;
     SetCloseHandler(LeaveNetGameCallback, 0);
 }
@@ -526,10 +409,10 @@ void CampaignSetupFrame()
 // FUNCTION: 0x496e10
 void __stdcall ApplyMissionOptionFlags(Settings_00496e10* s)
 {
-    g_game->battleCommanderDeath = s->value;
-    g_game->bit2_14281 = s->flag_c;
-    g_game->bit0_14281 = s->flag_4;
-    g_game->bit1_14281 = s->flag_8;
+    g_game->commanderDeath = s->value;
+    g_game->bits_14281.bit2_14281 = s->flag_c;
+    g_game->bits_14281.bit0_14281 = s->flag_4;
+    g_game->bits_14281.bit1_14281 = s->flag_8;
 }
 
 static inline int AtLeast200(int v)
@@ -571,11 +454,11 @@ void __stdcall SetStartingStorageBonus(Struct_00496e90* obj, int height, int wid
 // FUNCTION: 0x496ee0
 void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
 {
-    g_game->players[team].info->side = g_game->options[team].nameIndex;
-    g_game->players[team].info->color = g_game->options[team].index2;
-    Player* p = &g_game->players[team];
-    int w = g_game->options[team].size2;
-    int v = g_game->options[team].size1;
+    (*(PlayerView(*)[10])&g_game->players)[team].info->side = ((TeamDef_00496ee0*)g_game->options)[team].nameIndex;
+    (*(PlayerView(*)[10])&g_game->players)[team].info->color = ((TeamDef_00496ee0*)g_game->options)[team].index2;
+    PlayerView* p = &(*(PlayerView(*)[10])&g_game->players)[team];
+    int w = ((TeamDef_00496ee0*)g_game->options)[team].size2;
+    int v = ((TeamDef_00496ee0*)g_game->options)[team].size1;
     p->started = 1;
     p->size1 = (float)(w >= 200 ? w : 200);
     p->size2 = (float)(v >= 200 ? v : 200);
@@ -583,7 +466,7 @@ void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
     FixedPos_00496ee0 pos;
     if (g_seams.map->GetStartPosition(g_game->net, 0, (Vec3*)&pos, startpos)) {
         unsigned short id = g_seams.units->FindUnitTypeId(
-            g_game->names[g_game->players[team].info->side].name);
+            (*(PlayerName_00496ee0(*)[8])&g_game->names_37f5f)[(*(PlayerView(*)[10])&g_game->players)[team].info->side].name);
         g_seams.units->CreateUnit(team, id, *(Vec3*)&pos, 1, 1, 0);
     } else {
         char buf[128];
@@ -594,8 +477,8 @@ void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
     }
 
     if (team == g_game->localPlayer)
-        SetCameraPosition(pos.x.h.whole - g_game->viewPixelWidth / 2,
-            pos.z.h.whole - g_game->viewPixelHeight / 2, 0);
+        SetCameraPosition(pos.x.h.whole - g_game->viewWidth / 2,
+            pos.z.h.whole - g_game->viewHeight / 2, 0);
 }
 
 // Walks the ten player slots: for every player that is playing (the same
@@ -614,7 +497,7 @@ void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
 static int IsPlaying(unsigned char i)
 {
     if (i < 10) {
-        Player* p = &g_game->players[i];
+        PlayerView* p = &(*(PlayerView(*)[10])&g_game->players)[i];
         if (p->active != 0 && (p->type == 1 || p->type == 2 || p->type == 3)
             && p->index != 10)
             return 1;
@@ -623,7 +506,7 @@ static int IsPlaying(unsigned char i)
 }
 
 // Inlined copy of SetStartingStorageBonus.
-static inline void __stdcall SetSize_00496e90(Player* obj, int height, int width)
+static inline void __stdcall SetSize_00496e90(PlayerView* obj, int height, int width)
 {
     obj->flag_149 = 1;
     obj->width = (float)(width >= 200 ? width : 200);
@@ -640,12 +523,12 @@ void InitStartingResourcesFromSkirmish()
     int w = 0;
     for (int i = 0; i < 10; i++) {
         if (IsPlaying(i)) {
-            Slot_00497080* s = &g_game->slots[i];
+            Slot_00497080* s = &((Slot_00497080*)g_game->options)[i];
             if (s->metal > h)
                 h = s->metal;
             if (s->energy > w)
                 w = s->energy;
-            SetSize_00496e90(&g_game->players[i], h, w);
+            SetSize_00496e90(&(*(PlayerView(*)[10])&g_game->players)[i], h, w);
         }
     }
 }
