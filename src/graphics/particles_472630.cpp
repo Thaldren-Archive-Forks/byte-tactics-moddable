@@ -98,37 +98,6 @@ struct Vec3i_00474130 {
     }
 };
 
-struct Vec3_004742c0 {
-    int x;
-    int y;
-    int z;
-
-    Vec3_004742c0 operator-(const Vec3_004742c0& o) const
-    {
-        Vec3_004742c0 r;
-        r.x = x - o.x;
-        r.y = y - o.y;
-        r.z = z - o.z;
-        return r;
-    }
-
-    // s is 16.16 fixed point. MSVC 5 only orders the two __allmul arguments
-    // the way the original does (and keeps the cdq that sign extends the
-    // quotient) when the three components go through one inlined method.
-    void Scale(int s)
-    {
-        // One named 64-bit product: MSVC 5 then orders the two __allmul
-        // operands as the original does.
-        __int64 p;
-        p = (__int64)x * s;
-        x = (int)(p >> 16);
-        p = (__int64)y * s;
-        y = (int)(p >> 16);
-        p = (__int64)z * s;
-        z = (int)(p >> 16);
-    }
-};
-
 struct Vec3_00474580 {
     int x, y, z;
     void operator+=(const Vec3_00474580& o) { x += o.x; y += o.y; z += o.z; }
@@ -361,9 +330,9 @@ public:
     int time;                                           // +0x8
     std::vector<ThrustParticle> items;                  // +0xc (_First +0x10)
     int period;                                         // +0x1c
-    Vec3_004742c0 pos0;                                 // +0x20
-    Vec3_004742c0 pos1;                                 // +0x2c
-    Vec3_004742c0 pos2;                                 // +0x38
+    Vec3 pos0;                                 // +0x20
+    Vec3 pos1;                                 // +0x2c
+    Vec3 pos2;                                 // +0x38
 
     ThrustParticles() {}
     virtual void Update();                              // slot 1, 0x473010
@@ -372,7 +341,7 @@ public:
     virtual void Emit();                                // slot 4, 0x4743a0
     virtual int IsEmitDue();                            // slot 5, 0x4730c0
     virtual void Init(Shape_00472ab0* p, Shape_00472ab0* q, int a, int b);
-    void Init(Vec3_004742c0* p, Vec3_004742c0* q, int a, int b);
+    void Init(Vec3* p, Vec3* q, int a, int b);
 };
 
 // The pool allocator of the vector members below, to call their out-of-line

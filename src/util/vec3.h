@@ -18,6 +18,16 @@ struct Vec3 {
         y -= v.y;
         z -= v.z;
     }
+    void Scale(int s)
+    {
+        __int64 p;
+        p = (__int64)x * s;
+        x = (int)(p >> 16);
+        p = (__int64)y * s;
+        y = (int)(p >> 16);
+        p = (__int64)z * s;
+        z = (int)(p >> 16);
+    }
     int SquareXZ() const
     {
         __int64 a = x, b = z;
