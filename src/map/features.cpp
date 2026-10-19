@@ -19,6 +19,7 @@
 
 #include "../util/tdf.h"
 #include "../util/hapi_bank.h"
+#include "../util/rot16.h"
 
 #pragma pack(push, 1)
 
@@ -57,10 +58,6 @@ static inline Vec3 FeatureVec3(int ax, int ay, int az)
     v.z = az;
     return v;
 }
-
-struct Rot16 {
-    short x, y, z;
-};
 
 struct Fixed {
     unsigned short frac;

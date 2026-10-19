@@ -2686,11 +2686,7 @@ struct Packet_2 {  // 0x6 bytes, 1 view
     short z;  // +0x4
 };
 
-struct Rot16 {  // 0x6 bytes, 12 views
-    short x;  // +0x0
-    short y;  // +0x2
-    short z;  // +0x4
-};
+#include "../src/util/rot16.h"
 
 struct FeatureSpot {  // 0x30 bytes, 13 views
     short prev;  // +0x0
