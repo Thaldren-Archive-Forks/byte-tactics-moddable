@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <malloc.h>
+#include "../quirks/quirks.h"
 
 #pragma pack(push, 1)
 struct Game_0049ee30 {
@@ -77,7 +78,12 @@ int __stdcall ParseCommandLine(char* cmdLine, char* appName)
     char* p = strtok(copy, " \t");
     while (p) {
         if (*p != '-' && *p != '/') {
-            strcpy(g_preferredLanguage, p);
+            if (g_quirks.boundLanguageCopy) {
+                strncpy(g_preferredLanguage, p, 0x3f);
+                g_preferredLanguage[0x3f] = 0;
+            } else {
+                strcpy(g_preferredLanguage, p);
+            }
         } else if (!IsDebugKeyword(p)) {
             switch (p[1]) {
             case 'B':
