@@ -212,7 +212,7 @@ struct ExplodedBlock {
     PieceRec rec;                      // +0x30
 };
 
-struct Debris {
+struct DebrisView {
     Object3D* obj;                     // +0x00
     GafRef ref1;                       // +0x04
     GafRef ref2;                       // +0x10
@@ -358,7 +358,7 @@ void __stdcall AddExplosionEffect(Vec3* pos, GafSequence* src, int index, int fl
 {
     int* pCount = &g_game->count_1491b;
     if (*pCount < 300) {
-        Debris* e = (Debris*)(pCount + 1) + (*pCount)++;
+        DebrisView* e = (DebrisView*)(pCount + 1) + (*pCount)++;
         e->pos = *pos;
         if (src != 0)
             InitGafSequence(&e->ref1, src, 0);
@@ -381,7 +381,7 @@ void __stdcall DrawExplosions(void* surface)
     for (i = 0; i < 100; ++i)
         if (g_explodedPieces[i] && !DrawExplodedPiece(surface, g_explodedPieces[i])) g_explodedPieces[i] = 0;
     int* pCount = &g_game->count_1491b;
-    Debris* d = (Debris*)(pCount + 1);
+    DebrisView* d = (DebrisView*)(pCount + 1);
     Position pos;
     for (i = 0; i < *pCount; ++i, d++) {
         pos.x.value = d->pos.x - (g_game->scrollX << 16);
@@ -392,7 +392,7 @@ void __stdcall DrawExplosions(void* surface)
         if (PointInRect(g_game->viewport, x, y) && d->ref2.src)
             DrawFrameShadow(surface, GetGafSequenceFrame(&d->ref2), x, y);
     }
-    d = (Debris*)(pCount + 1);
+    d = (DebrisView*)(pCount + 1);
     for (i = 0; i < *pCount; ++i, d++) {
         pos.x.value = d->pos.x - (g_game->scrollX << 16);
         pos.y.value = d->pos.y;
@@ -459,8 +459,8 @@ void UpdateExplosions()
     }
 
     int* pCount = &g_game->count_1491b;
-    Debris* d = (Debris*)(pCount + 1);
-    Debris* base = d;
+    DebrisView* d = (DebrisView*)(pCount + 1);
+    DebrisView* base = d;
     int n;
     for (n = 0; n < *pCount; n++, d++) {
         if (d->obj != 0) {
@@ -507,7 +507,7 @@ void UpdateExplosions()
     while (removed) {
         removed = 0;
         int count = *pCount;
-        Debris* e = base;
+        DebrisView* e = base;
         int k;
         for (k = 0; k < count; k++, e++) {
             if (e->obj == 0 && e->ref1.src == 0 && e->ref2.src == 0) {
@@ -802,7 +802,7 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
         if (*count >= 300)
             return;
         if (desc->faces[i].nverts == 4 && !(desc->faces[i].flags.raw & 1) && desc->firstFace != i) {
-            Debris* d = (Debris*)(count + 1) + (*count)++;
+            DebrisView* d = (DebrisView*)(count + 1) + (*count)++;
             d->pos = PosPlus(piece->pos, unit->pos);
             d->obj = AllocExplodePieceObject();
             if (d->obj == 0)

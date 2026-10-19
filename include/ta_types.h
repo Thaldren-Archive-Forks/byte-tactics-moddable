@@ -918,11 +918,11 @@ struct Data_00480c30;
 struct Data_004b1c00;
 struct Data_004b1ec0;
 struct DblRec_004b4270;
-struct Debris_00420f30;
+struct Debris;
 struct DebugDir_004ddfa0;
 struct DefFlags_0049d270;
 struct Def_004899b0;
-struct Def_0049d270;
+struct WeaponDefRecord;
 struct Desc;
 struct Desc_004437c0;
 struct Desc_004b8ec0;
@@ -4562,7 +4562,7 @@ struct Feature {  // 0x100 bytes, 32 views
     char unknown_ff;  // +0xff
 };
 
-#include "../src/weapons/debris_00420f30.h"
+#include "../src/weapons/debris.h"
 
 struct Effect {  // 0x54 bytes, 1 view
     void* model;  // +0x0
@@ -4891,7 +4891,7 @@ struct Frame_00424050 {  // 0x8 bytes, 1 view
     unsigned short originY;  // +0x6
 };
 
-#include "../src/weapons/def_0049d270.h"
+#include "../src/weapons/weapon_def_record.h"
 
 struct Packet_004244b0 {  // 0x6 bytes, 1 view
     unsigned char type;  // +0x0
