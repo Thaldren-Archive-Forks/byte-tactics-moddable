@@ -69,15 +69,7 @@ public:
 };
 #pragma pack(pop)
 
-// Not air_maneuver_order.h: its symbol ids would move 0x412d40 out of its window.
-#pragma pack(push, 2)
-class AirManeuverOrder {
-public:
-    char unknown_0[0x2c];
-    AirManeuverOrder(Order* order, const Vec3& a, const Vec3& b);
-    void SetAltitude(int);
-};
-#pragma pack(pop)
+#include "air_maneuver_order.h"
 
 extern Game* g_game;
 

@@ -7263,18 +7263,7 @@ public:
     Class_0044e9c0(Owner_0044e9c0*, BitReader*);
 };
 
-class AirManeuverOrder {  // 0x2c bytes, 1 view
-public:
-    char unknown_0[8];
-    short field_8;  // +0x8
-    Vec3 target;  // +0xa
-    Vec3 other;  // +0x16
-    short field_22;  // +0x22
-    unsigned short heading;  // +0x24
-    char unknown_26[2];
-    Object_0044ea60* self;  // +0x28
-    int FUN_0044ea60(Vec3*);
-};
+#include "../src/orders/air_maneuver_order.h"
 
 struct Object_0044ea60 {  // 0x96 bytes, 1 view
     char unknown_0[146];
