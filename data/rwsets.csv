@@ -44581,9 +44581,9 @@ address,function,file,kind,target
 ,Elem_00432be0::~Elem_00432be0,src/map/los_tables.cpp,function,
 ,Elem_00432be0::~Elem_00432be0,src/units/unit_types_42a8d0.cpp,call,StringRef::ReleaseRef
 ,Elem_00432be0::~Elem_00432be0,src/units/unit_types_42a8d0.cpp,function,
-,Elem_0043c390::operator!=,src/orders/order_list.cpp,function,
-,Elem_0043c390::operator<,src/orders/order_list.cpp,function,
-,Elem_0043c390::operator==,src/orders/order_list.cpp,function,
+,Elem_0043c390::operator!=,src/orders/order_type_entry.h,function,
+,Elem_0043c390::operator<,src/orders/order_type_entry.h,function,
+,Elem_0043c390::operator==,src/orders/order_type_entry.h,function,
 ,Elem_00487af0,src/units/unit_save.cpp,function,
 ,EmitTdfFieldDestructor,src/util/tdf.cpp,call,~TdfField
 ,EmitTdfFieldDestructor,src/util/tdf.cpp,function,
