@@ -206,7 +206,7 @@ public:
     virtual void OrStatusFlags(unsigned int);
 
     union {
-        PathOrderAttach link;          // +0x12
+        PathOrderAttach link;
     };
     Vec3_0043a1f0 pos;                 // +0x22
     int start;                         // +0x2e

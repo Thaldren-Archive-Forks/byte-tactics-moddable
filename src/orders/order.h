@@ -43,16 +43,16 @@ struct Order {
     };
     unsigned int wakeFrame;        // +0x0a
     union {
-        Unit* unit;                // +0x0e
+        Unit* unit;
         Unit* source;
     };
     union {
         struct {
             char unknown_12[4];
-            Unit* target;          // +0x16, the link's owner
+            Unit* target;
             char unknown_1a[8];
         };
-        PathOrderAttach link;      // +0x12
+        PathOrderAttach link;
     };
     Vec3 pos;                      // +0x22
     // One-arm unions: each costs symbol ids the including files match at.
