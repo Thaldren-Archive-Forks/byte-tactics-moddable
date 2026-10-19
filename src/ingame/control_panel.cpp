@@ -18,15 +18,7 @@
 
 #include "../util/vec3.h"
 
-// The copy constructor is only declared: it is never called (the temporary is
-// elided), but declaring it makes MSVC build the by-value argument in place in
-// the callee's argument slot, which is what the original does.
-class MissionType {
-public:
-    unsigned char index;
-    MissionType(const char* name);
-    MissionType(const MissionType& other);
-};
+#include "../orders/mission_type.h"
 
 struct Option_00419560;
 
