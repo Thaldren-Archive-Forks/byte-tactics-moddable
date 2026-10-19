@@ -581,93 +581,25 @@ public:
     virtual void SerializeSave();                       // slot 1
     virtual void GetType();                             // slot 2
     virtual void IsFxStyle();                           // slot 3
-    virtual int ContainsUnit(Struct_004907e0* owner);   // slot 4
+    virtual int ContainsUnit(Unit* owner);
     virtual int ContainsCell(int x, int y);             // slot 5
     virtual void FillGoalCells();                       // slot 6
     virtual void ApproxDist();                          // slot 7
-    virtual int FillWorldPos(Vec3_004907e0* out);       // slot 8
+    virtual int FillWorldPos(Vec3* out);
     virtual int TryGetDesiredHeading();                 // slot 9
     virtual void WriteBits();                           // slot 10
     virtual int KeepAfterComplete();                    // slot 11
 };
 
-class AiSearchGoal;
+#include "../ai/ai_search_goal.h"
+#include "order_goals.h"
 
-// Vtable 0x4fd428, constructor 0x44ef20, ??_G 0x44ef60.
-class PathGoal {
-public:
-    Base_00490a10* target;             // +0x4
-    Struct_004907e0* owner;            // +0x8
+#include "unit_motion.h"
 
-    PathGoal(Struct_004907e0* p);
-    virtual ~PathGoal() {}                          // slot 0
-    virtual void SetPathOrder(void* param);         // slot 1
-    virtual void TickTowardGoal();                  // slot 2
-    virtual void FillWaypointWorldPos(Vec3_004907e0*, int, int);  // slot 3
-    virtual void ExportGoalPose(Vec3_004907e0*, Vec3_004907e0*, short*);  // slot 4
-    virtual int HasReadyWaypoints();                // slot 5
-    virtual AiSearchGoal* TryClaimRepath();         // slot 6
-    virtual int HasNetUnitState();                  // slot 7
-    virtual void SerializeNetUnitState(BitWriter*);  // slot 8
-    virtual void DeserializeNetUnitState(BitReader*);  // slot 9
-    virtual void DrawOnSurface(void*);              // slot 10
-};
-
-struct Point_0044f080 {
-    short x;
-    short y;
-};
-
-// Vtable 0x4fd458, constructor 0x44f010, destructor 0x44f450, ??_G 0x44f040.
-// Slots 4 and 9 are inherited.
-class AiSearchGoal : public PathGoal {
-public:
-    Point_0044f080 points[20];         // +0xc
-    int count;                         // +0x5c
-    unsigned int repathClaimTick;      // +0x60
-    union {
-        struct {
-            unsigned char active : 1;  // +0x64 bit 0
-            unsigned char flag_1 : 1;  // bit 1
-            // flag_2 and flag_3 stay 1-bit bitfields: an int mode store gives and/or.
-            unsigned char flag_2 : 1;  // bit 2
-            unsigned char flag_3 : 1;  // bit 3, the path changed
-        };
-        unsigned char flags;
-    };
-
-    AiSearchGoal(Struct_004907e0* p);
-    virtual ~AiSearchGoal();                        // slot 0
-    virtual void SetPathOrder(void* param);         // slot 1, 0x44f2a0
-    virtual void TickTowardGoal();                  // slot 2, 0x44f1a0
-    virtual void FillWaypointWorldPos(Vec3_004907e0*, int, int);  // slot 3, 0x44f150
-    virtual int HasReadyWaypoints();                // slot 5, 0x44f290
-    virtual AiSearchGoal* TryClaimRepath();         // slot 6, 0x44f260
-    virtual int HasNetUnitState();                  // slot 7, 0x44f480
-    virtual void SerializeNetUnitState(BitWriter*);  // slot 8, 0x44f4a0
-    // In console_commands_417e00.cpp: it was compiled with the console code,
-    // far from the rest of the class.
-    virtual void DrawOnSurface(void*);              // slot 10, 0x417e00
-    void SetWaypoints(Point_0044f080* src, int n);
-    void TruncateWaypointsFrom(int n);
-};
-
-struct Point_0044f5c0 {
-    short x;                           // +0x0
-    short y;                           // +0x2
-};
-
-// Vtable 0x4fd488, constructor 0x44f570, ??_G 0x44f590.
-class PatrolGoal : public PathGoal {
-public:
-    Point_0044f5c0 points[3];          // +0xc
-    int count;                         // +0x18
-
-    PatrolGoal(Struct_004907e0* p);
-    virtual void FillWaypointWorldPos(Vec3_004907e0*, int, int);  // slot 3, 0x44f650
-    virtual int HasReadyWaypoints();                // slot 5, 0x44f5b0
-    virtual void DeserializeNetUnitState(BitReader*);  // slot 9, 0x44f5c0
-};
+static inline UnitMotion* Motion(Unit* unit)
+{
+    return (UnitMotion*)unit->motion;
+}
 
 // Unused here: a forward declaration of a later function of this file; its
 // symbol id keeps the allocation (docs/c2-regalloc.md).
@@ -1965,7 +1897,7 @@ Point_0044eef0* __stdcall CopyDwordRangeUnchecked(Point_0044eef0* first, Point_0
 // The constructor.
 // FUNCTION: 0x44ef20
 // FUNCTION: 0x44ef60 ??_GPathGoal@@UAEPAXI@Z
-PathGoal::PathGoal(Struct_004907e0* p)
+PathGoal::PathGoal(Unit* p)
 {
     owner = p;
     target = 0;
@@ -1973,7 +1905,7 @@ PathGoal::PathGoal(Struct_004907e0* p)
 
 // Slot 3: does nothing.
 // FUNCTION: 0x44ef40
-void PathGoal::FillWaypointWorldPos(Vec3_004907e0*, int, int)
+void PathGoal::FillWaypointWorldPos(Vec3*, int, int)
 {
 }
 
@@ -2034,13 +1966,13 @@ AiSearchGoal* PathGoal::TryClaimRepath()
 
 // Slot 4: does nothing.
 // FUNCTION: 0x44f000
-void PathGoal::ExportGoalPose(Vec3_004907e0*, Vec3_004907e0*, short*)
+void PathGoal::ExportGoalPose(Vec3*, Vec3*, short*)
 {
 }
 
 // The constructor.
 // FUNCTION: 0x44f010
-AiSearchGoal::AiSearchGoal(Struct_004907e0* p)
+AiSearchGoal::AiSearchGoal(Unit* p)
     : PathGoal(p)
 {
     count = 0;
@@ -2054,7 +1986,7 @@ AiSearchGoal::AiSearchGoal(Struct_004907e0* p)
 // points asks the object at +0x4 about the owner and flags it (0x40) when that
 // fails.
 // FUNCTION: 0x44f080
-void AiSearchGoal::SetWaypoints(Point_0044f080* src, int n)
+void AiSearchGoal::SetWaypoints(Point16* src, int n)
 {
     if (n == 0) {
         if (target && target->ContainsUnit(owner) == 0)
@@ -2088,13 +2020,13 @@ void AiSearchGoal::TruncateWaypointsFrom(int n)
 // Slot 3: fills n positions from the path points, repeating the last point past the
 // end of the path.
 // FUNCTION: 0x44f150
-void AiSearchGoal::FillWaypointWorldPos(Vec3_004907e0* out, int unused, int n)
+void AiSearchGoal::FillWaypointWorldPos(Vec3* out, int unused, int n)
 {
     for (int i = 0; i < n; i++) {
         int j = i < count ? i : count - 1;
-        out[i].x.fixed = points[j].x << 16;
-        out[i].y.fixed = 0;
-        out[i].z.fixed = points[j].y << 16;
+        out[i].x = points[j].x << 16;
+        out[i].y = 0;
+        out[i].z = points[j].y << 16;
     }
 }
 
@@ -2112,8 +2044,8 @@ void AiSearchGoal::TickTowardGoal()
         }
     }
     if (count >= 2) {
-        int dx = owner->fixedPos.z.half[1] - points[1].y;
-        int dy = owner->fixedPos.x.half[1] - points[1].x;
+        int dx = owner->zWhole - points[1].y;
+        int dy = owner->xWhole - points[1].x;
         if (dy * dy + dx * dx <= 25) {
             // std::copy, not memmove: memmove stays a library call.
             std::copy(points + 1, points + count, points);
@@ -2123,7 +2055,7 @@ void AiSearchGoal::TickTowardGoal()
             flag_3 = 1;
         }
     }
-    if (target && (owner->target->occupyFlags & 4 || count < 2))
+    if (target && (Motion(owner)->flags & 4 || count < 2))
         flag_1 = 1;
 }
 
@@ -2176,26 +2108,26 @@ void AiSearchGoal::SetPathOrder(void* param)
             }
         }
         if (!active) {
-            Vec3_004907e0 p;
+            Vec3 p;
             if (target->FillWorldPos(&p)) {
                 if (count >= 3) {
                     int sx = points[count - 1].x << 16;
                     int sz = points[count - 1].y << 16;
-                    int d1 = (int)_hypot(owner->fixedPos.x.fixed - p.x.fixed,
-                                         owner->fixedPos.z.fixed - p.z.fixed);
-                    int d2 = (int)_hypot(sx - p.x.fixed,
-                                         sz - p.z.fixed);
+                    int d1 = (int)_hypot(owner->pos.x - p.x,
+                                         owner->pos.z - p.z);
+                    int d2 = (int)_hypot(sx - p.x,
+                                         sz - p.z);
                     if (d2 * 2 < d1)
                         active = 1;
                 }
                 if (!active) {
-                    Target_0044f2a0* t = owner->list;
-                    if (t && !(t->flags & 0x800000)) {
+                    Order* t = owner->list;
+                    if (t && !(t->flags_42 & 0x800000)) {
                         count = 2;
-                        points[0].x = owner->fixedPos.x.half[1];
-                        points[0].y = owner->fixedPos.z.half[1];
-                        points[1].x = p.x.half[1];
-                        points[1].y = p.z.half[1];
+                        points[0].x = owner->xWhole;
+                        points[0].y = owner->zWhole;
+                        points[1].x = (short)(p.x >> 16);
+                        points[1].y = (short)(p.z >> 16);
                         active = 1;
                     }
                 }
@@ -2222,7 +2154,7 @@ AiSearchGoal::~AiSearchGoal()
 // FUNCTION: 0x44f480
 int AiSearchGoal::HasNetUnitState()
 {
-    return (flags & 8) || ((owner->target->occupyFlags ^ flags) & 4);
+    return (flags & 8) || ((Motion(owner)->flags ^ flags) & 4);
 }
 
 // Slot 8, the write counterpart of the reader 0x44f5c0. It sets the stream's next bit when the
@@ -2238,7 +2170,7 @@ void AiSearchGoal::SerializeNetUnitState(BitWriter* stream)
     } else {
         n = 0;
     }
-    if (owner->target->occupyFlags & 4) {
+    if (Motion(owner)->flags & 4) {
         stream->data[stream->bit] |= 1 << stream->index;
     }
     stream->index++;
@@ -2255,7 +2187,7 @@ void AiSearchGoal::SerializeNetUnitState(BitWriter* stream)
         stream->WriteBits(points[i].x, 0x10);
         stream->WriteBits(points[i].y, 0x10);
     }
-    flag_2 = (owner->target->occupyFlags & 4) != 0;
+    flag_2 = (Motion(owner)->flags & 4) != 0;
     flag_3 = 0;
 }
 
@@ -2265,7 +2197,7 @@ void AiSearchGoal::SerializeNetUnitState(BitWriter* stream)
 // and only the inlined base destructor's store of 0x4fd428 is left.
 // FUNCTION: 0x44f570
 // FUNCTION: 0x44f590 ??_GPatrolGoal@@UAEPAXI@Z
-PatrolGoal::PatrolGoal(Struct_004907e0* p)
+PatrolGoal::PatrolGoal(Unit* p)
     : PathGoal(p)
 {
     count = 0;
@@ -2282,7 +2214,7 @@ int PatrolGoal::HasReadyWaypoints()
 // FUNCTION: 0x44f5c0
 void PatrolGoal::DeserializeNetUnitState(BitReader* reader)
 {
-    ((Owner_0044f5c0*)owner)->target->flag_2 = reader->ReadBit();
+    Motion(owner)->flag = reader->ReadBit();
     count = reader->ReadBits(2);
     for (int i = 0; i < count; i++) {
         points[i].x = reader->ReadBits(16);
@@ -2293,13 +2225,13 @@ void PatrolGoal::DeserializeNetUnitState(BitReader* reader)
 // Slot 3: converts up to `n` short 2D points into 16.16 fixed-point 3D vectors
 // (x, 0, y), repeating the last point once the list runs out.
 // FUNCTION: 0x44f650
-void PatrolGoal::FillWaypointWorldPos(Vec3_004907e0* out, int unused, int n)
+void PatrolGoal::FillWaypointWorldPos(Vec3* out, int unused, int n)
 {
     for (int i = 0; i < n; i++) {
         int j = i < count ? i : count - 1;
-        out[i].x.fixed = points[j].x << 16;
-        out[i].y.fixed = 0;
-        out[i].z.fixed = points[j].y << 16;
+        out[i].x = points[j].x << 16;
+        out[i].y = 0;
+        out[i].z = points[j].y << 16;
     }
 }
 
