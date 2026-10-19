@@ -2082,7 +2082,7 @@ void __stdcall ApplyWeaponFirePacket(int arg1, WeaponFirePacket* ev)
     Unit* unit = ev->ownerUnitId == 0 ? 0 : &g_game->units[ev->ownerUnitId];
     if (!unit)
         return;
-    if (!unit->f110.b28)
+    if (!unit->alive)
         return;
     Entry_0049d270* entry = (Entry_0049d270*)&unit->weapons[ev->weaponSlotIndex];
     entry->f_18 = ev->firePitch;

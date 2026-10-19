@@ -395,10 +395,10 @@ void __stdcall ApplyAttachUnit(Order* order)
                             t->cargo = u;
                             // Named bool, `char` compared with -1, masked with `& 1`: keeps the field width mask.
                             bool v = ((order->param == -1) & 1);
-                            u->f110.b17 = v;
+                            u->carriedNoPiece = v;
                         } else {
                             u->cargoNext = 0;
-                            u->f110.b17 = 0;
+                            u->carriedNoPiece = 0;
                             u->carrier = 0;
                             g_seams.map->SpatialBucketPrependUnit((SpatialBucket*)u->spatialBucket, 0, u);
                         }
@@ -466,10 +466,10 @@ void __stdcall UpdateAllUnits(void)
                         if (u->postTransferHoldoff != 0) {
                             u->postTransferHoldoff--;
                         }
-                        if (u->f110.b4 != 0) {
-                            if (!(u->f110.b5) || u->buildLeft != 0.0f || u->postTransferHoldoff != 0
-                                || (u->carrier != 0 && !(((Unit*)u->carrier)->f110.b30))) {
-                                u->f110.b4 = 0;
+                        if (u->selected != 0) {
+                            if (!(u->selectable) || u->buildLeft != 0.0f || u->postTransferHoldoff != 0
+                                || (u->carrier != 0 && !(((Unit*)u->carrier)->cargoSelectable))) {
+                                u->selected = 0;
                             }
                         }
                         // Unsigned `% 30` (here and below) keeps the original's `div`.
@@ -507,7 +507,7 @@ void __stdcall UpdateAllUnits(void)
                                 }
                             }
                         }
-                        if (u->f110.b14) {
+                        if (u->killPending) {
                             KillUnit(u, u->lastDamageType);
                         }
                     }
@@ -618,7 +618,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     int zero = 0;
     if (type == zero) {
         if (u->unitDefIndex != zero)
-            u->f110.b14 = 1;
+            u->killPending = 1;
         return;
     }
     if (u->unitDefIndex != type) {
@@ -637,7 +637,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     float scale = (float)alpha * g_buildPercentScale;
     if (scale != u->buildLeft) {
         u->buildLeft = scale;
-        u->f110.b13 = 1;
+        u->buildLeftChanged = 1;
     }
     // Byte-typed: SetStateBits takes a byte, spilled with a byte store.
     unsigned char state = (unsigned char)reader->ReadBits(8);
@@ -687,7 +687,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
         g_seams.map->AddUnitToMap(u);
         g_seams.los_radar->UpdateUnitLineOfSight(u);
     }
-    u->f110.b16 = 1;
+    u->moved = 1;
     u->angles = tail;
     if (u->motion)
         ((UnitMotion*)u->motion)->speed = reader->ReadBits(0x20);

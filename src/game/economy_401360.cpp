@@ -308,7 +308,7 @@ void __stdcall UpdatePlayerEconomy(Player* p)
             p->energyCapacity += u->def->energystorage;
         }
         if (!(p->active && p->type == 3)) {
-            if (u->f110.b11) {
+            if (u->cloakOn) {
                 if (!(u->flags & 0x1000) && (unsigned int)u->workTime <= g_game->gameTick) {
                     int cost = (int)((u->flags & 0xc) > 0 ? u->def->cloakcostmoving : u->def->cloakcost);
                     g_seams.units->SetStateBits((Unit*)u, 4, EconOf(u)->SpendEnergy(cost));

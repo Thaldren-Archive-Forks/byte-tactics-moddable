@@ -229,7 +229,7 @@ void __stdcall DrawBuildFootprint(void* surface, View* view, Order* order,
     int dy = (r.bottom - r.top) * level / 10;
     unsigned char outer;
     unsigned char inner;
-    if (order->unit->f110.b4) {
+    if (order->unit->selected) {
         outer = g_game->hudPalette3;
         inner = g_game->color2;
     } else {
