@@ -7,6 +7,8 @@
 #ifndef MISSION_CONDITIONS_H
 #define MISSION_CONDITIONS_H
 
+#include "../../interfaces/rand_stream.h"
+
 class HapiBank;
 class MissionCondition;
 struct Param_0048e010;
@@ -32,7 +34,7 @@ public:
     // 0x490230, defined in victory_490230.cpp: it matches only in a file of its
     // own, where few enough symbols come before it to keep its SIB operand order.
     int CheckVictory();
-    int CheckDefeat();
+    int CheckDefeat(RandStream stream);
     void Deactivate();
     void NotifyUnitDied(Unit* unit);
     void NotifyUnitCaptured(Unit* unit);

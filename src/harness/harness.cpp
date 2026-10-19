@@ -651,11 +651,7 @@ void HarnessAfterStep()
 
 #include "trace_schema.h"
 
-#ifdef BX_ROUTE
-extern "C" unsigned __cdecl bx_game_holdrand(void);
-#else
-extern "C" void* __cdecl _getptd(void);
-#endif
+#include "../state/game_rand.h"
 extern unsigned int g_randomSeed;
 
 enum {
@@ -2626,11 +2622,7 @@ void HarnessPhase(int phase)
     if (!s_testMode || s_trace == NULL)
         return;
     unsigned tick = GameU32(GAME_TICK);
-#ifdef BX_ROUTE
-    unsigned holdrand = bx_game_holdrand();
-#else
-    unsigned holdrand = *(unsigned*)((char*)_getptd() + 0x14);
-#endif
+    unsigned holdrand = GameHoldrand(RAND_STREAM_MAIN);
     unsigned parkMiller = g_randomSeed;
 
     s_traceTick = tick;

@@ -595,7 +595,8 @@ game,players,indirect,SetupPlayerSlot,2
 game,players,indirect,TransferEnergy,1
 game,players,indirect,TransferMetal,1
 game,players,indirect,UpdateBlink,1
-game,players,indirect,UpdatePlayers,2
+game,players,indirect,UpdatePlayers,1
+game,players,indirect,UpdatePlayersOnStream,1
 game,players,shared_write,Game::commanderDeath,1
 game,players,shared_write,Game::difficulty,3
 game,players,shared_write,Game::endGameCountdown,1
@@ -954,7 +955,7 @@ game,wind_meteors,indirect,EmptyShutdownPreCleanup,1
 game,wind_meteors,indirect,InitMeteors,1
 game,wind_meteors,indirect,LoadMeteors,1
 game,wind_meteors,indirect,SaveMeteors,1
-game,wind_meteors,indirect,UpdateWind,1
+game,wind_meteors,indirect,UpdateWindOnStream,1
 game,wind_meteors,shared_write,Game::gameTick,2
 game,wind_meteors,shared_write,Game::ticks,1
 game,wind_meteors,shared_write,Game::windCounter,1
@@ -3111,7 +3112,8 @@ seams,game,shared_write,PlayersSeam::KillPlayerUnits,3
 seams,game,shared_write,PlayersSeam::TransferEnergy,1
 seams,game,shared_write,PlayersSeam::TransferMetal,1
 seams,game,shared_write,PlayersSeam::UpdateBlink,1
-seams,game,shared_write,PlayersSeam::UpdatePlayers,2
+seams,game,shared_write,PlayersSeam::UpdatePlayers,1
+seams,game,shared_write,PlayersSeam::UpdatePlayersOnStream,1
 seams,game,shared_write,Seams::ai,2
 seams,game,shared_write,Seams::economy,1
 seams,game,shared_write,Seams::features,5
@@ -3130,7 +3132,8 @@ seams,game,shared_write,UnitsSeam::UpdateAllUnits,1
 seams,game,shared_write,WeaponsSeam::UpdateExplosions,1
 seams,game,shared_write,WeaponsSeam::UpdateProjectiles,1
 seams,game,shared_write,WindMeteorsSeam::UpdateMeteors,1
-seams,game,shared_write,WindMeteorsSeam::UpdateWind,2
+seams,game,shared_write,WindMeteorsSeam::UpdateWind,1
+seams,game,shared_write,WindMeteorsSeam::UpdateWindOnStream,1
 seams,los_radar,shared_write,AiSeam::IsPointVisible,2
 seams,los_radar,shared_write,FeaturesSeam::PlaceFeature,1
 seams,los_radar,shared_write,LosRadarSeam::RecalculateLineOfSight,2
@@ -3281,11 +3284,13 @@ seams,players,shared_write,MapSeam::GetCellMeanHeight,1
 seams,players,shared_write,MapSeam::GetGameType,8
 seams,players,shared_write,MapSeam::VisitObjectsInRange,1
 seams,players,shared_write,PathfindingSeam::RunSearches,1
+seams,players,shared_write,PlayersSeam::UpdatePlayersOnStream,1
 seams,players,shared_write,Seams::ai,5
 seams,players,shared_write,Seams::economy,4
 seams,players,shared_write,Seams::los_radar,3
 seams,players,shared_write,Seams::map,10
 seams,players,shared_write,Seams::pathfinding,1
+seams,players,shared_write,Seams::players,1
 seams,players,shared_write,Seams::units,6
 seams,players,shared_write,Seams::weapons,3
 seams,players,shared_write,UnitsSeam::CreateUnit,2
@@ -3407,7 +3412,9 @@ seams,weapons,shared_write,UnitsSeam::StartScript,3
 seams,weapons,shared_write,UnitsSeam::StartScriptWithArgs,9
 seams,wind_meteors,call,MeteorParams::LoadMeteorDefaults,1
 seams,wind_meteors,shared_write,Seams::weapons,2
+seams,wind_meteors,shared_write,Seams::wind_meteors,1
 seams,wind_meteors,shared_write,WeaponsSeam::SpawnProjectile,1
+seams,wind_meteors,shared_write,WindMeteorsSeam::UpdateWindOnStream,1
 targeting,platform,call,Bits::Test,1
 targeting,platform,call,RandomInt,1
 targeting,presentation,call,Class_004800c0::EraseSwapBack,1

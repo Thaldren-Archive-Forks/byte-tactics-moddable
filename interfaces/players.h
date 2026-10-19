@@ -1,6 +1,8 @@
 #ifndef INTERFACES_PLAYERS_H
 #define INTERFACES_PLAYERS_H
 
+#include "rand_stream.h"
+
 struct Player;
 struct Unit;
 struct OwnershipTransferPacket;
@@ -11,7 +13,7 @@ class TdfFile;
 // Major version of the players interface, changed when a slot is removed or its signature changes.
 #define PLAYERS_VERSION_MAJOR 1
 // Minor version of the players interface, changed when a slot is added.
-#define PLAYERS_VERSION_MINOR 3
+#define PLAYERS_VERSION_MINOR 4
 
 // Per-player state.
 struct PlayersSeam {
@@ -69,6 +71,8 @@ struct PlayersSeam {
     void (__fastcall* NotifyUnitCreated)(MissionConditions* conditions, int unusedEdx, Unit* unit);
     // Tells the conditions that a unit died (thiscall in 3.1c: this in ecx). Hooks: none.
     void (__fastcall* NotifyUnitDied)(MissionConditions* conditions, int unusedEdx, Unit* unit);
+    // Advances every player's state for one tick like UpdatePlayers, but draws from the given stream; UpdatePlayers draws from the main stream.
+    void (__stdcall* UpdatePlayersOnStream)(RandStream stream);
 };
 
 #endif

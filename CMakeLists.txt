@@ -46,7 +46,7 @@ add_custom_command(
   VERBATIM)
 add_library(bitexact STATIC
   "${BITEXACT_DIR}/trig.c" "${BITEXACT_DIR}/math.c" "${BITEXACT_DIR}/strtof.c" "${BITEXACT_DIR}/rand.c" "${BITEXACT_DIR}/qsort.c"
-  "${BITEXACT_TABLES}" "${BITEXACT_SHIM_DIR}/game_rand.c")
+  "${BITEXACT_TABLES}")
 if(BITEXACT_ROUTE)
   target_sources(bitexact PRIVATE "${BITEXACT_SHIM_DIR}/trig.c" "${BITEXACT_SHIM_DIR}/sscanf.c")
 endif()
@@ -99,9 +99,6 @@ foreach(source IN LISTS ROUTED_SOURCES)
   endif()
   set_property(SOURCE "${source}" APPEND PROPERTY COMPILE_OPTIONS "/FI${BITEXACT_SHIM_DIR}/route.h")
 endforeach()
-if(BITEXACT_ROUTE)
-  set_property(SOURCE "${CMAKE_SOURCE_DIR}/src/harness/harness.cpp" APPEND PROPERTY COMPILE_DEFINITIONS BX_ROUTE)
-endif()
 
 set(MSVC5_LIB "${CMAKE_SOURCE_DIR}/toolchain/msvc5-sp3/LIB")
 find_program(DLLTOOL llvm-dlltool REQUIRED)

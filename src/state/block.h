@@ -30,6 +30,9 @@ void __cdecl SimBlockInit();
 // The first byte of the sim block, or null before it is reserved.
 void* __cdecl SimBlockBase();
 
+// The holdrand of a rand stream of the block (0 is the main thread's, 1 the load thread's), reserving the block first if need be.
+unsigned int* __cdecl SimRandStream(int stream);
+
 // Makes a copy of the block (kSimBlockBytes bytes) the live sim block.
 void __cdecl SimBlockAttach(void* base);
 

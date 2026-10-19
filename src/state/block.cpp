@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "block.h"
+#include "../../lib/bitexact/bitexact.h"
 
 class CritSec_004da780;
 CritSec_004da780* GetAllocLock();
@@ -18,8 +19,12 @@ struct BlockHeader {
     unsigned int freeHead;
     unsigned int inUse;
     unsigned int highWater;
-    unsigned int reserved[12];
+    bx_rand_state streams[2];
+    unsigned int reserved[10];
 };
+
+static_assert(sizeof(BlockHeader) == 64, "the block header is 64 bytes");
+static_assert(offsetof(BlockHeader, streams) == 0x10, "the rand streams sit at 0x10 and 0x14");
 
 struct Chunk {
     unsigned int size;
@@ -71,6 +76,8 @@ void Prepare()
     BlockHeader* h = Head();
     if (h->ready == 0) {
         h->ready = 1;
+        h->streams[0].holdrand = 1;
+        h->streams[1].holdrand = 1;
         h->freeHead = kFirstChunk;
         Chunk* first = At(kFirstChunk);
         first->size = ((kSimBlockBytes - kFirstChunk) & ~7u) | kFreeBit;
@@ -300,6 +307,14 @@ unsigned int __cdecl SimHighWater()
 void __cdecl SimBlockInit()
 {
     Guard guard;
+}
+
+unsigned int* __cdecl SimRandStream(int stream)
+{
+    if (g_base == 0) {
+        Guard guard;
+    }
+    return &Head()->streams[stream].holdrand;
 }
 
 void* __cdecl SimBlockBase()
