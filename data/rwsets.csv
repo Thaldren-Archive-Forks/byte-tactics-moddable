@@ -13465,11 +13465,11 @@ address,function,file,kind,target
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,call,MarkChanged
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,call,SetButtonStageByName
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,call,sprintf
-0x446fb0,RebuildAllyList,src/frontend/multi.cpp,deref_maybe_written,*Player
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,deref_read,*unsigned char
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,field_escape,Player::allied
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,field_escape,Player::alliedBy
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,field_maybe_written,Game::gui
+0x446fb0,RebuildAllyList,src/frontend/multi.cpp,field_maybe_written,Game::players_1b63
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,field_read,Game::localPlayer
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,function,
 0x446fb0,RebuildAllyList,src/frontend/multi.cpp,global_read,g_game
@@ -13554,8 +13554,8 @@ address,function,file,kind,target
 0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,call,SetGadgetGrayedOutByName
 0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,call,SetKeyboardInput
 0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,call,sprintf
-0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,deref_escape,*Player
 0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,field_escape,Game::gui
+0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,field_escape,Game::players_1b63
 0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,field_maybe_written,Game::gui
 0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,field_read,Game::flags_37ebe
 0x4478b0,OpenAlliesDialog,src/frontend/multi.cpp,field_read,Game::localPlayer
