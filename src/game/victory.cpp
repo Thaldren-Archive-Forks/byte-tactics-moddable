@@ -1761,7 +1761,7 @@ void LiteGoal::SerializeNetUnitState(BitWriter* stream)
         ((OrderFx*)target)->SerializeToBits(stream);
     }
     stream->WriteBits(((Target_00490880*)owner->motion)->mode, 2);
-    state = ((Target_00490880*)owner->motion)->mode << 1;     // clears the dirty bit too
+    state = ((Target_00490880*)owner->motion)->mode << 1;
 }
 
 #pragma pack(push, 2)

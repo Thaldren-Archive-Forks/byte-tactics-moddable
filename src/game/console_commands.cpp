@@ -144,7 +144,7 @@ struct Game {
     char unknown_2cb6[0x2cbc - 0x2cb6];
     unsigned short cellFeature;        // +0x2cbc
     char unknown_2cbe[0x14207 - 0x2cbe];
-    Pathfinder* pathfinder;               // +0x14207
+    Pathfinder* pathfinder;
     char unknown_1420b[0x14223 - 0x1420b];
     int mapWidthWorld;                 // +0x14223
     int mapHeightWorld;                // +0x14227
