@@ -6730,24 +6730,6 @@ struct Unit_0044dfb0 {  // 0xaa bytes, 1 view
     short id;  // +0xa8
 };
 
-class Class_0044e080 {  // 0x36 bytes, 2 views
-public:
-    char unknown_0[8];
-    unsigned short flags;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Owner_0044e080* owner;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    int pos_x;  // +0x26
-    int pos_y;  // +0x2a
-    int pos_z;  // +0x2e
-    char unknown_32[4];
-    Class_0044e080(Class_0044e080&);
-    Class_0044e080(Owner_0044e080*, BitReader*);
-};
-
 class Class_0044e3a0 {  // 0x1e bytes, 1 view
 public:
     char unknown_0[8];
@@ -6968,13 +6950,6 @@ public:
     virtual int TryGetDesiredHeading(void);
     virtual void FUN_0044cf50(void);
     virtual int KeepAfterComplete(void);
-};
-
-struct Struct_004907e0 {  // 0x76 bytes, 1 view
-    char unknown_0[92];
-    Target_0044f2a0* field_5c;  // +0x5c
-    char unknown_60[10];
-    Vec3 pos;  // +0x6a
 };
 
 struct Class_0044f480 {  // 0x68 bytes, 1 view
@@ -12172,19 +12147,7 @@ public:
     virtual void VisitUnit(void*) = 0;
 };
 
-class PackedGoal : public PathGoal {            // 0x28 bytes, 8 views
-public:
-    Vec3 pos;  // +0xc
-    Vec3 vel;  // +0x18
-    short field_24;  // +0x24
-    char field_26;  // +0x26
-    unsigned char dirty : 1;  // +0x27
-    unsigned char mode : 2;
-    unsigned char : 5;
-    PackedGoal(Unit*);
-    virtual void TickTowardGoal(void);
-    virtual void ExportGoalPose(int, int, int);
-};
+#include "../src/game/packed_goal.h"
 
 class Class_00490650 {  // 0x28 bytes, 1 view
 public:

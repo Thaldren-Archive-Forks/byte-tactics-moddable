@@ -1280,63 +1280,11 @@ struct Struct_004907e0;
 #include "../orders/unit_motion.h"
 #include "../util/angles.h"
 
-struct Target_00490880 {
-    char unknown_0[0x2e];
-    union {
-        unsigned char flags;           // +0x2e
-        struct {
-            unsigned char mode : 2;    // +0x2e bits 0-1
-        };
-    };
-};
-
-#pragma pack(push, 2)
-struct Struct_004907e0 {               // the owner, the object at +0x8
-    union {
-        Target_00490880* target;       // +0x0
-        UnitMotion* obj;               // +0x0
-    };
-    char pad4[0x64 - 0x4];
-    Angles16 angles;                   // +0x64
-    Vec3 pos;                 // +0x6a
-    char pad76[0x82 - 0x76];
-    unsigned char* spatialBucket;      // +0x82
-    char pad86[0x92 - 0x86];
-    UnitDef* def;                      // +0x92
-};
-#pragma pack(pop)
-
 class AiSearchGoal;                    // slot 6's result
 
 #include "../orders/air_maneuver_order.h"
 
-#include "../ai/ai_search_goal.h"
-
-// PackedGoal: a moving object that follows its owner, derived from
-// PathGoal (see order_targets_44ef20.cpp for the family) and the base of
-// LiteGoal and PackedPosGoal.
-// Vtable 0x4fd980, constructor 0x4905e0, ??_G 0x490630.
-class PackedGoal : public PathGoal {
-public:
-    Vec3 pos;                  // +0xc
-    Vec3 vel;                  // +0x18
-    short heading;                     // +0x24
-    char field_26;                     // +0x26
-    union {
-        struct {
-            unsigned char dirty : 1;    // +0x27 bit 0
-            unsigned char mode : 2;     // +0x27 bits 1-2
-        };
-        struct {
-            unsigned char state : 3;    // +0x27, both
-        };
-        unsigned char netDirtyFlags;   // +0x27, the whole byte
-    };
-
-    PackedGoal(Struct_004907e0* p);
-    virtual void TickTowardGoal();                  // slot 2, 0x490690
-    virtual void ExportGoalPose(Vec3*, Vec3*, short*);  // slot 4, 0x490650
-};
+#include "packed_goal.h"
 
 unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 
@@ -1475,14 +1423,6 @@ void LiteGoal::SerializeNetUnitState(BitWriter* stream)
     stream->WriteBits(((Target_00490880*)owner->motion)->mode, 2);
     state = ((Target_00490880*)owner->motion)->mode << 1;
 }
-
-#pragma pack(push, 2)
-class Class_0044e080 : public OrderFx {
-public:
-    char unknown_8[0x36 - 0x8];
-    Class_0044e080(Struct_004907e0* owner, BitReader* reader);
-};
-#pragma pack(pop)
 
 // PackedPosGoal (vtable 0x4fd9e0), derived from PackedGoal and
 // PathGoal (see order_targets_44ef20.cpp for the family): the moving
