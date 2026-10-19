@@ -18,18 +18,7 @@ public:
 };
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x10];
-    Sound* sound;                      // +0x10
-    char unknown_14[0x37f08 - 0x14];
-    int gamma;                         // +0x37f08
-    int fxVolume;                      // +0x37f0c
-    int musicVolume;                   // +0x37f10
-    char unknown_37f14[0x37f17 - 0x37f14];
-    unsigned char unitChat;            // +0x37f17
-    char unknown_37f18[0x37f19 - 0x37f18];
-    unsigned short soundFlags;         // +0x37f19
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -45,17 +34,17 @@ void __stdcall SetBrightness(float value);
 // FUNCTION: 0x45c820
 void RestoreSoundOptions()
 {
-    g_game->fxVolume = g_optionsBackupFxVolume;
-    g_game->soundFlags = (g_game->soundFlags & ~0x10) | (g_optionsBackupSoundFlags & 0x10);
-    g_game->soundFlags = (g_game->soundFlags & ~0x20) | (g_optionsBackupSoundFlags & 0x20);
-    g_game->soundFlags = (g_game->soundFlags & ~0x40) | ((g_optionsBackupSoundFlags & 0x20) << 1);
+    g_game->volume1 = g_optionsBackupFxVolume;
+    g_game->soundFlags_37f19_2 = (g_game->soundFlags_37f19_2 & ~0x10) | (g_optionsBackupSoundFlags & 0x10);
+    g_game->soundFlags_37f19_2 = (g_game->soundFlags_37f19_2 & ~0x20) | (g_optionsBackupSoundFlags & 0x20);
+    g_game->soundFlags_37f19_2 = (g_game->soundFlags_37f19_2 & ~0x40) | ((g_optionsBackupSoundFlags & 0x20) << 1);
     if ((((unsigned char)g_optionsBackupSoundFlags) & 7) == 2)
-        g_game->sound->Enable3D();
+        ((Sound *)g_game->field_10)->Enable3D();
     else
-        g_game->sound->Disable3D();
-    g_game->soundFlags = (g_game->soundFlags & ~7) | (g_optionsBackupSoundFlags & 7);
+        ((Sound *)g_game->field_10)->Disable3D();
+    g_game->soundFlags_37f19_2 = (g_game->soundFlags_37f19_2 & ~7) | (g_optionsBackupSoundFlags & 7);
     g_game->unitChat = g_optionsBackupUnitChat;
-    SetBrightness(0.5 - g_game->gamma * -0.041666668f);
-    g_game->sound->SetWaveVolume(g_game->fxVolume << 10);
-    g_game->sound->SetAuxVolume(g_game->musicVolume << 10, 0);
+    SetBrightness(0.5 - g_game->brightness * -0.041666668f);
+    ((Sound *)g_game->field_10)->SetWaveVolume(g_game->volume1 << 10);
+    ((Sound *)g_game->field_10)->SetAuxVolume(g_game->volume2 << 10, 0);
 }

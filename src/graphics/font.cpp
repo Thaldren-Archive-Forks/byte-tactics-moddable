@@ -11,13 +11,7 @@ struct Font {
     unsigned short offsets[1];          // +0x4, glyph offsets from the font start
 };
 
-struct Game {
-    char unknown_0[0x204];
-    Font* font;                         // +0x204
-    int colour1;                        // +0x208
-    int colour2;                        // +0x20c
-    int colour3;                        // +0x210
-};
+#include "../game/game.h"
 
 Game* GetDisplay(void);
 int __stdcall RectInsideRect(Rect* a, Rect* b);

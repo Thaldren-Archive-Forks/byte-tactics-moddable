@@ -57,14 +57,7 @@ struct Menu_0044c420 {
 
 #include "../network/unit_sync.h"
 
-struct Game {
-    char unknown_0[0x2a30];
-    UnitSync* sync;                    // +0x2a30
-    char unknown_2a34[0x1438f - 0x2a34];
-    int unitDefCount;                  // +0x1438f
-    char unknown_14393[0x1439b - 0x14393];
-    Item_0044c420* unitDefs;           // +0x1439b
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 struct Struct_004c6ac0 {
@@ -119,16 +112,16 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
         GameFreeThunk(desc->field_c2);
         SetDescListCleanupFlag((int)menu, 1);
         if (IsHostLocal() != 0) {
-            for (i = 0; i < g_game->unitDefCount; i++) {
+            for (i = 0; i < g_game->count_1438f; i++) {
                 type = g_unitRestrictEntries[i].unitIndex;
                 if (type != 0) {
-                    item = &g_game->unitDefs[type];
+                    item = &((Item_0044c420 *)g_game->defs)[type];
                     if (item->flags2.bits.flag) {
                     } else {
                         if (g_unitRestrictEntries[i].max == 0)
-                            g_game->sync->DisallowUnit((Unit_0046e330*)item);
+                            ((UnitSync *)g_game->field_2a30)->DisallowUnit((Unit_0046e330*)item);
                         else
-                            g_game->sync->AllowUnit((Unit_0046e330*)item);
+                            ((UnitSync *)g_game->field_2a30)->AllowUnit((Unit_0046e330*)item);
                     }
                 }
             }
@@ -157,16 +150,16 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
     }
     if (IsCurrentGadgetNamed(menu, "Reset") != 0) {
         PlaySoundByName("Options", 0);
-        for (i = 0; i < g_game->unitDefCount; i++) {
+        for (i = 0; i < g_game->count_1438f; i++) {
             type = g_unitRestrictEntries[i].unitIndex;
             if (type != 0) {
-                if ((g_game->unitDefs[type].flags2.raw & 0x10000) == 0)
+                if ((((Item_0044c420 *)g_game->defs)[type].flags2.raw & 0x10000) == 0)
                     g_unitRestrictEntries[i].max = 100;
                 else
                     g_unitRestrictEntries[i].max = 0;
                 if (g_unitRestrictEntries[i].max != g_unitRestrictEntries[i].previousMax) {
-                    g_game->sync->SetUnitLimit(
-                        (Unit_0046e330*)&g_game->unitDefs[g_unitRestrictEntries[i].unitIndex],
+                    ((UnitSync *)g_game->field_2a30)->SetUnitLimit(
+                        (Unit_0046e330*)&((Item_0044c420 *)g_game->defs)[g_unitRestrictEntries[i].unitIndex],
                         g_unitRestrictEntries[i].max);
                 }
             }
@@ -183,13 +176,13 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
     if (IsCurrentGadgetNamed(menu, "Cancel") != 0) {
         PlaySoundByName("Previous", 0);
         n = 0;
-        for (i = 1; i < g_game->unitDefCount; i++) {
+        for (i = 1; i < g_game->count_1438f; i++) {
             // The original also tests the address of items[i].name (an array at
             // +0x20, so its address can never be null); kept for byte fidelity.
-            if (g_game->unitDefs[i].flags2.bits.flag) {
-            } else if (g_game->unitDefs[i].name != 0) {
-                g_game->sync->SetUnitLimit(
-                    (Unit_0046e330*)&g_game->unitDefs[i], g_unitRestrictOldCounts[n]);
+            if (((Item_0044c420 *)g_game->defs)[i].flags2.bits.flag) {
+            } else if (((Item_0044c420 *)g_game->defs)[i].name != 0) {
+                ((UnitSync *)g_game->field_2a30)->SetUnitLimit(
+                    (Unit_0046e330*)&((Item_0044c420 *)g_game->defs)[i], g_unitRestrictOldCounts[n]);
                 n++;
             }
         }
