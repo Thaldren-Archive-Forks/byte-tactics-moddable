@@ -3870,11 +3870,11 @@ units,orders,shared_write,Unit::attacker,2
 units,orders,shared_write,Unit::buildLeft,15
 units,orders,shared_write,Unit::cargo,5
 units,orders,shared_write,Unit::carrier,22
-units,orders,shared_write,Unit::cell,9
+units,orders,shared_write,Unit::cell,4
 units,orders,shared_write,Unit::def,86
 units,orders,shared_write,Unit::fireOrder,3
 units,orders,shared_write,Unit::flags,25
-units,orders,shared_write,Unit::footprint,8
+units,orders,shared_write,Unit::footprint,13
 units,orders,shared_write,Unit::group,1
 units,orders,shared_write,Unit::head,3
 units,orders,shared_write,Unit::health,20

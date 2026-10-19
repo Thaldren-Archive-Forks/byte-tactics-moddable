@@ -14584,7 +14584,7 @@ address,function,file,kind,target
 0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_read,Order::unit
 0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_read,Point16::x
 0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_read,Point16::y
-0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_read,Unit::cell
+0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_read,Unit::footprint
 0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_write,ApproachRadius::pos
 0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_write,ApproachRadius::radius
 0x44cf60,ApproachRadius::ApproachRadius,src/orders/order_targets.cpp,field_write,ApproachRadius::radiusSq
@@ -14632,7 +14632,7 @@ address,function,file,kind,target
 0x44d2c0,ApproachRadius::FillWorldPos,src/orders/order_targets.cpp,field_read,ApproachRadius::pos
 0x44d2c0,ApproachRadius::FillWorldPos,src/orders/order_targets.cpp,field_read,Order::unit
 0x44d2c0,ApproachRadius::FillWorldPos,src/orders/order_targets.cpp,field_read,OrderFx::source
-0x44d2c0,ApproachRadius::FillWorldPos,src/orders/order_targets.cpp,field_read,Unit::cell
+0x44d2c0,ApproachRadius::FillWorldPos,src/orders/order_targets.cpp,field_read,Unit::footprint
 0x44d2c0,ApproachRadius::FillWorldPos,src/orders/order_targets.cpp,function,
 0x44d310,ApproachRadius::ContainsUnit,src/orders/order_targets.cpp,field_read,ApproachRadius::radiusSq
 0x44d310,ApproachRadius::ContainsUnit,src/orders/order_targets.cpp,field_read,Point16::x
@@ -14649,7 +14649,7 @@ address,function,file,kind,target
 0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_read,Order::unit
 0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_read,Point16::x
 0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_read,Point16::y
-0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_read,Unit::cell
+0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_read,Unit::footprint
 0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_write,Point16::x
 0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_write,Point16::y
 0x44d3b0,RingApproach::RingApproach,src/orders/order_targets.cpp,field_write,RingApproach::inner
@@ -14711,7 +14711,7 @@ address,function,file,kind,target
 0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,Order::unit
 0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,OrderFx::source
 0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,RingApproach::pos
-0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,Unit::cell
+0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,Unit::footprint
 0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,Vec3::x
 0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,Vec3::y
 0x44d720,RingApproach::FillWorldPos,src/orders/order_targets.cpp,field_read,Vec3::z
@@ -14793,7 +14793,7 @@ address,function,file,kind,target
 0x44dc60,PointMarker::FillWorldPos,src/orders/order_targets.cpp,field_read,Point16::x
 0x44dc60,PointMarker::FillWorldPos,src/orders/order_targets.cpp,field_read,Point16::y
 0x44dc60,PointMarker::FillWorldPos,src/orders/order_targets.cpp,field_read,PointMarker::y2
-0x44dc60,PointMarker::FillWorldPos,src/orders/order_targets.cpp,field_read,Unit::cell
+0x44dc60,PointMarker::FillWorldPos,src/orders/order_targets.cpp,field_read,Unit::footprint
 0x44dc60,PointMarker::FillWorldPos,src/orders/order_targets.cpp,function,
 0x44dcb0,PointMarker::ContainsCell,src/orders/order_targets.cpp,field_read,PointMarker::x1
 0x44dcb0,PointMarker::ContainsCell,src/orders/order_targets.cpp,field_read,PointMarker::x2
