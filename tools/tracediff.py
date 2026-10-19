@@ -26,7 +26,7 @@ divergence only. `--dumps` diffs the phase of two existing dump files.
 renames on moddable. Its names are translated to the modern ones before diffing, using the tables of
 src/harness/trace_schema.h in this tree and on `--reference-ref` (default origin/reference), matched
 by table and offset. A leaf with the same offset and size in both is renamed. Leaves that were split
-or merged are compared once, as the bytes they cover, under the modern names joined by "+". Without
+or merged are compared once, as the bytes they cover, under the modern names joined by "/". Without
 `--reference` the names are compared as they are.
 
 `--poison-b` runs B with `playtest.py --poison` (new allocations filled with 0xCD), A as usual.
@@ -183,7 +183,7 @@ def diff_dumps(a: Path, b: Path, tick: int, phase: str, reference: str | None = 
     if not fa and not fb:
         raise Error(f"no tick {tick} phase {phase} in either dump")
     return [(k, fa.get(k, "-"), fb.get(k, "-")) for k in [*fa, *(k for k in fb if k not in fa)]
-            if fa.get(k) != fb.get(k)]
+            if fa.get(k) != fb.get(k) and not (reference and same_bytes(fa.get(k), fb.get(k)))]
 
 
 class Leaf(NamedTuple):
@@ -266,6 +266,14 @@ def value_bytes(value: str) -> str | None:
         digits = value[2:]
         return "".join(digits[i:i + 2] for i in range(len(digits) - 2, -2, -2))
     return None
+
+
+def same_bytes(a: str | None, b: str | None) -> bool:
+    """Whether two dumped values are the same bytes, whether printed as a scalar or as a byte run."""
+    if a is None or b is None:
+        return False
+    bytes_a, bytes_b = value_bytes(a), value_bytes(b)
+    return bytes_a is not None and bytes_a == bytes_b
 
 
 def group_value(leaves: tuple[Leaf, ...], values: dict[str, str]) -> str:

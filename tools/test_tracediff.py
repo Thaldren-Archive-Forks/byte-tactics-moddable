@@ -27,6 +27,9 @@ static const TraceField kPlayerFields[] = {
     { "name", 0x8, 4, TF_BYTES, TT_NONE, 0x0 },
     { "", 0xc, 4, TF_BYTES, TT_NONE, 0x0 },
     { "tail", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "lo", 0x14, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "hi", 0x18, 4, TF_BYTES, TT_NONE, 0x0 },
+    { "total", 0x1c, 8, TF_BYTES, TT_NONE, 0x0 },
 };
 """
 
@@ -43,6 +46,8 @@ static const TraceField kPlayerFields[] = {
     { "metal", 0x4, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "name", 0x8, 8, TF_BYTES, TT_NONE, 0x0 },
     { "tail", 0x10, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "double", 0x14, 8, TF_SCALAR, TT_NONE, 0x0 },
+    { "total", 0x1c, 8, TF_SCALAR, TT_NONE, 0x0 },
 };
 """
 
@@ -55,6 +60,9 @@ REFERENCE_DUMP = """100 units units[3].f10 heap
 100 players players[1].name hex:41424344
 100 players players[1].+0xc hex:45464748
 100 players players[1].tail 0x00000009
+100 players players[1].lo hex:00000000
+100 players players[1].hi hex:00004040
+100 players players[1].total hex:0000000080662640
 """
 
 MODERN_DUMP = """100 units units[3].weapon heap
@@ -65,6 +73,8 @@ MODERN_DUMP = """100 units units[3].weapon heap
 100 players players[1].metal 0x00000002
 100 players players[1].name hex:4142434445464748
 100 players players[1].tail 0x00000009
+100 players players[1].double 0x4040000000000000
+100 players players[1].total 0x4026668000000000
 """
 
 
@@ -114,7 +124,9 @@ class DiffDumpsTest(unittest.TestCase):
     def test_without_reference_nothing_is_translated(self):
         units, players = self.diff(None)
         self.assertEqual([d[0] for d in units], ["units[3].f10", "units[3].field_8", "units[3].weapon", "units[3].cargo"])
-        self.assertEqual([d[0] for d in players], ["players[1].metal", "players[1].energy", "players[1].name", "players[1].+0xc"])
+        self.assertEqual([d[0] for d in players],
+                         ["players[1].metal", "players[1].energy", "players[1].name", "players[1].+0xc",
+                          "players[1].lo", "players[1].hi", "players[1].total", "players[1].double"])
         self.assertIn(("players[1].metal", "0x00000001", "0x00000002"), players)
 
     def test_reference_a_renames_and_swaps(self):
@@ -135,6 +147,19 @@ class DiffDumpsTest(unittest.TestCase):
         self.reference.write_text(self.reference.read_text().replace("hex:45464748", "hex:45464749"))
         _, players = self.diff("a")
         self.assertEqual(players, [("players[1].name", "hex:4142434445464749", "hex:4142434445464748")])
+
+    def test_one_modern_scalar_equals_two_reference_leaves_on_bytes(self):
+        _, players = self.diff("a")
+        self.assertEqual(players, [])
+        self.reference.write_text(self.reference.read_text().replace("hex:00004040", "hex:00004041"))
+        _, players = self.diff("a")
+        self.assertEqual([d[0] for d in players], ["players[1].double"])
+
+    def test_renamed_leaf_of_a_different_kind_compares_on_bytes(self):
+        _, players = self.diff("a")
+        self.assertNotIn("players[1].total", [d[0] for d in players])
+        self.assertTrue(td.same_bytes("hex:0000000080662640", "0x4026668000000000"))
+        self.assertFalse(td.same_bytes("hex:0000000080662640", "0x4026668000000001"))
 
     def test_wrong_side_leaves_names_untranslated(self):
         units = td.diff_dumps(self.reference, self.modern, 100, "units", "b", self.maps)
