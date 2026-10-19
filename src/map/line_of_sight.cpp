@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "los_tables.h"
 
 #pragma pack(push, 1)
 
@@ -233,24 +234,6 @@ struct Flags_004848e0 {
 #pragma pack(pop)
 
 extern Game* g_game;
-
-// The line-of-sight tables (g_losTables at 0x51e6a0).
-class LosTables {
-public:
-    explicit LosTables(const std::allocator<int>& al = std::allocator<int>())
-        : allocator(al), first(0), last(0), end(0) {}
-    ~LosTables() { FreeTables(); }
-
-    void FreeTables();
-    void* GetLosTable(int n);
-    short GetLosTableCount();
-    void LoadLosTables();
-
-    std::allocator<int> allocator;     // +0x0
-    int* first;                        // +0x4
-    int* last;                         // +0x8
-    int* end;                          // +0xc
-};
 
 class LosTable {
 public:

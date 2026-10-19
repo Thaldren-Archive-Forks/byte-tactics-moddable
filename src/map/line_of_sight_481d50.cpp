@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <stdio.h>
 
+#include <memory>
 #include "los_tables.h"
 
 #pragma pack(push, 1)

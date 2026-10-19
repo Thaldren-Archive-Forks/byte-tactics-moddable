@@ -28,12 +28,21 @@ class TdfFile;
 
 class LosTables {
 public:
+    explicit LosTables(const std::allocator<int>& al = std::allocator<int>())
+        : allocator(al), first(0), last(0), end(0) {}
+    ~LosTables() { FreeTables(); }
+
     void FreeTables();
     void LoadLosTable(TdfFile* file, short table);
     LOS_ELEM_VECTOR* GetLosTable(int n);
     int GetLosTableCount();
     void LoadLosTables();
     void ResizeTables(short n);
+
+    std::allocator<int> allocator;     // +0x0
+    int* first;                        // +0x4
+    int* last;                         // +0x8
+    int* end;                          // +0xc
 };
 
 #endif
