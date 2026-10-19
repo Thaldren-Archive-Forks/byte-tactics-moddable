@@ -14,7 +14,6 @@ class HapiBank;
 // behind the pointers the order views carry.
 struct Feature;
 struct Point;
-struct Link_004895c0;
 struct SaveDesc_0043a1f0;
 struct Head_0043a1f0;
 struct Entry_0043a1f0;
