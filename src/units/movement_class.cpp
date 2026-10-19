@@ -123,24 +123,7 @@ void AbortProgram(void);
 #include "../map/mission.h"
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x14233 - 0x2851];
-    unsigned int mapWidthTiles;        // +0x14233
-    unsigned int mapHeightTiles;       // +0x14237
-    char unknown_1423b[0x14287 - 0x1423b];
-    Cell* heightMap;                   // +0x14287
-    char unknown_1428b[0x14357 - 0x1428b];
-    Record_00440af0* units;            // +0x14357
-    Record_00440af0* unitsEnd;         // +0x1435b
-    char unknown_1435f[0x38a47 - 0x1435f];
-    unsigned int gameTick;             // +0x38a47
-    char unknown_38a4b[0x38d73 - 0x38a4b];
-    unsigned char progress;            // +0x38d73
-    char unknown_38d74[0x391e9 - 0x38d74];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 // Four dwords of the path lock (0x440ca0 only copies them), not known to be a
@@ -292,7 +275,7 @@ void Class_00440500::BuildPassMap()
     // Braces keep the two int j apart: MSVC 5 leaks a for-init variable into the enclosing scope.
     {
     for (int j = 0; j < height; j++) {
-        Cell* c = &g_game->heightMap[j * width];
+        Cell* c = &g_game->cells[j * width];
         for (n = 0; n < width; n++, c++)
             v[n] = (unsigned char)GetPassMapCellValue(this, c);
         v[-2] = 0;
@@ -410,8 +393,8 @@ void BuildAllPassMaps(void)
     unsigned int* q = (unsigned int*)DAT_00512370;
     do {
         if (q[-6] != 0) {
-            unsigned int h = g_game->mapHeightTiles;
-            unsigned int w = g_game->mapWidthTiles;
+            unsigned int h = (*(unsigned int*)&g_game->height);
+            unsigned int w = (*(unsigned int*)&g_game->width);
             q[-2] = w;
             q[-1] = h;
             // Size from the stored entry fields q[-1], q[-2], not the w/h locals.
@@ -424,12 +407,12 @@ void BuildAllPassMaps(void)
             }
             ((Class_00440500*)(q - 6))->BuildPassMap();
             progress += 100;
-            g_game->progress = progress / count;
+            g_game->progress_38d73 = progress / count;
         }
         q += 8;
     } while ((int)q < (int)DAT_00512370 + (int)sizeof(MovementClassTable));
 
-    g_game->progress = 100;
+    g_game->progress_38d73 = 100;
 }
 
 static inline void FreeA(int p)
@@ -487,7 +470,7 @@ void __stdcall RefreshPassMapsForUnit(Struct_00440a70* p)
 {
     if (p->unit != 0) {
         unsigned int last = p->unit->lastTick;
-        p->unit->lastTick = g_game->gameTick;
+        p->unit->lastTick = (*(unsigned int*)&g_game->ticks);
         for (int i = 0; i < 32; i++) {
             if (last < MovementClassTable::g_movementClasses.entries[i].lastTick) {
                 ((MovementClass*)&MovementClassTable::g_movementClasses.entries[i])->RefreshPassMap(p->a, p->b);
@@ -504,7 +487,7 @@ void __stdcall RefreshPassMapsForUnit(Struct_00440a70* p)
 // FUNCTION: 0x440af0
 void MovementClass::RefreshMovedUnits(Object_00440af0* p)
 {
-    unsigned int now = g_game->gameTick;
+    unsigned int now = (*(unsigned int*)&g_game->ticks);
     unsigned int old = lastTick;
     if (now <= 0x1e) {
         now = 0x1e;
@@ -512,12 +495,12 @@ void MovementClass::RefreshMovedUnits(Object_00440af0* p)
     unsigned int start = now - 0x1e;
     lastTick = start;
     unsigned int prev = p->unit->lastTick;
-    p->unit->lastTick = g_game->gameTick;
+    p->unit->lastTick = (*(unsigned int*)&g_game->ticks);
     if (prev < old) {
         g_seams.map->RefreshPassMap(this, 0, p->a, p->b);
     }
     if (start != old) {
-        for (Record_00440af0* r = &g_game->units[1]; r <= g_game->unitsEnd; r++) {
+        for (Record_00440af0* r = &(*(Record_00440af0 **)&g_game->units)[1]; r <= (*(Record_00440af0 **)&g_game->unitsEnd); r++) {
             if ((r->flags & 0x10000000) != 0 && r->unit != 0) {
                 unsigned int t = r->unit->lastTick;
                 if (t >= old && t < start) {
@@ -576,7 +559,7 @@ unsigned char FindHostSlot();
 // FUNCTION: 0x440cd0
 int CheckMapCrc()
 {
-    if (!g_seams.map->GetTerrainLength(g_game->mapInfo)) {
+    if (!g_seams.map->GetTerrainLength(g_game->net)) {
         return 0;
     }
     unsigned char me = FindHostSlot();
@@ -591,5 +574,5 @@ int CheckMapCrc()
     if (!check) {
         return 1;
     }
-    return g_seams.map->ComputeMapChecksum(g_game->mapInfo) == data->mapCrc;
+    return g_seams.map->ComputeMapChecksum(g_game->net) == data->mapCrc;
 }

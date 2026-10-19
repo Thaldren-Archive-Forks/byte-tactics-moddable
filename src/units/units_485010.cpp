@@ -48,9 +48,7 @@ struct Unit;
 
 #include "../network/player.h"
 
-struct Name_004864b0 {
-    char name[0x232];                  // +0x0
-};
+#include "name_004864b0.h"
 
 struct ScriptTable {                 // the definition data at type+0x18e
     char unknown_0[8];
@@ -175,63 +173,7 @@ public:
 
 #include "unit.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;         // +0x2a42
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x14223 - 0x2a44];
-    int mapWidthWorld;                 // +0x14223
-    int mapHeightWorld;                // +0x14227
-    char unknown_1422b[0x14233 - 0x1422b];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x1426f - 0x1423b];
-    Entry_486360* features;            // +0x1426f
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;            // +0x1427f
-    char debugMode;
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x14287 - 0x14283];
-    Cell* heightMap;                   // +0x14287
-    char unknown_1428b[0x1434f - 0x1428b];
-    unsigned short unitsPerPlayer;     // +0x1434f
-    unsigned short poolCount;          // +0x14351
-    char unknown_14353[0x14357 - 0x14353];
-    union {
-        Unit* units;                   // +0x14357
-        unsigned char* pool;
-    };
-    union {
-        Unit* unitsEnd;                // +0x1435b
-        unsigned char* poolEnd;        // the same bytes, from the pool's end
-    };
-    void* visibleUnitIdList;           // +0x1435f
-    void* hotRadarUnitList;            // +0x14363
-    char unknown_14367[0x1436f - 0x14367];
-    unsigned short focusUnitId;        // +0x1436f
-    char unknown_14371[0x14373 - 0x14371];
-    unsigned int autoFollowFlags;      // +0x14373
-    Object3do** unitModels;            // +0x14377
-    char unknown_1437b[0x1439b - 0x1437b];
-    UnitType* unitDefs;                // +0x1439b
-    char unknown_1439f[0x37ee6 - 0x1439f];
-    unsigned short maxUnits;           // +0x37ee6
-    char unknown_37ee8[0x37eee - 0x37ee8];
-    int difficulty;                    // +0x37eee
-    char side[4];
-    int battleCommanderDeath;          // +0x37ef6
-    char unknown_37efa[0x37f06 - 0x37efa];
-    unsigned short b0 : 1, b1 : 1, b2 : 1, b3 : 1, b4 : 1, b5 : 1, b6 : 1, b7 : 1,
-        b8 : 1, b9 : 1, b10 : 1, b11 : 1, b12 : 1, b13 : 1, b14 : 1, b15 : 1;   // +0x37f06
-    char unknown_37f08[0x37f5f - 0x37f08];
-    Name_004864b0 names[8];            // +0x37f5f
-    char unknown_390ef[0x391e9 - 0x390ef];
-    Mission* mapInfo;                  // +0x391e9
-    MissionConditions* victoryConditions;  // +0x391ed
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 // GLOBAL: 0x511de8
@@ -244,8 +186,8 @@ struct Point16_00485010 {
 
 static inline Cell* CellAt(int x, int y)
 {
-    if (x >= 0 && x < g_game->mapWidthTiles && y >= 0 && y < g_game->mapHeightTiles)
-        return &g_game->heightMap[y * g_game->mapWidthTiles + x];
+    if (x >= 0 && x < g_game->width && y >= 0 && y < g_game->height)
+        return &g_game->cells[y * g_game->width + x];
     return 0;
 }
 
@@ -265,9 +207,9 @@ static inline Cell* GetCellCachedWidth(int x, int y)
 {
     if (x >= 0) {
         // Width read into its own local after the x >= 0 test: decides the register tie.
-        int w = g_game->mapWidthTiles;
-        if (x < w && y >= 0 && y < g_game->mapHeightTiles)
-            return &g_game->heightMap[w * y + x];
+        int w = g_game->width;
+        if (x < w && y >= 0 && y < g_game->height)
+            return &g_game->cells[w * y + x];
     }
     return 0;
 }
@@ -317,12 +259,12 @@ void __stdcall ClampPositionToMap(Vec3_004853b0* p)
 {
     if (p->x.value < 0)
         p->x.value = 0;
-    else if (p->x.value >= MakeFixed(g_game->mapWidthWorld).value)
-        p->x = MakeFixed(g_game->mapWidthWorld - 1);
+    else if (p->x.value >= MakeFixed(g_game->baseX).value)
+        p->x = MakeFixed(g_game->baseX - 1);
     if (p->z.value < 0)
         p->z.value = 0;
-    else if (p->z.value >= MakeFixed(g_game->mapHeightWorld).value)
-        p->z = MakeFixed(g_game->mapHeightWorld - 1);
+    else if (p->z.value >= MakeFixed(g_game->baseY).value)
+        p->z = MakeFixed(g_game->baseY - 1);
 }
 
 
@@ -332,7 +274,7 @@ void __stdcall ShareMapInfo(unsigned char from, unsigned char to)
 {
     unsigned short fromBit = 1 << from;
     unsigned short toBit = 1 << to;
-    int n = g_game->mapWidthTiles * g_game->mapHeightTiles / 4;
+    int n = g_game->width * g_game->height / 4;
     for (int i = 0; i < n; i++) {
         unsigned short* p = &g_game->visibilityMask[i];
         if (*p & fromBit)
@@ -431,22 +373,22 @@ int __stdcall ComparePlayers(Player* a, Player* b);
 void __stdcall AllocateUnitMemory(void)
 {
     g_game->focusUnitId = 0;
-    g_game->autoFollowFlags &= 0xfffffffd;
-    g_game->unitsPerPlayer = g_game->maxUnits;
-    g_game->poolCount = (unsigned short)(g_game->maxUnits * 10 + 1);
+    g_game->autoFollowFlags_14373 &= 0xfffffffd;
+    g_game->unitsPerPlayer = g_game->field_37ee6;
+    g_game->poolCount = (unsigned short)(g_game->field_37ee6 * 10 + 1);
 
-    unsigned char* pool = g_game->pool = (unsigned char*)SimAllocTagged("UNIT MEMORY", g_game->poolCount * 0x118);
+    unsigned char* pool = (*(unsigned char **)&g_game->units) = (unsigned char*)SimAllocTagged("UNIT MEMORY", g_game->poolCount * 0x118);
     memset(pool, 0, g_game->poolCount * 0x118);
 
-    unsigned int ten = g_game->maxUnits * 10;
-    g_game->visibleUnitIdList = GameAllocIgnoreTag("HOT UNITS", ten * 2);
-    g_game->hotRadarUnitList = GameAllocIgnoreTag("HOT RADAR UNITS", ten * 10);
-    g_game->poolEnd = g_game->pool + g_game->poolCount * 0x118 - 0x118;
+    unsigned int ten = g_game->field_37ee6 * 10;
+    (*(void **)&g_game->list_1435f) = GameAllocIgnoreTag("HOT UNITS", ten * 2);
+    g_game->hotRadar = GameAllocIgnoreTag("HOT RADAR UNITS", ten * 10);
+    (*(unsigned char **)&g_game->unitsEnd) = (*(unsigned char **)&g_game->units) + g_game->poolCount * 0x118 - 0x118;
 
     unsigned short n;
     for (n = 0; n < g_game->poolCount; n++) {
         *(unsigned short*)(pool + n * 0x118 + 0xa8) = n;
-        *(UnitType**)(pool + n * 0x118 + 0x92) = g_game->unitDefs;
+        *(UnitType**)(pool + n * 0x118 + 0x92) = (*(UnitType **)&g_game->defs);
     }
 
     Player* v[10];
@@ -461,10 +403,10 @@ void __stdcall AllocateUnitMemory(void)
     int i;
     for (i = 0; i < 10; i++) {
         Player* item = v[i];
-        int c = g_game->maxUnits * i + 1;
+        int c = g_game->field_37ee6 * i + 1;
         *(unsigned char**)((char*)item + 0x67) = pool + c * 0x118;
         *(unsigned char**)((char*)item + 0x6b) =
-            *(unsigned char**)((char*)item + 0x67) + g_game->maxUnits * 0x118 - 0x118;
+            *(unsigned char**)((char*)item + 0x67) + g_game->field_37ee6 * 0x118 - 0x118;
         *(unsigned short*)((char*)item + 0x6f) =
             *(unsigned short*)(*(unsigned char**)((char*)item + 0x67) + 0xa8);
         *(unsigned short*)((char*)item + 0x71) =
@@ -484,7 +426,7 @@ void __stdcall AllocateUnitMemory(void)
 // FUNCTION: 0x485940
 int __stdcall ComparePlayers(Player* a, Player* b)
 {
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3)
+    if (g_seams.map->GetGameType(g_game->net) == 3)
         return a->id < b->id;
     return a < b;
 }
@@ -503,12 +445,12 @@ void FreeUnitMemory(void)
                 KillUnit(u, 8);
         }
     }
-    if (g_game->hotRadarUnitList != 0)
-        GameFreeThunk(g_game->hotRadarUnitList);
-    g_game->hotRadarUnitList = 0;
-    if (g_game->visibleUnitIdList != 0)
-        GameFreeThunk(g_game->visibleUnitIdList);
-    g_game->visibleUnitIdList = 0;
+    if (g_game->hotRadar != 0)
+        GameFreeThunk(g_game->hotRadar);
+    g_game->hotRadar = 0;
+    if ((*(void **)&g_game->list_1435f) != 0)
+        GameFreeThunk((*(void **)&g_game->list_1435f));
+    (*(void **)&g_game->list_1435f) = 0;
     if (g_game->units != 0)
         GameFreeThunk(g_game->units);
     g_game->units = 0;
@@ -522,7 +464,7 @@ int __stdcall RandomInt(int range);
 // FUNCTION: 0x485a40
 void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
 {
-    unit->def = (UnitDef*)&g_game->unitDefs[(unsigned short)unit->unitDefIndex];
+    unit->def = (UnitDef*)&(*(UnitType **)&g_game->defs)[(unsigned short)unit->unitDefIndex];
     unit->f110.b28 = 1;
     unit->f110.b29 = (((UnitType*)unit->def)->mobile == 0);
     unit->f110.b14 = 0;
@@ -670,7 +612,7 @@ ObjectState_00485d40* __stdcall CreateObjectState(Object3do* obj);
 // FUNCTION: 0x485d40
 void __stdcall InitUnitScript(Unit* self)
 {
-    Object3do* obj = g_game->unitModels[self->unitDefIndex];
+    Object3do* obj = (*(Object3do ***)&g_game->types)[self->unitDefIndex];
     if (((UnitType*)self->def)->data) {
         self->script = (Class_004b0a70*)new (kSim) UnitScript;
         ((CobScript*)self->script)->SetCob(((UnitType*)self->def)->data);
@@ -733,7 +675,7 @@ extern void* g_weaponAimCobVtable[];
 // FUNCTION: 0x485e90
 void __stdcall InitUnit(int unitType, Vec3 pos, int param_5, Unit* unit)
 {
-    UnitType* type = &g_game->unitDefs[(unsigned short)unitType];
+    UnitType* type = &(*(UnitType **)&g_game->defs)[(unsigned short)unitType];
     if (unit) {
         for (int i = 0; i < 3; i++)
             unit->weapons[i].aimCob.ppVtbl = g_weaponAimCobVtable;
@@ -767,7 +709,7 @@ void __stdcall BroadcastBuilderLink(Unit* a, Unit* b);
 static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Vec3 pos,
                                                int param_5, Unit* unit)
 {
-    UnitType* type = &g_game->unitDefs[unitType];
+    UnitType* type = &(*(UnitType **)&g_game->defs)[unitType];
     if (unit) {
         for (int i = 0; i < 3; i++)
             unit->weapons[i].aimCob.ppVtbl = g_weaponAimCobVtable;
@@ -791,7 +733,7 @@ Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId, Vec3 pos
     Player* pl = (Player*)((char*)g_game + off + 0x1b63);
     if (typeId == 0)
         return 0;
-    UnitType* type = &g_game->unitDefs[typeId];
+    UnitType* type = &(*(UnitType **)&g_game->defs)[typeId];
     if (!(type->flags.all & 0x800000))
         return 0;
     if (type->limit != -1) {
@@ -836,7 +778,7 @@ found:
     // Array subscript, not a byte-offset cast: it fixes the SIB operand order.
     g_game->players[player].unitCount++;
     g_game->players[player].unitsCreated++;
-    g_seams.players->NotifyUnitCreated(g_game->victoryConditions, 0, unit);
+    g_seams.players->NotifyUnitCreated(g_game->list_391ed, 0, unit);
     return unit;
 }
 
@@ -880,7 +822,7 @@ Unit* __stdcall CreateUnitFromPacket(unsigned char player, Spawn_004861d0* spawn
     // Indexed again from g_game, not through pl: keeps the player index live early.
     g_game->players[player].unitCount++;
     g_game->players[player].unitsCreated++;
-    g_game->victoryConditions->NotifyUnitCreated(unit);
+    g_game->list_391ed->NotifyUnitCreated(unit);
     return unit;
 }
 
@@ -905,7 +847,7 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
         if (id >= 0xfffb) {
             return;
         }
-        id = g_game->features[id].next;
+        id = (*(Entry_486360 **)&g_game->features)[id].next;
     }
     if (id < 0xfffb) {
         void* target = g_seams.los_radar->GetMapCell(unit->cell.x, unit->cell.y);
@@ -933,7 +875,7 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
 // FUNCTION: 0x486460
 int __stdcall IsUnitCommander(Unit* unit)
 {
-    return _strcmpi(g_game->names[unit->player->info->side].name, ((UnitType*)unit->def)->name) == 0;
+    return _strcmpi(g_game->names_37f5f[unit->player->info->side].name, ((UnitType*)unit->def)->name) == 0;
 }
 
 // A live unit that changed its type (the linked unit name at g_game+0x37f5f
@@ -967,7 +909,7 @@ void __stdcall KillPlayerUnits(unsigned char player);
 void __stdcall KillUnit(Unit* unit, int param_2)
 {
     if ((unit->flags & 0x10000000) != 0) {
-        int same = _strcmpi(g_game->names[unit->player->info->side].name,
+        int same = _strcmpi(g_game->names_37f5f[unit->player->info->side].name,
                             ((UnitType*)unit->def)->name) == 0;
         if (same) {
             unit->player->flags &= 0xfffe;
@@ -1008,7 +950,7 @@ void __stdcall KillUnit(Unit* unit, int param_2)
             BroadcastPacket(unit->player->id, (unsigned char*)&cmd, 0xb);
         }
         ApplyUnitDeath(&cmd, 1);
-        if (same && g_game->battleCommanderDeath != 0 && unit->player->active != 0 &&
+        if (same && g_game->commanderDeath != 0 && unit->player->active != 0 &&
             (unit->player->type == 1 || unit->player->type == 2)) {
             PopUntilNamedLayout(1);
             g_seams.players->KillPlayerUnits(unit->playerIndex);
@@ -1055,7 +997,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         parent = &g_game->units[cmd->attackerUnitId];
     unit->attacker = parent;
     unit->lastAttackerSlot = FindSlotByDpid(cmd->attackerPlayerNetId);
-    g_seams.players->NotifyUnitDied(g_game->victoryConditions, 0, unit);
+    g_seams.players->NotifyUnitDied(g_game->list_391ed, 0, unit);
     g_seams.orders->DeleteOrders(unit, 1);
     RemoveSpeechOfUnit(unit);
     g_seams.ai->SetUnitSquad(unit, -1);
@@ -1084,7 +1026,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
             unit->player->losses++;
             if (unit->lastAttackerSlot != 10 && unit->buildLeft == 0.0f && unit->playerIndex != unit->lastAttackerSlot)
                 g_game->players[unit->lastAttackerSlot].kills++;
-            int same = _strcmpi(g_game->names[unit->player->info->side].name,
+            int same = _strcmpi(g_game->names_37f5f[unit->player->info->side].name,
                                 ((UnitType*)unit->def)->name) == 0;
             if (same) {
                 if (unit->lastAttackerSlot != 10)
@@ -1101,7 +1043,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     case 3:
         if (unit->player != 0 && g_game->players[g_game->localPlayer].shareVision[unit->player->index] == 0) {
             unit->player->losses++;
-            int same = _strcmpi(g_game->names[unit->player->info->side].name,
+            int same = _strcmpi(g_game->names_37f5f[unit->player->info->side].name,
                                 ((UnitType*)unit->def)->name) == 0;
             if (same)
                 unit->player->commanderLosses++;
@@ -1114,11 +1056,11 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         Player* rec = &g_game->players[unit->lastAttackerSlot];
         if (rec->active != 0 && (rec->type == 1 || rec->type == 2 || rec->type == 3)
             && rec->index != 10
-            && (g_seams.map->GetGameType(g_game->mapInfo) == 3 || g_seams.map->GetGameType(g_game->mapInfo) == 2)
+            && (g_seams.map->GetGameType(g_game->net) == 3 || g_seams.map->GetGameType(g_game->net) == 2)
             && rec->rank > 0) {
             int rank = rec->rank;
             int best = rank;
-            int mine = g_game->battleCommanderDeath == 2 ? rec->commanderKills : rec->kills;
+            int mine = g_game->commanderDeath == 2 ? rec->commanderKills : rec->kills;
             int i = 10;
             Player* p = g_game->players;
             // do/while over a Player pointer: otherwise the frame grows.
@@ -1128,7 +1070,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
                     if (!hid) {
                         // Two compare arms: the compiler merges their setg.
                         int ahead;
-                        if (g_game->battleCommanderDeath == 2)
+                        if (g_game->commanderDeath == 2)
                             ahead = mine > p->commanderKills;
                         else
                             ahead = mine > p->kills;
@@ -1154,12 +1096,12 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
                 if (best == 0) {
                     char text[100];
                     sprintf(text, Translate(g_takenLeadFormat), rec->name,
-                            g_game->battleCommanderDeath == 2 ? rec->commanderKills : rec->kills);
+                            g_game->commanderDeath == 2 ? rec->commanderKills : rec->kills);
                     AddMessage(text, 2, 0, 10);
                 }
             }
         }
-        if (g_game->b7)
+        if (g_game->bits_37f06_1.b7)
             FlashScorePanelKillLoss(unit->lastAttackerSlot, unit->player->index);
     }
 
@@ -1210,13 +1152,13 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     unit->unitDefIndex = 0;
     // Keep this order: adjacent clears would fold into one `and`.
     unit->flags &= ~0x10000000;
-    unit->def = (UnitDef*)g_game->unitDefs;
+    unit->def = (UnitDef*)(*(UnitType **)&g_game->defs);
     unit->flags &= ~0x30;
     unit->player->unitCount--;
     if (unit->player->unitCount == 0) {
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 3)
+        if (g_seams.map->GetGameType(g_game->net) == 3)
             AnnouncePlayerLeft(unit->player->id);
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 2)
+        if (g_seams.map->GetGameType(g_game->net) == 2)
             AnnounceForcesDestroyed(unit->player);
     }
 }
@@ -1317,7 +1259,7 @@ int __stdcall FindHighestPointOnLine(Vec3_004851c0 a, Vec3_004851c0 b)
     for (int i = 0; i <= n; i++) {
         Cell* c = CellAt(a.x / 0x100000, a.z / 0x100000);
         if (c) {
-            short v = ((unsigned char*)g_game->features)[c->feature * 256 + 0xfa] + c->height;
+            short v = ((unsigned char*)(*(Entry_486360 **)&g_game->features))[c->feature * 256 + 0xfa] + c->height;
             if (best < v) best = v;
             if (c->unit) {
                 Unit* o = &g_game->units[c->unit];
