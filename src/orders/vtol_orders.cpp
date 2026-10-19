@@ -676,8 +676,6 @@ LandingPadList::LandingPadList()
 }
 #pragma auto_inline(on)
 
-// The include set (the system headers, then ta_types.h in namespace ta) fixes
-// unit's front-end id, which decides the register order of the health test.
 // VtolSeekGuardOrder and its Patrol helper; the vector calls inline or not
 // according to the original, so IsDamaged, FindPads and SearchRange stay
 // small helpers.

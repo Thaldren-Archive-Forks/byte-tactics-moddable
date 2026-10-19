@@ -1,6 +1,4 @@
 // Decompiled by GPT-6 Astra, finished by deepseek-v4.1-flash, edited by deepseek-v4.1, finished by space-bunny-free, finished by deepseek-v4.1-flash, finished by deepseek-v4.1-flash, edited by Claude Opus 5.5, finished by Claude Opus 5.5. re-verified by GPT-6, retried by Claude Opus 5.5, finished by GPT-6, retried by Claude Opus 5.5, finished by GPT-6, matched by Claude Opus 5.5. Names are provisional.
-// The include set (ta_types.h in namespace ta, then the system headers) fixes
-// unit's front-end id, which decides the register order of the health test.
 #include <windows.h>
 #include <ddraw.h>
 #include <dsound.h>
