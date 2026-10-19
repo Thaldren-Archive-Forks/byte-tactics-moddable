@@ -59,20 +59,7 @@ struct Cell {
 
 #include "../units/unit.h"
 
-struct Game {
-    char unknown_0[0x1420b];
-    FeatureSpot* spots;                // +0x1420b
-    Unit* unit;                        // +0x1420f
-    char unknown_14213[0x14233 - 0x14213];
-    int mapWidthTiles;                 // +0x14233
-    char unknown_14237[0x1426f - 0x14237];
-    Feature* features;                 // +0x1426f
-    char unknown_14273[0x1431f - 0x14273];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x37f06 - 0x14327];
-    unsigned short visualFlags;        // +0x37f06
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -108,8 +95,8 @@ void __stdcall BlitFeatureGaf(void* dest, Cell* cell, int ix, int iy)
     // Second row indexed as cell[width], not through a next pointer: load order.
     int s = cell->shade;
     s += cell[1].shade;
-    s += cell[g_game->mapWidthTiles].shade;
-    s += cell[g_game->mapWidthTiles + 1].shade;
+    s += cell[g_game->width].shade;
+    s += cell[g_game->width + 1].shade;
     int shade = s >> 3;
     int y = f->footprint.y * 16 / 2 - shade + (iy + 2) * 16 - g_game->scrollY;
     if (cell->flags) {

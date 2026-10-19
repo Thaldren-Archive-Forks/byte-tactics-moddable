@@ -15,29 +15,7 @@ struct Ctx_00499890 {
 };
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0xc];
-    Ctx_00499890* displayContext;
-    char unknown_10[0x519 - 0x10];
-    char menu[0x10];
-    char unknown_529[0x2c76 - 0x529];
-    Input_00499890 selected;
-    char unknown_2c8e[0x37ebe - 0x2c8e];
-    unsigned short ordersPanelFlags;
-    char unknown_37ec0[0x37f2f - 0x37ec0];
-    // The key test is a standalone if on bit 1 of this unsigned short bitfield.
-    unsigned short screenBitA : 1;
-    unsigned short screenBitB : 1;
-    char unknown_37f31[0x38a37 - 0x37f31];
-    int lastSimBudgetTick;
-    char unknown_38a3b[0x38a51 - 0x38a3b];
-    unsigned short otherFlags;
-    char path[0x20c];
-    char unknown_38c5f[0x391e9 - 0x38c5f];
-    Mission* mapInfo;
-    char unknown_391ed[0x391f5 - 0x391ed];
-    void (__cdecl* callback)();
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -67,16 +45,16 @@ void MainFrameTick()
     int key = PeekKey();
 
     if (key == 0x7e) {
-        if (g_game->screenBitB) {
+        if (g_game->bits_37f2f_2.screenBitB) {
             PopKey();
             ToggleFullScreen();
         }
     }
-    if ((g_game->ordersPanelFlags & 1) && key == 0xe3) {
+    if ((g_game->flags_37ebe & 1) && key == 0xe3) {
         PopKey();
         PopUntilNamedLayout(0);
-        g_game->ordersPanelFlags &= 0xfffe;
-        if (g_seams.map->GetGameType(g_game->mapInfo) != 3)
+        g_game->flags_37ebe &= 0xfffe;
+        if (g_seams.map->GetGameType(g_game->net) != 3)
             g_game->otherFlags &= 0xfffe;
     }
     if (key == 0xd6) {
@@ -85,20 +63,20 @@ void MainFrameTick()
         sprintf(path, g_screenshotDirFormat, g_game->path);
         MakeDirectoryPath(path);
         SaveScreenshot(path, g_screenshotPrefix);
-        g_game->lastSimBudgetTick = GetTicks();
+        (*(int*)&g_game->lastTick) = GetTicks();
     }
     PeekMouseEvent(&first);
-    UpdateMenu(g_game->menu);
+    UpdateMenu(g_game->menu_519);
     PeekMouseEvent(&second);
     UpdateCdCategoryByActivity();
     PlayNextSpeech();
     if (first.fields[4] == second.fields[4])
-        PopMouseEvent(g_game->selected.fields);
+        PopMouseEvent((*(Input_00499890*)&g_game->view).fields);
     else if (first.fields[4] == 0x205 || first.fields[4] == 0x202)
-        g_game->selected = first;
+        (*(Input_00499890*)&g_game->view) = first;
     else
-        g_game->selected = second;
+        (*(Input_00499890*)&g_game->view) = second;
     UpdateTimers();
-    if (!(g_game->displayContext->flags & 8))
-        g_game->callback();
+    if (!(g_game->unknown_c->flags & 8))
+        ((void (__cdecl*)())g_game->handler)();
 }

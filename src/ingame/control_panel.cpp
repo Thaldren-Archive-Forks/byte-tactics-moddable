@@ -35,7 +35,7 @@ struct Pair_00419560 {
     int b;
 };
 
-struct Arg_00419670 {
+struct ArgView {
     char unknown_0[8];
     unsigned int keyFlags;             // +0x8
 };
@@ -133,60 +133,6 @@ void StepAllGafSequences();
 
 #include "../units/unit.h"
 
-struct OrdersBits {
-    unsigned short unknown_0 : 1;      // +0x37ebe bit 0
-    unsigned short refresh : 1;        // bit 1
-    unsigned short unknown_2 : 2;      // bits 2-3
-    unsigned short flag_4 : 1;         // bit 4
-    unsigned short unknown_5 : 2;      // bits 5-6
-    unsigned short next : 1;           // bit 7
-    unsigned short prev : 1;           // bit 8
-    unsigned short orders : 1;         // bit 9
-    unsigned short build : 1;          // bit 10
-    unsigned short unknown_11 : 1;     // bit 11
-    unsigned short fireOrder : 3;      // bits 12-14
-    unsigned short unknown_15 : 1;     // bit 15
-    unsigned short moveOrder : 3;      // +0x37ec0 bits 0-2
-    unsigned short cloak : 2;          // bits 3-4
-    unsigned short onOff : 2;          // bits 5-6
-    unsigned short canMove : 1;        // bit 7
-    unsigned short canStop : 1;        // bit 8
-    unsigned short canAttack : 1;      // bit 9
-    unsigned short canDefend : 1;      // bit 10
-    unsigned short canPatrol : 1;      // bit 11
-    unsigned short canLoad : 1;        // bit 12
-    unsigned short canReclaim : 1;     // bit 13
-    unsigned short canCapture : 1;     // bit 14
-    unsigned short canRepair : 1;      // bit 15
-    unsigned short canBlast : 1;       // +0x37ec2 bit 0
-    unsigned short unknown_1 : 15;
-};
-
-// The byte view is the one 0x41bde0, 0x41bf10 and 0x41c060 use to set the
-// redraw flag; 0x41c110 sets the same bit through raw, and 0x41c180 through
-// bits.flag_4 (the bitfield write keeps the original's separate tail).
-union Orders {
-    unsigned short raw;
-    unsigned char lo;
-    OrdersBits bits;
-};
-
-struct BitFlags_004197d0 {
-    unsigned char b0:1;
-    unsigned char b1:1;
-    unsigned char b2:1;
-    unsigned char b3:1;
-    unsigned char b4:1;
-    unsigned char b5:1;
-    unsigned char b6:1;
-    unsigned char b7:1;
-};
-
-union Flags_004197d0 {
-    unsigned char value;
-    BitFlags_004197d0 bits;
-};
-
 // A unit type's extra build menu entry (0x25 bytes).
 struct BuildEntry_0041ace0 {
     short typeId;                      // +0x00
@@ -200,13 +146,6 @@ struct BuildList_0041ace0 {            // 0xbd bytes
     BuildEntry_0041ace0 entries[5];    // +0x04
 };
 
-// One player's side name (0x232 bytes); 0x419560 reads the dword at +0x224.
-struct SideName {
-    char name[0x224];                  // +0x0
-    int field_224;                     // +0x224
-    char unknown_228[0x232 - 0x228];
-};
-
 // The mouse record at g_game+0x2c76: copied by 0x41cc60, read by 0x41cd50.
 #include "../gui/mouse_event.h"
 
@@ -217,99 +156,12 @@ struct CursorState {
     POINT savedScroll;                 // +0x24
 };
 
-// The camera flags word at +0x142f1: a byte in 0x41c4c0, 0x41c7c0, 0x41c8e0
-// and 0x41ce90, a word in 0x41ca10 and 0x41cd50.
-union CameraFlags {
-    unsigned short raw;
-    unsigned char lo;
-};
-
 struct Follow_0041ca10 {
     int unknown_0;                     // +0x0
     Vec3 pos;                          // +0x4
 };
 
-struct Game {
-    char unknown_0[0x519];
-    Gui gui;                           // +0x519, the GUI context TALK.GUI lives in
-    char unknown_120f[0x1b63 - 0x120f];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;         // +0x2a42
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x2c76 - 0x2a44];
-    union {
-        char orders[0x2c92 - 0x2c76];  // +0x2c76
-        MouseEvent mouse;             // +0x2c76, copied by UpdateMouseScroll
-    };
-    int boxStartX;                     // +0x2c92
-    int boxStartHeight;                // +0x2c96
-    int boxStartZ;                     // +0x2c9a
-    int boxEndX;                       // +0x2c9e
-    int boxEndHeight;                  // +0x2ca2
-    int boxEndZ;                       // +0x2ca6
-    Vec3 pos;                          // +0x2caa
-    char unknown_2cb6[0x2cc3 - 0x2cb6];
-    unsigned char orderMode;           // +0x2cc3
-    unsigned short buildTypeIndex;     // +0x2cc4
-    Flags_004197d0 inputFlags;         // +0x2cc6
-    CursorState cursor;                // +0x2cc7
-    char unknown_2cf3[0x1422b - 0x2cf3];
-    int mapPixelWidth;                 // +0x1422b
-    int mapPixelHeight;                // +0x1422f
-    char unknown_14233[0x14281 - 0x14233];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x142cb - 0x14283];
-    char field_142cb[0x142f1 - 0x142cb]; // +0x142cb, the radar viewport rectangle
-    CameraFlags viewDirtyFlags;        // +0x142f1
-    Unit* cameraFollowUnit;            // +0x142f3
-    Follow_0041ca10* cameraFollowTrackObj;  // +0x142f7
-    char unknown_142fb[0x1431f - 0x142fb];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    int x2;                            // +0x14327
-    int y2;                            // +0x1432b
-    int value_1432f;                   // +0x1432f
-    int value_14333;                   // +0x14333
-    int sum_x;                         // +0x14337
-    int sum_y;                         // +0x1433b
-    Vec3 cameraSnapPos;                // +0x1433f
-    unsigned short cameraSnapTicks;    // +0x1434b
-    unsigned char scrollSpeed;         // +0x1434d
-    unsigned char flags_1434e;         // +0x1434e
-    char unknown_1434f[0x14357 - 0x1434f];
-    Unit* units;                       // +0x14357
-    char unknown_1435b[0x1439b - 0x1435b];
-    UnitType* unitDefs;                // +0x1439b
-    char unknown_1439f[0x37e1f - 0x1439f];
-    int screenWidth;                   // +0x37e1f
-    int screenHeight;                  // +0x37e23
-    char unknown_37e27[0x37e37 - 0x37e27];
-    int viewPixelWidth;                // +0x37e37
-    int viewPixelHeight;               // +0x37e3b
-    char unknown_37e3f[0x37e9c - 0x37e3f];
-    unsigned short unitIndex;          // +0x37e9c
-    unsigned short unitDefIndex;       // +0x37e9e
-    char unknown_37ea0[0x37ebe - 0x37ea0];
-    Orders ordersPanelFlags;           // +0x37ebe
-    char unknown_37ec4[0x37eee - 0x37ec4];
-    int difficulty;                    // +0x37eee (a guess)
-    char unknown_37ef2[0x37f2f - 0x37ef2];
-    unsigned char uiOptionFlags;       // +0x37f2f
-    char unknown_37f30[0x37f5b - 0x37f30];
-    // The side names and the scroll scale overlap: 0x41ce90 reads a dword
-    // inside the side name table.
-    union {
-        SideName sideNames[8];         // +0x37f5b
-        struct {
-            char unknown_37f5b[0x38a3f - 0x37f5b];
-            int simBudgetDtTicks;      // +0x38a3f
-        };
-    };
-    char unknown_390eb[0x391c7 - 0x390eb];
-    int buildListCount;                // +0x391c7
-    BuildList_0041ace0* buildLists;    // +0x391cb
-};
+#include "../game/game.h"
 
 #pragma pack(pop)
 
@@ -410,7 +262,7 @@ static inline void CellToWorld(Point16 origin, Point16 c, Vec3* v)
 // FUNCTION: 0x419560
 void InitCommands()
 {
-    DAT_00511c20 = g_game->sideNames[4].field_224;
+    DAT_00511c20 = g_game->sideNames_37f5b[4].field_224;
     g_messageBytesReceived = 0;
     g_messageBytesSent = 0;
     // The second field of the second table is cleared through a walking
@@ -439,7 +291,7 @@ void InitCommands()
 // FUNCTION: 0x4195f0
 void __stdcall CopyMenuEntryName(char* dest, unsigned short index)
 {
-    strncpy(dest, g_game->unitDefs[index].unitname, 0x20);
+    strncpy(dest, ((UnitType *)g_game->defs)[index].unitname, 0x20);
     dest[0x1f] = 0;
 }
 
@@ -458,11 +310,11 @@ int __stdcall MenuEntryNameContains(Gadget* entries, char* text, int index)
 // order for each of the local player's units with flag 0x10 whose def has
 // flag 0x40. Bit 2 of the argument's keyFlags is passed through.
 // FUNCTION: 0x419670
-void __stdcall IssueMobileBuildOrders(Arg_00419670* arg)
+void __stdcall IssueMobileBuildOrders(ArgView* arg)
 {
     unsigned int remove = (arg->keyFlags >> 2) & 1;
     unsigned short index = g_game->buildTypeIndex;
-    UnitType* def = &g_game->unitDefs[index];
+    UnitType* def = &((UnitType *)g_game->defs)[index];
     Vec3 pos = g_game->pos;
     // origin read once into a local: passing def->origin to each helper changes the frame.
     Point16 origin = def->origin;
@@ -489,22 +341,22 @@ void __stdcall IssueMobileBuildOrders(Arg_00419670* arg)
 // FUNCTION: 0x4197d0
 int UpdatePlacementGhostValidity(void)
 {
-    UnitType* item = &g_game->unitDefs[g_game->buildTypeIndex];
+    UnitType* item = &((UnitType *)g_game->defs)[g_game->buildTypeIndex];
     Point16 cell = WorldToCell(g_game->pos, item->origin);
     g_game->boxStartX = cell.x << 4;
     g_game->boxStartZ = cell.y << 4;
     Point16 origin = item->origin;
     g_game->boxEndX = (origin.x << 4) + g_game->boxStartX;
     g_game->boxEndZ = (origin.y << 4) + g_game->boxStartZ;
-    g_game->inputFlags.bits.b6 = CanBuildAt(item, cell, 0, &g_game->players[g_game->localPlayer]);
+    g_game->inputFlags_2cc6.bits.b6 = CanBuildAt(item, cell, 0, &g_game->players[g_game->localPlayer]);
     unsigned char r;
-    if (g_game->inputFlags.value & 0x40)
+    if (g_game->inputFlags_2cc6.value & 0x40)
         r = GetBuildSiteHeight();
     else
         r = GetFootprintHeight(item, cell);
     g_game->boxStartHeight = r;
     g_game->boxEndHeight = r;
-    return (g_game->inputFlags.value >> 6) & 1;
+    return (g_game->inputFlags_2cc6.value >> 6) & 1;
 }
 
 // Finds the GUI entry named after list entry `index` of the game's 0x249-byte
@@ -513,7 +365,7 @@ int UpdatePlacementGhostValidity(void)
 // FUNCTION: 0x419940
 void __stdcall SetBuildCountText(Gui* obj, unsigned short index, int n)
 {
-    Gadget* e = FindGadgetOrNull(obj->layer->entries, g_game->unitDefs[index].unitname);
+    Gadget* e = FindGadgetOrNull(obj->layer->entries, ((UnitType *)g_game->defs)[index].unitname);
     if (e) {
         if (n)
             sprintf(e->u.text, "+%d", n);
@@ -599,7 +451,7 @@ void __stdcall QueueBuildOrder(char* name, Unit* unit, int count)
 void __stdcall SetOrderIntent(unsigned char mode)
 {
     g_game->orderMode = mode;
-    g_game->inputFlags.value = g_game->inputFlags.value & 0xf7;
+    g_game->inputFlags_2cc6.value = g_game->inputFlags_2cc6.value & 0xf7;
 }
 
 // Handles a click on an order button: finds which order the button's name
@@ -609,7 +461,7 @@ void __stdcall SetOrderIntent(unsigned char mode)
 static inline void SetOrderMode(unsigned char mode)
 {
     g_game->orderMode = mode;
-    g_game->inputFlags.value = g_game->inputFlags.value & 0xf7;
+    g_game->inputFlags_2cc6.value = g_game->inputFlags_2cc6.value & 0xf7;
 }
 
 // FUNCTION: 0x419be0
@@ -760,85 +612,85 @@ void __stdcall RefreshOrderButtons(Unit* unit)
     }
     index = FindGadgetIndexBySubstring(layer, "CLOAK");
     if (index != -1) {
-        if (g_game->ordersPanelFlags.bits.cloak == 3) {
+        if (g_game->ordersPanelFlags_37ebe_6.bits.cloak == 3) {
             SetGrayedOut(menu, index, 1);
         } else {
-            SetGadgetStatus(menu, index, g_game->ordersPanelFlags.bits.cloak);
+            SetGadgetStatus(menu, index, g_game->ordersPanelFlags_37ebe_6.bits.cloak);
         }
     }
     index = FindGadgetIndexBySubstring(layer, "ONOFF");
     if (index != -1) {
-        if (g_game->ordersPanelFlags.bits.onOff == 3) {
+        if (g_game->ordersPanelFlags_37ebe_6.bits.onOff == 3) {
             SetGrayedOut(menu, index, 1);
         } else {
-            SetGadgetStatus(menu, index, g_game->ordersPanelFlags.bits.onOff);
+            SetGadgetStatus(menu, index, g_game->ordersPanelFlags_37ebe_6.bits.onOff);
         }
     }
     index = FindGadgetIndexBySubstring(layer, "MOVEORD");
     if (index != -1) {
-        if (g_game->ordersPanelFlags.bits.moveOrder == 4) {
+        if (g_game->ordersPanelFlags_37ebe_6.bits.moveOrder == 4) {
             SetGrayedOut(menu, index, 1);
         } else {
-            SetGadgetStatus(menu, index, g_game->ordersPanelFlags.bits.moveOrder);
+            SetGadgetStatus(menu, index, g_game->ordersPanelFlags_37ebe_6.bits.moveOrder);
         }
     }
     index = FindGadgetIndexBySubstring(layer, "FIREORD");
     if (index != -1) {
-        if (g_game->ordersPanelFlags.bits.fireOrder == 4) {
+        if (g_game->ordersPanelFlags_37ebe_6.bits.fireOrder == 4) {
             SetGrayedOut(menu, index, 1);
         } else {
-            SetGadgetStatus(menu, index, g_game->ordersPanelFlags.bits.fireOrder);
+            SetGadgetStatus(menu, index, g_game->ordersPanelFlags_37ebe_6.bits.fireOrder);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canMove) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canMove) {
         index = FindGadgetIndexBySubstring(layer, "MOVE");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canStop) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canStop) {
         index = FindGadgetIndexBySubstring(layer, "STOP");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canAttack) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canAttack) {
         index = FindGadgetIndexBySubstring(layer, "ATTACK");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canDefend) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canDefend) {
         index = FindGadgetIndexBySubstring(layer, "DEFEND");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canPatrol) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canPatrol) {
         index = FindGadgetIndexBySubstring(layer, "PATROL");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canReclaim) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canReclaim) {
         index = FindGadgetIndexBySubstring(layer, "RECLAIM");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canRepair) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canRepair) {
         index = FindGadgetIndexBySubstring(layer, "REPAIR");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canCapture) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canCapture) {
         index = FindGadgetIndexBySubstring(layer, "CAPTURE");
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
     }
-    if (!g_game->ordersPanelFlags.bits.canLoad) {
+    if (!g_game->ordersPanelFlags_37ebe_6.bits.canLoad) {
         index = FindGadgetIndexBySubstring(layer, "LOAD");
         if (index != -1) {
             SetGadgetActive(menu, index, 0);
@@ -847,7 +699,7 @@ void __stdcall RefreshOrderButtons(Unit* unit)
         if (index != -1) {
             SetGrayedOut(menu, index, 1);
         }
-        if (!g_game->ordersPanelFlags.bits.canBlast) {
+        if (!g_game->ordersPanelFlags_37ebe_6.bits.canBlast) {
             index = FindGadgetIndexBySubstring(layer, "BLAST");
             if (index != -1) {
                 SetGrayedOut(menu, index, 1);
@@ -880,68 +732,68 @@ int __stdcall HandleOrdersPanelClick(Gui* menu, Gadget* entries)
     int index = menu->hotGadgetIndex;
 
     if (Contains(entries, "MOVEORD", index)) {
-        switch (g_game->ordersPanelFlags.bits.moveOrder) {
+        switch (g_game->ordersPanelFlags_37ebe_6.bits.moveOrder) {
         case 0:
             IssueOrderToSelection(orders, 0, "STANDING_MOVEORDER", 0, 1, 0);
-            g_game->ordersPanelFlags.bits.moveOrder = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.moveOrder = 1;
             break;
         case 1:
             IssueOrderToSelection(orders, 0, "STANDING_MOVEORDER", 0, 2, 0);
-            g_game->ordersPanelFlags.bits.moveOrder = 2;
+            g_game->ordersPanelFlags_37ebe_6.bits.moveOrder = 2;
             break;
         case 2:
         case 3:
             IssueOrderToSelection(orders, 0, "STANDING_MOVEORDER", 0, 0, 0);
-            g_game->ordersPanelFlags.bits.moveOrder = 0;
+            g_game->ordersPanelFlags_37ebe_6.bits.moveOrder = 0;
             break;
         }
         PlaySoundByName("setmoveorders", 0);
-        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags.bits.moveOrder);
+        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags_37ebe_6.bits.moveOrder);
     } else if (Contains(entries, "FIREORD", index)) {
-        switch (g_game->ordersPanelFlags.bits.fireOrder) {
+        switch (g_game->ordersPanelFlags_37ebe_6.bits.fireOrder) {
         case 0:
             IssueOrderToSelection(orders, 0, "STANDING_FIREORDER", 0, 1, 0);
-            g_game->ordersPanelFlags.bits.fireOrder = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.fireOrder = 1;
             break;
         case 1:
             IssueOrderToSelection(orders, 0, "STANDING_FIREORDER", 0, 2, 0);
-            g_game->ordersPanelFlags.bits.fireOrder = 2;
+            g_game->ordersPanelFlags_37ebe_6.bits.fireOrder = 2;
             break;
         case 2:
         case 3:
             IssueOrderToSelection(orders, 0, "STANDING_FIREORDER", 0, 0, 0);
-            g_game->ordersPanelFlags.bits.fireOrder = 0;
+            g_game->ordersPanelFlags_37ebe_6.bits.fireOrder = 0;
             break;
         }
         PlaySoundByName("setfireorders", 0);
-        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags.bits.fireOrder);
+        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags_37ebe_6.bits.fireOrder);
     } else if (Contains(entries, "STATUS", index) || Contains(entries, "ONOFF", index)) {
-        switch (g_game->ordersPanelFlags.bits.onOff) {
+        switch (g_game->ordersPanelFlags_37ebe_6.bits.onOff) {
         case 0:
             IssueOrderToSelection(orders, 0, "ACTIVATE", 0, 0, 0);
-            g_game->ordersPanelFlags.bits.onOff = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.onOff = 1;
             break;
         case 1:
             IssueOrderToSelection(orders, 0, "DEACTIVATE", 0, 0, 0);
-            g_game->ordersPanelFlags.bits.onOff = 0;
+            g_game->ordersPanelFlags_37ebe_6.bits.onOff = 0;
             break;
         case 2:
             IssueOrderToSelection(orders, 0, "ACTIVATE", 0, 0, 0);
-            g_game->ordersPanelFlags.bits.onOff = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.onOff = 1;
             break;
         }
         PlaySoundByName("specialorders", 0);
-        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags.bits.onOff);
+        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags_37ebe_6.bits.onOff);
     } else if (Contains(entries, "CLOAK", index)) {
-        if (g_game->ordersPanelFlags.bits.cloak) {
+        if (g_game->ordersPanelFlags_37ebe_6.bits.cloak) {
             IssueOrderToSelection(orders, 0, "CLOAK_OFF", 0, 0, 0);
-            g_game->ordersPanelFlags.bits.cloak = 0;
+            g_game->ordersPanelFlags_37ebe_6.bits.cloak = 0;
         } else {
             IssueOrderToSelection(orders, 0, "CLOAK_ON", 0, 0, 0);
-            g_game->ordersPanelFlags.bits.cloak = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.cloak = 1;
         }
         PlaySoundByName("specialorders", 0);
-        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags.bits.cloak);
+        SetGadgetStatus(&g_game->gui, index, g_game->ordersPanelFlags_37ebe_6.bits.cloak);
     } else {
         return 0;
     }
@@ -957,9 +809,9 @@ void __stdcall SetPrevNextGadgetNames(Unit* unit)
 {
     char buf[256];
     if (((UnitType*)unit->def)->buildMenuPageCount < 2) {
-        sprintf(buf, "%sPREV", g_game->sideNames[unit->player->info->side].name);
+        sprintf(buf, "%sPREV", g_game->sideNames_37f5b[unit->player->info->side].name);
         SetGadgetActiveByName(&g_game->gui, buf, 0);
-        sprintf(buf, "%sNEXT", g_game->sideNames[unit->player->info->side].name);
+        sprintf(buf, "%sNEXT", g_game->sideNames_37f5b[unit->player->info->side].name);
         SetGadgetActiveByName(&g_game->gui, buf, 0);
     }
 }
@@ -983,16 +835,16 @@ void __stdcall HandleBuildPanelClick(Gui* menu)
         char name[32];
         GetGadgetName(entries, name, menu->hotGadgetIndex);
         if (strstr(name, "PREV")) {
-            g_game->ordersPanelFlags.bits.prev = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.prev = 1;
         } else if (strstr(name, "NEXT")) {
-            g_game->ordersPanelFlags.bits.next = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.next = 1;
         } else if (strstr(name, "ORDERS")) {
-            g_game->ordersPanelFlags.bits.orders = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.orders = 1;
             PlaySoundByName("ordersbutton", 0);
         } else if (strstr(name, "BUILD")) {
-            g_game->ordersPanelFlags.bits.build = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.build = 1;
             PlaySoundByName("buildbutton", 0);
-        } else if (id != 0 && g_game->unitDefs[id].mobile == 0) {
+        } else if (id != 0 && ((UnitType *)g_game->defs)[id].mobile == 0) {
             g_game->orderMode = 0xe;
             g_game->buildTypeIndex = id;
             PlaySoundByName("addbuild", 0);
@@ -1047,9 +899,9 @@ static inline void SetPrevNext(Unit* unit)
 {
     char buf[256];
     if (((UnitType*)unit->def)->buildMenuPageCount < 2) {
-        sprintf(buf, "%sPREV", g_game->sideNames[unit->player->info->side].name);
+        sprintf(buf, "%sPREV", g_game->sideNames_37f5b[unit->player->info->side].name);
         SetGadgetActiveByName(&g_game->gui, buf, 0);
-        sprintf(buf, "%sNEXT", g_game->sideNames[unit->player->info->side].name);
+        sprintf(buf, "%sNEXT", g_game->sideNames_37f5b[unit->player->info->side].name);
         SetGadgetActiveByName(&g_game->gui, buf, 0);
     }
 }
@@ -1083,7 +935,7 @@ void __stdcall OpenBuildMenuGui(Unit* unit, char* guiName, int page)
         char name[256];
         BuildDataPath(path, "guis", guiName, "GUI");
         if (HAPI_FileLengthByName(path) == 0)
-            sprintf(name, "%sDL", g_game->sideNames[player->info->side].name);
+            sprintf(name, "%sDL", g_game->sideNames_37f5b[player->info->side].name);
         else
             strcpy(name, guiName);
         Layer* layer = LoadGuiLayer(&g_game->gui, name, 0);
@@ -1135,7 +987,7 @@ void __stdcall OpenGeneratorDialog(Unit* unit)
 {
     char name[256];
     sprintf(name, "%sGEN.GUI",
-            g_game->sideNames[g_game->players[g_game->localPlayer].info->side].name);
+            g_game->sideNames_37f5b[g_game->players[g_game->localPlayer].info->side].name);
     Layer* gadget = LoadGuiLayer(&g_game->gui, name, 0);
     if (gadget != 0) {
         gadget->handler = (void (__stdcall*)(void*))HandleBuildPanelClick;
@@ -1168,7 +1020,7 @@ int __stdcall GetBuildMenuPage(Unit* obj)
 void __stdcall BuildEntryGuiName(char* dest, unsigned short index, int n)
 {
     char name[256];
-    strncpy(name, g_game->unitDefs[index].unitname, 0x20);
+    strncpy(name, ((UnitType *)g_game->defs)[index].unitname, 0x20);
     name[0x1f] = 0;
     sprintf(dest, "%s%d.GUI", name, n);
 }
@@ -1220,7 +1072,7 @@ void __stdcall FinishConstruction(Unit* unit, Unit* target)
             && (target->player->type == 1 || target->player->type == 2))
             BroadcastBuilderLink(unit, target);
         if ((unit->flags & 0x10) || (target->flags & 0x10))
-            g_game->ordersPanelFlags.raw |= 0x10;
+            g_game->ordersPanelFlags_37ebe_6.raw |= 0x10;
     }
 }
 
@@ -1381,7 +1233,7 @@ void __stdcall StepBuildMenuPageBack(int toggle)
             u->flags = StepPage(f);
         u->flags |= 0x400000;
     }
-    g_game->ordersPanelFlags.lo |= 0x10;
+    g_game->ordersPanelFlags_37ebe_6.lo |= 0x10;
 
 nextbuild:
     PlaySoundByName("nextbuildmenu", 0);
@@ -1405,7 +1257,7 @@ void __stdcall OpenBuildMenuPage(int page)
                 unit->menu.menuOpen = page > 0;
                 if (page != 0)
                     unit->menu.page = page;
-                g_game->ordersPanelFlags.lo |= 0x10;
+                g_game->ordersPanelFlags_37ebe_6.lo |= 0x10;
                 PlaySoundByName("nextbuildmenu", 0);
             }
         }
@@ -1416,7 +1268,7 @@ void __stdcall OpenBuildMenuPage(int page)
 void __stdcall MarkSelectionOrdersDirty(Unit* unit)
 {
     if (unit->playerIndex == g_game->localPlayer && (*(unsigned char*)&unit->flags & 0x10)) {
-        g_game->ordersPanelFlags.raw |= 0x10;
+        g_game->ordersPanelFlags_37ebe_6.raw |= 0x10;
     }
 }
 
@@ -1451,31 +1303,31 @@ static Unit* GetSelectedUnit()
 // FUNCTION: 0x41c180
 void DispatchOrdersPanelPageFlags()
 {
-    if (g_game->ordersPanelFlags.bits.next) {
-        g_game->ordersPanelFlags.bits.next = 0;
+    if (g_game->ordersPanelFlags_37ebe_6.bits.next) {
+        g_game->ordersPanelFlags_37ebe_6.bits.next = 0;
         StepBuildMenuPage(0);
         return;
     }
-    if (g_game->ordersPanelFlags.bits.prev) {
-        g_game->ordersPanelFlags.bits.prev = 0;
+    if (g_game->ordersPanelFlags_37ebe_6.bits.prev) {
+        g_game->ordersPanelFlags_37ebe_6.bits.prev = 0;
         StepBuildMenuPageBack(0);
         return;
     }
-    if (g_game->ordersPanelFlags.bits.build) {
-        g_game->ordersPanelFlags.bits.build = 0;
+    if (g_game->ordersPanelFlags_37ebe_6.bits.build) {
+        g_game->ordersPanelFlags_37ebe_6.bits.build = 0;
         Unit* unit = GetSelectedUnit();
         if (unit) {
             unit->flags |= 0x400000;
-            g_game->ordersPanelFlags.bits.flag_4 = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.flag_4 = 1;
         }
         return;
     }
-    if (g_game->ordersPanelFlags.bits.orders) {
-        g_game->ordersPanelFlags.bits.orders = 0;
+    if (g_game->ordersPanelFlags_37ebe_6.bits.orders) {
+        g_game->ordersPanelFlags_37ebe_6.bits.orders = 0;
         Unit* unit = GetSelectedUnit();
         if (unit) {
             unit->flags &= ~0x400000;
-            g_game->ordersPanelFlags.bits.flag_4 = 1;
+            g_game->ordersPanelFlags_37ebe_6.bits.flag_4 = 1;
         }
     }
 }
@@ -1484,16 +1336,16 @@ void DispatchOrdersPanelPageFlags()
 void ResetCameraState()
 {
     char saved = g_game->scrollSpeed;
-    memset(&g_game->cameraFollowUnit, 0, 0x5c);
+    memset(&(*(Unit **)&g_game->value_142f3), 0, 0x5c);
     g_game->scrollSpeed = saved;
 }
 
 // FUNCTION: 0x41c2e0
 void __stdcall CycleCameraFollow(int param)
 {
-    Unit* val = g_game->cameraFollowUnit;
+    Unit* val = (Unit *)g_game->value_142f3;
     Unit* result = FindNextSelectedUnit(val, param);
-    g_game->cameraFollowUnit = result;
+    (*(Unit **)&g_game->value_142f3) = result;
 }
 
 // Returns the bit set of the unit types in the named category.
@@ -1512,7 +1364,7 @@ void FindLocalCommander()
     unsigned int* set = GetCategoryMask("Commander");
     for (Unit* u = p->unitsBegin; u <= p->unitsEnd; u++) {
         if (TestBit(set, u->unitDefIndex)) {
-            g_game->cameraFollowUnit = u;
+            (*(Unit **)&g_game->value_142f3) = u;
         }
     }
 }
@@ -1520,9 +1372,9 @@ void FindLocalCommander()
 // FUNCTION: 0x41c390
 void __cdecl ClearCameraFollowState()
 {
-    g_game->cameraSnapTicks = 0;
-    g_game->cameraFollowUnit = 0;
-    g_game->cameraFollowTrackObj = 0;
+    (*(unsigned short*)&g_game->value_1434b) = 0;
+    (*(Unit **)&g_game->value_142f3) = 0;
+    (*(Follow_0041ca10 **)&g_game->tracked) = 0;
 }
 
 // The original calls this out of line from the camera functions.
@@ -1530,8 +1382,8 @@ void __cdecl ClearCameraFollowState()
 // FUNCTION: 0x41c3c0
 void ClampCameraPosition()
 {
-    int maxX = g_game->mapPixelWidth - g_game->viewPixelWidth;
-    int maxY = g_game->mapPixelHeight - g_game->viewPixelHeight;
+    int maxX = g_game->mapWidth - g_game->viewWidth;
+    int maxY = g_game->mapHeight - g_game->viewHeight;
     if (g_game->scrollX < 0) {
         g_game->scrollX = 0;
     } else if (g_game->scrollX > maxX) {
@@ -1542,7 +1394,7 @@ void ClampCameraPosition()
     } else if (g_game->scrollY > maxY) {
         g_game->scrollY = maxY;
     }
-    CalcRadarViewportRect(g_game->field_142cb);
+    CalcRadarViewportRect(g_game->field_142cb_142cb);
 }
 #pragma auto_inline(on)
 
@@ -1550,8 +1402,8 @@ void ClampCameraPosition()
 // FUNCTION: 0x41c450
 void ClampCameraTarget()
 {
-    int maxX = g_game->mapPixelWidth - g_game->viewPixelWidth;
-    int maxY = g_game->mapPixelHeight - g_game->viewPixelHeight;
+    int maxX = g_game->mapWidth - g_game->viewWidth;
+    int maxY = g_game->mapHeight - g_game->viewHeight;
     if (g_game->x2 < 0) {
         g_game->x2 = 0;
     } else if (g_game->x2 > maxX) {
@@ -1570,8 +1422,8 @@ void __stdcall SetCameraPosition(int x, int y, int instant)
     if (instant != 0) {
         g_game->x2 = x;
         g_game->y2 = y;
-        int maxX = g_game->mapPixelWidth - g_game->viewPixelWidth;
-        int maxY = g_game->mapPixelHeight - g_game->viewPixelHeight;
+        int maxX = g_game->mapWidth - g_game->viewWidth;
+        int maxY = g_game->mapHeight - g_game->viewHeight;
         if (g_game->x2 < 0) {
             g_game->x2 = 0;
         } else if (g_game->x2 > maxX) {
@@ -1596,7 +1448,7 @@ void __stdcall SetCameraPosition(int x, int y, int instant)
 // FUNCTION: 0x41c5e0
 void __stdcall StartScreenShake(int dx, int dy, int value)
 {
-    if ((g_game->uiOptionFlags & 0x10) == 0) {
+    if ((g_game->uiOptionFlags_37f2f_1 & 0x10) == 0) {
         g_game->value_1432f = value;
         g_game->value_14333 = value;
         if (dx != 0) {
@@ -1614,7 +1466,7 @@ void __stdcall StartScreenShake(int dx, int dy, int value)
 // FUNCTION: 0x41c640
 void __stdcall AccumulateScreenShake(int dx, int dy, int value)
 {
-    if ((g_game->uiOptionFlags & 0x10) == 0) {
+    if ((g_game->uiOptionFlags_37f2f_1 & 0x10) == 0) {
         if ((g_game->flags_1434e & 1) == 0) {
             g_game->sum_x = 0;
             g_game->sum_y = 0;
@@ -1656,13 +1508,13 @@ void UpdateScreenShake()
 // FUNCTION: 0x41c7c0
 void __stdcall CenterCameraOnPoint(int a, int b, int c)
 {
-    int cy = b - g_game->viewPixelHeight / 2;
-    int cx = a - g_game->viewPixelWidth / 2;
+    int cy = b - g_game->viewHeight / 2;
+    int cx = a - g_game->viewWidth / 2;
     if (c != 0) {
         g_game->x2 = cx;
         g_game->y2 = cy;
-        int maxX = g_game->mapPixelWidth - g_game->viewPixelWidth;
-        int maxY = g_game->mapPixelHeight - g_game->viewPixelHeight;
+        int maxX = g_game->mapWidth - g_game->viewWidth;
+        int maxY = g_game->mapHeight - g_game->viewHeight;
         if (g_game->x2 < 0) {
             g_game->x2 = 0;
         } else if (g_game->x2 > maxX) {
@@ -1687,13 +1539,13 @@ void __stdcall CenterCameraOnPoint(int a, int b, int c)
 // FUNCTION: 0x41c8e0
 void __stdcall CenterCameraOnMapPosition(Vec3* p, int param_2)
 {
-    int cy = (short)((p->z - (p->y >> 1)) >> 16) - g_game->viewPixelHeight / 2;
-    int cx = (short)(p->x >> 16) - g_game->viewPixelWidth / 2;
+    int cy = (short)((p->z - (p->y >> 1)) >> 16) - g_game->viewHeight / 2;
+    int cx = (short)(p->x >> 16) - g_game->viewWidth / 2;
     if (param_2 != 0) {
         g_game->x2 = cx;
         g_game->y2 = cy;
-        int maxX = g_game->mapPixelWidth - g_game->viewPixelWidth;
-        int maxY = g_game->mapPixelHeight - g_game->viewPixelHeight;
+        int maxX = g_game->mapWidth - g_game->viewWidth;
+        int maxY = g_game->mapHeight - g_game->viewHeight;
         if (g_game->x2 < 0) {
             g_game->x2 = 0;
         } else if (g_game->x2 > maxX) {
@@ -1724,8 +1576,8 @@ static inline void SetTarget(int x, int y)
 
 static inline void ClampTarget()
 {
-    int maxX = g_game->mapPixelWidth - g_game->viewPixelWidth;
-    int maxY = g_game->mapPixelHeight - g_game->viewPixelHeight;
+    int maxX = g_game->mapWidth - g_game->viewWidth;
+    int maxY = g_game->mapHeight - g_game->viewHeight;
     if (g_game->x2 < 0) {
         g_game->x2 = 0;
     } else if (g_game->x2 > maxX) {
@@ -1763,23 +1615,23 @@ static inline int Approach(int cur, int target)
 void UpdateCameraFollow()
 {
     Vec3* p = 0;
-    if (g_game->cameraSnapTicks != 0) {
-        g_game->cameraSnapTicks--;
-        p = &g_game->cameraSnapPos;
-    } else if (g_game->cameraFollowTrackObj != 0) {
-        p = &g_game->cameraFollowTrackObj->pos;
-    } else if (g_game->cameraFollowUnit != 0) {
-        if (g_game->cameraFollowUnit->flags & 0x10000000) {
-            p = &g_game->cameraFollowUnit->pos;
+    if ((unsigned short)g_game->value_1434b != 0) {
+        (*(unsigned short*)&g_game->value_1434b)--;
+        p = &g_game->trackedPos;
+    } else if ((Follow_0041ca10 *)g_game->tracked != 0) {
+        p = &((Follow_0041ca10 *)g_game->tracked)->pos;
+    } else if ((Unit *)g_game->value_142f3 != 0) {
+        if (((Unit *)g_game->value_142f3)->flags & 0x10000000) {
+            p = &((Unit *)g_game->value_142f3)->pos;
         } else {
-            g_game->cameraSnapTicks = 0;
-            g_game->cameraFollowUnit = 0;
-            g_game->cameraFollowTrackObj = 0;
+            (*(unsigned short*)&g_game->value_1434b) = 0;
+            (*(Unit **)&g_game->value_142f3) = 0;
+            (*(Follow_0041ca10 **)&g_game->tracked) = 0;
         }
     }
     if (p != 0) {
-        SetTarget((short)(p->x >> 16) - g_game->viewPixelWidth / 2,
-                  (short)((p->z - (p->y >> 1)) >> 16) - g_game->viewPixelHeight / 2);
+        SetTarget((short)(p->x >> 16) - g_game->viewWidth / 2,
+                  (short)((p->z - (p->y >> 1)) >> 16) - g_game->viewHeight / 2);
         ClampTarget();
         g_game->mapFlags &= 0xfff7;
     }
@@ -1800,13 +1652,13 @@ void UpdateCameraFollow()
 // FUNCTION: 0x41cc60
 void BeginMouseScroll()
 {
-    g_game->cameraSnapTicks = 0;
-    g_game->cameraFollowUnit = 0;
-    g_game->cameraFollowTrackObj = 0;
+    (*(unsigned short*)&g_game->value_1434b) = 0;
+    (*(Unit **)&g_game->value_142f3) = 0;
+    (*(Follow_0041ca10 **)&g_game->tracked) = 0;
     HideSoftwareCursor();
-    CursorState* cursor = &g_game->cursor;
+    CursorState* cursor = &(*(CursorState*)&g_game->cursor);
     cursor->flag = 1;
-    cursor->start = g_game->mouse;
+    cursor->start = (*(MouseEvent*)&g_game->view);
     cursor->savedScroll.x = g_game->scrollX / 16;
     cursor->savedScroll.y = g_game->scrollY / 16;
     cursor->center.x = GetScreenWidth() / 2;
@@ -1821,7 +1673,7 @@ void BeginMouseScroll()
 // FUNCTION: 0x41cd20
 void EndMouseScroll()
 {
-    CursorState* cursor = &g_game->cursor;
+    CursorState* cursor = &(*(CursorState*)&g_game->cursor);
     cursor->flag = 0;
     SetCursorPosition(cursor->start.x, cursor->start.y);
     ShowSoftwareCursor();
@@ -1850,8 +1702,8 @@ void UpdateMouseScroll()
 {
     // All fields go through one pointer c, and the quarter offsets keep their own
     // locals dx, dy: both fix the load order and register use.
-    CursorState* c = &g_game->cursor;
-    MouseEvent r = g_game->mouse;
+    CursorState* c = &(*(CursorState*)&g_game->cursor);
+    MouseEvent r = (*(MouseEvent*)&g_game->view);
     int dx = (r.x - c->center.x) / 4;
     int x = (dx + c->savedScroll.x) * 16;
     int dy = (r.y - c->center.y) / 4;
@@ -1861,7 +1713,7 @@ void UpdateMouseScroll()
     c->savedScroll.y = g_game->scrollY / 16;
     SetCursorPosition(c->center.x, c->center.y);
     if (!(r.keyFlags & 2)) {
-        CursorState* cursor = &g_game->cursor;
+        CursorState* cursor = &(*(CursorState*)&g_game->cursor);
         cursor->flag = 0;
         SetCursorPosition(cursor->start.x, cursor->start.y);
         ShowSoftwareCursor();
@@ -1882,7 +1734,7 @@ void UpdateEdgeScroll()
     POINT pt;
     // Through a local: the direct spelling loads the scale into ebx.
     Game* g = g_game;
-    int speed = g->scrollSpeed * g->simBudgetDtTicks;
+    int speed = g->scrollSpeed * g->scrollScale;
     if (speed > 0x80)
         speed = 0x80;
     if (speed == 0)
@@ -1891,8 +1743,8 @@ void UpdateEdgeScroll()
     Display_0041ce90* d = GetDisplay();
     if (!(d->flags_f0 & 2)) {
         GetCursorPos(&pt);
-        int w = g_game->screenWidth;
-        int h = g_game->screenHeight;
+        int w = g_game->width_37e1f;
+        int h = g_game->field_37e23;
         if ((pt.x >= w || pt.y >= h) && pt.x < w + 100 && pt.y < h + 100
             && GetFocus() == d->hwnd) {
             mouse.x = pt.x;
@@ -1903,8 +1755,8 @@ void UpdateEdgeScroll()
                 mouse.y = h - 1;
         }
     } else {
-        int w = g_game->screenWidth;
-        int h = g_game->screenHeight;
+        int w = g_game->width_37e1f;
+        int h = g_game->field_37e23;
         if (mouse.x >= w)
             mouse.x = w - 1;
         if (mouse.y >= h)
@@ -1913,13 +1765,13 @@ void UpdateEdgeScroll()
     int talk = IsScreenNamed(&g_game->gui, "TALK.GUI");
     int x = g_game->scrollX;
     int y = g_game->scrollY;
-    if ((IsKeyDown(0xf4) && !talk) || (mouse.x == 0 && mouse.y < g_game->screenHeight))
+    if ((IsKeyDown(0xf4) && !talk) || (mouse.x == 0 && mouse.y < g_game->field_37e23))
         x -= speed;
-    else if ((IsKeyDown(0xf6) && !talk) || mouse.x == g_game->screenWidth - 1)
+    else if ((IsKeyDown(0xf6) && !talk) || mouse.x == g_game->width_37e1f - 1)
         x += speed;
-    if ((IsKeyDown(0xf5) && !talk) || (mouse.y == 0 && mouse.x < g_game->screenWidth))
+    if ((IsKeyDown(0xf5) && !talk) || (mouse.y == 0 && mouse.x < g_game->width_37e1f))
         y -= speed;
-    else if ((IsKeyDown(0xf7) && !talk) || mouse.y == g_game->screenHeight - 1)
+    else if ((IsKeyDown(0xf7) && !talk) || mouse.y == g_game->field_37e23 - 1)
         y += speed;
     if (g_game->scrollX != x || g_game->scrollY != y) {
         g_game->scrollX = x;
@@ -1929,8 +1781,8 @@ void UpdateEdgeScroll()
         g_game->x2 = g_game->scrollX;
         g_game->y2 = g_game->scrollY;
         g_game->mapFlags &= 0xfff7;
-        g_game->cameraSnapTicks = 0;
-        g_game->cameraFollowUnit = 0;
-        g_game->cameraFollowTrackObj = 0;
+        (*(unsigned short*)&g_game->value_1434b) = 0;
+        (*(Unit **)&g_game->value_142f3) = 0;
+        (*(Follow_0041ca10 **)&g_game->tracked) = 0;
     }
 }

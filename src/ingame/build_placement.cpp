@@ -12,94 +12,11 @@ struct Struct_00499200_531 {
     int entries;                       // +0x4, the layer's gadget array
 };
 
-struct BitFlags16_00499200 {
-    unsigned short b0:1;
-    unsigned short b1:1;
-    unsigned short b2:1;
-    unsigned short b3:1;
-    unsigned short b4:1;
-    unsigned short b5:1;
-    unsigned short b6:1;
-    unsigned short b7:1;
-    unsigned short b8:1;
-    unsigned short b9:1;
-    unsigned short b10:1;
-    unsigned short b11:1;
-    unsigned short b12:1;
-    unsigned short b13:1;
-    unsigned short b14:1;
-    unsigned short b15:1;
-};
-
-union Flags16_00499200 {
-    unsigned short value;
-    BitFlags16_00499200 bits;
-};
-
 #include "../map/mission.h"
 
 #include "../sound/sound.h"
 
-struct Game {
-    char unknown_0[0x10];
-    Sound* sound;                      // +0x10
-    char unknown_14[0x519 - 0x14];
-    char menu[0x18];                   // +0x519
-    Struct_00499200_531* layer;        // +0x531, Gui::layer
-    char unknown_535[0x29a0 - 0x535];
-    char* options;                     // +0x29a0
-    char unknown_29a4[0x2a3c - 0x29a4];
-    unsigned short numPlayers;         // +0x2a3c
-    char unknown_2a3e[0x2a44 - 0x2a3e];
-    Flags16_00499200 netGameFlags;     // +0x2a44
-    char unknown_2a46[0x2c76 - 0x2a46];
-    MouseEvent mouse;                  // +0x2c76
-    char unknown_2c8e[0x2c92 - 0x2c8e];
-    int boxStartX;                     // +0x2c92
-    int boxStartHeight;                // +0x2c96
-    int boxStartZ;                     // +0x2c9a
-    int boxEndX;                       // +0x2c9e
-    int boxEndHeight;                  // +0x2ca2
-    int boxEndZ;                       // +0x2ca6
-    union {
-        Vec3 pos;                      // +0x2caa
-        struct {
-            char unknown_2caa[2];
-            short xWhole;              // +0x2cac
-            char unknown_2cae[2];
-            short yWhole;              // +0x2cb0
-            char unknown_2cb2[2];
-            short zWhole;              // +0x2cb4
-        };
-    };
-    int boxStartTick;                  // +0x2cb6
-    unsigned short hoverUnitId;        // +0x2cba
-    char unknown_2cbc[0x2cbe - 0x2cbc];
-    signed char cursorMode;            // +0x2cbe
-    char unknown_2cbf[0x2cc3 - 0x2cbf];
-    unsigned char orderMode;           // +0x2cc3
-    char unknown_2cc4[0x2cc6 - 0x2cc4];
-    unsigned char inputFlags;          // +0x2cc6
-    char unknown_2cc7[0x2cdf - 0x2cc7];
-    int middleScrollActive;            // +0x2cdf
-    char unknown_2ce3[0x14357 - 0x2ce3];
-    char* units;                       // +0x14357
-    char unknown_1435b[0x1487f - 0x1435b];
-    void* cursorModeSeq[21];           // +0x1487f
-    char unknown_148d3[0x37e9c - 0x148d3];
-    unsigned short unitIndex;          // +0x37e9c
-    char unknown_37e9e[0x37efa - 0x37e9e];
-    int interfaceType;                 // +0x37efa
-    char unknown_37efe[0x391e9 - 0x37efe];
-    Mission* mapInfo;                  // +0x391e9
-    char unknown_391ed[0x391f1 - 0x391ed];
-    int frontendState;                 // +0x391f1
-    void (*handler)(void);             // +0x391f5
-    char unknown_391f9[0x3923b - 0x391f9];
-    Flags16_00499200 endGameFlags;     // +0x3923b
-    char unknown_3923d[0x39249 - 0x3923d];
-    int restartMissionRequest;         // +0x39249
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 #include "../orders/mission_type.h"
@@ -159,18 +76,18 @@ void __stdcall HandleLeftClick(MouseEvent* mouse)
             g_game->inputFlags &= 0xdf;
             index = FindGadgetIndexBySubstring(g_game->layer->entries, "STOP");
             if (index != -1) {
-                ClearGroupStatus(g_game->menu, index);
+                ClearGroupStatus(g_game->message, index);
             }
         } else {
             PlaySoundByName("notoktobuild", 0);
         }
         return;
     }
-    if (g_game->cursorMode == 0xf) {
+    if ((signed char)g_game->cursorMode == 0xf) {
         ClickSelectHoverUnit(mouse);
         return;
     }
-    if (g_game->cursorMode >= 0x11) {
+    if ((signed char)g_game->cursorMode >= 0x11) {
         if (g_game->interfaceType == 1 && g_game->orderMode == 1) {
             ClearSelection();
             PopUntilNamedLayout(1);
@@ -190,7 +107,7 @@ void __stdcall HandleLeftClick(MouseEvent* mouse)
     g_game->inputFlags &= 0xdf;
     index = FindGadgetIndexBySubstring(g_game->layer->entries, "STOP");
     if (index != -1) {
-        ClearGroupStatus(g_game->menu, index);
+        ClearGroupStatus(g_game->message, index);
     }
 }
 
@@ -207,7 +124,7 @@ void __stdcall HandleRightClick(MouseEvent* mouse)
         g_game->inputFlags &= 0xdf;
         int index = FindGadgetIndexBySubstring(g_game->layer->entries, "STOP");
         if (index != -1) {
-            ClearGroupStatus(g_game->menu, index);
+            ClearGroupStatus(g_game->message, index);
         }
         return;
     }
@@ -223,9 +140,9 @@ void __stdcall HandleRightClick(MouseEvent* mouse)
         }
         if (g_game->inputFlags & 1) {
             g_game->inputFlags = g_game->inputFlags | 0x10;
-            if (g_game->cursorMode != 0x13) {
-                g_game->cursorMode = 0x13;
-                SetCursorAnimation((void*)g_game->menu, g_game->cursorModeSeq[0x13]);
+            if ((signed char)g_game->cursorMode != 0x13) {
+                (*(signed char*)&g_game->cursorMode) = 0x13;
+                SetCursorAnimation((void*)g_game->message, g_game->cursorModeSeq[0x13]);
                 return;
             }
         }
@@ -238,9 +155,9 @@ void __stdcall HandleRightClick(MouseEvent* mouse)
 
 static inline void SetCursor(int n)
 {
-    if (g_game->cursorMode != n) {
-        g_game->cursorMode = n;
-        SetCursorAnimation(g_game->menu, g_game->cursorModeSeq[n]);
+    if ((signed char)g_game->cursorMode != n) {
+        (*(signed char*)&g_game->cursorMode) = n;
+        SetCursorAnimation(g_game->message, g_game->cursorModeSeq[n]);
     }
 }
 
@@ -252,7 +169,7 @@ static inline void SetCursor(int n)
 // FUNCTION: 0x499200
 void BattleFrame(void)
 {
-    MouseEvent mouse = g_game->mouse;
+    MouseEvent mouse = (*(MouseEvent*)&g_game->view);
     UpdateCursorWorldPos(&mouse);
 
     unsigned char flags = g_game->inputFlags;
@@ -272,7 +189,7 @@ void BattleFrame(void)
             g_game->inputFlags &= 0xdf;
             int index = FindGadgetIndexBySubstring(g_game->layer->entries, "STOP");
             if (index != -1) {
-                ClearGroupStatus(g_game->menu, index);
+                ClearGroupStatus(g_game->message, index);
             }
         }
     }
@@ -343,26 +260,26 @@ void BattleFrame(void)
     MainLoopTick();
     {
         unsigned short unit = g_game->unitIndex;
-        if (unit != 0 && *(short*)(g_game->units + unit * 0x118 + 0xa6) == 0) {
+        if (unit != 0 && *(short*)((char *)g_game->units + unit * 0x118 + 0xa6) == 0) {
             PopUntilNamedLayout(0);
         }
     }
 
-    if (g_game->endGameFlags.bits.b2 || g_game->endGameFlags.bits.b4) {
-        if (g_seams.map->GetGameType(g_game->mapInfo) != 3 ||
-            (g_seams.map->GetGameType(g_game->mapInfo) == 3 &&
+    if ((*(Flags16_00499200*)&g_game->endGameFlags_3923b).bits.b2 || (*(Flags16_00499200*)&g_game->endGameFlags_3923b).bits.b4) {
+        if (g_seams.map->GetGameType(g_game->net) != 3 ||
+            (g_seams.map->GetGameType(g_game->net) == 3 &&
              BroadcastPendingViewState() != 0)) {
             SetCursor(0x13);
             PopUntilNamedLayout(1);
-            CloseTopScreen(g_game->menu);
-            if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
+            CloseTopScreen(g_game->message);
+            if (g_seams.map->GetGameType(g_game->net) == 3) {
                 ResetChatHudIndices();
                 MainLoopTick();
             }
             ShutdownIngameSystems();
             ClearKeyQueue();
-            g_game->sound->SetTrackCategory(4);
-            g_game->frontendState = 7;
+            ((Sound *)g_game->field_10)->SetTrackCategory(4);
+            g_game->mode_391f1 = 7;
             g_game->handler = EndGameFrame;
             SetCloseHandler(LeaveNetGameCallback, 0);
             SetEndGameState(0);
@@ -371,37 +288,37 @@ void BattleFrame(void)
 
     if (g_game->restartMissionRequest != 0) {
         // Each arm keeps its own copy of the hook stores, and `|= 4` in both: the compiler merges them.
-        if (g_seams.map->GetGameType(g_game->mapInfo) == 1) {
+        if (g_seams.map->GetGameType(g_game->net) == 1) {
             ShutdownIngameSystems();
             PopUntilNamedLayout(1);
-            CloseTopScreen(g_game->menu);
+            CloseTopScreen(g_game->message);
             BlankScreen();
-            int a = g_seams.map->GetMissionIndex(g_game->mapInfo);
-            char* b = g_seams.map->GetCampaignName(g_game->mapInfo);
-            g_seams.map->LoadCampaign(g_game->mapInfo, 0, b);
-            if (g_seams.map->SelectMission(g_game->mapInfo, 0, a) != 0) {
-                g_game->netGameFlags.bits.b3 = 1;
-                g_game->netGameFlags.value |= 4;
+            int a = g_seams.map->GetMissionIndex(g_game->net);
+            char* b = g_seams.map->GetCampaignName(g_game->net);
+            g_seams.map->LoadCampaign(g_game->net, 0, b);
+            if (g_seams.map->SelectMission(g_game->net, 0, a) != 0) {
+                g_game->netGameFlags_2a44.bits.b3 = 1;
+                g_game->netGameFlags_2a44.value |= 4;
             }
-            g_game->frontendState = 2;
+            g_game->mode_391f1 = 2;
             g_game->handler = MenuFrame;
             SetCloseHandler(LeaveNetGameCallback, 0);
         } else {
-            unsigned int saved = g_game->numPlayers;
+            unsigned int saved = g_game->field_2a3c;
             ShutdownIngameSystems();
             PopUntilNamedLayout(1);
-            CloseTopScreen(g_game->menu);
+            CloseTopScreen(g_game->message);
             BlankScreen();
             SetCursor(0x14);
-            g_game->numPlayers = saved;
-            g_seams.map->LoadMissionByName(g_game->mapInfo, 0, g_game->options + 0x11c);
+            g_game->field_2a3c = saved;
+            g_seams.map->LoadMissionByName(g_game->net, 0, (char *)g_game->options + 0x11c);
             ApplySlotsToGamePlayers();
-            g_game->netGameFlags.value |= 4;
-            g_game->frontendState = 2;
+            g_game->netGameFlags_2a44.value |= 4;
+            g_game->mode_391f1 = 2;
             g_game->handler = MenuFrame;
             SetCloseHandler(LeaveNetGameCallback, 0);
         }
-        g_game->sound->SetTrackCategory(4);
+        ((Sound *)g_game->field_10)->SetTrackCategory(4);
     }
 }
 

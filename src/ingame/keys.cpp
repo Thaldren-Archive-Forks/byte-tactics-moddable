@@ -33,39 +33,10 @@ class Mission;
 
 #include "../gui/gui.h"
 
-struct Flags_00495e90_37ebe {
-    unsigned short b0 : 1;
-    unsigned short b1 : 1;
-    unsigned short b2 : 1;
-    unsigned short rest : 13;
-};
-
-struct Flags_00495e90_37f06 {
-    unsigned short b0 : 1;      // mask 0x0001
-    unsigned short b1_6 : 6;
-    unsigned short b7 : 1;      // mask 0x0080
-    unsigned short b8 : 1;      // mask 0x0100
-    unsigned short rest : 7;
-};
-
 struct Flags_00495e90_37f2f {
     unsigned short b0 : 1;
     unsigned short b1 : 1;
     unsigned short rest : 14;
-};
-
-struct Flags_00495e90_38a51 {
-    unsigned short b0 : 1;
-    unsigned short rest : 15;
-};
-
-union Flags_00495e90_3923b {
-    unsigned short raw;
-    struct {
-        unsigned short b0 : 1;
-        unsigned short b1 : 1;
-        unsigned short rest : 14;
-    };
 };
 
 #include "../network/player_info.h"
@@ -108,70 +79,7 @@ struct SrcHolder_00495a30 {
 
 #include "../graphics/surface.h"
 
-struct Game {
-    char unknown_0[0x519];
-    Gui gui;                            // +0x519
-    char unknown_120f[0x1b63 - 0x120f];
-    Player players[10];               // +0x1b63
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;          // +0x2a42
-    char unknown_2a43[0x2c76 - 0x2a43];
-    char orders[0x2cba - 0x2c76];       // +0x2c76
-    unsigned short hoverUnitId;         // +0x2cba
-    char unknown_2cbc[0x2cc3 - 0x2cbc];
-    unsigned char orderMode;            // +0x2cc3
-    char unknown_2cc4[0x2cc6 - 0x2cc4];
-    unsigned char inputFlags;           // +0x2cc6
-    char unknown_2cc7[0x1423b - 0x2cc7];
-    int viewWidthTiles;                 // +0x1423b
-    int viewHeightTiles;                // +0x1423f
-    char unknown_14243[0x14280 - 0x14243];
-    unsigned char debugMode;  // +0x14280
-    unsigned short mapFlags;            // +0x14281
-    char unknown_14283[0x1431f - 0x14283];
-    int scrollX;                        // +0x1431f
-    int scrollY;                        // +0x14323
-    char unknown_14327[0x37e27 - 0x14327];
-    int viewCullMinX;                   // +0x37e27
-    int viewCullMinY;                   // +0x37e2b
-    char unknown_37e2f[0x37e9c - 0x37e2f];
-    unsigned short unitIndex;           // +0x37e9c
-    char unknown_37e9e[0x37ea0 - 0x37e9e];
-    char guiName[0x37ebe - 0x37ea0];
-    Flags_00495e90_37ebe ordersPanelFlags; // +0x37ebe
-    char unknown_37ec0[0x37f06 - 0x37ec0];
-    Flags_00495e90_37f06 visualFlags;   // +0x37f06
-    char unknown_37f08[0x37f27 - 0x37f08];
-    int textLines;                      // +0x37f27
-    char unknown_37f2b[0x37f2f - 0x37f2b];
-    // Both views of the flag word are used: raw `& 2` tests and the b1 bitfield.
-    union {
-        unsigned short uiOptionFlags;   // +0x37f2f
-        Flags_00495e90_37f2f flags_37f2f;
-    };
-    char unknown_37f31[0x38a47 - 0x37f31];
-    int gameTick;                       // +0x38a47
-    unsigned short speedCtrl;           // +0x38a4b
-    char unknown_38a4d[0x38a51 - 0x38a4d];
-    union {
-        unsigned short pauseFlags;      // +0x38a51
-        Flags_00495e90_38a51 flags_38a51;
-    };
-    char field_38a53[0x38b53 - 0x38a53];
-    char field_38b53[0x38c53 - 0x38b53];
-    int movieCaptureIndex;              // +0x38c53
-    int movieOutputRate;
-    int nextMovieFrameTick;             // +0x38c5b
-    char unknown_38c5f[0x391b3 - 0x38c5f];
-    int unitInfoHoverTrack;             // +0x391b3
-    unsigned short unitInfoHoverUnitId;  // +0x391b7
-    int unitBuilderHoverTrack;          // +0x391b9
-    unsigned short unitBuilderHoverUnitId;  // +0x391bd
-    char unknown_391bf[0x391e9 - 0x391bf];
-    Mission* mapInfo;                   // +0x391e9
-    char unknown_391ed[0x3923b - 0x391ed];
-    Flags_00495e90_3923b endGameFlags;  // +0x3923b
-};
+#include "../game/game.h"
 
 #pragma pack(pop)
 
@@ -334,9 +242,9 @@ void __stdcall WriteScreenshot(char* dir, char* name, int x, int y, int w, int h
         GafFrame* bm;
         off27 = g_game->viewCullMinX;
         int bh, off2b;
-        bw = g_game->viewWidthTiles * 16;
+        bw = g_game->screenTilesX * 16;
         off2b = g_game->viewCullMinY;
-        bh = (g_game->viewHeightTiles * 16) - 1;
+        bh = (g_game->screenTilesY * 16) - 1;
 
         SetOutOfMemoryHandler(0);
         bm = AllocFrame("ScreenShot", w, bh);
@@ -360,8 +268,8 @@ void __stdcall WriteScreenshot(char* dir, char* name, int x, int y, int w, int h
             g_game->mapFlags = fl & ~1;
             g_game->mapFlags &= ~2;
             RecalculateLineOfSight(1);
-            savedA = g_game->pauseFlags & 1;
-            g_game->pauseFlags = (unsigned short)(g_game->pauseFlags & ~1);
+            savedA = g_game->otherFlags & 1;
+            g_game->otherFlags = (unsigned short)(g_game->otherFlags & ~1);
             int savedB = (g_game->uiOptionFlags >> 6) & 1;
 
             g_game->uiOptionFlags = (unsigned short)(g_game->uiOptionFlags & ~0x40);
@@ -426,7 +334,7 @@ void __stdcall WriteScreenshot(char* dir, char* name, int x, int y, int w, int h
                 }
             }
             GameFreeThunk(bm);
-            g_game->pauseFlags = (unsigned short)(g_game->pauseFlags ^ ((savedA ^ g_game->pauseFlags) & 1));
+            g_game->otherFlags = (unsigned short)(g_game->otherFlags ^ ((savedA ^ g_game->otherFlags) & 1));
             bit6 = (savedB & 1) << 6;
             g_game->uiOptionFlags = (unsigned short)((((unsigned short)g_game->uiOptionFlags) & ~0x40) | bit6);
             g_game->textLines = savedC;
@@ -456,9 +364,9 @@ void HandleGameKey(void)
     // Case bodies stay in the original physical order: the jump table depends on it.
     switch (event) {
     case 0x1b:
-        if (g_game->ordersPanelFlags.b0) {
-            g_game->ordersPanelFlags.b0 = 0;
-            int r = IsScreenNamed(&g_game->gui, g_game->guiName);
+        if (g_game->ordersPanelFlags_37ebe.b0) {
+            g_game->ordersPanelFlags_37ebe.b0 = 0;
+            int r = IsScreenNamed(&g_game->gui, g_game->name);
             if (r == 0) {
                 g_game->unitIndex = 0;
                 CloseTopScreen(&g_game->gui);
@@ -499,7 +407,7 @@ void HandleGameKey(void)
     case 0x37:
     case 0x38:
     case 0x39:
-        if (g_game->visualFlags.b8) {
+        if (g_game->flags_37f06.b8) {
             if (IsKeyDown(0xfb) != 0) {
                 OpenBuildMenuPage(event - 0x31);
             } else {
@@ -536,7 +444,7 @@ void HandleGameKey(void)
     case 0x2a:
     case 0x60:
     case 0x7e:
-        g_game->visualFlags.b0 = !g_game->visualFlags.b0;
+        g_game->flags_37f06.b0 = !g_game->flags_37f06.b0;
         SaveSettings();
         break;
 
@@ -573,8 +481,8 @@ void HandleGameKey(void)
         break;
 
     case 9:
-        if (g_game->mapInfo->GetGameType() == 3) {
-            if (!g_game->ordersPanelFlags.b2)
+        if (g_game->net->GetGameType() == 3) {
+            if (!g_game->ordersPanelFlags_37ebe.b2)
                 ToggleTabMenu();
             break;
         }
@@ -588,9 +496,9 @@ void HandleGameKey(void)
                 g_game->unitBuilderHoverTrack = 0;
             }
         } else {
-            if (!g_game->ordersPanelFlags.b0) {
+            if (!g_game->ordersPanelFlags_37ebe.b0) {
                 OpenInGameOptions();
-                g_game->ordersPanelFlags.b0 = 1;
+                g_game->ordersPanelFlags_37ebe.b0 = 1;
             }
         }
         break;
@@ -600,7 +508,7 @@ void HandleGameKey(void)
         break;
 
     case 0xd7: {
-        if (g_game->flags_37f2f.b1) {
+        if ((*(Flags_00495e90_37f2f*)&g_game->uiOptionFlags_37f2f).b1) {
             if (g_game->movieCaptureIndex != 0) {
                 g_game->movieCaptureIndex = 0;
             } else {
@@ -620,24 +528,24 @@ void HandleGameKey(void)
                     HAPI_FindClose(h);
                 }
                 g_game->movieCaptureIndex++;
-                sprintf(g_game->field_38b53, "%s\\MOVIE%03i",
+                sprintf(g_game->text_38b53, "%s\\MOVIE%03i",
                         g_game->field_38a53, g_game->movieCaptureIndex);
-                MakeDirectoryPath(g_game->field_38b53);
+                MakeDirectoryPath(g_game->text_38b53);
                 DrawBattleFrame(0, 1);
-                SaveScreenshot(g_game->field_38b53, "FRAM");
-                g_game->nextMovieFrameTick = g_game->gameTick;
+                SaveScreenshot(g_game->text_38b53, "FRAM");
+                (*(int*)&g_game->nextMovieFrameTick) = g_game->ticks;
             }
         }
         break;
     }
 
     case 0xec:
-        if (g_game->flags_37f2f.b1) {
-            g_game->endGameFlags.b1 = !g_game->endGameFlags.b1;
-            if (g_game->endGameFlags.b1) {
+        if ((*(Flags_00495e90_37f2f*)&g_game->uiOptionFlags_37f2f).b1) {
+            g_game->endGameFlags_3923b.b1 = !g_game->endGameFlags_3923b.b1;
+            if (g_game->endGameFlags_3923b.b1) {
                 SetDescListCleanupFlag(&g_game->gui, 0);
             } else {
-                g_game->endGameFlags.b0 = 0;
+                g_game->endGameFlags_3923b.b0 = 0;
                 g_game->debugMode = 0;
                 SetDescListCleanupFlag(&g_game->gui, 1);
             }
@@ -645,12 +553,12 @@ void HandleGameKey(void)
         break;
 
     case 0x5c:
-        if (g_game->flags_37f2f.b1)
+        if ((*(Flags_00495e90_37f2f*)&g_game->uiOptionFlags_37f2f).b1)
             ExecuteCommandLine(0, -1);
         break;
 
     case 0xe5:
-        g_game->visualFlags.b7 = !g_game->visualFlags.b7;
+        g_game->flags_37f06.b7 = !g_game->flags_37f06.b7;
         break;
 
     case 0xed:
@@ -711,12 +619,12 @@ void HandleGameKey(void)
             }
         }
         if (found == 0)
-            IssueOrderToSelection(g_game->orders, 0, order, 0, 0, 0);
+            IssueOrderToSelection(g_game->orders_2c76, 0, order, 0, 0, 0);
         break;
     }
 
     case 0x68:
-        if (g_game->mapInfo->GetGameType() == 3)
+        if (g_game->net->GetGameType() == 3)
             OpenShareDialog();
         break;
 
@@ -743,25 +651,25 @@ void HandleGameKey(void)
 
     case 0x2d:
     case 0x5f:
-        if (!(g_game->endGameFlags.raw & 2)) {
+        if (!(g_game->endGameFlags_3923b.raw & 2)) {
             Player* pl = &g_game->players[g_game->localPlayer];
             if (pl->active != 0 && (pl->info->flags_9b & 0x40) != 0)
                 break;
-            if (g_game->speedCtrl <= 1)
+            if (g_game->gameSpeed <= 1)
                 break;
-            SetGameSpeed(g_game->speedCtrl - 1, 1);
+            SetGameSpeed(g_game->gameSpeed - 1, 1);
         }
         break;
 
     case 0x2b:
     case 0x3d:
-        if (!(g_game->endGameFlags.raw & 2)) {
+        if (!(g_game->endGameFlags_3923b.raw & 2)) {
             Player* pl = &g_game->players[g_game->localPlayer];
             if (pl->active != 0 && (pl->info->flags_9b & 0x40) != 0)
                 break;
-            if (g_game->speedCtrl >= 0x14)
+            if (g_game->gameSpeed >= 0x14)
                 break;
-            SetGameSpeed(g_game->speedCtrl + 1, 1);
+            SetGameSpeed(g_game->gameSpeed + 1, 1);
         }
         break;
 
@@ -769,6 +677,6 @@ void HandleGameKey(void)
         break;
     }
 
-    if (g_game->endGameFlags.b1)
+    if (g_game->endGameFlags_3923b.b1)
         HandleDebugHotkey(event);
 }

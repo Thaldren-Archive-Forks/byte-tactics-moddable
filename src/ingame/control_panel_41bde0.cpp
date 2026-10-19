@@ -14,14 +14,7 @@ struct Sub_0041bde0 {
 
 #include "../units/unit.h"
 
-struct Game {
-    char unknown_0[0x14357];
-    Unit* units;                         // +0x14357
-    char unknown_1435b[0x37e9c - 0x1435b];
-    unsigned short unitIndex;            // +0x37e9c
-    char unknown_37e9e[0x37ebe - 0x37e9e];
-    unsigned char ordersPanelFlags;      // +0x37ebe
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;

@@ -21,39 +21,7 @@ public:
     int entry_count;                   // +0xdb8
 };
 
-struct Game {
-    char unknown_0[0x2c76];
-    Rect_0041d0f0 view;                // +0x2c76
-    char unknown_2c8e[0x1422b - 0x2c8e];
-    int mapPixelWidth;                 // +0x1422b
-    int mapPixelHeight;                // +0x1422f
-    char unknown_14233[0x14281 - 0x14233];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x142e7 - 0x14283];
-    short minimapGadgetX;              // +0x142e7
-    short minimapGadgetY;              // +0x142e9
-    short minimapGadgetW;              // +0x142eb
-    short minimapGadgetH;              // +0x142ed
-    char unknown_142ef[0x142f1 - 0x142ef];
-    unsigned char viewDirtyFlags;      // +0x142f1
-    char unknown_142f2;
-    int cameraFollowUnit;              // +0x142f3
-    int cameraFollowTrackObj;          // +0x142f7
-    int xs[4];                         // +0x142fb
-    int ys[4];                         // +0x1430b
-    unsigned char valid[4];            // +0x1431b
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    int x2;                            // +0x14327
-    int y2;                            // +0x1432b
-    char unknown_1432f[0x1434b - 0x1432f];
-    short cameraSnapTicks;             // +0x1434b
-    char unknown_1434d[0x37e37 - 0x1434d];
-    int viewPixelWidth;                // +0x37e37
-    int viewPixelHeight;               // +0x37e3b
-    char unknown_37e3f[0x391e9 - 0x37e3f];
-    Class_0041d1f0_net* mapInfo;       // +0x391e9
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 #include "../util/hapi_bank.h"
@@ -80,31 +48,31 @@ static inline void SetPos(int x, int y)
 // FUNCTION: 0x41d0f0
 void CenterCameraOnRadarClick()
 {
-    Rect_0041d0f0 r = g_game->view;
-    int y = g_game->mapPixelHeight * (r.y - g_game->minimapGadgetY) / g_game->minimapGadgetH - g_game->viewPixelHeight / 2;
-    int x = g_game->mapPixelWidth * (r.x - g_game->minimapGadgetX) / g_game->minimapGadgetW - g_game->viewPixelWidth / 2;
+    Rect_0041d0f0 r = (*(Rect_0041d0f0*)&g_game->view);
+    int y = g_game->mapHeight * (r.y - g_game->posY) / g_game->screen_h - g_game->viewHeight / 2;
+    int x = g_game->mapWidth * (r.x - g_game->posX) / g_game->width_142eb - g_game->viewWidth / 2;
     g_game->scrollX = x;
     g_game->scrollY = y;
-    g_game->viewDirtyFlags |= 2;
+    g_game->viewDirtyFlags_142f1 |= 2;
     ClampCameraPosition();
     g_game->x2 = g_game->scrollX;
     g_game->y2 = g_game->scrollY;
     g_game->mapFlags &= 0xfff7;
-    g_game->cameraSnapTicks = 0;
-    g_game->cameraFollowUnit = 0;
-    g_game->cameraFollowTrackObj = 0;
+    g_game->value_1434b = 0;
+    g_game->value_142f3 = 0;
+    (*(int*)&g_game->tracked) = 0;
 }
 
 // FUNCTION: 0x41d1f0
 void CenterCameraOnStartPosition()
 {
     int i = 0;
-    Entry_0041d1f0* e = g_game->mapInfo->entries;
-    int count = g_game->mapInfo->entry_count;
+    Entry_0041d1f0* e = ((Class_0041d1f0_net *)g_game->net)->entries;
+    int count = ((Class_0041d1f0_net *)g_game->net)->entry_count;
     for (; i < count; i++, e++) {
         if (e->type == 1 && e->id == 0) {
-            SetPos(e->x - g_game->viewPixelWidth / 2, e->z - g_game->viewPixelHeight / 2);
-            g_game->viewDirtyFlags |= 2;
+            SetPos(e->x - g_game->viewWidth / 2, e->z - g_game->viewHeight / 2);
+            g_game->viewDirtyFlags_142f1 |= 2;
             ClampCameraPosition();
             g_game->x2 = g_game->scrollX;
             g_game->y2 = g_game->scrollY;
@@ -124,7 +92,7 @@ void __stdcall ReadCameraPosition(HapiBank* file)
     int x = file->GetIntegerItem(g_cameraXPosition, g_game->scrollX);
     g_game->scrollX = x;
     g_game->scrollY = z;
-    g_game->viewDirtyFlags |= 2;
+    g_game->viewDirtyFlags_142f1 |= 2;
     ClampCameraPosition();
     g_game->x2 = g_game->scrollX;
     g_game->y2 = g_game->scrollY;
@@ -152,11 +120,11 @@ void __stdcall SaveCameraPosition(int slot)
 void __stdcall RestoreCameraPosition(int index)
 {
     if (g_game->valid != 0) {
-        g_game->cameraSnapTicks = 0;
-        g_game->cameraFollowUnit = 0;
-        g_game->cameraFollowTrackObj = 0;
+        g_game->value_1434b = 0;
+        g_game->value_142f3 = 0;
+        (*(int*)&g_game->tracked) = 0;
         SetPos(g_game->xs[index], g_game->ys[index]);
-        g_game->viewDirtyFlags |= 2;
+        g_game->viewDirtyFlags_142f1 |= 2;
         ClampCameraPosition();
         g_game->x2 = g_game->scrollX;
         g_game->y2 = g_game->scrollY;

@@ -56,25 +56,9 @@ struct PlayerInfo_00467440 {
     char unknown_147[0x14b - 0x147];
 };
 
-struct Game {
-    char unknown_0[0x1b63];
-    PlayerInfo_00467440 players[10];   // +0x1b63, stride 0x14b
-    char unknown_2851[0x2a3c - 0x2851];
-    unsigned short numPlayers;         // +0x2a3c
-    char unknown_2a3e[0x2a43 - 0x2a3e];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x14273 - 0x2a44];
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x14281 - 0x14277];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x14357 - 0x14283];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    char unknown_1435f[0x38a47 - 0x1435f];
-    int gameTick;                      // +0x38a47
+#include "../game/game.h"
 
-    PlayerInfo_00467440* Current() { return &players[playerIndex]; }
-};
+inline Player* Game::Current(void) { return &players[playerIndex]; }
 #pragma pack(pop)
 
 class DetectionVisitor {
@@ -121,13 +105,13 @@ static inline int IsSeen_00467440(PlayerInfo_00467440* p, UnitPos_00467440* pos)
 // FUNCTION: 0x467440
 void UpdateSensorRadarAndCloak(void)
 {
-    if (g_game->numPlayers < 2) {
+    if (g_game->field_2a3c < 2) {
         return;
     }
     unsigned char player = g_game->playerIndex;
     Unit* first = g_game->units + 1;
     Unit* last = g_game->unitsEnd;
-    PlayerInfo_00467440* pl = &g_game->players[g_game->playerIndex];
+    PlayerInfo_00467440* pl = &(*(PlayerInfo_00467440 (*)[10])&g_game->players)[g_game->playerIndex];
     Unit* u;
 
     Unit* a;
@@ -194,7 +178,7 @@ void UpdateSensorRadarAndCloak(void)
                     if (g_seams.ai->HasReadyUnitInRange(u->playerIndex, (Vec3*)&u->pos, u->def->mincloakdistance)) {
                         // Written through an int& so the flags load stays after the store.
                         int& b0 = u->workTime;
-                        b0 = g_game->gameTick + 0x5a;
+                        b0 = g_game->ticks + 0x5a;
                         u->flags |= 0x1000;
                     }
                 }
@@ -208,7 +192,7 @@ void UpdateSensorRadarAndCloak(void)
         if ((f & 0x10000000) && !(f & 0x100) && !(u->activateFlags & 4)) {
             // int, not unsigned char: the latter spills playerIndex.
             int pi = g_game->playerIndex;
-            PlayerInfo_00467440* p2 = g_game->Current();
+            PlayerInfo_00467440* p2 = (PlayerInfo_00467440*)g_game->Current();
             // unsigned int: an int merges the two zero blocks.
             unsigned int vis;
             if ((g_game->mapFlags & 2) == 2) {
