@@ -43,7 +43,12 @@ struct AnimPair {
 
 #include "../util/vec3.h"
 
-static inline Vec3 MakeVec3(int ax, int ay, int az)
+static inline int Vec3NonZero(Vec3* v)
+{
+    return v->x || v->z || v->y;
+}
+
+static inline Vec3 FeatureVec3(int ax, int ay, int az)
 {
     Vec3 v;
     v.x = ax;
@@ -1200,12 +1205,12 @@ void __stdcall UpdateFeatures()
         Feature* f = &g_game->features[spot->feature];
         int next = spot->prev;
         if (!f->noobject) {
-            if (spot->vel.NonZero()) {
+            if (Vec3NonZero(&spot->vel)) {
                 spot->pos += spot->vel;
                 int ground = g_seams.map->GetCellMeanHeight(&spot->pos) << 16;
                 if (spot->pos.y <= ground) {
                     spot->pos.y = ground;
-                    spot->vel = MakeVec3(0, 0, 0);
+                    spot->vel = FeatureVec3(0, 0, 0);
                 } else if (spot->pos.y < g_game->seaLevel << 16) {
                     spot->vel.x = 0;
                     spot->vel.y = -0x2ccc;

@@ -19,6 +19,28 @@
 
 #include "../state/block.h"
 #include "../util/vec3.h"
+
+static inline int Vec3Length(const Vec3* v)
+{
+    double fx = v->x;
+    double fy = v->y;
+    double fz = v->z;
+    return (int)sqrt(fx * fx + fy * fy + fz * fz);
+}
+
+static inline void Vec3Scale(Vec3* v, int s)
+{
+    v->x = (int)(((__int64)v->x * s) >> 16);
+    v->y = (int)(((__int64)v->y * s) >> 16);
+    v->z = (int)(((__int64)v->z * s) >> 16);
+}
+
+static inline void Vec3Add(Vec3* v, const Vec3* o)
+{
+    v->x += o->x;
+    v->y += o->y;
+    v->z += o->z;
+}
 #include "../util/hapi_bank.h"
 
 #pragma pack(push, 1)
@@ -50,7 +72,7 @@ static inline void MulFixed(int& v, int f)
     v = (int)(((__int64)v * f) >> 16);
 }
 
-static inline Vec3 MakeVec3(int a, int b, int c)
+static inline Vec3 OrderVec3(int a, int b, int c)
 {
     Vec3 v;
     v.x = a;
@@ -1731,8 +1753,8 @@ void UnitMotion::ApplyBankAndPitch(Unit* owner, Vec3* v)
 {
     // Scale and Add stay inlined methods, not separate statements on p2:
     // each field is then stored immediately.
-    p2.Scale(0xf333);
-    p2.Add(v);
+    Vec3Scale(&p2, 0xf333);
+    Vec3Add(&p2, v);
     int xz[2];
     xz[0] = p2.x;
     xz[1] = p2.z;
@@ -1751,7 +1773,7 @@ void UnitMotion::SetFlightMode(Unit* owner, int newState)
     if (mode != newState) {
         if (newState == 1) {
             speed = 0;
-            Vec3 zero = MakeVec3(0, 0, 0);
+            Vec3 zero = OrderVec3(0, 0, 0);
             velocity = zero;
             ApplyBankAndPitch(owner, &zero);
             g_seams.units->SetStateBits(owner, 1, 0);
@@ -1771,7 +1793,7 @@ void UnitMotion::SetFlightMode(Unit* owner, int newState)
 // FUNCTION: 0x43d290
 void UnitMotion::SteerAircraft(Unit* unit) {
     if (mode != 2) {
-        velocity = MakeVec3(0, 0, 0);
+        velocity = OrderVec3(0, 0, 0);
         speed = 0;
         turn = 0;
         return;
@@ -1789,7 +1811,7 @@ void UnitMotion::SteerAircraft(Unit* unit) {
     float f18 = (float)type->acceleration * eps;
     int q = (int)(((__int64)type->acceleration << 16) / type->maxvelocity);
     int scale = 0x10000 - q;
-    velocity.Scale(scale);
+    Vec3Scale(&velocity, scale);
 
     float dist = (float)_hypot(velocity.x, velocity.z) * eps;
     float maxd = (float)((UnitType_0043cd20*)unit->def)->brakerate * eps;
@@ -1874,7 +1896,7 @@ void UnitMotion::SteerAircraft(Unit* unit) {
     AddFixed(velocity.x, vx);
 #endif
     AddFixed(velocity.z, vz);
-    speed = velocity.Length();
+    speed = Vec3Length(&velocity);
 
     // Own block so the address-taken delta shares a stack slot with db.
     {
@@ -1912,7 +1934,7 @@ void UnitMotion::UpdatePosition(Unit* u)
             velocity = ((Path_0043d6d0*)u->carrier)->motion->velocity;
         } else {
             speed = 0;
-            Vec3 zero = MakeVec3(0, 0, 0);
+            Vec3 zero = OrderVec3(0, 0, 0);
             velocity = zero;
         }
         u->moved = 0;
@@ -2017,11 +2039,11 @@ void UnitMotion::UpdateMoveRate(Unit* unit)
 // FUNCTION: 0x43dc00
 UnitMotion::UnitMotion(Unit* unit)
 {
-    velocity = MakeVec3(0, 0, 0);
+    velocity = OrderVec3(0, 0, 0);
     speed = 0;
     turn = 0;
     pathLockStamp = 0;
-    p2 = MakeVec3(0, 0, 0);
+    p2 = OrderVec3(0, 0, 0);
     mode = 1;
     flag = 0;
     movementClass = ((UnitType_0043cd20*)unit->def)->movementclass;

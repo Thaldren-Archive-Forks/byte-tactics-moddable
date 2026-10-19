@@ -39,6 +39,14 @@ struct Point {
 
 #include "../util/vec3.h"
 
+static inline int Vec3Length(const Vec3* v)
+{
+    double fx = v->x;
+    double fy = v->y;
+    double fz = v->z;
+    return (int)sqrt(fx * fx + fy * fy + fz * fz);
+}
+
 struct View {
     char unknown_0[0x2c];
     int scroll_x;                     // +0x2c
@@ -481,7 +489,7 @@ void __stdcall DrawPathAnim(void* surface, View* view,
     d.x = end.x.value - start.x.value;
     d.y = end.y.value - start.y.value;
     d.z = end.z.value - start.z.value;
-    int dist = d.Length();
+    int dist = Vec3Length(&d);
     if (dist < 0x10000)
         return;
 

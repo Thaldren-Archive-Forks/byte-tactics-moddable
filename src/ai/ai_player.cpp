@@ -81,6 +81,21 @@ struct Order {
 
 #include "../util/vec3.h"
 
+static inline int Vec3Length(const Vec3* v)
+{
+    double fx = v->x;
+    double fy = v->y;
+    double fz = v->z;
+    return (int)sqrt(fx * fx + fy * fy + fz * fz);
+}
+
+static inline void Vec3Scale(Vec3* v, int s)
+{
+    v->x = (int)(((__int64)v->x * s) >> 16);
+    v->y = (int)(((__int64)v->y * s) >> 16);
+    v->z = (int)(((__int64)v->z * s) >> 16);
+}
+
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& b)
 {
     Vec3 r;
@@ -524,10 +539,10 @@ static inline float Max(float a, float b) { return a > b ? a : b; }
 static inline Vec3 MoveTowards(const Vec3* from, const Vec3* to, int maxLen)
 {
     Vec3 d = PosMinus(*to, *from);
-    int len = d.Length();
+    int len = Vec3Length(&d);
     if (maxLen >= len)
         return *to;
-    d.Scale((int)(((__int64)maxLen << 16) / len));
+    Vec3Scale(&d, (int)(((__int64)maxLen << 16) / len));
     Vec3 r;
     r.x = from->x + d.x;
     r.y = from->y + d.y;
