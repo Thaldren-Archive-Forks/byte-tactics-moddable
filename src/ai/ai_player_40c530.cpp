@@ -30,10 +30,8 @@ void RegisterEmptyAtexitB(void);
 bool __cdecl ReadGdperf(unsigned long, void*);
 
 #define Elem_0040cc40 Elem_0040cc40_view
-#define Elem_0040d4f0 Elem_0040d4f0_view
 #include "ta_types.h"
 #undef Elem_0040cc40
-#undef Elem_0040d4f0
 
 // A map cell and its sort key, the element of the vector at +0x4d.
 struct Elem_0040cc40 {
@@ -42,14 +40,6 @@ struct Elem_0040cc40 {
     Elem_0040cc40() {}
     Elem_0040cc40(const Elem_0040cc40& o) : pos(o.pos), key(o.key) {}
     bool operator<(const Elem_0040cc40& o) const { return key < o.key; }
-};
-
-// The element of the vector at +0xad, a 1-byte type other than unsigned char
-// (a guess). It has no default constructor: the symbol ids of the vector
-// instantiations below follow the declaration count.
-struct Elem_0040d4f0 {
-    char value;                        // +0x0
-    Elem_0040d4f0(const Elem_0040d4f0& o) : value(o.value) {}
 };
 
 #include <new>
