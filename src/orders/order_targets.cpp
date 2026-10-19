@@ -26,7 +26,6 @@ struct Point_0044eec0 {
 };
 
 // The vtables the area classes store by hand; the base class's is 0x4fd2f8.
-extern void* g_orderFxVtable[];
 extern void* g_approachRadiusVtable[];
 extern void* g_ringApproachVtable[];
 extern void* g_pointMarkerVtable[];
@@ -37,32 +36,7 @@ struct Elem_0044ce90 {
     int unknown_0;
 };
 
-// The base of the family: vtable 0x4fd2f8 and, at +0x4, the source object
-// (or its index) the subclass was built with. Not order_fx.h: the constructors
-// store the vtable by hand, which a class with virtual functions cannot spell.
-class OrderFx {
-public:
-    void* vtable;                      // +0x0
-    int source;                        // +0x4
-
-    OrderFx() {}
-    OrderFx(int param_1)
-    {
-        vtable = g_orderFxVtable;
-        source = param_1;
-    }
-
-    OrderFx(int arg1, int arg2, int arg3);
-    void* Destroy(unsigned char flag);
-    int GetType();
-    int IsFxStyle();
-    int ContainsCell(int, int);
-    int ApproxDist(int, int);
-    void AddFlags(int param_1);
-    void WriteBits(int);
-    int KeepAfterComplete();
-    void FillGoalCells(std::vector<Elem_0044ce90*>* list);
-};
+#include "order_fx.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep
 // the allocation the merged OrderFx-family views moved (docs/c2-regalloc.md).
@@ -155,38 +129,7 @@ struct Header_0044d010 {
 
 typedef std::vector<Point_0044eec0> Vec_0044d0e0;
 
-struct Obj_0044d310 {
-    char unknown_0[0x76];
-    short x;                           // +0x76
-    short y;                           // +0x78
-};
-
-// The circle area: the point at +0x8, radius +0xc and radiusSq +0x10
-// ((radius / 16) squared). The file-loading constructor 0x44d010 and its
-// Serialize method (0x44d090) read and write the union's Vec3, the saved
-// view of the same bytes.
-class ApproachRadius : public OrderFx {
-public:
-    union {
-        struct {
-            Point_0044eec0 pos;        // +0x8
-            int radius;                // +0xc
-            int radiusSq;              // +0x10
-        };
-        Vec3_0044d010 v;               // +0x8, the saved view of the same bytes
-    };
-
-    void AppendGoalCell(Vec_0044d0e0* list);
-    int Serialize(int unused, HapiBank* file, char* name);
-    ApproachRadius(Source_0044cf60* source, int x, int y, int r);
-    ApproachRadius(int owner, HapiBank* file, char* name);
-    int GetType();
-    void* Destroy(unsigned char flag);
-    int ContainsUnit(Obj_0044d310* obj);
-    int ContainsCell(int px, int py);
-    int FillWorldPos(int* out);
-    int ApproxDistExcess(int px, int py);
-};
+#include "approach_areas.h"
 
 struct Point_0044d2c0 {
     short x;
@@ -242,16 +185,10 @@ struct Point_0044d720 {
     short y;
 };
 
-struct Vec3_0044d720 {
-    int x;
-    int y;
-    int z;
-};
-
 #pragma pack(push, 2)
 struct Inner_0044d720 {
     char unknown_0[0x6a];
-    Vec3_0044d720 pos;                 // +0x6a
+    Vec3 pos;
     char unknown_76[0x7e - 0x76];
     Point_0044d720 cell;               // +0x7e
 };
@@ -284,42 +221,6 @@ struct Sub_0044e190 {
 #include "../units/unit.h"
 #pragma pack(pop)
 
-// The donut area: the point at +0x8, inner radius +0xc, outer +0x10 and each
-// (radius / 16) squared at +0x14 and +0x18. The two constructors' view (a
-// point and two radii) and the bit-stream view (x, y, inner, outer) name the
-// same bytes; the file-loading constructor 0x44d470 and its Serialize method
-// (0x44d500) use the union's Data, the saved view.
-class RingApproach : public OrderFx {
-public:
-    union {
-        struct {
-            Point_0044eec0 pos;        // +0x8
-            int radius2;               // +0xc
-            int radius1;               // +0x10
-            int radius2Sq;             // +0x14
-            int radius1Sq;             // +0x18
-        };
-        struct {
-            short x;                   // +0x8
-            short y;                   // +0xa
-            int inner;                 // +0xc
-            int outer;                 // +0x10
-        };
-        Data_0044d470 data;            // +0x8, the saved view of the same bytes
-    };
-
-    int ApproxDistExcess(int px, int py);
-    int Serialize(int unused, HapiBank* file, char* name);
-    RingApproach(Source_0044d3b0* source, int x, int y, int r1, int r2);
-    RingApproach(int owner, HapiBank* file, char* name);
-    int GetType();
-    void* Destroy(unsigned char flag);
-    int ContainsUnit(Unit* unit);
-    bool ContainsCell(int px, int py);
-    void AppendGoalCell(Vec_0044d560* list);
-    int FillWorldPos(Vec3_0044d720* out);
-};
-
 struct View_0044d8a0 {
     char unknown_0[0x7e];
     short x;                           // +0x7e
@@ -332,11 +233,6 @@ struct Owner_0044d8a0 {
     View_0044d8a0* view;               // +0xe
 };
 #pragma pack(pop)
-
-struct Point_0044d8a0 {
-    short x;
-    short y;
-};
 
 struct Rect_0044d930 {
     int a;
@@ -360,38 +256,6 @@ struct Pos16_44dc60 {
 struct MapInfo_44dc60 {
     char unknown_0[0x7e];
     Pos16_44dc60 pos;   // +0x7e
-};
-
-// The rectangle area: x1/x2 at +8/+0xc and y1/y2 at +0x10/+0x14. The
-// constructor 0x44d8a0's a/b/c/d view and the file-loading constructor
-// 0x44d930's Rect view name the same bytes.
-class PointMarker : public OrderFx {
-public:
-    union {
-        struct {
-            int x1;                    // +0x8
-            int x2;                    // +0xc
-            int y1;                    // +0x10
-            int y2;                    // +0x14
-        };
-        struct {
-            int a;                     // +0x8
-            int b;                     // +0xc
-            int c;                     // +0x10
-            int d;                     // +0x14
-        };
-        Rect_0044d930 r;               // +0x8, the saved view of the same bytes
-    };
-
-    int FillWorldPos(int* out);
-    int Serialize(int unused, HapiBank* file, char* name);
-    PointMarker(Owner_0044d8a0* owner, Point_0044d8a0 pos, Point_0044d8a0 size);
-    PointMarker(int owner, HapiBank* file, char* name);
-    int GetType();
-    void* Destroy(unsigned char should_delete);
-    void AppendGoalCell(Vec_0044da00* list);
-    int ContainsCell(int x, int y);
-    int ApproxDist(int x, int y);
 };
 
 #pragma pack(push, 2)
@@ -421,7 +285,7 @@ struct Source_0044e330;
 struct Vec3_0044e330;
 #include "path_order_attach.h"
 
-class PathOrder : public OrderFx {
+class __declspec(novtable) PathOrder : public OrderFx {
 public:
     union {
         unsigned short flags;              // +0x8
@@ -634,36 +498,6 @@ struct Pos_0044e6c0 {
 };
 
 #pragma pack(push, 2)
-#pragma pack(pop)
-
-struct Vec3_0044e740 {
-    int x;
-    int y;
-    int z;
-    Vec3_0044e740() {}
-    Vec3_0044e740(int ax, int ay, int az)
-    {
-        x = ax;
-        y = ay;
-        z = az;
-    }
-};
-
-#pragma pack(push, 1)
-struct Object_0044e740 {
-    char unknown_0[0x6a];
-    Vec3_0044e740 pos;                 // +0x6a
-    char unknown_76[0xa8 - 0x76];
-    unsigned short id;                 // +0xa8
-};
-#pragma pack(pop)
-
-#pragma pack(push, 2)
-struct Source_0044e740 {
-    char unknown_0[0xe];
-    Object_0044e740* unit;             // +0xe
-};
-
 // The 0x2a-byte save record. The reader takes the id as a dword but only its
 // low word is used (0x487080 masks with 0xffff); the high word is the flag.
 struct Header_0044e740 {
@@ -675,8 +509,8 @@ struct Header_0044e740 {
             unsigned short flag;       // +0x0a
         };
     };
-    Vec3_0044e740 target;              // +0x0c
-    Vec3_0044e740 other;               // +0x18
+    Vec3 target;
+    Vec3 other;
     short value_24;                    // +0x24
     unsigned short heading;            // +0x26
     unsigned short value_28;           // +0x28
@@ -688,63 +522,8 @@ struct Owner_0044e9c0;
 
 #pragma pack(push, 2)
 
-struct Vec3_0044ea60 {
-    int x;
-    int y;
-    int z;
-
-    Vec3_0044ea60() {}
-    Vec3_0044ea60(int ax, int ay, int az)
-    {
-        x = ax;
-        y = ay;
-        z = az;
-    }
-};
-
-#pragma pack(push, 1)
-struct UnitType_0044ea60 {
-    char unknown_0[0x1ba];
-    unsigned short max_turn;           // +0x1ba
-};
-#pragma pack(pop)
-
 #pragma pack(push, 2)
-// Not air_maneuver_order.h: this view derives from the hand-vtable OrderFx above.
-// The air order: the target and other points, the heading and the owner unit.
-// FillWorldPos (0x44ea60) advances the target towards other. The bit-stream
-// loader 0x44e9c0 stores its owner in self and reads the two points into it.
-class AirManeuverOrder : public OrderFx {
-public:
-    union {
-        unsigned short flags;          // +0x8, bit 0: heading set
-        struct {
-            unsigned short headingSet : 1;
-            unsigned short unknown_rest : 15;
-        };
-    };
-    Vec3_0044e740 target;              // +0xa
-    Vec3_0044e740 other;               // +0x16
-    short saveOnly22;                  // +0x22
-    unsigned short heading;            // +0x24
-    unsigned short value_26;           // +0x26
-    Object_0044e740* self;             // +0x28
-
-    int FillWorldPos(Vec3_0044e740* out);
-    AirManeuverOrder(Source_0044e740* source, const Vec3_0044e740& a, const Vec3_0044e740& b);
-    AirManeuverOrder(int owner, HapiBank* file, char* name);
-    AirManeuverOrder(Owner_0044e9c0* owner, BitReader* reader);
-    int SerializeToSave(int unused, HapiBank* file, char* name);
-    void SerializeToBits(BitWriter* stream);
-    int IsComplete(Object_0044e740* unit);
-    void SetAltitude(int);
-    int GetType();
-    int IsFxStyle();
-    int KeepAfterComplete();
-    void* Destroy(int param_1);
-    int GetDesiredHeading(unsigned short* out);
-    void SetHeading(short v);
-};
+#include "air_maneuver_order.h"
 #pragma pack(pop)
 
 // Unused here: the symbol ids these declarations take keep the allocation
@@ -1012,7 +791,7 @@ int OrderFx::GetType()
 // FUNCTION: 0x44ce50
 void* OrderFx::Destroy(unsigned char flag)
 {
-    vtable = g_orderFxVtable;
+    SetVtable(g_orderFxVtable);
     if (flag & 1) {
         operator delete(this);
     }
@@ -1022,7 +801,7 @@ void* OrderFx::Destroy(unsigned char flag)
 // FUNCTION: 0x44ce70 ??0OrderFx@@QAE@HHH@Z
 OrderFx::OrderFx(int arg1, int arg2, int arg3)
 {
-    vtable = g_orderFxVtable;
+    SetVtable(g_orderFxVtable);
 }
 
 // FUNCTION: 0x44ce80
@@ -1034,9 +813,9 @@ int __stdcall SerializeSave(int, int, int)
 // Slot 6 of the vtable at 0x4fd2f8: the default implementation ignores the
 // object and empties the caller's list (an inlined vector::clear()).
 // FUNCTION: 0x44ce90
-void OrderFx::FillGoalCells(std::vector<Elem_0044ce90*>* list)
+void OrderFx::FillGoalCells(void* cells)
 {
-    list->clear();
+    ((std::vector<Elem_0044ce90*>*)cells)->clear();
 }
 
 // FUNCTION: 0x44cec0
@@ -1101,16 +880,16 @@ void OrderFx::WriteBits(int)
 // from fixed-point world coordinates relative to the map origin, a radius
 // and (radius / 16) squared. It stores the same vtable as 0x44d010,
 // so this is probably a second constructor of that class.
-// FUNCTION: 0x44cf60 ??0ApproachRadius@@QAE@PAUSource_0044cf60@@HHH@Z
-ApproachRadius::ApproachRadius(Source_0044cf60* source, int x, int y, int r)
+// FUNCTION: 0x44cf60 ??0ApproachRadius@@QAE@PAUOrder@@HHH@Z
+ApproachRadius::ApproachRadius(Order* source, int x, int y, int r)
     : OrderFx((int)source)
 {
-    vtable = g_approachRadiusVtable;
-    Point_0044cf60 org = source->map->origin;
+    SetVtable(g_approachRadiusVtable);
+    Point_0044cf60 org = ((Source_0044cf60*)source)->map->origin;
     Point_0044eec0 p;
     p.x = (x - (org.x << 19) + 0x80000) >> 20;
     p.y = (y - (org.y << 19) + 0x80000) >> 20;
-    pos = p;
+    pos = *(Point16*)&p;
     radius = r;
     radiusSq = (r / 16) * (r / 16);
 }
@@ -1124,7 +903,7 @@ int ApproachRadius::GetType()
 // FUNCTION: 0x44cff0
 void* ApproachRadius::Destroy(unsigned char flag)
 {
-    vtable = g_orderFxVtable;
+    SetVtable(g_orderFxVtable);
     if (flag & 1) {
         operator delete(this);
     }
@@ -1137,7 +916,7 @@ void* ApproachRadius::Destroy(unsigned char flag)
 ApproachRadius::ApproachRadius(int owner, HapiBank* file, char* name)
     : OrderFx(owner)
 {
-    vtable = g_approachRadiusVtable;
+    SetVtable(g_approachRadiusVtable);
     int bad = 0;
     if (owner == 0 || file == 0)
         bad = 1;
@@ -1179,10 +958,11 @@ int ApproachRadius::Serialize(int unused, HapiBank* file, char* name)
 //   list->clear();          // erase(begin(), end())
 //   list->push_back(pos);   // inserts *(Point*)(this + 8) at the end
 // FUNCTION: 0x44d0e0
-void ApproachRadius::AppendGoalCell(Vec_0044d0e0* list)
+void ApproachRadius::AppendGoalCell(void* cells)
 {
+    Vec_0044d0e0* list = (Vec_0044d0e0*)cells;
     list->clear();
-    list->push_back(pos);
+    list->push_back(*(Point_0044eec0*)&pos);
 }
 
 // Point version of 0x44d310: whether (px, py) lies within the circle around
@@ -1199,7 +979,7 @@ int ApproachRadius::ContainsCell(int px, int py)
 // which use the same centre at +0x8): writes the centre, offset by a point
 // of the owner, as 16.16 world coordinates.
 
-static inline void ToWorld(int* out, Point_0044eec0 a, Point_0044d2c0 b)
+static inline void ToWorld(int* out, Point16 a, Point_0044d2c0 b)
 {
     out[0] = (a.x * 2 + b.x) << 19;
     out[2] = (a.y * 2 + b.y) << 19;
@@ -1214,10 +994,10 @@ int ApproachRadius::FillWorldPos(int* out)
 
 // Whether obj lies within the circle around (x, y).
 // FUNCTION: 0x44d310
-int ApproachRadius::ContainsUnit(Obj_0044d310* obj)
+int ApproachRadius::ContainsUnit(Unit* obj)
 {
-    int dy = obj->y - pos.y;
-    int dx = obj->x - pos.x;
+    int dy = obj->cell.y - pos.y;
+    int dx = obj->cell.x - pos.x;
     return dx * dx + dy * dy <= radiusSq;
 }
 
@@ -1242,21 +1022,21 @@ int ApproachRadius::ApproxDistExcess(int px, int py)
 // as 0x44d470's file-loading constructor) that stores a point converted
 // from fixed-point world coordinates relative to the map origin, two radii
 // and each (radius / 16) squared. Two-radius version of 0x44cf60.
-// FUNCTION: 0x44d3b0 ??0RingApproach@@QAE@PAUSource_0044d3b0@@HHHH@Z
-RingApproach::RingApproach(Source_0044d3b0* source, int x, int y, int r1, int r2)
+// FUNCTION: 0x44d3b0 ??0RingApproach@@QAE@PAUOrder@@HHHH@Z
+RingApproach::RingApproach(Order* source, int x, int y, int r1, int r2)
     : OrderFx((int)source)
 {
-    vtable = g_ringApproachVtable;
-    Point_0044d3b0 org = source->map->origin;
+    SetVtable(g_ringApproachVtable);
+    Point_0044d3b0 org = ((Source_0044d3b0*)source)->map->origin;
     Point_0044eec0 p;
     p.x = (x - (org.x << 19) + 0x80000) >> 20;
     p.y = (y - (org.y << 19) + 0x80000) >> 20;
-    pos = p;
+    pos = *(Point16*)&p;
     // Stays after the point conversion.
-    radius2 = r2;
-    radius1 = r1;
-    radius1Sq = (r1 / 16) * (r1 / 16);
-    radius2Sq = (r2 / 16) * (r2 / 16);
+    inner = r2;
+    outer = r1;
+    outerSq = (r1 / 16) * (r1 / 16);
+    innerSq = (r2 / 16) * (r2 / 16);
 }
 
 // FUNCTION: 0x44d440
@@ -1268,7 +1048,7 @@ int RingApproach::GetType()
 // FUNCTION: 0x44d450
 void* RingApproach::Destroy(unsigned char flag)
 {
-    vtable = g_orderFxVtable;
+    SetVtable(g_orderFxVtable);
     if ((flag & 1) != 0) {
         operator delete(this);
     }
@@ -1281,7 +1061,7 @@ void* RingApproach::Destroy(unsigned char flag)
 RingApproach::RingApproach(int owner, HapiBank* file, char* name)
     : OrderFx(owner)
 {
-    vtable = g_ringApproachVtable;
+    SetVtable(g_ringApproachVtable);
     int bad = 0;
     if (owner == 0 || file == 0)
         bad = 1;
@@ -1322,12 +1102,12 @@ int RingApproach::Serialize(int unused, HapiBank* file, char* name)
 // Clears a std::vector<Point_0044eec0> and then appends a copy of the point
 // at +0x8, with its y moved by (radius2 + radius1) / 32.
 // FUNCTION: 0x44d560
-void RingApproach::AppendGoalCell(Vec_0044d560* list)
+void RingApproach::AppendGoalCell(void* cells)
 {
+    Vec_0044d560* list = (Vec_0044d560*)cells;
     list->clear();
-    Point_0044eec0 p = pos;
-    // Sum written radius1 + radius2: the operand order follows the load order.
-    p.y = p.y + (radius1 + radius2) / 32;
+    Point_0044eec0 p = *(Point_0044eec0*)&pos;
+    p.y = p.y + (outer + inner) / 32;
     list->push_back(p);
 }
 
@@ -1336,16 +1116,16 @@ void RingApproach::AppendGoalCell(Vec_0044d560* list)
 // back towards the owner by the mean of the two radii at +0xc and +0x10.
 // The mean needs its own inline helper to load +0xc first.
 
-static inline void ToWorld(Vec3_0044d720* out, Point_0044eec0 a, Point_0044d720 b)
+static inline void ToWorld(Vec3* out, Point16 a, Point_0044d720 b)
 {
     out->x = (a.x * 2 + b.x) << 19;
     out->z = (a.y * 2 + b.y) << 19;
 }
 
 // Inlined copy of DirectionFromAngle.
-static inline Vec3_0044d720 Direction(short angle, int scale)
+static inline Vec3 Direction(short angle, int scale)
 {
-    Vec3_0044d720 v;
+    Vec3 v;
     v.x = -FUN_004b70ef(angle, scale);
     v.y = 0;
     // The casts stay: without them 0x44d720's radius loads come out in the other order.
@@ -1362,12 +1142,12 @@ static inline int MeanRadius(RingApproach* c)
 }
 
 // FUNCTION: 0x44d720
-int RingApproach::FillWorldPos(Vec3_0044d720* out)
+int RingApproach::FillWorldPos(Vec3* out)
 {
     Inner_0044d720* inner = ((Owner_0044d720*)source)->inner;
     ToWorld(out, pos, inner->cell);
     short angle = GetHeadingBetween(&inner->pos, out);
-    Vec3_0044d720 d = Direction(angle, MeanRadius(this) << 16);
+    Vec3 d = Direction(angle, MeanRadius(this) << 16);
     out->x -= d.x;
     out->y -= d.y;
     out->z -= d.z;
@@ -1375,12 +1155,12 @@ int RingApproach::FillWorldPos(Vec3_0044d720* out)
 }
 
 // FUNCTION: 0x44d7c0
-bool RingApproach::ContainsCell(int px, int py)
+int RingApproach::ContainsCell(int px, int py)
 {
     int dy = py - y;
     int dx = px - x;
-    int distSq = dx * dx + dy * dy;
-    return distSq <= radius1Sq && distSq >= radius2Sq;
+    int distSq = dy * dy + dx * dx;
+    return distSq <= outerSq && distSq >= innerSq;
 }
 
 // Same test as 0x44d7c0, on a unit's position: 1 when the squared distance
@@ -1391,7 +1171,7 @@ int RingApproach::ContainsUnit(Unit* unit)
     int dy = unit->cell.y - y;
     int dx = unit->cell.x - x;
     int distSq = dx * dx + dy * dy;
-    return distSq <= radius1Sq && distSq >= radius2Sq;
+    return distSq <= outerSq && distSq >= innerSq;
 }
 
 // Approximate distance from (px, py) to the ring around (x, y) with the
@@ -1417,15 +1197,15 @@ int RingApproach::ApproxDistExcess(int px, int py)
 // Second constructor of the OrderFx subclass with vtable 0x4fd388
 // (compare 0x44d930): the rectangle comes from a position, made relative to
 // the owner's view origin, and a size.
-// FUNCTION: 0x44d8a0 ??0PointMarker@@QAE@PAUOwner_0044d8a0@@UPoint_0044d8a0@@1@Z
-PointMarker::PointMarker(Owner_0044d8a0* owner, Point_0044d8a0 pos, Point_0044d8a0 size)
+// FUNCTION: 0x44d8a0 ??0PointMarker@@QAE@PAUOrder@@UPoint16@@1@Z
+PointMarker::PointMarker(Order* owner, Point16 pos, Point16 size)
     : OrderFx((int)owner)
 {
-    vtable = g_pointMarkerVtable;
-    a = pos.x - owner->view->x;
-    c = pos.y - owner->view->y;
-    b = size.x + pos.x;
-    d = size.y + pos.y;
+    SetVtable(g_pointMarkerVtable);
+    x1 = pos.x - ((Owner_0044d8a0*)owner)->view->x;
+    y1 = pos.y - ((Owner_0044d8a0*)owner)->view->y;
+    x2 = size.x + pos.x;
+    y2 = size.y + pos.y;
 }
 
 // FUNCTION: 0x44d900
@@ -1438,7 +1218,7 @@ int PointMarker::GetType()
 void* PointMarker::Destroy(unsigned char should_delete)
 {
     PointMarker* esi = this;
-    esi->vtable = g_orderFxVtable;
+    esi->SetVtable(g_orderFxVtable);
     if (should_delete & 1) {
         operator delete(esi);
     }
@@ -1451,7 +1231,7 @@ void* PointMarker::Destroy(unsigned char should_delete)
 PointMarker::PointMarker(int owner, HapiBank* file, char* name)
     : OrderFx(owner)
 {
-    vtable = g_pointMarkerVtable;
+    SetVtable(g_pointMarkerVtable);
     file->OpenNamedBox(name);
     file->SeekBox(0);
     Header_0044d930 hdr;
@@ -1588,7 +1368,7 @@ void PathOrder::SerializeToBits(BitWriter* stream)
 PathOrder::PathOrder(int owner, HapiBank* file, char* name)
     : OrderFx(owner), ref(0, 0)
 {
-    vtable = g_pathOrderVtable;
+    SetVtable(g_pathOrderVtable);
     Rec_0044de80 rec;
     ((PathOrderAttach*)&rec.ref_vt)->PathOrderAttach::PathOrderAttach(0, 0);
     file->OpenNamedBox(name);
@@ -1621,7 +1401,7 @@ int PathOrder::GetType()
 void* PathOrder::Destroy(unsigned char flag)
 {
     g_seams.units->UnitRefUnlink(((UnitRef*)((char*)this + 0x16)));
-    vtable = g_orderFxVtable;
+    SetVtable(g_orderFxVtable);
     if (flag & 1) {
         operator delete(this);
     }
@@ -1691,7 +1471,7 @@ int PathOrder::SerializeToSave(int unused, HapiBank* file, char* name)
 PathOrder::PathOrder(Owner_0044e080* owner_, BitReader* reader)
     : OrderFx(0), owner(owner_), ref(0, 0)
 {
-    vtable = g_pathOrderVtable;
+    SetVtable(g_pathOrderVtable);
     flags = reader->ReadBits(8);
     if (flags & 1) {
         piece = reader->ReadBits(0x10);
@@ -1724,7 +1504,7 @@ PathOrder::PathOrder(Owner_0044e080* owner_, BitReader* reader)
 PathOrder::PathOrder(Order* order, Unit* unit)
     : OrderFx((int)order), ref(0, 0)
 {
-    vtable = g_pathOrderVtable;
+    SetVtable(g_pathOrderVtable);
     ref.SetUnit((Unit*)unit);
     approachRadius = 0;
     altitude = 0;
@@ -1749,7 +1529,7 @@ PathOrder::PathOrder(Order* order, Unit* unit)
 PathOrder::PathOrder(Source_0044e250* source, int unit, short value)
     : OrderFx((int)source), piece(value), ref(0, 0)
 {
-    vtable = g_pathOrderVtable;
+    SetVtable(g_pathOrderVtable);
     approachRadius = 0;
     altitude = 0;
     field_8 = 5;
@@ -1764,7 +1544,7 @@ PathOrder::PathOrder(Source_0044e250* source, int unit, short value)
 PathOrder::PathOrder(Source_0044e2d0* source, const Vec3_0044e2d0& p)
     : OrderFx((int)source), ref(0, 0), pos(*(const Vec3*)&p)
 {
-    vtable = g_pathOrderVtable;
+    SetVtable(g_pathOrderVtable);
     approachRadius = 0;
     altitude = 0;
     piece = -1;
@@ -1776,7 +1556,7 @@ PathOrder::PathOrder(Source_0044e2d0* source, const Vec3_0044e2d0& p)
 PathOrder::PathOrder(Source_0044e330* source, int unit, const Vec3_0044e330& p)
     : OrderFx((int)source), ref(0, 0)
 {
-    vtable = g_pathOrderVtable;
+    SetVtable(g_pathOrderVtable);
     ref.SetUnit((Unit*)unit);
     pos = *(const Vec3*)&p;
     approachRadius = 0;
@@ -1933,11 +1713,11 @@ void PathOrder::SetApproachRadius(short v)
 }
 
 // The constructor.
-// FUNCTION: 0x44e740 ??0AirManeuverOrder@@QAE@PAUSource_0044e740@@ABUVec3_0044e740@@1@Z
-AirManeuverOrder::AirManeuverOrder(Source_0044e740* source, const Vec3_0044e740& a, const Vec3_0044e740& b)
+// FUNCTION: 0x44e740 ??0AirManeuverOrder@@QAE@PAUOrder@@ABUVec3@@1@Z
+AirManeuverOrder::AirManeuverOrder(Order* source, const Vec3& a, const Vec3& b)
     : OrderFx((int)source)
 {
-    vtable = g_airManeuverOrderVtable;
+    SetVtable(g_airManeuverOrderVtable);
     self = source->unit;
     flags = 0;
     saveOnly22 = 0;
@@ -1954,7 +1734,7 @@ int AirManeuverOrder::GetType()
 // FUNCTION: 0x44e7b0
 void* AirManeuverOrder::Destroy(int param_1)
 {
-    vtable = &g_orderFxVtable;
+    SetVtable(g_orderFxVtable);
     if ((param_1 & 1) != 0) {
         operator delete(this);
     }
@@ -1967,12 +1747,12 @@ void* AirManeuverOrder::Destroy(int param_1)
 AirManeuverOrder::AirManeuverOrder(int owner, HapiBank* file, char* name)
 {
     source = owner;
-    vtable = g_airManeuverOrderVtable;
+    SetVtable(g_airManeuverOrderVtable);
     file->OpenNamedBox(name);
     file->SeekBox(0);
     Header_0044e740 hdr;
     if (file->ReadBox(&hdr, 0x2a) == 0x2a) {
-        self = (Object_0044e740*)g_seams.units->LoadUnit(hdr.id, file);
+        self = g_seams.units->LoadUnit(hdr.id, file);
         flags = hdr.flag;
         target = hdr.target;
         other = hdr.other;
@@ -1989,7 +1769,7 @@ AirManeuverOrder::AirManeuverOrder(int owner, HapiBank* file, char* name)
 // the id as a dword but only its low word (0x487080 masks with 0xffff), so
 // writing it as a word is harmless.
 // FUNCTION: 0x44e880
-int AirManeuverOrder::SerializeToSave(int unused, HapiBank* file, char* name)
+int AirManeuverOrder::SerializeToSave(Order* order, HapiBank* file, char* name)
 {
     Header_0044e740 hdr;
     // if/else, not a ternary: puts the store of 0 on the fallthrough path.
@@ -2031,8 +1811,8 @@ void AirManeuverOrder::SerializeToBits(BitWriter* stream)
 AirManeuverOrder::AirManeuverOrder(Owner_0044e9c0* owner, BitReader* reader)
 {
     source = 0;
-    self = (Object_0044e740*)owner;
-    vtable = g_airManeuverOrderVtable;
+    self = (Unit*)owner;
+    SetVtable(g_airManeuverOrderVtable);
     flags = reader->ReadBits(1);
     target.x = reader->ReadBits(0x20);
     target.y = reader->ReadBits(0x20);
@@ -2058,20 +1838,22 @@ int AirManeuverOrder::KeepAfterComplete()
 // The rotation helper takes a pair of ints, so the (x, z) step is built in the
 // local's x and y fields and read back from y into other.z.
 // FUNCTION: 0x44ea60
-int AirManeuverOrder::FillWorldPos(Vec3_0044e740* out)
+int AirManeuverOrder::FillWorldPos(Vec3* out)
 {
     *out = target;
     target.x += other.x;
     target.z += other.z;
-    Vec3_0044e740 v;
-    v = Vec3_0044e740(0, 0, 0);
+    Vec3 v;
+    v.x = 0;
+    v.y = 0;
+    v.z = 0;
     unsigned short h = GetHeadingBetween(&v, &other);
     if ((flags & 1) && h != heading) {
         short diff = heading - h;
         v.x = other.x;
         v.y = other.z;
         short step = diff;
-        unsigned short max = ((UnitType_0044ea60*)((Object_0044ea60*)self)->type)->max_turn;
+        unsigned short max = self->def->turnrate;
         if (step >= (max >> 3))
             step = max >> 3;
         else if (step <= -(max >> 3))
@@ -2098,13 +1880,15 @@ int AirManeuverOrder::GetDesiredHeading(unsigned short* out)
 // bit 0 is set, when the heading from the origin to the second point equals
 // the stored heading.
 // FUNCTION: 0x44eb60
-int AirManeuverOrder::IsComplete(Object_0044e740* unit)
+int AirManeuverOrder::IsComplete(Unit* unit)
 {
     if ((float)_hypot(unit->pos.x - target.x, unit->pos.z - target.z) / 65536.0f < 48.0f)
         return 1;
     if (flags & 1) {
-        Vec3_0044e740 origin;
-        origin = Vec3_0044e740(0, 0, 0);
+        Vec3 origin;
+        origin.x = 0;
+        origin.y = 0;
+        origin.z = 0;
         if (GetHeadingBetween(&origin, &other) == heading)
             return 1;
     }

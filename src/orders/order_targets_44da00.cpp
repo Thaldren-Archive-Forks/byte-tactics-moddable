@@ -135,16 +135,7 @@ Point_0044eec0* __stdcall copy(Point_0044eec0* first, Point_0044eec0* last, Poin
 
 typedef std::vector<Point_0044eec0> Vec_0044da00;
 
-class PointMarker {
-public:
-    char unknown_0[8];
-    int x1;                 // +0x8
-    int x2;                 // +0xc
-    int y1;                 // +0x10
-    int y2;                 // +0x14
-
-    void AppendGoalCell(Vec_0044da00* list);
-};
+#include "approach_areas.h"
 
 static Point_0044eec0 MakePoint_0044da00(int x, int y)
 {
@@ -155,8 +146,9 @@ static Point_0044eec0 MakePoint_0044da00(int x, int y)
 }
 
 // FUNCTION: 0x44da00
-void PointMarker::AppendGoalCell(Vec_0044da00* list)
+void PointMarker::AppendGoalCell(void* cells)
 {
+    Vec_0044da00* list = (Vec_0044da00*)cells;
     list->clear();
     for (int i = x1; i <= x2; i++) {
         list->push_back(MakePoint_0044da00(i, y1));
