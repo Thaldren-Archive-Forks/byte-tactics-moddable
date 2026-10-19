@@ -251,7 +251,7 @@ guard:
     int& sz = p->exploredSize;
     sz = (h * w + 7) & ~7;
     p->explored = sz ? (unsigned char*)SimAlloc(sz) : 0;
-    // Both references are load-bearing (`sz` also for the first block). With `memset(p->explored, 0, p->exploredSize)`
+    // Both references are load-bearing (`sz` also for the first block). With `memset(p->buffer, 0, p->exploredSize)`
     // MSVC propagates the phi and the size into the inlined memset, which puts
     // the phi in edi and stores it from edi; the original reloads [esi+0x7c]
     // into edi and keeps the phi in eax. Reading the fields through references

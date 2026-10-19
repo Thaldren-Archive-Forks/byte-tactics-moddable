@@ -1,7 +1,3 @@
-// Player: one slot of the player table (Thaldren's PlayerState, 0x14b bytes),
-// ten of them at g_game+0x1b63. The one declaration of the struct for the files
-// that read or write a slot. The types behind the pointers stay private to
-// their own files.
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -35,66 +31,66 @@ struct Player {
     unsigned char type;                // +0x73
     SquadManager* ai;                  // +0x74
     Group* groups;                     // +0x78
-    unsigned char* explored;
-    int exploredWidth;
-    int exploredHeight;
-    int exploredSize;
-    union {                            // +0x8c
+    unsigned char* explored;           // +0x7c
+    int exploredWidth;                 // +0x80
+    int exploredHeight;                // +0x84
+    int exploredSize;                  // +0x88
+    union {
         float energy;
         int energyBits;
     };
     float energyIncome;                // +0x90
     float energyUsage;                 // +0x94
-    union {                            // +0x98
+    union {
         float metal;
         int metalBits;
     };
     float metalIncome;                 // +0x9c
     float metalUsage;                  // +0xa0
-    union {                            // +0xa4
+    union {
         float energyCapacity;
         int energyCapacityBits;
     };
-    union {                            // +0xa8
+    union {
         float metalCapacity;
         int metalCapacityBits;
     };
-    union {                            // +0xac
+    union {
         double totalEnergyProduced;
         struct {
             int totalEnergyProducedLo;
             int totalEnergyProducedHi;
         };
     };
-    union {                            // +0xb4
+    union {
         double totalMetalProduced;
         struct {
             int totalMetalProducedLo;
             int totalMetalProducedHi;
         };
     };
-    union {                            // +0xbc
+    union {
         double totalEnergyConsumed;
         struct {
             int totalEnergyConsumedLo;
             int totalEnergyConsumedHi;
         };
     };
-    union {                            // +0xc4
+    union {
         double totalMetalConsumed;
         struct {
             int totalMetalConsumedLo;
             int totalMetalConsumedHi;
         };
     };
-    union {                            // +0xcc
+    union {
         double energyWasted;
         struct {
             int energyWastedLo;
             int energyWastedHi;
         };
     };
-    union {                            // +0xd4
+    union {
         double metalWasted;
         struct {
             int metalWastedLo;
@@ -119,13 +115,13 @@ struct Player {
     unsigned char alliedBy[11];        // +0x113
     unsigned char shareLos[11];        // +0x11e
     unsigned char shareVision[11];     // +0x129
-    unsigned char shareMapping[11];    // +0x134
+    unsigned char shareMapping[11];// +0x134
     unsigned char alliance;            // +0x13f
     int unitsCreated;                  // +0x140
     unsigned short unitCount;          // +0x144
     unsigned char index;               // +0x146
     unsigned char startPos;            // +0x147
-    union {                            // +0x148
+    union {
         struct {
             unsigned char rank;
             union {
