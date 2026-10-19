@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../state/game_rand.h"
 
 // DirectPlay 3 DPNAME (the toolchain's DirectX 3 <dplay.h> lacks it).
 struct DPNAME {
@@ -3264,8 +3265,9 @@ int AssignStartPositions() {
                     n++;
                 }
             }
-            if (n > 2 || (int)((__int64)rand() * 2 / 0x8000) != 0)
-                std::random_shuffle(cand, cand + n);
+            GameShuffleDraw draw(RAND_STREAM_MAIN);
+            if (n > 2 || (int)((__int64)GameRand(RAND_STREAM_MAIN) * 2 / 0x8000) != 0)
+                std::random_shuffle(cand, cand + n, draw);
             int j = 0;
             for (int k2 = 0; k2 < 10; k2++) {
                 Player* q2 = &g_game->players[k2];

@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+#include "../state/game_rand.h"
 
 #include "../util/tdf.h"
 #include "../util/hapi_bank.h"
@@ -1086,7 +1087,7 @@ static inline void BurnOut(Spot* spot)
 
 static inline int Rand(unsigned short n)
 {
-    return (int)((__int64)rand() * n / 0x8000);
+    return (int)((__int64)GameRand(RAND_STREAM_MAIN) * n / 0x8000);
 }
 
 static inline SmokePos SmokeAt(Spot* spot, Feature* f)

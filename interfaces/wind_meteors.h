@@ -1,6 +1,8 @@
 #ifndef INTERFACES_WIND_METEORS_H
 #define INTERFACES_WIND_METEORS_H
 
+#include "rand_stream.h"
+
 class HapiBank;
 class MeteorParams;
 class CommandArgs;
@@ -8,7 +10,7 @@ class CommandArgs;
 // Major version of the wind_meteors interface, changed when a slot is removed or its signature changes.
 #define WIND_METEORS_VERSION_MAJOR 1
 // Minor version of the wind_meteors interface, changed when a slot is added.
-#define WIND_METEORS_VERSION_MINOR 1
+#define WIND_METEORS_VERSION_MINOR 2
 
 // Wind and meteor phases of a game tick.
 struct WindMeteorsSeam {
@@ -34,6 +36,8 @@ struct WindMeteorsSeam {
     void (__stdcall* LoadMeteors)(HapiBank* file);
     // Console command Meteor: switches the showers on or off, or starts one. Hooks: none.
     void (__stdcall* CmdMeteor)(CommandArgs* args);
+    // Advances the wind for one tick like UpdateWind, but draws from the given stream; UpdateWind draws from the main stream.
+    void (__cdecl* UpdateWindOnStream)(RandStream stream);
 };
 
 #endif
