@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <float.h>
 #include <time.h>
+#include "../../interfaces/host.h"
 
 #include "../../include/ta_types.h"
 #include "../map/mission.h"
@@ -61,10 +62,8 @@ static unsigned s_dumpTick = 0;
 
 static void Fail(const char* text)
 {
-    DWORD written;
-    OutputDebugStringA(text);
-    WriteFile(GetStdHandle(STD_ERROR_HANDLE), text, (DWORD)strlen(text), &written, NULL);
-    ExitProcess(2);
+    host_log(text);
+    host_exit(2);
 }
 
 static void FailLine(int lineNo, const char* what, const char* key, const char* detail)

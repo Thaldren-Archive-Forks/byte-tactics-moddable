@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <ddraw.h>
+#include "../../interfaces/host.h"
 
 // The open Smacker movie (smackw32.dll's SMK struct).
 struct Smk_0047c3a0 {
@@ -306,7 +307,7 @@ int MoviePlayer::GetBlitMode(SmackerSurface* unused)
         return 0xa0000000;
     if (format.dwRBitMask == 0xfc00 && format.dwGBitMask == 0x3e0 && format.dwBBitMask == 0x1f)
         return 0xe0000000;
-    MessageBoxA(0, "Unsupported pixel format.", "Smacker Error", 0);
+    host_message(NULL, "Smacker Error", "Unsupported pixel format.", HOST_MESSAGE_PLAIN);
     return 0;
 }
 

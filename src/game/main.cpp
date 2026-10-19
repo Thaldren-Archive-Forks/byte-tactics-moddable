@@ -8,6 +8,7 @@
 #include <time.h>
 #include <new>
 #include "../state/game_rand.h"
+#include "../../interfaces/host.h"
 
 // Appends a string (with its terminating zero) to DEBUG.FIL, creating the
 // file if it cannot be opened for appending.
@@ -65,7 +66,8 @@ void OutOfMemoryHandler()
         CloseHandle(file);
     }
     ReportViaException("Out of memory handler");
-    MessageBoxA(NULL, "Out of memory!\r\nYour hard disk may be full\r\n", "Total Annihilation", 0x41010);
+    host_message(NULL, "Total Annihilation", "Out of memory!\r\nYour hard disk may be full\r\n",
+                 HOST_MESSAGE_ERROR | HOST_MESSAGE_SYSTEM_MODAL | HOST_MESSAGE_TOPMOST);
     NopAbortHook();
     raise(SIGABRT);
     _exit(3);
@@ -212,9 +214,7 @@ unsigned HarnessCrtSeed(unsigned live);
 int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                            LPSTR lpCmdLine, int nCmdShow)
 {
-    HKEY hKey;
     DWORD size14;
-    DWORD type;
     DWORD size1c;
     DWORD size20;
     MSG msg;
@@ -278,11 +278,11 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     InitGame();
 
     size20 = 0x32;
-    hKey = NULL;
     size14 = 0x32;
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_audioCdShellKey, 0, 0xf003f, &hKey) == 0) {
-        if (RegQueryValueExA(hKey, NULL, NULL, &type, (LPBYTE)buf40, &size20) == 0) {
-            RegSetValueExA(hKey, NULL, 0, type, (const BYTE*)DAT_005119b8, 1);
+    int shellRead = host_setting_get(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, buf40, (unsigned int*)&size20);
+    if (shellRead != HOST_SETTING_NO_ACCESS) {
+        if (shellRead == 1) {
+            host_setting_set(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, DAT_005119b8, 1);
         } else {
             strcpy(buf40, DAT_005119b8);
         }
@@ -292,8 +292,6 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             strcpy(buf40, buf74);
         else
             WriteGameRegistryValue(g_cdShellValueName, buf40, 0x32);
-        RegFlushKey(hKey);
-        RegCloseKey(hKey);
     }
 
     for (;;) {
@@ -319,7 +317,7 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 break;
             MainFrameTick();
             {
-                DWORD tick = GetTickCount();
+                DWORD tick = host_time_ms();
                 if ((int)(tick - g_lastSoundReapTick) >= 100) {
                     ((Sound*)g_game->field_10)->ReapFinishedBuffers();
                     g_lastSoundReapTick = tick;
@@ -336,11 +334,8 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         ShutdownMouse();
         ShutdownGame();
     }
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_audioCdShellKey, 0, 0xf003f, &hKey) == 0) {
-        RegSetValueExA(hKey, NULL, 0, type, (const BYTE*)buf40,
-                       (DWORD)strlen(buf40) + 1);
-        RegFlushKey(hKey);
-        RegCloseKey(hKey);
+    if (host_setting_set(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, buf40, 0)
+        != HOST_SETTING_NO_ACCESS) {
         strcpy(buf40, DAT_005119b8);
         WriteGameRegistryValue(g_cdShellValueName, buf40, 0x32);
     }

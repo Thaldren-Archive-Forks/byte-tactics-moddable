@@ -6,6 +6,7 @@
 #include <ddraw.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../../interfaces/host.h"
 
 #include "rect.h"
 
@@ -40,7 +41,7 @@ struct FrameCounter_4b66a0 {
 
     void Tick()
     {
-        unsigned int now = GetTickCount();
+        unsigned int now = host_time_ms();
         accum += now - lastTick;
         lastTick = now;
         frames++;
@@ -319,11 +320,7 @@ int __stdcall CheckDirectXVersion(int want0, int want1, int want2, int want3, in
     }
     if (!status) {
         OSVERSIONINFOA osvi;
-        DWORD type;
-        DWORD size;
-        LONG err;
         char version[30];
-        HKEY hKey;
 
         memset(&v, 0, sizeof(v));
         isNT = 0;
@@ -331,21 +328,20 @@ int __stdcall CheckDirectXVersion(int want0, int want1, int want2, int want3, in
         if (GetVersionExA(&osvi)) {
             isNT = osvi.dwPlatformId == 2;
         }
-        hKey = 0;
-        err = RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\DirectX", 0, KEY_READ, &hKey);
-        if (err == 0) {
-            // Separate from status: it takes status's dead frame slot.
+        {
             DWORD installed = 0;
+            int found;
 
             if (isNT) {
-                size = 4;
-                err = RegQueryValueExA(hKey, "InstalledVersion", 0, &type, (LPBYTE)&installed, &size);
+                unsigned int intSize = 4;
+                found = host_setting_get(HOST_SCOPE_SYSTEM_READ, "Software\\Microsoft\\DirectX", "InstalledVersion",
+                                         HOST_SETTING_INT, &installed, &intSize);
             } else {
-                DWORD len = sizeof(version);
-                err = RegQueryValueExA(hKey, "Version", 0, &type, (LPBYTE)version, &len);
+                unsigned int len = sizeof(version);
+                found = host_setting_get(HOST_SCOPE_SYSTEM_READ, "Software\\Microsoft\\DirectX", "Version",
+                                         HOST_SETTING_STRING, version, &len);
             }
-            RegCloseKey(hKey);
-            if (err) {
+            if (found != 1) {
                 goto fail;
             }
             if (isNT) {
@@ -356,8 +352,6 @@ int __stdcall CheckDirectXVersion(int want0, int want1, int want2, int want3, in
                 v.minhi = atoi(strtok(0, "."));
                 v.minlo = atoi(strtok(0, "."));
             }
-        } else {
-            goto fail;
         }
     }
     if (isNT) {
@@ -493,7 +487,7 @@ int __stdcall SetFullScreen(int mode) {
     HRESULT hr;
 
     while (1) {
-        int result = InterlockedExchange(&g_gfxBlitLockHeld, 0x4d41494e);
+        int result = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
         if (result == 0) {
             g_gfxBlitLockOwner = 0x4d41494e;
             lockResult = 0;
@@ -503,7 +497,7 @@ int __stdcall SetFullScreen(int mode) {
             lockResult = result;
             break;
         }
-        WaitForSingleObject(g_gfxBlitLockEvent, INFINITE);
+        host_event_wait(g_gfxBlitLockEvent, HOST_WAIT_FOREVER);
     }
     d = g_display;
     DirectDrawState *dd = &d->draw;
@@ -604,16 +598,16 @@ int __stdcall SetFullScreen(int mode) {
     SetPaletteColors(g_display->entries, 0, 0x100);
     if (lockResult == 0) {
         g_gfxBlitLockOwner = 0;
-        InterlockedExchange(&g_gfxBlitLockHeld, 0);
-        SetEvent(g_gfxBlitLockEvent);
+        host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0);
+        host_event_set(g_gfxBlitLockEvent);
     }
     return 1;
 
 fail:
     if (lockResult == 0) {
         g_gfxBlitLockOwner = 0;
-        InterlockedExchange(&g_gfxBlitLockHeld, 0);
-        SetEvent(g_gfxBlitLockEvent);
+        host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0);
+        host_event_set(g_gfxBlitLockEvent);
     }
     return 0;
 }
@@ -651,7 +645,7 @@ int __stdcall InitEnvironment(App_4b5980* d)
     SystemParametersInfoA(0x5e, 0, (LPRECT)&g_display->wa_left, TRUE);
     SystemParametersInfoA(0x5d, 0, 0, TRUE);
     d->counter.accum = 0;
-    d->counter.lastTick = GetTickCount();
+    d->counter.lastTick = host_time_ms();
     d->counter.frames = 0;
     d->counter.rate = 0;
     d->draw.ddraw = 0;
@@ -751,7 +745,7 @@ int __stdcall InitEnvironment(App_4b5980* d)
         d->dc = 0;
         d->hpalette = 0;
         d->dib = 0;
-        MessageBoxA(d->hwnd, "Error:  Environment Initialization Failed!\nCheck your DirectX setup", d->title, 0);
+        host_message(d->hwnd, d->title, "Error:  Environment Initialization Failed!\nCheck your DirectX setup", HOST_MESSAGE_PLAIN);
         DestroyWindow(d->hwnd);
         return 0;
     }
@@ -803,7 +797,7 @@ long __stdcall WindowProc(HWND hwnd, unsigned int msg, unsigned int wparam,
         e.x = lparam & 0xffff;
         e.y = (lparam >> 16) & 0xffff;
         e.buttons = wparam;
-        e.time = GetTickCount() * g_display->tickScale / 1000;
+        e.time = host_time_ms() * g_display->tickScale / 1000;
         e.flag = 0;
         e.message = msg;
         SetCurrentMouseEvent((int*)&e);
@@ -815,7 +809,7 @@ long __stdcall WindowProc(HWND hwnd, unsigned int msg, unsigned int wparam,
         e.x = lparam & 0xffff;
         e.y = (lparam >> 16) & 0xffff;
         e.buttons = wparam;
-        e.time = GetTickCount() * g_display->tickScale / 1000;
+        e.time = host_time_ms() * g_display->tickScale / 1000;
         e.flag = 0;
         break;
     case WM_LBUTTONDBLCLK:
@@ -823,7 +817,7 @@ long __stdcall WindowProc(HWND hwnd, unsigned int msg, unsigned int wparam,
         e.x = lparam & 0xffff;
         e.y = (lparam >> 16) & 0xffff;
         e.buttons = wparam;
-        e.time = GetTickCount() * g_display->tickScale / 1000;
+        e.time = host_time_ms() * g_display->tickScale / 1000;
         e.flag = 1;
         break;
     case 0x219:
@@ -925,7 +919,7 @@ void __stdcall QuitApp(char* message)
         SetFullScreen(0);
     }
     if (message) {
-        MessageBoxA(g_display->hwnd, message, g_display->title, 0);
+        host_message(g_display->hwnd, g_display->title, message, HOST_MESSAGE_PLAIN);
     }
     PostMessageA(g_display->hwnd, WM_DESTROY, 0, 0);
 }
@@ -934,10 +928,7 @@ void __stdcall QuitApp(char* message)
 // FUNCTION: 0x4b6290
 void __stdcall FatalError(char* message)
 {
-    if (message) {
-        MessageBoxA(g_display->hwnd, message, g_display->title, MB_ICONHAND | MB_SYSTEMMODAL);
-    }
-    exit(1);
+    host_fatal(g_display->hwnd, g_display->title, message);
 }
 
 // FUNCTION: 0x4b62c0
@@ -954,7 +945,7 @@ void __stdcall InitTimers(int tickRate)
     for (int i = 0; i < 10; i++) {
         g_timerSlots[i].interval = -1;
     }
-    g_lastTimerTick = (GetTickCount() * g_display->tickScale) / 1000;
+    g_lastTimerTick = (host_time_ms() * g_display->tickScale) / 1000;
 }
 
 // FUNCTION: 0x4b6330
@@ -968,15 +959,15 @@ int GetTickRate()
 // FUNCTION: 0x4b6340
 unsigned int GetTicks()
 {
-    return GetTickCount() * g_display->tickScale / 1000;
+    return host_time_ms() * g_display->tickScale / 1000;
 }
 
 // FUNCTION: 0x4b6370
 void UpdateTimers()
 {
-    unsigned int q1 = (GetTickCount() * g_display->tickScale) / 1000;
+    unsigned int q1 = (host_time_ms() * g_display->tickScale) / 1000;
     int diff = (int)q1 - g_lastTimerTick;
-    g_lastTimerTick = (GetTickCount() * g_display->tickScale) / 1000;
+    g_lastTimerTick = (host_time_ms() * g_display->tickScale) / 1000;
 
     int* p = &g_timerSlot0Interval;
     do {
@@ -995,9 +986,9 @@ void UpdateTimers()
 // FUNCTION: 0x4b63f0
 int __stdcall AddTimer(int interval, int id, TimerCb_4b63f0 callback)
 {
-    unsigned int now = (GetTickCount() * g_display->tickScale) / 1000;
+    unsigned int now = (host_time_ms() * g_display->tickScale) / 1000;
     int diff = (int)now - g_lastTimerTick;
-    g_lastTimerTick = (GetTickCount() * g_display->tickScale) / 1000;
+    g_lastTimerTick = (host_time_ms() * g_display->tickScale) / 1000;
 
     int* p = &g_timerSlot0Interval;
     do {
@@ -1050,13 +1041,13 @@ void ResetTimers()
     for (int i = 0; i < 10; i++) {
         g_timerSlots[i].interval = -1;
     }
-    g_lastTimerTick = GetTickCount() * g_display->tickScale / 1000;
+    g_lastTimerTick = host_time_ms() * g_display->tickScale / 1000;
 }
 
 // FUNCTION: 0x4b6560
 unsigned long GetMilliseconds(void)
 {
-    return GetTickCount();
+    return host_time_ms();
 }
 
 // Frame rate counter: adds the time since the last call to the counter, and once
@@ -1067,7 +1058,7 @@ unsigned long GetMilliseconds(void)
 int __stdcall DrawFrameRate()
 {
     FrameCounter_4b66a0* c = &g_display->counter;
-    unsigned int now = GetTickCount();
+    unsigned int now = host_time_ms();
     c->accum += now - c->lastTick;
     c->lastTick = now;
     c->frames++;
