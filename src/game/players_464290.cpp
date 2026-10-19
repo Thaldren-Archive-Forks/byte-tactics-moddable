@@ -759,12 +759,12 @@ static const double kNegSeven = -0.7;
 static const double kNegHalf = -0.5;
 static const float kHundred = 100.0f;
 
-// FUNCTION: 0x464f80
 void __stdcall UpdatePlayers()
 {
     g_seams.players->UpdatePlayersOnStream(RAND_STREAM_MAIN);
 }
 
+// FUNCTION: 0x464f80
 void __stdcall UpdatePlayersOnStream(RandStream stream)
 {
     g_seams.pathfinding->RunSearches(g_game->pathfinder);

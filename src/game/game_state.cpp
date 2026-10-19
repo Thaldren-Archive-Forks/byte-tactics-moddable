@@ -121,12 +121,12 @@ int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
 int __stdcall RandomInt(int range);
 
-// FUNCTION: 0x490c40
 void __cdecl UpdateWind()
 {
     g_seams.wind_meteors->UpdateWindOnStream(RAND_STREAM_MAIN);
 }
 
+// FUNCTION: 0x490c40
 void __cdecl UpdateWindOnStream(RandStream stream)
 {
     if (g_game->windCounter < ((unsigned int)g_game->ticks)) {
