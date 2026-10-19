@@ -5,10 +5,7 @@ struct MapSize_00408090 {
     unsigned int width;
     unsigned int height;
 
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
+    int Contains(unsigned int tx, unsigned int ty) { return tx < width && ty < height; }
 };
 
 struct ByteMap_00408090 {
