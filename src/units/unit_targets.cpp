@@ -190,7 +190,7 @@ void UnitRef::UnlinkFromUnit()
 
 #include "../orders/path_order_attach.h"
 
-PathOrderAttach::~PathOrderAttach()
+inline PathOrderAttach::~PathOrderAttach()
 {
     if (owner != 0) {
         PathOrderAttach** pp = &owner->head;
