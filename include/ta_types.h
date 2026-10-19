@@ -32,7 +32,7 @@ struct Amount;
 struct Angles_0049be60;
 struct AnimEntry_00421f20;
 struct AnimEntry_00429700;
-struct AnimManager_00421f20;
+struct FeatureAnimPool;
 struct AnimPair_00423550;
 struct AnimSeq_00445110;
 struct AnimSrc_004233a0;
@@ -4491,7 +4491,7 @@ struct FeatureDef_00421eb0 {  // 0x98 bytes, 1 view
     Cell_00421eb0 footprint;  // +0x94
 };
 
-#include "../src/map/anim_manager_00421f20.h"
+#include "../src/map/feature_anim_pool.h"
 
 struct List_00421f20 {  // 0x24 bytes, 1 view
     char unknown_0[28];

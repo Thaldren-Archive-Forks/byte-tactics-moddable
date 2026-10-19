@@ -33,7 +33,7 @@
 #include "../ingame/snapshot_0046a860.h"
 #include "../ingame/sub_004679a0_a.h"
 #include "../ingame/sub_004679a0_b.h"
-#include "../map/anim_manager_00421f20.h"
+#include "../map/feature_anim_pool.h"
 #include "../map/grid2.h"
 #include "../map/map_info.h"
 #include "../map/player_grid.h"
@@ -514,7 +514,7 @@ struct Game {
             char unknown_2cae_a[24];
             Flags_004197d0 inputFlags_2cc6;
             char unknown_2cc7_a[70964];
-            AnimManager_00421f20 anim;
+            FeatureAnimPool anim;
             char unknown_14273[14];
             struct {
                 unsigned short bit0 : 1;

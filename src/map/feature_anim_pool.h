@@ -1,5 +1,5 @@
-#ifndef ANIM_MANAGER_00421F20_H
-#define ANIM_MANAGER_00421F20_H
+#ifndef FEATURE_ANIM_POOL_H
+#define FEATURE_ANIM_POOL_H
 
 #pragma pack(push, 1)
 struct AnimEntry_00421f20 {
@@ -18,7 +18,7 @@ struct FeatureUnit_00421f20 {
     int flags_114;                     // +0x114
 };
 
-struct AnimManager_00421f20 {
+struct FeatureAnimPool {
     char unknown_0[16];
     AnimEntry_00421f20* anim;
     FeatureUnit_00421f20* featureUnit;
@@ -33,7 +33,7 @@ struct AnimManager_00421f20 {
 #pragma pack(pop)
 
 #if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
-static_assert(sizeof(AnimManager_00421f20) == 120, "AnimManager_00421f20");
+static_assert(sizeof(FeatureAnimPool) == 120, "FeatureAnimPool");
 #endif
 
 #endif

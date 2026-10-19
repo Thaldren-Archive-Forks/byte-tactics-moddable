@@ -27,7 +27,7 @@ unsigned short __stdcall LoadFeatureType(char* name);
 // FUNCTION: 0x421f20
 void __stdcall InitFeatureAnimPool(List_00421f20* list)
 {
-    AnimManager_00421f20* m = &g_game->anim;
+    FeatureAnimPool* m = &g_game->anim;
 
     m->anim = (AnimEntry_00421f20*)SimAllocTagged("FEATURE ANIM DATA", 0x18000);
     memset(m->anim, 0, 0x18000);
