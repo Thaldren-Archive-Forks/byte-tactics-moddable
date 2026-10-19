@@ -87,7 +87,7 @@ class Mission;
 class MissionConditions;
 struct Net_4517b0;
 struct Projectile;
-class PathMap;
+class Pathfinder;
 struct PlayerInfo;
 struct SideData;
 struct Src_004ab400;
@@ -383,7 +383,7 @@ struct Game {
             void* field_141fb;
             void* field_141ff;
             void* field_14203;
-            PathMap* pathfinder;
+            Pathfinder* pathfinder;
             FeatureSpot* spots;
             Unit* unit;
             char unknown_14213[8];
