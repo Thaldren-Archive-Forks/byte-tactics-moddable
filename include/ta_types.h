@@ -22,7 +22,6 @@
 #include "../src/network/packet_ring.h"
 #include "../src/network/packet_receiver.h"
 #include "../src/network/packet_manager.h"
-#include "../src/network/sub_00460f60.h"
 
 #pragma pack(push, 1)
 
@@ -1977,7 +1976,6 @@ struct Sub34_004aeac0;
 struct Sub5_004aeac0;
 struct Sub6_004aeac0;
 struct Sub_00409520;
-struct Sub_00460f60;
 struct Sub_004679a0_a;
 struct Sub_004679a0_b;
 class Sub_0046d040;

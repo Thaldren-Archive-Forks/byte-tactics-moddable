@@ -119,9 +119,9 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
                     if (item->flags2.bits.flag) {
                     } else {
                         if (g_unitRestrictEntries[i].max == 0)
-                            ((UnitSync *)g_game->field_2a30)->DisallowUnit((Unit_0046e330*)item);
+                            ((UnitSync *)g_game->sync)->DisallowUnit((Unit_0046e330*)item);
                         else
-                            ((UnitSync *)g_game->field_2a30)->AllowUnit((Unit_0046e330*)item);
+                            ((UnitSync *)g_game->sync)->AllowUnit((Unit_0046e330*)item);
                     }
                 }
             }
@@ -158,7 +158,7 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
                 else
                     g_unitRestrictEntries[i].max = 0;
                 if (g_unitRestrictEntries[i].max != g_unitRestrictEntries[i].previousMax) {
-                    ((UnitSync *)g_game->field_2a30)->SetUnitLimit(
+                    ((UnitSync *)g_game->sync)->SetUnitLimit(
                         (Unit_0046e330*)&((Item_0044c420 *)g_game->defs)[g_unitRestrictEntries[i].unitIndex],
                         g_unitRestrictEntries[i].max);
                 }
@@ -181,7 +181,7 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
             // +0x20, so its address can never be null); kept for byte fidelity.
             if (((Item_0044c420 *)g_game->defs)[i].flags2.bits.flag) {
             } else if (((Item_0044c420 *)g_game->defs)[i].name != 0) {
-                ((UnitSync *)g_game->field_2a30)->SetUnitLimit(
+                ((UnitSync *)g_game->sync)->SetUnitLimit(
                     (Unit_0046e330*)&((Item_0044c420 *)g_game->defs)[i], g_unitRestrictOldCounts[n]);
                 n++;
             }

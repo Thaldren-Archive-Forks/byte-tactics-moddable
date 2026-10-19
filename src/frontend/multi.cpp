@@ -358,7 +358,7 @@ void __stdcall UpdateGameSelection(Gui* menu, Gadget* entry)
     int index = FindGadgetIndex(gadgets, "WATCH", 1);
     if (index != -1) {
         gd = (Gadget*)((char*)gadgets + index * 0x15b);
-        gv = ((value & 0xff) >= (int)(signed char)g_game->field_1) ? 1 : 0;
+        gv = ((value & 0xff) >= (int)(signed char)g_game->version) ? 1 : 0;
         p = (unsigned short*)((char*)gd + 0x13c);
         r = (unsigned short)((~flags & 0x80) | (flags >> 8));
         r >>= 3;
@@ -369,7 +369,7 @@ void __stdcall UpdateGameSelection(Gui* menu, Gadget* entry)
     index = FindGadgetIndex(gadgets, "JOINGAME", 1);
     if (index != -1) {
         gd = (Gadget*)((char*)gadgets + index * 0x15b);
-        gv = ((value & 0xff) >= (int)(signed char)g_game->field_1) ? 1 : 0;
+        gv = ((value & 0xff) >= (int)(signed char)g_game->version) ? 1 : 0;
         p = (unsigned short*)((char*)gd + 0x13c);
         r = (unsigned short)((flags >> 11) | (flags & 0x10));
         r >>= 4;
@@ -479,7 +479,7 @@ shown:
             strcpy(p[3], temp);
             p[3] += strlen(p[3]) + 1;
 
-            if ((sb.s.version & 0xff) >= (int)(signed char)g_game->field_1) {
+            if ((sb.s.version & 0xff) >= (int)(signed char)g_game->version) {
                 if (sb.s.lock)
                     msg = "Lock";
                 else if (sb.s.playing)
@@ -1897,7 +1897,7 @@ void __stdcall HandleSelectGameClick(Gui* param_1)
         flags = *(unsigned int*)((char*)&msg.group + 2);
         ver = *(unsigned int*)((char*)&msg.group + 0xe) & 0xff;
 
-        if (ver <= (int)(signed char)g_game->field_1 && ver >= (int)(signed char)g_game->field_1) {
+        if (ver <= (int)(signed char)g_game->version && ver >= (int)(signed char)g_game->version) {
             if ((flags & 0x8000) != 0 || (flags & 0x10) != 0) {
                 PlaySoundByName("Previous", 0);
                 ClearSelectedGadget(param_1);
@@ -3695,7 +3695,7 @@ void __stdcall HandleBattleRoomClick(Gui* gadget)
         if (i >= 10)
             break;
     }
-    if (i != g_game->field_2a3c)
+    if (i != g_game->numPlayers)
         g_game->bits_2bee_1.dirty = 1;
 
     if (IsCurrentGadgetNamed(gadget, "PREVMENU")) {
@@ -3713,7 +3713,7 @@ void __stdcall HandleBattleRoomClick(Gui* gadget)
         char* msg = box->text;
         if (strlen(msg) != 0) {
             if (_strcmpi(msg, "+syncerr") == 0) {
-                char* s = ((UnitSync *)g_game->field_2a30)->GetSyncStatusText();
+                char* s = ((UnitSync *)g_game->sync)->GetSyncStatusText();
                 if (s)
                     AddMessage(s, 4, 0, 10);
             } else {
@@ -4151,7 +4151,7 @@ void RefreshBattleRoomRows()
                     str = e->text;
                     _itoa(p->ping, str, 10);
                     if (IsHostLocal())
-                        strcat(str, ((UnitSync *)g_game->field_2a30)->IsPlayerSynced(GetSlotDpid(n)) ? ":s" : "");
+                        strcat(str, ((UnitSync *)g_game->sync)->IsPlayerSynced(GetSlotDpid(n)) ? ":s" : "");
                     if (minPing >= p->ping)
                         minPing = p->ping;
                     e->visible = 1;
@@ -4567,7 +4567,7 @@ void __stdcall HandleUnitCountSlider(void* obj, char* gadget)
         _itoa(value, buf, 10);
     }
     g_unitRestrictEntries[n + desc->firstRow].max = value;
-    ((UnitSync *)g_game->field_2a30)->SetUnitLimit(
+    ((UnitSync *)g_game->sync)->SetUnitLimit(
         &((UnitType_00446f50 *)g_game->defs)[g_unitRestrictEntries[n + desc->firstRow].unitIndex], value);
     desc->flags[n + desc->firstRow] = g_unitRestrictEntries[n + desc->firstRow].peerEnabled == 0;
     desc->flags[n + desc->firstRow] |= g_unitRestrictEntries[n + desc->firstRow].max == 0 ? 2 : 0;
@@ -4658,7 +4658,7 @@ void UnitRestrictDialogFrame()
         LoadUnitPortrait();
     }
 
-    while (((UnitSync *)g_game->field_2a30)->PopChangedEntry(&event) != 0) {
+    while (((UnitSync *)g_game->sync)->PopChangedEntry(&event) != 0) {
         n++;
         for (int i = 0; i < entry->list.count; i++) {
             if (event.fbiChecksum == ((UnitType_00446f50 *)g_game->defs)[g_unitRestrictEntries[i].unitIndex].fbiChecksum) {
@@ -4780,7 +4780,7 @@ void OpenUnitRestrictions()
                     ((UnitType_00446f50 *)g_game->defs)[i].unitName, Translate(type->description),
                     (int)type->metalCost, (int)type->energyCost);
             g_unitRestrictEntries[n].unitIndex = i;
-            ((UnitSync *)g_game->field_2a30)->GetUnitEntry(&((UnitType_00446f50 *)g_game->defs)[i], &info);
+            ((UnitSync *)g_game->sync)->GetUnitEntry(&((UnitType_00446f50 *)g_game->defs)[i], &info);
             // One ternary: the if-statement form swaps the ebx/ebp registers.
             count = info.max == -1 ? 0x65 : info.max;
             g_unitRestrictEntries[n].max = count;

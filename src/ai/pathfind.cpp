@@ -638,7 +638,7 @@ Pathfinder::~Pathfinder()
 // FUNCTION: 0x40eb70
 void Pathfinder::RunSearches()
 {
-    unsigned short players = g_game->field_2a3c;
+    unsigned short players = g_game->numPlayers;
     if (players == 0)
         return;
     int share = stepsPerTick / players;

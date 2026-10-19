@@ -28,57 +28,7 @@ public:
 
 #include "settings.h"
 
-struct Game {
-    char unknown_0[0x14];
-    char session[0x471 - 0x14];        // +0x14
-    Settings settings;                 // +0x471
-    char unknown_4c1[0x4c9 - 0x4c1];
-    int from_id;                       // +0x4c9
-    int local_id;                      // +0x4cd
-    char unknown_4d1[0x1b63 - 0x4d1];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x29a4 - 0x2851];
-    int shareVisionReady[11];          // +0x29a4
-    int startPosAssignAck[11];         // +0x29d0
-    char unknown_29fc[0x2a30 - 0x29fc];
-    UnitSync* sync;                    // +0x2a30
-    char unknown_2a34[4];
-    unsigned char* recvPacketPtr;      // +0x2a38
-    char unknown_2a3c[6];
-    unsigned char localPlayer;         // +0x2a42
-    char playerIndex;
-    unsigned char netGameFlags;        // +0x2a44
-    char unknown_2a45[0x2be3 - 0x2a45];
-    char password[0x2bee - 0x2be3];    // +0x2be3
-    unsigned short dirty : 1;          // +0x2bee
-    unsigned short : 15;
-    char unknown_2bf0[0x2c28 - 0x2bf0];
-    int playerIds[11];                 // +0x2c28
-    char unknown_2c54[0x2cf3 - 0x2c54];
-    WeaponDef weaponDefs[256];         // +0x2cf3
-    char unknown_after_weapons[0x14357 - (0x2cf3 + 0x115 * 256)];
-    Unit* units;                       // +0x14357
-    char unknown_1435b[0x38a51 - 0x1435b];
-    unsigned short bit_38a51 : 1;      // +0x38a51
-    unsigned short : 15;
-    char unknown_38a53[0x38d75 - 0x38a53];
-    union {
-        volatile unsigned short loadingFlags;  // +0x38d75
-        struct {
-            unsigned short : 2;
-            unsigned short net_bit2 : 1;
-            unsigned short : 13;
-        } net_bits;
-    };
-    char unknown_38d77[0x391f1 - 0x38d77];
-    int frontendState;                 // +0x391f1
-    char unknown_391f5[0x3923b - 0x391f5];
-    unsigned short : 2;                // +0x3923b
-    unsigned short bit2_3923b : 1;
-    unsigned short : 1;
-    unsigned short bit4_3923b : 1;
-    unsigned short : 11;
-};
+#include "../game/game.h"
 
 // The player data HAPINET_addplayer sends with a create-player message (the
 // same record in hapinet.cpp).
@@ -418,14 +368,14 @@ static inline void DropPlayer(int id)
     out->type = 0x1c;
     out->id = id;
     Player* p = &g_game->players[FindPlayerSlot(id)];
-    if ((p->active && p->type == 3) || !(g_game->loadingFlags & 1) || (g_game->loadingFlags & 2))
+    if ((p->active && p->type == 3) || !((*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).value & 1) || ((*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).value & 2))
         RemovePlayer(id);
     BroadcastPacket(LocalPlayer()->id, out, 5);
 }
 
 static inline int CommandAllowed(unsigned char* bytes)
 {
-    int mode = g_game->frontendState;
+    int mode = g_game->mode_391f1;
     if (mode == 5 && (g_packetModes[bytes[0]] & 2))
         return 1;
     if (mode == 6 && (g_packetModes[bytes[0]] & 4))
@@ -453,7 +403,7 @@ int HandleNetPackets()
             continue;
         int sender = g_game->from_id;
         unsigned char from = FindPlayerIndex(sender);
-        unsigned char to = FindPlayerIndex(g_game->local_id);
+        unsigned char to = FindPlayerIndex(g_game->lobby1);
         Player* player = &g_game->players[from];
         Player* recipient = &g_game->players[to];
         messages++;
@@ -481,7 +431,7 @@ int HandleNetPackets()
                     RejectPlayer(p->id, 1);
                     p->SetType(0);
                 }
-                g_game->dirty = 1;
+                g_game->bits_2bee_1.dirty = 1;
                 if (LocalPlayer()->info->flags_97 & 1) {
                     char name[32];
                     int a, b, c, d;
@@ -620,14 +570,14 @@ int HandleNetPackets()
                 SendLobbySyncRequests();
                 g_packetManager.SendAllQueued(1);
             }
-            g_game->dirty = 1;
+            g_game->bits_2bee_1.dirty = 1;
             break;
         case 2:
             HandlePing(packet);
             break;
         case 38:
             memcpy(g_game->playerIds, packet + 1, 40);
-            g_game->dirty = 1;
+            g_game->bits_2bee_1.dirty = 1;
             break;
         case 35: {
             AllyFlagsPacket* ally = (AllyFlagsPacket*)packet;
@@ -641,7 +591,7 @@ int HandleNetPackets()
                 SetAlliance(ally->fromNetId, ally->toNetId, ally->allied,
                              ally->force);
                 if (!(g_game->netGameFlags & 4))
-                    g_game->dirty = 1;
+                    g_game->bits_2bee_1.dirty = 1;
                 else
                     RebuildAllyList();
             }
@@ -654,7 +604,7 @@ int HandleNetPackets()
             if (p)
                 p->alliance = packet[5];
             if (!(g_game->netGameFlags & 4))
-                g_game->dirty = 1;
+                g_game->bits_2bee_1.dirty = 1;
             break;
         }
         case 27: {
@@ -674,8 +624,8 @@ int HandleNetPackets()
             AddMessage(text, 4, 0, from);
             DropPlayer(drop->id);
             if (drop->id == FirstJoinedId()) {
-                g_game->bit2_3923b = 1;
-                g_game->bit4_3923b = 0;
+                g_game->bits_3923b_2.bit2_3923b = 1;
+                g_game->bits_3923b_2.bit4_3923b = 0;
             }
             break;
         }
@@ -759,7 +709,7 @@ int HandleNetPackets()
             default:
                 DamageFeature(GetMapCell(damage->x, damage->z),
                              damage->x, damage->z,
-                             &g_game->weaponDefs[damage->sub]);
+                             &((WeaponDef*)g_game->weapons)[damage->sub]);
                 break;
             }
             break;
@@ -848,11 +798,11 @@ int HandleNetPackets()
             if (packet[1])
                 SetGameSpeed(packet[2], 0);
             else
-                g_game->bit_38a51 = packet[2];
+                g_game->bits_38a51.bit_38a51 = packet[2];
             break;
         case 26:
             if (g_game->sync && recipient->active && recipient->type == 1)
-                g_game->sync->ReceiveSyncPacket(packet, from);
+                ((UnitSync*)g_game->sync)->ReceiveSyncPacket(packet, from);
             break;
         case 29: {
             PlayerIdPacket* integrity = (PlayerIdPacket*)packet;

@@ -2856,27 +2856,6 @@ struct Proj_0049be60 {
     unsigned short flags;              // +0x69
 };
 
-struct MapSize_0049be60 {
-    unsigned int width;                // +0x0
-    unsigned int height;               // +0x4
-
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
-};
-
-struct ByteMap_0049be60 {
-    unsigned char* data;               // +0x0
-    MapSize_0049be60 size;             // +0x4
-
-    unsigned char Get(int x, int y) { return data[size.width * y + x]; }
-};
-
-struct PlayerInfo_0049be60 {
-    char unknown_0[0x7c];
-    ByteMap_0049be60 explored;         // +0x7c
-};
 #pragma pack(pop)
 
 void* __stdcall GetGafFrame(void* gaf, int frame);
@@ -2887,7 +2866,7 @@ int __stdcall PointInRect(void* region, int x, int y);
 void __stdcall DrawLens(void* dest, void* src, int x, int y);
 void __stdcall DrawLine(void* dest, int x1, int y1, int x2, int y2, unsigned int color);
 int __stdcall GetGafFrameCount(void* gaf);
-int __stdcall IsPointVisible(PlayerInfo_0049be60* pi, Vec3* pos);
+int __stdcall IsPointVisible(Player* pi, Vec3* pos);
 int HarnessViewRand();
 
 // The projectile render pass: it walks the projectile array and draws every
@@ -2925,15 +2904,15 @@ void __stdcall DrawProjectiles(void* surface)
             Vec3* pos = &p->pos;
             if ((g_game->mapFlags & 2) == 2) {
                 int col = (int)*(short*)((char*)pos + 2) >> 5;
-                PlayerInfo_0049be60* pi = (PlayerInfo_0049be60*)pb;
                 int row = ((int)*(short*)((char*)pos + 10)
                            - ((int)*(short*)((char*)pos + 6) >> 1)) >> 5;
-                if (pi->explored.size.Contains(col, row) && pi->explored.Get(col, row))
+                if ((unsigned int)col < (unsigned int)pb->exploredWidth && (unsigned int)row < (unsigned int)pb->exploredHeight
+                    && pb->explored[(unsigned int)pb->exploredWidth * row + col])
                     visible = 1;
                 else
                     visible = 0;
             } else {
-                visible = IsPointVisible((PlayerInfo_0049be60*)pb, pos);
+                visible = IsPointVisible(pb, pos);
             }
             if (visible) {
                 type = p->type;

@@ -505,7 +505,7 @@ static void SetUpSkirmish()
     }
 
     g_game->playerCount = highest + 1;
-    g_game->field_2a3c = (unsigned short)active;
+    g_game->numPlayers = (unsigned short)active;
     ResetPlayerSlots();
     ApplySlotsToGamePlayers();
     InitMissionStatus();

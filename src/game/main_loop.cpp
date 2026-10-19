@@ -64,15 +64,6 @@ struct PlayerName_00496ee0 {            // 0x232 bytes, array at g_game+0x37f5f
     char name[0x232];
 };
 
-struct Struct_00496e90 {
-    char unknown_0[0xdc];
-    float width;                       // +0xdc
-    float height;                      // +0xe0
-    char unknown_e4[0x149 - 0xe4];
-    unsigned short flag_149 : 1;       // +0x149
-};
-
-
 #include "../map/mission.h"
 #include "../util/vec3.h"
 #include "../../interfaces/seams.h"
@@ -351,7 +342,7 @@ void PreBattleFrame()
 // FUNCTION: 0x496db0
 void CampaignSetupFrame()
 {
-    g_game->field_2a3c = 2;
+    g_game->numPlayers = 2;
     g_seams.players->SetupPlayerSlot(0, 1);
     g_seams.players->SetupPlayerSlot(1, 2);
     ((Sub_00496db0*)g_game->p1cd5)->flag_96 = 1;
@@ -379,11 +370,11 @@ static inline int AtLeast200(int v)
 }
 
 // FUNCTION: 0x496e90
-void __stdcall SetStartingStorageBonus(Struct_00496e90* obj, int height, int width)
+void __stdcall SetStartingStorageBonus(Player* obj, int height, int width)
 {
-    obj->flag_149 = 1;
-    obj->width = (float)AtLeast200(width);
-    obj->height = (float)AtLeast200(height);
+    obj->bits_149.storage = 1;
+    obj->energyStorageBonus = (float)AtLeast200(width);
+    obj->metalStorageBonus = (float)AtLeast200(height);
 }
 
 // Sets a team up for one start position, for each of the (up to ten) teams the
