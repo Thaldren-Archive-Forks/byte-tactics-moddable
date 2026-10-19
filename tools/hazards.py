@@ -78,7 +78,7 @@ also gives the warnings below). Kinds, one row per place:
                    directly is a wrapper and is not a row, its callers are. target:
                    `allocator` or `new Type`.
   time_read        a call of timeGetTime, GetTickCount, QueryPerformanceCounter,
-                   QueryPerformanceFrequency, GetSystemTime, GetSystemTimeAsFileTime,
+                   QueryPerformanceFrequency, host_time_ms, host_time_counter, GetSystemTime, GetSystemTimeAsFileTime,
                    GetLocalTime, time, clock, localtime or _ftime, or of the source's
                    wrappers of them: GetTicks and GetMilliseconds (display.cpp),
                    GetTimeSeconds (debug_lib_4e1e50.cpp), and UpdateTimers and AddTimer,
@@ -87,7 +87,7 @@ also gives the warnings below). Kinds, one row per place:
                    global_maybe_written in rwsets.csv, reached through `call` rows from a
                    thread entry point) and a game-logic function reads. Thread entry
                    points are the functions passed to CreateThread, _beginthread,
-                   _beginthreadex, StartThread (the game's wrapper of _beginthread),
+                   _beginthreadex, StartThread (the game's wrapper of _beginthread), host_thread_start,
                    timeSetEvent, SetTimer, CreateTimerQueueTimer, QueueUserAPC, the
                    DirectPlay and DirectSound enumerations (EnumSessions, EnumPlayers,
                    EnumConnections, EnumAddress, EnumAddressTypes, DirectPlayEnumerate*,
@@ -137,8 +137,9 @@ THREAD_ROW_LIMIT = 400
 WARNING_FLAGS = ["-Wuninitialized", "-Wsometimes-uninitialized", "-Wconditional-uninitialized"]
 TIME_CALLS = {"timeGetTime", "GetTickCount", "QueryPerformanceCounter", "QueryPerformanceFrequency",
               "GetSystemTime", "GetSystemTimeAsFileTime", "GetLocalTime", "time", "clock", "localtime",
-              "_ftime", "GetTicks", "GetMilliseconds", "GetTimeSeconds", "UpdateTimers", "AddTimer"}
-THREAD_CALLS = {"CreateThread", "_beginthread", "_beginthreadex", "StartThread", "timeSetEvent", "SetTimer",
+              "_ftime", "GetTicks", "GetMilliseconds", "GetTimeSeconds", "UpdateTimers", "AddTimer", "host_time_ms",
+              "host_time_counter"}
+THREAD_CALLS = {"CreateThread", "_beginthread", "_beginthreadex", "StartThread", "host_thread_start", "timeSetEvent", "SetTimer",
                 "CreateTimerQueueTimer", "QueueUserAPC", "EnumSessions", "EnumPlayers", "EnumConnections",
                 "EnumAddress", "EnumAddressTypes", "DirectPlayEnumerate", "DirectPlayEnumerateA",
                 "DirectPlayEnumerateW", "DirectSoundEnumerate", "DirectSoundEnumerateA",

@@ -23,7 +23,7 @@ file) and rewrites the rest; an override that no longer names a function is an e
 
 Rules, first match wins:
 
-  folder        src/harness is harness; src/seams is seams; src/debug, src/util, src/runtime and src/data are platform
+  folder        src/harness is harness; src/seams is seams; src/debug, src/util, src/runtime, src/data and src/host are platform
   draw          a name that starts (after `Class::`) with Draw, Render or Blit is presentation, unless
                 a phase walk reaches it (see phase)
   library       _Construct, _Destroy, operator new and delete, Unguarded_insert and Copy_backward (the
@@ -120,7 +120,7 @@ PHASE_SUBSYSTEMS = {"UpdateAllUnits": "units", "UpdateProjectiles": "weapons",
                     "StepAllGafSequences": "game", "UpdateWind": "wind_meteors", "UpdateMeteors": "wind_meteors",
                     "UpdateResourceSharing": "economy"}
 FOLDER_FIXED = [("src/harness/", "harness"), ("src/seams/", "seams"), ("src/debug/", "platform"), ("src/util/", "platform"),
-                ("src/runtime/", "platform"), ("src/data/", "platform")]
+                ("src/runtime/", "platform"), ("src/data/", "platform"), ("src/host/", "platform")]
 DISPATCH_ROOTS = {"HandleNetPackets"}
 DRAW = re.compile(r"(^|::)(Draw|Render|Blit)")
 LIBRARY = re.compile(r"^(_Construct|_Destroy|operator new|operator delete|Unguarded_insert|Copy_backward)$")
