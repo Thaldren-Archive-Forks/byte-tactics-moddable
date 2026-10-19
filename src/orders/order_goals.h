@@ -1,9 +1,7 @@
 #ifndef ORDER_GOALS_H
 #define ORDER_GOALS_H
 
-#pragma pack(push, 1)
 #include "../ai/ai_search_goal.h"
-#pragma pack(pop)
 
 struct Unit;
 
