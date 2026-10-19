@@ -169,23 +169,7 @@ static inline void* GetFrame(FrameQueue* q, int tick, int& size)
 }
 
 #pragma pack(push, 1)
-struct GameEntry {
-    int active;                        // +0x00
-    int id;                            // +0x04
-    char unknown_8[0x14b - 8];
-};
-
-struct Game {
-    char unknown_0[0x14];
-    char session[4];                   // +0x14
-    char unknown_18[0x1b63 - 0x18];
-    GameEntry players[10];             // +0x1b63
-    char unknown_2851[0x2a3e - 0x2851];
-    unsigned short chatHudWriteIdx;    // +0x2a3e
-    unsigned short chatHudReadIdx;     // +0x2a40
-    char unknown_2a42[0x38a47 - 0x2a42];
-    int gameTick;                      // +0x38a47
-};
+#include "../game/game.h"
 
 class NetCondenser {
 public:
@@ -405,7 +389,7 @@ PacketChannel* PacketManager::FindChannel(int dpid, int create)
     for (i = 1; i <= 10; i++) {
         int used = 0;
         // Must walk a pointer here; the outer loops stay plain array indexing.
-        GameEntry* p = &g_game->players[0];
+        Player* p = &g_game->players[0];
         for (int j = 0; j < 10; j++, p++) {
             if (p->id == channels[i].dpid) {
                 used = 1;
@@ -1946,6 +1930,6 @@ void Player::SetType(int newType)
 // FUNCTION: 0x463c80
 void ResetChatHudIndices()
 {
-    g_game->chatHudWriteIdx = 0;
-    g_game->chatHudReadIdx = 0;
+    g_game->tail = 0;
+    g_game->head = 0;
 }

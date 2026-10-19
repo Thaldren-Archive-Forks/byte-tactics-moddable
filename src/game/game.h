@@ -1131,7 +1131,10 @@ struct Game {
         struct {
             char unknown_37f3d_a[34];
             char startPos[2792];
-            char unknown_38a47[10];
+            union {
+                char unknown_38a47[10];
+                int gameTick;
+            };
             struct {
                 unsigned short bit_38a51 : 1;
             } bits_38a51;
