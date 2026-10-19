@@ -302,16 +302,7 @@ struct Pos_00417bb0 {
     short z;                           // +0xa
 };
 
-class AiSearchGoal {
-public:
-    char unknown_4[4];
-    char* owner;                       // +0x8
-    Point16 points[20];                // +0xc
-    int count;                         // +0x5c
-    char unknown_60[4];
-    unsigned char active;              // +0x64
-    virtual void DrawOnSurface(void* surface);  // slot 10
-};
+#include "../ai/ai_search_goal.h"
 
 class Iface_00417f30 {
 public:
@@ -1398,7 +1389,7 @@ void __stdcall DrawWorldSegmentLine(void* surface, Point16 from, short dx, short
 // FUNCTION: 0x417e00
 void AiSearchGoal::DrawOnSurface(void* surface)
 {
-    DrawMapTileSelectionOutline(surface, (short*)(this->owner + 0x76), *(int*)(this->owner + 0x7e), 0xf);
+    DrawMapTileSelectionOutline(surface, (short*)&this->owner->cell, (*(int*)&this->owner->footprint), 0xf);
     unsigned char color = *(unsigned char*)((char*)g_game + 0xdcb + ((this->active & 1) ? 9 : 12));
     for (int i = 0; i < this->count - 1; i++) {
         Pos_00417bb0 p1;
