@@ -47,7 +47,6 @@ public:
         };
         unsigned char flags;
     };
-    char unknown_65[3];
 
     AiSearchGoal(Unit* p);
     virtual ~AiSearchGoal();
