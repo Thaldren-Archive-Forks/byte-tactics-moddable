@@ -20,7 +20,7 @@ struct Player {
     unsigned char progress;            // +0x20
     unsigned char keepaliveFlags;      // +0x21
     unsigned char rejectReason;        // +0x22
-    char unknown_23[0x27 - 0x23];
+    char unknown_23[4];
     PlayerInfo* info;                  // +0x27
     char name[0x1e];                   // +0x2b
     char fullName[0x1e];               // +0x49
