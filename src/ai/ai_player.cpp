@@ -54,23 +54,7 @@ public:
 
 #include "../units/unit_type_set.h"
 
-struct WeaponDef {                     // 0x115 bytes
-    char unknown_0[0x111];
-    union {
-        unsigned int flags;            // +0x111
-        unsigned char flags8;          // the same byte, read as a byte in 0x40b7b0
-        struct {
-            unsigned int unknown_bits0 : 7;
-            unsigned int flag7 : 1;
-            unsigned int flag8 : 1;
-            unsigned int unknown_bits9 : 17;
-            unsigned int flag26 : 1;
-            unsigned int unknown_bits27 : 3;
-            unsigned int flag30 : 1;
-            unsigned int unknown_bit31 : 1;
-        };
-    };
-};
+#include "../weapons/weapon_def.h"
 
 #include "../weapons/unit_weapon_slot.h"
 
@@ -183,14 +167,7 @@ struct Economy {                       // a unit's resources
     float cost;                        // +0x98
 };
 
-struct Group {                         // 0x20 bytes, one of a player's squads
-    Player* player;                    // +0x0
-    int id;                            // +0x4
-    char unknown_8[0x10 - 0x8];
-    std::vector<Unit*> units;          // +0x10
-
-    void Send(unsigned char mode, int remove, Unit* target, Vec3* pos, int flags, int extra);
-};
+#include "group.h"
 
 void __stdcall OrderSquad(Player*, int, unsigned char, int, Unit*, Vec3*, int, int);
 
@@ -204,83 +181,9 @@ struct Target_00406f50 {
     unsigned short bit7_15 : 9;
 };
 
-struct Obj_00406f50 {
-    char unknown_0[0x52];
-    Target_00406f50* target;           // +0x52
-};
+#include "../weapons/projectile.h"
 
-// Vtable 0x4fc980, constructor 0x407350, ??_G 0x407390.
-class SquadTimer {
-public:
-    SquadManager* owner;               // +0x4
-    Group* group;                      // +0x8
-    int next;                          // +0xc
-    unsigned int player;               // +0x10
-
-    SquadTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0
-    virtual ~SquadTimer() {}                        // slot 1
-    int TryGetBaseBuildOrScoutCentroid(Vec3* out);
-    int GetAveragePosition(Vec3* out);
-    int CountGroupUnitsInRadius(Vec3* pos, int radius);
-};
-
-// Vtable 0x4fc988, constructor 0x407930, ??_G 0x407980.
-class AssaultTimer : public SquadTimer {
-public:
-    int minimum;                       // +0x14
-    int maximum;                       // +0x18
-    int limit;                         // +0x1c
-    int kind;                          // +0x20
-    int attacking;                     // +0x24
-
-    AssaultTimer(SquadManager* p, Group* q, int a, int b);
-    virtual void OnTimer();                         // slot 0, 0x4077e0
-    void RebalanceAssaultGroupByCentroid(int kind, int limit);
-};
-
-// Vtable 0x4fc990, constructor 0x4079a0, ??_G 0x4079d0.
-class EscortTimer : public SquadTimer {
-public:
-    int other;                         // +0x14
-
-    EscortTimer(SquadManager* p, Group* q, int a);
-    virtual void OnTimer();                         // slot 0, 0x4079f0
-};
-
-// Vtable 0x4fc998, constructor 0x407a90, ??_G 0x407ac0.
-class SquadScoutTimer : public SquadTimer {
-public:
-    SquadScoutTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0, 0x407ae0
-};
-
-// Vtable 0x4fc9a8, constructor 0x4085d0, ??_G 0x408600.
-class ScoutTimer : public SquadTimer {
-public:
-    ScoutTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0, 0x408100
-};
-
-// Vtable 0x4fc9b0, constructor 0x4087e0, ??_G 0x408810.
-class BuildTimer : public SquadTimer {
-public:
-    BuildTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0, 0x4086d0
-};
-
-// Vtable 0x4fc9a0, constructor 0x407d40, ??_G 0x407e70. Its constructor and
-// slot 0 stay in ai_player_407d40.cpp and ai_player_407e70.cpp.
-class SpatialTimer : public SquadTimer {
-public:
-    Vec3 best;                         // +0x14, the best position found so far
-    Vec3 probe;                        // +0x20, the position being rated
-    Vec3 step;                         // +0x2c, added to probe each timer tick
-    int bestRating;                    // +0x38, the unit rating at best
-
-    SpatialTimer(SquadManager* p, void* q);
-    virtual void OnTimer();                         // slot 0, 0x407e90
-};
+#include "squad_timer.h"
 
 // The AI controller (SquadManager) and the assault slot (AssaultTimer) methods
 // that had class views of their own are declared on those classes now, and the
@@ -360,11 +263,7 @@ struct PlayerInfo {
 
 #include "player_ai.h"
 
-struct Vec {
-    int x;
-    int y;
-    int z;
-};
+#include "vec.h"
 
 struct Vec3_40b0d0 {
     int x;
@@ -601,9 +500,9 @@ void FUN_00406f40(void)
 }
 
 // FUNCTION: 0x406f50
-void SquadManager::MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50* obj, int a, int b)
+void SquadManager::MarkOwnerNetDirtyFromDamageSplit(Projectile* projectile, int a, int b)
 {
-    Target_00406f50* t = obj->target;
+    Target_00406f50* t = (Target_00406f50*)projectile->attacker;
     if (t) {
         if (a > b * 2) {
             t->flag6 = 1;
@@ -633,7 +532,7 @@ void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
             for (unsigned char i=0;i<3;++i) {
                 UnitWeaponSlot* weapon=&unit->weapons[i];
                 if ((weapon->flags&2) && (weapon->flags&0x10) && g_seams.weapons->WeaponCanReachUnit(unit,attacker,i) &&
-                    !((unsigned char)(weapon->weapon->flags>>26)&1)) {
+                    !((unsigned char)(weapon->weapon->flags.value>>26)&1)) {
                     Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
                     if (!target || !g_seams.weapons->WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))
                         g_seams.targeting->SetWeaponTargetUnit(unit,attacker,i);
@@ -1063,7 +962,7 @@ void SquadManager::AssignSquads()
 // FUNCTION: 0x408920
 void __stdcall RetargetWeapon(Unit* unit, unsigned int weapon)
 {
-    if (unit->weapons[weapon].weapon->flag30) {
+    if (unit->weapons[weapon].weapon->flags.b.interceptor) {
         Projectile* p = g_seams.weapons->FindTargetableProjectile(unit, weapon);
         if (p)
             g_seams.targeting->SetWeaponTargetPos(unit, (Vec3*)((int*)p + 1), weapon);
@@ -1094,12 +993,12 @@ void SquadManager::RetargetWeapons(int force)
             // The counter stays a byte, and the flag8 test keeps its (unsigned char) cast.
             for (unsigned char w = 0; w < 3; w++) {
                 if ((cursor->weapons[w].flags & 2) && (cursor->weapons[w].flags & 0x10)
-                    && !(unsigned char)cursor->weapons[w].weapon->flag8
-                    && (force || !cursor->weapons[w].weapon->flag26)) {
+                    && !(unsigned char)cursor->weapons[w].weapon->flags.b.dropped
+                    && (force || !cursor->weapons[w].weapon->flags.b.commandFire)) {
                     Unit* target = g_seams.targeting->GetWeaponTargetUnit(cursor, w);
                     if (target && (player->allied[target->player->index]
                         || Contains(cursor->def->weaponCategories[w], target->unitDefIndex)
-                        || (cursor->weapons[w].weapon->flag7 && (target->activateFlags & 0x10))))
+                        || (cursor->weapons[w].weapon->flags.b.paralyzer && (target->activateFlags & 0x10))))
                         target = 0;
                     if (!target)
                         RetargetWeapon(cursor, w);
@@ -1657,7 +1556,7 @@ Unit* __stdcall FindWeaponTarget(Unit* unit,unsigned char weapon,int useRange)
            ((target->def->flags1&0x8000) || ai || (g_game->matchFlags&4)) &&
            ((unit->def->flags1&0x10000000) || g_seams.weapons->WeaponCanReachUnit(unit,target,weapon)) &&
            (useRange || !((Bits*)&unit->def->categories)->Test(target->unitDefIndex)) &&
-           (!(unit->weapons[weapon].weapon->flags8&0x80) || !(target->activateFlags&0x10))) {
+           (!((*(unsigned char*)&unit->weapons[weapon].weapon->flags)&0x80) || !(target->activateFlags&0x10))) {
             int dz=unit->pos.z-target->pos.z;
             int dx=unit->pos.x-target->pos.x;
             int d=RandomInt((int)(((__int64)dx*dx)>>32)+(int)(((__int64)dz*dz)>>32));

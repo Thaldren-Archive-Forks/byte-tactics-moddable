@@ -14,6 +14,8 @@
 #include <map>
 #include "../src/game/unit_resources.h"
 #include "../src/weapons/unit_weapon_slot.h"
+#include "../src/weapons/weapon_def.h"
+#include "../src/weapons/damage_table.h"
 
 #pragma pack(push, 1)
 
@@ -916,11 +918,11 @@ struct Data_00480c30;
 struct Data_004b1c00;
 struct Data_004b1ec0;
 struct DblRec_004b4270;
-struct Debris_00420f30;
+struct Debris;
 struct DebugDir_004ddfa0;
 struct DefFlags_0049d270;
 struct Def_004899b0;
-struct Def_0049d270;
+struct WeaponDefRecord;
 struct Desc;
 struct Desc_004437c0;
 struct Desc_004b8ec0;
@@ -2749,17 +2751,6 @@ struct Weapon {  // 0x1c bytes, 6 views
     char unknown_18[4];
 };
 
-struct WeaponDef {  // 0x115 bytes, 7 views
-    char unknown_0[104];
-    int field_68;  // +0x68
-    char unknown_6c[92];
-    int field_c8;  // +0xc8
-    char unknown_cc[16];
-    int range;  // +0xdc
-    char unknown_e0[49];
-    unsigned int flags;  // +0x111
-};
-
 struct Order_13 {  // 0x3a bytes, 1 view
     char unknown_0[5];
     unsigned char state;  // +0x5
@@ -2816,11 +2807,7 @@ public:
     int GetIntArg(int, int);
 };
 
-class SquadManager {    // 0x1 bytes, 3 views
-public:
-    char unknown_0[1];
-    void MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50*, int, int);
-};
+#include "../src/ai/squad_manager.h"
 
 struct Obj_00406f50 {  // 0x6b bytes, 26 views
     UnitMotion* type;      // +0x0
@@ -2856,19 +2843,6 @@ struct Obj_00406f50 {  // 0x6b bytes, 26 views
     void Setup(Unit*);
 };
 
-struct AI {  // 0x3d bytes, 28 views
-    Player* target;  // +0x0
-    unsigned char field_4;  // +0x4
-    int countdown;  // +0x5
-    int field_9;  // +0x9
-    int field_d;  // +0xd
-    Base* timers[10];  // +0x11
-    void* cursor;  // +0x39
-    AI(Player*);
-    void TickIfActive(void);
-    void DeleteTimers(void);
-};
-
 class Class_004071f0 {  // 0x4 bytes, 3 views
 public:
     Unit* owner;  // +0x0
@@ -2880,20 +2854,7 @@ union Coord_00407ae0 {  // 0x4 bytes, 4 views
     union { int value; struct { unsigned short frac; short whole; } s; };  // +0x0
 };
 
-struct MapSize_00408090 {  // 0x8 bytes, 19 views
-    unsigned int width;  // +0x0
-    unsigned int height;  // +0x4
-    int Contains(unsigned int, unsigned int);
-};
-
-struct ByteMap_00408090 {  // 0xc bytes, 13 views
-    unsigned char* data;  // +0x0
-    MapSize_00408090 size;  // +0x4
-    int Contains(int, int);
-    int Index(int, int);
-    unsigned char Get(int, int);
-    unsigned char& at(int, int);
-};
+#include "../src/ai/byte_map.h"
 
 struct Player {  // 0x14b bytes, 312 views
     int active;  // +0x0
@@ -3001,16 +2962,7 @@ public:
     Squad(int, int);
 };
 
-struct Elem_0040cc40 {  // 0x8 bytes, 19 views
-    Point16 pos;  // +0x0
-    float key;  // +0x4
-    Elem_0040cc40(Elem_0040cc40&);
-    Elem_0040cc40(Class_004c9390&, int);
-    Elem_0040cc40(short, short, float);
-    Elem_0040cc40(void);
-    ~Elem_0040cc40(void);
-    unsigned char operator<(Elem_0040cc40&);
-};
+#include "../src/ai/player_ai.h"
 
 struct Point16_00437de0 {  // 0x4 bytes, 5 views
     short x;  // +0x0
@@ -3060,18 +3012,6 @@ struct Map_0040d7b0 {  // 0x1c bytes, 2 views
 struct Pair_0040d880 {  // 0x2 bytes, 1 view
     unsigned char a;  // +0x0
     unsigned char b;  // +0x1
-};
-
-struct Table_0040d880 {  // 0x8 bytes, 2 views
-    unsigned char values[8];  // +0x0
-};
-
-class Class_0040d880 {  // 0x78 bytes, 1 view
-public:
-    char unknown_0[104];
-    Table_0040d880 table;  // +0x68
-    Pair_0040d880 pairs[4];  // +0x70
-    void InitCostTables(void);
 };
 
 struct Cell_0040d8b0 {  // 0x4 bytes, 1 view
@@ -3177,24 +3117,6 @@ struct Cell_0040da70 {  // 0x4 bytes, 3 views
     short node;  // +0x2
 };
 
-class OpenHeap {        // 0x1c bytes, 6 views
-public:
-    int count;  // +0x0
-    HeapNode_0040f000** items;  // +0x4
-    int freeHead;  // +0x8
-    int used;  // +0xc
-    int capacity;  // +0x10
-    int count_14;  // +0x14
-    int pending;  // +0x18
-    void SiftUp(int);
-    void FUN_0040f060(int);
-    void Grow(int);
-    int Push(NodeData_0040da70&);
-    void Update(int);
-    void Free(int);
-    void Remove(int);
-};
-
 struct Grid_0040da70 {  // 0x14 bytes, 1 view
     Cell_0040da70* cells;  // +0x0
     unsigned int width;  // +0x4
@@ -3202,24 +3124,6 @@ struct Grid_0040da70 {  // 0x14 bytes, 1 view
     char unknown_c[4];
     unsigned int* dirty;  // +0x10
     int InBounds(unsigned int, unsigned int);
-};
-
-class Class_0040da70 : public OpenHeap {        // 0x78 bytes, 3 views
-public:
-    Grid_0040da70 grid;  // +0x1c
-    char unknown_30[16];
-    int threshold;  // +0x40
-    char unknown_44[12];
-    int scale;  // +0x50
-    char unknown_54[12];
-    Target_0040da70* target;  // +0x60
-    char unknown_64[4];
-    unsigned char turnCost[8];  // +0x68
-    unsigned char stepCost[8];  // +0x70
-    static int Scale(int, int);
-    void ExpandNeighbour(NodeData_0040da70*, Cell_0040da70*, int);
-    int Estimate(int, int);
-    short Steps(NodeData_0040da70*, int);
 };
 
 struct HeapNode_0040f000 {  // 0x10 bytes, 3 views
@@ -3440,34 +3344,6 @@ struct Node_0040e630 {  // 0x14 bytes, 1 view
 struct Pair_0040e630 {  // 0x2 bytes, 1 view
     unsigned char a;  // +0x0
     unsigned char b;  // +0x1
-};
-
-class Class_0040e630 {  // 0x78 bytes, 2 views
-public:
-    Heap_0040e630 heap;  // +0x0
-    Grid_0040e630 grid;  // +0x1c
-    Point16 start;  // +0x30
-    char unknown_34[4];
-    int goalX;  // +0x38
-    int goalY;  // +0x3c
-    int probe;  // +0x40
-    int field_44;  // +0x44
-    char unknown_48[4];
-    int steps;  // +0x4c
-    int costScale;  // +0x50
-    char unknown_54[4];
-    Unit* object;  // +0x58
-    AiSearchGoal* path;    // +0x5c
-    Target_0040e630* target;  // +0x60
-    Dummy_00440be0* owner;  // +0x64
-    Table_0040d880 table;  // +0x68
-    Pair_0040e630 pairs[4];  // +0x70
-    int Cost(int, int);
-    void StartSearch(Target_0040e630*);
-    void ResetTable(void);
-    void MarkGoal(unsigned int, unsigned int);
-    void Release(void);
-    void Finish(void);
 };
 
 class Target_0040e630 {  // 0x4 bytes, 1 view
@@ -4005,18 +3881,6 @@ struct Movement {  // 0x1c bytes, 1 view
     unsigned int* states;  // +0x18
 };
 
-struct PathCell {  // 0x4 bytes, 1 view
-    unsigned char flags;  // +0x0
-    char direction;  // +0x1
-    char unknown_2[2];
-};
-
-struct PathGrid {  // 0x8 bytes, 1 view
-    PathCell* cells;  // +0x0
-    int width;  // +0x4
-    PathCell* At(int, int);
-};
-
 struct Rect {  // 0x10 bytes, 121 views
     int left;  // +0x0
     int top;  // +0x4
@@ -4232,13 +4096,7 @@ public:
 };
 
 
-struct Grid {  // 0x10 bytes, 9 views
-    unsigned char* cells;  // +0x0
-    int width;  // +0x4
-    int height;  // +0x8
-    int count;  // +0xc
-    Grid(void);
-};
+#include "../src/map/grid.h"
 
 class Class_00463be0 {  // 0x14b bytes, 3 views
 public:
@@ -4461,7 +4319,7 @@ struct Feature {  // 0x100 bytes, 32 views
     char unknown_ff;  // +0xff
 };
 
-#include "../src/weapons/debris_00420f30.h"
+#include "../src/weapons/debris.h"
 
 struct Effect {  // 0x54 bytes, 1 view
     void* model;  // +0x0
@@ -4790,7 +4648,7 @@ struct Frame_00424050 {  // 0x8 bytes, 1 view
     unsigned short originY;  // +0x6
 };
 
-#include "../src/weapons/def_0049d270.h"
+#include "../src/weapons/weapon_def_record.h"
 
 struct Packet_004244b0 {  // 0x6 bytes, 1 view
     unsigned char type;  // +0x0
@@ -12865,12 +12723,6 @@ struct NameLess_00499cd0 {  // 0x1 bytes, 1 view
     unsigned char operator()(char*, char*);
 };
 
-struct Table_00499cd0 {  // 0xd bytes, 1 view
-    char unknown_0[5];
-    Pair_00419560* first;  // +0x5
-    Pair_00419560* last;  // +0x9
-};
-
 struct UnitType_499e50 {  // 0x100 bytes, 1 view
     char unknown_0[254];
     short value;  // +0xfe
@@ -18804,79 +18656,9 @@ public:
     void ApplyByte(char*, unsigned char*, unsigned char, unsigned char, unsigned char);
 };
 
-class Base {  // 0x14 bytes, 26 views
-public:
-    AI* owner;  // +0x4
-    void* field_8;  // +0x8
-    int field_c;  // +0xc
-    unsigned int field_10;  // +0x10
-    virtual ~Base(void);
-    Base(Base&);
-    Base(AI*, void*);
-    virtual void Fire(void);
-    virtual void unused0(int);
-    virtual void Func(int);
-    virtual void OnTimer(void);
-    int CountGroupUnitsInRadius(Vec*, int);
-    int TryGetBaseBuildOrScoutCentroid(Vec3*);
-    int GetAveragePosition(Vec3*);
-};
+#include "../src/ai/squad_timer.h"
 
-struct Group {  // 0x20 bytes, 7 views
-    void* player;  // +0x0
-    int id;  // +0x4
-    char unknown_8[8];
-    std::vector<Unit*> units;  // +0x10
-    void Send(unsigned char, int, Unit*, Vec3*, int, int);
-};
-
-class Class_00407560 {  // 0xc bytes, 2 views
-public:
-    void* vtable;  // +0x0
-    Owner_00407560* owner;  // +0x4
-    Group* group;  // +0x8
-    void RebalanceAssaultGroupByCentroid(int, int);
-};
-
-struct Owner_00407560 {  // 0x31 bytes, 1 view
-    char unknown_0[17];
-    Class_00407560* members[8];  // +0x11
-};
-
-class AssaultTimer : public Base {    // 0x28 bytes, 4 views
-public:
-    int field_14;  // +0x14
-    int field_18;  // +0x18
-    int field_1c;  // +0x1c
-    int field_20;  // +0x20
-    int field_24;  // +0x24
-    AssaultTimer(AssaultTimer&);
-    AssaultTimer(AI*, void*, int, int);
-    virtual void OnTimer(void);
-};
-
-struct Owner_2 {  // 0x29 bytes, 1 view
-    char unknown_0[21];
-    Base* a;  // +0x15
-    char unknown_19[8];
-    Base* b;  // +0x21
-    Base* c;  // +0x25
-};
-
-class EscortTimer : public Base {     // 0x18 bytes, 4 views
-public:
-    int field_14;  // +0x14
-    EscortTimer(EscortTimer&);
-    EscortTimer(AI*, void*, int);
-    virtual void OnTimer(void);
-};
-
-class SquadScoutTimer : public Base {  // 0x14 bytes, 4 views
-public:
-    SquadScoutTimer(SquadScoutTimer&);
-    SquadScoutTimer(AI*, void*);
-    virtual void OnTimer(void);
-};
+#include "../src/ai/group.h"
 
 struct FixedParts_00407ae0 {  // 0x4 bytes, 1 view
     unsigned int frac : 16;  // +0x0
@@ -18885,24 +18667,6 @@ struct FixedParts_00407ae0 {  // 0x4 bytes, 1 view
 
 union Fixed_00407ae0 {  // 0x4 bytes, 1 view
     union { int value; FixedParts_00407ae0 parts; };  // +0x0
-};
-
-class SpatialTimer : public Base {    // 0x3c bytes, 4 views
-public:
-    Vec3 best;  // +0x14
-    Vec3 probe;  // +0x20
-    Vec3 step;  // +0x2c
-    int bestRating;  // +0x38
-    SpatialTimer(SpatialTimer&);
-    SpatialTimer(AI*, void*);
-    virtual void OnTimer(void);
-};
-
-class ScoutTimer : public Base {      // 0x14 bytes, 4 views
-public:
-    ScoutTimer(ScoutTimer&);
-    ScoutTimer(AI*, void*);
-    virtual void OnTimer(void);
 };
 
 class Class_00408620 {  // 0x14 bytes, 1 view
@@ -18923,13 +18687,6 @@ struct Info_00408670 {  // 0x9c bytes, 1 view
 struct Unit_00408670 {  // 0x9a bytes, 1 view
     char unknown_0[150];
     Info_00408670* info;  // +0x96
-};
-
-class Class_00408810 : public Base {  // 0x14 bytes, 4 views
-public:
-    Class_00408810(Class_00408810&);
-    Class_00408810(AI*, void*);
-    virtual void OnTimer(void);
 };
 
 class Class_00408830 {  // 0x4 bytes, 3 views
@@ -18954,35 +18711,6 @@ public:
     char unknown_9[8];
     Slot_4b62d0* timers[10];  // +0x11
     void TickTimers(void);
-};
-
-struct Elem_0040cfb0 {  // 0x3 bytes, 8 views
-    char a;  // +0x0
-    char b;  // +0x1
-    char c;  // +0x2
-};
-
-struct Elem_0040d4f0 {  // 0x1 bytes, 6 views
-    char value;  // +0x0
-};
-
-struct Elem_0040d550 {  // 0x4 bytes, 7 views
-    int unknown_0;  // +0x0
-};
-
-struct Pos_00409160 {  // 0x8 bytes, 2 views
-    short x;  // +0x0
-    short y;  // +0x2
-    int unknown_4;  // +0x4
-    Pos_00409160(short, short);
-};
-
-struct UnitList_00409160 {  // 0x10 bytes, 2 views
-    std::vector<Unit*> units;  // +0x0
-};
-
-struct Group_00409160 {  // 0x10 bytes, 2 views
-    UnitList_00409160 list;  // +0x0
 };
 
 class Owner {  // 0x10d bytes, 21 views
@@ -19037,32 +18765,6 @@ struct Elem_0040cc40_2 {  // 0x8 bytes, 1 view
     unsigned char operator<(Elem_0040cc40_2&);
 };
 
-struct UnitList_00409730 {  // 0x10 bytes, 1 view
-    std::vector<Unit_3*> units;  // +0x0
-};
-
-class Class_00409730 {  // 0xad bytes, 4 views
-public:
-    Player_00409730* player;  // +0x0
-    unsigned char index;  // +0x4
-    UnitList_00409730 list_5;  // +0x5
-    UnitList_00409730 list_15;  // +0x15
-    UnitList_00409730 list_25;  // +0x25
-    int pos_35[3];  // +0x35
-    int pos_41[3];  // +0x41
-    std::vector<Elem_0040cc40_2> vec_4d;  // +0x4d
-    short centerX;  // +0x5d
-    short centerY;  // +0x5f
-    int field_61;  // +0x61
-    std::vector<Elem_0040cfb0> vec_65;  // +0x65
-    int field_75;  // +0x75
-    int field_79;  // +0x79
-    std::vector<short> vec_7d;  // +0x7d
-    std::vector<unsigned char> vec_8d;  // +0x8d
-    std::vector<unsigned char> vec_9d;  // +0x9d
-    void ComputeBaseWeights(void);
-};
-
 struct Unit_3 {  // 0x4 bytes, 1 view
     int unknown_0;  // +0x0
 };
@@ -19073,13 +18775,6 @@ struct Sub {  // 0xc bytes, 1 view
     short v2;  // +0x4
     short v3;  // +0x6
     int v4;  // +0x8
-};
-
-struct PlayerAI {        // 0x109 bytes, 2 views
-    char unknown_0[241];
-    Sub s0;  // +0xf1
-    Sub s1;  // +0xfd
-    void InitPlacementGrid(void);
 };
 
 struct Class_0040a7b0 {  // 0x5d bytes, 2 views

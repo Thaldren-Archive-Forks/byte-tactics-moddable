@@ -37,9 +37,7 @@ struct CalcedExplosion;
 
 #pragma pack(push, 1)
 #include "../units/unit_def.h"
-struct WeaponDef {
-    char pad0[0xdc]; int range;
-};
+#include "../weapons/weapon_def.h"
 #include "../units/unit.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 unsigned short __stdcall ChooseBuildOption(unsigned int, Unit*);

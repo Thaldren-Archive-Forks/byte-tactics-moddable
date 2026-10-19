@@ -230,11 +230,7 @@ public:
     Vec3* Position();
 };
 
-// The weapon a slot points to; its +0xe4 is the divisor 0x439d20 uses.
-struct WeaponDef {
-    char unknown_0[0xe4];
-    unsigned short buildTime;          // +0xe4
-};
+#include "../weapons/weapon_def.h"
 
 // This header's symbol ids replace those of the Slot view and of the
 // declarations dropped above and below (docs/c2-regalloc.md).
@@ -339,7 +335,7 @@ int __stdcall GetBuildWeaponPercent(Unit* owner)
     Order* p;
     for (p = owner->list2; p; p = p->next) {
         if (p->flags & 0x80000)
-            return p->progress * 100 / owner->weapons[p->id].weapon->buildTime;
+            return p->progress * 100 / owner->weapons[p->id].weapon->reloadTime;
     }
     return 0;
 }
@@ -843,7 +839,9 @@ public:
 };
 
 #include "order_goals.h"
-class AiSearchGoal { public: char unknown[0x65]; AiSearchGoal(Unit* unit); };
+#pragma pack(push, 1)
+#include "../ai/ai_search_goal.h"
+#pragma pack(pop)
 class Class_0043db50 { public: void UpdateSfxOccupy(Unit* u); };
 
 #include "unit_motion.h"

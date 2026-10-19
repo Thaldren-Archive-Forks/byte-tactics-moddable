@@ -30,9 +30,7 @@ struct UnitDef {
     char pad1fe[0x21c - 0x1fe]; short altitude;
     char pad21e[0x241 - 0x21e]; unsigned int flags;
 };
-struct WeaponDef {
-    char pad0[0xdc]; int range;
-};
+#include "../weapons/weapon_def.h"
 // Unused here: these forward declarations take the symbol ids that keep 0x412710 matching (docs/c2-regalloc.md).
 struct Sound;
 struct HapiBank;

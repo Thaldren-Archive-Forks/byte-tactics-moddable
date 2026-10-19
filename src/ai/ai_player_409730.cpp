@@ -119,6 +119,8 @@ public:
 		_Destroy(_S, end());
 		_Last = _S;
 		return (_F); }
+	void clear()
+		{erase(begin(), end()); }
 protected:
 	void _Destroy(iterator _F, iterator _L)
 		{for (; _F != _L; ++_F)
@@ -136,30 +138,6 @@ protected:
 	};
 }
 #include "../units/unit.h"
-
-struct Elem_0040cfb0 {
-    char a;
-    char b;
-    char c;
-};
-
-struct Elem_0040d4f0 {
-    char value;
-};
-
-struct Elem_0040d550 {
-    int unknown_0;
-};
-
-#include "../util/vec3.h"
-
-struct Elem_0040cc40 {
-    Point16 pos;                       // +0x0
-    float key;                         // +0x4
-    Elem_0040cc40() {}
-    Elem_0040cc40(const Elem_0040cc40& o) : pos(o.pos), key(o.key) {}
-    bool operator<(const Elem_0040cc40& o) const { return key < o.key; }
-};
 
 #pragma pack(push, 1)
 struct Weapon_00409730 {
@@ -211,37 +189,7 @@ struct UnitDef {
 
 #include "../game/game.h"
 
-// The header's type, kept local: the header's declarations move this
-// function's store SIB and weapon divisions (docs/c2-regalloc.md).
-struct UnitList_00409730 {
-    std::vector<Unit*> units;
-};
-
-// Kept local, not player_ai.h: the header adds about 220 symbol ids here (its
-// vector members instantiate the cut-down <vector> again and again), which
-// moves the registers of 0x409730.
-class PlayerAI {
-public:
-    Player* owner;                 // +0x00
-    unsigned char index;           // +0x04
-    UnitList_00409730 visible;     // +0x05
-    UnitList_00409730 known;       // +0x15
-    UnitList_00409730 factories;   // +0x25
-    int pos_35[3];                 // +0x35
-    int pos_41[3];                 // +0x41
-    std::vector<Elem_0040cc40> cells;// +0x4d
-    short centerX;                 // +0x5d
-    short centerY;                 // +0x5f
-    int unused_61;                 // +0x61, zeroed by the constructor, never read
-    std::vector<Elem_0040cfb0> vec_65;// +0x65
-    int builders;                  // +0x75
-    int hasSpecial;                // +0x79
-    std::vector<short> counts;     // +0x7d
-    std::vector<unsigned char> vec_8d;// +0x8d
-    std::vector<unsigned char> weights;// +0x9d
-
-    void ComputeBaseWeights();
-};
+#include "player_ai.h"
 #pragma pack(pop)
 
 extern Game* g_game;

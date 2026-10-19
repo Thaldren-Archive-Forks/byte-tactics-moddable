@@ -393,9 +393,9 @@ address,function,file,kind,target
 0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,Seams::economy
 0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,UnitWeaponSlot::stockpile
 0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,UnitWeaponSlot::weapon
-0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,WeaponDef::buildTime
-0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,WeaponDef::energyCost
-0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,WeaponDef::metalCost
+0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,WeaponDef::energyPerShot
+0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,WeaponDef::metalPerShot
+0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_read,WeaponDef::reloadTime
 0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_write,Order::count
 0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_write,Order::progress
 0x402b70,BuildWeaponOrder,src/orders/unit_orders.cpp,field_write,UnitWeaponSlot::stockpile
@@ -474,15 +474,15 @@ address,function,file,kind,target
 0x403040,DeactivateOrder,src/orders/unit_orders.cpp,function,
 0x403040,DeactivateOrder,src/orders/unit_orders.cpp,global_read,g_seams
 0x403040,DeactivateOrder,src/orders/unit_orders.cpp,indirect_call,"indirect via void (*)(Unit *, int, int) __attribute__((stdcall)) [UnitsSeam::SetStateBits]"
-0x403070,CloakOnOrder,src/orders/unit_orders.cpp,deref_read,*Target
+0x403070,CloakOnOrder,src/orders/unit_orders.cpp,deref_read,*CloakDefView
 0x403070,CloakOnOrder,src/orders/unit_orders.cpp,deref_read,*unsigned int
 0x403070,CloakOnOrder,src/orders/unit_orders.cpp,deref_write,*unsigned int
-0x403070,CloakOnOrder,src/orders/unit_orders.cpp,field_read,Target::flag
+0x403070,CloakOnOrder,src/orders/unit_orders.cpp,field_read,CloakDefView::flag
 0x403070,CloakOnOrder,src/orders/unit_orders.cpp,function,
-0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,deref_read,*Target
+0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,deref_read,*CloakDefView
 0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,deref_read,*unsigned int
 0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,deref_write,*unsigned int
-0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,field_read,Target::flag
+0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,field_read,CloakDefView::flag
 0x4030a0,CloakOffOrder,src/orders/unit_orders.cpp,function,
 0x4030d0,StandingMoveOrder,src/orders/unit_orders.cpp,field_read,Order::mode
 0x4030d0,StandingMoveOrder,src/orders/unit_orders.cpp,field_write,Unit::moveOrder
@@ -1240,6 +1240,7 @@ address,function,file,kind,target
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,call,operator=
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,call,operator==
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_escape,Unit::weapons
+0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Flags_0049d580::value
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,MissionType::index
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Order::approachRadius
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,Order::flags
@@ -1270,7 +1271,6 @@ address,function,file,kind,target
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitDef::weaponCategories
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitWeaponSlot::flags
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,UnitWeaponSlot::weapon
-0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,WeaponDef::flags
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,WeaponsSeam::ReleaseWeapons
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_read,WeaponsSeam::WeaponCanReachUnit
 0x406300,FollowGroundOrder,src/orders/unit_orders_406300.cpp,field_write,Order::approachRadius
@@ -1412,7 +1412,7 @@ address,function,file,kind,target
 0x406f00,RegisterAICommands,src/ai/ai_player.cpp,fn_ref,CmdWeight
 0x406f00,RegisterAICommands,src/ai/ai_player.cpp,function,
 0x406f40,FUN_00406f40,src/ai/ai_player.cpp,function,
-0x406f50,SquadManager::MarkOwnerNetDirtyFromDamageSplit,src/ai/ai_player.cpp,field_read,Obj_00406f50::target
+0x406f50,SquadManager::MarkOwnerNetDirtyFromDamageSplit,src/ai/ai_player.cpp,field_read,Projectile::attacker
 0x406f50,SquadManager::MarkOwnerNetDirtyFromDamageSplit,src/ai/ai_player.cpp,field_write,Target_00406f50::flag5
 0x406f50,SquadManager::MarkOwnerNetDirtyFromDamageSplit,src/ai/ai_player.cpp,field_write,Target_00406f50::flag6
 0x406f50,SquadManager::MarkOwnerNetDirtyFromDamageSplit,src/ai/ai_player.cpp,function,
@@ -1420,6 +1420,7 @@ address,function,file,kind,target
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,call,QueueUnitSpeechIfNotVisible
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,call,RandomInt
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_escape,Unit::weapons
+0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,Flags_0049d580::value
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,Game::ticks
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,Order::flags_42
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,OrdersSeam::DeleteOrders
@@ -1452,7 +1453,6 @@ address,function,file,kind,target
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,UnitWeaponSlot::flags
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,UnitWeaponSlot::weapon
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,UnitsSeam::NotifyUnitRefs
-0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,WeaponDef::flags
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_read,WeaponsSeam::WeaponCanReachUnit
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,field_write,SquadManager::nextAction
 0x406f80,ReactToAttack,src/ai/ai_player.cpp,function,
@@ -1611,6 +1611,7 @@ address,function,file,kind,target
 0x407d40,SpatialTimer::SpatialTimer,src/ai/ai_player_407d40.cpp,global_escape,DAT_004fc980
 0x407d40,SpatialTimer::SpatialTimer,src/ai/ai_player_407d40.cpp,global_escape,g_spatialTimerVtable
 0x407d40,SpatialTimer::SpatialTimer,src/ai/ai_player_407d40.cpp,global_read,g_game
+0x407e70,SpatialTimer::SpatialTimer,src/ai/ai_player_407e70.cpp,call,MakeVec3
 0x407e70,SpatialTimer::SpatialTimer,src/ai/ai_player_407e70.cpp,call,operator=
 0x407e70,SpatialTimer::SpatialTimer,src/ai/ai_player_407e70.cpp,field_read,Game::baseX
 0x407e70,SpatialTimer::SpatialTimer,src/ai/ai_player_407e70.cpp,field_read,Game::baseY
@@ -1633,11 +1634,11 @@ address,function,file,kind,target
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_escape,SpatialTimer::best
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_escape,SpatialTimer::probe
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_escape,Unit::pos
-0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_maybe_written,Group_00407e90::units
+0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_maybe_written,Group::units
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_maybe_written,SpatialTimer::probe
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,Game::ticks
-0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,Group_00407e90::player
-0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,Group_00407e90::units
+0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,Group::player
+0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,Group::units
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,MissionType::index
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,OrdersSeam::AddOrder
 0x407e90,SpatialTimer::OnTimer,src/ai/ai_player_407e70.cpp,field_read,OrdersSeam::GetOrderType
@@ -1694,16 +1695,16 @@ address,function,file,kind,target
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,deref_read,*Unit_00408100
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_maybe_written,Group_00408100::units
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_maybe_written,Unit_00408100::pos
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,AI::field_d
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Base::field_10
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Base::field_8
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Base::owner
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Game_00408100::gameTick
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Game_00408100::unitDefs
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Order_00408100::flags
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,OrdersSeam::AddOrder
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,OrdersSeam::GetOrderType
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Seams::orders
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,SquadManager::nextAction
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,SquadTimer::group
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,SquadTimer::owner
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,SquadTimer::player
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,UnitDef_00408100::count
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,UnitDef_00408100::flag12
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Unit_00408100::def
@@ -1712,7 +1713,7 @@ address,function,file,kind,target
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Vec3::x
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Vec3::y
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_read,Vec3::z
-0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_write,Base::field_c
+0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_write,SquadTimer::next
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_write,Vec3::x
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_write,Vec3::y
 0x408100,ScoutTimer::OnTimer,src/ai/ai_player_408100.cpp,field_write,Vec3::z
@@ -1725,9 +1726,9 @@ address,function,file,kind,target
 0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,call,ChooseBuildOption
 0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,call,QueueBuildOrder
 0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,field_maybe_written,Item_00408620::name
-0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,field_read,BuildTimer::player
 0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,field_read,Game::defs
-0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,field_read,Obj_00408620::orders
+0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,field_read,SquadTimer::player
+0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,field_read,Unit::list
 0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,function,
 0x408620,BuildTimer::TryIssueIdleFactoryBuildOrder,src/ai/ai_player_408620.cpp,global_read,g_game
 0x408670,UpdateConverter,src/ai/ai_player.cpp,call,RandomInt
@@ -1790,6 +1791,7 @@ address,function,file,kind,target
 0x408830,SquadManager::AssignSquads,src/ai/ai_player.cpp,field_read,UnitDef::minwaterdepth
 0x408830,SquadManager::AssignSquads,src/ai/ai_player.cpp,field_write,Unit::flags
 0x408830,SquadManager::AssignSquads,src/ai/ai_player.cpp,function,
+0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,<anon>::interceptor
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,Seams::targeting
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,Seams::weapons
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,TargetingSeam::ClearWeaponTarget
@@ -1798,7 +1800,6 @@ address,function,file,kind,target
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,TargetingSeam::SetWeaponTargetUnit
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,Unit::flags
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,UnitWeaponSlot::weapon
-0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,WeaponDef::flag30
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,field_read,WeaponsSeam::FindTargetableProjectile
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,function,
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,global_read,g_seams
@@ -1809,6 +1810,9 @@ address,function,file,kind,target
 0x408920,RetargetWeapon,src/ai/ai_player.cpp,indirect_call,"indirect via void (*)(Unit *, int) __attribute__((stdcall)) [TargetingSeam::ClearWeaponTarget]"
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,call,Contains
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,call,RetargetWeapon
+0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,<anon>::commandFire
+0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,<anon>::dropped
+0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,<anon>::paralyzer
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,Game::field_37ee6
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,Player::allied
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,Player::index
@@ -1827,9 +1831,6 @@ address,function,file,kind,target
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,UnitDef::weaponCategories
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,UnitWeaponSlot::flags
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,UnitWeaponSlot::weapon
-0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,WeaponDef::flag26
-0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,WeaponDef::flag7
-0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_read,WeaponDef::flag8
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,field_write,SquadManager::cursor
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,function,
 0x4089a0,SquadManager::RetargetWeapons,src/ai/ai_player.cpp,global_read,Zero_004fc968@src/ai/ai_player.cpp
@@ -2294,9 +2295,11 @@ address,function,file,kind,target
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,call,size
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,deref_read,*Bits
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,deref_read,*Unit
+0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,deref_read,*unsigned char
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_escape,Unit::pos
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_escape,UnitDef::categories
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_escape,UnitDef::weaponCategories
+0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_escape,WeaponDef::flags
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,AiSeam::GetVisibleEnemiesInRadius
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Game::matchFlags
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Player::active
@@ -2314,7 +2317,6 @@ address,function,file,kind,target
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,UnitWeaponSlot::weapon
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Vec3::x
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,Vec3::z
-0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,WeaponDef::flags8
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,WeaponsSeam::GetWeaponRange
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,field_read,WeaponsSeam::WeaponCanReachUnit
 0x40b7b0,FindWeaponTarget,src/ai/ai_player.cpp,function,
@@ -3008,6 +3010,7 @@ address,function,file,kind,target
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_escape,Order::pos
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_escape,Unit::weapons
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_maybe_written,Unit::pos
+0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,Flags_0049d580::value
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,Game::mapHeight
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,Game::mapWidth
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,Game::overflowBucket
@@ -3046,7 +3049,6 @@ address,function,file,kind,target
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitsSeam::AttachUnitToPiece
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitsSeam::CanRepair
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,UnitsSeam::SetStateBits
-0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,WeaponDef::flags
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,WeaponDef::range
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,WeaponsSeam::ClaimWeapons
 0x40fbe0,VtolFollowOrder,src/orders/vtol_orders_40fbe0.cpp,field_read,WeaponsSeam::ReleaseWeapons
@@ -4321,8 +4323,8 @@ address,function,file,kind,target
 0x416780,CmdSearch,src/game/console_commands.cpp,call,bx_atof_msvc5
 0x416780,CmdSearch,src/game/console_commands.cpp,field_read,CommandArgs::count
 0x416780,CmdSearch,src/game/console_commands.cpp,field_read,Game::pathfinder
-0x416780,CmdSearch,src/game/console_commands.cpp,field_write,PathMap::fixed
-0x416780,CmdSearch,src/game/console_commands.cpp,field_write,PathMap::value
+0x416780,CmdSearch,src/game/console_commands.cpp,field_write,Pathfinder::baseScale
+0x416780,CmdSearch,src/game/console_commands.cpp,field_write,Pathfinder::stepsPerTick
 0x416780,CmdSearch,src/game/console_commands.cpp,function,
 0x416780,CmdSearch,src/game/console_commands.cpp,global_maybe_written,DAT_005119b8
 0x416780,CmdSearch,src/game/console_commands.cpp,global_read,g_game
@@ -4758,11 +4760,13 @@ address,function,file,kind,target
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,deref_write,*int
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_escape,Pos_00417bb0::x_frac
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_escape,Pos_00417bb0::z_frac
+0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_escape,Unit::cell
+0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_escape,Unit::footprint
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,AiSearchGoal::active
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,AiSearchGoal::count
-0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,AiSearchGoal::owner
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,Game::scrollX
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,Game::scrollY
+0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,PathGoal::owner
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,Point16::x
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,Point16::y
 0x417e00,AiSearchGoal::DrawOnSurface,src/game/console_commands.cpp,field_read,Pos_00417bb0::x
@@ -4807,7 +4811,7 @@ address,function,file,kind,target
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,deref_read,*unsigned int
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_escape,Game::colors
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_escape,Game::players
-0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_maybe_written,PathMap::grid
+0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_maybe_written,Pathfinder::grid
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Game::debugMode
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Game::fontSmlFont
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Game::heightMap
@@ -4822,7 +4826,7 @@ address,function,file,kind,target
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Game::viewWidthTiles
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Movement::states
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Movement::width
-0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,PathCell::direction
+0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,PathCell::dir
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,PathCell::flags
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Player::fog
 0x418310,DrawMapDebugOverlay,src/game/console_commands.cpp,field_read,Player::fogWidth
@@ -6514,11 +6518,11 @@ address,function,file,kind,target
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,deref_write,*int
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_escape,Game::count_1491b
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_escape,Vec3::y
-0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_maybe_written,Debris::ref1
-0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_maybe_written,Debris::ref2
+0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_maybe_written,DebrisView::ref1
+0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_maybe_written,DebrisView::ref2
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_read,Game::seaLevel
-0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_write,Debris::obj
-0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_write,Debris::pos
+0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_write,DebrisView::obj
+0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_write,DebrisView::pos
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,field_write,GafRef::src
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,function,
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp,global_read,g_game
@@ -6531,11 +6535,11 @@ address,function,file,kind,target
 0x420b00,DrawExplosions,src/weapons/explosions.cpp,deref_read,*int
 0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_escape,Game::count_1491b
 0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_escape,Game::viewport
-0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_maybe_written,Debris::angle_x
-0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_maybe_written,Debris::ref1
-0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_maybe_written,Debris::ref2
+0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_maybe_written,DebrisView::angle_x
+0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_maybe_written,DebrisView::ref1
+0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_maybe_written,DebrisView::ref2
 0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_read,<anon>::whole
-0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_read,Debris::obj
+0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_read,DebrisView::obj
 0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_read,GafRef::src
 0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_read,Game::scrollX
 0x420b00,DrawExplosions,src/weapons/explosions.cpp,field_read,Game::scrollY
@@ -6587,23 +6591,23 @@ address,function,file,kind,target
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,call,StepGafSequence
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,call,UpdateExplodedPiece
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,call,operator=
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,deref_read,*Debris
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,deref_read,*DebrisView
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,deref_read,*int
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,deref_read,*short
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,deref_write,*Debris
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,deref_write,*DebrisView
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,deref_write,*int
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_escape,Debris::pos
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_escape,DebrisView::pos
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_escape,Game::count_1491b
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_escape,Vec3::y
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_maybe_written,Debris::pos
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_maybe_written,Debris::ref1
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_maybe_written,Debris::ref2
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Debris::angle_x
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Debris::angle_y
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Debris::angle_z
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Debris::flag
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Debris::obj
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Debris::pos
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_maybe_written,DebrisView::pos
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_maybe_written,DebrisView::ref1
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_maybe_written,DebrisView::ref2
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,DebrisView::angle_x
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,DebrisView::angle_y
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,DebrisView::angle_z
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,DebrisView::flag
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,DebrisView::obj
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,DebrisView::pos
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,GafRef::src
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Game::gravity
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Game::net
@@ -6618,11 +6622,11 @@ address,function,file,kind,target
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Vec3::x
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Vec3::y
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_read,Vec3::z
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Debris::angle_x
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Debris::angle_y
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Debris::angle_z
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Debris::obj
-0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Debris::pos
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,DebrisView::angle_x
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,DebrisView::angle_y
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,DebrisView::angle_z
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,DebrisView::obj
+0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,DebrisView::pos
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Object3D::state
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Vec3::x
 0x420f30,UpdateExplosions,src/weapons/explosions.cpp,field_write,Vec3::y
@@ -6792,7 +6796,7 @@ address,function,file,kind,target
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,deref_write,*Vec3
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,deref_write,*int
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_escape,Game::count_1491b
-0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,Debris::obj
+0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,DebrisView::obj
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,ExplodedPiece::b5
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,ExplodedPiece::index
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,ExplodedPiece::scale
@@ -6827,12 +6831,12 @@ address,function,file,kind,target
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,Vec3f::x
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,Vec3f::y
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_read,Vec3f::z
-0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Debris::angle_x
-0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Debris::angle_y
-0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Debris::angle_z
-0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Debris::flag
-0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Debris::obj
-0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Debris::pos
+0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,DebrisView::angle_x
+0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,DebrisView::angle_y
+0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,DebrisView::angle_z
+0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,DebrisView::flag
+0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,DebrisView::obj
+0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,DebrisView::pos
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,ExplodedPiece::scale
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Face::color
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,field_write,Face::flags
@@ -11024,7 +11028,7 @@ address,function,file,kind,target
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,Order::progress
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,Unit::list2
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,UnitWeaponSlot::weapon
-0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,WeaponDef::buildTime
+0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,WeaponDef::reloadTime
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,function,
 0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::amount
 0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::flags
@@ -20237,11 +20241,11 @@ address,function,file,kind,target
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_escape,Unit::weapons
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,<anon>::bit0
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,<anon>::bit1
-0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,<anon>::bit30
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,<anon>::bit9
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,<anon>::hi
-0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,Flags111_00466dc0::all
+0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,<anon>::interceptor
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,Flags241_00466dc0::bit29
+0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,Flags_0049d580::value
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,Game::finalSurface
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,Game::hotRadar
 0x466dc0,DrawRadarUnits,src/map/radar.cpp,field_read,Game::hotRadarCount
@@ -28653,13 +28657,13 @@ address,function,file,kind,target
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,deref_read,*unsigned char
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_escape,PackedGoal::heading
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_maybe_written,PackedGoal::pos
-0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_maybe_written,Struct_004907e0::pos
+0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_maybe_written,Unit::pos
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,Game::seaLevel
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,PackedGoal::pos
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,PathGoal::owner
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,PathGoal::target
-0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,Struct_004907e0::def
-0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,Struct_004907e0::spatialBucket
+0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,Unit::def
+0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,Unit::spatialBucket
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,UnitDef::altitude
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,UnitDefFlags_0048dfb0::seaUnit
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,field_read,Vec3::x
@@ -28683,8 +28687,8 @@ address,function,file,kind,target
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,call,PackedGoal::TickTowardGoal
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,PackedGoal::mode
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,PathGoal::owner
-0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,Struct_004907e0::target
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,Target_00490880::flags
+0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,Unit::motion
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_write,PackedGoal::dirty
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,function,
 0x4908b0,LiteGoal::HasNetUnitState,src/game/victory.cpp,field_read,PackedGoal::netDirtyFlags
@@ -28692,8 +28696,8 @@ address,function,file,kind,target
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,call,BitWriter::WriteBits
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,PathGoal::owner
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,PathGoal::target
-0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,Struct_004907e0::target
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,Target_00490880::mode
+0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,Unit::motion
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_write,PackedGoal::state
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,function,
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,indirect_call,virtual OrderFx::GetType
@@ -28712,7 +28716,7 @@ address,function,file,kind,target
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,call,operator new
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_read,PathGoal::owner
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_read,PathGoal::target
-0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_read,Struct_004907e0::obj
+0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_read,Unit::motion
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,field_write,PathGoal::target
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,function,
 0x490a10,PackedPosGoal::DeserializeNetUnitState,src/game/victory.cpp,global_read,kSim
@@ -31051,11 +31055,11 @@ address,function,file,kind,target
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,call,ApplyWeaponDamage
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,AiSeam::MarkOwnerNetDirtyFromDamageSplit
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Player::ai
+0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Projectile::attacker
+0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Projectile::owner
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Seams::ai
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Unit::player
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Unit::playerIndex
-0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Weapon_499c70::attacker
-0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,field_read,Weapon_499c70::owner
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,function,
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,global_read,g_seams
 0x499c70,ApplyWeaponHit,src/weapons/weapons.cpp,indirect_call,"indirect via void (*)(SquadManager *, int, Projectile *, int, int) __attribute__((fastcall)) [AiSeam::MarkOwnerNetDirtyFromDamageSplit]"
@@ -31067,6 +31071,8 @@ address,function,file,kind,target
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,<anon>::paralyzer
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Flags_00499cd0::flag7
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Flags_00499cd0::flag8
+0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Projectile::attacker
+0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Projectile::type
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Unit::def
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Unit::heading
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Unit::killCount
@@ -31074,23 +31080,19 @@ address,function,file,kind,target
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Vec3::z
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,WeaponDef::damage
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,WeaponDef::table
-0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Weapon_00499cd0::attacker
-0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Weapon_00499cd0::def
-0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Weapon_00499cd0::x
-0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,field_read,Weapon_00499cd0::z
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,function,
 0x499cd0,ApplyWeaponDamage,src/weapons/weapons.cpp,global_read,g_game
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,call,operator=
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,deref_write,*void
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_escape,Game::tracked
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,Game::tracked
-0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::flags
-0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::position
-0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::type
+0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,Projectile::flags
+0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,Projectile::position
+0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,Projectile::type
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_read,WeaponDef::holdTime
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_write,Game::trackedPos
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_write,Game::value_1434b
-0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_write,Projectile_00499eb0::flags
+0x499e50,UntrackProjectile,src/weapons/weapons.cpp,field_write,Projectile::flags
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,function,
 0x499e50,UntrackProjectile,src/weapons/weapons.cpp,global_read,g_game
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,call,AccumulateScreenShake
@@ -31104,7 +31106,7 @@ address,function,file,kind,target
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,deref_write,*void
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_escape,Game::players
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_escape,Game::tracked
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_escape,Projectile_00499eb0::position
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_escape,Projectile::position
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,<anon>::endSmoke
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,<anon>::noExplode
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,AiSeam::MarkOwnerNetDirtyFromDamageSplit
@@ -31116,11 +31118,11 @@ address,function,file,kind,target
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Player::active
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Player::ai
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Player::type
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::flags
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::owner
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::position
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::type
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile_00499eb0::unit
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile::attacker
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile::flags
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile::owner
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile::position
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Projectile::type
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Seams::ai
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Seams::los_radar
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,Unit::player
@@ -31135,7 +31137,7 @@ address,function,file,kind,target
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_read,WeaponDef::splash
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_write,Game::trackedPos
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_write,Game::value_1434b
-0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_write,Projectile_00499eb0::flags
+0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,field_write,Projectile::flags
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,function,
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,global_read,g_game
 0x499eb0,DetonateProjectile,src/weapons/weapons.cpp,global_read,g_seams
@@ -43675,10 +43677,11 @@ address,function,file,kind,target
 ,BurnOut,src/map/features.cpp,global_read,g_game
 ,BurnOut,src/map/features.cpp,global_read,g_seams
 ,BurnOut,src/map/features.cpp,indirect_call,"indirect via Cell *(*)(int, int) __attribute__((stdcall)) [LosRadarSeam::GetMapCell]"
-,ByteMap_00408090::Get,src/ai/ai_player_407e70.cpp,deref_read,*unsigned char
-,ByteMap_00408090::Get,src/ai/ai_player_407e70.cpp,field_read,ByteMap_00408090::data
-,ByteMap_00408090::Get,src/ai/ai_player_407e70.cpp,field_read,MapSize_00408090::width
-,ByteMap_00408090::Get,src/ai/ai_player_407e70.cpp,function,
+,ByteMap_00408090::Get,src/ai/byte_map.h,deref_read,*unsigned char
+,ByteMap_00408090::Get,src/ai/byte_map.h,field_read,ByteMap_00408090::data
+,ByteMap_00408090::Get,src/ai/byte_map.h,field_read,MapSize_00408090::width
+,ByteMap_00408090::Get,src/ai/byte_map.h,field_read,ta::ByteMap_00408090::data
+,ByteMap_00408090::Get,src/ai/byte_map.h,function,
 ,ByteMap_004658e0::Get,src/game/players_4658e0.cpp,deref_read,*unsigned char
 ,ByteMap_004658e0::Get,src/game/players_4658e0.cpp,field_read,ByteMap_004658e0::data
 ,ByteMap_004658e0::Get,src/game/players_4658e0.cpp,field_read,MapSize_004658e0::width
@@ -44557,24 +44560,25 @@ address,function,file,kind,target
 ,Elem::~Elem,src/map/features.cpp,call,Class_004c9390::ReleaseRef
 ,Elem::~Elem,src/map/features.cpp,field_maybe_written,Elem::name
 ,Elem::~Elem,src/map/features.cpp,function,
-,Elem_0040cc40::Elem_0040cc40,src/ai/ai_player_409730.cpp,field_read,Elem_0040cc40::key
-,Elem_0040cc40::Elem_0040cc40,src/ai/ai_player_409730.cpp,field_read,Elem_0040cc40::pos
-,Elem_0040cc40::Elem_0040cc40,src/ai/ai_player_409730.cpp,function,
 ,Elem_0040cc40::Elem_0040cc40,src/ai/ai_player_40c530.cpp,field_read,Elem_0040cc40::key
 ,Elem_0040cc40::Elem_0040cc40,src/ai/ai_player_40c530.cpp,field_read,Elem_0040cc40::pos
 ,Elem_0040cc40::Elem_0040cc40,src/ai/ai_player_40c530.cpp,function,
 ,Elem_0040cc40::Elem_0040cc40,src/ai/player_ai.h,field_write,Elem_0040cc40::key
 ,Elem_0040cc40::Elem_0040cc40,src/ai/player_ai.h,field_write,Point16::x
 ,Elem_0040cc40::Elem_0040cc40,src/ai/player_ai.h,field_write,Point16::y
+,Elem_0040cc40::Elem_0040cc40,src/ai/player_ai.h,field_write,ta::Elem_0040cc40::key
 ,Elem_0040cc40::Elem_0040cc40,src/ai/player_ai.h,function,
-,Elem_0040cc40::operator<,src/ai/ai_player_409730.cpp,field_read,Elem_0040cc40::key
-,Elem_0040cc40::operator<,src/ai/ai_player_409730.cpp,function,
 ,Elem_0040cc40::operator<,src/ai/ai_player_40c530.cpp,field_read,Elem_0040cc40::key
 ,Elem_0040cc40::operator<,src/ai/ai_player_40c530.cpp,function,
 ,Elem_0040cc40::operator<,src/ai/player_ai.h,field_read,Elem_0040cc40::key
+,Elem_0040cc40::operator<,src/ai/player_ai.h,field_read,ta::Elem_0040cc40::key
 ,Elem_0040cc40::operator<,src/ai/player_ai.h,function,
-,Elem_0040d4f0::Elem_0040d4f0,src/ai/ai_player_40c530.cpp,field_read,Elem_0040d4f0::value
-,Elem_0040d4f0::Elem_0040d4f0,src/ai/ai_player_40c530.cpp,function,
+,Elem_0040cc40_view::Elem_0040cc40_view,src/ai/player_ai.h,field_write,Elem_0040cc40_view::key
+,Elem_0040cc40_view::Elem_0040cc40_view,src/ai/player_ai.h,field_write,Point16::x
+,Elem_0040cc40_view::Elem_0040cc40_view,src/ai/player_ai.h,field_write,Point16::y
+,Elem_0040cc40_view::Elem_0040cc40_view,src/ai/player_ai.h,function,
+,Elem_0040cc40_view::operator<,src/ai/player_ai.h,field_read,Elem_0040cc40_view::key
+,Elem_0040cc40_view::operator<,src/ai/player_ai.h,function,
 ,Elem_00432be0::operator char *,src/units/unit_types_42a8d0.cpp,field_read,Elem_00432be0::data
 ,Elem_00432be0::operator char *,src/units/unit_types_42a8d0.cpp,function,
 ,Elem_00432be0::~Elem_00432be0,src/map/los_tables.cpp,call,StringRef::ReleaseRef
@@ -45049,11 +45053,12 @@ address,function,file,kind,target
 ,FindWeapon,src/units/unit_types_42a8d0.cpp,global_read,s_weaponTdfParsers@src/units/unit_types_42a8d0.cpp
 ,FindWeaponByNameNative,src/seams/native.cpp,call,FindWeaponByName
 ,FindWeaponByNameNative,src/seams/native.cpp,function,
+,Find_00499cd0,src/weapons/weapons.cpp,call,begin
+,Find_00499cd0,src/weapons/weapons.cpp,call,end
 ,Find_00499cd0,src/weapons/weapons.cpp,call,operator()
 ,Find_00499cd0,src/weapons/weapons.cpp,field_escape,Pair_00499cd0::value
 ,Find_00499cd0,src/weapons/weapons.cpp,field_read,Pair_00499cd0::name
-,Find_00499cd0,src/weapons/weapons.cpp,field_read,Table_00499cd0::first
-,Find_00499cd0,src/weapons/weapons.cpp,field_read,Table_00499cd0::last
+,Find_00499cd0,src/weapons/weapons.cpp,field_read,Table_00499cd0::v
 ,Find_00499cd0,src/weapons/weapons.cpp,function,
 ,Find_004a3ef0,src/gui/gui_4a3ef0.cpp,field_read,<anon>::count
 ,Find_004a3ef0,src/gui/gui_4a3ef0.cpp,field_read,Gadget::team
@@ -45799,6 +45804,10 @@ address,function,file,kind,target
 ,Grid::Grid,src/map/grid.h,field_write,Grid::count
 ,Grid::Grid,src/map/grid.h,field_write,Grid::height
 ,Grid::Grid,src/map/grid.h,field_write,Grid::width
+,Grid::Grid,src/map/grid.h,field_write,ta::Grid::cells
+,Grid::Grid,src/map/grid.h,field_write,ta::Grid::count
+,Grid::Grid,src/map/grid.h,field_write,ta::Grid::height
+,Grid::Grid,src/map/grid.h,field_write,ta::Grid::width
 ,Grid::Grid,src/map/grid.h,function,
 ,GridCell,src/orders/unit_orders.cpp,field_read,Point16::x
 ,GridCell,src/orders/unit_orders.cpp,field_read,Point16::y
@@ -45815,6 +45824,7 @@ address,function,file,kind,target
 ,Group::Send,src/ai/ai_player.cpp,function,
 ,Group_00409160::Clear,src/ai/player_ai.h,call,UnitList_00409160::Clear
 ,Group_00409160::Clear,src/ai/player_ai.h,field_maybe_written,Group_00409160::list
+,Group_00409160::Clear,src/ai/player_ai.h,field_maybe_written,ta::Group_00409160::list
 ,Group_00409160::Clear,src/ai/player_ai.h,function,
 ,Grow,src/util/hpi.cpp,call,GameReallocTagged
 ,Grow,src/util/hpi.cpp,field_read,HapiBuf::buf
@@ -47617,6 +47627,10 @@ address,function,file,kind,target
 ,MakeVec3,src/ai/ai_player.cpp,field_write,Vec3::y
 ,MakeVec3,src/ai/ai_player.cpp,field_write,Vec3::z
 ,MakeVec3,src/ai/ai_player.cpp,function,
+,MakeVec3,src/ai/ai_player_407e70.cpp,field_write,Vec3::x
+,MakeVec3,src/ai/ai_player_407e70.cpp,field_write,Vec3::y
+,MakeVec3,src/ai/ai_player_407e70.cpp,field_write,Vec3::z
+,MakeVec3,src/ai/ai_player_407e70.cpp,function,
 ,MakeVec3,src/game/victory.cpp,field_write,Vec3::x
 ,MakeVec3,src/game/victory.cpp,field_write,Vec3::y
 ,MakeVec3,src/game/victory.cpp,field_write,Vec3::z
@@ -47650,12 +47664,11 @@ address,function,file,kind,target
 ,MapRange,src/ai/ai_player_408100.cpp,field_read,Game_00408100::mapPixelWidth
 ,MapRange,src/ai/ai_player_408100.cpp,function,
 ,MapRange,src/ai/ai_player_408100.cpp,global_read,g_game
-,MapSize_00408090::Contains,src/ai/ai_player_407e70.cpp,field_read,MapSize_00408090::height
-,MapSize_00408090::Contains,src/ai/ai_player_407e70.cpp,field_read,MapSize_00408090::width
-,MapSize_00408090::Contains,src/ai/ai_player_407e70.cpp,function,
-,MapSize_00408090::Contains,src/ai/ai_player_408090.cpp,field_read,MapSize_00408090::height
-,MapSize_00408090::Contains,src/ai/ai_player_408090.cpp,field_read,MapSize_00408090::width
-,MapSize_00408090::Contains,src/ai/ai_player_408090.cpp,function,
+,MapSize_00408090::Contains,src/ai/byte_map.h,field_read,MapSize_00408090::height
+,MapSize_00408090::Contains,src/ai/byte_map.h,field_read,MapSize_00408090::width
+,MapSize_00408090::Contains,src/ai/byte_map.h,field_read,ta::MapSize_00408090::height
+,MapSize_00408090::Contains,src/ai/byte_map.h,field_read,ta::MapSize_00408090::width
+,MapSize_00408090::Contains,src/ai/byte_map.h,function,
 ,MapSize_004658e0::Contains,src/game/players_4658e0.cpp,field_read,MapSize_004658e0::height
 ,MapSize_004658e0::Contains,src/game/players_4658e0.cpp,field_read,MapSize_004658e0::width
 ,MapSize_004658e0::Contains,src/game/players_4658e0.cpp,function,
@@ -48179,9 +48192,9 @@ address,function,file,kind,target
 ,ObjectPool::~ObjectPool,src/graphics/object_pool.h,function,
 ,Offset,src/ai/ai_player_407e70.cpp,call,FUN_004b70ef
 ,Offset,src/ai/ai_player_407e70.cpp,call,FUN_004b7123
-,Offset,src/ai/ai_player_407e70.cpp,field_write,Vec3_00407d40::x
-,Offset,src/ai/ai_player_407e70.cpp,field_write,Vec3_00407d40::y
-,Offset,src/ai/ai_player_407e70.cpp,field_write,Vec3_00407d40::z
+,Offset,src/ai/ai_player_407e70.cpp,field_write,Vec3::x
+,Offset,src/ai/ai_player_407e70.cpp,field_write,Vec3::y
+,Offset,src/ai/ai_player_407e70.cpp,field_write,Vec3::z
 ,Offset,src/ai/ai_player_407e70.cpp,function,
 ,Offset,src/ingame/markers.cpp,call,FUN_004b70ef
 ,Offset,src/ingame/markers.cpp,call,FUN_004b7123
@@ -48579,16 +48592,12 @@ address,function,file,kind,target
 ,ParticleSystem::operator new,src/graphics/particles_472630.cpp,global_maybe_written,g_particlePool
 ,ParticleSystem::operator new,src/graphics/particles_472630.cpp,global_read,g_fxEventPoolBlocked
 ,Pass,src/network/unit_sync_46dad0.cpp,function,
-,PathGoal::~PathGoal,src/game/victory.cpp,function,
+,PathGoal::~PathGoal,src/ai/ai_search_goal.h,function,
 ,PathGoal::~PathGoal,src/orders/order_targets.cpp,function,
 ,PathGrid::At,src/ai/pathfinder.h,deref_escape,*PathCell
 ,PathGrid::At,src/ai/pathfinder.h,field_read,PathGrid::cells
 ,PathGrid::At,src/ai/pathfinder.h,field_read,PathGrid::width
 ,PathGrid::At,src/ai/pathfinder.h,function,
-,PathGrid::At,src/game/console_commands.cpp,deref_escape,*PathCell
-,PathGrid::At,src/game/console_commands.cpp,field_read,PathGrid::cells
-,PathGrid::At,src/game/console_commands.cpp,field_read,PathGrid::width
-,PathGrid::At,src/game/console_commands.cpp,function,
 ,PathGrid::ClearBlock,src/ai/pathfinder.h,deref_escape,*PathCell
 ,PathGrid::ClearBlock,src/ai/pathfinder.h,deref_read,*unsigned int
 ,PathGrid::ClearBlock,src/ai/pathfinder.h,deref_write,*unsigned int
@@ -49017,6 +49026,8 @@ address,function,file,kind,target
 ,PosZWhole,src/orders/order_list.cpp,function,
 ,Pos_00409160::Pos_00409160,src/ai/player_ai.h,field_write,Pos_00409160::x
 ,Pos_00409160::Pos_00409160,src/ai/player_ai.h,field_write,Pos_00409160::y
+,Pos_00409160::Pos_00409160,src/ai/player_ai.h,field_write,ta::Pos_00409160::x
+,Pos_00409160::Pos_00409160,src/ai/player_ai.h,field_write,ta::Pos_00409160::y
 ,Pos_00409160::Pos_00409160,src/ai/player_ai.h,function,
 ,Pos_004745e0::Visible,src/graphics/particles.cpp,call,ByteMap_004745e0::Get
 ,Pos_004745e0::Visible,src/graphics/particles.cpp,call,Identity_004745e0
@@ -50083,9 +50094,8 @@ address,function,file,kind,target
 ,SquadManagerTickIfActiveNative,src/seams/native.cpp,function,
 ,SquadTimer::SquadTimer,src/ai/ai_player_407d40.cpp,field_read,SquadManager::index
 ,SquadTimer::SquadTimer,src/ai/ai_player_407d40.cpp,function,
-,SquadTimer::~SquadTimer,src/ai/ai_player.cpp,function,
 ,SquadTimer::~SquadTimer,src/ai/ai_player_407d40.cpp,function,
-,SquadTimer::~SquadTimer,src/ai/ai_player_407e70.cpp,function,
+,SquadTimer::~SquadTimer,src/ai/squad_timer.h,function,
 ,Square,src/orders/vtol_orders_414a80.cpp,field_read,Vec3::x
 ,Square,src/orders/vtol_orders_414a80.cpp,field_read,Vec3::z
 ,Square,src/orders/vtol_orders_414a80.cpp,function,
@@ -50514,6 +50524,7 @@ address,function,file,kind,target
 ,UnitList::ForEach,src/game/victory.cpp,indirect_call,virtual Listener_0048ff40::VisitUnit
 ,UnitList_00409160::Clear,src/ai/player_ai.h,call,clear
 ,UnitList_00409160::Clear,src/ai/player_ai.h,field_maybe_written,UnitList_00409160::units
+,UnitList_00409160::Clear,src/ai/player_ai.h,field_maybe_written,ta::UnitList_00409160::units
 ,UnitList_00409160::Clear,src/ai/player_ai.h,function,
 ,UnitRef::Get,src/orders/vtol_orders_414380.cpp,field_read,UnitRef::ptr
 ,UnitRef::Get,src/orders/vtol_orders_414380.cpp,function,
@@ -50867,16 +50878,9 @@ address,function,file,kind,target
 ,Vec3_00407d40::Vec3_00407d40,src/ai/ai_player_407d40.cpp,field_read,Game::baseX
 ,Vec3_00407d40::Vec3_00407d40,src/ai/ai_player_407d40.cpp,field_read,Game::baseY
 ,Vec3_00407d40::Vec3_00407d40,src/ai/ai_player_407d40.cpp,function,
-,Vec3_00407d40::Vec3_00407d40,src/ai/ai_player_407e70.cpp,function,
-,Vec3_00407d40::operator+=,src/ai/ai_player_407e70.cpp,field_read,Vec3_00407d40::x
-,Vec3_00407d40::operator+=,src/ai/ai_player_407e70.cpp,field_read,Vec3_00407d40::y
-,Vec3_00407d40::operator+=,src/ai/ai_player_407e70.cpp,field_read,Vec3_00407d40::z
-,Vec3_00407d40::operator+=,src/ai/ai_player_407e70.cpp,field_write,Vec3_00407d40::x
-,Vec3_00407d40::operator+=,src/ai/ai_player_407e70.cpp,field_write,Vec3_00407d40::y
-,Vec3_00407d40::operator+=,src/ai/ai_player_407e70.cpp,field_write,Vec3_00407d40::z
-,Vec3_00407d40::operator+=,src/ai/ai_player_407e70.cpp,function,
 ,Vec3_00409160::Vec3_00409160,src/ai/player_ai.h,call,operator=
 ,Vec3_00409160::Vec3_00409160,src/ai/player_ai.h,deref_write,*Vec3_00409160
+,Vec3_00409160::Vec3_00409160,src/ai/player_ai.h,deref_write,*ta::Vec3_00409160
 ,Vec3_00409160::Vec3_00409160,src/ai/player_ai.h,function,
 ,Vec3_0040beb0::Length,src/ai/ai_player.cpp,call,bx_sqrt
 ,Vec3_0040beb0::Length,src/ai/ai_player.cpp,field_read,Vec3_0040beb0::x
@@ -51054,7 +51058,7 @@ address,function,file,kind,target
 ,Vec3i_00474130::operator+=,src/graphics/particles_472630.cpp,field_write,Vec3i_00474130::y
 ,Vec3i_00474130::operator+=,src/graphics/particles_472630.cpp,field_write,Vec3i_00474130::z
 ,Vec3i_00474130::operator+=,src/graphics/particles_472630.cpp,function,
-,Vec::Vec,src/orders/unit_orders_406aa0.cpp,function,
+,Vec::Vec,src/ai/vec.h,function,
 ,VecElems_0046ca60::_Destroy,src/network/unit_sync_46ca60.cpp,call,destroy
 ,VecElems_0046ca60::_Destroy,src/network/unit_sync_46ca60.cpp,field_maybe_written,VecElems_0046ca60::alloc
 ,VecElems_0046ca60::_Destroy,src/network/unit_sync_46ca60.cpp,function,

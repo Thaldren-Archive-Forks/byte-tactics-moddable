@@ -20,7 +20,7 @@ public:
     Unit* owner;
 
     PathGoal(Unit* p);
-    virtual ~PathGoal();
+    virtual ~PathGoal() {}
     virtual void SetPathOrder(void* param);
     virtual void TickTowardGoal();
     virtual void FillWaypointWorldPos(Vec3*, int, int);
@@ -47,7 +47,6 @@ public:
         };
         unsigned char flags;
     };
-    char unknown_65[3];
 
     AiSearchGoal(Unit* p);
     virtual ~AiSearchGoal();
