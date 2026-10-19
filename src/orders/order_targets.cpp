@@ -539,7 +539,7 @@ ApproachRadius::ApproachRadius(Order* source, int x, int y, int r)
     : OrderFx((int)source)
 {
     SetVtable(g_approachRadiusVtable);
-    Point16 org = source->unit->cell;
+    Point16 org = source->unit->footprint;
     Point16 p;
     p.x = (x - (org.x << 19) + 0x80000) >> 20;
     p.y = (y - (org.y << 19) + 0x80000) >> 20;
@@ -642,7 +642,7 @@ static inline void ToWorld(int* out, Point16 a, Point16 b)
 // FUNCTION: 0x44d2c0
 int ApproachRadius::FillWorldPos(int* out)
 {
-    ToWorld(out, pos, ((Order*)source)->unit->cell);
+    ToWorld(out, pos, ((Order*)source)->unit->footprint);
     return 1;
 }
 
@@ -681,7 +681,7 @@ RingApproach::RingApproach(Order* source, int x, int y, int r1, int r2)
     : OrderFx((int)source)
 {
     SetVtable(g_ringApproachVtable);
-    Point16 org = source->unit->cell;
+    Point16 org = source->unit->footprint;
     Point16 p;
     p.x = (x - (org.x << 19) + 0x80000) >> 20;
     p.y = (y - (org.y << 19) + 0x80000) >> 20;
@@ -799,7 +799,7 @@ static inline int MeanRadius(RingApproach* c)
 int RingApproach::FillWorldPos(Vec3* out)
 {
     Unit* inner = ((Order*)source)->unit;
-    ToWorld(out, pos, inner->cell);
+    ToWorld(out, pos, inner->footprint);
     short angle = GetHeadingBetween(&inner->pos, out);
     Vec3 d = Direction(angle, MeanRadius(this) << 16);
     out->x -= d.x;
@@ -856,8 +856,8 @@ PointMarker::PointMarker(Order* owner, Point16 pos, Point16 size)
     : OrderFx((int)owner)
 {
     SetVtable(g_pointMarkerVtable);
-    x1 = pos.x - owner->unit->cell.x;
-    y1 = pos.y - owner->unit->cell.y;
+    x1 = pos.x - owner->unit->footprint.x;
+    y1 = pos.y - owner->unit->footprint.y;
     x2 = size.x + pos.x;
     y2 = size.y + pos.y;
 }
@@ -924,7 +924,7 @@ int PointMarker::FillWorldPos(int* out)
 {
     short avg = (short)MidX_44dc60(this);
     short z = (short)y2;
-    Point16 pos = ((Order*)source)->unit->cell;
+    Point16 pos = ((Order*)source)->unit->footprint;
     out[0] = (pos.x + avg * 2) << 0x13;
     out[2] = (pos.y + z * 2) << 0x13;
     return 1;
