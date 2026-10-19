@@ -26,7 +26,7 @@
 
 #include "sight_query.h"
 
-struct Pos {
+struct ScreenPos {
     short x;
     short y;
 };
@@ -134,14 +134,14 @@ struct FrameTable {
 // at the byte flag, so the copy has to re-point them at the destination.
 struct Eye {
     void* player;                      // +0x00
-    Pos* screen;                       // +0x04, &screenPos
+    ScreenPos* screen;                       // +0x04, &screenPos
     short x;                           // +0x08
     unsigned char flagA;               // +0x0a
     char flagB;                        // +0x0b
     char* flagPtr;                     // +0x0c, &flagB
     Vec3 pos;                          // +0x10
     unsigned int expires;              // +0x1c
-    Pos screenPos;                     // +0x20
+    ScreenPos screenPos;                     // +0x20
     Eye& operator=(const Eye& s) {
         player = s.player;
         screen = &screenPos;

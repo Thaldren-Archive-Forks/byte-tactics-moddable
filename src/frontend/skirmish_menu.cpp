@@ -841,10 +841,10 @@ void __cdecl CycleCurrentPlayerAllyGroup()
 
 #include "../gui/mouse_event.h"
 
-// Frame is the click handler's stack block: two scratch strings, the mouse
+// ClickFrame is the click handler's stack block: two scratch strings, the mouse
 // event and the gadget name.
 #pragma pack(push, 1)
-struct Frame {
+struct ClickFrame {
     char sA[0xc];
     char sB[0xc];
     MouseEvent ev;
@@ -863,7 +863,7 @@ void __stdcall GetCurrentMouseEvent(MouseEvent* out);
 // FUNCTION: 0x47ae60
 void __stdcall HandleSkirmishClick(Gui* menu)
 {
-    Frame frame;
+    ClickFrame frame;
 
     Gadget* entries = menu->layer->entries;
     int cmd = menu->hotGadgetIndex;
