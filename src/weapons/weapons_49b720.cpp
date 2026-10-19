@@ -33,15 +33,9 @@ struct Vec3_0049b720 {
 
 #include "weapon_def.h"
 
-struct Weapon_0049b720 {
-    char unknown_0[0x10];
-    WeaponDef* weapon;                 // +0x10
-    char unknown_14[0x1c - 0x14];
-};
 
-struct Unit {
-    Weapon_0049b720 weapons[3];
-};
+
+#include "../units/unit.h"
 
 union Word_0049b720 {
     int i;

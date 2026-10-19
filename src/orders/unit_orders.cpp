@@ -660,8 +660,8 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         }
         QueueUnitSpeech(unit, 9, "Starting construction");
         g_seams.units->AttachUnitToPiece(order->target.owner, unit, piece, 1);
-        order->target.owner->fire = unit->fire;
-        order->target.owner->move = unit->move;
+        order->target.owner->moveOrder = unit->moveOrder;
+        order->target.owner->fireOrder = unit->fireOrder;
         AddOrder("getbuilt", 1, order->target.owner, unit, 0, 0, 0);
         g_seams.units->SetStateBits(unit, 8, 1);
         UpdateBuildMenuIfFocusUnit(unit);
@@ -804,8 +804,8 @@ int __stdcall GetBuiltOrder(Unit* unit, Order* order, unsigned int flags)
                     }
                 }
                 if (unit->Ready() && order->Target()->Ready()) {
-                    unit->fire = order->Target()->fire;
-                    unit->move = order->Target()->move;
+                    unit->moveOrder = order->Target()->moveOrder;
+                    unit->fireOrder = order->Target()->fireOrder;
                     if (unit->player->active && unit->player->type == 1)
                         unit->group = order->Target()->group;
                 }
@@ -902,7 +902,7 @@ int __stdcall CloakOffOrder(char* unit, int unused1, int unused2)
 // FUNCTION: 0x4030d0
 int __stdcall StandingMoveOrder(Unit* unit, Order* order, int unused)
 {
-    unit->fire = order->mode;
+    unit->moveOrder = order->mode;
     return 5;
 }
 
@@ -910,7 +910,7 @@ int __stdcall StandingMoveOrder(Unit* unit, Order* order, int unused)
 // FUNCTION: 0x403100
 int __stdcall StandingFireOrder(Unit* unit, Order* order, int unused)
 {
-    unit->move = order->mode;
+    unit->fireOrder = order->mode;
     if (order->mode == 0 || order->mode == 1) {
         for (char i = 0; i < 3; i++) {
             if (unit->weapons[i].flags & 0x10) {

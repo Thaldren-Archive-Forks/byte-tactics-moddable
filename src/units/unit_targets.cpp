@@ -12,10 +12,7 @@
 #include "cob_script.h"
 #include "../util/angles.h"
 
-class Unit;
 class UnitRef;
-class PathOrderAttach;
-class Order;
 
 // One virtual slot, called on the object a link belongs to.
 class Listener_004896f0 {
@@ -37,13 +34,7 @@ struct Target_0048a1e0 {
     unsigned int field_111;            // +0x111
 };
 
-struct Entry_004898b0 {                // 0x1c bytes
-    Point_004898b0 point;              // +0x0
-    char unknown_4[0xc - 4];
-    Target_0048a1e0* target;           // +0xc
-    char unknown_10[0x1b - 0x10];
-    unsigned char flags;               // +0x1b
-};
+
 
 // The unit's type.
 struct UnitType {
@@ -89,61 +80,7 @@ struct Body_0048a1e0 {
 
 #include "../network/player.h"
 
-class Unit {
-public:
-    Body_0048a1e0* motion;             // +0x0
-    Entry_004898b0 weapons[3];         // +0x4
-    char unknown_58[0x5c - 0x58];
-    Order* list;                       // +0x5c
-    char unknown_60[0x64 - 0x60];
-    Angles16 angles;                   // +0x64
-    struct {
-        int x;                         // +0x6a
-        union {
-            int y;                     // +0x6e, 16.16
-            struct {
-                unsigned short y_fraction;
-                short roll;            // +0x70
-            };
-        };
-        int z;                         // +0x72
-    } pos;
-    char unknown_76[0x92 - 0x76];
-    UnitType* def;                     // +0x92
-    Player* player;                    // +0x96
-    CobScript* script;                 // +0x9a
-    char unknown_9e[0xa2 - 0x9e];
-    union {
-        UnitRef* head;                 // +0xa2, the links of this unit's list
-        PathOrderAttach* link;
-    };
-    unsigned short unitDefIndex;       // +0xa6
-    unsigned short id;                 // +0xa8
-    unsigned short hoverBobPhase;      // +0xaa
-    char unknown_ac[0xb8 - 0xac];
-    unsigned short killCount;           // +0xb8, armour: divided by 5, capped at 5
-    char unknown_ba[0xf0 - 0xba];
-    void* attacker;                    // +0xf0
-    char lastAttackerSlot;
-    unsigned char lastDamageType;      // +0xf5
-    char unknown_f6[0xff - 0xf6];
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x108 - 0x100];
-    short health;                      // +0x108
-    char unknown_10a[0x10e - 0x10a];
-    unsigned char activateFlags;       // +0x10e
-    char cobStateFlags;
-    union {
-        unsigned int flags;            // +0x110
-        struct {
-            char unknown_110;
-            unsigned int field_111;    // +0x111
-        };
-    };
-    char unknown_115[0x118 - 0x115];
-
-    unsigned char ChooseWeapon();
-};
+#include "unit.h"
 
 struct MapInfo_0048a490;
 
@@ -230,8 +167,8 @@ char* __stdcall MakePropList(UnitType* obj)
 // FUNCTION: 0x4894f0
 int __stdcall UnitCanBuild(Unit* unit, short id)
 {
-    for (int i = 0; i < unit->def->count; i++) {
-        if (unit->def->ids[i] == id)
+    for (int i = 0; i < ((UnitType*)unit->def)->count; i++) {
+        if (((UnitType*)unit->def)->ids[i] == id)
             return 1;
     }
     return 0;
@@ -244,8 +181,8 @@ void UnitRef::LinkToUnit(Unit* o)
 {
     if (o != 0 && o->unitDefIndex != 0) {
         owner = o;
-        next = o->head;
-        o->head = this;
+        next = (UnitRef*)o->head;
+        o->head = (PathOrderAttach*)this;
         return;
     }
     owner = 0;
@@ -258,7 +195,7 @@ void UnitRef::LinkToUnit(Unit* o)
 void UnitRef::UnlinkFromUnit()
 {
     if (owner != 0) {
-        UnitRef** link = &owner->head;
+        UnitRef** link = (UnitRef**)&owner->head;
         while (*link != this)
             link = &(*link)->next;
         *link = next;
@@ -277,7 +214,7 @@ public:
     virtual ~PathOrderAttach()
     {
         if (owner != 0) {
-            PathOrderAttach** pp = &owner->link;
+            PathOrderAttach** pp = &owner->head;
             while (*pp != this)
                 pp = &(*pp)->next;
             *pp = next;
@@ -297,8 +234,8 @@ PathOrderAttach::PathOrderAttach(Unit* o, int v)
 {
     if (o != 0 && o->unitDefIndex != 0) {
         owner = o;
-        next = o->link;
-        o->link = this;
+        next = o->head;
+        o->head = this;
         return;
     }
     owner = 0;
@@ -328,7 +265,7 @@ void UnitRef::Unlink()
 void PathOrderAttach::SetUnit(Unit* o)
 {
     if (owner != 0) {
-        PathOrderAttach** pp = &owner->link;
+        PathOrderAttach** pp = &owner->head;
         while (*pp != this)
             pp = &(*pp)->next;
         *pp = next;
@@ -337,8 +274,8 @@ void PathOrderAttach::SetUnit(Unit* o)
     }
     if (o != 0 && o->unitDefIndex != 0) {
         owner = o;
-        next = o->link;
-        o->link = this;
+        next = o->head;
+        o->head = this;
         return;
     }
     owner = 0;
@@ -352,7 +289,7 @@ void UnitRef::ClearRef(void)
     if (listener)
         listener->Notify(8);
     if (owner == saved && owner) {
-        UnitRef** pp = &owner->head;
+        UnitRef** pp = (UnitRef**)&owner->head;
         while (*pp != this)
             pp = &(*pp)->next;
         *pp = next;
@@ -367,12 +304,12 @@ void UnitRef::ClearRef(void)
 // FUNCTION: 0x489740
 void __stdcall ClearUnitRefs(Unit* obj)
 {
-    for (UnitRef* n = obj->head; n != 0; n = obj->head) {
+    for (UnitRef* n = (UnitRef*)obj->head; n != 0; n = (UnitRef*)obj->head) {
         Unit* saved = n->owner;
         if (n->listener)
             n->listener->Notify(8);
         if (n->owner == saved && n->owner) {
-            UnitRef** pp = &n->owner->head;
+            UnitRef** pp = (UnitRef**)&n->owner->head;
             while (*pp != n)
                 pp = &(*pp)->next;
             *pp = n->next;
@@ -386,7 +323,7 @@ void __stdcall ClearUnitRefs(Unit* obj)
 // FUNCTION: 0x4897b0
 void __stdcall NotifyUnitRefs(Unit* obj, int event)
 {
-    for (UnitRef* n = obj->head; n != 0; n = n->next) {
+    for (UnitRef* n = (UnitRef*)obj->head; n != 0; n = n->next) {
         if (n->listener != 0)
             n->listener->Notify(event);
     }
@@ -441,7 +378,7 @@ void __stdcall DamageUnit(Unit* source, Unit* target, int amount, int type, unsi
     int dmg;
     if (type != 10) {
         if ((target->activateFlags & 2) && amount < 0x7530)
-            amount = (int)(((__int64)target->def->f1aa * amount) >> 0x10);
+            amount = (int)(((__int64)((UnitType*)target->def)->f1aa * amount) >> 0x10);
         int armour = target->killCount / 5;
         if (armour > 5)
             armour = 5;
@@ -516,8 +453,8 @@ void __stdcall ApplyUnitDamage(UnitDamagePacket* ev)
         return;
 
     if (ev->damageKind == 10) {
-        unit->health = (short)((unsigned int)(unit->health + ev->amount) < unit->def->maxhp
-                           ? unit->health + ev->amount : unit->def->maxhp);
+        unit->health = (short)((unsigned int)(unit->health + ev->amount) < ((UnitType*)unit->def)->maxhp
+                           ? unit->health + ev->amount : ((UnitType*)unit->def)->maxhp);
         return;
     }
 
@@ -542,7 +479,7 @@ void __stdcall ApplyUnitDamage(UnitDamagePacket* ev)
             if (!(unit->flags & 0x4000)) {
                 Player* owner = unit->player;
                 if (owner->active && (owner->type == 1 || owner->type == 2)) {
-                    if (!(unit->def->f241 & 0x4000000)) {
+                    if (!(((UnitType*)unit->def)->f241 & 0x4000000)) {
                         MissionType kind(s_paralyze_00508d80);
                         Order* e = unit->list;
                         if (e && e->kind == kind) {
@@ -567,13 +504,13 @@ void __stdcall ApplyUnitDamage(UnitDamagePacket* ev)
         if (ev->damageKind == 1) {
             int a = FUN_004b7123(ev->headingByte << 8, 400);
             int b = FUN_004b70ef(ev->headingByte << 8, 400);
-            g_seams.units->StartScriptWithArgs(unit->script, s_HitByWeapon_00508d74, 0, 0, 2, a, b, 0, 0);
-            int pct = unit->health * 100 / unit->def->maxhp;
+            g_seams.units->StartScriptWithArgs((CobScript*)unit->script, s_HitByWeapon_00508d74, 0, 0, 2, a, b, 0, 0);
+            int pct = unit->health * 100 / ((UnitType*)unit->def)->maxhp;
             if (pct < 0)
                 pct = 0;
             if (pct > 100)
                 pct = 100;
-            g_seams.units->StartScriptWithArgs(unit->script, s_TakeDamage_00508d68, 0, 0, 1, pct, 0, 0, 0);
+            g_seams.units->StartScriptWithArgs((CobScript*)unit->script, s_TakeDamage_00508d68, 0, 0, 1, pct, 0, 0, 0);
         }
     }
 }
@@ -595,7 +532,7 @@ void __stdcall ParalyzeUnit(Unit* unit, int ticks)
     if (!owner->active)
         return;
     if (owner->type == 1 || owner->type == 2) {
-        if (!(unit->def->f241 & 0x4000000)) {
+        if (!(((UnitType*)unit->def)->f241 & 0x4000000)) {
             MissionType kind("paralyze");
             Order* effect = unit->list;
             if (effect && effect->kind == kind) {
@@ -637,19 +574,19 @@ void __stdcall SetWeaponTargetPos(char* param_1, int* param_2, int param_3)
 // FUNCTION: 0x48a0f0
 void __stdcall ClearWeaponTarget(Unit* unit, int index)
 {
-    Point_004898b0* p = &unit->weapons[index].point;
+    Point_004898b0* p = (Point_004898b0*)&unit->weapons[index];
     if (p->a != 0 || p->b != (short)0x8000) {
         p->a = 0;
         p->b = (short)0x8000;
-        g_seams.units->FindScript(unit->script, "StartBuilding");
-        g_seams.units->StartScriptWithArgs(unit->script, "TargetCleared", 0, 0, 1, index, 0, 0, 0);
+        g_seams.units->FindScript((CobScript*)unit->script, "StartBuilding");
+        g_seams.units->StartScriptWithArgs((CobScript*)unit->script, "TargetCleared", 0, 0, 1, index, 0, 0, 0);
     }
 }
 
 // FUNCTION: 0x48a160
 void __stdcall ResetWeaponTarget(Unit* obj, int index)
 {
-    Point_004898b0* p = &obj->weapons[index].point;
+    Point_004898b0* p = (Point_004898b0*)&obj->weapons[index];
     p->a = 0;
     p->b = (short)0x8000;
 }
@@ -659,7 +596,7 @@ void __stdcall ResetWeaponTarget(Unit* obj, int index)
 // FUNCTION: 0x48a190
 Unit* __stdcall GetWeaponTargetUnit(Unit* obj, int index)
 {
-    Point_004898b0* p = &obj->weapons[index].point;
+    Point_004898b0* p = (Point_004898b0*)&obj->weapons[index];
     if (p->b != (short)0x8000) {
         return 0;
     }
@@ -687,39 +624,39 @@ static Vec3_0048a1e0 offset_0048a1e0(Body_0048a1e0* m, __int64 s)
 // FUNCTION: 0x48a1e0
 int __stdcall GetWeaponTargetPos(Unit* unit, Vec3_0048a1e0* pos, int index)
 {
-    Entry_004898b0* e = &unit->weapons[index];
-    if (e->point.b != (short)0x8000) {
-        pos->x = e->point.a << 16;
-        pos->z = e->point.b << 16;
+    UnitWeaponSlot* e = &unit->weapons[index];
+    if (e->aimTargetZOrUnitSentinel != (short)0x8000) {
+        pos->x = e->aimTargetXOrUnitId << 16;
+        pos->z = e->aimTargetZOrUnitSentinel << 16;
         pos->y = max(g_seams.units->GetGroundHeight((Vec3*)pos), g_game->seaLevel) << 16;
         return 1;
     }
-    if (e->point.a == 0) {
+    if (e->aimTargetXOrUnitId == 0) {
         return 0;
     }
-    Unit* def = &g_game->units[e->point.a];
+    Unit* def = &g_game->units[e->aimTargetXOrUnitId];
     if (def->unitDefIndex == 0) {
-        Entry_004898b0* f = &unit->weapons[index];
-        if (f->point.a != 0 || f->point.b != (short)0x8000) {
-            e->point.a = 0;
-            e->point.b = (short)0x8000;
-            g_seams.units->FindScript(unit->script, "StartBuilding");
-            g_seams.units->StartScriptWithArgs(unit->script, "TargetCleared", 0, 0, 1, index, 0, 0, 0);
+        UnitWeaponSlot* f = &unit->weapons[index];
+        if (f->aimTargetXOrUnitId != 0 || f->aimTargetZOrUnitSentinel != (short)0x8000) {
+            e->aimTargetXOrUnitId = 0;
+            e->aimTargetZOrUnitSentinel = (short)0x8000;
+            g_seams.units->FindScript((CobScript*)unit->script, "StartBuilding");
+            g_seams.units->StartScriptWithArgs((CobScript*)unit->script, "TargetCleared", 0, 0, 1, index, 0, 0, 0);
         }
         return 0;
     }
     g_seams.units->GetSweetSpot(def, (Vec3*)pos);
-    if ((e->flags & 2) && !(e->target->field_111 & 0x2000000) && def->motion != 0
-        && unit->killCount > 5 && e->target->radius != 0) {
+    if ((e->flags & 2) && !(((Target_0048a1e0*)e->weapon)->field_111 & 0x2000000) && def->motion != 0
+        && unit->killCount > 5 && ((Target_0048a1e0*)e->weapon)->radius != 0) {
         Vec3_0048a1e0 d;
         d.x = unit->pos.x - pos->x;
         d.y = unit->pos.y - pos->y;
         d.z = unit->pos.z - pos->z;
         int dist = (int)sqrt((double)d.x * d.x + (double)d.y * d.y + (double)d.z * d.z);
-        int scale = (int)(((__int64)dist << 16) / e->target->radius);
+        int scale = (int)(((__int64)dist << 16) / ((Target_0048a1e0*)e->weapon)->radius);
         scale = (int)((scale * (__int64)0xcccc) >> 16);
         __int64 s = scale;
-        d = offset_0048a1e0(def->motion, s);
+        d = offset_0048a1e0((Body_0048a1e0*)def->motion, s);
         pos->x = pos->x + d.x;
         pos->y = pos->y + d.y;
         pos->z = pos->z + d.z;
@@ -731,7 +668,7 @@ int __stdcall GetWeaponTargetPos(Unit* unit, Vec3_0048a1e0* pos, int index)
 int __stdcall IsTargetingUnit(Unit* list, Unit* obj)
 {
     for (int i = 0; i < 3; i++) {
-        if (list->weapons[i].point.b == -0x8000 && list->weapons[i].point.a == obj->id) {
+        if (list->weapons[i].aimTargetZOrUnitSentinel == -0x8000 && list->weapons[i].aimTargetXOrUnitId == obj->id) {
             return 1;
         }
     }
@@ -828,7 +765,7 @@ void __stdcall AlignUnitToGround(Unit* u)
             int H0 = b0 + ((c0 - b0) * fx) / 16;
             int H1 = b1 + ((c1 - b1) * fx) / 16;
             hs[k].wx = wx;
-            if ((u->def->f241 & 0x1000) && (u->flags & 0x10000000)
+            if ((((UnitType*)u->def)->f241 & 0x1000) && (u->flags & 0x10000000)
                 && !(u->flags & 0x4000)) {
                 // Stored through the array, then read back into H.
                 hs[k].h = H0 + ((H1 - H0) * fz) / 16;
@@ -838,9 +775,9 @@ void __stdcall AlignUnitToGround(Unit* u)
                 // short p and `* 2048`, not `<< 11`: keeps the 0x1f mask and 16-bit add.
                 unsigned int bobClock = HarnessTestMode() ? g_game->gameTick : GetTicks();
                 short p = (short)(((bobClock & 0x1f) + k * 8) * 2048 + u->hoverBobPhase);
-                int s = u->def->sight / 2;
+                int s = ((UnitType*)u->def)->sight / 2;
                 // Owner kept in a local across the 64-bit helper calls.
-                Body_0048a1e0* o = u->motion;
+                Body_0048a1e0* o = (Body_0048a1e0*)u->motion;
                 int q = o->sight;
                 if (q >= s)
                     q = s;
@@ -863,7 +800,7 @@ void __stdcall AlignUnitToGround(Unit* u)
         int h3 = hs[3].h;
         int a = (h0 + h1) / 2;
         int b = (h2 + h3) / 2;
-        u->pos.roll = (a + b) / 2;
+        u->yWhole = (a + b) / 2;
         u->angles.pitch = FUN_004b715a(b - a, (short)(abs(pts[0].z - pts[3].z) >> 16));
         u->angles.bank = FUN_004b715a(h0 - h1, (short)(abs(pts[0].x - pts[1].x) >> 16));
     }
