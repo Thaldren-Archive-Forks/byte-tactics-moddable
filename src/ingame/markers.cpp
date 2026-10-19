@@ -32,11 +32,6 @@ struct Pos {
     }
 };
 
-struct PointS16 {
-    short x;                          // +0x0
-    short y;                          // +0x2
-};
-
 #include "../util/vec3.h"
 
 static inline int Vec3Length(const Vec3* v)

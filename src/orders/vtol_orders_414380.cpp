@@ -7,7 +7,6 @@
 #include "../state/block.h"
 #include "../state/block.h"
 #include <windows.h>
-struct PointS16 { short x, y; };
 #include "../util/vec3.h"
 static inline Vec3 PosMinus(const Vec3& a, const Vec3& v) { Vec3 r; r.x=a.x-v.x; r.y=a.y-v.y; r.z=a.z-v.z; return r; }
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
@@ -60,19 +59,19 @@ int __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
 void __stdcall EmitNanoParticles(Vec3*, Vec3*, int);
-static inline PointS16 WorldToCell(Vec3 v, PointS16 origin)
+static inline Point16 WorldToCell(Vec3 v, Point16 origin)
 {
-    PointS16 c;
+    Point16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
-static inline void CellToWorld(PointS16 origin, PointS16 c, Vec3* v)
+static inline void CellToWorld(Point16 origin, Point16 c, Vec3* v)
 {
     v->x = (origin.x + c.x * 2) << 19;
     v->z = (origin.y + c.y * 2) << 19;
 }
-void __stdcall CellToWorldPos(PointS16,Vec3*,PointS16);
+void __stdcall CellToWorldPos(Point16,Vec3*,Point16);
 int __cdecl FUN_004b70ef(short,int);
 int __cdecl FUN_004b7123(short,int);
 short __cdecl FUN_004b715a(int,int);

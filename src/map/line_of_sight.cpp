@@ -31,11 +31,6 @@ struct ScreenPos {
     short y;
 };
 
-struct PointS16 {
-    short x;
-    short y;
-};
-
 #include "../graphics/rect.h"
 
 // A map cell (13 bytes): the feature at +0x8, its footprint offsets at +0xa,
@@ -206,7 +201,7 @@ void __stdcall CollectVisibleUnitIds();
 
 union Slot {
     int n;
-    PointS16 p;
+    Point16 p;
 };
 
 class Mission;
@@ -258,7 +253,7 @@ void __stdcall UpdateLineOfSight(SightQuery* params);
 void __stdcall AddLineOfSight(SightQuery* params);
 void __stdcall RemoveLineOfSight(SightQuery* params);
 void __stdcall RevealAroundUnit(SightQuery* params);
-void __stdcall UpdateCellHeightRange(PointS16 pos, PointS16 size);
+void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size);
 void UpdateRadarMapped();
 void DrawRadarUnits();
 void BuildFogTiles();
@@ -280,12 +275,12 @@ struct Expired {
     int operator()(const Eye& e) const { return e.expires < (unsigned int)g_game->ticks; }
 };
 
-static inline int SumX(PointS16 a, PointS16 b) { return a.x + b.x; }
-static inline int SumY(PointS16 a, PointS16 b) { return a.y + b.y; }
+static inline int SumX(Point16 a, Point16 b) { return a.x + b.x; }
+static inline int SumY(Point16 a, Point16 b) { return a.y + b.y; }
 
-static inline PointS16 MakePoint(int x, int y)
+static inline Point16 MakePoint(int x, int y)
 {
-    PointS16 p;
+    Point16 p;
     p.x = x;
     p.y = y;
     return p;
@@ -726,7 +721,7 @@ void BuildDerivedLayers(void)
 }
 
 // FUNCTION: 0x483210
-void __stdcall UpdateCellHeightRange(PointS16 pos, PointS16 size)
+void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size)
 {
     int width = g_game->width;
     int height = g_game->height;
