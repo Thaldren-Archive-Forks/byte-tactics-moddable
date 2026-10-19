@@ -6644,12 +6644,7 @@ struct Header_0044d010_2 {  // 0x10 bytes, 1 view
     Vec3 v;  // +0x4
 };
 
-class ApproachRadius {  // 0xc bytes, 1 view
-public:
-    char unknown_0[8];
-    Point16 pos;  // +0x8
-    void FUN_0044d0e0(std::vector<Point16>*);
-};
+#include "../src/orders/approach_areas.h"
 
 class Class_0044d290 {  // 0x14 bytes, 1 view
 public:
@@ -6788,16 +6783,6 @@ public:
     int FUN_0044d800(Unit*);
 };
 
-class RingApproach {    // 0x14 bytes, 1 view
-public:
-    char unknown_0[8];
-    short x;  // +0x8
-    short y;  // +0xa
-    int inner;  // +0xc
-    int outer;  // +0x10
-    int FUN_0044d840(int, int);
-};
-
 class Class_0044d910 {  // 0x4 bytes, 1 view
 public:
     virtual ~Class_0044d910(void);
@@ -6822,16 +6807,6 @@ public:
     int y1;  // +0x10
     int y2;  // +0x14
     void FUN_0044da00(std::vector<Point16>*);
-};
-
-struct PointMarker {     // 0x18 bytes, 1 view
-    char unknown_0[4];
-    char* mapPtr;  // +0x4
-    int x1;  // +0x8
-    int x2;  // +0xc
-    int y1;  // +0x10
-    int y2;  // +0x14
-    int FUN_0044dc60(int*);
 };
 
 struct Pos16_44dc60 {  // 0x4 bytes, 1 view

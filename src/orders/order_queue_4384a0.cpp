@@ -129,59 +129,16 @@ extern Entry_0043a1f0* g_missionOrderTableEnd;
 // this is its constructor.
 #include "mission_type.h"
 
-// The attachments the file constructor makes, by the kind of attachment.
 #pragma pack(push, 1)
-class Class_0044de80 : public OrderFx {
-public:
-    char pad[0x2e];
-    Class_0044de80(int owner, HapiBank* file, char* name);
-};
-
-// The attachments the order functions make from a position.
-struct Source_0044cf60;
+#include "path_fx.h"
 
 // Unused here: real functions declared for their symbol ids, which take the
 // place of the Point view this file used to define (docs/c2-regalloc.md).
 int CloakOnOrder(char*, int, int);
 int GetUnitCount(int, unsigned int);
 
-class ApproachRadius : public OrderFx {
-public:
-    char pad[0xc];
-    ApproachRadius(int owner, HapiBank* file, char* name);
-    ApproachRadius(Source_0044cf60* source, int x, int y, int r);
-    // Unused here: the type's members the other views declare keep the symbol
-    // ids of the functions after the merged classes (docs/c2-regalloc.md).
-    void* Destroy(unsigned char flag);
-    int ContainsCell(int px, int py);
-    int FillWorldPos(int* out);
-    int ApproxDistExcess(int px, int py);
-    int Serialize(int unused, HapiBank* file, char* name);
-};
+#include "approach_areas.h"
 
-class RingApproach : public OrderFx {
-public:
-    char pad[0x14];
-    RingApproach(int owner, HapiBank* file, char* name);
-    RingApproach(void* source, int x, int y, int r1, int r2);
-    // Unused here: the type's members the other views declare keep the symbol
-    // ids of the functions after the merged classes (docs/c2-regalloc.md).
-    void* Destroy(unsigned char flag);
-    int ContainsCell(int param_1, int param_2);
-    int ContainsUnit(Unit* unit);
-};
-
-class PointMarker : public OrderFx {
-public:
-    char pad[0x10];
-    PointMarker(int owner, HapiBank* file, char* name);
-    PointMarker(void* owner, Point16 pos, Point16 size);
-    // Unused here: the type's members the other views declare keep the symbol
-    // ids of the functions after the merged classes (docs/c2-regalloc.md).
-    void* Destroy(unsigned char should_delete);
-    int ContainsCell(int x, int y);
-    int ApproxDist(int x, int y);
-};
 #pragma pack(pop)
 
 #include "order_base.h"
@@ -455,7 +412,7 @@ void Order::SetAttachedFx(OrderFx* obj)
 void Order::AttachApproachRadiusGoal(int* p, int n)
 {
     if ((((UnitType *)unit->def)->flags32 & 0x800) == 0) {
-        ApproachRadius* obj = new (kSim) ApproachRadius((Source_0044cf60*)this, p[0], p[2], n);
+        ApproachRadius* obj = new (kSim) ApproachRadius(this, p[0], p[2], n);
         if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
                 ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
