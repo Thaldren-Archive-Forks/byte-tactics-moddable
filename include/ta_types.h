@@ -19,6 +19,7 @@
 #include "../src/graphics/nano_particle_vector.h"
 #include "../src/units/squad.h"
 #include "../src/network/packet_ring.h"
+#include "../src/network/sub_00460f60.h"
 
 #pragma pack(push, 1)
 
@@ -7533,15 +7534,6 @@ struct Entry_00462d30_2 {  // 0x34 bytes, 2 views
     Buffers_00462d30 buffers;  // +0x14
     int field_2c;  // +0x2c
     int field_30;  // +0x30
-};
-
-struct Sub_00460f60 {  // 0x1044 bytes, 1 view
-    void** items;  // +0x0
-    unsigned int count;  // +0x4
-    char unknown_8[24];
-    void* q;  // +0x20
-    char unknown_24[4128];
-    ~Sub_00460f60(void);
 };
 
 struct Buffer_461020 {  // 0x10 bytes, 1 view
