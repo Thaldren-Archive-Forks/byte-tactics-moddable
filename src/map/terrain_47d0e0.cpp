@@ -43,14 +43,7 @@ struct Obj_0047db20 {
     Flags_0047db20 flags;
 };
 
-struct Game {
-    char unknown_0[0x14233];
-    int width;
-    char unknown_14237[0x14287 - 0x14237];
-    Cell* cells;
-    char unknown_1428b[0x142b7 - 0x1428b];
-    int overflowBucket;
-};
+#include "../game/game.h"
 
 class ClaimFootprintVisitor {
 public:

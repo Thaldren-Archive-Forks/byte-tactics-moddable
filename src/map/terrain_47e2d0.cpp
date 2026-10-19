@@ -13,20 +13,7 @@ struct UnitDef;
 
 #include "cell.h"
 
-struct Game {
-    char unknown_0[0x14233];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x14253 - 0x1423b];
-    int featureCount;                  // +0x14253
-    char unknown_14257[0x1426f - 0x14257];
-    Feature* features;                 // +0x1426f
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x14287 - 0x14280];
-    Cell* heightMap;                   // +0x14287
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -51,11 +38,11 @@ int __stdcall CanPlaceFootprintAt(Unit* unit, Vec3* pos)
     if (a < 0 || c < 0)
         return 0;
     Game* g = g_game;
-    if (a + footprint.x >= g->mapWidthTiles)
+    if (a + footprint.x >= g->width)
         return 0;
-    if (c + footprint.y >= g->mapHeightTiles)
+    if (c + footprint.y >= g->height)
         return 0;
-    int w = g->mapWidthTiles;
+    int w = g->width;
     int x = footprint.x;
     int idx = ((c >> 1) + (footprint.x >> 2)) * (w >> 1)
             + (a >> 1) + (footprint.x >> 2);
@@ -68,7 +55,7 @@ int __stdcall CanPlaceFootprintAt(Unit* unit, Vec3* pos)
     int upperBound = sl - def->minwaterdepth;
     if (lowBound < sl && (def->flags1 & 0x800) && !(def->flags1 & 0x200000))
         lowBound = sl;
-    Cell* cell = &g->heightMap[c * w + a];
+    Cell* cell = &g->cells[c * w + a];
     int rowStep = w - x;
     for (int i = 0; i < footprint.y; i++, cell += rowStep) {
         for (int j = 0; j < x; j++, cell++) {

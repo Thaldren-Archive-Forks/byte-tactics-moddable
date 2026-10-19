@@ -21,29 +21,7 @@ struct Slot_00436860 {
     char unknown_4[0x14];
 };
 
-struct Game {
-    char unknown_0[0x519];
-    char messages[0x29a0 - 0x519];     // +0x519
-    Slot_00436860* options;            // +0x29a0
-    char unknown_29a4[0x2a3c - 0x29a4];
-    unsigned short numPlayers;         // +0x2a3c
-    char unknown_2a3e[0x2c28 - 0x2a3e];
-    int playerIds[10];                 // +0x2c28
-    char unknown_2c50[0x37ee6 - 0x2c50];
-    short maxUnits;                    // +0x37ee6
-    char unknown_37ee8[0x37eee - 0x37ee8];
-    int difficulty;                    // +0x37eee
-    char unknown_37ef2[0x39073 - 0x37ef2];
-    int noMovie;                       // +0x39073
-    char unknown_39077[0x391e9 - 0x39077];
-    Mission* mapInfo;                  // +0x391e9
-    struct MissionConditions* victoryConditions; // +0x391ed
-    char unknown_391f1[0x39219 - 0x391f1];
-    int singleCommanderDeath;          // +0x39219
-    int mapping;                       // +0x3921d
-    int lineOfSight;                   // +0x39221
-    int singleLOSType;                 // +0x39225
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -242,14 +220,14 @@ static MapCache s_mapCache;
 // FUNCTION: 0x434ab0
 void __stdcall SetMissionType(int owner)
 {
-    if (g_game->mapInfo != 0) {
-        if (g_game->mapInfo->type == owner) {
+    if (g_game->net != 0) {
+        if (g_game->net->type == owner) {
             return;
         }
         // Re-read the global here, not through a local: keeps the delete's null check.
-        delete g_game->mapInfo;
+        delete g_game->net;
     }
-    g_game->mapInfo = new (kSim) Mission(owner);
+    g_game->net = new (kSim) Mission(owner);
 }
 
 // Frees a global buffer, clears three globals and deletes the object at
@@ -265,8 +243,8 @@ void FreeOtaEnumCacheAndMission()
     g_otaEnumCacheComplete = 0;
     g_otaEnumFileListBytes = 0;
     g_otaEnumFileCount = 0;
-    delete g_game->mapInfo;
-    g_game->mapInfo = 0;
+    delete g_game->net;
+    g_game->net = 0;
 }
 
 // FUNCTION: 0x434bf0
@@ -292,7 +270,7 @@ int __stdcall LoadMapList(void** out, int param_2, int param_3)
     
     if (param_2 == 0) {
         s.bFlag = 1;
-        if (g_game->mapInfo->type != 3)
+        if (g_game->net->type != 3)
             s.bFlag = 0;
     } else {
         s.bFlag = 0;
@@ -313,7 +291,7 @@ int __stdcall LoadMapList(void** out, int param_2, int param_3)
         BuildDataPath(a.path, "Maps", files[s.i].data, "OTA");
         TdfFile parser;
         if (parser.LoadFile(a.path) != 0
-            && g_game->mapInfo->SelectSchema(3, &parser, 0) != 0) {
+            && g_game->net->SelectSchema(3, &parser, 0) != 0) {
             strcpy(a.name, files[s.i].data);
             StripExtension(a.name);
             strcpy(a.lower, a.name);
@@ -376,11 +354,11 @@ Mission::Mission(int owner_)
 // FUNCTION: 0x434ff0
 Mission::~Mission()
 {
-    MissionConditions* obj = g_game->victoryConditions;
+    MissionConditions* obj = g_game->list_391ed;
     if (obj) {
         g_seams.players->FreeConditions(obj);
         operator delete(obj);
-        g_game->victoryConditions = 0;
+        g_game->list_391ed = 0;
     }
     if (units)
         GameFreeThunk(units);
@@ -817,8 +795,8 @@ int Mission::LoadMission(char* map)
     char desc[0x80];
     char lower[0x80];
 
-    g_seams.players->DeleteConditions(g_game->victoryConditions);
-    g_game->victoryConditions = new (kSim) MissionConditions;
+    g_seams.players->DeleteConditions(g_game->list_391ed);
+    g_game->list_391ed = new (kSim) MissionConditions;
     surfaceMetal = -1;
     minWindSpeed = -1;
     maxWindSpeed = -1;
@@ -870,7 +848,7 @@ int Mission::LoadMission(char* map)
             }
             parser.ResetCurrentRecord();
             if (parser.SelectRecord("GlobalHeader")) {
-                g_game->maxUnits = parser.current->GetFieldInt("maxunits", 200);
+                (*(short*)&g_game->field_37ee6) = parser.current->GetFieldInt("maxunits", 200);
                 parser.ResetCurrentRecord();
                 BuildCampaignFilePath(1, "Maps", path, "TNT");
             } else {
@@ -928,14 +906,14 @@ int Mission::LoadMission(char* map)
     BuildCampaignFilePath(8, "camps\\briefs", value, "WAV");
     parser.current->GetFieldString(value, "UseOnlyUnits", 0x100, DAT_005119b8);
     BuildCampaignFilePath(6, "camps\\useonly", value, "TDF");
-    g_game->mapping = parser.current->GetFieldInt("mapping", 0);
-    g_game->lineOfSight = parser.current->GetFieldInt("lineofsight", 0);
+    g_game->singleMapping = parser.current->GetFieldInt("mapping", 0);
+    g_game->singleLineOfSight = parser.current->GetFieldInt("lineofsight", 0);
     g_game->singleLOSType = 1;
     g_game->singleCommanderDeath = 0;
     parser.current->GetFieldString(memory, "memory", 0x80, DAT_005119b8);
     parser.current->GetFieldString(numPlayers, "numplayers", 0x80, DAT_005119b8);
     parser.current->GetFieldString(planet, "Planet", 0x80, DAT_005119b8);
-    g_game->noMovie = parser.current->GetFieldInt("nomovie", 0);
+    g_game->skip = parser.current->GetFieldInt("nomovie", 0);
     parser.current->GetFieldString(desc, "missiondescription", 0x80, "No description available");
     strcpy(lower, desc);
     _strlwr(lower);
@@ -950,7 +928,7 @@ int Mission::LoadMission(char* map)
     noSeaLevelTrigger = parser.current->GetFieldInt("nosealeveltrigger", 0);
     waterDoesDamage = parser.current->GetFieldInt("waterdoesdamage", 0);
     waterDamage = parser.current->GetFieldInt("waterdamage", 0);
-    g_seams.players->RegisterConditions(g_game->victoryConditions, 0, &parser);
+    g_seams.players->RegisterConditions(g_game->list_391ed, 0, &parser);
     killMul = GetFloat(parser.current, "killmul");
     timeMul = GetFloat(parser.current, "timemul");
     if (!SelectSchema(type, &parser, schema)) {
@@ -1006,7 +984,7 @@ int Mission::SelectSchema(int type, TdfFile* parser, char* schema)
     names[4] = "Network 2";
     names[5] = "Network 3";
     names[6] = "Network 4";
-    int players = g_game->numPlayers;
+    int players = g_game->field_2a3c;
     switch (type) {
     case 1:
         switch (g_game->difficulty) {
@@ -1031,7 +1009,7 @@ int Mission::SelectSchema(int type, TdfFile* parser, char* schema)
         break;
     case 3: {
         for (int i = 0; i < 10; i++) {
-            if (g_game->playerIds[i] != -1 && g_game->playerIds[i] != 0)
+            if (g_game->table_2c28[i] != -1 && g_game->table_2c28[i] != 0)
                 players = i + 1;
         }
         order[0] = 3;
@@ -1042,7 +1020,7 @@ int Mission::SelectSchema(int type, TdfFile* parser, char* schema)
     }
     case 2: {
         for (int i = 0; i < 10; i++) {
-            if (g_game->options[i].active != 0)
+            if (((Slot_00436860 *)g_game->options)[i].active != 0)
                 players = i + 1;
         }
         order[0] = 3;

@@ -190,14 +190,6 @@ struct Spot {                          // a feature spot (0x30 bytes)
     };
 };
 
-struct Pool {                          // the feature spot pool
-    Spot* entries;                     // +0x0
-    void* featureUnit;                 // +0x4
-    int usedHead;                      // +0x8
-    int restHead;                      // +0xc
-    int freeHead;                      // +0x10
-};
-
 struct Feature {                       // the feature definition (0x100 bytes)
     char name[0x80];                   // +0x00
     char description[0x14];            // +0x80
@@ -332,7 +324,7 @@ struct PlayerData {
     unsigned char flags;               // +0x97
 };
 
-struct Player {
+struct PlayerView {
     int active;                        // +0x0
     char unknown_4[0x23];
     PlayerData* data;                  // +0x27
@@ -401,60 +393,7 @@ struct Model {
 
 #include "../map/mission.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x2a43 - 0x2851];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x141fb - 0x2a44];
-    union {
-        AnimManager anim;              // +0x141fb
-        struct {
-            char unknown_141fb[0x10];
-            union {
-                Pool pool;             // +0x1420b
-                Spot* spots;           // +0x1420b
-            };
-            char unknown_1421f[0x14233 - 0x1421f];
-            union {
-                int mapWidthTiles;     // +0x14233
-                int mapWidth;
-            };
-            int mapHeightTiles;        // +0x14237
-            char unknown_1423b[0x14253 - 0x1423b];
-            union {
-                int featureCount;      // +0x14253
-                int nameCount;
-                int typeCount;
-            };
-            int scanIndex;             // +0x14257
-            char unknown_1425b[0x14263 - 0x1425b];
-            int gravity;               // +0x14263
-            char unknown_14267[0x1426f - 0x14267];
-            Feature* features;         // +0x1426f
-        };
-    };
-    char unknown_14273[0x1427f - 0x14273];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x14287 - 0x14280];
-    Cell* heightMap;                   // +0x14287
-    char unknown_1428b[0x1439b - 0x1428b];
-    int unitDefs;                   // +0x1439b
-    char unknown_1439f[0x37ecc - 0x1439f];
-    int windVelX;                      // +0x37ecc
-    int windY;                         // +0x37ed0
-    int windZ;                         // +0x37ed4
-    char unknown_37ed8[0x37eee - 0x37ed8];
-    int difficulty;                    // +0x37eee
-    char unknown_37ef2[0x37f2f - 0x37ef2];
-    unsigned char uiOptionFlags;       // +0x37f2f
-    char unknown_37f30[0x38a47 - 0x37f30];
-    unsigned int gameTick;             // +0x38a47
-    char unknown_38a4b[0x38d72 - 0x38a4b];
-    unsigned char loadPercent;         // +0x38d72
-    char unknown_38d73[0x391e9 - 0x38d73];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 // The reference-counted string handle (StringRef elsewhere). It keeps this
@@ -515,7 +454,7 @@ unsigned short __stdcall GetCellFeature(Cell* cell)
 {
     if (cell->feature >= 0xfffb) {
         if (cell->feature == 0xfffe)
-            return (cell - (cell->offsetY * g_game->mapWidth + cell->offsetX))->feature;
+            return (cell - (cell->offsetY * g_game->width + cell->offsetX))->feature;
         return 0xffff;
     }
     return cell->feature;
@@ -538,13 +477,13 @@ Vec3 __stdcall GetFootprintCentre(Point16* cell, Feature* def)
 // FUNCTION: 0x422040
 void StampFeatureMetal(void)
 {
-    Cell* c = g_game->heightMap;
-    for (int i = 0; i < g_game->mapWidthTiles * g_game->mapHeightTiles; i++, c++) {
+    Cell* c = g_game->cells;
+    for (int i = 0; i < g_game->width * g_game->height; i++, c++) {
         if (c->feature < 0xfffb) {
             Feature* f = &g_game->features[c->feature];
             if (f->value != 0.0f && (f->flags16 & 0x200)) {
-                int x0 = i % g_game->mapWidthTiles;
-                int y0 = i / g_game->mapWidthTiles;
+                int x0 = i % g_game->width;
+                int y0 = i / g_game->width;
                 for (int y = y0; y < y0 + f->footprintz; y++) {
                     for (int x = x0; x < x0 + f->footprintx; x++) {
                         Cell* cc = g_seams.los_radar->GetMapCell(x, y);
@@ -685,8 +624,8 @@ static inline int FindFeature(char* name)
 // FUNCTION: 0x423160
 void PlaceMissionFeatures(void)
 {
-    for (int i = 0; i < g_game->mapInfo->featureCount; i++) {
-        MissionFeature* p = &g_game->mapInfo->features[i];
+    for (int i = 0; i < g_game->net->featureCount; i++) {
+        MissionFeature* p = &g_game->net->features[i];
         if (p->name[0] == 0)
             continue;
         unsigned short id = (unsigned short)FindFeature(p->name);
@@ -865,7 +804,7 @@ void __stdcall ReplaceFeatureWithDead(int x, int y, int flag)
     else
         v = f->dead;
     if (cell->flags & 1) {
-        Spot* spot = g_game->spots + cell->spot;
+        Spot* spot = (Spot *)g_game->spots + cell->spot;
         if (spot->flags & 2)
             v = f->reclamate;
         RemoveFeature(cell, 0);
@@ -888,9 +827,9 @@ static inline Feature* GetFeature(Cell* cell)
     if (cell->feature != 0xfffe)
         return 0;
     // Full expression twice, no locals or `cell -=`; ends with the feature return.
-    if ((cell - (cell->offsetY * g_game->mapWidthTiles + cell->offsetX))->feature >= 0xfffb)
+    if ((cell - (cell->offsetY * g_game->width + cell->offsetX))->feature >= 0xfffb)
         return 0;
-    return &g_game->features[(cell - (cell->offsetY * g_game->mapWidthTiles + cell->offsetX))->feature];
+    return &g_game->features[(cell - (cell->offsetY * g_game->width + cell->offsetX))->feature];
 }
 
 // Takes the field by reference and the amount as a double; the metal add stays plain code.
@@ -941,7 +880,7 @@ int __stdcall ReclaimFeature(Unit* unit, Vec3* pos)
         unit->metal += metal;
     }
     KillFeature(x, z, 1);
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
+    if (g_seams.map->GetGameType(g_game->net) == 3) {
         FeatureDamagePacket packet;
         packet.type = 0xf;
         packet.sub = 0xff;
@@ -994,7 +933,7 @@ void __stdcall SpreadFire(Feature* f, Point16* cell)
     int lastX = cell->x;
     int lastZ = cell->y;
     for (int i = 5; i; i--) {
-        px.value += (int)(((__int64)g_game->windVelX * 0x20000) >> 16);
+        px.value += (int)(((__int64)g_game->windX * 0x20000) >> 16);
         pz.value += (int)(((__int64)g_game->windZ * 0x20000) >> 16);
         int x = px.f.whole;
         int z = pz.f.whole;
@@ -1049,18 +988,18 @@ Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature,
     }
     // Computed before the cell index.
     Feature* f = &g_game->features[feature];
-    int n = cell - g_game->heightMap;
-    int w = g_game->mapWidthTiles;
+    int n = cell - g_game->cells;
+    int w = g_game->width;
     Point16 at;
     at.x = n % w;
     at.y = n / w;
     if (at.x + f->footprint.x > w)
         return 0;
-    if (at.y + f->footprint.y > g_game->mapHeightTiles)
+    if (at.y + f->footprint.y > g_game->height)
         return 0;
     // Both footprint loops walk an explicit `c++` pointer, not `row[x]`.
     for (int z = 0; z < f->footprint.y; z++) {
-        Cell* c = &cell[z * g_game->mapWidthTiles];
+        Cell* c = &cell[z * g_game->width];
         for (int x = 0; x < f->footprint.x; x++, c++) {
             if (c->feature != 0xffff && !RemoveFeature(c, 0))
                 return 0;
@@ -1093,7 +1032,7 @@ Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature,
     }
     cell->owner = owner;
     for (int z2 = 0; z2 < f->footprint.y; z2++) {
-        Cell* c = &cell[z2 * g_game->mapWidthTiles];
+        Cell* c = &cell[z2 * g_game->width];
         for (int x = 0; x < f->footprint.x; x++, c++) {
             if (x != 0 || z2 != 0) {
                 c->feature = 0xfffe;
@@ -1111,10 +1050,10 @@ Spot* __stdcall PlaceFeature(Cell* cell, unsigned short feature,
             EmitTimedSubParticles(&p, 4);
         }
     }
-    int index = cell - g_game->heightMap;
+    int index = cell - g_game->cells;
     Point16 p2;
-    p2.x = index % g_game->mapWidthTiles;
-    p2.y = index / g_game->mapWidthTiles;
+    p2.x = index % g_game->width;
+    p2.y = index / g_game->width;
     g_seams.map->RefreshAllPassMaps(p2, f->footprint);
     return spot;
 }
@@ -1182,14 +1121,14 @@ void __stdcall UpdateFeatures()
         }
     }
     if (--g_game->scanIndex < 0) {
-        g_game->scanIndex = g_game->mapWidthTiles * g_game->mapHeightTiles - 1;
+        g_game->scanIndex = g_game->width * g_game->height - 1;
     } else {
-        Cell* c = &g_game->heightMap[g_game->scanIndex];
+        Cell* c = &g_game->cells[g_game->scanIndex];
         if (c->feature < 0xfffb && !(c->flags & 1)) {
             Feature* f = &g_game->features[c->feature];
             if (RandomInt(100) < f->seedChance) {
-                int x = g_game->scanIndex % g_game->mapWidthTiles;
-                int z = g_game->scanIndex / g_game->mapHeightTiles;
+                int x = g_game->scanIndex % g_game->width;
+                int z = g_game->scanIndex / g_game->height;
                 x += RandomInt(f->seedSpread) - f->seedSpread / 2;
                 z += RandomInt(f->seedSpread) - f->seedSpread / 2;
                 Cell* t = g_seams.los_radar->GetMapCell(x, z);
@@ -1198,7 +1137,7 @@ void __stdcall UpdateFeatures()
             }
         }
     }
-    int smoke = g_game->gameTick % 3 == 0;
+    int smoke = (unsigned int)g_game->ticks % 3 == 0;
     int i = g_game->pool.usedHead;
     while (i != -1) {
         Spot* spot = &g_game->pool.entries[i];
@@ -1249,7 +1188,7 @@ void __stdcall UpdateFeatures()
 // FUNCTION: 0x4244b0
 void __stdcall DamageFeature(Cell* cell, int x, int z, Weapon* weapon)
 {
-    if (!(g_game->uiOptionFlags & 8))
+    if (!(g_game->uiOptionFlags_37f2f_1 & 8))
         return;
     if (cell->feature >= 0xfffb)
         return;
@@ -1258,8 +1197,8 @@ void __stdcall DamageFeature(Cell* cell, int x, int z, Weapon* weapon)
         return;
     FeatureDamagePacket packet;
     int send;
-    if (g_seams.map->GetGameType(g_game->mapInfo) == 3) {
-        if (!(g_game->players[g_game->playerIndex].data->flags & 1)) {
+    if (g_seams.map->GetGameType(g_game->net) == 3) {
+        if (!(((PlayerData*)g_game->players[g_game->playerIndex].info)->flags & 1)) {
             packet.type = 0xf;
             packet.sub = weapon->kind;
             packet.x = x;
@@ -1276,7 +1215,7 @@ void __stdcall DamageFeature(Cell* cell, int x, int z, Weapon* weapon)
         StartFeatureBurning(x, z, 0);
     } else if (cell->flags & 1) {
         if (!f->noobject) {
-            Spot* s = &g_game->spots[cell->spot];
+            Spot* s = &((Spot *)g_game->spots)[cell->spot];
             if (s->x != x)
                 return;
             if (s->z != z)
@@ -1314,14 +1253,14 @@ static inline void ClearCell(Cell* c)
 int __stdcall RemoveFeature(Cell* cell, int flag)
 {
     if (cell->feature == 0xfffe)
-        cell -= cell->sf.offsetY * g_game->mapWidthTiles + cell->sf.offsetX;
+        cell -= cell->sf.offsetY * g_game->width + cell->sf.offsetX;
     if (cell->feature >= 0xfffb)
         return 0;
     Feature* f = &g_game->features[cell->feature];
     if (flag == 0 && (f->flags16 & 0x200))
         return 0;
     if (cell->flags & 1) {
-        Spot* spot = &g_game->spots[cell->sf.spot];
+        Spot* spot = &((Spot *)g_game->spots)[cell->sf.spot];
         if (!(f->flags16 & 1)) {
             FreeObjectState(spot->state);
             spot->state = 0;
@@ -1330,16 +1269,16 @@ int __stdcall RemoveFeature(Cell* cell, int flag)
     }
     ClearCell(cell);
     for (int y = 0; y < f->footprint.y; y++) {
-        Cell* row = &cell[y * g_game->mapWidthTiles];
+        Cell* row = &cell[y * g_game->width];
         for (int x = 0; x < f->footprint.x; x++) {
             if (row[x].feature == 0xfffe)
                 ClearCell(&row[x]);
         }
     }
-    int index = cell - g_game->heightMap;
+    int index = cell - g_game->cells;
     Point16 p;
-    p.x = index % g_game->mapWidthTiles;
-    p.y = index / g_game->mapWidthTiles;
+    p.x = index % g_game->width;
+    p.y = index / g_game->width;
     g_seams.map->RefreshAllPassMaps(p, f->footprint);
     return 1;
 }
@@ -1347,9 +1286,9 @@ int __stdcall RemoveFeature(Cell* cell, int flag)
 // FUNCTION: 0x424840
 void RemoveAllFeatures(void)
 {
-    int n = g_game->mapWidthTiles * g_game->mapHeightTiles;
+    int n = g_game->width * g_game->height;
     for (int i = 0; i < n; i++) {
-        Cell* c = &g_game->heightMap[i];
+        Cell* c = &g_game->cells[i];
         if (c->feature < 0xfffb || c->feature == 0xfffe) {
             RemoveFeature(c, 1);
         }
@@ -1369,8 +1308,8 @@ void __stdcall SaveFeatures(HapiBank* file)
     file->WriteBox(names.begin(), g_game->featureCount * sizeof(FeatureName));
 
     // Declared before `end` and the counters, and walked by `for (; c < end; c++)`.
-    Cell* c = g_game->heightMap;
-    Cell* end = g_game->heightMap + g_game->mapWidthTiles * g_game->mapHeightTiles;
+    Cell* c = g_game->cells;
+    Cell* end = g_game->cells + g_game->width * g_game->height;
     int normalCount = 0;
     int modelCount = 0;
     int animCount = 0;
@@ -1382,7 +1321,7 @@ void __stdcall SaveFeatures(HapiBank* file)
             Feature* f = &g_game->features[c->feature];
             if (!(f->flags & 1)) {
                 Model rec;
-                Spot* s = &g_game->spots[c->spot];
+                Spot* s = &((Spot *)g_game->spots)[c->spot];
                 rec.x = x;
                 rec.y = y;
                 rec.feature = c->feature;
@@ -1395,7 +1334,7 @@ void __stdcall SaveFeatures(HapiBank* file)
                 modelCount++;
             } else if (c->flags & 1) {
                 AnimRecord rec;
-                Spot* s = &g_game->spots[c->spot];
+                Spot* s = &((Spot *)g_game->spots)[c->spot];
                 rec.x = x;
                 rec.y = y;
                 rec.feature = c->feature;
@@ -1428,7 +1367,7 @@ void __stdcall SaveFeatures(HapiBank* file)
         }
     next:
         x++;
-        if (x >= g_game->mapWidthTiles) {
+        if (x >= g_game->width) {
             x = 0;
             y++;
         }
