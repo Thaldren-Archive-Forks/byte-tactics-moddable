@@ -2,35 +2,62 @@
 #define APPROACH_AREAS_H
 
 #include "order_fx.h"
-
-struct Point16;
+#include "../util/vec3.h"
 
 #pragma pack(push, 1)
-class ApproachRadius : public OrderFx {
+class __declspec(novtable) ApproachRadius : public OrderFx {
 public:
-    short x;
-    short y;
-    int radius;
-    int radiusSq;
+    union {
+        struct {
+            union {
+                Point16 pos;
+                struct {
+                    short x;
+                    short y;
+                };
+            };
+            int radius;
+            int radiusSq;
+        };
+        Vec3 v;
+    };
 
     ApproachRadius(int owner, HapiBank* file, char* name);
     ApproachRadius(Order* source, int x, int y, int r);
     void* Destroy(unsigned char flag);
     int ContainsCell(int px, int py);
+    int ContainsUnit(Unit* unit);
     int FillWorldPos(int* out);
     int ApproxDistExcess(int px, int py);
     int Serialize(int unused, HapiBank* file, char* name);
     int GetType();
+    void AppendGoalCell(void* cells);
 };
 
-class RingApproach : public OrderFx {
+class __declspec(novtable) RingApproach : public OrderFx {
 public:
-    short x;
-    short y;
-    int inner;
-    int outer;
-    int innerSq;
-    int outerSq;
+    union {
+        struct {
+            union {
+                Point16 pos;
+                struct {
+                    short x;
+                    short y;
+                };
+            };
+            int inner;
+            int outer;
+            int innerSq;
+            int outerSq;
+        };
+        struct {
+            int a;
+            int b;
+            int c;
+            int d;
+            int e;
+        } data;
+    };
 
     RingApproach(int owner, HapiBank* file, char* name);
     RingApproach(Order* source, int x, int y, int r1, int r2);
@@ -38,14 +65,28 @@ public:
     int ContainsCell(int param_1, int param_2);
     int ContainsUnit(Unit* unit);
     int GetType();
+    int ApproxDistExcess(int px, int py);
+    int Serialize(int unused, HapiBank* file, char* name);
+    int FillWorldPos(Vec3* out);
+    void AppendGoalCell(void* cells);
 };
 
-class PointMarker : public OrderFx {
+class __declspec(novtable) PointMarker : public OrderFx {
 public:
-    int x1;
-    int x2;
-    int y1;
-    int y2;
+    union {
+        struct {
+            int x1;
+            int x2;
+            int y1;
+            int y2;
+        };
+        struct {
+            int a;
+            int b;
+            int c;
+            int d;
+        } r;
+    };
 
     PointMarker(int owner, HapiBank* file, char* name);
     PointMarker(Order* owner, Point16 pos, Point16 size);
@@ -53,6 +94,9 @@ public:
     int ContainsCell(int x, int y);
     int ApproxDist(int x, int y);
     int GetType();
+    int FillWorldPos(int* out);
+    int Serialize(int unused, HapiBank* file, char* name);
+    void AppendGoalCell(void* cells);
 };
 #pragma pack(pop)
 
