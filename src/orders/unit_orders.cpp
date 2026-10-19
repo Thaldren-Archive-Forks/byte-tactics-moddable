@@ -1510,7 +1510,7 @@ int __stdcall ParkOrder(Unit* unit,Order* order,int flags)
         if(!unit->motion) return 7;
         if(unit->def->flying) {
             order->pos=unit->pos;
-            order->MergeFlagsFromTable(MissionType("VTOL_MOVE").index);
+            MissionType mission("VTOL_MOVE"); order->MergeFlagsFromTable(mission.index);
             return 0;
         }
         {
