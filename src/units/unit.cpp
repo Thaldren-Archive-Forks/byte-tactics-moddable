@@ -75,11 +75,7 @@ struct ActivateFlagsPacket {
 
 extern Game* g_game;
 
-// One virtual slot, called on the object a link belongs to.
-class OrderBase {
-public:
-    virtual void OrStatusFlags(unsigned int value);
-};
+#include "../orders/order_base.h"
 
 #include "../orders/path_order_attach.h"
 

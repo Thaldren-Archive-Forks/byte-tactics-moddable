@@ -197,11 +197,7 @@ public:
 };
 #pragma pack(pop)
 
-// The base class: one virtual slot, its vtable at 0x4fd2cc.
-class OrderBase {
-public:
-    virtual void OrStatusFlags(unsigned int);  // slot 0: 0x43a1e0, empty
-};
+#include "order_base.h"
 
 #pragma pack(push, 1)
 // The fields between the vtable pointer and the link, as a second base whose

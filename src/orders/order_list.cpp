@@ -204,11 +204,7 @@ public:
     void SetUnit(Unit* o);
 };
 
-// The base class: one virtual slot, its vtable at 0x4fd2cc.
-class OrderBase {
-public:
-    virtual void OrStatusFlags(unsigned int);  // slot 0: 0x43a1e0, empty
-};
+#include "order_base.h"
 
 class Order : public OrderBase {
 public:

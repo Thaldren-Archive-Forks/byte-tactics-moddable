@@ -6062,11 +6062,7 @@ struct Obj_00439e30 {  // 0x64 bytes, 1 view
     Node_00439e30* list2;  // +0x60
 };
 
-class OrderBase {       // 0x4 bytes, 6 views
-public:
-    virtual void OrStatusFlags(unsigned int);
-    virtual void Notify(int);
-};
+#include "../src/orders/order_base.h"
 
 struct PointInit_0043a1f0 : public Point16 {  // 0x4 bytes, 1 view
     PointInit_0043a1f0(short, short);
