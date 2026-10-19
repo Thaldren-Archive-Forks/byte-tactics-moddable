@@ -6521,7 +6521,7 @@ address,function,file,kind,target
 0x420cb0,BuildCalcedExplosion,src/weapons/explosions.cpp,field_write,ImageFrame::image
 0x420cb0,BuildCalcedExplosion,src/weapons/explosions.cpp,function,
 0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,call,AllocFrame
-0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,call,bx_game_rand
+0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,call,GameRand
 0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,call,bx_sqrt
 0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,deref_write,*unsigned char
 0x420d20,BuildExplosionFrame,src/weapons/explosions_420d20.cpp,field_read,GafFrame::pixelsOrLayers
@@ -10544,8 +10544,8 @@ address,function,file,kind,target
 0x437d60,SetMeteorParams,src/map/meteors.cpp,global_write,g_meteorSpawnMagnitude
 0x437de0,UpdateMeteors,src/map/meteors.cpp,call,FUN_004b70ef
 0x437de0,UpdateMeteors,src/map/meteors.cpp,call,FUN_004b7123
+0x437de0,UpdateMeteors,src/map/meteors.cpp,call,GameRand
 0x437de0,UpdateMeteors,src/map/meteors.cpp,call,StartShower
-0x437de0,UpdateMeteors,src/map/meteors.cpp,call,bx_game_rand
 0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Game::ticks
 0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Point16::x
 0x437de0,UpdateMeteors,src/map/meteors.cpp,field_read,Point16::y
@@ -10574,8 +10574,8 @@ address,function,file,kind,target
 0x437de0,UpdateMeteors,src/map/meteors.cpp,global_write,g_meteorNextHitTime
 0x437de0,UpdateMeteors,src/map/meteors.cpp,indirect_call,"indirect via int (*)(WeaponDef *, Vec3 *, Vec3 *, int) __attribute__((stdcall)) [WeaponsSeam::SpawnProjectile]"
 0x438070,StartMeteorShower,src/map/meteors.cpp,call,AddPoints
+0x438070,StartMeteorShower,src/map/meteors.cpp,call,GameRand
 0x438070,StartMeteorShower,src/map/meteors.cpp,call,MakePoint
-0x438070,StartMeteorShower,src/map/meteors.cpp,call,bx_game_rand
 0x438070,StartMeteorShower,src/map/meteors.cpp,call,operator=
 0x438070,StartMeteorShower,src/map/meteors.cpp,field_read,Game::height
 0x438070,StartMeteorShower,src/map/meteors.cpp,field_read,Game::ticks
@@ -16439,11 +16439,11 @@ address,function,file,kind,target
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,BroadcastPacket
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,FindOccupied_004568c0
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,FirstJoinedId_004568c0
+0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,GameRand
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,IsConnected_004568c0
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,Player::IsPlayableSlot
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,PlayerId_004568c0
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,SendPacketToPlayer
-0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,bx_game_rand
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,call,random_shuffle
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,deref_write,*int
 0x4568c0,AssignStartPositions,src/network/net_game.cpp,field_escape,Game::players
@@ -19708,132 +19708,132 @@ address,function,file,kind,target
 0x464e70,ShowContinueWatchingDialog,src/game/players_464290.cpp,global_maybe_written,g_yesNoGuiName
 0x464e70,ShowContinueWatchingDialog,src/game/players_464290.cpp,global_maybe_written,g_yesText
 0x464e70,ShowContinueWatchingDialog,src/game/players_464290.cpp,global_read,g_game
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,BroadcastPlayerInfo
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,CountActiveAIPlayers
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,CountCombatPlayers
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,FindHostSlot
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,FocusCommander
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,LoadGuiLayer
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,MissionConditions::CheckDefeat
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,MissionConditions::CheckVictory
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,OpenMessageBox
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,RandomInt
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,RenderLayer
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,SendPlayerEconomy
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,SetKeyboardInput
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,SetStartingStorageBonus
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,SetTranslatedTextByName
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,Translate
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,loopCond_00464f80
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,more_00464f80
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,call,strcpy
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,deref_read,*float
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,deref_write,*float
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_escape,Game::players
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_escape,Unit::energy
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_escape,Unit::metal
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_maybe_written,Form::choice1
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_maybe_written,Form::choice2
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_maybe_written,Game::gui
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,<anon>::w
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,AiSeam::SquadManagerTickIfActive
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,AiSeam::UpdatePlayerAI
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,EconomySeam::UpdatePlayerEconomy
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::battleCommanderDeath
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::difficulty
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::endGameCountdown
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::gameTick
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::localPlayer
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::mapFlags
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::mapHeightTiles
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::mapHeightWorld
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::mapInfo
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::mapWidthTiles
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::mapWidthWorld
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::pathfinder
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::playerIndex
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::seaLevel
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::startPos
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::unitDefs
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Game::victoryConditions
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,LosRadarSeam::DrawRadarUnits
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,LosRadarSeam::RecalculateLineOfSight
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,LosRadarSeam::UpdateRadarMapped
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,LosRadarSeam::UpdateSensorRadarAndCloak
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,LosRadarSeam::UpdateUnitLineOfSight
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,MapSeam::CanPlaceUnitFootprint
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,MapSeam::GetCellMeanHeight
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,MapSeam::GetGameType
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Mission::lavaWorld
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,PathfindingSeam::RunSearches
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::active
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::info
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::rejectReason
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::team
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::type
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::unit
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::unitCount
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::units
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::unitsCreated
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::units_end
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Player::updateTime
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,PlayerInfo::energy
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,PlayerInfo::flags_9b
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,PlayerInfo::metal
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,PlayerInfo::side
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Screen::form
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::ai
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::economy
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::los_radar
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::map
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::pathfinding
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::units
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::weapons
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Unit::flags
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Unit::owner
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,UnitsSeam::CreateUnit
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,UnitsSeam::FindUnitTypeId
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Vec3::x
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,Vec3::z
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_read,WeaponsSeam::FindFeatureAtPos
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,<anon>::bit4
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,<anon>::bit5
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,<anon>::bit6
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,<anon>::w
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Game::endGameCountdown
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Game::mapFlags
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Player::updateTime
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,PlayerInfo::bit6
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Point16::x
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Point16::y
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Screen::callback
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Vec3::x
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Vec3::y
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,field_write,Vec3::z
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,fn_ref,ContinueWatchingCallback
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,function,
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_read,g_economyPacketTick
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_read,g_game
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_read,g_seams
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_read,kHundred@src/game/players_464290.cpp
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_read,kNegHalf@src/game/players_464290.cpp
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_read,kNegSeven@src/game/players_464290.cpp
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,global_write,g_economyPacketTick
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via Unit *(*)(unsigned char, unsigned short, Vec3, int, int, int) __attribute__((stdcall)) [UnitsSeam::CreateUnit]"
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via int (*)(Vec3 *) __attribute__((stdcall)) [MapSeam::GetCellMeanHeight]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via unsigned short (*)(Vec3 *, Point16 *, Point16 *) __attribute__((stdcall)) [WeaponsSeam::FindFeatureAtPos]"
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via unsigned short (*)(const char *) __attribute__((stdcall)) [UnitsSeam::FindUnitTypeId]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::DrawRadarUnits]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::UpdateRadarMapped]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::UpdateSensorRadarAndCloak]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)(Pathfinder *) __attribute__((fastcall)) [PathfindingSeam::RunSearches]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)(Player *) __attribute__((stdcall)) [EconomySeam::UpdatePlayerEconomy]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,"indirect via void (*)(SquadManager *, int) __attribute__((fastcall)) [AiSeam::SquadManagerTickIfActive]"
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [LosRadarSeam::UpdateUnitLineOfSight]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [AiSeam::UpdatePlayerAI]
-0x464f80,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [LosRadarSeam::RecalculateLineOfSight]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,BroadcastPlayerInfo
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,CountActiveAIPlayers
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,CountCombatPlayers
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,FindHostSlot
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,FocusCommander
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,LoadGuiLayer
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,MissionConditions::CheckDefeat
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,MissionConditions::CheckVictory
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,OpenMessageBox
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,RandomInt
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,RenderLayer
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,SendPlayerEconomy
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,SetKeyboardInput
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,SetStartingStorageBonus
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,SetTranslatedTextByName
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,Translate
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,loopCond_00464f80
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,more_00464f80
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,call,strcpy
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,deref_read,*float
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,deref_write,*float
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_escape,Game::players
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_escape,Unit::energy
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_escape,Unit::metal
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_maybe_written,Form::choice1
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_maybe_written,Form::choice2
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_maybe_written,Game::gui
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,<anon>::w
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,AiSeam::SquadManagerTickIfActive
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,AiSeam::UpdatePlayerAI
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,EconomySeam::UpdatePlayerEconomy
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::battleCommanderDeath
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::difficulty
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::endGameCountdown
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::gameTick
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::localPlayer
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::mapFlags
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::mapHeightTiles
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::mapHeightWorld
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::mapInfo
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::mapWidthTiles
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::mapWidthWorld
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::pathfinder
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::playerIndex
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::seaLevel
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::startPos
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::unitDefs
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Game::victoryConditions
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,LosRadarSeam::DrawRadarUnits
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,LosRadarSeam::RecalculateLineOfSight
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,LosRadarSeam::UpdateRadarMapped
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,LosRadarSeam::UpdateSensorRadarAndCloak
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,LosRadarSeam::UpdateUnitLineOfSight
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,MapSeam::CanPlaceUnitFootprint
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,MapSeam::GetCellMeanHeight
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,MapSeam::GetGameType
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Mission::lavaWorld
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,PathfindingSeam::RunSearches
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::active
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::info
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::rejectReason
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::team
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::type
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::unit
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::unitCount
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::units
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::unitsCreated
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::units_end
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Player::updateTime
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,PlayerInfo::energy
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,PlayerInfo::flags_9b
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,PlayerInfo::metal
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,PlayerInfo::side
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Screen::form
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Seams::ai
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Seams::economy
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Seams::los_radar
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Seams::map
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Seams::pathfinding
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Seams::units
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Seams::weapons
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Unit::flags
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Unit::owner
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,UnitsSeam::CreateUnit
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,UnitsSeam::FindUnitTypeId
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Vec3::x
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,Vec3::z
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_read,WeaponsSeam::FindFeatureAtPos
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,<anon>::bit4
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,<anon>::bit5
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,<anon>::bit6
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,<anon>::w
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Game::endGameCountdown
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Game::mapFlags
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Player::updateTime
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,PlayerInfo::bit6
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Point16::x
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Point16::y
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Screen::callback
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Vec3::x
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Vec3::y
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,field_write,Vec3::z
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,fn_ref,ContinueWatchingCallback
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,function,
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,global_read,g_economyPacketTick
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,global_read,g_game
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,global_read,g_seams
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,global_read,kHundred@src/game/players_464290.cpp
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,global_read,kNegHalf@src/game/players_464290.cpp
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,global_read,kNegSeven@src/game/players_464290.cpp
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,global_write,g_economyPacketTick
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,"indirect via Unit *(*)(unsigned char, unsigned short, Vec3, int, int, int) __attribute__((stdcall)) [UnitsSeam::CreateUnit]"
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,"indirect via int (*)(UnitDef *, unsigned short, Point16, int) __attribute__((stdcall)) [MapSeam::CanPlaceUnitFootprint]"
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via int (*)(Vec3 *) __attribute__((stdcall)) [MapSeam::GetCellMeanHeight]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,"indirect via unsigned short (*)(Vec3 *, Point16 *, Point16 *) __attribute__((stdcall)) [WeaponsSeam::FindFeatureAtPos]"
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via unsigned short (*)(const char *) __attribute__((stdcall)) [UnitsSeam::FindUnitTypeId]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::DrawRadarUnits]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::UpdateRadarMapped]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [LosRadarSeam::UpdateSensorRadarAndCloak]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)(Pathfinder *) __attribute__((fastcall)) [PathfindingSeam::RunSearches]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)(Player *) __attribute__((stdcall)) [EconomySeam::UpdatePlayerEconomy]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,"indirect via void (*)(SquadManager *, int) __attribute__((fastcall)) [AiSeam::SquadManagerTickIfActive]"
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [LosRadarSeam::UpdateUnitLineOfSight]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [AiSeam::UpdatePlayerAI]
+0x464f80,UpdatePlayersOnStream,src/game/players_464290.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [LosRadarSeam::RecalculateLineOfSight]
 0x4658e0,IsFootprintVisible,src/game/players_4658e0.cpp,call,IsExplored
 0x4658e0,IsFootprintVisible,src/game/players_4658e0.cpp,call,IsSeen
 0x4658e0,IsFootprintVisible,src/game/players_4658e0.cpp,call,memset
@@ -28413,9 +28413,9 @@ address,function,file,kind,target
 0x490230,MissionConditions::CheckVictory,src/game/victory_490230.cpp,global_read,g_game
 0x490230,MissionConditions::CheckVictory,src/game/victory_490230.cpp,global_read,g_seams
 0x490230,MissionConditions::CheckVictory,src/game/victory_490230.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
+0x490360,MissionConditions::CheckDefeat,src/game/victory.cpp,call,GameRand
 0x490360,MissionConditions::CheckDefeat,src/game/victory.cpp,call,GetCdPathMismatch
 0x490360,MissionConditions::CheckDefeat,src/game/victory.cpp,call,MissionConditions::AnyDefeatConditionMet
-0x490360,MissionConditions::CheckDefeat,src/game/victory.cpp,call,bx_game_rand
 0x490360,MissionConditions::CheckDefeat,src/game/victory.cpp,field_read,Game::localPlayer
 0x490360,MissionConditions::CheckDefeat,src/game/victory.cpp,field_read,Game::net
 0x490360,MissionConditions::CheckDefeat,src/game/victory.cpp,field_read,Game::ticks
@@ -28570,27 +28570,27 @@ address,function,file,kind,target
 0x490b30,SetGameMode,src/game/game_state.cpp,fn_ref,ReturnToMainMenuFrame
 0x490b30,SetGameMode,src/game/game_state.cpp,function,
 0x490b30,SetGameMode,src/game/game_state.cpp,global_read,g_game
-0x490c40,UpdateWind,src/game/game_state.cpp,call,FUN_004b70ef
-0x490c40,UpdateWind,src/game/game_state.cpp,call,FUN_004b7123
-0x490c40,UpdateWind,src/game/game_state.cpp,call,RandomInt
-0x490c40,UpdateWind,src/game/game_state.cpp,call,bx_game_rand
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::ticks
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::windCounter
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::windDirection
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::windSpeed
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::windSpeedDenominator
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::windSpeedMax
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::windSpeedMin
-0x490c40,UpdateWind,src/game/game_state.cpp,field_read,Game::windStrength
-0x490c40,UpdateWind,src/game/game_state.cpp,field_write,Game::windCounter
-0x490c40,UpdateWind,src/game/game_state.cpp,field_write,Game::windDirection
-0x490c40,UpdateWind,src/game/game_state.cpp,field_write,Game::windEnabled
-0x490c40,UpdateWind,src/game/game_state.cpp,field_write,Game::windSpeed
-0x490c40,UpdateWind,src/game/game_state.cpp,field_write,Game::windStrength
-0x490c40,UpdateWind,src/game/game_state.cpp,field_write,Game::windX
-0x490c40,UpdateWind,src/game/game_state.cpp,field_write,Game::windZ
-0x490c40,UpdateWind,src/game/game_state.cpp,function,
-0x490c40,UpdateWind,src/game/game_state.cpp,global_read,g_game
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,call,FUN_004b70ef
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,call,FUN_004b7123
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,call,GameRand
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,call,RandomInt
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::ticks
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::windCounter
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::windDirection
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::windSpeed
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::windSpeedDenominator
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::windSpeedMax
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::windSpeedMin
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_read,Game::windStrength
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_write,Game::windCounter
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_write,Game::windDirection
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_write,Game::windEnabled
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_write,Game::windSpeed
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_write,Game::windStrength
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_write,Game::windX
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,field_write,Game::windZ
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,function,
+0x490c40,UpdateWindOnStream,src/game/game_state.cpp,global_read,g_game
 0x490da0,ResetGameSpeed,src/game/game_state.cpp,field_read,Game::net
 0x490da0,ResetGameSpeed,src/game/game_state.cpp,field_read,MapSeam::GetGameType
 0x490da0,ResetGameSpeed,src/game/game_state.cpp,field_read,Seams::map
@@ -28852,7 +28852,7 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,WeaponsSeam::InitExplosions
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,WeaponsSeam::LoadWeaponTypes
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,WindMeteorsSeam::InitMeteors
-0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,WindMeteorsSeam::UpdateWind
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_read,WindMeteorsSeam::UpdateWindOnStream
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_write,<anon>::bit0_37ebe
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_write,<anon>::bit11_37ebe
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,field_write,<anon>::bit7_37f2f
@@ -28888,7 +28888,6 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,global_write,g_cdActivityRingWriteIdx
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,global_write,g_scorePanelSlidePos
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
-0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((cdecl)) [WindMeteorsSeam::UpdateWind]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [FeaturesSeam::FreeFeatureFileList]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [FeaturesSeam::LoadFeatureFileList]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [FeaturesSeam::NopAfterFeatureEnum]
@@ -28906,6 +28905,7 @@ address,function,file,kind,target
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WeaponsSeam::InitExplosions]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WeaponsSeam::LoadWeaponTypes]
 0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [WindMeteorsSeam::InitMeteors]
+0x4917d0,LoadBattleAssets,src/game/game_state.cpp,indirect_call,indirect via void (*)(RandStream) __attribute__((cdecl)) [WindMeteorsSeam::UpdateWindOnStream]
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,AllocSurface
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,GameFreeThunk
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,GetScreenHeight
@@ -30229,6 +30229,8 @@ address,function,file,kind,target
 0x497180,LoadMatch,src/game/game_load.cpp,call,CenterCameraOnStartPosition
 0x497180,LoadMatch,src/game/game_load.cpp,call,CreateMissionUnits
 0x497180,LoadMatch,src/game/game_load.cpp,call,FindHostSlot
+0x497180,LoadMatch,src/game/game_load.cpp,call,GameRand
+0x497180,LoadMatch,src/game/game_load.cpp,call,GameSrand
 0x497180,LoadMatch,src/game/game_load.cpp,call,HandleNetPackets
 0x497180,LoadMatch,src/game/game_load.cpp,call,HapiBank::CloseBank
 0x497180,LoadMatch,src/game/game_load.cpp,call,HapiBank::HasItem
@@ -30248,8 +30250,6 @@ address,function,file,kind,target
 0x497180,LoadMatch,src/game/game_load.cpp,call,SleepMilliseconds
 0x497180,LoadMatch,src/game/game_load.cpp,call,SpawnCommanderAtStartPos
 0x497180,LoadMatch,src/game/game_load.cpp,call,UpdateNetGameInfo
-0x497180,LoadMatch,src/game/game_load.cpp,call,bx_game_rand
-0x497180,LoadMatch,src/game/game_load.cpp,call,bx_game_srand
 0x497180,LoadMatch,src/game/game_load.cpp,call,operator delete
 0x497180,LoadMatch,src/game/game_load.cpp,call,operator=
 0x497180,LoadMatch,src/game/game_load.cpp,call,random_shuffle
@@ -30310,7 +30310,7 @@ address,function,file,kind,target
 0x497180,LoadMatch,src/game/game_load.cpp,field_read,PlayersSeam::InitPlayerResources
 0x497180,LoadMatch,src/game/game_load.cpp,field_read,PlayersSeam::LoadPlayerControllers
 0x497180,LoadMatch,src/game/game_load.cpp,field_read,PlayersSeam::RebuildAIFeatureCells
-0x497180,LoadMatch,src/game/game_load.cpp,field_read,PlayersSeam::UpdatePlayers
+0x497180,LoadMatch,src/game/game_load.cpp,field_read,PlayersSeam::UpdatePlayersOnStream
 0x497180,LoadMatch,src/game/game_load.cpp,field_read,Seams::los_radar
 0x497180,LoadMatch,src/game/game_load.cpp,field_read,Seams::map
 0x497180,LoadMatch,src/game/game_load.cpp,field_read,Seams::players
@@ -30352,8 +30352,8 @@ address,function,file,kind,target
 0x497180,LoadMatch,src/game/game_load.cpp,indirect_call,indirect via unsigned short (*)(const char *) __attribute__((stdcall)) [UnitsSeam::FindUnitTypeId]
 0x497180,LoadMatch,src/game/game_load.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [PlayersSeam::InitPlayerResources]
 0x497180,LoadMatch,src/game/game_load.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [PlayersSeam::RebuildAIFeatureCells]
-0x497180,LoadMatch,src/game/game_load.cpp,indirect_call,indirect via void (*)() __attribute__((stdcall)) [PlayersSeam::UpdatePlayers]
 0x497180,LoadMatch,src/game/game_load.cpp,indirect_call,indirect via void (*)(HapiBank *) __attribute__((stdcall)) [PlayersSeam::LoadPlayerControllers]
+0x497180,LoadMatch,src/game/game_load.cpp,indirect_call,indirect via void (*)(RandStream) __attribute__((stdcall)) [PlayersSeam::UpdatePlayersOnStream]
 0x497180,LoadMatch,src/game/game_load.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [LosRadarSeam::RecalculateLineOfSight]
 0x497c70,LoadThreadMain,src/game/game_load_497c70.cpp,call,ExceptionFilter
 0x497c70,LoadThreadMain,src/game/game_load_497c70.cpp,call,LoadMatch
@@ -32075,6 +32075,7 @@ address,function,file,kind,target
 0x49e830,GameMain,src/game/main.cpp,call,DispatchMessageA
 0x49e830,GameMain,src/game/main.cpp,call,EmptyPostArchiveMountHook
 0x49e830,GameMain,src/game/main.cpp,call,EmptyPreFrontendInitHook
+0x49e830,GameMain,src/game/main.cpp,call,GameSrand
 0x49e830,GameMain,src/game/main.cpp,call,GetMessageA
 0x49e830,GameMain,src/game/main.cpp,call,GetTickCount
 0x49e830,GameMain,src/game/main.cpp,call,HarnessCrtSeed
@@ -32113,7 +32114,6 @@ address,function,file,kind,target
 0x49e830,GameMain,src/game/main.cpp,call,TranslateMessage
 0x49e830,GameMain,src/game/main.cpp,call,WriteGameRegistryValue
 0x49e830,GameMain,src/game/main.cpp,call,atexit
-0x49e830,GameMain,src/game/main.cpp,call,bx_game_srand
 0x49e830,GameMain,src/game/main.cpp,call,operator new
 0x49e830,GameMain,src/game/main.cpp,call,strcpy
 0x49e830,GameMain,src/game/main.cpp,call,strlen
@@ -45295,6 +45295,7 @@ address,function,file,kind,target
 ,Game::Game,src/frontend/endgame.cpp,function,
 ,GameAt,src/harness/harness.cpp,function,
 ,GameAt,src/harness/harness.cpp,global_read,g_game
+,GameShuffleDraw::GameShuffleDraw,src/state/game_rand.h,function,
 ,GameU32,src/harness/harness.cpp,call,GameAt
 ,GameU32,src/harness/harness.cpp,deref_read,*unsigned int
 ,GameU32,src/harness/harness.cpp,function,
@@ -45730,6 +45731,7 @@ address,function,file,kind,target
 ,HarnessInit,src/harness/harness.cpp,global_read,s_viewSeed@src/harness/harness.cpp
 ,HarnessInit,src/harness/harness.cpp,global_write,s_testMode@src/harness/harness.cpp
 ,HarnessInit,src/harness/harness.cpp,global_write,s_viewState@src/harness/harness.cpp
+,HarnessPhase,src/harness/harness.cpp,call,GameHoldrand
 ,HarnessPhase,src/harness/harness.cpp,call,GameU32
 ,HarnessPhase,src/harness/harness.cpp,call,VisitExplosions
 ,HarnessPhase,src/harness/harness.cpp,call,VisitFeatures
@@ -45740,7 +45742,6 @@ address,function,file,kind,target
 ,HarnessPhase,src/harness/harness.cpp,call,VisitUnits
 ,HarnessPhase,src/harness/harness.cpp,call,VisitWind
 ,HarnessPhase,src/harness/harness.cpp,call,VisitWorld
-,HarnessPhase,src/harness/harness.cpp,call,bx_game_holdrand
 ,HarnessPhase,src/harness/harness.cpp,call,fflush
 ,HarnessPhase,src/harness/harness.cpp,call,fprintf
 ,HarnessPhase,src/harness/harness.cpp,function,
@@ -46120,6 +46121,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,field_write,PlayersSeam::TransferMetal
 ,InstallNativeSeams,src/seams/native.cpp,field_write,PlayersSeam::UpdateBlink
 ,InstallNativeSeams,src/seams/native.cpp,field_write,PlayersSeam::UpdatePlayers
+,InstallNativeSeams,src/seams/native.cpp,field_write,PlayersSeam::UpdatePlayersOnStream
 ,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::ai
 ,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::economy
 ,InstallNativeSeams,src/seams/native.cpp,field_write,Seams::features
@@ -46229,6 +46231,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::SetMeteorParams
 ,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::UpdateMeteors
 ,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::UpdateWind
+,InstallNativeSeams,src/seams/native.cpp,field_write,WindMeteorsSeam::UpdateWindOnStream
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,AbortIfGoalMatchNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,AddBeCarriedOrder
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,AddBuildProgress
@@ -46477,6 +46480,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdatePlayerAI
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdatePlayerEconomy
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdatePlayers
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdatePlayersOnStream
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateProjectiles
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateRadarMapped
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateResourceSharing
@@ -46485,6 +46489,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateUnitLineOfSight
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateUnitWeapons
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateWind
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,UpdateWindOnStream
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,VisitObjectsInRangeNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,WeaponCanReachPos
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,WeaponCanReachUnit
@@ -49021,6 +49026,7 @@ address,function,file,kind,target
 ,Prepare,src/state/block.cpp,field_write,BlockHeader::ready
 ,Prepare,src/state/block.cpp,field_write,Chunk::aux
 ,Prepare,src/state/block.cpp,field_write,Chunk::size
+,Prepare,src/state/block.cpp,field_write,bx_rand_state::holdrand
 ,Prepare,src/state/block.cpp,function,
 ,Prepare,src/state/block.cpp,global_read,g_base
 ,Prepare,src/state/block.cpp,global_read,kFirstChunk
@@ -49075,7 +49081,7 @@ address,function,file,kind,target
 ,Rally,src/ai/ai_player.cpp,call,SquadTimer::GetAveragePosition
 ,Rally,src/ai/ai_player.cpp,field_read,SquadManager::timers
 ,Rally,src/ai/ai_player.cpp,function,
-,Rand,src/map/features.cpp,call,bx_game_rand
+,Rand,src/map/features.cpp,call,GameRand
 ,Rand,src/map/features.cpp,function,
 ,RangeSize_00488810,src/units/unit_commands.cpp,function,
 ,RateUnitType,src/ai/ai_player_409730.cpp,call,RateWeapons
@@ -49787,6 +49793,11 @@ address,function,file,kind,target
 ,SimOwns,src/state/block.cpp,function,
 ,SimOwns,src/state/block.cpp,global_read,g_base
 ,SimOwns,src/state/block.cpp,global_read,kSimBlockBytes
+,SimRandStream,src/state/block.cpp,call,Guard::~Guard
+,SimRandStream,src/state/block.cpp,call,Head
+,SimRandStream,src/state/block.cpp,field_escape,bx_rand_state::holdrand
+,SimRandStream,src/state/block.cpp,function,
+,SimRandStream,src/state/block.cpp,global_read,g_base
 ,SimRealloc,src/state/block.cpp,call,Guard::~Guard
 ,SimRealloc,src/state/block.cpp,call,ReallocLocked
 ,SimRealloc,src/state/block.cpp,function,
@@ -49868,8 +49879,8 @@ address,function,file,kind,target
 ,StartScriptWithArgsNative,src/seams/native.cpp,call,CobScript::StartScriptWithArgs
 ,StartScriptWithArgsNative,src/seams/native.cpp,function,
 ,StartShower,src/map/meteors.cpp,call,AddPoints
+,StartShower,src/map/meteors.cpp,call,GameRand
 ,StartShower,src/map/meteors.cpp,call,MakePoint
-,StartShower,src/map/meteors.cpp,call,bx_game_rand
 ,StartShower,src/map/meteors.cpp,call,operator=
 ,StartShower,src/map/meteors.cpp,field_read,Game::height
 ,StartShower,src/map/meteors.cpp,field_read,Game::ticks
@@ -50451,6 +50462,11 @@ address,function,file,kind,target
 ,UpdateHelpText,src/gui/gui.cpp,global_escape,DAT_005119b8
 ,UpdateMotionNative,src/seams/native.cpp,call,UnitMotion::UpdateMotion
 ,UpdateMotionNative,src/seams/native.cpp,function,
+,UpdatePlayers,src/game/players_464290.cpp,field_read,PlayersSeam::UpdatePlayersOnStream
+,UpdatePlayers,src/game/players_464290.cpp,field_read,Seams::players
+,UpdatePlayers,src/game/players_464290.cpp,function,
+,UpdatePlayers,src/game/players_464290.cpp,global_read,g_seams
+,UpdatePlayers,src/game/players_464290.cpp,indirect_call,indirect via void (*)(RandStream) __attribute__((stdcall)) [PlayersSeam::UpdatePlayersOnStream]
 ,UpdateSfxOccupyNative,src/seams/native.cpp,call,Class_0043db50::UpdateSfxOccupy
 ,UpdateSfxOccupyNative,src/seams/native.cpp,function,
 ,UpdateSideGadget_00448c70,src/frontend/multi.cpp,call,SetButtonStageByName
@@ -50469,6 +50485,11 @@ address,function,file,kind,target
 ,UpdateSubState,src/frontend/frontend.cpp,function,
 ,UpdateSubState,src/frontend/frontend.cpp,global_maybe_written,g_frontendSourceFile
 ,UpdateSubState,src/frontend/frontend.cpp,global_read,g_game
+,UpdateWind,src/game/game_state.cpp,field_read,Seams::wind_meteors
+,UpdateWind,src/game/game_state.cpp,field_read,WindMeteorsSeam::UpdateWindOnStream
+,UpdateWind,src/game/game_state.cpp,function,
+,UpdateWind,src/game/game_state.cpp,global_read,g_seams
+,UpdateWind,src/game/game_state.cpp,indirect_call,indirect via void (*)(RandStream) __attribute__((cdecl)) [WindMeteorsSeam::UpdateWindOnStream]
 ,UseEnergy,src/game/economy_401360.cpp,call,AddIncome
 ,UseEnergy,src/game/economy_401360.cpp,call,EconOf
 ,UseEnergy,src/game/economy_401360.cpp,call,Use_00401180
