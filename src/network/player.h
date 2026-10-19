@@ -1,13 +1,11 @@
 // Player: one slot of the player table (Thaldren's PlayerState, 0x14b bytes),
 // ten of them at g_game+0x1b63. The one declaration of the struct for the files
-// that read or write a slot. packets.cpp, which defines the methods,
-// keeps its own view: it also defines the constructor (the slot is built by
-// 0x463be0 with a by-value Grid_00463be0 at +0x7c), and a struct with a
-// constructor cannot be a member of the unions some Game views put the player
-// array in, so the constructor is not declared here. The types behind the
-// pointers stay private to their own files.
+// that read or write a slot. The types behind the pointers stay private to
+// their own files.
 #ifndef PLAYER_H
 #define PLAYER_H
+
+#include "../map/grid.h"
 
 struct PlayerInfo;
 struct Unit;
@@ -39,10 +37,15 @@ struct Player {
     unsigned char type;                // +0x73
     SquadManager* ai;                  // +0x74
     Group* groups;                     // +0x78
-    unsigned char* explored;           // +0x7c
-    int exploredWidth;                 // +0x80
-    int exploredHeight;                // +0x84
-    int exploredSize;                  // +0x88
+    union {
+        struct {
+            unsigned char* explored;   // +0x7c
+            int exploredWidth;         // +0x80
+            int exploredHeight;        // +0x84
+            int exploredSize;          // +0x88
+        };
+        Grid grid;
+    };
     float energy;                      // +0x8c
     float energyIncome;                // +0x90
     float energyUsage;                 // +0x94
@@ -84,8 +87,10 @@ struct Player {
     unsigned char rank;                // +0x148
     unsigned short flags;              // +0x149
 
+    Player();
     void FreeSideDataAndFogSightCounts();
     void SetType(int newType);
+    int IsPlayableSlot();
 };
 #pragma pack(pop)
 

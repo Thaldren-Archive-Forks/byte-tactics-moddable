@@ -2014,53 +2014,29 @@ void EmptyAtexitHandler(void)
 
 void __cdecl AllocNotifyNop(int);
 
-#include "../map/grid.h"
+#include "player.h"
 #include "player_info.h"
 
-// Constructor of the per-player record (0x14b bytes, 11 of them inside the
-// game object built by 0x41d920).
-#pragma pack(push, 1)
-struct Player {
-    int active;                        // +0x0
-    char unknown_4[0x27 - 0x4];
-    union {
-        char* data;                    // +0x27 (0xb9 bytes)
-        PlayerInfo* info;
-    };
-    char unknown_2b[0x73 - 0x2b];
-    char type;                         // +0x73
-    char unknown_74[0x7c - 0x74];
-    Grid grid;                         // +0x7c
-    char unknown_8c[0x146 - 0x8c];
-    char index;                        // +0x146
-    char unknown_147[0x14b - 0x147];
-
-    Player();
-    void FreeSideDataAndFogSightCounts();
-    void SetType(int newType);
-};
-#pragma pack(pop)
-
 // FUNCTION: 0x463be0
-Player::Player() : active(0), type(0)
+Player::Player() : active(0), type(0), grid()
 {
     index = 10;
-    data = (char*)operator new(0xb9);
-    AllocNotifyNop((int)data);
-    memset(data, 0, 0xb9);
+    info = (PlayerInfo*)operator new(0xb9);
+    AllocNotifyNop((int)info);
+    memset(info, 0, 0xb9);
 }
 
 // FUNCTION: 0x463c40
 void Player::FreeSideDataAndFogSightCounts()
 {
     delete info;
-    delete grid.cells;
+    delete explored;
 }
 
 // FUNCTION: 0x463c60
 void Player::SetType(int newType)
 {
-    type = (char)newType;
+    type = (unsigned char)newType;
     if (newType != 3) {
         info->kind = (char)newType;
     }
