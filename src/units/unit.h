@@ -147,25 +147,33 @@ struct Unit {
         };
     };
     union {
-        unsigned char activateFlags;
         struct {
-            unsigned char activate_bit0 : 1;
-            unsigned char activate_bit1 : 1;
-            unsigned char activate_bit2 : 1;
-            unsigned char activate_bit3 : 1;
-            unsigned char activate_bit4 : 1;
-            unsigned char unknown_10e : 3;
+        union {
+            unsigned char activateFlags;
+            struct {
+                unsigned char activate_bit0 : 1;
+                unsigned char activate_bit1 : 1;
+                unsigned char activate_bit2 : 1;
+                unsigned char activate_bit3 : 1;
+                unsigned char activate_bit4 : 1;
+                unsigned char unknown_10e : 3;
+            };
         };
-    };
-    union {
+        union {
+            struct {
+                unsigned char bit0 : 1;
+                unsigned char bit1 : 1;
+                unsigned char bit2 : 1;
+                unsigned char bit3 : 1;
+                unsigned char unknown_10f : 4;
+            };
+            char cobStateFlags;
+        };
+        };
         struct {
-            unsigned char bit0 : 1;
-            unsigned char bit1 : 1;
-            unsigned char bit2 : 1;
-            unsigned char bit3 : 1;
-            unsigned char unknown_10f : 4;
-        };
-        char cobStateFlags;
+            unsigned short onOff : 1;
+            unsigned short bits_10e : 15;
+        } view10e;
     };
     union {
         unsigned int flags;
