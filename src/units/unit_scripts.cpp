@@ -8,15 +8,6 @@
 #include "../util/vec3.h"
 #include "../util/angles.h"
 
-static inline Vec3 operator+(const Vec3& a, const Vec3& b)
-{
-    Vec3 r;
-    r.x = a.x + b.x;
-    r.y = a.y + b.y;
-    r.z = a.z + b.z;
-    return r;
-}
-
 #include "cob_script.h"
 
 // Unused here: these headers take the symbol ids that keep

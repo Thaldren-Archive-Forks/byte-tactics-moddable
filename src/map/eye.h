@@ -1,6 +1,8 @@
 #ifndef EYE_H
 #define EYE_H
 
+#include "../util/vec3.h"
+
 struct ScreenPos {
     short x;
     short y;

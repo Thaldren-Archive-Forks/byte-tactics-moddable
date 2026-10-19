@@ -7,8 +7,8 @@
 #include "../map/grid.h"
 #include "../network/player.h"
 #include "../network/settings.h"
-#include "../util/vec3.h"
 #endif
+#include "../util/vec3.h"
 #include "../frontend/bits_00426e80.h"
 #include "../frontend/conn_info_443ff0.h"
 #include "../frontend/flags37f14_0045cf60.h"

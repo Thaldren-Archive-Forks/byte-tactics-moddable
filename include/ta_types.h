@@ -18,6 +18,7 @@
 #include "../src/weapons/damage_table.h"
 #include "../src/graphics/nano_particle_vector.h"
 #include "../src/units/squad.h"
+#include "../src/util/vec3.h"
 #include "../src/network/packet_ring.h"
 #include "../src/network/packet_receiver.h"
 #include "../src/network/packet_manager.h"
@@ -2235,24 +2236,6 @@ public:
     void AnnounceStatusIfFlagged(char*);
 };
 
-struct Vec3 {  // 0xc bytes, 298 views
-    int x;  // +0x0
-    int y;  // +0x4
-    int z;  // +0x8
-    Vec3(int, int, int);
-    Vec3(Game*);
-    Vec3(void);
-    Vec3 operator+(Vec3&);
-    Vec3 operator-(Vec3&);
-    int Length(void);
-    void operator+=(Vec3&);
-    void operator-=(Vec3&);
-    int Square(void);
-    void Add(Vec3*);
-    void Scale(int);
-    int NonZero(void);
-};
-
 struct Unit_00401cc0 {  // 0x114 bytes, 1 view
     char unknown_0[272];
     unsigned int flags;  // +0x110
@@ -2329,14 +2312,6 @@ struct Order_4 {  // 0x3e bytes, 1 view
     char unknown_2e[8];
     int unitType;  // +0x36
     int count;  // +0x3a
-};
-
-struct Point16 {  // 0x4 bytes, 113 views
-    short x;  // +0x0
-    short y;  // +0x2
-    Point16(int, int);
-    Point16(void);
-    int operator!=(Point16&);
 };
 
 #include "../src/units/unit.h"

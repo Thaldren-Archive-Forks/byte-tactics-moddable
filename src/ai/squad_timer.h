@@ -1,9 +1,7 @@
 #ifndef SQUAD_TIMER_H
 #define SQUAD_TIMER_H
 
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 
 class SquadManager;
 struct Group;

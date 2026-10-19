@@ -5,8 +5,6 @@
 // g_game+0x1439b, then drops the units whose version or copyright does not
 // check out and compacts the table.
 
-// This header set (with ta_types.h in its own namespace) must stay as is: it
-// sets symbol ids that fix several base/index operand orders.
 #include <windows.h>
 #include "../state/block.h"
 #include <ddraw.h>
@@ -28,9 +26,7 @@
 #include <float.h>
 #include "../util/tdf.h"
 #include "unit_def.h"
-namespace ta {
-#include <ta_types.h>
-}
+#include "../game/game.h"
 
 #include "../util/string_ref.h"
 
@@ -97,18 +93,6 @@ void SetCameraPosition(int, int, int);
 void StartScreenShake(int, int, int);
 void RegisterEmptyAtexitB(void);
 bool __cdecl ReadGdperf(unsigned long, void*);
-
-#pragma pack(push, 1)
-struct Game {
-    char unknown_0;
-    char version;                      // +0x1
-    char versionMinor;                 // +0x2
-    char unknown_3[0x1438c];
-    int unitDefCount;                  // +0x1438f
-    char unknown_14393[8];
-    UnitDef* unitDefs;                 // +0x1439b
-};
-#pragma pack(pop)
 
 extern Game* g_game;
 // File statics, not externs: with an extern count new[] reads its own copy.
@@ -181,26 +165,26 @@ int LoadUnitInfo()
 
     LoadWeaponTDFs();
 
-    if (g_game->unitDefs) {
-        ProtectBlockReadWrite(g_game->unitDefs);
-        GameFreeThunk(g_game->unitDefs);
-        g_game->unitDefs = 0;
+    if (g_game->defs) {
+        ProtectBlockReadWrite(g_game->defs);
+        GameFreeThunk(g_game->defs);
+        g_game->defs = 0;
     }
 
     BuildDataPath(path, "units", "*", "FBI");
     FileList files;
     ListDirectory(path, 0, &files);
     int count = files.size() + 1;
-    g_game->unitDefCount = count;
+    g_game->count_1438f = count;
     int size = count * sizeof(UnitDef);
-    g_game->unitDefs = (UnitDef*)SimAllocTagged("UNITINFO", size);
-    memset(g_game->unitDefs, 0, size);
-    strcpy(g_game->unitDefs->unitname, "None");
-    g_game->unitDefs->flags1 |= 0x800000;
+    g_game->defs = (UnitDef*)SimAllocTagged("UNITINFO", size);
+    memset(g_game->defs, 0, size);
+    strcpy(g_game->defs->unitname, "None");
+    g_game->defs->flags1 |= 0x800000;
     int offset = strstr(COPYRIGHT, "0000") - COPYRIGHT;
 
     for (unsigned short i = 1; i < count; i++) {
-        UnitDef* u = &g_game->unitDefs[i];
+        UnitDef* u = &g_game->defs[i];
         u->id = i;
         BuildDataPath(path, "units", files[i - 1], "FBI");
         void* f = HAPI_OpenFileRead(path);
@@ -247,9 +231,9 @@ int LoadUnitInfo()
             double version = parser.GetDouble("Version", 0.0);
             int major = (int)floor(version);
             int minor = (int)floor((version - major) * 10.0);
-            if (major < g_game->version)
+            if (major < (signed char)g_game->field_1)
                 u->flags1 |= 0x800000;
-            else if (major == g_game->version && minor <= g_game->versionMinor)
+            else if (major == (signed char)g_game->field_1 && minor <= (signed char)g_game->field_2)
                 u->flags1 |= 0x800000;
             else
                 u->flags1 &= ~0x800000;
@@ -281,19 +265,19 @@ int LoadUnitInfo()
     // Keep `size` and decrement it; indexing unitDefs[count - 1] loses ebp.
     int oldcount = count;
     for (unsigned short j = count - 1; j > 0; j--) {
-        UnitDef* u = &g_game->unitDefs[j];
+        UnitDef* u = &g_game->defs[j];
         if (!(u->flags1 & 0x800000)) {
             if (j != count - 1) {
-                *u = *(UnitDef*)((char*)g_game->unitDefs + size - sizeof(UnitDef));
+                *u = *(UnitDef*)((char*)g_game->defs + size - sizeof(UnitDef));
                 u->id = j;
             }
             count--;
             size -= sizeof(UnitDef);
         }
     }
-    g_game->unitDefCount = count;
+    g_game->count_1438f = count;
     if (oldcount != count && !bad)
         ShowErrorBox(Translate("Incompatible units found.  They will be ignored.  Please download the latest version of the game."), DAT_005119b8);
-    ProtectBlockReadOnly(g_game->unitDefs);
+    ProtectBlockReadOnly(g_game->defs);
     return 1;
 }

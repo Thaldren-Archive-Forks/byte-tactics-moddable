@@ -55,6 +55,34 @@ class FlattenUnionsTest(unittest.TestCase):
         self.assertEqual([l["name"] for l in leaves], ["a", "b"])
 
 
+class InlineMethodTest(unittest.TestCase):
+    BODY = """    int x;
+    int y;
+
+    Point operator+(const Point& o) const
+    {
+        Point r;
+        if (o.x) {
+            r.x = x;
+        }
+        return r;
+    }
+    int Sum() const { return x + y; }
+    void Reset() {
+        Point r;
+        x = r.x;
+    }
+    int z;
+"""
+
+    def test_method_bodies_add_no_fields(self):
+        (leaves, size), errors = leaves_of("Point", self.BODY, 12)
+        self.assertEqual(errors, [])
+        self.assertEqual(size, 12)
+        self.assertEqual([(l["name"], l["offset"], l["size"]) for l in leaves],
+                         [("x", 0, 4), ("y", 4, 4), ("z", 8, 4)])
+
+
 class FunctionPointerTest(unittest.TestCase):
     def test_function_pointer_fields_are_pointer_sized(self):
         body = ("    int a;\n    void (__stdcall *handler)(void);\n"

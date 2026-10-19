@@ -1,9 +1,7 @@
 #ifndef ORDER_H
 #define ORDER_H
 
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 #include "mission_type.h"
 #include "path_order_attach.h"
 

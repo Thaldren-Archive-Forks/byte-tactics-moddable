@@ -17,11 +17,6 @@
 #include <memory.h>
 #include <math.h>
 
-// Defined inline here, with no user operator=.
-inline Vec3::Vec3() {}
-inline Vec3 Vec3::operator+(Vec3& o) { Vec3 r; r.x = x + o.x; r.y = y + o.y; r.z = z + o.z; return r; }
-inline Vec3 Vec3::operator-(Vec3& o) { Vec3 r; r.x = x - o.x; r.y = y - o.y; r.z = z - o.z; return r; }
-
 #pragma pack(push, 1)
 struct UnitDef_00408100 {
     char unknown_0[0x152];

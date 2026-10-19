@@ -1,6 +1,4 @@
 // Decompiled by GPT-6 Astra, finished by deepseek-v4.1-flash, edited by deepseek-v4.1, finished by space-bunny-free, finished by deepseek-v4.1-flash, finished by deepseek-v4.1-flash, edited by Claude Opus 5.5, finished by Claude Opus 5.5. re-verified by GPT-6, retried by Claude Opus 5.5, finished by GPT-6, retried by Claude Opus 5.5, finished by GPT-6, matched by Claude Opus 5.5. Names are provisional.
-// The include set (ta_types.h in namespace ta, then the system headers) fixes
-// unit's front-end id, which decides the register order of the health test.
 #include <windows.h>
 #include <ddraw.h>
 #include <dsound.h>
@@ -30,8 +28,8 @@ struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index
 #include "order.h"
 
 #include "path_fx.h"
-struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x14233]; int overflowBucket; };
 #pragma pack(pop)
+#include "../game/game.h"
 extern Game* g_game;
 short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 MissionType __stdcall GetOrderType(unsigned char, Unit*, Unit*, int);
@@ -42,8 +40,6 @@ int __cdecl FUN_004b7123(short, int);
 Vec3 __stdcall AddVec3(const Vec3& a, const Vec3& b);
 union Fixed { int value; struct { unsigned short frac; short whole; } parts; };
 Vec3 __stdcall DirectionFromAngle(short angle, Fixed scale);
-// A free function, not a member: its smaller IL size keeps it inlined.
-static inline Vec3 operator+(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 static inline Vec3 Direction(short angle, int range) { Fixed distance; distance.value=range; return DirectionFromAngle(angle,distance); }
 static inline Vec3 Offset(short angle, int distance)
 {
@@ -113,8 +109,8 @@ int __stdcall VtolSeekGuardOrder(Unit* unit, Order* order, int flags)
     if (flags&0x40) return 5;
     if (unit->spatialBucket==g_game->overflowBucket) {
         Vec3 center;
-        center.x=(g_game->width/2)<<16;
-        center.z=(g_game->height/2)<<16;
+        center.x=(g_game->mapWidth/2)<<16;
+        center.z=(g_game->mapHeight/2)<<16;
         short angle=GetHeadingBetween(&unit->pos,&center);
         Vec3 pos=AddVec3(unit->pos,Direction(angle,0x3200000));
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);

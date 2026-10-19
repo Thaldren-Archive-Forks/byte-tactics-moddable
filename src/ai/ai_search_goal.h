@@ -1,9 +1,7 @@
 #ifndef AI_SEARCH_GOAL_H
 #define AI_SEARCH_GOAL_H
 
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 
 struct Vec3;
 struct Point16;
