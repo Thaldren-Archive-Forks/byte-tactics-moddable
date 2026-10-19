@@ -1,6 +1,8 @@
 #ifndef GROUP_H
 #define GROUP_H
 
+#include <vector>
+
 struct Player;
 struct Unit;
 struct Vec3;
