@@ -7,22 +7,7 @@
 
 void __cdecl operator delete(void*);
 
-#include "packet_receiver.h"
-
-#include "sub_00460f60.h"
-
-// Member layout sets the order in which the destructors are inlined.
-class PacketManager {
-public:
-    char pad0[0xc];
-    Sub_00460f60 subs[11];             // +0x10
-    char pad1[4];
-    PacketReceiver member;             // +0xb300
-    virtual ~PacketManager() {}
-};
-
-// FUNCTION: 0x460f60 _$E2
-PacketManager g_packetManager;
+#include "packet_manager.h"
 
 inline FrameQueue::~FrameQueue()
 {
@@ -43,12 +28,17 @@ inline PacketReceiver::~PacketReceiver()
     operator delete(p);
 }
 
-Sub_00460f60::~Sub_00460f60()
+inline PacketChannel::~PacketChannel()
 {
-    if (items) {
-        for (unsigned int i = 0; i < count; i++)
-            operator delete(items[i]);
-        operator delete(items);
+    if (buffers) {
+        for (unsigned i = 0; i < bufferCount; i++)
+            operator delete(buffers[i]);
+        operator delete(buffers);
     }
-    operator delete(q);
+    operator delete(packets);
 }
+
+inline PacketManager::~PacketManager() { }
+
+// FUNCTION: 0x460f60 _$E2
+PacketManager g_packetManager;
