@@ -343,7 +343,7 @@ void __stdcall DrawUnitRangeRings(void* surface, View* view, Order* order,
             int radius = (t < 8) ? 8 : t;
             if (radius >= r)
                 radius = r;
-            // Read as (Pos*)&order->unit->pos: a unit local would change it to lea.
+            // Read as &order->unit->pos: a unit local would change it to lea.
             DrawRangeCircle(surface, view, (Pos*)&order->unit->pos, radius, g_game->hudPalette12, 0, 0);
             if (unit->motion != 0) {
                 DrawRangeCircle(surface, view, (Pos*)&order->unit->pos, def->kamikazeDistance,

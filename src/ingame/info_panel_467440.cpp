@@ -82,7 +82,7 @@ public:
     virtual void MarkUnitsInRadarOrSonarRadius(Unit* unit);
     int radarRangeSq;                  // +0x4
     int sonarRangeSq;                  // +0x8
-    Vec3 pos;                 // +0xc
+    Vec3 pos;
 };
 
 class RadarJamVisitor {

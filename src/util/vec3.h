@@ -1,7 +1,3 @@
-// Vec3, a 3D point: three ints (Thaldren's 0xc-byte Vec3, x/y/z), and Point16, a
-// map cell or footprint: two 16-bit coordinates, x and y. The one declaration of
-// each for the files that share them. No constructors: a user constructor
-// changes the inlining of MoveTowards (PR #6278).
 #ifndef VEC3_H
 #define VEC3_H
 
@@ -54,8 +50,6 @@ struct Vec3 {
     }
 };
 
-// The 16.16 words of a Vec3 holding a position: the fraction and whole half
-// of each coordinate. Read a Vec3 through it with a cast.
 struct Vec3Words {
     unsigned short xFrac;
     short xWhole;
