@@ -141,65 +141,12 @@ int GetUnitCount(int, unsigned int);
 
 #pragma pack(pop)
 
-#include "order_base.h"
-
-#pragma pack(push, 1)
-// The fields between the vtable pointer and the link, as a second base whose
-// inline constructor clears the kind.
-struct Head_0043a1f0 {
-    unsigned char kind;                // +0x4
-    unsigned char flag5;               // +0x5
-    unsigned int flags6;               // +0x6
-    int last_id;                       // +0xa
-    Unit* unit;                        // +0xe
-
-    // The second base clears the kind: as a member initialiser the stores reorder.
-    Head_0043a1f0() : kind(0) {}
-};
-
-class Order : public OrderBase, public Head_0043a1f0 {
-public:
-    // Slot 0 of vtable 0x4fd2c8, overriding the base's.
-    virtual void OrStatusFlags(unsigned int);
-
-    union {
-        PathOrderAttach link;
-    };
-    Vec3_0043a1f0 pos;                 // +0x22
-    int start;                         // +0x2e
-    int cached;                        // +0x32
-    int unitType;                      // +0x36
-    int radius;                        // +0x3a
-    int progress;                      // +0x3e
-    unsigned int flags;                // +0x42
-    unsigned int created;              // +0x46
-    Order* next;                       // +0x4a
-    int subFlags;                      // +0x4e
-    OrderFx* attached;                 // +0x52
-
-    // The real constructor is 0x43a0c0, in order_list.cpp: it needs
-    // `kind(k)` as a plain member initialiser, which this class's second base
-    // rules out.
-    Order(MissionType, int, void*, int, int, int);
-    ~Order();
-    Order(Unit* punit, HapiBank* file, char* name);
-    int SerializeToSave(Unit* punit, HapiBank* file, char* name);
-    void AnnounceStatusIfFlagged(char* text);
-    void ReattachFxToUnit();
-    void SetAttachedFx(OrderFx* obj);
-    void AttachApproachRadiusGoal(int* p, int n);
-    void AttachRingApproachGoal(Vec3_0043a1f0* pos, int radius1, int radius2);
-    void AttachBuildFootprintMarker(Point16 cell, Point16 size);
-    void MergeFlagsFromTable(int k);
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    Unit* Target();
-};
-#pragma pack(pop)
+#include "order.h"
 
 // Links `child` into the owner's list in front of `before`.
 static inline void InsertBefore(Unit* p, Order* child, Order* before)
 {
-    Order** link = (child->flags & 0x40000) ? &p->list2 : &p->list;
+    Order** link = (child->flags_42 & 0x40000) ? &p->list2 : &p->list;
     while (*link != before) {
         link = &(*link)->next;
     }
@@ -207,7 +154,7 @@ static inline void InsertBefore(Unit* p, Order* child, Order* before)
     child->unit = p;
     child->next = before;
     if (before != 0) {
-        child->flags |= before->flags & 0x4000;
+        child->flags_42 |= before->flags_42 & 0x4000;
     }
 }
 
@@ -223,19 +170,19 @@ void __stdcall AddBeCarriedOrder(Unit* p)
         Order** pp = &p->list;
         Order* node;
         while ((node = *pp) != 0) {
-            if (node->flags & 4) {
+            if (node->flags_42 & 4) {
                 pp = &node->next;
             } else {
                 *pp = node->next;
                 if (node != first) {
-                    node->flags |= 0x10000;
+                    node->flags_42 |= 0x10000;
                 }
                 delete node;
             }
         }
         Order* child =
-            new (kSim) Order("BECARRIED", p->carrier, 0, 0, 0, 0);
-        InsertBefore(p, child, (child->flags & 0x40000) ? p->list2 : p->list);
+            new (kSim) Order("BECARRIED", (Unit*)p->carrier, 0, 0, 0, 0);
+        InsertBefore(p, child, (child->flags_42 & 0x40000) ? p->list2 : p->list);
     }
 }
 
@@ -245,17 +192,17 @@ void __stdcall StartBuildingScript(Unit* obj, Order* target, unsigned short para
     int index = g_seams.units->FindScript((CobScript*)obj->script, "StartBuilding");
     g_seams.units->StartScriptWithArgsByIndex((CobScript*)obj->script, index, 0, 0, 1, param_3, 0, 0, 0);
     SendScriptCall(obj, index, 1, param_3, 0, 0, 0);
-    target->flags |= 0x400000;
+    target->flags_42 |= 0x400000;
 }
 
 // FUNCTION: 0x4385f0
 void __stdcall StopBuildingScript(Unit* obj, Order* target)
 {
-    if (target->flags & 0x400000) {
+    if (target->flags_42 & 0x400000) {
         int index = g_seams.units->FindScript((CobScript*)obj->script, "StopBuilding");
         g_seams.units->StartScriptWithArgsByIndex((CobScript*)obj->script, index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
-        target->flags &= ~0x400000;
+        target->flags_42 &= ~0x400000;
     }
 }
 
@@ -364,11 +311,11 @@ void Order::OrStatusFlags(unsigned int param_1)
 // Clears flag 0x2000 of an order and, if it was set, posts message kind 5
 // with the given text for the order's unit.
 // FUNCTION: 0x438880
-void Order::AnnounceStatusIfFlagged(char* text)
+void Order::AnnounceStatusIfFlagged(const char* text)
 {
-    if (flags & 0x2000) {
-        flags &= ~0x2000;
-        QueueUnitSpeech(unit, 5, text);
+    if (flags_42 & 0x2000) {
+        flags_42 &= ~0x2000;
+        QueueUnitSpeech(unit, 5, (char*)text);
     }
 }
 
@@ -381,9 +328,9 @@ void Order::ReattachFxToUnit()
         void* p3 = *(void**)p2;
         void* fn_ptr = *(void**)((char*)p3 + 4);
 #ifdef __clang__
-        ((void (__thiscall*)(void*, int))fn_ptr)(p2, (int)attached);
+        ((void (__thiscall*)(void*, int))fn_ptr)(p2, (int)(OrderFx*)attached);
 #else
-        ((void (__stdcall*)(int))fn_ptr)((int)attached);
+        ((void (__stdcall*)(int))fn_ptr)((int)(OrderFx*)attached);
 #endif
     }
 }
@@ -394,7 +341,7 @@ void Order::SetAttachedFx(OrderFx* obj)
     if (((Owner_0043a1f0 *)unit->motion)) {
         if (attached) {
             ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
-            delete attached;
+            delete (OrderFx*)attached;
             attached = 0;
         }
         if (obj) {
@@ -409,14 +356,14 @@ void Order::SetAttachedFx(OrderFx* obj)
 // does not have flag 0x800 set, detaches the current attachment and attaches
 // the new one. Same class as 0x4388d0; the flag test comes first here.
 // FUNCTION: 0x438930
-void Order::AttachApproachRadiusGoal(int* p, int n)
+void Order::AttachApproachRadiusGoal(Vec3* p, int n)
 {
     if ((((UnitType *)unit->def)->flags32 & 0x800) == 0) {
-        ApproachRadius* obj = new (kSim) ApproachRadius(this, p[0], p[2], n);
+        ApproachRadius* obj = new (kSim) ApproachRadius(this, p->x, p->z, n);
         if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
                 ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
-                delete attached;
+                delete (OrderFx*)attached;
                 attached = 0;
             }
             if (obj) {
@@ -428,21 +375,21 @@ void Order::AttachApproachRadiusGoal(int* p, int n)
     } else {
         if (((Owner_0043a1f0 *)unit->motion) && attached) {
             ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
-            delete attached;
+            delete (OrderFx*)attached;
             attached = 0;
         }
     }
 }
 
 // FUNCTION: 0x438a00
-void Order::AttachRingApproachGoal(Vec3_0043a1f0* pos, int radius1, int radius2)
+void Order::AttachRingApproachGoal(Vec3* pos, int radius1, int radius2)
 {
     if (!(((UnitType *)unit->def)->flags32 & 0x800)) {
         RingApproach* obj = new (kSim) RingApproach(this, pos->x, pos->z, radius1, radius2);
         if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
                 ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
-                delete attached;
+                delete (OrderFx*)attached;
                 attached = 0;
             }
             if (obj) {
@@ -455,7 +402,7 @@ void Order::AttachRingApproachGoal(Vec3_0043a1f0* pos, int radius1, int radius2)
         if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
                 ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
-                delete attached;
+                delete (OrderFx*)attached;
                 attached = 0;
             }
         }
@@ -470,7 +417,7 @@ void Order::AttachBuildFootprintMarker(Point16 cell, Point16 size)
         if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
                 ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
-                delete attached;
+                delete (OrderFx*)attached;
                 attached = 0;
             }
             if (obj) {
@@ -483,7 +430,7 @@ void Order::AttachBuildFootprintMarker(Point16 cell, Point16 size)
         if (((Owner_0043a1f0 *)unit->motion)) {
             if (attached) {
                 ((Owner_0043a1f0 *)unit->motion)->slot->Attach(0);
-                delete attached;
+                delete (OrderFx*)attached;
                 attached = 0;
             }
         }
@@ -498,9 +445,9 @@ void Order::AttachBuildFootprintMarker(Point16 cell, Point16 size)
 // FUNCTION: 0x438b90
 void Order::MergeFlagsFromTable(int k)
 {
-    kind = k;
+    kind.index = k;
     // The two table index expressions must differ, or the entry load is shared.
-    flags = ((g_missionOrderTableBegin[k & 0xff].flags ^ flags) & 0x600) ^ g_missionOrderTableBegin[kind].flags;
+    flags_42 = ((g_missionOrderTableBegin[k & 0xff].flags ^ flags_42) & 0x600) ^ g_missionOrderTableBegin[kind.index].flags;
 }
 
 // FUNCTION: 0x438be0
@@ -521,30 +468,30 @@ int __stdcall GetOrderFlags(void* param)
 // FUNCTION: 0x43a1f0
 Order::~Order()
 {
-    if (flags6 & 2) {
-        g_missionOrderTableBegin[kind].notify(unit, this, 2);
+    if (flags & 2) {
+        g_missionOrderTableBegin[kind.index].notify(unit, this, 2);
     }
-    if (flags & 0x400000) {
+    if (flags_42 & 0x400000) {
         Unit* obj = unit;
         int index = g_seams.units->FindScript((CobScript*)obj->script, "StopBuilding");
         g_seams.units->StartScriptWithArgsByIndex((CobScript*)obj->script, index, 0, 0, 0, 0, 0, 0, 0);
         SendScriptCallNoArgs(obj, index);
-        flags &= ~0x400000;
+        flags_42 &= ~0x400000;
     }
     if (((Owner_0043a1f0 *)unit->motion) != 0) {
         Slot_0043a1f0* slot = ((Owner_0043a1f0 *)unit->motion)->slot;
         if (slot->current != 0 && slot->current == attached) {
             if (attached != 0) {
                 slot->Attach(0);
-                delete attached;
+                delete (OrderFx*)attached;
                 attached = 0;
             }
         } else {
-            delete attached;
+            delete (OrderFx*)attached;
             attached = 0;
         }
     }
-    if (!(flags & 0x10000)) {
+    if (!(flags_42 & 0x10000)) {
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
     }
     g_seams.units->UnitRefUnlink((UnitRef*)&link);
@@ -652,17 +599,17 @@ Order::Order(Unit* punit, HapiBank* file, char* name)
     unit = punit;
     link.SetUnit(g_seams.units->LoadUnit(desc.ownerType, file));
 
-    kind = desc.kind;
-    flag5 = desc.flag5;
-    flags6 = desc.flags6;
-    last_id = desc.last_id;
-    pos = desc.pos;
-    start = desc.start;
-    cached = desc.cached;
+    kind.index = desc.kind;
+    state = desc.flag5;
+    flags = desc.flags6;
+    wakeFrame = desc.last_id;
+    pos = *(Vec3*)&desc.pos;
+    start = *(Point16*)&desc.start;
+    cached = *(Point16*)&desc.cached;
     unitType = desc.field_26;
     radius = desc.radius;
     progress = desc.progress;
-    flags = desc.flags;
+    flags_42 = desc.flags;
     subFlags = desc.subFlags;
 
     char* sname = g_missionOrderTableBegin[desc.kind].name;
@@ -726,18 +673,18 @@ int Order::SerializeToSave(Unit* punit, HapiBank* file, char* name)
     // fresh read of link.owner keeps the compiler from dropping the third test.
     Unit* o = link.owner;
     desc.ownerType = (o != 0 && (link.owner->flags & 0x10000000) != 0 && link.owner != 0) ? o->id : 0;
-    desc.field_4 = attached ? attached->GetType() : 0;
-    desc.kind = kind;
-    desc.flag5 = flag5;
-    desc.flags6 = flags6;
-    desc.last_id = last_id;
-    desc.pos = pos;
-    desc.start = start;
-    desc.cached = cached;
+    desc.field_4 = attached ? ((OrderFx*)attached)->GetType() : 0;
+    desc.kind = kind.index;
+    desc.flag5 = state;
+    desc.flags6 = flags;
+    desc.last_id = wakeFrame;
+    desc.pos = *(Vec3_0043a1f0*)&pos;
+    desc.start = *(int*)&start;
+    desc.cached = *(int*)&cached;
     desc.field_26 = unitType;
     desc.radius = radius;
     desc.progress = progress;
-    desc.flags = flags;
+    desc.flags = flags_42;
     desc.subFlags = subFlags;
 
     file->OpenNamedBox(name);
@@ -746,9 +693,9 @@ int Order::SerializeToSave(Unit* punit, HapiBank* file, char* name)
 
     char buf1[0x80];
     sprintf(buf1, "%s%s", name, "_name");
-    file->SetStringItem(buf1, g_missionOrderTableBegin[kind].name);
+    file->SetStringItem(buf1, g_missionOrderTableBegin[kind.index].name);
 
-    char* s = g_missionOrderTableBegin[kind].name;
+    char* s = g_missionOrderTableBegin[kind.index].name;
     if (strcmp(s, "MobileBuild") == 0 || strcmp(s, "VTOL_MobileBuild") == 0 ||
         strcmp(s, "BuildingBuild") == 0) {
         unsigned short id = unitType;
@@ -761,7 +708,7 @@ int Order::SerializeToSave(Unit* punit, HapiBank* file, char* name)
     if (desc.field_4 != 0) {
         char buf3[0x20];
         sprintf(buf3, "%s%s", name, "g");
-        attached->SerializeToSave(this, file, buf3);
+        ((OrderFx*)attached)->SerializeToSave(this, file, buf3);
     }
     return 1;
 }

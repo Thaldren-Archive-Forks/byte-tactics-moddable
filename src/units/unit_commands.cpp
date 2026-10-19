@@ -35,18 +35,18 @@ struct Table_00487bf0 {
 };
 #pragma pack(pop)
 
-class MissionType {
-public:
-    unsigned char index;
-    char pad[3]; // makes each Outs_t member a dword slot like the original
-    MissionType(const char* name);
-    MissionType() {}
-};
+#include "../orders/mission_type.h"
 
 unsigned short __stdcall FindUnitTypeId(const char* name);
 
+union MissionSlot {
+    MissionType type;
+    int slot;
+    MissionSlot() {}
+};
+
 struct Outs_t {
-    MissionType g, a, m, u, p;
+    MissionSlot g, a, m, u, p;
 };
 
 // FUNCTION: 0x487bf0
@@ -93,8 +93,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             L.pos.x = (int)(L.f1 * 65536.0);
             L.pos.y = 0;
             L.pos.z = (int)(L.f2 * 65536.0);
-            out.m = g_seams.orders->GetOrderType(2, unit, 0, (Vec3*)&L.pos);
-            g_seams.orders->AddOrder(out.m, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
+            out.m.type = g_seams.orders->GetOrderType(2, unit, 0, (Vec3*)&L.pos);
+            g_seams.orders->AddOrder(out.m.type, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
             processed = 1;
             break;
         }
@@ -104,8 +104,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             L.pos.x = (int)(L.f1 * 65536.0);
             L.pos.y = 0;
             L.pos.z = (int)(65536.0 * L.f2);
-            out.u = g_seams.orders->GetOrderType(5, unit, 0, (Vec3*)&L.pos);
-            g_seams.orders->AddOrder(out.u, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
+            out.u.type = g_seams.orders->GetOrderType(5, unit, 0, (Vec3*)&L.pos);
+            g_seams.orders->AddOrder(out.u.type, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
             processed = 1;
             break;
         }
@@ -114,8 +114,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             sscanf(buf + 1, " %[a-zA-Z0-9_.]", buf);
             int target = g_seams.units->FindMissionUnit(buf, (std::vector<Unit*, std::allocator<Unit*> >*)table, 0);
             if (target != 0) {
-                out.g = g_seams.orders->GetOrderType(7, unit, (Unit*)target, 0);
-                g_seams.orders->AddOrder(out.g, 1, unit, (Unit*)target, 0, 0, 0);
+                out.g.type = g_seams.orders->GetOrderType(7, unit, (Unit*)target, 0);
+                g_seams.orders->AddOrder(out.g.type, 1, unit, (Unit*)target, 0, 0, 0);
                 processed = 1;
             }
             break;
@@ -127,9 +127,9 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
             L.pos.x = (int)(L.f1 * 65536.0);
             L.pos.y = 0;
             L.pos.z = (int)(L.f2 * 65536.0);
-            out.p = g_seams.orders->GetOrderType(9, unit, 0, (Vec3*)&L.pos);
+            out.p.type = g_seams.orders->GetOrderType(9, unit, 0, (Vec3*)&L.pos);
             // The (int)(f * 30.0f) goes straight into AddOrder: no float local.
-            g_seams.orders->AddOrder(out.p, 1, unit, 0, (Vec3*)&L.pos, (int)(M2.pf * 30.0f), 0);
+            g_seams.orders->AddOrder(out.p.type, 1, unit, 0, (Vec3*)&L.pos, (int)(M2.pf * 30.0f), 0);
             processed = 1;
             selected = 1;
             break;
@@ -140,8 +140,8 @@ void __stdcall RunInitialMission(Unit* unit, char* text, Table_00487bf0* table)
                 L.pos.x = (int)(L.f1 * 65536.0);
                 L.pos.y = 0;
                 L.pos.z = (int)(L.f2 * 65536.0);
-                out.a = g_seams.orders->GetOrderType(3, unit, 0, (Vec3*)&L.pos);
-                g_seams.orders->AddOrder(out.a, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
+                out.a.type = g_seams.orders->GetOrderType(3, unit, 0, (Vec3*)&L.pos);
+                g_seams.orders->AddOrder(out.a.type, 1, unit, 0, (Vec3*)&L.pos, 0, 0);
                 selected = 1;
                 processed = 1;
             } else {
