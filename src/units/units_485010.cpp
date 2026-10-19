@@ -50,9 +50,7 @@ struct Unit;
 
 #include "name_004864b0.h"
 
-struct ScriptTable {                 // the definition data at type+0x18e
-    char unknown_0[8];
-};
+#include "cob_types.h"
 
 union TypeFlags {                      // the type's word at +0x241
     unsigned int all;
@@ -575,33 +573,7 @@ struct BmpInfo;
 struct BmpInfoHeader;
 
 
-class UnitScript : public CobScript {
-public:
-    void* state;                   // +0x540
-
-    virtual void SetPieceTranslation(int, int, int);  // slot 0
-    virtual void SetPieceRotation(int, int, int);     // slot 1
-    virtual void SetPieceVisible(int, int);           // slot 2
-    virtual void SetPieceCached(int, int);            // slot 3
-    virtual void SetPieceShaded(int, int);            // slot 4
-    virtual int GetPieceTranslation(int, int);        // slot 5
-    virtual int GetPieceRotation(int, int);           // slot 6
-    virtual int IsPieceVisible(int);                  // slot 7, 0x480e30
-    virtual int IsPieceCached(int);                   // slot 8, 0x480e50
-    virtual int IsPieceShaded(int);                   // slot 9, 0x480e70
-    virtual void ExplodeLegacy(int, int, int);        // slot 10, 0x480e90
-    virtual void PlaySoundNoop(int);                  // slot 11, 0x480ea0
-    virtual void EmitSfx(int, int);                   // slot 12, 0x480eb0
-    virtual void ExplodePiece(int, unsigned int);     // slot 13, 0x481140
-    virtual void AttachUnit(unsigned short, int, int); // slot 14, 0x481340
-    virtual void DropUnit(unsigned short);            // slot 15, 0x4813b0
-    virtual void SetUnitValue(int, int);              // slot 16, 0x480b20
-    virtual int GetUnitValue(int, int, int, int, int); // slot 17, 0x480770
-    virtual int IsCarryingUnit(int);                  // slot 18, 0x481430
-    virtual int GetTransporterId();                   // slot 19, 0x481470
-
-    void SetObjectState(ObjectState_00485d40* state);
-};
+#include "unit_script.h"
 
 void* __cdecl operator new(size_t size);
 ObjectState_00485d40* __stdcall CreatePlayerObjectState(Object3do* obj, ScriptTable* data, int player);
@@ -615,7 +587,7 @@ void __stdcall InitUnitScript(Unit* self)
         self->script = (Class_004b0a70*)new (kSim) UnitScript;
         ((CobScript*)self->script)->SetCob(((UnitType*)self->def)->data);
         self->state = (SpotState*)CreatePlayerObjectState(obj, ((UnitType*)self->def)->data, (int)self);
-        ((UnitScript*)self->script)->SetObjectState((ObjectState_00485d40*)self->state);
+        ((UnitScript*)self->script)->SetObjectState((int)self->state);
         ((CobScript*)self->script)->StartScript("Create", 0, 1);
     } else {
         self->script = 0;

@@ -9,27 +9,8 @@
 #include "../state/block.h"
 #include <stdlib.h>
 
-// The compiled COB script of a unit type.
-struct ScriptTable {
-    int unknown_0;                     // +0x00
-    int count;                         // +0x04, of the scripts
-    int pieceCount;                    // +0x08
-    int unknown_c;                     // +0x0c
-    int staticCount;                   // +0x10
-    char unknown_14[0x18 - 0x14];
-    int* entries;                      // +0x18, each script's code offset
-    char** names;                      // +0x1c
-    char unknown_20[0x24 - 0x20];
-    int* code;                         // +0x24
-};
-
-// Told when a script started with one finishes.
-struct Callback
-{
-    virtual void Complete(int) = 0;
-};
-
 #include "cob_script.h"
+#include "cob_types.h"
 
 // 0x4b0c40's view of a channel. Its channel array starts at offset 0, so its
 // fields sit 0x1c after the real Channel's: `count` is the real `sp`, `values`
@@ -42,25 +23,6 @@ struct Channel_004b0c40 {
     int unknown_3c;                    // +0x3c
     int values[5];                     // +0x40
     char unknown_54[0xa4 - 0x54];
-};
-
-// The script's state of one piece: where it is moving and turning to.
-// `e` is 0x4b1c00's view of the same record, e[0..5] being move, moveSpeed,
-// turn, turnSpeed, spin and acceleration.
-struct Piece
-{
-    int active;
-    union {
-        struct {
-            int move[3];
-            int moveSpeed[3];
-            int turn[3];
-            int turnSpeed[3];
-            int spin[3];
-            int acceleration[3];
-        };
-        int e[6][3];
-    };
 };
 
 // The saved state of a script (0x528 bytes) and of one piece (0x6c bytes).

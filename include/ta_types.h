@@ -10738,69 +10738,9 @@ struct Elem_4b0610 {  // 0xa4 bytes, 8 views
     char unknown_24[128];
 };
 
-class CobScript {       // 0x540 bytes, 10 views
-public:
-    int field_4;  // +0x4
-    int field_8;  // +0x8
-    int unknown_c;  // +0xc
-    void* ptr10;  // +0x10
-    void* ptr14;  // +0x14
-    int field_18;  // +0x18
-    Elem_4b0610 arr[8];  // +0x1c
-    int field_53c;  // +0x53c
-    virtual ~CobScript(void);
-    CobScript(CobScript&);
-    CobScript(void);
-    virtual void SetPieceTranslation(int, int, int) = 0;
-    virtual void SetPieceRotation(int, int, int) = 0;
-    virtual void SetPieceVisible(int, int) = 0;
-    virtual void SetPieceCached(int, int) = 0;
-    virtual void SetPieceShaded(int, int) = 0;
-    virtual int GetPieceTranslation(int, int) = 0;
-    virtual int GetPieceRotation(int, int) = 0;
-    virtual int IsPieceVisible(int);
-    virtual int IsPieceCached(int);
-    virtual int IsPieceShaded(int);
-    virtual void ExplodeLegacy(int, int, int);
-    virtual void PlaySoundNoop(int);
-    virtual void EmitSfx(int, int);
-    virtual void ExplodePiece(int, int);
-    virtual void AttachUnit(int, int, int);
-    virtual void DropUnit(int);
-    virtual void SetUnitValue(int, int);
-    virtual int GetUnitValue(int, int, int, int, int);
-    virtual int IsCarryingUnit(int);
-    virtual int GetTransporterId(void);
-    int LoadScriptState(HapiBank*);
-    void SetCob(BuildList_0045a950*);
-    void SaveScriptState(Class_004b4cf0*);
-};
+#include "../src/units/cob_script.h"
 
-class UnitScript : public CobScript {           // 0x544 bytes, 9 views
-public:
-    BuildList_0045a950* data;  // +0x540
-    virtual void SetPieceTranslation(int, int, int);
-    virtual void SetPieceRotation(int, int, int);
-    virtual void SetPieceVisible(int, int);
-    virtual void SetPieceCached(int, int);
-    virtual void SetPieceShaded(int, int);
-    virtual int GetPieceTranslation(int, int);
-    virtual int GetPieceRotation(int, int);
-    virtual int IsPieceVisible(int);
-    virtual int IsPieceCached(int);
-    virtual int IsPieceShaded(int);
-    virtual void ExplodeLegacy(int, int, int);
-    virtual void PlaySoundNoop(int);
-    virtual void EmitSfx(int, int);
-    virtual void ExplodePiece(int, int);
-    virtual void AttachUnit(int, int, int);
-    virtual void DropUnit(int);
-    virtual void SetUnitValue(int, int);
-    virtual int GetUnitValue(int, int, int, int, int);
-    virtual int IsCarryingUnit(int);
-    virtual int GetTransporterId(void);
-    void FUN_00481140(int, unsigned int);
-};
+#include "../src/units/unit_script.h"
 
 class Class_00480d40 {  // 0x544 bytes, 2 views
 public:
@@ -14068,25 +14008,7 @@ public:
     void RemoveCallback(int);
 };
 
-struct Callback {  // 0x4 bytes, 1 view
-    virtual void Complete(int) = 0;
-};
-
-struct Channel {  // 0xa4 bytes, 1 view
-    unsigned int state;  // +0x0
-    int pc;  // +0x4
-    int sp;  // +0x8
-    int delay;  // +0xc
-    int piece;  // +0x10
-    int axis;  // +0x14
-    int waiting;  // +0x18
-    int signal;  // +0x1c
-    Callback* callback;  // +0x20
-    int stack[32];  // +0x24
-    int Pop(void);
-    void Push(int);
-    void XorOp(void);
-};
+#include "../src/units/cob_types.h"
 
 class Class_004b0da0 {  // 0x540 bytes, 6 views
 public:
@@ -14120,21 +14042,6 @@ public:
     virtual int GetTransporterId(void);
     void RunThread(unsigned int, int);
     void Wake(unsigned int);
-};
-
-struct Piece {  // 0x4c bytes, 1 view
-    int active;  // +0x0
-    int move[3];  // +0x4
-    int moveSpeed[3];  // +0x10
-    int turn[3];  // +0x1c
-    int turnSpeed[3];  // +0x28
-    int spin[3];  // +0x34
-    int acceleration[3];  // +0x40
-};
-
-struct ScriptTable {  // 0x28 bytes, 1 view
-    char unknown_0[36];
-    int* code;  // +0x24
 };
 
 struct Data_004b1c00 {  // 0x4c bytes, 1 view
