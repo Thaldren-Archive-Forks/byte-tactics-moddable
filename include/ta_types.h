@@ -3172,18 +3172,6 @@ struct Pair_0040d880 {  // 0x2 bytes, 1 view
     unsigned char b;  // +0x1
 };
 
-struct Table_0040d880 {  // 0x8 bytes, 2 views
-    unsigned char values[8];  // +0x0
-};
-
-class Class_0040d880 {  // 0x78 bytes, 1 view
-public:
-    char unknown_0[104];
-    Table_0040d880 table;  // +0x68
-    Pair_0040d880 pairs[4];  // +0x70
-    void InitCostTables(void);
-};
-
 struct Cell_0040d8b0 {  // 0x4 bytes, 1 view
     unsigned char kind;  // +0x0
     char unknown_1[3];
@@ -3287,24 +3275,6 @@ struct Cell_0040da70 {  // 0x4 bytes, 3 views
     short node;  // +0x2
 };
 
-class OpenHeap {        // 0x1c bytes, 6 views
-public:
-    int count;  // +0x0
-    HeapNode_0040f000** items;  // +0x4
-    int freeHead;  // +0x8
-    int used;  // +0xc
-    int capacity;  // +0x10
-    int count_14;  // +0x14
-    int pending;  // +0x18
-    void SiftUp(int);
-    void FUN_0040f060(int);
-    void Grow(int);
-    int Push(NodeData_0040da70&);
-    void Update(int);
-    void Free(int);
-    void Remove(int);
-};
-
 struct Grid_0040da70 {  // 0x14 bytes, 1 view
     Cell_0040da70* cells;  // +0x0
     unsigned int width;  // +0x4
@@ -3312,24 +3282,6 @@ struct Grid_0040da70 {  // 0x14 bytes, 1 view
     char unknown_c[4];
     unsigned int* dirty;  // +0x10
     int InBounds(unsigned int, unsigned int);
-};
-
-class Class_0040da70 : public OpenHeap {        // 0x78 bytes, 3 views
-public:
-    Grid_0040da70 grid;  // +0x1c
-    char unknown_30[16];
-    int threshold;  // +0x40
-    char unknown_44[12];
-    int scale;  // +0x50
-    char unknown_54[12];
-    Target_0040da70* target;  // +0x60
-    char unknown_64[4];
-    unsigned char turnCost[8];  // +0x68
-    unsigned char stepCost[8];  // +0x70
-    static int Scale(int, int);
-    void ExpandNeighbour(NodeData_0040da70*, Cell_0040da70*, int);
-    int Estimate(int, int);
-    short Steps(NodeData_0040da70*, int);
 };
 
 struct HeapNode_0040f000 {  // 0x10 bytes, 3 views
@@ -3550,34 +3502,6 @@ struct Node_0040e630 {  // 0x14 bytes, 1 view
 struct Pair_0040e630 {  // 0x2 bytes, 1 view
     unsigned char a;  // +0x0
     unsigned char b;  // +0x1
-};
-
-class Class_0040e630 {  // 0x78 bytes, 2 views
-public:
-    Heap_0040e630 heap;  // +0x0
-    Grid_0040e630 grid;  // +0x1c
-    Point16 start;  // +0x30
-    char unknown_34[4];
-    int goalX;  // +0x38
-    int goalY;  // +0x3c
-    int probe;  // +0x40
-    int field_44;  // +0x44
-    char unknown_48[4];
-    int steps;  // +0x4c
-    int costScale;  // +0x50
-    char unknown_54[4];
-    Unit* object;  // +0x58
-    AiSearchGoal* path;    // +0x5c
-    Target_0040e630* target;  // +0x60
-    Dummy_00440be0* owner;  // +0x64
-    Table_0040d880 table;  // +0x68
-    Pair_0040e630 pairs[4];  // +0x70
-    int Cost(int, int);
-    void StartSearch(Target_0040e630*);
-    void ResetTable(void);
-    void MarkGoal(unsigned int, unsigned int);
-    void Release(void);
-    void Finish(void);
 };
 
 class Target_0040e630 {  // 0x4 bytes, 1 view
@@ -4113,18 +4037,6 @@ struct Movement {  // 0x1c bytes, 1 view
     int width;  // +0x10
     char unknown_14[4];
     unsigned int* states;  // +0x18
-};
-
-struct PathCell {  // 0x4 bytes, 1 view
-    unsigned char flags;  // +0x0
-    char direction;  // +0x1
-    char unknown_2[2];
-};
-
-struct PathGrid {  // 0x8 bytes, 1 view
-    PathCell* cells;  // +0x0
-    int width;  // +0x4
-    PathCell* At(int, int);
 };
 
 struct Rect {  // 0x10 bytes, 121 views
