@@ -36,79 +36,7 @@ struct UnitDef;
 #include "../network/player_info.h"
 #include "../../interfaces/seams.h"
 
-// Keeps its own view: InitPlayerSlot clears the halves of the energy and metal totals apart, which player.h's doubles do not.
-struct Player {
-    int active;                        // +0x00
-    int index;                         // +0x04
-    char unknown_8[0xc - 8];
-    int lobbyDataSynced;               // +0x0c
-    char unknown_10[0x18 - 0x10];
-    int syncTick;                      // +0x18
-    char unknown_1c[0x21 - 0x1c];
-    unsigned char keepaliveFlags;      // +0x21
-    unsigned char rejectReason;        // +0x22
-    char unknown_23[0x27 - 0x23];
-    PlayerInfo* info;                  // +0x27
-    char name[30];                     // +0x2b
-    char fullName[0x67 - 0x49];        // +0x49
-    Unit* units;                       // +0x67
-    Unit* units_end;                   // +0x6b
-    unsigned short firstIndex;         // +0x6f
-    unsigned short lastIndex;          // +0x71
-    unsigned char type;                // +0x73
-    SquadManager* unit;                // +0x74
-    char unknown_78[0x7c - 0x78];
-    void* buffer;                      // +0x7c
-    int exploredWidth;                 // +0x80
-    int exploredHeight;                // +0x84
-    int exploredSize;                  // +0x88
-    float energy;                      // +0x8c
-    int energyIncome;
-    float energyUsage;                 // +0x94
-    float metal;                       // +0x98
-    int metalIncome;
-    int metalUsage;
-    int energyCapacity;
-    int metalCapacity;
-    int totalEnergyProduced;           // +0xac
-    int totalEnergyProducedHi;         // +0xb0, high half of the double
-    int totalMetalProduced;            // +0xb4
-    int totalMetalProducedHi;          // +0xb8, high half of the double
-    int totalEnergyConsumed;           // +0xbc
-    int totalEnergyConsumedHi;         // +0xc0, high half of the double
-    int totalMetalConsumed;            // +0xc4
-    int totalMetalConsumedHi;          // +0xc8, high half of the double
-    int energyWasted;                  // +0xcc
-    int energyWastedHi;                // +0xd0, high half of the double
-    int metalWasted;                   // +0xd4
-    int metalWastedHi;                 // +0xd8, high half of the double
-    char unknown_dc[0xe4 - 0xdc];
-    int shareMetal;                    // +0xe4
-    int shareEnergy;                   // +0xe8
-    UnitResources* econ;               // +0xec
-    int updateTime;                    // +0xf0
-    int winLoseTime;                   // +0xf4
-    int displayTimer;                  // +0xf8
-    short kills;                       // +0xfc
-    short losses;                      // +0xfe
-    short unused_100;                  // +0x100
-    short unused_102;                  // +0x102
-    short commanderKills;              // +0x104
-    short commanderLosses;             // +0x106
-    unsigned char team_108[11];        // +0x108
-    unsigned char team_113[11];        // +0x113
-    unsigned char team_11e[11];        // +0x11e
-    unsigned char team_129[11];        // +0x129
-    unsigned char team_134[11];        // +0x134
-    unsigned char alliance;            // +0x13f
-    int unitsCreated;                  // +0x140
-    unsigned short unitCount;          // +0x144
-    unsigned char team;                // +0x146
-    unsigned char startPos;            // +0x147
-    unsigned char rank;                // +0x148
-    unsigned short flags;              // +0x149
-    void Clear() { active = 0; type = 0; }
-};
+#include "../network/player.h"
 
 struct SkirmishPlayerSlot {            // 0x18 bytes
     int controller;                    // +0x0
@@ -222,26 +150,26 @@ void __stdcall SetupPlayerSlot(int player, char type)
     // Declared after p: puts the pointer in the addressing-mode index slot.
     int idx = player & 0xff;
 
-    memset(p->team_108, 0, 11);
-    memset(p->team_113, 0, 11);
-    memset(p->team_11e, 0, 11);
-    memset(p->team_129, 0, 11);
-    memset(p->team_134, 0, 11);
+    memset(p->allied, 0, 11);
+    memset(p->alliedBy, 0, 11);
+    memset(p->shareLos, 0, 11);
+    memset(p->shareVision, 0, 11);
+    memset(p->shareMapping, 0, 11);
     int t = type;
     p->type = t;
     if (t != 3) {
         p->info->kind = t;
     }
-    p->team_113[idx] = 1;
-    p->unit = 0;
-    p->team = (char)player;
+    p->alliedBy[idx] = 1;
+    p->ai = 0;
+    p->index = (char)player;
     p->rank = (char)player;
-    p->team_108[idx] = 1;
+    p->allied[idx] = 1;
     p->active = 1;
     p->startPos = (char)player;
     p->alliance = 5;
     p->info->bit5 = 0;
-    p->index = player & 0xff;
+    p->id = player & 0xff;
     p->lobbyDataSynced = 0;
     p->rejectReason = 0;
 
@@ -297,13 +225,13 @@ void ResetPlayerSlots()
 
     p = &g_game->players[0];
     for (i = 0; i <= 10; i++, p++) {
-        memset(p->team_108, 0, 11);
-        memset(p->team_113, 0, 11);
+        memset(p->allied, 0, 11);
+        memset(p->alliedBy, 0, 11);
         memset(p->info, 0, 0xb9);
         sprintf(p->name, "Player %d First", i);
         sprintf(p->fullName, "Player %d Second", i);
-        p->team_108[i] = 1;
-        p->team_113[i] = 1;
+        p->allied[i] = 1;
+        p->alliedBy[i] = 1;
         // Inlined helper: separate stores let the reload of p->info be hoisted.
         p->Clear();
         p->info->kind = 0;
@@ -313,19 +241,19 @@ void ResetPlayerSlots()
         p->info->color = (char)i;
         p->info->side = 0;
         strcpy(p->info->map, DAT_005119b8);
-        p->unit = 0;
+        p->ai = 0;
         p->lobbyDataSynced = 0;
         p->syncTick = 0;
-        p->units = 0;
-        p->units_end = 0;
+        p->unitsBegin = 0;
+        p->unitsEnd = 0;
         p->firstIndex = 0;
         p->lastIndex = 0;
         p->unitCount = 0;
         // Stays before unitsCreated = 0.
         p->keepaliveFlags &= 0xfe;
         p->unitsCreated = 0;
-        p->index = -1;
-        p->team = 10;
+        p->id = -1;
+        p->index = 10;
         p->alliance = 5;
         p->info->bit5 = 0;
     }
@@ -345,12 +273,12 @@ void __stdcall InitPlayerSlot(Player* p)
     // The third stamp runs here but is written after the clears: C2 has to number its location after theirs.
     goto stamp;
 back:
-    p->totalEnergyProduced = 0;
-    p->totalMetalProduced = 0;
-    p->totalEnergyConsumed = 0;
-    p->totalMetalConsumed = 0;
-    p->energyWasted = 0;
-    p->metalWasted = 0;
+    p->totalEnergyProducedLo = 0;
+    p->totalMetalProducedLo = 0;
+    p->totalEnergyConsumedLo = 0;
+    p->totalMetalConsumedLo = 0;
+    p->energyWastedLo = 0;
+    p->metalWastedLo = 0;
     p->energy = 0;
     p->energyIncome = 0;
     p->energyUsage = 0;
@@ -375,7 +303,7 @@ guard:
     if (!p->econ) {
         p->econ = new (kSim) UnitResources;
     }
-    g_seams.economy->Reset(p->econ, p->team);
+    g_seams.economy->Reset(p->econ, p->index);
     p->flags &= 0xfffe;
     p->kills = 0;
     p->losses = 0;
@@ -388,24 +316,24 @@ guard:
     w = g_game->mapWidthTiles / 2;
     p->exploredWidth = w;
     p->exploredHeight = h;
-    operator delete(p->buffer);
+    operator delete(p->explored);
     int& sz = p->exploredSize;
     sz = (h * w + 7) & ~7;
-    p->buffer = sz ? SimAlloc(sz) : 0;
-    // Both references are load-bearing (`sz` also for the first block). With `memset(p->buffer, 0, p->exploredSize)`
+    p->explored = sz ? (unsigned char*)SimAlloc(sz) : 0;
+    // Both references are load-bearing (`sz` also for the first block). With `memset(p->explored, 0, p->exploredSize)`
     // MSVC propagates the phi and the size into the inlined memset, which puts
     // the phi in edi and stores it from edi; the original reloads [esi+0x7c]
     // into edi and keeps the phi in eax. Reading the fields through references
     // stops that propagation, and it also stops the scheduler from hoisting
     // the size load `mov ecx, [esi+0x88]` above the phi store (with the size
     // read directly the load comes first, the original has it second).
-    void*& bref = p->buffer;
+    unsigned char*& bref = p->explored;
     memset(bref, 0, sz);
     g_seams.ai->CreateSquads(p);
     // Keep `||` with both tests as written: the branch layout depends on it.
     if (!p->active || p->type != 3) {
-        p->unit = new (kSim) SquadManager(p);
-        g_seams.ai->CreatePlayerAI(p->team);
+        p->ai = new (kSim) SquadManager(p);
+        g_seams.ai->CreatePlayerAI(p->index);
     }
 }
 
@@ -462,7 +390,7 @@ void InitPlayers()
 void RebuildAIFeatureCells()
 {
     for (char i = 0; i < 10; i++) {
-        if (g_game->players[i].unit) {
+        if (g_game->players[i].ai) {
             g_seams.ai->RebuildFeatureCells(i);
         }
     }
@@ -654,7 +582,7 @@ void __stdcall TransferEnergy(unsigned char from, unsigned char to, float amount
 // FUNCTION: 0x464da0
 void __stdcall RefreshOwnedUnitsLineOfSight(Player* range)
 {
-    for (Unit* u = range->units; u <= range->units_end; u++) {
+    for (Unit* u = range->unitsBegin; u <= range->unitsEnd; u++) {
         if (u->flags & 0x10000000) {
             g_seams.los_radar->UpdateUnitLineOfSight(u);
         }
@@ -787,7 +715,7 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
             if (t != 1 && t != 2 && t != 3)
                 goto next_bl;
         }
-        if (pi->team == 0xa)
+        if (pi->index == 0xa)
             goto next_bl;
         {
             // Fresh pointer for the whole second group: stops it being merged with
@@ -798,18 +726,18 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
             unsigned char t2 = pi2->type;
             if (t2 != 1 && t2 != 2 && t2 != 3)
                 goto next_bl;
-            if (pi2->team == 0xa)
+            if (pi2->index == 0xa)
                 goto next_bl;
         }
 
-        if (pi->unit != 0)
-            g_seams.ai->SquadManagerTickIfActive(pi->unit, 0);
+        if (pi->ai != 0)
+            g_seams.ai->SquadManagerTickIfActive(pi->ai, 0);
 
         g_seams.ai->UpdatePlayerAI(bl);
 
         {
-            Unit* u = pi->units;
-            while (u <= pi->units_end) {
+            Unit* u = pi->unitsBegin;
+            while (u <= pi->unitsEnd) {
                 if (u->flags & 0x10000000)
                     g_seams.los_radar->UpdateUnitLineOfSight(u);
                 u = (Unit*)((char*)u + 0x118);
@@ -975,7 +903,7 @@ void __stdcall UpdatePlayersOnStream(RandStream stream)
     skip508:
         if (pi->active != 0) {
             unsigned char t = pi->type;
-            if ((t == 1 || t == 2 || t == 3) && pi->team != 0xa) {
+            if ((t == 1 || t == 2 || t == 3) && pi->index != 0xa) {
                 if ((pi->unitCount != 0 || pi->unitsCreated == 0) &&
                     (t == 1 || t == 2)) {
                     if ((g_game->endGameFlags.w & 4) == 0 &&

@@ -66,12 +66,48 @@ struct Player {
         float metalCapacity;
         int metalCapacityBits;
     };
-    double totalEnergyProduced;        // +0xac
-    double totalMetalProduced;         // +0xb4
-    double totalEnergyConsumed;        // +0xbc
-    double totalMetalConsumed;         // +0xc4
-    double energyWasted;               // +0xcc
-    double metalWasted;                // +0xd4
+    union {                            // +0xac
+        double totalEnergyProduced;
+        struct {
+            int totalEnergyProducedLo;
+            int totalEnergyProducedHi;
+        };
+    };
+    union {                            // +0xb4
+        double totalMetalProduced;
+        struct {
+            int totalMetalProducedLo;
+            int totalMetalProducedHi;
+        };
+    };
+    union {                            // +0xbc
+        double totalEnergyConsumed;
+        struct {
+            int totalEnergyConsumedLo;
+            int totalEnergyConsumedHi;
+        };
+    };
+    union {                            // +0xc4
+        double totalMetalConsumed;
+        struct {
+            int totalMetalConsumedLo;
+            int totalMetalConsumedHi;
+        };
+    };
+    union {                            // +0xcc
+        double energyWasted;
+        struct {
+            int energyWastedLo;
+            int energyWastedHi;
+        };
+    };
+    union {                            // +0xd4
+        double metalWasted;
+        struct {
+            int metalWastedLo;
+            int metalWastedHi;
+        };
+    };
     float energyStorageBonus;          // +0xdc
     float metalStorageBonus;           // +0xe0
     float shareMetal;                  // +0xe4
@@ -109,6 +145,7 @@ struct Player {
     void FreeSideDataAndFogSightCounts();
     void SetType(int newType);
     int IsPlayableSlot();
+    void Clear() { active = 0; type = 0; }
 };
 #pragma pack(pop)
 
