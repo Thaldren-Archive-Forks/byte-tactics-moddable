@@ -1,5 +1,4 @@
 function,function_address,file,kind,symbol,addend,array,neighbour,verdict
-SpatialTimer::SpatialTimer,0x407d40,src/ai/ai_player_407d40.cpp,end-of,g_spatialTimerVtable,0,DAT_004fc980,,none
 CountPacket,0x415f40,src/network/net_stats.cpp,end-of,g_packetBytesReceived,0,g_packetsReceived,,none
 CountPacket,0x415f40,src/network/net_stats.cpp,end-of,g_packetBytesReceived,0,g_packetsSent,,none
 CountPacket,0x415f40,src/network/net_stats.cpp,end-of,g_packetsReceived,0,g_packetsSent,,none

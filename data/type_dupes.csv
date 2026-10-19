@@ -85,7 +85,7 @@ Common_004ad350,no,2,include/ta_types.h:13169|src/gui/gui_file.cpp:84,differs,in
 Conn_4ca100,no,2,include/ta_types.h:15864|src/network/hapinet.cpp:48,identical,include/ta_types.h
 Connection_4c9a70,no,2,include/ta_types.h:15577|src/network/hapinet.cpp:63,differs,include/ta_types.h
 ConsoleCommand,no,3,include/ta_types.h:13956|src/game/console_commands.cpp:184|src/util/commands.cpp:70,differs,include/ta_types.h
-Count_00458d20,no,2,include/ta_types.h:7220|src/graphics/model_render.cpp:573,identical,include/ta_types.h
+Count_00458d20,no,2,include/ta_types.h:7220|src/graphics/model_render.cpp:572,identical,include/ta_types.h
 CritSec_004e1ac0,no,3,include/ta_types.h:16748|src/debug/debug_lib.cpp:6165|src/debug/debug_lib_4e1990.cpp:9,same-layout,include/ta_types.h
 Ctx_004720d0,no,2,include/ta_types.h:9236|src/graphics/particles.cpp:474,differs,include/ta_types.h
 Ctx_00499890,no,2,include/ta_types.h:8056|src/ingame/screenshots.cpp:12,differs,include/ta_types.h
@@ -116,7 +116,6 @@ Dst_00440ca0,no,2,include/ta_types.h:5881|src/units/movement_class.cpp:124,diffe
 Dword_0051f410,no,2,include/ta_types.h:12365|src/game/main.cpp:142,differs,src/game/main.cpp
 ElemArray_4a4930,no,2,include/ta_types.h:12597|src/gui/gui.cpp:3559,identical,include/ta_types.h
 Elem_00401000,no,2,include/ta_types.h:2141|src/game/economy.cpp:61,same-layout,include/ta_types.h
-Elem_0040cc40,yes,2,src/ai/ai_player_40c530.cpp:37|src/ai/player_ai.h:19,same-layout,src/ai/player_ai.h
 Elem_0042a140,no,2,include/ta_types.h:4608|src/game/data_files.cpp:469,same-layout,include/ta_types.h
 Elem_00432be0,no,3,include/ta_types.h:4922|src/map/los_tables.cpp:35|src/units/unit_types_42a8d0.cpp:34,same-layout,include/ta_types.h
 Elem_004336c0,no,2,include/ta_types.h:5051|src/map/los_tables.cpp:96,identical,include/ta_types.h
@@ -478,12 +477,10 @@ Source_004ae410,no,2,include/ta_types.h:13078|src/gui/gui_file.cpp:724,identical
 Source_004ae4b0,no,2,include/ta_types.h:13093|src/gui/gui_file.cpp:764,identical,include/ta_types.h
 Source_004ae550,no,2,include/ta_types.h:13108|src/gui/gui_file.cpp:803,identical,include/ta_types.h
 SpatialBucket,no,4,src/map/spatial_bucket.h:6|src/map/terrain.cpp:123|src/units/unit_position.cpp:94|src/units/units_485010.cpp:155,differs,src/map/spatial_bucket.h
-SpatialTimer,yes,2,src/ai/ai_player_407d40.cpp:45|src/ai/squad_timer.h:65,differs,src/ai/squad_timer.h
 Spawn_004861d0,no,2,include/ta_types.h:10683|src/units/units_485010.cpp:765,differs,include/ta_types.h
 SpeechQueue,no,2,include/ta_types.h:10297|src/sound/sound.cpp:104,differs,src/sound/sound.cpp
 Spot_0049a120,no,2,src/weapons/weapons.cpp:680|src/weapons/weapons_49a120.cpp:87,identical,src/weapons/weapons.cpp
 Sprite_0049be60,no,2,include/ta_types.h:12105|src/weapons/weapons.cpp:2836,same-layout,include/ta_types.h
-SquadTimer,yes,2,src/ai/ai_player_407d40.cpp:30|src/ai/squad_timer.h:10,differs,src/ai/squad_timer.h
 Src_00440ca0,no,2,include/ta_types.h:5886|src/units/movement_class.cpp:130,differs,include/ta_types.h
 Src_0049c980,no,2,include/ta_types.h:12121|src/weapons/weapons.cpp:1438,same-layout,include/ta_types.h
 Src_004b8310,no,2,include/ta_types.h:14036|src/graphics/gaf.cpp:310,differs,include/ta_types.h
@@ -559,7 +556,6 @@ Unit_0049a120,no,2,src/weapons/weapons.cpp:631|src/weapons/weapons_49a120.cpp:39
 Value_004df380,no,2,include/ta_types.h:17365|src/debug/debug_lib.cpp:5029,identical,include/ta_types.h
 Value_004e17c0,no,2,include/ta_types.h:17608|src/debug/debug_lib.cpp:4772,identical,include/ta_types.h
 Value_004e2250,no,2,include/ta_types.h:17814|src/debug/debug_lib.cpp:4471,identical,include/ta_types.h
-Vec,no,2,src/ai/vec.h:4|src/graphics/model_render.cpp:503,differs,src/ai/vec.h
 Vec3Init_0043a1f0,no,2,include/ta_types.h:5537|src/orders/order_list.cpp:103,same-layout,include/ta_types.h
 Vec3f,no,4,include/ta_types.h:4234|src/graphics/model_render.cpp:56|src/graphics/model_render_4581e0.cpp:38|src/weapons/explosions.cpp:22,identical,include/ta_types.h
 Vec3i_00474130,no,2,include/ta_types.h:5693|src/graphics/particles_472630.cpp:88,same-layout,include/ta_types.h

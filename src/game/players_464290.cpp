@@ -626,7 +626,7 @@ void __stdcall UpdatePlayers()
 // FUNCTION: 0x464f80
 void __stdcall UpdatePlayersOnStream(RandStream stream)
 {
-    g_seams.pathfinding->RunSearches((Pathfinder*)g_game->pathfinder);
+    g_seams.pathfinding->RunSearches(g_game->pathfinder);
     // bl is declared before the guard and pi before the first goto, or the jump
     // is rejected.
     unsigned char bl = 0;
