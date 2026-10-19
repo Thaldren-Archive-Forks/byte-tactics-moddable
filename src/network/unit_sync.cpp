@@ -634,7 +634,7 @@ public:
 // FUNCTION: 0x46c8e0
 void __stdcall CreateUnitSync(int param_1)
 {
-    (*(UnitSync **)&g_game->field_2a30) = new UnitSync(param_1);
+    (*(UnitSync **)&g_game->sync) = new UnitSync(param_1);
 }
 
 // Releases the overlay object at g_game+0x2a30 (UnitSync, built by 0x46c8e0
@@ -644,9 +644,9 @@ void __stdcall CreateUnitSync(int param_1)
 // __fastcall: keeps the erase loop comparing the iterator slot directly.
 void __fastcall DeleteUnitSync()
 {
-    if ((UnitSync *)g_game->field_2a30)
-        delete (UnitSyncDel_0046c920*)(UnitSync *)g_game->field_2a30;
-    (*(UnitSync **)&g_game->field_2a30) = 0;
+    if ((UnitSync *)g_game->sync)
+        delete (UnitSyncDel_0046c920*)(UnitSync *)g_game->sync;
+    (*(UnitSync **)&g_game->sync) = 0;
 }
 
 // --- PacketSequencer ---------------------------------------------------------

@@ -345,7 +345,7 @@ void OpenShareDialog()
         e->sliderUser = (int)g_game;
     }
 
-    char* names = (char*)GameAllocIgnoreTag("PLAYERS", g_game->field_2a3c * 30);
+    char* names = (char*)GameAllocIgnoreTag("PLAYERS", g_game->numPlayers * 30);
     char* np = names;
     *np = 0;
     memset(g_shareDialogPlayerNetIds, -1, sizeof(g_shareDialogPlayerNetIds));
@@ -825,7 +825,7 @@ void __stdcall DrawScorePanel(void* surface)
     panel.left = GetScreenWidth() - g_scorePanelSlidePos;
     panel.top = 0x20;
     panel.right = panel.left + 0x7d;
-    panel.bottom = g_game->field_2a3c * 0x28 + 0x2e;
+    panel.bottom = g_game->numPlayers * 0x28 + 0x2e;
     FadeRectangle(surface, &panel, -0x18);
 
     panel.right = panel.left + 0x7d;
@@ -840,7 +840,7 @@ void __stdcall DrawScorePanel(void* surface)
     DrawTextClipped(surface, buf, panel.right - GetTextPixelWidth(buf) - 2, y, maxw, 0);
     y += 0xf;
 
-    for (int i = 0; i < (int)g_game->field_2a3c; i++) {
+    for (int i = 0; i < (int)g_game->numPlayers; i++) {
         Player* p = g_game->players;
         // Chained assignments fix the store order; the right edge is
         // panel.left + maxw.

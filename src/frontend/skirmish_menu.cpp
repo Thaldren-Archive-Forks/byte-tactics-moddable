@@ -895,7 +895,7 @@ void __stdcall HandleSkirmishClick(Gui* menu)
                 p++;
             } while (--count);
         }
-        g_game->field_2a3c = n + 1;
+        g_game->numPlayers = n + 1;
 
         if (g_game->net->LoadMissionByName(((Table *)g_game->options)->mapName) == 0) {
             OpenMessageBox(&g_game->gui,
@@ -927,7 +927,7 @@ void __stdcall HandleSkirmishClick(Gui* menu)
             }
             if (c1 >= 1) {
                 int maxPlayers = g_game->net->CountStartPositions();
-                if ((int)g_game->field_2a3c > maxPlayers) {
+                if ((int)g_game->numPlayers > maxPlayers) {
                     OpenMessageBox(&g_game->gui,
                                  Translate("There are too many players enabled for this map"),
                                  0x1e0, 1, 1);
@@ -962,7 +962,7 @@ void __stdcall HandleSkirmishClick(Gui* menu)
                         p++;
                     }
                 }
-                g_game->field_2a3c = c1 + c2;
+                g_game->numPlayers = c1 + c2;
 
                 ApplySlotsToGamePlayers();
                 InitMissionStatus();

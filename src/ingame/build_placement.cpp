@@ -304,13 +304,13 @@ void BattleFrame(void)
             g_game->handler = MenuFrame;
             SetCloseHandler(LeaveNetGameCallback, 0);
         } else {
-            unsigned int saved = g_game->field_2a3c;
+            unsigned int saved = g_game->numPlayers;
             ShutdownIngameSystems();
             PopUntilNamedLayout(1);
             CloseTopScreen(g_game->message);
             BlankScreen();
             SetCursor(0x14);
-            g_game->field_2a3c = saved;
+            g_game->numPlayers = saved;
             g_seams.map->LoadMissionByName(g_game->net, 0, (char *)g_game->options + 0x11c);
             ApplySlotsToGamePlayers();
             g_game->netGameFlags_2a44.value |= 4;

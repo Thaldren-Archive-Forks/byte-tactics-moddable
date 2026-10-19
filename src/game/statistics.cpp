@@ -181,7 +181,7 @@ int __stdcall LoadReporterDll(int* count, int names)
 
     ShutdownScoreTables();
 
-    net = ((char*)g_game->field_4e5);
+    net = ((char*)g_game->dplConnection);
     if (net != 0) {
         memcpy(g_game->providerGuid, net + 0x10, 16);
     }

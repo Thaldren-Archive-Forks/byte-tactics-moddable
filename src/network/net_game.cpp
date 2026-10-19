@@ -53,14 +53,6 @@ public:
 
 #include "../util/angles.h"
 
-struct Ring_00453640 {                 // 0x48 bytes, 30 of them at g_game+0x12ef
-    char text[0x40];                   // +0x00
-    unsigned int time;                 // +0x40
-    unsigned short unit;               // +0x44
-    char unit_46;                      // +0x46
-    unsigned char flags;               // +0x47
-};
-
 #include "../weapons/weapon_def.h"
 
 struct Holder_00453640;
@@ -71,18 +63,6 @@ struct Net_4517b0;
 struct ChatPacket;
 class UnitSync;
 
-// The 0x2a44 flag word 0x452cc0 reads as 16 bits.
-union GameFlags_2a44 {
-    unsigned short value;              // +0x2a44
-    struct {
-        unsigned short b0 : 1;
-        unsigned short b1 : 1;
-        unsigned short b2 : 1;
-        unsigned short b3 : 1;
-        unsigned short rest : 12;
-    } bits;
-};
-
 #include "player_info.h"
 
 #include "player.h"
@@ -91,175 +71,7 @@ union GameFlags_2a44 {
 // game reads. One type for the views of the part files.
 #include "../units/unit.h"
 
-// The game state, one type for every view. Where the parts read the same
-// bytes differently the union carries both names: the session block at +0x14,
-// the 0x2a44 flags, the menu at +0x519, the name strings at +0x2bd2, the
-// pending lists at +0x2c28, the tick and stage words at +0x38a47 and +0x38d6f
-// and the game flags at +0x3923b.
-struct Game {
-    char unknown_0[1];
-    unsigned char version;             // +0x01
-    unsigned char versionMinor;        // +0x02
-    char unknown_3[0x14 - 3];
-    union {
-        char net[0x4c9];               // +0x14
-        char session[0x471 - 0x14];
-        struct {
-            char unknown_14[0x471 - 0x14];
-            Settings settings;         // +0x471
-            char unknown_4c1[0x4c9 - 0x4c1];
-            union {
-                int from_id;           // +0x4c9
-                int lobby2;
-            };
-            union {
-                int local_id;          // +0x4cd
-                int lobby1;
-            };
-            char unknown_4d1[0xc];
-        };
-    };
-    char unknown_4dd[0x4e5 - 0x4dd];
-    Net_4517b0* dplConnection;         // +0x4e5
-    char unknown_4e9[0x4f1 - 0x4e9];
-    int netMode;                       // +0x4f1
-    char unknown_4f5[0x519 - 0x4f5];
-    union {
-        char menu[0x1b63 - 0x519];     // +0x519
-        struct {
-            char message[0x531 - 0x519];
-            union {
-                Holder_00453640* layer;    // +0x531
-                Layer* layer_531;
-            };
-            char unknown_535[0x12ef - 0x535];
-            Ring_00453640 chatHudRing[30];  // +0x12ef
-            int lobbySyncTick;         // +0x1b5f
-        };
-    };
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x299c - 0x2851];
-    union {
-        int duplicateIds;              // +0x299c
-        int duplicatePlayerTypeFlag;
-    };
-    char unknown_29a0[0x29a4 - 0x29a0];
-    int shareVisionReady[11];          // +0x29a4
-    int startPosAssignAck[11];         // +0x29d0
-    int startPosShuffle[10];           // +0x29fc
-    char unknown_2a24[0x2a28 - 0x2a24];
-    int startPosShuffleReady;          // +0x2a28
-    char unknown_2a2c[0x2a30 - 0x2a2c];
-    UnitSync* sync;                    // +0x2a30
-    int recvPacketSize;                // +0x2a34
-    union {
-        unsigned char* recvPacketPtr;  // +0x2a38
-        unsigned char* packet;
-        ChatPacket* chat;
-    };
-    union {
-        unsigned short numPlayers;     // +0x2a3c
-        short numPlayersSigned;
-    };
-    unsigned short chatHudWriteIdx;    // +0x2a3e
-    unsigned short chatHudReadIdx;     // +0x2a40
-    union {
-        unsigned char localPlayer;     // +0x2a42
-        unsigned char local;
-    };
-    char playerIndex;
-    union {
-        unsigned char flags_2a44;      // +0x2a44
-        unsigned short flags_2a44_w;
-        GameFlags_2a44 flags;
-        struct {
-            unsigned char leaving : 1;
-            unsigned char rest_2a44 : 7;
-        } bits_2a44;
-    };
-    char unknown_2a46[0x2bc1 - 0x2a46];
-    char gameName[0x10];               // +0x2bc1
-    char unknown_2bd1;
-    union {                            // one arm, kept: an anonymous union costs symbol ids
-        char nickname[0x11];           // +0x2bd2
-    };
-    union {
-        char password[0x11];           // +0x2be3
-        struct {
-            char passwordArea[0x2bee - 0x2be3];
-            union {
-                unsigned short flag0 : 1;      // +0x2bee
-                unsigned short dirty : 1;
-                unsigned short bit0_2bee : 1;
-            };
-            unsigned char chatMode;    // +0x2bf0
-            unsigned char chatRecipients[10];  // +0x2bf1
-        };
-    };
-    char unknown_2bfb[0x2c28 - 0x2bfb];
-    union {
-        int playerIds[11];             // +0x2c28
-        int table_2c28[10];
-    };
-    char unknown_2c54[0x2cf3 - 0x2c54];
-    WeaponDef weaponDefs[256];         // +0x2cf3
-    char unknown_after_weapons[0x14357 - (0x2cf3 + 0x115 * 256)];
-    Unit* units;                       // +0x14357
-    char unknown_1435b[0x37f1b - 0x1435b];
-    unsigned short displayWidth;       // +0x37f1b
-    char unknown_37f1d[0x37f1f - 0x37f1d];
-    unsigned short displayHeight;      // +0x37f1f
-    char unknown_37f21[0x37f2f - 0x37f21];
-    unsigned char uiOptionFlags;       // +0x37f2f
-    char unknown_37f30;
-    unsigned int lobbyTimeoutSecs;     // +0x37f31
-    char unknown_37f35[0x38a47 - 0x37f35];
-    union {
-        unsigned int gameTick;         // +0x38a47
-        struct {
-            char unknown_38a47[0x38a51 - 0x38a47];
-            union {
-                unsigned char pauseFlags;    // +0x38a51
-                unsigned short bit_38a51 : 1;
-            };
-        };
-    };
-    char unknown_38a53[0x38d6f - 0x38a53];
-    union {
-        volatile unsigned char progress[6];  // +0x38d6f
-        struct {
-            char unknown_38d6f[0x38d75 - 0x38d6f];
-            union {
-                volatile unsigned char flags_38d75;   // +0x38d75
-                volatile unsigned short loadingFlags;
-                struct {
-                    unsigned short : 2;
-                    unsigned short net_bit2 : 1;
-                    unsigned short : 13;
-                } net_bits;
-            };
-        };
-    };
-    char unknown_38d77[0x391e9 - 0x38d77];
-    Mission* mapInfo;                  // +0x391e9
-    MissionConditions* victoryConditions;  // +0x391ed
-    int frontendState;                 // +0x391f1
-    char unknown_391f5[0x39211 - 0x391f5];
-    char connection[4];                // +0x39211
-    char unknown_39215[0x3923b - 0x39215];
-    union {
-        unsigned short endGameFlags;   // +0x3923b
-        struct {
-            unsigned short bits_3923b : 2;
-            unsigned short flag2 : 1;
-            unsigned short bit3 : 1;
-            unsigned short flag4 : 1;
-            unsigned short flag5 : 1;
-            unsigned short flag6 : 1;
-            unsigned short rest_3923b : 9;
-        } bits;
-    };
-};
+#include "../game/game.h"
 
 struct SideDataPacket {
     unsigned char type;                // +0x0
@@ -496,7 +308,7 @@ int __stdcall SetPlayerName(unsigned char index, char* shortName, char* longName
     name.dwFlags = 0;
     name.lpszShortNameA = shortName;
     name.lpszLongNameA = longName;
-    int r = HAPINET_setplayername(g_game->net, PlayerDpid(p), &name, 2);
+    int r = HAPINET_setplayername(g_game->net_14, PlayerDpid(p), &name, 2);
     return r == 0 ? 1 : 0;
 }
 
@@ -507,7 +319,7 @@ int __stdcall GetPlayerName(int dpid, char* shortName, char* longName)
     if (dpid != -1) {
         char buf[0x400];
         unsigned long size = 0x400;
-        r = HAPINET_getplayername(g_game->net, dpid, buf, &size);
+        r = HAPINET_getplayername(g_game->net_14, dpid, buf, &size);
         if (r == 0) {
             strcpy(shortName, ((DPNAME*)buf)->lpszShortNameA);
             strcpy(longName, ((DPNAME*)buf)->lpszLongNameA);
@@ -746,7 +558,7 @@ int __stdcall AddNetPlayer(int id)
     char* d_name = p->name;
     if (id != -1) {
         size = 0x400;
-        result = HAPINET_getplayername(g_game->net, id, buf, &size);
+        result = HAPINET_getplayername(g_game->net_14, id, buf, &size);
         if (result == 0) {
             strcpy(d_full, ((DPNAME*)buf)->lpszShortNameA);
             strcpy(d_name, ((DPNAME*)buf)->lpszLongNameA);
@@ -764,7 +576,7 @@ int __stdcall AddNetPlayer(int id)
     p->id = id;
     p->lastHeard = GetTicks();
     g_game->numPlayers++;
-    if (g_game->flags_2a44_w & 1) {
+    if (g_game->flags_2a44 & 1) {
         for (int i = 0; i < 10; i++) {
             Player* q = &g_game->players[i];
             if (q->active != 0 && (q->type == 1 || q->type == 2)) {
@@ -787,7 +599,7 @@ int __stdcall AddNetPlayer(int id)
         SendLobbySyncRequests();
         g_packetManager.SendAllQueued(1);
     }
-    if (g_game->mapInfo->GetGameType() == 3 && g_game->numPlayers > 1) {
+    if (g_game->net->GetGameType() == 3 && g_game->numPlayers > 1) {
         ReportGameEvent(2);
     }
     return 1;
@@ -796,24 +608,24 @@ int __stdcall AddNetPlayer(int id)
 // FUNCTION: 0x450d80
 void InitNetConnection()
 {
-    HAPINET_initmultiplaydefaults(g_game->net);
+    HAPINET_initmultiplaydefaults(g_game->net_14);
     g_game->netMode = 10;
     if (InitPacketManager(2, 100)) {
-        HAPINET_initconnection(g_game->net, g_game->connection);
+        HAPINET_initconnection(g_game->net_14, &g_game->connection);
     }
 }
 
 // FUNCTION: 0x450dd0
 void CloseNetSession()
 {
-    if (g_game->flags_2a44_w & 1) {
+    if (g_game->flags_2a44 & 1) {
         if (g_usePacketManager != 0) {
             g_packetManager.SendAllQueued(1);
         }
         if (!IsReporterDllLoaded()) {
-            HAPINET_uninitmultiplay(g_game->net);
+            HAPINET_uninitmultiplay(g_game->net_14);
         }
-        g_game->flags_2a44_w &= 0xfffe;
+        g_game->flags_2a44 &= 0xfffe;
     }
 }
 
@@ -832,7 +644,7 @@ void LeaveNetGame()
     if (g_usePacketManager != 0) {
         g_packetManager.SendAllQueued(1);
     }
-    if (g_game->flags_2a44_w & 1) {
+    if (g_game->flags_2a44 & 1) {
         for (int i = 0; i < 10; i++) {
             if (IsPlaying_00450e20(&g_game->players[i])) {
                 RemovePlayer(g_game->players[i].id);
@@ -840,7 +652,7 @@ void LeaveNetGame()
         }
         ShutdownScoreTables();
     }
-    HAPINET_quitgame(g_game->net);
+    HAPINET_quitgame(g_game->net_14);
     SetCloseHandler(0, 0);
     g_game->endGameFlags |= 4;
     int reason = g_game->players[g_game->localPlayer].rejectReason;
@@ -900,7 +712,7 @@ static inline int IsPlaying_00450f90(Player* player)
 void BroadcastPlayerInfo()
 {
     SideDataPacket packet;
-    if (g_game->flags_2a44_w & 1) {
+    if (g_game->flags_2a44 & 1) {
         for (int i = 0; i < 10; i++) {
             Player* player = &g_game->players[i];
             if (IsPlaying_00450f90(player)) {
@@ -943,7 +755,7 @@ void __stdcall BuildGameInfo(char* name, int* d, int* c, int* b, int* a)
     memset(name, ' ', 0x20);
     name[0x1f] = 0;
     strncpy(name, g_game->gameName, 0x10);
-    int src = (int)g_game->mapInfo->GetMissionName();
+    int src = (int)g_game->net->GetMissionName();
     strncpy(name + 0x10, (char*)src, 0xf);
     char* q = name;
     int n = 0x20;
@@ -971,7 +783,7 @@ void UpdateNetGameInfo(void)
     if (g_game->players[g_game->localPlayer].info->started) {
         g_game->settings.bits_475.flag_475_5 = 1;
     }
-    HAPINET_updategameinfo(g_game->net, name, DAT_005119b8, d, c, b, a);
+    HAPINET_updategameinfo(g_game->net_14, name, DAT_005119b8, d, c, b, a);
 }
 
 // The index of the first connected player, or 10 when there is none.
@@ -1016,12 +828,12 @@ int __stdcall CreateLocalPlayer(unsigned char playerIndex, int flag)
     info->flags = (info->flags ^ ((g_game->numPlayersSigned ^ info->flags) & 0xf)) & 0x7fff;
     info->hasPassword = (strlen(g_game->password) != 0);
     info->maxUnits = 0x64;
-    info->width = g_game->displayWidth;
-    info->height = g_game->displayHeight;
+    info->width = (unsigned short)g_game->width_37f1b;
+    info->height = (unsigned short)g_game->height_37f1f;
     info->versionMajor = g_game->version;
     info->versionMinor = g_game->versionMinor;
 
-    int r = HAPINET_addplayer(g_game->net, (unsigned long*)&player->id,
+    int r = HAPINET_addplayer(g_game->net_14, (unsigned long*)&player->id,
                          buf, buf, g_game->password, 0, 0x50);
     if (r == 0) {
         g_game->players[playerIndex].SetType(0);
@@ -1331,7 +1143,7 @@ int __stdcall JoinLobbyGame(Player* p)
     int result = 0;
     char* name = 0;
 
-    if (HAPINET_passwordrequired(g_game->net) != 0)
+    if (HAPINET_passwordrequired(g_game->net_14) != 0)
         name = p->info->password;
 
     int count = 10;
@@ -1378,7 +1190,7 @@ int __stdcall JoinLobbyGame(Player* p)
 // FUNCTION: 0x451770
 void __stdcall JoinLobbyGameThread(Args_00451640* args)
 {
-    args->result = HAPINET_createorjoinlobbygame(g_game->net, args->name, args->arg_4, args->arg_8,
+    args->result = HAPINET_createorjoinlobbygame(g_game->net_14, args->name, args->arg_4, args->arg_8,
                                 args->arg_c, args->arg_10, args->arg_14);
 }
 
@@ -1446,8 +1258,8 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
 
         p->info->color = 0xff;
         p->info->flags &= 0xffdf;
-        p->info->width = g_game->displayWidth;
-        p->info->height = g_game->displayHeight;
+        p->info->width = (unsigned short)g_game->width_37f1b;
+        p->info->height = (unsigned short)g_game->height_37f1f;
         g_game->numPlayers = 0;
 
         int result;
@@ -1461,14 +1273,14 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
                 FatalError(Translate("Unable to connect to DirectPlay lobby."));
             }
         } else {
-            result = HAPINET_joingame((Net_4517b0*)g_game->net, guid);
+            result = HAPINET_joingame((Net_4517b0*)g_game->net_14, guid);
         }
         if (result == 0)
             return 0;
 
         CreateLocalPlayer(player, 1);
-        HAPINET_enumplayers((Net_4517b0*)g_game->net, 0, (void*)EnumPlayersCallback, 0, 0);
-        if (g_game->flags_2a44 & 1) {
+        HAPINET_enumplayers((Net_4517b0*)g_game->net_14, 0, (void*)EnumPlayersCallback, 0, 0);
+        if (g_game->netGameFlags & 1) {
             for (int i = 0; i < 10; i++) {
                 Player* q = &g_game->players[i];
                 if (q->active != 0 && (q->type == 1 || q->type == 2)) {
@@ -1500,7 +1312,7 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
 // FUNCTION: 0x451b60
 void RemoveLocalPlayers()
 {
-    if (!(g_game->flags_2a44_w & 1))
+    if (!(g_game->flags_2a44 & 1))
         return;
     for (int i = 0; i < 10; i++) {
         if (g_game->players[i].active != 0
@@ -1564,7 +1376,7 @@ int __stdcall SendPacketToPlayer(int from, int to, unsigned char* packet, int si
     else
         toPlayer = &g_game->players[FindSlotByDpid(to)];
 
-    if ((g_game->flags_2a44 & 1) && fromPlayer != 0 && fromPlayer->active != 0 &&
+    if ((g_game->netGameFlags & 1) && fromPlayer != 0 && fromPlayer->active != 0 &&
         (fromPlayer->type == 1 || fromPlayer->type == 2) &&
         fromPlayer->rejectReason == 0 && toPlayer != 0 && toPlayer->active != 0 &&
         toPlayer->type == 3 && toPlayer->rejectReason == 0) {
@@ -1572,7 +1384,7 @@ int __stdcall SendPacketToPlayer(int from, int to, unsigned char* packet, int si
         if (target->active == 0 || (target->type != 1 && target->type != 2)) {
             if (g_usePacketManager != 0)
                 return g_packetManager.QueuePacket(from, to, packet, size);
-            if (HAPINET_sendpacket(g_game->net, from, to, packet, size) != 0)
+            if (HAPINET_sendpacket(g_game->net_14, from, to, packet, size) != 0)
                 return 0;
             CountMessage(packet[0], size, 1);
             CountPacket(size, 0, 1);
@@ -1611,11 +1423,11 @@ int __stdcall BroadcastPacket(int id, unsigned char* packet, int size)
         return 0;
     if (p->rejectReason != 0)
         return 0;
-    if ((g_game->flags_2a44 & 1) != 0) {
+    if ((g_game->netGameFlags & 1) != 0) {
         if (g_game->duplicatePlayerTypeFlag == 0) {
             if (g_usePacketManager != 0)
                 return g_packetManager.QueueOnChannel(id, g_packetChannels, (int)packet, size);
-            if (HAPINET_sendpacket(g_game->net, id, 0, packet, size) != 0)
+            if (HAPINET_sendpacket(g_game->net_14, id, 0, packet, size) != 0)
                 return 0;
             CountMessage(packet[0], size, 1);
             CountPacket(size, 0, 1);
@@ -1779,14 +1591,14 @@ void __stdcall ReleasePacketData(Class_00451fd0* obj)
         GameFreeThunk(obj->buffer);
         obj->buffer = 0;
     }
-    if (g_game->flags_2a44 & 1) {
+    if (g_game->netGameFlags & 1) {
         if (g_usePacketManager != 0) {
             g_packetManager.SendAllQueued(1);
         }
         if (!IsReporterDllLoaded()) {
             HAPINET_uninitmultiplay(g_game->session);
         }
-        g_game->flags_2a44_w &= 0xfffe;
+        g_game->flags_2a44 &= 0xfffe;
     }
 }
 
@@ -1958,8 +1770,8 @@ int __stdcall BroadcastPlayerLeft(int id)
     unsigned char index = LookupPlayer(id);
     Player* player = &g_game->players[index];
     if ((player->active != 0 && player->type == 3)
-        || !(g_game->flags_38d75 & 1)
-        || (g_game->flags_38d75 & 2)) {
+        || !((*(volatile unsigned char*)&g_game->flags_38d75) & 1)
+        || ((*(volatile unsigned char*)&g_game->flags_38d75) & 2)) {
         RemovePlayer(id);
     }
     return BroadcastPacket(g_game->players[g_game->localPlayer].id, msg, 5);
@@ -2072,7 +1884,7 @@ int __stdcall SetAlliance(int from, int to, unsigned char value, int extra)
             g_packetManager.SendAllQueued(1);
         result = r;
     }
-    if (g_game->mapInfo->GetGameType() == 3)
+    if (g_game->net->GetGameType() == 3)
         ReportGameEvent(4);
     return result;
 }
@@ -2266,22 +2078,22 @@ void __stdcall RemovePlayer(int id)
     KillPlayerUnits(FindSlot_00452cc0(id));
 
     // Remove stays an inline helper written in both arms.
-    if (g_game->flags.bits.b2) {
+    if (g_game->bits_2a44.bit2) {
         if (!IsPlaying_00452cc0(p))
             Remove_00452cc0(p);
     } else {
         if (IsPlaying_00452cc0(p))
-            HAPINET_removeplayer(g_game->net, p->id);
+            HAPINET_removeplayer(g_game->net_14, p->id);
         Remove_00452cc0(p);
     }
     g_game->numPlayers--;
     p->info->flags_9d_wide &= 0xfffb;
     memset(&p->allied, 0, 11);
 
-    if (g_game->mapInfo->GetGameType() == 3)
+    if (g_game->net->GetGameType() == 3)
         ReportGameEvent(3);
 
-    if ((g_game->flags.value & 4) && host != 0) {
+    if ((g_game->flags_2a44 & 4) && host != 0) {
         unsigned int best = 0;
         // Index g_game->players[j] directly: a q pointer would be rebased.
         for (int j = 0; j < 10; j++) {
@@ -2416,9 +2228,9 @@ int __stdcall SendChatPacket(char* text)
 
     int target = FindTarget(g_game);
 
-    if (text[0] == '+' || g_game->chatMode == 0) {
+    if (text[0] == '+' || g_game->mode_2bf0 == 0) {
         result = BroadcastPacket(target, g_game->recvPacketPtr, 0x41);
-    } else if (g_game->chatMode == 3) {
+    } else if (g_game->mode_2bf0 == 3) {
         for (i = 0; i < 10; i++) {
             // A local copy declared after i: symbol order sets the SIB operand order of the 0x2bf1 read.
             Game* const g = g_game;
@@ -2433,8 +2245,8 @@ int __stdcall SendChatPacket(char* text)
         for (int i = 0; i < 10; i++) {
             Player* p = &g_game->players[i];
             if (p->active != 0 && p->type == 3) {
-                if ((g_game->chatMode == 1 && lp->allied[i] != 0) ||
-                    (g_game->chatMode == 2 && lp->allied[i] == 0))
+                if ((g_game->mode_2bf0 == 1 && lp->allied[i] != 0) ||
+                    (g_game->mode_2bf0 == 2 && lp->allied[i] == 0))
                     result = SendPacketToPlayer(target, p->id, g_game->recvPacketPtr, 0x41);
             }
         }
@@ -2448,13 +2260,13 @@ int __stdcall ReceiveNetPacket(void)
 {
     int size;
 
-    if (!(g_game->flags_2a44 & 1))
+    if (!(g_game->netGameFlags & 1))
         return 0;
 
     size = g_game->recvPacketSize;
     if (g_usePacketManager != 0) {
         while (1) {
-            int result = g_packetManagerReceiver.ReceiveFrame(g_game->net, g_game->recvPacketPtr, &size);
+            int result = g_packetManagerReceiver.ReceiveFrame(g_game->net_14, g_game->recvPacketPtr, &size);
             if (result == 0) {
                 CountMessage(*g_game->recvPacketPtr, size, 0);
                 return 1;
@@ -2468,7 +2280,7 @@ int __stdcall ReceiveNetPacket(void)
         }
     } else {
         while (1) {
-            int result = HAPINET_receivepacket(g_game->net, g_game->recvPacketPtr, &size);
+            int result = HAPINET_receivepacket(g_game->net_14, g_game->recvPacketPtr, &size);
             if (result == 0) {
                 CountMessage(*g_game->recvPacketPtr, size, 0);
                 CountPacket(size, 0, 0);
@@ -2505,7 +2317,7 @@ static inline unsigned char FindPlayerIndex_00453640(int id)
 // FUNCTION: 0x453640
 void UpdateTimeoutDialog()
 {
-    Entry_00453640* entry = (Entry_00453640*)FindGadgetChecked(g_game->layer->entries, "OUTPUT");
+    Entry_00453640* entry = (Entry_00453640*)FindGadgetChecked(((Holder_00453640*)g_game->layer)->entries, "OUTPUT");
 
     if (g_loungeRefreshTime < GetTicks()) {
         g_loungeRefreshTime = GetTicks() + 2;
@@ -2514,11 +2326,11 @@ void UpdateTimeoutDialog()
 
     memset(g_loungeChatter, 0, 0xa00);
 
-    int tail = g_game->chatHudWriteIdx;
+    int tail = g_game->tail;
     int count = entry->count;
     int idx = tail;
     for (int n = 1; n < count - 1; n++) {
-        if (idx == g_game->chatHudReadIdx)
+        if (idx == g_game->head)
             break;
         idx--;
         if (idx < 0)
@@ -2528,12 +2340,12 @@ void UpdateTimeoutDialog()
     char* p = g_loungeChatter;
     if (idx != tail) {
         do {
-            strcpy(p, g_game->chatHudRing[idx].text);
-            p += strlen(g_game->chatHudRing[idx].text) + 1;
+            strcpy(p, g_game->entries[idx].text);
+            p += strlen(g_game->entries[idx].text) + 1;
             idx++;
             if (idx >= 30)
                 idx = 0;
-        } while (idx != g_game->chatHudWriteIdx);
+        } while (idx != g_game->tail);
     }
 
     // The original searches for the player twice: once for the == 10 test and
@@ -2575,10 +2387,10 @@ void __stdcall HandleTimeoutDialog(Gui* gadget)
         Entry_004538f0* entry = FindGadgetChecked_B(entries, "TALK");
         if (strlen(entry->text)) {
             SendChatMessage(&g_game->players[g_game->localPlayer], entry->text, 4, 0);
-            g_game->flag0 = 1;
+            g_game->bits_2bee_1.dirty = 1;
             strcpy(entry->text, DAT_005119b8);
         }
-        BeginTextEdit(g_game->message, FindGadgetIndex(g_game->layer_531->entries, "TALK", 3));
+        BeginTextEdit(g_game->message, FindGadgetIndex(((Layer*)g_game->layer)->entries, "TALK", 3));
         ClearSelectedGadget(g_game->message);
         MarkChanged(g_game->message);
         return;
@@ -2836,7 +2648,7 @@ int __stdcall SendScriptCallNoArgsByName(Unit* obj, char* name)
 {
     UnitScriptCallPacket packet;
     int index = ((CobScript *)obj->script)->FindScript(name);
-    if (!(g_game->flags_2a44 & 1)) {
+    if (!(g_game->netGameFlags & 1)) {
         return 0;
     }
     packet.type = 0x10;
@@ -2854,7 +2666,7 @@ int __stdcall SendScriptCallNoArgsByName(Unit* obj, char* name)
 int __stdcall SendScriptCallNoArgs(Unit* obj, short index)
 {
     UnitScriptCallPacket packet;
-    if (!(g_game->flags_2a44 & 1)) {
+    if (!(g_game->netGameFlags & 1)) {
         return 0;
     }
     packet.type = 0x10;
@@ -2876,7 +2688,7 @@ int __stdcall SendScriptCallByName(Unit* obj, char* name, char argCount,
 {
     UnitScriptCallPacket packet;
     short index = ((CobScript *)obj->script)->FindScript(name);
-    if (!(g_game->flags_2a44 & 1)) {
+    if (!(g_game->netGameFlags & 1)) {
         return 0;
     }
     packet.type = 0x10;
@@ -2897,7 +2709,7 @@ int __stdcall SendScriptCall(Unit* obj, short index, char argCount,
                            int arg0, int arg1, int arg2, int arg3)
 {
     UnitScriptCallPacket packet;
-    if (!(g_game->flags_2a44 & 1)) {
+    if (!(g_game->netGameFlags & 1)) {
         return 0;
     }
     packet.type = 0x10;
@@ -2970,7 +2782,7 @@ void SendNetHeartbeat()
     }
 
     Msg20_00456310 msg;
-    if (g_game->flags_2a44 & 1) {
+    if (g_game->netGameFlags & 1) {
         for (int i = 0; i < 10; i++) {
             Player* p = &g_game->players[i];
             if (p->active != 0 && (p->type == 1 || p->type == 2)) {
@@ -2994,16 +2806,9 @@ void SendNetHeartbeat()
         g_packetManager.SendAllQueued(1);
     }
 
-    g_game->bit0_2bee = 1;
+    g_game->bits_2bee_1.dirty = 1;
 }
 
-// Two halves, keyed on the message's own flag at +0x05. When it is clear this
-// is the first sighting: stamp the message with the current tick count, send
-// it to the player id in the header (the first argument is the local lobby
-// dpid from g_game->lobby1), and give the packets back to the network layer.
-// When it is already set the message is a later update: find the sending
-// player in the table, and if they are an active client (state 1 or 2) record
-// the round trip into the slot of the player in g_game->lobby2.
 static inline int GetPlayerId_00456de0(unsigned char i)
 {
     if (i != 10 && g_game->players[i].type)
@@ -3051,7 +2856,7 @@ void __stdcall HandlePing(LatencyPacket* p)
     if (pl->type != 1 && pl->type != 2) {
         return;
     }
-    unsigned char other = FindPlayerIndex(g_game->lobby2);
+    unsigned char other = FindPlayerIndex(g_game->from_id);
     // No bound check on either index: an id of -1 makes FindPlayerIndex
     // return 10, the spare eleventh slot (the table has 11, see docs/bugs.md).
     g_game->players[other].ping = host_time_ms() - p->sendTick;
@@ -3260,12 +3065,12 @@ void __stdcall SendLoadProgress()
     // The type store must be the first statement, ahead of the prologue stores.
     packet.type = 0x2a;
     // Own int total, summed as a += chain in this order: sets the load order.
-    int total = g_game->progress[0];
-    total += g_game->progress[5];
-    total += g_game->progress[4];
-    total += g_game->progress[3];
-    total += g_game->progress[2];
-    total += g_game->progress[1];
+    int total = (*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[0];
+    total += (*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[5];
+    total += (*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[4];
+    total += (*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[3];
+    total += (*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[2];
+    total += (*(volatile unsigned char(*)[6])&g_game->progress_38d6f)[1];
 
     packet.progress = total / 6;
     for (int i = 0; i < 10; i++) {
@@ -3536,7 +3341,7 @@ void __stdcall HandlePlayerEconomy(PlayerViewStatePacket* packet, Player* player
         else
             team.ackMapping = 0;
         SendPacketToPlayer(p->id, player->id, &team, 3);
-        if (g_game->victoryConditions->CheckVictory() != 0)
+        if (g_game->list_391ed->CheckVictory() != 0)
             continue;
         if (p->shareLos[player->index] != 0)
             continue;
@@ -3551,14 +3356,14 @@ int InitLobbiedConnection()
     if (g_game->dplConnection != 0)
         return 1;
 
-    if (HAPINET_initlobbiedconnection(g_game->net)) {
-        HAPINET_initmultiplaydefaults(g_game->net);
+    if (HAPINET_initlobbiedconnection(g_game->net_14)) {
+        HAPINET_initmultiplaydefaults(g_game->net_14);
         g_game->netMode = 10;
         if (InitPacketManager(2, 100)) {
             SetMissionType(3);
             char* name = g_game->dplConnection->desc->lpszSessionName;
             if (name != 0) {
-                strncpy(g_game->net, name, 0x10);
+                strncpy(g_game->net_14, name, 0x10);
                 return 1;
             }
 
@@ -3581,7 +3386,7 @@ int InitLobbiedConnection()
             int len = strlen(username);
             if (15 - len >= 7)
                 sprintf(username + len, "_%02d%02d%02d", local->tm_hour, local->tm_min, local->tm_sec);
-            strcpy(g_game->net, username);
+            strcpy(g_game->net_14, username);
             return 1;
         }
     }
@@ -3603,7 +3408,7 @@ void __stdcall SetPacketRate(int rate)
 // FUNCTION: 0x4578f0
 void __cdecl LeaveNetGameCallback(int)
 {
-    if (g_game->bits_2a44.leaving) {
+    if (g_game->bits_2a44_2a44.leaving) {
         for (int i = 0; i < 10; i++) {
             if (g_game->players[i].active != 0
                 && (g_game->players[i].type == 1 || g_game->players[i].type == 2))
@@ -3611,7 +3416,7 @@ void __cdecl LeaveNetGameCallback(int)
         }
         ShutdownScoreTables();
     }
-    HAPINET_quitgame(g_game->net);
+    HAPINET_quitgame(g_game->net_14);
     SetCloseHandler(0, 0);
     g_game->bits.flag2 = 1;
     int reason = g_game->players[g_game->localPlayer].rejectReason;
@@ -3790,10 +3595,10 @@ int CountCombatPlayers()
 // FUNCTION: 0x457d30
 void __stdcall UpdateResourceSharing(Player* player)
 {
-    if ((g_game->flags_2a44 & 1) == 0)
+    if ((g_game->netGameFlags & 1) == 0)
         return;
 
-    if (g_game->gameTick % 60 == 0) {
+    if ((unsigned int)g_game->ticks % 60 == 0) {
         Player* found = player;
         if (player->info->shareMetal && player->metal > player->shareMetal) {
             for (int i = 0; i < 10; i++) {
@@ -3845,7 +3650,7 @@ void __stdcall UpdateResourceSharing(Player* player)
         }
     }
 
-    if (g_game->gameTick % 450 == 0) {
+    if ((unsigned int)g_game->ticks % 450 == 0) {
         // Must stay a standalone bitfield test, not a mask or shift.
         if (player->info->shareMapping) {
         for (int i = 0; i < 10; i++) {

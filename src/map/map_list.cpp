@@ -930,7 +930,7 @@ int Mission::SelectSchema(int type, TdfFile* parser, char* schema)
     names[4] = "Network 2";
     names[5] = "Network 3";
     names[6] = "Network 4";
-    int players = g_game->field_2a3c;
+    int players = g_game->numPlayers;
     switch (type) {
     case 1:
         switch (g_game->difficulty) {

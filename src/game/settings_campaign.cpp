@@ -171,7 +171,7 @@ int __stdcall SaveGameFile(char* path, char* description, int gameId)
     (&file)->SetStringItem(g_mapKey, g_seams.map->GetMissionName(g_game->net));
     (&file)->SetIntegerItem(g_difficultyKey, g_game->difficulty);
     (&file)->SetIntegerItem(g_sideKey, (*(PlayerEntry_004326b0(*)[10])&g_game->players_1b8a)[g_game->localPlayer].info->side);
-    (&file)->SetIntegerItem(g_playersKey, g_game->field_2a3c);
+    (&file)->SetIntegerItem(g_playersKey, g_game->numPlayers);
     (&file)->SetIntegerItem(g_gameTypeKey, g_seams.map->GetGameType(g_game->net));
     (&file)->SetStringItem(g_thumbsKey, g_game->campaignMissionStatus_391cf);
     if (g_seams.map->GetGameType(g_game->net) == 2) {

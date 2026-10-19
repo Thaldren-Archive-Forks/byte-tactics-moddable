@@ -263,8 +263,8 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     RegisterDataArchives();
     EmptyPostArchiveMountHook(DAT_005097f4);
     g_game->unknown_c = (Ctx_00499890*)(&g_displayContext);
-    g_game->field_1 = 3;
-    g_game->field_2 = 1;
+    g_game->version = 3;
+    g_game->versionMinor = 1;
     g_game->field_3 = 1;
     if (strlen(g_preferredLanguage) == 0) {
         size1c = 0x40;
