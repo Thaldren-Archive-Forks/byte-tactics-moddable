@@ -68,12 +68,6 @@ namespace AirManeuverOrder { void IsFxStyle(); }
 void OnAimCobReturn();
 void AimCobStub();
 
-// SpatialTimer's, a class of the 0x4fc980 family: stored by its constructor 0x407d40.
-// GLOBAL: 0x4fc9a0
-extern VirtualFunction const g_spatialTimerVtable[2] = {
-    SpatialTimer::OnTimer, FUN_00407e70,
-};
-
 // The base class of the 0x44ce20 family: stored by the constructors 0x44ce20 to 0x44e330 before their own, and by the destructors 0x44ce50 to 0x44e7b0 last.
 // GLOBAL: 0x4fd2f8
 extern VirtualFunction const g_orderFxVtable[12] = {
