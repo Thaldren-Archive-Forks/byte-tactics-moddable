@@ -5,6 +5,15 @@
 #include <math.h>
 struct Point { short x, y; };
 #include "../util/vec3.h"
+
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
+{
+    Vec3 r;
+    r.x = a.x + other.x;
+    r.y = a.y + other.y;
+    r.z = a.z + other.z;
+    return r;
+}
 struct Unit;
 #include "mission_type.h"
 
@@ -146,8 +155,8 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit, &start);
             Vec3 bounds[2];
-            bounds[0] = order->target->pos + order->target->def->min;
-            bounds[1] = order->target->pos + order->target->def->max;
+            bounds[0] = PosPlus(order->target->pos, order->target->def->min);
+            bounds[1] = PosPlus(order->target->pos, order->target->def->max);
             EmitNanoParticles(&start, bounds, 6);
         }
         unit->workTime = g_game->tick + 300;

@@ -59,6 +59,23 @@ static inline Vec3 MakeVec3(int a, int b, int c)
     return v;
 }
 
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x + b.x;
+    r.y = a.y + b.y;
+    r.z = a.z + b.z;
+    return r;
+}
+static inline Vec3 PosMinus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x - b.x;
+    r.y = a.y - b.y;
+    r.z = a.z - b.z;
+    return r;
+}
+
 // The temporary the position is built through (the derived type is what
 // makes the compiler materialise it).
 struct Vec3Init_0043a1f0 : Vec3 {
@@ -1635,7 +1652,7 @@ void UnitMotion::SteerGroundUnit(Unit* unit)
     obj->v3(p, 0, 3);
 
     Vec3* ppos = &unit->pos;
-    Vec3 d = p[1] - *ppos;
+    Vec3 d = PosMinus(p[1], *ppos);
     int gap1 = (int)_hypot(d.x, d.z);
 
     int dz;
@@ -1786,8 +1803,8 @@ void UnitMotion::SteerAircraft(Unit* unit) {
         velocity += Offset(unit->angles.heading, g);
     }
 
-    Vec3 da = unit->pos - a;
-    Vec3 db = velocity - b;
+    Vec3 da = PosMinus(unit->pos, a);
+    Vec3 db = PosMinus(velocity, b);
 
     if (unit->spatialBucket != g_game->overflowBucket) {
         int lim;
@@ -1861,7 +1878,7 @@ void UnitMotion::SteerAircraft(Unit* unit) {
 
     // Own block so the address-taken delta shares a stack slot with db.
     {
-        Vec3 delta = velocity - old;
+        Vec3 delta = PosMinus(velocity, old);
         ApplyBankAndPitch(unit, &delta);
     }
 }
@@ -1905,7 +1922,7 @@ void UnitMotion::UpdatePosition(Unit* u)
     // Assigned (not initialised) through the inline operator+: its result temporary
     // fixes the frame layout. The operands' order is the original's load order.
     Vec3 pos;
-    pos = u->pos + velocity;
+    pos = PosPlus(u->pos, velocity);
     int m = mode;
     if (pos.x == u->pos.x && pos.z == u->pos.z && pos.y == u->pos.y && m == u->mode)
         return;

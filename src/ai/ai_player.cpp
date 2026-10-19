@@ -79,9 +79,24 @@ struct Order {
     unsigned int flags;                // +0x42
 };
 
-};
-
 #include "../util/vec3.h"
+
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x + b.x;
+    r.y = a.y + b.y;
+    r.z = a.z + b.z;
+    return r;
+}
+static inline Vec3 PosMinus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x - b.x;
+    r.y = a.y - b.y;
+    r.z = a.z - b.z;
+    return r;
+}
 
 // The 3-argument constructor, as a helper: the joined file's symbol count
 // needs Vec3 to have no user constructors (0x40bfe0's MoveTowards inlining).
@@ -508,7 +523,7 @@ static inline float Max(float a, float b) { return a > b ? a : b; }
 
 static inline Vec3 MoveTowards(const Vec3* from, const Vec3* to, int maxLen)
 {
-    Vec3 d = *to - *from;
+    Vec3 d = PosMinus(*to, *from);
     int len = d.Length();
     if (maxLen >= len)
         return *to;
@@ -739,9 +754,9 @@ int SquadTimer::GetAveragePosition(Vec3* out)
         return 0;
     int x = 0, y = 0, z = 0;
     for (std::vector<Unit*>::iterator it = g->units.begin(); it != g->units.end(); ++it) {
-        x += (*it)->pos.xWhole;
-        y += (*it)->pos.yWhole;
-        z += (*it)->pos.zWhole;
+        x += (*it)->xWhole;
+        y += (*it)->yWhole;
+        z += (*it)->zWhole;
     }
     // Built as a temporary and assigned whole: per-field stores interleave with the divisions.
     *out = MakeVec3(x / n << 16, y / n << 16, z / n << 16);
@@ -788,8 +803,8 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
     int sx = 0, sz = 0;
     std::vector<Unit*>::iterator it;
     for (it = group->units.begin(); it != group->units.end(); ++it) {
-        sx += (*it)->pos.xWhole;
-        sz += (*it)->pos.zWhole;
+        sx += (*it)->xWhole;
+        sz += (*it)->zWhole;
     }
     int cx, cz;
     while (1) {
@@ -801,8 +816,8 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
         int maxd = 0;
         std::vector<Unit*>::iterator best = g->units.end();
         for (it = g->units.begin(); it != g->units.end(); ++it) {
-            int dx = (*it)->pos.xWhole - cx;
-            int dz = (*it)->pos.zWhole - cz;
+            int dx = (*it)->xWhole - cx;
+            int dz = (*it)->zWhole - cz;
             int d = dx * dx + dz * dz;
             if (d > maxd) {
                 maxd = d;
@@ -812,13 +827,13 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
         if (maxd < limit * (int)g->units.size())
             break;
         SetUnitSquad(*best, kind);
-        sx -= (*best)->pos.xWhole;
-        sz -= (*best)->pos.zWhole;
+        sx -= (*best)->xWhole;
+        sz -= (*best)->zWhole;
     }
     std::vector<Unit*> list;
     for (it = other->group->units.begin(); it != other->group->units.end(); ++it) {
-        int dx = (*it)->pos.xWhole - cx;
-        int dz = (*it)->pos.zWhole - cz;
+        int dx = (*it)->xWhole - cx;
+        int dz = (*it)->zWhole - cz;
         // Own statement: inside the comparison the size() ternary goes first.
         int d = dx * dx + dz * dz;
         if (d < limit * (int)group->units.size())
@@ -961,7 +976,7 @@ void SquadScoutTimer::OnTimer()
         // Read through an inline returning by value: pos must not be the local
         // whose address goes to GetBasePosition.
         Vec3 pos = GetRallyPoint(player);
-        if ((pos.xWhole | pos.zWhole) == 0) {
+        if ((((Vec3Words*)&pos)->xWhole | ((Vec3Words*)&pos)->zWhole) == 0) {
             GetAveragePosition(&dest);
             Unit* target = owner->FindNearestEnemyUnit(dest);
             group->Send(9, 1, 0, &target->pos, 0, 0);
@@ -1501,7 +1516,7 @@ bool PlayerAI::FindRandomPlacementCell(UnitDef* type, Vec3* pos, int range, Poin
     for (int i = 0; i < 30; i++) {
         int dist = RandomInt(range) << 16;
         int angle = RandomInt(0x10000);
-        Vec3 v = Direction(angle, dist) + *pos;
+        Vec3 v = PosPlus(Direction(angle, dist), *pos);
         Point16 cell = WorldToCell(v, *(Point16*)&type->f14a);
         cell.x = cell.x / spacing.x * spacing.x + offset.x + RandomInt(spacing.x - margin - type->footprintx);
         cell.y = cell.y / spacing.y * spacing.y + offset.y + RandomInt(spacing.y - margin - type->footprintz);

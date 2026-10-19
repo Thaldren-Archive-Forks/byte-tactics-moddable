@@ -1,6 +1,5 @@
-// Vec3, a 3D point: three ints (Thaldren's 0xc-byte Vec3, x/y/z), each also the
-// 16.16 fixed-point words of a position (xFrac and xWhole), and Point16, a map
-// cell or footprint: two 16-bit coordinates, x and y. The one declaration of
+// Vec3, a 3D point: three ints (Thaldren's 0xc-byte Vec3, x/y/z), and Point16, a
+// map cell or footprint: two 16-bit coordinates, x and y. The one declaration of
 // each for the files that share them. No constructors: a user constructor
 // changes the inlining of MoveTowards (PR #6278).
 #ifndef VEC3_H
@@ -9,27 +8,9 @@
 #include <math.h>
 
 struct Vec3 {
-    union {
-        int x;
-        struct {
-            unsigned short xFrac;
-            short xWhole;
-        };
-    };
-    union {
-        int y;
-        struct {
-            unsigned short yFrac;
-            short yWhole;
-        };
-    };
-    union {
-        int z;
-        struct {
-            unsigned short zFrac;
-            short zWhole;
-        };
-    };
+    int x;
+    int y;
+    int z;
 
     void operator+=(const Vec3& v)
     {
@@ -42,22 +23,6 @@ struct Vec3 {
         x -= v.x;
         y -= v.y;
         z -= v.z;
-    }
-    Vec3 operator+(const Vec3& v) const
-    {
-        Vec3 r;
-        r.x = x + v.x;
-        r.y = y + v.y;
-        r.z = z + v.z;
-        return r;
-    }
-    Vec3 operator-(const Vec3& v) const
-    {
-        Vec3 r;
-        r.x = x - v.x;
-        r.y = y - v.y;
-        r.z = z - v.z;
-        return r;
     }
     void Add(const Vec3* o)
     {
@@ -87,6 +52,17 @@ struct Vec3 {
         __int64 a = x, b = z;
         return (int)((a * a) >> 32) + (int)((b * b) >> 32);
     }
+};
+
+// The 16.16 words of a Vec3 holding a position: the fraction and whole half
+// of each coordinate. Read a Vec3 through it with a cast.
+struct Vec3Words {
+    unsigned short xFrac;
+    short xWhole;
+    unsigned short yFrac;
+    short yWhole;
+    unsigned short zFrac;
+    short zWhole;
 };
 
 struct Point16 {
