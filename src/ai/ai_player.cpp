@@ -318,6 +318,7 @@ int __stdcall IsUnderLimit(int player, unsigned short id, int value);
 typedef void (__stdcall* Command_00406f00)(CommandArgs* args);
 void __stdcall RegisterCommand(const char* name, Command_00406f00 fn, int flags);
 #include "../../interfaces/seams.h"
+#include "../quirks/quirks.h"
 int __stdcall RandomInt(int);
 void __stdcall QueueUnitSpeechIfNotVisible(Unit*, int, int);
 void __stdcall SetUnitSquad(Unit* unit, int squad);
@@ -821,12 +822,6 @@ static inline Vec3 GetRallyPoint(int index)
 
 // Slot 0 of SquadScoutTimer (vtable 0x4fc998), derived from SquadTimer
 // (the family is listed at 0x407350).
-// Sets `next` to 30..929 ticks from now. A group of fewer than 5 units
-// either moves (mode 9) to the unit nearest its average position, or, when
-// GetBasePosition gives a rally point for the player, is sent to 2..3 random
-// points around it (mode 2 first, then mode 9). A bigger group is sent to a
-// random point on the map edge. The unit FindNearestEnemyUnit returns is used
-// without a null check.
 // FUNCTION: 0x407ae0
 void SquadScoutTimer::OnTimer()
 {
@@ -841,6 +836,8 @@ void SquadScoutTimer::OnTimer()
         if ((((Vec3Words*)&pos)->xWhole | ((Vec3Words*)&pos)->zWhole) == 0) {
             GetAveragePosition(&dest);
             Unit* target = owner->FindNearestEnemyUnit(dest);
+            if (g_quirks.patrolNullEnemySkip && target == 0)
+                return;
             group->Send(9, 1, 0, &target->pos, 0, 0);
         } else {
             int n = RandomInt(2) + 2;

@@ -87,6 +87,7 @@ struct BucketGrid {
 };
 
 #include "../game/game.h"
+#include "../quirks/quirks.h"
 
 #include "../units/movement_class.h"
 
@@ -585,6 +586,8 @@ void __stdcall RefreshAllPassMaps(Point16 pos, Point16 size);
 // FUNCTION: 0x47dac0
 void __stdcall SetYardOpen(Unit* obj, int flag)
 {
+    if (g_quirks.skipEmptyYardmap && obj->def->yardmap == 0)
+        return;
     if (IsFootprintClear(obj, flag)) {
         obj->bit2 = flag;
         obj->flags |= 0x8000000;

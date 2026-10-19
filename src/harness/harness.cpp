@@ -11,6 +11,7 @@
 #include "../map/mission.h"
 #include "condition_class.h"
 #include "../../interfaces/seams.h"
+#include "../quirks/quirks.h"
 
 extern Game* g_game;
 
@@ -59,6 +60,13 @@ static char s_scenarioPath[512];
 static FILE* s_trace = NULL;
 static FILE* s_dump = NULL;
 static unsigned s_dumpTick = 0;
+static char s_scenarioQuirks[512];
+static Quirks s_scenarioQuirkSet;
+static char s_switchQuirks[512];
+static char s_quirkSpec[512] = "3.1c";
+static unsigned s_quirkHash = 0;
+static unsigned s_quirkTamperTick = 0;
+static int s_quirkTamper = 0;
 
 static void Fail(const char* text)
 {
@@ -352,6 +360,16 @@ static void ReadKey(int lineNo, const char* key, char* value)
         s_ticks = ParseNumber(lineNo, key, value);
         if (s_ticks == 0)
             FailLine(lineNo, "must be at least 1", key, "");
+    } else if (strcmp(key, "quirks") == 0) {
+        char err[200] = "spec too long";
+        if (!QuirksParse(value, &s_scenarioQuirkSet, err, sizeof err) || !QuirksNormalise(value, s_scenarioQuirks, sizeof s_scenarioQuirks)) {
+            char detail[240];
+            sprintf(detail, ": %s", err);
+            FailLine(lineNo, "is not a quirk spec", key, detail);
+        }
+    } else if (strcmp(key, "quirks_tamper") == 0) {
+        s_quirkTamperTick = ParseNumber(lineNo, key, value);
+        s_quirkTamper = 1;
     } else if (strcmp(key, "order") == 0)
         ReadOrder(lineNo, value);
     else if (strncmp(key, "player", 6) == 0 && isdigit((unsigned char)key[6]) && key[7] == '.')
@@ -530,9 +548,58 @@ static void ParseTestDump(char* cmdLine)
     }
 }
 
+static void ParseQuirksSwitch(char* cmdLine)
+{
+    for (char* p = cmdLine; *p != '\0'; p++) {
+        if ((p[0] == '-' || p[0] == '/') && _strnicmp(p + 1, "quirks=", 7) == 0 && (p == cmdLine || isspace((unsigned char)p[-1]))) {
+            char* q = p + 8;
+            char* start = q;
+            if (*q == '"') {
+                start = ++q;
+                while (*q != '\0' && *q != '"')
+                    q++;
+            } else {
+                while (*q != '\0' && !isspace((unsigned char)*q))
+                    q++;
+            }
+            int n = (int)(q - start);
+            if (n >= (int)sizeof s_switchQuirks)
+                Fail("-quirks: spec is too long\n");
+            memcpy(s_switchQuirks, start, n);
+            s_switchQuirks[n] = '\0';
+            if (*q == '"')
+                q++;
+            memset(p, ' ', q - p);
+            return;
+        }
+    }
+}
+
+static void ResolveQuirks()
+{
+    Quirks set;
+    char err[200];
+    char msg[300];
+    if (s_scenarioQuirks[0] != '\0') {
+        set = s_scenarioQuirkSet;
+        strcpy(s_quirkSpec, s_scenarioQuirks);
+    } else if (s_switchQuirks[0] != '\0') {
+        if (!QuirksParse(s_switchQuirks, &set, err, sizeof err)) {
+            sprintf(msg, "-quirks: %s\n", err);
+            Fail(msg);
+        }
+        QuirksNormalise(s_switchQuirks, s_quirkSpec, sizeof s_quirkSpec);
+    } else {
+        QuirksParse("3.1c", &set, err, sizeof err);
+    }
+    g_quirks = set;
+    s_quirkHash = QuirksHash(g_quirks);
+}
+
 void HarnessInit(char* cmdLine)
 {
     InstallNativeSeams();
+    ParseQuirksSwitch(cmdLine);
     char* p = cmdLine;
     char* flag = NULL;
     while (*p != '\0') {
@@ -545,6 +612,7 @@ void HarnessInit(char* cmdLine)
     }
     if (flag == NULL) {
         s_viewState = (unsigned)time(0);
+        ResolveQuirks();
         return;
     }
     ParseTestDump(cmdLine);
@@ -577,6 +645,7 @@ void HarnessInit(char* cmdLine)
 
     s_testMode = 1;
     ReadScenario(path);
+    ResolveQuirks();
     s_viewState = s_viewSeed;
 
     unsigned cw = _control87(0, 0);
@@ -2610,6 +2679,13 @@ void HarnessBeforeStep()
     if (!s_testMode)
         return;
     unsigned tick = GameU32(GAME_TICK);
+    if (s_quirkTamper && tick == s_quirkTamperTick)
+        QuirksFlipFirstSim(&g_quirks);
+    if (QuirksHash(g_quirks) != s_quirkHash) {
+        char msg[96];
+        sprintf(msg, "testmode: quirk flags changed at tick %u\n", tick);
+        Fail(msg);
+    }
     for (int i = 0; i < s_orderCount; i++) {
         if (s_orders[i].tick == tick)
             IssueScriptedOrder(&s_orders[i]);
@@ -2688,6 +2764,8 @@ static void OpenTrace(unsigned controlWord)
     fprintf(s_trace, "bt-trace %d\ncommit %s\nscenario %s\ngame_seed %u\ncrt_seed %u\nview_seed %u\n"
                      "fpu_control_word 0x%05X\n",
             TRACE_FORMAT, commit, s_scenarioPath, s_gameSeed, s_crtSeed, s_viewSeed, controlWord);
+    if (!QuirksAllOff(g_quirks))
+        fprintf(s_trace, "quirks %08x %s\n", s_quirkHash, s_quirkSpec);
     if (s_dumpEnabled) {
         s_dump = fopen("dump.txt", "wb");
         if (s_dump == NULL)
