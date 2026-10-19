@@ -144,16 +144,7 @@ public:
     void insert(char* where, int count, const TeleportParticle& val);
 };
 
-struct Vec3_004739b0 {
-    int x, y, z;
-    Vec3_004739b0& operator+=(const Vec3_004739b0& o)
-    {
-        x += o.x;
-        y += o.y;
-        z += o.z;
-        return *this;
-    }
-};
+#include "../util/vec3.h"
 
 // The integer halves of the 16.16 position.
 struct Pos_004739b0 {
@@ -169,11 +160,11 @@ struct Pos_004739b0 {
 struct NanoParticle {
 public:
     union {
-        Vec3_004739b0 pos;             // +0x0
+        Vec3 pos;             // +0x0
         Pos_004739b0 posw;
     };
     char unknown_c[0xc];
-    Vec3_004739b0 vel;                 // +0x18
+    Vec3 vel;                 // +0x18
     char unknown_24[4];
     int flags;                         // +0x28, low 4 bits: frame; the colour
     int endTime;                       // +0x2c, the tick it expires
@@ -527,8 +518,6 @@ struct Ctx_004720d0 {                  // both copies, one 24-byte local
 struct Lists_004720d0 {
     std::vector<ParticleSystem*> lists[1];              // 0x10 each
 };
-
-#include "../util/vec3.h"
 
 // The 24-byte struct slot 6 (0x473b50) copies both to the object, at +0x1c
 // and +0x34; here both halves are initialised from the position argument.
