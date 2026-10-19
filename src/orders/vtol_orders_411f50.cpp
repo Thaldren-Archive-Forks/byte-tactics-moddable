@@ -57,7 +57,7 @@ struct Order {
     char pad0[5]; unsigned char state; unsigned int flags;
     char padA[0x12 - 0xa]; PathOrderAttach target;
     Vec3 pos;
-    PointS16 start;                       // +0x2e
+    PointS16 start;
     char pad32[0x3e - 0x32]; int range;
     unsigned int flags_42;
     char pad46[0x4a - 0x46]; int next;

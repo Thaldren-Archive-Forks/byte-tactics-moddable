@@ -96,7 +96,7 @@ struct UnitDefFlags_00407e90 {
 #include "../units/unit.h"
 
 struct Group_00407e90 {
-    PlayerView* player;                     // +0x0
+    PlayerView* player;
     int id;                             // +0x4
     char unknown_8[0x10 - 0x8];
     std::vector<Unit*> units;           // +0x10

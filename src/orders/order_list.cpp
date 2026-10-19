@@ -229,8 +229,8 @@ public:
     void* unit;                      // +0xe
     PathOrderAttach link;            // +0x12
     Vec3 pos;
-    PointS16 start;                     // +0x2e
-    PointS16 cached;                    // +0x32
+    PointS16 start;
+    PointS16 cached;
     int id;                          // +0x36
     int amount;                      // +0x3a
     int progress;                    // +0x3e

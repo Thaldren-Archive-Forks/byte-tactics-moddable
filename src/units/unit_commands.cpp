@@ -310,8 +310,8 @@ void __cdecl CreateMissionUnits()
 {
     Player* p;
     char buf[100];
-    int n = g_game->net->unitCount;        // only the constructor takes it; the
-    std::vector<Unit*> units(n);       // loops re-read mapInfo->unitCount themselves
+    int n = g_game->net->unitCount;
+    std::vector<Unit*> units(n);
     for (int i = 0; i < g_game->net->unitCount; i++) {
         MissionUnit* e = &g_game->net->units[i];
         UnitType_00488b10* item = (UnitType_00488b10*)g_seams.units->FindUnitType(e->name);
