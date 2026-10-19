@@ -1,11 +1,3 @@
-// Player: one slot of the player table (Thaldren's PlayerState, 0x14b bytes),
-// ten of them at g_game+0x1b63. The one declaration of the struct for the files
-// that read or write a slot. packets.cpp, which defines the methods,
-// keeps its own view: it also defines the constructor (the slot is built by
-// 0x463be0 with a by-value Grid_00463be0 at +0x7c), and a struct with a
-// constructor cannot be a member of the unions some Game views put the player
-// array in, so the constructor is not declared here. The types behind the
-// pointers stay private to their own files.
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -28,7 +20,7 @@ struct Player {
     unsigned char progress;            // +0x20
     unsigned char keepaliveFlags;      // +0x21
     unsigned char rejectReason;        // +0x22
-    char unknown_23[0x27 - 0x23];
+    char unknown_23[4];
     PlayerInfo* info;                  // +0x27
     char name[0x1e];                   // +0x2b
     char fullName[0x1e];               // +0x49
@@ -43,20 +35,68 @@ struct Player {
     int exploredWidth;                 // +0x80
     int exploredHeight;                // +0x84
     int exploredSize;                  // +0x88
-    float energy;                      // +0x8c
+    union {
+        float energy;
+        int energyBits;
+    };
     float energyIncome;                // +0x90
     float energyUsage;                 // +0x94
-    float metal;                       // +0x98
+    union {
+        float metal;
+        int metalBits;
+    };
     float metalIncome;                 // +0x9c
     float metalUsage;                  // +0xa0
-    float energyCapacity;              // +0xa4
-    float metalCapacity;               // +0xa8
-    double totalEnergyProduced;        // +0xac
-    double totalMetalProduced;         // +0xb4
-    double totalEnergyConsumed;        // +0xbc
-    double totalMetalConsumed;         // +0xc4
-    double energyWasted;               // +0xcc
-    double metalWasted;                // +0xd4
+    union {
+        float energyCapacity;
+        int energyCapacityBits;
+    };
+    union {
+        float metalCapacity;
+        int metalCapacityBits;
+    };
+    union {
+        double totalEnergyProduced;
+        struct {
+            int totalEnergyProducedLo;
+            int totalEnergyProducedHi;
+        };
+    };
+    union {
+        double totalMetalProduced;
+        struct {
+            int totalMetalProducedLo;
+            int totalMetalProducedHi;
+        };
+    };
+    union {
+        double totalEnergyConsumed;
+        struct {
+            int totalEnergyConsumedLo;
+            int totalEnergyConsumedHi;
+        };
+    };
+    union {
+        double totalMetalConsumed;
+        struct {
+            int totalMetalConsumedLo;
+            int totalMetalConsumedHi;
+        };
+    };
+    union {
+        double energyWasted;
+        struct {
+            int energyWastedLo;
+            int energyWastedHi;
+        };
+    };
+    union {
+        double metalWasted;
+        struct {
+            int metalWastedLo;
+            int metalWastedHi;
+        };
+    };
     float energyStorageBonus;          // +0xdc
     float metalStorageBonus;           // +0xe0
     float shareMetal;                  // +0xe4
@@ -81,11 +121,30 @@ struct Player {
     unsigned short unitCount;          // +0x144
     unsigned char index;               // +0x146
     unsigned char startPos;            // +0x147
-    unsigned char rank;                // +0x148
-    unsigned short flags;              // +0x149
+    union {
+        struct {
+            unsigned char rank;
+            union {
+                unsigned short flags;
+                struct {
+                    unsigned short storage : 1;
+                    unsigned short bits_149_1 : 15;
+                } bits_149;
+            };
+        };
+        struct {
+            unsigned short bits0 : 8;
+            unsigned short started : 1;
+        } bits_148;
+    };
 
+    Player();
     void FreeSideDataAndFogSightCounts();
     void SetType(int newType);
+    int IsPlayableSlot();
+    void Clear() { active = 0; type = 0; }
+    float GetEnergy() { return energy; }
+    float GetMetal() { return metal; }
 };
 #pragma pack(pop)
 

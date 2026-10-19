@@ -13,39 +13,7 @@
 
 #include "player_info.h"
 
-// Keeps its own view: it declares the constructor that `Player temp` calls (0x463be0), which player.h leaves out.
-class Player {
-public:
-    int active;                        // +0x00
-    int id;                            // +0x04
-    int joinTime;                      // +0x08
-    int lobbyDataSynced;               // +0x0c
-    int messages;                      // +0x10
-    char unknown_14[8];
-    int last_time;                     // +0x1c
-    unsigned char progress;            // +0x20
-    unsigned char flags_21;            // +0x21
-    char unknown_22[5];
-    PlayerInfo* info;                  // +0x27
-    char name[0x1e];                   // +0x2b
-    char fullName[0x1e];               // +0x49
-    char unknown_67[0x73 - 0x67];
-    unsigned char state;               // +0x73
-    char unknown_74[0x108 - 0x74];
-    unsigned char allies[0x16];        // +0x108
-    unsigned char shareLos[11];        // +0x11e
-    unsigned char shareVision[11];     // +0x129
-    unsigned char shareMapping[11];    // +0x134
-    unsigned char alliance;            // +0x13f
-    char unknown_140[6];
-    unsigned char index;               // +0x146
-    unsigned char startPos;            // +0x147
-    char unknown_148[3];
-    void SetType(int);
-    int IsPlayableSlot();
-    Player();
-    void FreeSideDataAndFogSightCounts();
-};
+#include "player.h"
 
 #include "../weapons/weapon_def.h"
 
@@ -300,7 +268,7 @@ void __stdcall SetGameSpeed(int, int);
 // inline budget makes each variant differ.
 static inline int GetPlayerId(unsigned char i)
 {
-    if (i != 10 && g_game->players[i].state)
+    if (i != 10 && g_game->players[i].type)
         return g_game->players[i].id;
     return -1;
 }
@@ -353,7 +321,7 @@ static inline Player* PlayerByIndex(int id)
 static inline unsigned char FindHost()
 {
     for (unsigned char i = 0; i < 10; i++) {
-        if (g_game->players[i].state != 0) {
+        if (g_game->players[i].type != 0) {
             if (g_game->players[i].info->flags_97 & 1)
                 return i;
         }
@@ -375,7 +343,7 @@ int GetHostDpid()
 static inline int FirstJoinedId()
 {
     for (int i = 0; i < 10; i++) {
-        if (g_game->players[i].state == 1)
+        if (g_game->players[i].type == 1)
             return g_game->players[i].id;
     }
     return -1;
@@ -386,7 +354,7 @@ static inline int FirstConnectedId()
     int i = 0;
     while (1) {
         if (g_game->players[i].active
-            && (g_game->players[i].state == 1 || g_game->players[i].state == 2))
+            && (g_game->players[i].type == 1 || g_game->players[i].type == 2))
             return g_game->players[i].id;
         i++;
         if (i >= 10)
@@ -405,12 +373,12 @@ static inline unsigned char* InfoPacket(unsigned char* buf, Player* p)
 
 static inline int IsConnected(Player* p)
 {
-    return p->active && (p->state == 1 || p->state == 2);
+    return p->active && (p->type == 1 || p->type == 2);
 }
 
 static inline int IsValid(Player* p)
 {
-    return p->active && (p->state == 1 || p->state == 2 || p->state == 3);
+    return p->active && (p->type == 1 || p->type == 2 || p->type == 3);
 }
 
 // One helper, not split.
@@ -454,7 +422,7 @@ static inline void DropPlayer(int id)
     out->type = 0x1c;
     out->id = id;
     Player* p = &g_game->players[FindPlayerSlot(id)];
-    if ((p->active && p->state == 3) || !(g_game->loadingFlags & 1) || (g_game->loadingFlags & 2))
+    if ((p->active && p->type == 3) || !(g_game->loadingFlags & 1) || (g_game->loadingFlags & 2))
         RemovePlayer(id);
     BroadcastPacket(LocalPlayer()->id, out, 5);
 }
@@ -496,7 +464,7 @@ int HandleNetPackets()
         if (sender == 0) {
             if (!IsConnected(recipient))
                 continue;
-            if (recipient->state != 1)
+            if (recipient->type != 1)
                 continue;
             Packet_00453d40* msg = (Packet_00453d40*)packet;
             switch (msg->type) {
@@ -508,7 +476,7 @@ int HandleNetPackets()
                     break;
                 if (!InGame(p))
                     break;
-                if (!(g_game->netGameFlags & 4) && (p->info->flags_97 & 1) && p->state == 3) {
+                if (!(g_game->netGameFlags & 4) && (p->info->flags_97 & 1) && p->type == 3) {
                     RejectPlayer(p->id, 1);
                     RejectPlayer(LocalPlayer()->id, 10);
                     p->SetType(0);
@@ -609,11 +577,11 @@ int HandleNetPackets()
             RejectPlayer(sender, 6);
             continue;
         }
-        if (player->state != 1 && player->state != 2 && player->state != 3)
+        if (player->type != 1 && player->type != 2 && player->type != 3)
             continue;
         if (!InGame(recipient))
             continue;
-        player->last_time = GetTicks();
+        player->lastHeard = GetTicks();
         player->messages++;
         switch (packet[0]) {
         case 32: {
@@ -621,7 +589,7 @@ int HandleNetPackets()
             int target = FindPlayerIndex(infoPacket->data.id);
             if (target == 10)
                 break;
-            if (g_game->players[target].active && g_game->players[target].state == 3) {
+            if (g_game->players[target].active && g_game->players[target].type == 3) {
                 memcpy(g_game->players[target].info, &infoPacket->data, 0xb9);
                 CheckDuplicatePlayerIds();
             }
@@ -681,7 +649,7 @@ int HandleNetPackets()
                 else
                     RebuildAllyList();
             }
-            g_game->players[a->index].allies[b->index] = ally->allied;
+            g_game->players[a->index].allied[b->index] = ally->allied;
             break;
         }
         case 36: {
@@ -732,7 +700,7 @@ int HandleNetPackets()
             break;
         }
         case 5:
-            if (recipient->active && recipient->state == 1)
+            if (recipient->active && recipient->type == 1)
                 AddMessage(packet + 1, 8, 0, from);
             break;
         case 39: {
@@ -753,7 +721,7 @@ int HandleNetPackets()
             break;
         }
         case 7:
-            player->flags_21 |= 1;
+            player->keepaliveFlags |= 1;
             break;
         case 8:
             more = 0;
@@ -887,7 +855,7 @@ int HandleNetPackets()
                 g_game->bit_38a51 = packet[2];
             break;
         case 26:
-            if (g_game->sync && recipient->active && recipient->state == 1)
+            if (g_game->sync && recipient->active && recipient->type == 1)
                 g_game->sync->ReceiveSyncPacket(packet, from);
             break;
         case 29: {

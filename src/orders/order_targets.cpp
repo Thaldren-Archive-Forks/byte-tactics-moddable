@@ -801,31 +801,9 @@ struct Point_0044eef0 {
     short y;
 };
 
-struct Target_0044f1a0 {
-    char unknown_0[0x2e];
-    unsigned char occupyFlags;         // +0x2e
-};
-
 #include "order_target_types.h"
 
-// A 16.16 fixed-point coordinate: the low word is the fraction, the high
-// word the signed integer part the path points store.
-
-struct Vec3_004907e0 {
-    Coord_0044f2a0 x;
-    Coord_0044f2a0 y;
-    Coord_0044f2a0 z;
-};
-
-#pragma pack(push, 2)
-struct Struct_004907e0 {               // the owner
-    Target_0044f1a0* target;           // +0x0
-    char unknown_4[0x5c - 0x4];
-    Target_0044f2a0* list;             // +0x5c
-    char unknown_60[0x6a - 0x60];
-    Vec3_004907e0 pos;                 // +0x6a
-};
-#pragma pack(pop)
+#include "../game/goal_owner.h"
 
 // The object at +0x4 (see victory_490940.cpp); vtable 0x4fd2f8. Slot 8 is the
 // "give me your position as a Vec3" call (an implementation is 0x44dc60); slot
@@ -2362,8 +2340,8 @@ void AiSearchGoal::TickTowardGoal()
         }
     }
     if (count >= 2) {
-        int dx = owner->pos.z.half[1] - points[1].y;
-        int dy = owner->pos.x.half[1] - points[1].x;
+        int dx = owner->fixedPos.z.half[1] - points[1].y;
+        int dy = owner->fixedPos.x.half[1] - points[1].x;
         if (dy * dy + dx * dx <= 25) {
             // std::copy, not memmove: memmove stays a library call.
             std::copy(points + 1, points + count, points);
@@ -2431,8 +2409,8 @@ void AiSearchGoal::SetPathOrder(void* param)
                 if (count >= 3) {
                     int sx = points[count - 1].x << 16;
                     int sz = points[count - 1].y << 16;
-                    int d1 = (int)_hypot(owner->pos.x.fixed - p.x.fixed,
-                                         owner->pos.z.fixed - p.z.fixed);
+                    int d1 = (int)_hypot(owner->fixedPos.x.fixed - p.x.fixed,
+                                         owner->fixedPos.z.fixed - p.z.fixed);
                     int d2 = (int)_hypot(sx - p.x.fixed,
                                          sz - p.z.fixed);
                     if (d2 * 2 < d1)
@@ -2442,8 +2420,8 @@ void AiSearchGoal::SetPathOrder(void* param)
                     Target_0044f2a0* t = owner->list;
                     if (t && !(t->flags & 0x800000)) {
                         count = 2;
-                        points[0].x = owner->pos.x.half[1];
-                        points[0].y = owner->pos.z.half[1];
+                        points[0].x = owner->fixedPos.x.half[1];
+                        points[0].y = owner->fixedPos.z.half[1];
                         points[1].x = p.x.half[1];
                         points[1].y = p.z.half[1];
                         active = 1;

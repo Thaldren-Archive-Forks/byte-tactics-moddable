@@ -11,13 +11,7 @@
 #pragma pack(push, 1)
 struct Unit;
 
-struct PlayerView {
-    char unknown_0[0x67];
-    Unit* first;                       // +0x67
-    Unit* last;                        // +0x6b
-    char unknown_6f[0x78 - 0x6f];
-    Squad* squads;                     // +0x78
-};
+#include "../network/player.h"
 
 #include "unit.h"
 #pragma pack(pop)
@@ -28,12 +22,12 @@ void __cdecl GameFreeThunk(int* p);
 // Allocates the owner's ten squads and constructs each in place with the
 // owner and its index (Squad's constructor, inlined here).
 // FUNCTION: 0x480190
-void __stdcall CreateSquads(PlayerView* owner)
+void __stdcall CreateSquads(Player* owner)
 {
-    owner->squads = (Squad*)SimAllocTagged("SQUADS", 10 * sizeof(Squad));
+    owner->groups = (Group*)SimAllocTagged("SQUADS", 10 * sizeof(Squad));
     for (int i = 0; i < 10; i++)
     {
-        Squad* squad = &owner->squads[i];
+        Squad* squad = &((Squad*)owner->groups)[i];
         squad->owner = (int)owner;
         squad->index = i;
         squad->field_8 = 0;
@@ -44,13 +38,13 @@ void __stdcall CreateSquads(PlayerView* owner)
 
 // Destroys the owner's ten squads allocated by 0x480190 and frees them.
 // FUNCTION: 0x4801f0
-void __stdcall FreeSquads(PlayerView* owner)
+void __stdcall FreeSquads(Player* owner)
 {
-    if (owner->squads) {
+    if (owner->groups) {
         for (int i = 0; i < 10; i++)
-            owner->squads[i].items.~vector();
-        GameFreeThunk((int*)owner->squads);
-        owner->squads = 0;
+            ((Squad*)owner->groups)[i].items.~vector();
+        GameFreeThunk((int*)owner->groups);
+        owner->groups = 0;
     }
 }
 
@@ -81,9 +75,9 @@ void __stdcall SetUnitSquad(Unit* unit, int index)
 {
     // RemoveFast stays a separate inline helper: a flat body inlines push_back's size() calls too.
     if (unit->group != -1)
-        RemoveFast((std::vector<Unit*>&)((PlayerView *)unit->player)->squads[unit->group].items, unit);
+        RemoveFast((std::vector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[unit->group].items, unit);
     if (index != -1)
-        ((std::vector<Unit*>&)((PlayerView *)unit->player)->squads[index].items).push_back(unit);
+        ((std::vector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[index].items).push_back(unit);
     unit->group = index;
 }
 
@@ -91,10 +85,10 @@ void __stdcall SetUnitSquad(Unit* unit, int index)
 // equals `key`, asks GetOrderType for an order kind and hands it, with the
 // remaining arguments, to AddOrder.
 // FUNCTION: 0x480460
-void __stdcall OrderSquad(PlayerView* owner, int key, unsigned char mode, int remove,
+void __stdcall OrderSquad(Player* owner, int key, unsigned char mode, int remove,
                             Unit* target, int flags, int param_7, int param_8)
 {
-    for (Unit* u = owner->first; u <= owner->last; u++) {
+    for (Unit* u = owner->unitsBegin; u <= owner->unitsEnd; u++) {
         if (((short)u->unitDefIndex) != 0 && u->group == key) {
             MissionType kind = g_seams.orders->GetOrderType(mode, u, target, (Vec3*)flags);
             g_seams.orders->AddOrder(kind, remove, u, target, (Vec3*)flags, param_7, param_8);

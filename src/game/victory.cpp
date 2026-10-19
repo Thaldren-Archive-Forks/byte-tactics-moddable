@@ -9,42 +9,12 @@
 #include <windows.h>
 #include "../util/hapi_bank.h"
 #include "../harness/condition_class.h"
+#include "victory_conditions.h"
 
 extern void* DAT_005119b8;
 
 struct Unit;
 class HapiBank;
-
-// Mission victory/defeat condition (6 virtual slots).
-// Derived classes declare exactly the slots they override, no appended virtuals.
-class MissionCondition {
-public:
-    int satisfied;                       // +0x4
-    int celebrated;                      // +0x8
-
-    MissionCondition() { satisfied = celebrated = 0; }
-    virtual int IsSatisfied();           // IsSatisfied
-    virtual void OnUnitDied(Unit* unit);     // Slot1
-    virtual void OnUnitCaptured(Unit* unit);  // Slot2
-    virtual void OnUnitCreated(Unit* unit);  // Slot3
-    virtual void SaveState(HapiBank* file);            // Save
-    virtual void LoadState(HapiBank* file);            // Load
-};
-
-// Secondary interface of a condition that visits units (vtable 0x4fd940):
-// slot 0 is called for each unit and returns whether to keep going.
-class Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit) = 0;
-};
-
-// The same one-slot interface again, as its own type (vtable 0x4fd8a8),
-// whose slot returns nothing.
-// Must stay a separate type: VictoryMoveUnitToRadius's base uses this vtable.
-class Listener_0048f250 {
-public:
-    virtual void VisitUnit(Unit* unit) = 0;
-};
 
 #include "../util/vec3.h"
 
@@ -124,268 +94,10 @@ extern Game* g_game;
 void __stdcall PlaySoundByName(char* str, int flag);
 #include "../../interfaces/seams.h"
 
-// KillEnemyCommander (vtable 0x4fd960).
-class VictoryKillEnemyCommander : public MissionCondition {
-public:
-    virtual void OnUnitDied(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// DestroyAllUnits (vtable 0x4fd948).
-class VictoryDestroyAllUnits : public MissionCondition {
-public:
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// KillAllMobileUnits (vtable 0x4fd928, listener vtable 0x4fd920).
-class VictoryKillAllMobileUnits : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    int numUnits;                        // +0x10
-    VictoryKillAllMobileUnits() { numUnits = 0; }
-    virtual void OnUnitDied(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// BuildUnitType (vtable 0x4fd908, listener vtable 0x4fd900).
-// pack(2): size 0x32 would otherwise be allocated as 0x34.
-#pragma pack(push, 2)
-class VictoryBuildUnitType : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    char name[0x20];                     // +0x10
-    short id;                            // +0x30
-
-    VictoryBuildUnitType(const char* text)
-    {
-        strcpy(name, text);
-        id = 0;
-    }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-#pragma pack(pop)
-
-// CaptureUnitType (vtable 0x4fd8e8).
-class VictoryCaptureUnitType : public MissionCondition {
-public:
-    char name[0x20];                     // +0xc
-
-    VictoryCaptureUnitType(const char* text) { strcpy(name, text); }
-    virtual void OnUnitCaptured(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// KillAllOfType (vtable 0x4fd8d0, listener vtable 0x4fd8c8).
-// pack(2): size 0x36 would otherwise be allocated as 0x38.
-#pragma pack(push, 2)
-class VictoryKillAllOfType : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    char name[0x20];                     // +0x10
-    short id;                            // +0x30
-    int count;                           // +0x32
-
-    VictoryKillAllOfType(const char* text) { strcpy(name, text); }
-    virtual void OnUnitDied(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-#pragma pack(pop)
-
-// KillUnitType (vtable 0x4fd8b0).
-class VictoryKillUnitType : public MissionCondition {
-public:
-    char name[0x20];                     // +0xc
-    int numLeftToKill;                   // +0x2c
-
-    VictoryKillUnitType(const char* text, int n)
-    {
-        strcpy(name, text);
-        numLeftToKill = n;
-    }
-    virtual void OnUnitDied(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// MoveUnitToRadius (vtable 0x4fd890, listener vtable 0x4fd888).
-#pragma pack(push, 2)
-class VictoryMoveUnitToRadius : public MissionCondition, public Listener_0048f250 {
-public:
-    virtual void VisitUnit(Unit* unit);
-    char name[0x20];                     // +0x10
-    Vec3 pos;                   // +0x30
-    int radius;                          // +0x3c
-
-    VictoryMoveUnitToRadius(const char* text, int x, int z, int r)
-    {
-        if (_strcmpi(text, "ANYTYPE") == 0)
-            name[0] = 0;
-        else
-            strcpy(name, text);
-        pos.x = x;
-        pos.z = z;
-        radius = r << 16;
-        // Stored after pos.z and radius.
-        pos.y = 0x12345678;
-    }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-#pragma pack(pop)
-
-// UnitTypePassesX (vtable 0x4fd870, listener vtable 0x4fd868).
-#pragma pack(push, 2)
-class VictoryUnitTypePassesX : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    char name[0x20];                     // +0x10
-    int x;                               // +0x30
-
-    VictoryUnitTypePassesX(const char* text, int v)
-    {
-        if (_strcmpi(text, "ANYTYPE") == 0)
-            name[0] = 0;
-        else
-            strcpy(name, text);
-        x = v >> 4;
-    }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-#pragma pack(pop)
-
-// UnitTypePassesZ (vtable 0x4fd850, listener vtable 0x4fd848).
-#pragma pack(push, 2)
-class VictoryUnitTypePassesZ : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    char name[0x20];                     // +0x10
-    int z;                               // +0x30
-
-    VictoryUnitTypePassesZ(const char* text, int v)
-    {
-        if (_strcmpi(text, "ANYTYPE") == 0)
-            name[0] = 0;
-        else
-            strcpy(name, text);
-        z = v >> 4;
-    }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-#pragma pack(pop)
-
-// VictoryTimerRunsOut (vtable 0x4fd830).
-class VictoryTimerRunsOut : public MissionCondition {
-public:
-    unsigned int endTick;                // +0xc
-
-    VictoryTimerRunsOut(int t) { endTick = t * 30; }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// CommanderKilled (vtable 0x4fd818).
-class DefeatCommanderKilled : public MissionCondition {
-public:
-    virtual void OnUnitDied(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// AllUnitsKilled (vtable 0x4fd800, listener vtable 0x4fd7f8).
-class DefeatAllUnitsKilled : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-    virtual int VisitUnit(Unit* unit);
-};
-
-// AllUnitsKilledOfType (vtable 0x4fd7e0, listener vtable 0x4fd7d8).
-#pragma pack(push, 2)
-class DefeatAllUnitsKilledOfType : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    char name[0x20];                     // +0x10
-    short id;                            // +0x30
-    int count;                           // +0x32
-
-    DefeatAllUnitsKilledOfType(const char* text) { strcpy(name, text); }
-    virtual void OnUnitDied(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-#pragma pack(pop)
-
-// UnitTypeKilled (vtable 0x4fd7c0).
-class DefeatUnitTypeKilled : public MissionCondition {
-public:
-    char name[0x20];                     // +0xc
-    int numLeftToKill;                   // +0x2c
-
-    DefeatUnitTypeKilled(const char* text, int n)
-    {
-        strcpy(name, text);
-        numLeftToKill = n;
-    }
-    virtual void OnUnitDied(Unit* unit);
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// DeathTimerRunsOut (vtable 0x4fd7a8).
-class DefeatDeathTimerRunsOut : public MissionCondition {
-public:
-    int endTick;                         // +0xc
-
-    DefeatDeathTimerRunsOut(int t) { endTick = t * 30; }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// AnyUnitPassesX (vtable 0x4fd790, listener vtable 0x4fd788).
-class DefeatAnyUnitPassesX : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    int x;                               // +0x10
-
-    DefeatAnyUnitPassesX(int v) { x = v >> 4; }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
-// AnyUnitPassesZ (vtable 0x4fd770, listener vtable 0x4fd768).
-class DefeatAnyUnitPassesZ : public MissionCondition, public Listener_0048ff40 {
-public:
-    virtual int VisitUnit(Unit* unit);
-    int z;                               // +0x10
-
-    DefeatAnyUnitPassesZ(int v) { z = v >> 4; }
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
-
 extern int GetCdPathMismatch();
 
 extern unsigned int g_cdMismatchDefeatTick;
 
-#include "mission_conditions.h"
 
 // Appends a condition to one of the two lists, at the caller's count.
 static inline void AddCondition(MissionCondition** list, int* count, MissionCondition* value)
@@ -1568,63 +1280,11 @@ struct Struct_004907e0;
 #include "../orders/unit_motion.h"
 #include "../util/angles.h"
 
-struct Target_00490880 {
-    char unknown_0[0x2e];
-    union {
-        unsigned char flags;           // +0x2e
-        struct {
-            unsigned char mode : 2;    // +0x2e bits 0-1
-        };
-    };
-};
-
-#pragma pack(push, 2)
-struct Struct_004907e0 {               // the owner, the object at +0x8
-    union {
-        Target_00490880* target;       // +0x0
-        UnitMotion* obj;               // +0x0
-    };
-    char pad4[0x64 - 0x4];
-    Angles16 angles;                   // +0x64
-    Vec3 pos;                 // +0x6a
-    char pad76[0x82 - 0x76];
-    unsigned char* spatialBucket;      // +0x82
-    char pad86[0x92 - 0x86];
-    UnitDef* def;                      // +0x92
-};
-#pragma pack(pop)
-
 class AiSearchGoal;                    // slot 6's result
 
 #include "../orders/air_maneuver_order.h"
 
-#include "../ai/ai_search_goal.h"
-
-// PackedGoal: a moving object that follows its owner, derived from
-// PathGoal (see order_targets_44ef20.cpp for the family) and the base of
-// LiteGoal and PackedPosGoal.
-// Vtable 0x4fd980, constructor 0x4905e0, ??_G 0x490630.
-class PackedGoal : public PathGoal {
-public:
-    Vec3 pos;                  // +0xc
-    Vec3 vel;                  // +0x18
-    short heading;                     // +0x24
-    char field_26;                     // +0x26
-    union {
-        struct {
-            unsigned char dirty : 1;    // +0x27 bit 0
-            unsigned char mode : 2;     // +0x27 bits 1-2
-        };
-        struct {
-            unsigned char state : 3;    // +0x27, both
-        };
-        unsigned char netDirtyFlags;   // +0x27, the whole byte
-    };
-
-    PackedGoal(Struct_004907e0* p);
-    virtual void TickTowardGoal();                  // slot 2, 0x490690
-    virtual void ExportGoalPose(Vec3*, Vec3*, short*);  // slot 4, 0x490650
-};
+#include "packed_goal.h"
 
 unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 
@@ -1763,14 +1423,6 @@ void LiteGoal::SerializeNetUnitState(BitWriter* stream)
     stream->WriteBits(((Target_00490880*)owner->motion)->mode, 2);
     state = ((Target_00490880*)owner->motion)->mode << 1;
 }
-
-#pragma pack(push, 2)
-class Class_0044e080 : public OrderFx {
-public:
-    char unknown_8[0x36 - 0x8];
-    Class_0044e080(Struct_004907e0* owner, BitReader* reader);
-};
-#pragma pack(pop)
 
 // PackedPosGoal (vtable 0x4fd9e0), derived from PackedGoal and
 // PathGoal (see order_targets_44ef20.cpp for the family): the moving

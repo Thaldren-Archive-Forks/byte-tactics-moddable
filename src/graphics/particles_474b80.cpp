@@ -22,30 +22,7 @@ struct Pos_00474b80 {
     short y;                       // +0x08 (record +0x0e)
 };
 
-struct MapSize_00474b80 {
-    unsigned int width;            // +0x80
-    unsigned int height;           // +0x84
-
-    int Contains(int col, int row)
-    {
-        return (unsigned int)col < width && (unsigned int)row < height;
-    }
-};
-
-struct ByteMap_00474b80 {
-    unsigned char* data;           // +0x7c
-    MapSize_00474b80 size;         // +0x80
-
-    unsigned char Get(int x, int y) { return data[size.width * y + x]; }
-};
-
-// The header's type, kept local: its explored pointer cannot spell the
-// ByteMap this fog test needs.
-struct PlayerView {
-    char unknown_0[0x7c];
-    ByteMap_00474b80 explored;     // +0x7c
-    char unknown_88[0x14b - 0x88];
-};
+#include "../network/player.h"
 
 #include "../game/game.h"
 
@@ -82,11 +59,11 @@ extern Game* g_game;
 // pre-branch block. Remove it and the whole frame rotates.
 static inline int Identity_00474b80(int v) { return v; }
 
-static inline int IsSeen_00474b80(PlayerView* p, PlayerView* q, int col, int row)
+static inline int IsSeen_00474b80(Player* p, Player* q, int col, int row)
 {
-    if (!p->explored.size.Contains(col, row))
+    if (!((unsigned int)col < (unsigned int)p->exploredWidth && (unsigned int)row < (unsigned int)p->exploredHeight))
         return 0;
-    return (g_game->visibilityMask[q->explored.size.width * row + col] &
+    return (g_game->visibilityMask[(unsigned int)q->exploredWidth * row + col] &
             (1 << g_game->playerIndex)) != 0;
 }
 
@@ -96,18 +73,18 @@ void SmokeParticle::DrawParticle(void* dest, short px, short py)
     Pos_00474b80* q = &posw;
     short sx = q->x - px + 0x80;
     short sy = q->y - (q->h >> 1) - py + 0x20;
-    PlayerView* p = &((PlayerView*)g_game->players)[g_game->playerIndex];
+    Player* p = &g_game->players[g_game->playerIndex];
     // The second spelling of the same record: the bounds test reads p, the mask
     // index re-reads the width through p2, which keeps both of the original's
     // two width loads.
-    PlayerView* p2 = &((PlayerView*)g_game->players)[g_game->playerIndex];
+    Player* p2 = &g_game->players[g_game->playerIndex];
     int visible;
     if ((g_game->mapFlags & 2) == 2) {
         int col = posw.x >> 5;
         int row = (posw.y - (posw.h >> 1)) >> 5;
         // Fog map read through Get(): keeps the fog pointer in a register.
-        if (p->explored.size.Contains(col, row) &&
-            p->explored.Get(col, row) != 0)
+        if ((unsigned int)col < (unsigned int)p->exploredWidth && (unsigned int)row < (unsigned int)p->exploredHeight &&
+            p->explored[(unsigned int)p->exploredWidth * row + col] != 0)
             visible = 1;
         else
             visible = 0;

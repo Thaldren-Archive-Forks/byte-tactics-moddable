@@ -248,15 +248,6 @@ struct Feature {
 
 #include "../map/mission.h"
 
-// A view of a Player slot: name is Player::name at +0x2b, control is Player::type
-// at +0x73, read through the array at +0x1b8e. It stays a local PlayerInfo: any
-// other type or name moves the symbol count and 0x40bb00 stops matching.
-struct PlayerInfo {
-    char name[0x48];
-    unsigned char control;             // +0x48
-    char unknown_49[0x14b - 0x49];
-};
-
 // The players array and its info-array view at +0x1b8e. The union is the
 // compiler's anonymous one, so both names stay reachable.
 #include "../game/game.h"
@@ -1714,8 +1705,8 @@ void __stdcall DumpPlayerAI(int player, FILE* file)
     int seconds=(remaining-minutes*1800)/30;
     sprintf(buffer,"%02d:%02d:%02d",hours,minutes,seconds);
     fprintf(file,"gametime: '%s'\r\n",buffer);
-    fprintf(file,"player:   '%s' num: %d\r\n",(*(PlayerInfo (*)[10])((char*)g_game + 0x1b8e))[player].name,player);
-    switch((*(PlayerInfo (*)[10])((char*)g_game + 0x1b8e))[player].control) {
+    fprintf(file,"player:   '%s' num: %d\r\n",g_game->players[player].name,player);
+    switch(g_game->players[player].type) {
     case 1: strcpy(buffer,"HUMAN"); break;
     case 2: strcpy(buffer,"AI"); break;
     default: strcpy(buffer,"INVALID"); break;

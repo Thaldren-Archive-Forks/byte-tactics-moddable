@@ -164,124 +164,9 @@ struct Options {
     int difficulty;                    // +0x228
 };
 
-class Player {                         // 0x14b bytes
-public:
-    Player();
-    int active;                        // +0x00
-    char unknown_4[0x22 - 0x4];
-    unsigned char message;             // +0x22
-    char unknown_23[0x27 - 0x23];
-    PlayerInfo* info;                  // +0x27
-    char name[0x73 - 0x2b];            // +0x2b
-    unsigned char type;                // +0x73
-    char unknown_74[0xac - 0x74];
-    double totalEnergyProduced;        // +0xac
-    double totalMetalProduced;         // +0xb4
-    char unknown_bc[0xcc - 0xbc];
-    double energyWasted;               // +0xcc
-    double metalWasted;                // +0xd4
-    char unknown_dc[0xfc - 0xdc];
-    short kills;                       // +0xfc
-    short losses;                      // +0xfe
-    char unknown_100[0x140 - 0x100];
-    int unitsCreated;                  // +0x140
-    char unknown_144[0x146 - 0x144];
-    char index;                        // +0x146
-    char unknown_147[0x14b - 0x147];
-};
+#include "../network/player.h"
 
-struct Game {
-    int unknown_0;
-    const char* buildDate;             // +0x4
-    const char* buildTime;             // +0x8
-    char unknown_c[0x10 - 0xc];
-    Sound* sound;                      // +0x10
-    char unknown_14[0x519 - 0x14];
-    Gui gui;                          // +0x519
-    char unknown_120f[0x1b63 - 0x120f];
-    Player players[11];                // +0x1b63
-    char unknown_299c[0x29a0 - 0x299c];
-    Options* options;                  // +0x29a0
-    char unknown_29a4[0x2a42 - 0x29a4];
-    unsigned char localPlayer;         // +0x2a42
-    char unknown_2a43[0x2a44 - 0x2a43];
-    unsigned short bit0_2a44 : 1;      // +0x2a44
-    unsigned short bit1_2a44 : 1;
-    unsigned short bit2_2a44 : 1;
-    unsigned short bit3_2a44 : 1;
-    unsigned short bits4_2a44 : 12;
-    char unknown_2a46[0x2bc0 - 0x2a46];
-    unsigned char frontendSubstateRequest;  // +0x2bc0
-    char unknown_2bc1[0x2bee - 0x2bc1];
-    unsigned short bits0 : 4;          // +0x2bee
-    unsigned short flag4 : 1;          // +0x2bee, bit 4
-    unsigned short bits5 : 11;
-    char unknown_2bf0[0x2c7e - 0x2bf0];
-    int cursorKeyFlags;                // +0x2c7e
-    char unknown_2c82[0x1428f - 0x2c82];
-    Grid losHalfResHeightBand;         // +0x1428f
-    Grid spatialGrid;                  // +0x1429f
-    int field_142af;                   // +0x142af
-    int field_142b3;                   // +0x142b3
-    char unknown_142b7[0x14813 - 0x142b7];
-    unsigned short* endgameBadgeSeqA;  // +0x14813
-    unsigned short* endgameBadgeSeqB;  // +0x14817
-    char unknown_1481b[0x148db - 0x1481b];
-    void* logos32;                     // +0x148db
-    char unknown_148df[0x37e1b - 0x148df];
-    void* offscreen;                   // +0x37e1b
-    int screenWidth;                   // +0x37e1f
-    int screenHeight;                  // +0x37e23
-    char unknown_37e27[0x37eee - 0x37e27];
-    int difficulty;                    // +0x37eee
-    char unknown_37ef2[0x38a47 - 0x37ef2];
-    unsigned int gameTick;             // +0x38a47
-    char unknown_38a4b[0x38dd9 - 0x38a4b];
-    EndGamePlayerStat slots[10];       // +0x38dd9
-    char unknown_3901d[0x39057 - 0x3901d];
-    int state;                         // +0x39057
-    unsigned int deadline;             // +0x3905b
-    unsigned int nextTime;             // +0x3905f
-    int done;                          // +0x39063
-    int steps;                         // +0x39067
-    int bar;                           // +0x3906b
-    float savedPaletteBrightness;      // +0x3906f
-    int noMovie;                       // +0x39073
-    void* lastFrame;                   // +0x39077
-    void* image_3907b;                 // +0x3907b
-    unsigned char* palette_3907f;      // +0x3907f
-    unsigned char* current;            // +0x39083
-    unsigned char* target;             // +0x39087
-    char* delta;                       // +0x3908b
-    char glamour[0x100];               // +0x3908f
-    union {                            // +0x3918f
-        int maxStats[7];               // 41e420's
-        struct {                       // 41dc20's
-            int maxKills;
-            int maxLosses;
-            int max_26;
-            int max_2a;
-            int max_2e;
-            int max_32;
-            int maxScore;
-        };
-    };
-    int mission;                       // +0x391ab
-    int won;                           // +0x391af
-    char unknown_391b3[0x391cf - 0x391b3];
-    char campaignMissionStatus[0x1a];  // +0x391cf
-    Mission* mapInfo;                  // +0x391e9
-    char unknown_391ed[0x3923b - 0x391ed];
-    unsigned short bits0_3923b : 2;    // +0x3923b
-    unsigned short bit2_3923b : 1;
-    unsigned short bit3_3923b : 1;
-    unsigned short bit4_3923b : 1;
-    unsigned short bits5_3923b : 11;
-    char unknown_3923d[0x3924d - 0x3923d];
-
-    Game() : buildDate("Jul 30 1998"), buildTime("11:16:36"),
-        field_142af(0), field_142b3(0) {}
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 // GLOBAL: 0x511de8
@@ -382,7 +267,7 @@ void CreateGameObject()
 void __stdcall SetEndGameState(unsigned int state)
 {
     unsigned int v = state & 0xff;
-    g_game->state = v;
+    g_game->field_39057 = v;
 }
 
 // FUNCTION: 0x41da10
@@ -412,18 +297,18 @@ void InitMissionStatus(void)
 void SetUpEndMissionScreen()
 {
     char path[256];
-    g_game->delta = (char*)GameAllocIgnoreTag("FadeTable", 0x400);
-    g_game->target = (unsigned char*)GameAllocIgnoreTag("desiredPalette", 0x400);
-    g_game->current = (unsigned char*)GameAllocIgnoreTag("currentPalette", 0x400);
+    g_game->fadeTable = (char*)GameAllocIgnoreTag("FadeTable", 0x400);
+    g_game->desiredPalette = (unsigned char*)GameAllocIgnoreTag("desiredPalette", 0x400);
+    g_game->currentPalette = (unsigned char*)GameAllocIgnoreTag("currentPalette", 0x400);
     Display* display = GetDisplay();
-    g_game->savedPaletteBrightness = display->paletteBrightness;
+    *(float*)&g_game->savedPaletteBrightness = display->paletteBrightness;
     display->paletteBrightness = 1.0f;
     unsigned char* palette = (unsigned char*)GameAllocIgnoreTag("Palette", 0x400);
-    char* name = g_game->mapInfo->GetNameSlot(5);
+    char* name = g_game->net->GetNameSlot(5);
     if (name == 0)
         g_game->image_3907b = 0;
-    if (g_game->mapInfo->GetGameType() == 1
-        && g_game->bit4_3923b && name != 0) {
+    if (g_game->net->GetGameType() == 1
+        && g_game->bits_3923b_2.bit4_3923b && name != 0) {
         BuildDataPath(path, "bitmaps\\glamour", name + 1, "PCX");
         if (HAPI_FileLengthByName(path) == 0)
             strncpy(g_game->glamour, "glamour\\Arm01.PCX", 0x100);
@@ -433,7 +318,7 @@ void SetUpEndMissionScreen()
         g_game->palette_3907f = palette;
         return;
     }
-    if (g_game->mapInfo->GetGameType() == 1)
+    if (g_game->net->GetGameType() == 1)
         LoadPictureCached("Outcome1", 0, 0, 1);
     else
         LoadPictureCached("Outcome0", 0, 0, 1);
@@ -454,8 +339,8 @@ void StepScreenFade(void)
 {
     Rect rect;
     rect.left = rect.top = 0;
-    rect.right = g_game->screenWidth;
-    rect.bottom = g_game->screenHeight;
+    rect.right = g_game->width_37e1f;
+    rect.bottom = g_game->field_37e23;
     if (g_game->nextTime < GetTicks()) {
         FadeRectangle(0, &rect, g_game->steps - 0x1d);
         g_game->nextTime = GetTicks() + 1;
@@ -470,18 +355,18 @@ void StepScreenFade(void)
 // 1 towards the target) that 0x41e270 then adds on each tick.
 #define FADE_STEP(k)                                                        \
     if (current[k] > target[k]) {                                           \
-        g_game->delta[k] = min(-1, (target[k] - current[k]) / steps);       \
+        ((char*)g_game->fadeTable)[k] = min(-1, (target[k] - current[k]) / steps);       \
     } else if (current[k] == target[k]) {                                   \
-        g_game->delta[k] = 0;                                               \
+        ((char*)g_game->fadeTable)[k] = 0;                                               \
     } else {                                                                \
-        g_game->delta[k] = max(1, (target[k] - current[k]) / steps);        \
+        ((char*)g_game->fadeTable)[k] = max(1, (target[k] - current[k]) / steps);        \
     }
 
 // FUNCTION: 0x41dfc0
 void __stdcall StartPaletteFade(unsigned char* target, unsigned char* current, int steps)
 {
-    memcpy(g_game->target, target, 0x400);
-    memcpy(g_game->current, current, 0x400);
+    memcpy(((unsigned char*)g_game->desiredPalette), target, 0x400);
+    memcpy(((unsigned char*)g_game->currentPalette), current, 0x400);
     SetPaletteColors(current, 0, 0x100);
     g_game->done = 0;
     for (int i = 0; i < 0x100; i++) {
@@ -510,10 +395,10 @@ int IsFadeDone()
 // shows the palette and schedules the next tick.
 #define FADE_TICK(k)                                                        \
     {                                                                       \
-        int v = g_game->current[k] + g_game->delta[k];                      \
-        g_game->current[k] = g_game->delta[k] < 0                           \
-            ? (v < g_game->target[k] ? g_game->target[k] : v)               \
-            : (v > g_game->target[k] ? g_game->target[k] : v);              \
+        int v = ((unsigned char*)g_game->currentPalette)[k] + ((char*)g_game->fadeTable)[k];                      \
+        ((unsigned char*)g_game->currentPalette)[k] = ((char*)g_game->fadeTable)[k] < 0                           \
+            ? (v < ((unsigned char*)g_game->desiredPalette)[k] ? ((unsigned char*)g_game->desiredPalette)[k] : v)               \
+            : (v > ((unsigned char*)g_game->desiredPalette)[k] ? ((unsigned char*)g_game->desiredPalette)[k] : v);              \
     }
 
 // FUNCTION: 0x41e270
@@ -526,9 +411,9 @@ void StepPaletteFade(void)
             FADE_TICK(i * 4 + 2)
             FADE_TICK(i * 4 + 3)
         }
-        if (memcmp(g_game->current, g_game->target, 0x400) == 0)
+        if (memcmp(((unsigned char*)g_game->currentPalette), ((unsigned char*)g_game->desiredPalette), 0x400) == 0)
             g_game->done = 1;
-        SetPaletteColors(g_game->current, 0, 0x100);
+        SetPaletteColors(((unsigned char*)g_game->currentPalette), 0, 0x100);
         g_game->nextTime = GetTicks() + 1;
     }
 }
@@ -540,7 +425,7 @@ void StepPaletteFade(void)
 // against the per-stat values at +0x3918f, one row every 0x14 pixels.
 #define STAT_BAR(n, px, fmt)                                                \
     bar.h.x = px;                                                           \
-    bar.value = g_game->slots[i].stats[n];                                  \
+    bar.value = g_game->slots_38dd9[i].stats[n];                                  \
     bar.max = g_game->maxStats[n];                                          \
     bar.scale = max(bar.value * 0.06666667f, 1.0f);                         \
     wsprintfA(bar.h.name, fmt, i);                                          \
@@ -570,9 +455,9 @@ void FillEndGameStatistics(void)
     button.h.flag = 1;
     button.h.attribs = 0x400;
     button.flags |= 1;
-    g_game->bar = 0;
+    g_game->field_3906b = 0;
     for (int i = 0; i < 10; i++) {
-        if (g_game->slots[i].name[0]) {
+        if (g_game->slots_38dd9[i].active) {
             wsprintfA(name, "PlayerColor%d", i);
             strcpy(button.h.name, name);
             button.h.x = 0x10;
@@ -590,7 +475,7 @@ void FillEndGameStatistics(void)
             }
             menu->language = menu->values[1];
             int h = GetFontLineHeight();
-            AddTextGadget(g_game->gui.layer, "TEXT", g_game->slots[i].name, 0x10,
+            AddTextGadget(g_game->gui.layer, "TEXT", (char*)&g_game->slots_38dd9[i], 0x10,
                          (0x14 - h) / 2 + bar.h.y, -1, 2);
             entries[entries->count].attribs = 2;
             entries[entries->count].width = 0x5a;
@@ -706,25 +591,25 @@ void __stdcall HandleEndMissionClick(Gui* gadget)
             FreeSurface(g_game->image_3907b);
         if (g_game->palette_3907f != 0)
             GameFreeThunk(g_game->palette_3907f);
-        if (g_game->current != 0)
-            GameFreeThunk(g_game->current);
-        if (g_game->target != 0)
-            GameFreeThunk(g_game->target);
-        if (g_game->delta != 0)
-            GameFreeThunk(g_game->delta);
+        if (((unsigned char*)g_game->currentPalette) != 0)
+            GameFreeThunk(((unsigned char*)g_game->currentPalette));
+        if (((unsigned char*)g_game->desiredPalette) != 0)
+            GameFreeThunk(((unsigned char*)g_game->desiredPalette));
+        if (((char*)g_game->fadeTable) != 0)
+            GameFreeThunk(((char*)g_game->fadeTable));
         g_game->lastFrame = 0;
         g_game->image_3907b = 0;
         g_game->palette_3907f = 0;
-        g_game->current = 0;
-        g_game->target = 0;
-        g_game->delta = 0;
+        g_game->currentPalette = 0;
+        g_game->desiredPalette = 0;
+        g_game->fadeTable = 0;
         GameFreeThunk(data->items);
         GameFreeThunk(data);
-        if (g_game->flag4)
+        if (g_game->bits_2bee.flag4)
             LeaveNetGame();
-        g_game->sound->SetTrackCategory(4);
+        ((Sound*)g_game->field_10)->SetTrackCategory(4);
         Display* display = GetDisplay();
-        display->paletteBrightness = g_game->savedPaletteBrightness;
+        display->paletteBrightness = *(float*)&g_game->savedPaletteBrightness;
         return;
     }
     // LoadGame and SaveGame reset the gadget (ClearSelectedGadget) twice in a row;
@@ -752,17 +637,17 @@ void __stdcall HandleEndMissionClick(Gui* gadget)
         }
         RegisterDataArchives();
         PlaySoundByName("BigButton", 0);
-        g_game->frontendSubstateRequest = 10;
+        g_game->field_2bc0 = 10;
         SetCursorOverlayEnabled(1);
         SetCursorMode(0x14);
-        if (g_game->mapInfo->SelectMission(FindGadgetChecked(entries, "Missions")->selected)) {
+        if (g_game->net->SelectMission(FindGadgetChecked(entries, "Missions")->selected)) {
             EnterMainMenuState();
-            g_game->bit2_2a44 = 0;
-            g_game->bit3_2a44 = 1;
-            g_game->bit0_2a44 = 0;
+            g_game->bits_2a44.bit2 = 0;
+            g_game->bits_2a44.bit3 = 1;
+            g_game->bits_2a44.bit0 = 0;
             SetMissionType(1);
-            g_game->bit4_3923b = 0;
-            g_game->bit2_3923b = 0;
+            g_game->bits_3923b_2.bit4_3923b = 0;
+            g_game->bits_3923b_2.bit2_3923b = 0;
             SetFrontendState(13, 757, "c:\\cavedog\\wargame\\endgame.cpp");
             SetGameMode(2);
             return;
@@ -777,19 +662,19 @@ void __stdcall HandleEndMissionClick(Gui* gadget)
     } else if (IsCurrentGadgetNamed(gadget, "Difficulty")) {
         PlaySoundByName("SKirmish", 0);
         if (g_game->difficulty == 0) {
-            g_game->options->difficulty = 1;
+            ((Options*)g_game->options)->difficulty = 1;
             g_game->difficulty = 1;
             ClearSelectedGadget(gadget);
             return;
         }
         if (g_game->difficulty == 1) {
-            g_game->options->difficulty = 2;
+            ((Options*)g_game->options)->difficulty = 2;
             g_game->difficulty = 2;
             ClearSelectedGadget(gadget);
             return;
         }
         if (g_game->difficulty == 2) {
-            g_game->options->difficulty = 0;
+            ((Options*)g_game->options)->difficulty = 0;
             g_game->difficulty = 0;
             ClearSelectedGadget(gadget);
             return;
@@ -801,10 +686,10 @@ void __stdcall HandleEndMissionClick(Gui* gadget)
 // FUNCTION: 0x41f040
 int ShouldShowNextMission()
 {
-    if (g_game->mapInfo->GetGameType() == 1 &&
+    if (g_game->net->GetGameType() == 1 &&
         ((g_game->won == 0 &&
-          g_game->mapInfo->MissionExists(g_game->mission + 1) == 0) ||
-         g_game->mapInfo->MissionExists(g_game->mission + 1) != 0)) {
+          g_game->net->MissionExists(g_game->mission + 1) == 0) ||
+         g_game->net->MissionExists(g_game->mission + 1) != 0)) {
         return 1;
     }
     return 0;
@@ -816,10 +701,10 @@ static inline int HasNextMission()
     // Casts stay: this helper is inlined into OpenEndMissionScreen and
     // EnableEndMissionButtons, which RunEndGameState calls, so its allocation
     // follows them (docs/c2-regalloc.md).
-    if (g_game->mapInfo->GetGameType() == 1 &&
+    if (g_game->net->GetGameType() == 1 &&
         ((g_game->won == 0 &&
-          ((Mission*)g_game->mapInfo)->MissionExists(g_game->mission + 1) == 0) ||
-         ((Mission*)g_game->mapInfo)->MissionExists(g_game->mission + 1) != 0)) {
+          ((Mission*)g_game->net)->MissionExists(g_game->mission + 1) == 0) ||
+         ((Mission*)g_game->net)->MissionExists(g_game->mission + 1) != 0)) {
         return 1;
     }
     return 0;
@@ -835,7 +720,7 @@ static inline int HasNextMission()
 void __stdcall OpenEndMissionScreen()
 {
     BlankScreen();
-    FillSurface(g_game->offscreen, 0);
+    FillSurface(((void*)g_game->screen), 0);
     FlipScreen();
     Layer* layer = LoadGuiLayer(&g_game->gui, "ENDMSN.GUI", 0x80);
     layer->handler = (void (__stdcall*)(void*))HandleEndMissionClick;
@@ -845,7 +730,7 @@ void __stdcall OpenEndMissionScreen()
     char* entries = (char*)layer->entries;
     char next = HasNextMission();
     if (next) {
-        g_game->mapInfo->SelectMission(g_game->mission);
+        g_game->net->SelectMission(g_game->mission);
         LoadPictureCached("outcome1", 1, 1, 0);
         strcpy(layer->entries->okName, "Start");
     } else {
@@ -854,7 +739,7 @@ void __stdcall OpenEndMissionScreen()
     }
     next = HasNextMission();
     if (next) {
-        int count = g_game->mapInfo->BuildMissionList((char**)&data->items);
+        int count = g_game->net->BuildMissionList((char**)&data->items);
         data->items = BuildScrollItems1((char*)data->items, g_game->campaignMissionStatus, count);
         // Suspected original bug: this finds the first 'U' mission flag but
         // the index is never used (perhaps a lost "select the first
@@ -872,13 +757,13 @@ void __stdcall OpenEndMissionScreen()
         ApplyDifficultyButtons();
     }
     Player* player = &g_game->players[g_game->localPlayer];
-    int x = g_game->screenWidth / 2;
+    int x = g_game->width_37e1f / 2;
     if (g_game->won != 0 && (player->active == 0 || !player->info->bit6)) {
-        DrawFrame(layer->surface, GetGafFrame(g_game->endgameBadgeSeqA, 0), x, 0x1c);
+        DrawFrame(layer->surface, GetGafFrame(g_game->image_14813, 0), x, 0x1c);
     } else {
-        DrawFrame(layer->surface, GetGafFrame(g_game->endgameBadgeSeqB, 0), x, 0x1c);
+        DrawFrame(layer->surface, GetGafFrame(g_game->image_14817, 0), x, 0x1c);
     }
-    if (g_game->flag4)
+    if (g_game->bits_2bee.flag4)
         SetTranslatedTextByName(&g_game->gui, "MainMenu", "OK", 0);
     SetKeyboardInput(&g_game->gui, 1);
     RenderLayer(&g_game->gui, 0x40);
@@ -920,7 +805,7 @@ void __stdcall ActivatePlayerGadgets(char* prefix)
 {
     char name[64];
     for (int i = 0; i < 10; i++) {
-        if (g_game->slots[i].name[0]) {
+        if (g_game->slots_38dd9[i].active) {
             wsprintfA(name, "%s%d", prefix, i);
             SetGadgetActiveByName(&g_game->gui, name, 1);
         }
@@ -937,7 +822,7 @@ void ShowEndMissionScreen()
     MarkLayerChanged(&g_game->gui);
     MarkChanged(&g_game->gui);
     SetGameMode(7);
-    g_game->state = 7;
+    g_game->field_39057 = 7;
 }
 
 // FUNCTION: 0x41f680
@@ -947,7 +832,7 @@ void __stdcall HandleCdCheckClick(Gui* gadget)
         if (IsCurrentGadgetNamed(gadget, "OK")) {
             PlaySoundByName("Options", 0);
             if (FindGameCdDrive(0)) {
-                g_game->state = 5;
+                g_game->field_39057 = 5;
                 return;
             }
             OpenMessageBox(&g_game->gui,
@@ -974,10 +859,10 @@ void OpenCdCheckDialog()
 // FUNCTION: 0x41f760
 int DrawEndGameFrame()
 {
-    if (g_game->state == 1) {
+    if (g_game->field_39057 == 1) {
         Display* d = GetDisplay();
-        DrawSurface(g_game->offscreen, g_game->lastFrame, d->width, d->height);
-        DrawMessages(g_game->offscreen);
+        DrawSurface(((void*)g_game->screen), g_game->lastFrame, d->width, d->height);
+        DrawMessages(((void*)g_game->screen));
         UpdateMenu(&g_game->gui);
         BlitMenuLayers(&g_game->gui, 0, 0);
         ShowSoftwareCursor();
@@ -989,7 +874,7 @@ int DrawEndGameFrame()
 
 #define ENABLE_BARS(label) \
     for(int i=0;i<10;++i) { \
-        if(g_game->slots[i].name[0]) { \
+        if(g_game->slots_38dd9[i].active) { \
             wsprintfA(text,"%s%d",label,i); \
             SetGadgetActiveByName(&g_game->gui,text,1); \
         } \
@@ -1017,50 +902,50 @@ void __stdcall RunEndGameState()
     char text[64];
     int event[6];
     unsigned palette[256];
-    SetOffscreenSurface(g_game->offscreen);
+    SetOffscreenSurface(((void*)g_game->screen));
     HandleNetPackets();
-    switch(g_game->state) {
+    switch(g_game->field_39057) {
     case 0:
-        if(g_seams.map->GetGameType(g_game->mapInfo)==3) {
+        if(g_seams.map->GetGameType(g_game->net)==3) {
             Display* e=GetDisplay();
             g_game->lastFrame=AllocSurface("Copy of last game frame",e->width,e->height);
-            DrawSurface(g_game->lastFrame,g_game->offscreen,e->width,e->height);
+            DrawSurface(g_game->lastFrame,((void*)g_game->screen),e->width,e->height);
             ReportGameEvent(7);
-            g_game->state=1;
+            g_game->field_39057=1;
             Player* player=&g_game->players[g_game->localPlayer];
-            if(player->message && player->message!=2) {
-                const char* name=GetRejectReasonText(player->message);
+            if(player->rejectReason && player->rejectReason!=2) {
+                const char* name=GetRejectReasonText(player->rejectReason);
                 OpenMessageBox(&g_game->gui,Translate(name),320,1,1);
                 MarkChanged(&g_game->gui);
                 MarkLayerChanged(&g_game->gui);
-                player->message=0;
+                player->rejectReason=0;
             }
-        } else { g_game->lastFrame=0; g_game->state=2; }
+        } else { g_game->lastFrame=0; g_game->field_39057=2; }
         break;
     case 1:
         if(IsScreenNamed(&g_game->gui,"MSGBOX.GUI")) {
-            if(g_game->state==1) {
+            if(g_game->field_39057==1) {
                 Display* e=GetDisplay();
-                DrawSurface(g_game->offscreen,g_game->lastFrame,e->width,e->height);
-                DrawMessages(g_game->offscreen);
+                DrawSurface(((void*)g_game->screen),g_game->lastFrame,e->width,e->height);
+                DrawMessages(((void*)g_game->screen));
                 UpdateMenu(&g_game->gui);
                 BlitMenuLayers(&g_game->gui,0,0);
                 ShowSoftwareCursor();
                 FlipScreen();
             }
-        } else g_game->state=2;
+        } else g_game->field_39057=2;
         break;
     case 2:
         g_game->steps=10;
         g_game->nextTime=GetTicks()+1;
         g_game->done=0;
         SetCursorOverlayEnabled(0);
-        g_game->state=3;
+        g_game->field_39057=3;
         break;
     case 3:
         if(!g_game->done) {
             event[1]=0; event[0]=0;
-            event[2]=g_game->screenWidth; event[3]=g_game->screenHeight;
+            event[2]=g_game->width_37e1f; event[3]=g_game->field_37e23;
             if(g_game->nextTime<GetTicks()) {
                 FadeRectangle(0,event,g_game->steps-29);
                 g_game->nextTime=GetTicks()+1;
@@ -1068,39 +953,39 @@ void __stdcall RunEndGameState()
                 if(!g_game->steps) g_game->done=1;
             }
         } else {
-            Force640x480Surfaces(); g_game->state=4;
-            SetOffscreenSurface(g_game->offscreen);
+            Force640x480Surfaces(); g_game->field_39057=4;
+            SetOffscreenSurface(((void*)g_game->screen));
         }
         break;
     case 4:
-        if(g_seams.map->GetGameType(g_game->mapInfo)==1 && !FindGameCdDrive(0)) {
+        if(g_seams.map->GetGameType(g_game->net)==1 && !FindGameCdDrive(0)) {
             Layer* l=LoadGuiLayer(&g_game->gui,"CDCHECK.GUI",0x101);
             l->handler=(void (__stdcall*)(void*))HandleCdCheckClick;
             SetCursorOverlayEnabled(1);
             SetKeyboardInput(&g_game->gui,1);
             RenderLayer(&g_game->gui,0x40);
-            g_game->state=8;
-        } else g_game->state=5;
+            g_game->field_39057=8;
+        } else g_game->field_39057=5;
         break;
     case 5: {
         SetUpEndMissionScreen();
-        int next=g_seams.map->MissionExists(g_game->mapInfo, 0, g_game->mission+1);
-        if(g_seams.map->GetGameType(g_game->mapInfo)==1 && g_game->bit4_3923b && !next && !g_game->noMovie) {
+        int next=g_seams.map->MissionExists(g_game->net, 0, g_game->mission+1);
+        if(g_seams.map->GetGameType(g_game->net)==1 && g_game->bits_3923b_2.bit4_3923b && !next && !g_game->skip) {
             if((unsigned char)GetDisplay()->network) {
                 if(!g_game->players[0].info->side) SetFrontendState(4,0x4ce,"c:\\cavedog\\wargame\\endgame.cpp");
                 else SetFrontendState(5,0x4d3,"c:\\cavedog\\wargame\\endgame.cpp");
             } else SetFrontendState(2,0x4d9,"c:\\cavedog\\wargame\\endgame.cpp");
             SetGameMode(2);
-        } else if(g_seams.map->GetGameType(g_game->mapInfo)==1 && g_game->bit4_3923b && g_game->image_3907b) {
+        } else if(g_seams.map->GetGameType(g_game->net)==1 && g_game->bits_3923b_2.bit4_3923b && g_game->image_3907b) {
             memset(palette,0,sizeof(palette));
-            StartPaletteFade(g_game->palette_3907f,(unsigned char*)palette,5);
+            StartPaletteFade((unsigned char*)g_game->palette_3907f,(unsigned char*)palette,5);
             g_game->nextTime=GetTicks()+1;
-            g_game->state=6;
-            DrawSurface(g_game->offscreen,g_game->image_3907b,0,0);
+            g_game->field_39057=6;
+            DrawSurface(((void*)g_game->screen),g_game->image_3907b,0,0);
         } else {
             OpenEndMissionScreen(); FillEndGameStatistics(); EnableEndMissionButtons();
             MarkLayerChanged(&g_game->gui); MarkChanged(&g_game->gui);
-            g_game->state=7;
+            g_game->field_39057=7;
         }
         break;
     }
@@ -1116,27 +1001,27 @@ void __stdcall RunEndGameState()
             if(g_game->deadline<GetTicks()) {
                 GetCurrentMouseEvent(event);
                 if(PopKey() || g_game->cursorKeyFlags) {
-                    g_game->sound->StopStream();
+                    ((Sound*)g_game->field_10)->StopStream();
                     OpenEndMissionScreen(); EnableEndMissionButtons(); FillEndGameStatistics();
                     MarkLayerChanged(&g_game->gui); MarkChanged(&g_game->gui);
-                    g_game->state=7;
+                    g_game->field_39057=7;
                 }
                 unsigned deadline=GetTickRate()*5+g_game->deadline;
                 if(deadline<GetTicks())
-                    DrawOutlinedString(g_game->offscreen,Translate("Click to continue."),g_game->gui.colours[0],g_game->gui.colours[0xf],g_game->screenHeight-20);
+                    DrawOutlinedString(((void*)g_game->screen),Translate("Click to continue."),g_game->gui.colours[0],g_game->gui.colours[0xf],g_game->field_37e23-20);
             }
         }
         break;
     case 7: {
         if(StatsComplete()) {
             EnableKeyCommands(&g_game->gui);
-            g_game->state=8; SetCursorMode(19); SetCursorOverlayEnabled(1);
+            g_game->field_39057=8; SetCursorMode(19); SetCursorOverlayEnabled(1);
             break;
         }
         UpdateMenu(&g_game->gui); BlitMenuLayers(&g_game->gui,0,0);
         int skip=0;
         int clicked=PopKey();
-        if(clicked && g_seams.map->GetGameType(g_game->mapInfo)!=3) skip=1;
+        if(clicked && g_seams.map->GetGameType(g_game->net)!=3) skip=1;
         if(g_game->deadline<GetTicks() || skip) {
             if(clicked) {
                 { ENABLE_BARS("Kills") }
@@ -1148,7 +1033,7 @@ void __stdcall RunEndGameState()
                 { ENABLE_BARS("Score") }
                 PlaySoundByName("ActivateAllStatBars",0);
             }
-            switch(g_game->bar) {
+            switch(g_game->field_3906b) {
             case 0: { ENABLE_BARS("Kills") } PlaySoundByName("EndGameStatBar",0); break;
             case 1: { ENABLE_BARS("Losses") } PlaySoundByName("EndGameStatBar",0); break;
             case 2: { ENABLE_BARS("EProduced") } PlaySoundByName("EndGameStatBar",0); break;
@@ -1157,12 +1042,12 @@ void __stdcall RunEndGameState()
             case 5: { ENABLE_BARS("MWasted") } PlaySoundByName("EndGameStatBar",0); break;
             case 6: { ENABLE_BARS("Score") } PlaySoundByName("EndGameScore",0); break;
             }
-            if(g_seams.map->GetGameType(g_game->mapInfo)==3) {
+            if(g_seams.map->GetGameType(g_game->net)==3) {
                 Player* player=&g_game->players[g_game->localPlayer];
                 for(int j=0;j<2;++j) SendPlayerEconomy(player,0,0);
             }
             g_game->deadline=GetTicks()+10;
-            ++g_game->bar;
+            ++g_game->field_3906b;
         }
         break;
     }

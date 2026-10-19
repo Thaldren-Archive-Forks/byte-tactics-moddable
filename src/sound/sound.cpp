@@ -86,17 +86,9 @@ struct SoundCat_0047fd70 {
     Slot_0047fd70 slots[24];           // +0x40
 };
 
-struct PlayerView {
-    char unknown_0[0x7c];
-    unsigned char* explored;           // +0x7c
-    unsigned int exploredWidth;        // +0x80
-    unsigned int exploredHeight;       // +0x84
-    char unknown_88[0x14b - 0x88];
-};
+#include "../network/player.h"
 
 #include "../game/game.h"
-
-inline Player* Game::Current(void) { return &players[playerIndex]; }
 
 // One queued speech (0x11 bytes).
 struct SpeechEntry {
@@ -446,14 +438,14 @@ int __stdcall PlaySoundAt(int index, Pos_0047f300* pos, int param_3)
 
     // pi stays an int; the player address goes through the inline Current() to get the original's lea.
     int pi = g_game->playerIndex;
-    PlayerView* player = (PlayerView*)g_game->Current();
-    PlayerView* player2 = (PlayerView*)g_game->Current();
+    Player* player = g_game->Current();
+    Player* player2 = g_game->Current();
     // vis stays an int (char or bool changes the 1/0 pair); the flag is compared to 2 explicitly.
     int vis;
     if ((g_game->mapFlags & 2) == 2) {
         int tx = pos->x >> 5;
         int ty = (pos->z - (pos->y >> 1)) >> 5;
-        if (tx < player->exploredWidth && ty < player->exploredHeight
+        if (tx < (unsigned int)player->exploredWidth && ty < (unsigned int)player->exploredHeight
             && player->explored[player2->exploredWidth * ty + tx] != 0)
             vis = 1;
         else

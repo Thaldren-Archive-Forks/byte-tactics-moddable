@@ -38,13 +38,7 @@ struct UnitDef_0048cf30 {
 // pos stays as x and z: util/vec3.h adds 14 symbol ids and 0x48cf30 matches only within 5 of this count.
 #include "../units/unit.h"
 
-// Kept a view of its own at this file's symbol count; the header's names.
-struct PlayerView {
-    char unknown_0[0x67];
-    Unit* unitsBegin;                   // +0x67
-    Unit* unitsEnd;                     // +0x6b
-    char unknown_6f[0x14b - 0x6f];
-};
+#include "../network/player.h"
 
 #include "../game/game.h"
 
@@ -76,7 +70,7 @@ void __stdcall IssueOrderToSelection(OrderTypeEntry* entry, unsigned char mode,
         else
             except = (Unit*)((char*)g_game->units + 280 * g_game->hoverUnitId);
     }
-    PlayerView* p = &((PlayerView*)g_game->players)[g_game->localPlayer];
+    Player* p = &g_game->players[g_game->localPlayer];
     int count = 0;
     int sum_x = 0;
     int sum_z = 0;

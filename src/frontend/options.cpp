@@ -230,14 +230,7 @@ struct Opts_0045f1d0 {                 // 0x14b bytes
     char unknown_a5[0x14b - 0xa5];
 };
 
-// The header's type, kept local: its declarations would move this file's
-// many functions (docs/c2-regalloc.md).
-struct PlayerView {
-    int active;                       // +0x00
-    char unknown_4[0x27 - 0x4];
-    Opts_0045f1d0* info;              // +0x27
-    char unknown_2b[0x14b - 0x2b];
-};
+#include "../network/player.h"
 
 // Note: Rule_0045f1d0 (24 bytes, startMetal at +0xc, startEnergy at +0x10)
 // and RuleSet_0045f1d0 (startType at +0x118) are the SAME memory: the exe
@@ -1007,8 +1000,8 @@ void __stdcall SetGadgetTextFromValueTable(Entry_0045c010* table, char* name, in
 // FUNCTION: 0x45c070
 void __stdcall HandleGameSpeedSlider(Menu_0045b800* obj, int unused)
 {
-    PlayerView* player = &((PlayerView*)g_game->players)[g_game->localPlayer];
-    if (player->active == 0 || !player->info->u.flag_9b_6) {
+    Player* player = &g_game->players[g_game->localPlayer];
+    if (player->active == 0 || !((Opts_0045f1d0*)player->info)->u.flag_9b_6) {
         Gadget* e = FindGadgetChecked_D(obj->holder->entries, "GAME");
         if (e != 0) {
             // Written twice, as in the original.
