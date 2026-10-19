@@ -1,17 +1,40 @@
-// Mission: one campaign or map (Thaldren's MapInfo, 0xec4 bytes), the object
-// at g_game+0x391e9. The one declaration of the class: map_list.cpp defines
-// the methods and the files that call them include this. The types behind the
-// pointers (MissionUnit, MissionRule, MissionFeature) stay private to the
-// files that read them.
 #ifndef MISSION_H
 #define MISSION_H
 
 #include "../util/tdf.h"
 
-struct MissionUnit;
 struct MissionRule;
-struct MissionFeature;
 struct Vec3_00437320;
+
+struct MissionUnit {
+    char* name;
+    char* ident;
+    char* initialMission;
+    int x;
+    int y;
+    int z;
+    short angle;
+    short health;
+    int creationCountdown;
+    short buildPriority;
+    unsigned char player;
+    union {
+        struct {
+            unsigned char initialGroup : 4;
+            unsigned char missionCritical : 1;
+            unsigned char aiIgnore : 1;
+            unsigned char aiPriorityTarget : 1;
+            unsigned char immunity : 1;
+        };
+        unsigned char flags;
+    };
+};
+
+struct MissionFeature {
+    char name[0x80];
+    int x;
+    int y;
+};
 
 class Mission {
 public:

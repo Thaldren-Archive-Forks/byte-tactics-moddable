@@ -32,7 +32,7 @@ struct Amount;
 struct Angles_0049be60;
 struct AnimEntry_00421f20;
 struct AnimEntry_00429700;
-struct AnimManager_00421f20;
+struct FeatureAnimPool;
 struct AnimPair_00423550;
 struct AnimSeq_00445110;
 struct AnimSrc_004233a0;
@@ -2686,11 +2686,7 @@ struct Packet_2 {  // 0x6 bytes, 1 view
     short z;  // +0x4
 };
 
-struct Rot16 {  // 0x6 bytes, 12 views
-    short x;  // +0x0
-    short y;  // +0x2
-    short z;  // +0x4
-};
+#include "../src/util/rot16.h"
 
 struct FeatureSpot {  // 0x30 bytes, 13 views
     short prev;  // +0x0
@@ -4495,23 +4491,7 @@ struct FeatureDef_00421eb0 {  // 0x98 bytes, 1 view
     Cell_00421eb0 footprint;  // +0x94
 };
 
-struct AnimEntry_00421f20 {  // 0x30 bytes, 1 view
-    short next;  // +0x0
-    short prev;  // +0x2
-    char unknown_4[44];
-};
-
-#include "../src/map/anim_manager_00421f20.h"
-
-struct FeatureUnit_00421f20 {  // 0x118 bytes, 1 view
-    char unknown_0[146];
-    int field_92;  // +0x92
-    char unknown_96[16];
-    unsigned short field_a6;  // +0xa6
-    char unknown_a8[104];
-    int flags_110;  // +0x110
-    int flags_114;  // +0x114
-};
+#include "../src/map/feature_anim_pool.h"
 
 struct List_00421f20 {  // 0x24 bytes, 1 view
     char unknown_0[28];
@@ -4531,16 +4511,7 @@ struct Pool_00422170 {  // 0x10 bytes, 1 view
     int headC;  // +0xc
 };
 
-class Class_004c9390 {  // 0x4 bytes, 85 views
-public:
-    char* data;  // +0x0
-    Class_004c9390(Class_004c9390&);
-    ~Class_004c9390(void);
-    Class_004c9390(void);
-    Class_004c9390* Assign(Class_004c9390*);
-    void ReleaseRef(void);
-    Class_004c9390& operator=(Class_004c9390&);
-};
+#include "../src/map/class_004c9390.h"
 
 struct Elem_004222e0 {  // 0x4 bytes, 1 view
     Class_004c9390 name;  // +0x0

@@ -19,6 +19,7 @@
 
 #include "../util/tdf.h"
 #include "../util/hapi_bank.h"
+#include "../util/rot16.h"
 
 #pragma pack(push, 1)
 
@@ -57,10 +58,6 @@ static inline Vec3 FeatureVec3(int ax, int ay, int az)
     v.z = az;
     return v;
 }
-
-struct Rot16 {
-    short x, y, z;
-};
 
 struct Fixed {
     unsigned short frac;
@@ -356,12 +353,6 @@ struct Obj {
     unsigned short entry;              // +0x2c
 };
 
-struct MissionFeature {
-    char name[0x80];
-    int x;                             // +0x80
-    int y;                             // +0x84
-};
-
 struct FeatureName {
     char name[0x80];
 };
@@ -397,20 +388,10 @@ struct Model {
 #include "../game/game.h"
 #pragma pack(pop)
 
-// The reference-counted string handle (StringRef elsewhere). It keeps this
-// view: under /Gi the length of the type's name moves this file's symbol ids,
-// and 0x424050, 0x424840 and 0x424890 only match at the current ones.
-class Class_004c9390 {
-public:
-    char* data;                        // +0x0
-
-    void ReleaseRef();
-};
+#include "class_004c9390.h"
 
 struct Elem {
     Class_004c9390 name;               // +0x0
-
-    ~Elem() { name.ReleaseRef(); }
 };
 
 extern Game* g_game;
