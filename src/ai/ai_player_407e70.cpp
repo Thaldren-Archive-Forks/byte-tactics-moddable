@@ -98,22 +98,6 @@ static inline Vec3 Offset(int angle, int distance)
 int __stdcall SumUnitRatingsInRange(int index, Vec3* pos, int range);
 #include "../../interfaces/seams.h"
 
-// Constructor 0x407d40 defined again, unannotated: emits the vtable and the
-// scalar deleting destructor.
-// FUNCTION: 0x407e70 ??_GSpatialTimer@@UAEPAXI@Z
-SpatialTimer::SpatialTimer(SquadManager* p, void* q)
-    : SquadTimer(p, (Group*)q)
-{
-    // Half of g_game's mapWidthWorld and mapHeightWorld, in 16.16 fixed point.
-    int x = (int)(g_game->baseX / 2 * 65536.0);
-    best = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
-    x = (int)(g_game->baseX / 2 * 65536.0);
-    probe = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
-    x = (int)(g_game->baseX / 2 * 65536.0);
-    step = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
-    bestRating = 0;
-}
-
 // FUNCTION: 0x407e90
 void SpatialTimer::OnTimer()
 {

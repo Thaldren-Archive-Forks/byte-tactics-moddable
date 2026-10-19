@@ -546,10 +546,10 @@ void __stdcall CmdEdge(CommandArgs* args)
 void __stdcall CmdSearch(CommandArgs* args)
 {
     if (args->GetIntArg(1, 0)) {
-        ((Pathfinder*)g_game->pathfinder)->stepsPerTick = args->GetIntArg(1, 0);
+        g_game->pathfinder->stepsPerTick = args->GetIntArg(1, 0);
     }
     if (args->count == 3) {
-        ((Pathfinder*)g_game->pathfinder)->baseScale = (int)(atof(args->GetArg(2, DAT_005119b8)) * 65536.0);
+        g_game->pathfinder->baseScale = (int)(atof(args->GetArg(2, DAT_005119b8)) * 65536.0);
     }
 }
 
@@ -1421,7 +1421,7 @@ void __stdcall DrawMapDebugOverlay(void* surface)
                         DrawLine(surface, p[1].x, p[1].y, p[3].x, p[3].y, color);
                     }
                 }
-                PathCell* cell = ((Pathfinder*)g_game->pathfinder)->grid.At(x, y);
+                PathCell* cell = g_game->pathfinder->grid.At(x, y);
                 if (cell->flags & 4) {
                     SetFont((int)g_game->fontSmlFont);
                     SetTextColors(HarnessViewRand() & 255, GetTextKeyColor());
