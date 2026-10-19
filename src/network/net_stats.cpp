@@ -11,13 +11,7 @@
 #include <io.h>
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x148e7];
-    int animplayCursorCount;           // +0x148e7
-    void** animplayCursors;            // +0x148eb
-    char unknown_148ef[0x38a47 - 0x148ef];
-    int gameTick;                      // +0x38a47
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 struct Pair_00419560 {
@@ -81,8 +75,8 @@ void RegisterVtolOrders()
 // FUNCTION: 0x415b30
 void StepAllGafSequences(void)
 {
-    for (int i = g_game->animplayCursorCount - 1; i >= 0; i--)
-        StepGafSequence(g_game->animplayCursors[i]);
+    for (int i = g_game->count_148e7 - 1; i >= 0; i--)
+        StepGafSequence(((void **)g_game->data_148eb)[i]);
 }
 
 // FUNCTION: 0x415b60
@@ -196,7 +190,7 @@ int BitReader::ReadSignedBits(int bits)
 // FUNCTION: 0x415e90
 void ResetNetStats()
 {
-    DAT_00511c20 = g_game->gameTick;
+    DAT_00511c20 = g_game->ticks;
     g_messageBytesReceived = 0;
     g_messageBytesSent = 0;
     Pair_00419560* p = (Pair_00419560*)&g_messageBytesByType[1];
