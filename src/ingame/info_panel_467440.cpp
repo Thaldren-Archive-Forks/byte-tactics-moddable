@@ -4,16 +4,12 @@
 // last loop's player pointer from eax to edx.
 // Five loops over the unit array (stride 0x118).
 
+#include "../util/vec3.h"
+
 #pragma pack(push, 1)
 
-struct Vec3_00467440 {
-    int x;
-    int y;
-    int z;
-};
-
 union UnitPos_00467440 {
-    Vec3_00467440 vec;
+    Vec3 vec;
     short half[6];                     // the words of x, y and z: [1] x whole, [3] y whole, [5] z whole
 };
 
@@ -23,22 +19,7 @@ union UnitPos_00467440 {
 
 struct PlayerInfo_00467440;
 
-struct Unit {
-    char unknown_0[0x6a];
-    UnitPos_00467440 pos;              // +0x6a
-    char unknown_76[0x92 - 0x76];
-    UnitDef* def;                      // +0x92
-    PlayerInfo_00467440* player;       // +0x96
-    char unknown_9a[0xb0 - 0x9a];
-    int workTime;                      // +0xb0
-    char unknown_b4[0xff - 0xb4];
-    unsigned char playerIndex;            // +0xff
-    char unknown_100[0x10e - 0x100];
-    unsigned char activateFlags;           // +0x10e
-    char cobStateFlags;
-    unsigned int flags;                // +0x110
-    char unknown_114[0x118 - 0x114];
-};
+#include "../units/unit.h"
 
 struct MapSize_00467440 {
     unsigned int width;                // +0x0
@@ -101,7 +82,7 @@ public:
     virtual void MarkUnitsInRadarOrSonarRadius(Unit* unit);
     int radarRangeSq;                  // +0x4
     int sonarRangeSq;                  // +0x8
-    Vec3_00467440 pos;                 // +0xc
+    Vec3 pos;                 // +0xc
 };
 
 class RadarJamVisitor {
@@ -154,8 +135,8 @@ void UpdateSensorRadarAndCloak(void)
         if (a->flags & 0x10000000) {
             a->flags &= ~0x1000;
             if (a->playerIndex == player
-                || (a->player->allied[pl->index] != 0
-                    && (a->player->data->flags_97 & 0x40) != 0)
+                || (((PlayerInfo_00467440*)a->player)->allied[pl->index] != 0
+                    && (((PlayerInfo_00467440*)a->player)->data->flags_97 & 0x40) != 0)
                 || (*(int*)pl != 0 && (pl->data->flags_9b & 0x40) != 0)) {
                 a->flags |= 0x300;
             } else {
@@ -169,18 +150,18 @@ void UpdateSensorRadarAndCloak(void)
             if (u->def->radardistance != 0 || u->def->sonardistance != 0) {
                 // t is computed before b is loaded, then squared.
                 short a = u->def->radardistance;
-                int t = a + u->pos.half[3] * 2;
+                int t = a + u->yWhole * 2;
                 short b = u->def->sonardistance;
                 t = t * t;
                 int s = (int)b * (int)b;
                 if (a <= b) {
                     a = b;
                 }
-                Vec3_00467440* pp = &u->pos.vec;
+                Vec3* pp = &u->pos;
                 DetectionVisitor v;
                 v.radarRangeSq = t;
                 v.sonarRangeSq = s;
-                v.pos = u->pos.vec;
+                v.pos = u->pos;
                 g_seams.map->VisitObjectsInRange((Vec3*)pp, (int)a << 16, (UnitVisitor*)&v);
             }
         }
@@ -192,13 +173,13 @@ void UpdateSensorRadarAndCloak(void)
         if ((u->flags & 0x10000000) && (ff = u->playerIndex, 1) && ff != pl->index && (u->activateFlags & 1)) {
             if (u->def->radardistancejam != 0) {
                 int r = (int)u->def->radardistancejam << 16;
-                Vec3_00467440* pp = &u->pos.vec;
+                Vec3* pp = &u->pos;
                 RadarJamVisitor v;
                 g_seams.map->VisitObjectsInRange((Vec3*)pp, r, (UnitVisitor*)&v);
             }
             if (u->def->sonardistancejam != 0) {
                 int r2 = (int)u->def->sonardistancejam << 16;
-                Vec3_00467440* pp2 = &u->pos.vec;
+                Vec3* pp2 = &u->pos;
                 SonarJamVisitor v;
                 g_seams.map->VisitObjectsInRange((Vec3*)pp2, r2, (UnitVisitor*)&v);
             }
@@ -206,11 +187,11 @@ void UpdateSensorRadarAndCloak(void)
     }
 
     for (u = first; u <= last; u++) {
-        if ((u->flags & 0x10000000) && u->player->active != 0) {
-            char c = u->player->type;
+        if ((u->flags & 0x10000000) && ((PlayerInfo_00467440*)u->player)->active != 0) {
+            char c = ((PlayerInfo_00467440*)u->player)->type;
             if (c == 1 || c == 2) {
                 if (u->def->flags2 & 0x2000) {
-                    if (g_seams.ai->HasReadyUnitInRange(u->playerIndex, (Vec3*)&u->pos.vec, u->def->mincloakdistance)) {
+                    if (g_seams.ai->HasReadyUnitInRange(u->playerIndex, (Vec3*)&u->pos, u->def->mincloakdistance)) {
                         // Written through an int& so the flags load stays after the store.
                         int& b0 = u->workTime;
                         b0 = g_game->gameTick + 0x5a;
@@ -231,9 +212,9 @@ void UpdateSensorRadarAndCloak(void)
             // unsigned int: an int merges the two zero blocks.
             unsigned int vis;
             if ((g_game->mapFlags & 2) == 2) {
-                vis = IsExplored_00467440(p2, &u->pos);
+                vis = IsExplored_00467440(p2, (UnitPos_00467440*)&u->pos);
             } else {
-                vis = IsSeen_00467440(p2, &u->pos);
+                vis = IsSeen_00467440(p2, (UnitPos_00467440*)&u->pos);
             }
             if ((int)vis) {
                 u->flags = f | 0x100;

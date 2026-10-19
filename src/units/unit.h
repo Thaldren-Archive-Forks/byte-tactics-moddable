@@ -220,6 +220,12 @@ struct Unit {
             unsigned int b30 : 1;
             unsigned int b31 : 1;
         } f110;
+        struct {
+            unsigned int bits_110_0 : 22;
+            unsigned int menuOpen : 1;
+            unsigned int page : 3;
+            unsigned int bits_110_26 : 6;
+        } menu;
     };
     union {
         int zBufferFlag;
