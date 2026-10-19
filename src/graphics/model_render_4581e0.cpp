@@ -47,16 +47,7 @@ void __stdcall DrawTexturedPolygon(GafFrame* surface, void* pic, void* poly, int
 void __stdcall FillShadedPolygon(GafFrame* surface, void* poly, int count, int flag);
 void __stdcall DrawLitTexturedPolygon(GafFrame* surface, void* pic, void* poly, int flag);
 
-struct GafFrame {
-    unsigned short width;            // +0x00
-    unsigned short height;           // +0x02
-    short xOffset;                   // +0x04
-    short yOffset;                   // +0x06
-    char colorKey;                   // +0x08
-    char unknown_9[7];
-    char* data;                      // +0x10
-    char* data2;                     // +0x14
-};
+#include "gaf_frame.h"
 
 #pragma pack(push, 1)
 struct Owner_459c70 {
@@ -133,12 +124,12 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
             mode = 1;
             shadow->width = (unsigned short)(bitmap->width << 1);
             shadow->height = (unsigned short)(bitmap->height << 1);
-            shadow->unknown_9[0] = 0;
-            shadow->colorKey = 1;
+            shadow->compressed = 0;
+            shadow->transparency = 1;
             shadow->xOffset = (short)(bitmap->xOffset << 1);
             shadow->yOffset = (short)(bitmap->yOffset << 1);
-            memset(shadow->data2, 0, shadow->width * shadow->height);
-            memset(shadow->data, 1, shadow->width * shadow->height);
+            memset(shadow->scratch, 0, shadow->width * shadow->height);
+            memset(shadow->pixelsOrLayers, 1, shadow->width * shadow->height);
             // Last in the shadow branch.
             src = bitmap;
             bitmap = shadow;
@@ -297,9 +288,9 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
     if (((Flags_37f06*)(g_game + 0x37f06))->antiAlias) {
         if (mode != 0) {
             DownsampleFrame(bitmap, src);
-            unsigned char* s = (unsigned char*)src->data2;
+            unsigned char* s = (unsigned char*)src->scratch;
             if (s != 0) {
-                unsigned char* d = (unsigned char*)bitmap->data2;
+                unsigned char* d = (unsigned char*)bitmap->scratch;
                 for (int y = 0; y < src->height; y++) {
                     int x = src->width;
                     while (x--) {

@@ -22,17 +22,7 @@
 
 #include "surface.h"
 
-// The software renderer's target: the row width at +0, the pixel buffer at
-// +0x10 and the depth buffer at +0x14.
-struct GafFrame {
-    unsigned short pitch;              // +0x0
-    unsigned short height;             // +0x2
-    char unknown_4[0x10 - 0x4];
-    unsigned char* bits;               // +0x10
-    unsigned char* depth;              // +0x14
-    // Must stay: without an inline function in the file the row product goes to ebp.
-    unsigned short Pitch() { return pitch; }
-};
+#include "gaf_frame.h"
 
 // One scanline of a polygon: the two ends, their 16.16 depth and shade.
 struct Span {
@@ -1308,8 +1298,8 @@ int __stdcall DrawPolygonEdges(GafFrame* surf, Vec3* pts, int count,
 // FUNCTION: 0x4c0b10
 void __stdcall FillShadedSpan(int row, Span* span, GafFrame* surf, unsigned char color)
 {
-    unsigned char* p = surf->bits;
-    unsigned char* d = surf->depth;
+    unsigned char* p = surf->pixelsOrLayers;
+    unsigned char* d = surf->scratch;
     App_004c0b10* app = (App_004c0b10*)GetDisplay();
     int w = span->x2 - span->x1;
     int dz = (span->z2 - span->z1) / w;
@@ -1319,17 +1309,17 @@ void __stdcall FillShadedSpan(int row, Span* span, GafFrame* surf, unsigned char
         span->s1 = span->s1 - ds * span->x1;
         span->x1 = 0;
     }
-    if (span->x2 > (int)surf->pitch - 1)
-        span->x2 = surf->pitch - 1;
+    if (span->x2 > (int)surf->width - 1)
+        span->x2 = surf->width - 1;
     int start = span->x1;
     int count = span->x2 - start;
     if (count > 0) {
         int z = span->z1;
         int s = span->s1;
-        p += row * surf->pitch;
+        p += row * surf->width;
         p += start;
         if (d != 0) {
-            d += row * surf->pitch + span->x1;
+            d += row * surf->width + span->x1;
             while (count--) {
                 unsigned char zi = z >> 16;
                 if (*d <= zi) {
@@ -1389,7 +1379,7 @@ int __stdcall FillShadedPolygon(GafFrame* surf, Point_004c0c70* pts, int n,
             p++;
         } while (scanIndex < n);
     }
-    if (minX > (int)sf->pitch - 1)
+    if (minX > (int)sf->width - 1)
         return 0;
     if (maxY < 0)
         return 0;
@@ -1549,7 +1539,7 @@ int __stdcall FillFlatPolygon(GafFrame* surf, Vec3* pts, int n, int color)
             p++;
         } while (scanIndex < n);
     }
-    if (minX > (int)sf->pitch - 1)
+    if (minX > (int)sf->width - 1)
         return 0;
     if (maxY < 0)
         return 0;
@@ -1768,15 +1758,15 @@ unsigned char __stdcall FontHeight(void* ptr)
 // FUNCTION: 0x4c0a90
 void __stdcall PlotSpanEnds(int row, Span* span, GafFrame* surf, unsigned char color)
 {
-    unsigned char* d = surf->depth;
-    unsigned char* p = surf->bits;
+    unsigned char* d = surf->scratch;
+    unsigned char* p = surf->pixelsOrLayers;
     int w = span->x2 - span->x1;
     if (w > 0) {
         int start = span->x1;
         int z = span->z1;
-        p += row * surf->pitch + start;
+        p += row * surf->width + start;
         if (d != 0) {
-            d += row * surf->pitch + span->x1;
+            d += row * surf->width + span->x1;
             unsigned char z1 = z >> 16;
             if (*d <= z1) {
                 *p = color;
@@ -1799,21 +1789,21 @@ void __stdcall PlotSpanEnds(int row, Span* span, GafFrame* surf, unsigned char c
 // FUNCTION: 0x4c06e0
 void __stdcall FillFlatSpan(int row, Span* span, GafFrame* surf, unsigned char color)
 {
-    unsigned char* p = surf->bits;
-    unsigned char* d = surf->depth;
+    unsigned char* p = surf->pixelsOrLayers;
+    unsigned char* d = surf->scratch;
     int slope = (span->z2 - span->z1) / (span->x2 - span->x1);
     if (span->x1 < 0) {
         span->z1 = span->z1 - span->x1 * slope;
         span->x1 = 0;
     }
-    if (span->x2 > (int)surf->Pitch() - 1)
-        span->x2 = surf->Pitch() - 1;
+    if (span->x2 > (int)surf->width - 1)
+        span->x2 = surf->width - 1;
     int n = span->x2 - span->x1;
     if (n > 0) {
         int start = span->x1;
-        int off = start + row * surf->pitch;
+        int off = start + row * surf->width;
         int z = span->z1;
-        p = p + (start + row * surf->pitch);
+        p = p + (start + row * surf->width);
         if (d != 0) {
             d = d + off;
             while (n--) {
