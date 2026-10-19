@@ -5,6 +5,7 @@
 
 import contextlib
 import io
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -167,6 +168,43 @@ class CheckQuirksTest(unittest.TestCase):
                     contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as cm:
                 reference.main()
             self.assertEqual(cm.exception.code, 2)
+
+
+class ReferenceEnvTest(unittest.TestCase):
+    def test_pins_the_python_of_this_tree(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / ".python-version").write_text("3.14\n")
+            env = reference.reference_env({"VIRTUAL_ENV": "x", "PATH": "/bin"}, Path(tmp))
+        self.assertEqual(env, {"PATH": "/bin", "UV_PYTHON": "3.14"})
+
+    def test_keeps_an_explicit_uv_python(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / ".python-version").write_text("3.14\n")
+            env = reference.reference_env({"UV_PYTHON": "/usr/bin/python3.14"}, Path(tmp))
+        self.assertEqual(env["UV_PYTHON"], "/usr/bin/python3.14")
+
+    def test_without_the_pin_file_the_env_is_unchanged(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            env = reference.reference_env({"PATH": "/bin"}, Path(tmp))
+        self.assertEqual(env, {"PATH": "/bin"})
+
+    def test_module_env_carries_the_pin(self):
+        pin = (reference.ROOT / ".python-version").read_text().strip()
+        self.assertEqual(reference.REF_ENV["UV_PYTHON"], os.environ.get("UV_PYTHON", pin))
+
+
+class TracediffCommandTest(unittest.TestCase):
+    def test_names_the_reference_side(self):
+        cmd = reference.tracediff_command(Path("a/TotalA.exe"), Path("b/TotalA.exe"), Path("s.txt"), False, None)
+        self.assertEqual(cmd[cmd.index("--reference") + 1], "a")
+        self.assertEqual(cmd[2:4], ["a/TotalA.exe", "b/TotalA.exe"])
+        self.assertNotIn("--poison-b", cmd)
+        self.assertNotIn("--game-dir", cmd)
+
+    def test_poison_and_game_dir(self):
+        cmd = reference.tracediff_command(Path("a"), Path("b"), Path("s"), True, "/ta")
+        self.assertIn("--poison-b", cmd)
+        self.assertEqual(cmd[cmd.index("--game-dir") + 1], "/ta")
 
 
 if __name__ == "__main__":

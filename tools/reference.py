@@ -53,7 +53,17 @@ RUN_SECONDS_BASE = 120
 RUN_TICKS_PER_SECOND = 25
 RUN_ATTEMPTS = 2
 RETRY_DIALOG = "dialog-directx"
-REF_ENV = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
+
+
+def reference_env(environ: dict[str, str], root: Path) -> dict[str, str]:
+    env = {k: v for k, v in environ.items() if k != "VIRTUAL_ENV"}
+    pin = root / ".python-version"
+    if pin.is_file() and "UV_PYTHON" not in env:
+        env["UV_PYTHON"] = pin.read_text().strip()
+    return env
+
+
+REF_ENV = reference_env(os.environ, ROOT)
 
 
 def git(*args: str, cwd: Path = ROOT, check: bool = True, capture: bool = False) -> subprocess.CompletedProcess:
@@ -355,14 +365,18 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     if resolve_quiet(sha) is None:
         fail(f"{name}: the trace's commit {sha} is not in this repository")
     ref_dir = build_cached(sha)
-    cmd = [sys.executable, str(ROOT / "tools/tracediff.py"), str(ref_dir / "TotalA.exe"), str(exe),
-           "--scenario", str(scenarios[name])]
+    subprocess.run(tracediff_command(ref_dir / "TotalA.exe", exe, scenarios[name], poison, game_dir))
+    sys.exit(1)
+
+
+def tracediff_command(ref_exe: Path, exe: Path, scenario: Path, poison: bool, game_dir: str | None) -> list[str]:
+    cmd = [sys.executable, str(ROOT / "tools/tracediff.py"), str(ref_exe), str(exe),
+           "--scenario", str(scenario), "--reference", "a"]
     if poison:
         cmd.append("--poison-b")
     if game_dir:
         cmd += ["--game-dir", game_dir]
-    subprocess.run(cmd)
-    sys.exit(1)
+    return cmd
 
 
 def shown(path: Path) -> Path:
