@@ -1,11 +1,6 @@
 // OrderFx: the base of the objects an order carries (vtable 0x4fd2f8, 0x8
 // bytes: the vpointer and, at +0x4, the order the object was built for). Its
 // subclasses are the approach areas, the path orders and the air maneuver.
-// The polymorphic view, for the files that delete the object through its
-// virtual destructor or call its slots (order_queue_4384a0.cpp and
-// victory.cpp). order_targets.cpp keeps its own view of the base: the
-// constructors it matches store the vtable by hand (`vtable = g_orderFxVtable`),
-// which a class with virtual functions cannot spell.
 #ifndef ORDER_FX_H
 #define ORDER_FX_H
 
@@ -15,9 +10,22 @@ struct Order;
 class HapiBank;
 class BitWriter;
 
-class OrderFx {
+extern void* g_orderFxVtable[];
+
+class __declspec(novtable) OrderFx {
 public:
     int source;                        // +0x4
+
+    OrderFx() {}
+
+    // FUNCTION: 0x44ce20
+    OrderFx(int param_1)
+    {
+        SetVtable(g_orderFxVtable);
+        source = param_1;
+    }
+
+    OrderFx(int arg1, int arg2, int arg3);
 
     virtual ~OrderFx();                                                     // slot 0
     virtual int SerializeToSave(Order* order, HapiBank* file, char* name);  // slot 1
@@ -33,6 +41,11 @@ public:
     virtual int KeepAfterComplete();                                        // slot 11
 
     void AddFlags(int flags);
+    void* Destroy(unsigned char flag);
+    void WriteBits(int);
+
+protected:
+    void SetVtable(void** table) { *(void***)this = table; }
 };
 
 #endif

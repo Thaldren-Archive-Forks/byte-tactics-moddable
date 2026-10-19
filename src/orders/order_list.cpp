@@ -797,9 +797,7 @@ public:
 };
 
 #include "order_goals.h"
-#pragma pack(push, 1)
 #include "../ai/ai_search_goal.h"
-#pragma pack(pop)
 class Class_0043db50 { public: void UpdateSfxOccupy(Unit* u); };
 
 #include "unit_motion.h"

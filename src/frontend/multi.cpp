@@ -706,16 +706,9 @@ struct Record_0044c0d0 {
     int scratch;                       // +0x14
 };
 
-class OrderFx
-{
-public:
-    void* vtable;
-    int source;
-
-    OrderFx(int param_1);
-};
-
 #pragma pack(pop)
+
+#include "../orders/order_fx.h"
 
 #include "../network/packet_manager.h"
 
@@ -773,7 +766,6 @@ extern int g_lobbyCheating;
 extern int g_lobbyFixedLoc;
 extern int g_lobbyMapping;
 extern int g_lobbyWatching;
-extern void* g_orderFxVtable;
 extern int g_usePacketManager;
 extern PacketManager g_packetManager;
 // GLOBAL: 0x5129b4
@@ -4843,9 +4835,3 @@ void OpenUnitRestrictions()
     DAT_005129c0 = 0;
 }
 
-// FUNCTION: 0x44ce20
-OrderFx::OrderFx(int param_1)
-{
-    vtable = &g_orderFxVtable;
-    source = param_1;
-}

@@ -3,6 +3,7 @@
 
 #include "order_target_types.h"
 #include "../game/packed_goal.h"
+#include "../ai/ai_search_goal.h"
 
 struct Unit;
 
@@ -34,14 +35,15 @@ public:
     virtual void SerializeNetUnitState(BitWriter*);
 };
 
-class PatrolGoal {
+class PatrolGoal : public PathGoal {
 public:
-    void* vtable;
-    int field_4;
-    Owner_0044f5c0* owner;
     Point16 points[3];
     int count;
+
     PatrolGoal(Unit* unit);
+    virtual void FillWaypointWorldPos(Vec3*, int, int);
+    virtual int HasReadyWaypoints();
+    virtual void DeserializeNetUnitState(BitReader*);
 };
 #pragma pack(pop)
 
