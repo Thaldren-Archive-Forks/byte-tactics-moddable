@@ -2933,20 +2933,7 @@ union Coord_00407ae0 {  // 0x4 bytes, 4 views
     union { int value; struct { unsigned short frac; short whole; } s; };  // +0x0
 };
 
-struct MapSize_00408090 {  // 0x8 bytes, 19 views
-    unsigned int width;  // +0x0
-    unsigned int height;  // +0x4
-    int Contains(unsigned int, unsigned int);
-};
-
-struct ByteMap_00408090 {  // 0xc bytes, 13 views
-    unsigned char* data;  // +0x0
-    MapSize_00408090 size;  // +0x4
-    int Contains(int, int);
-    int Index(int, int);
-    unsigned char Get(int, int);
-    unsigned char& at(int, int);
-};
+#include "../src/ai/byte_map.h"
 
 struct Player {  // 0x14b bytes, 312 views
     int active;  // +0x0

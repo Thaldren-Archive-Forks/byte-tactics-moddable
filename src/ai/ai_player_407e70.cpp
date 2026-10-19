@@ -37,22 +37,7 @@ struct Position_00408090 {              // 16.16 fixed point; only high words re
     short z;                            // +0xa
 };
 
-struct MapSize_00408090 {
-    unsigned int width;                 // +0x0
-    unsigned int height;                // +0x4
-
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
-};
-
-struct ByteMap_00408090 {
-    unsigned char* data;                // +0x0
-    MapSize_00408090 size;              // +0x4
-
-    unsigned char Get(int x, int y) { return data[size.width * y + x]; }
-};
+#include "byte_map.h"
 
 // The header's type, kept local: its explored pointer cannot spell the
 // ByteMap this fog test needs.

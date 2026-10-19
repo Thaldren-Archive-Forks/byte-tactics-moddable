@@ -4,15 +4,7 @@
 #include "../game/game.h"
 #pragma pack(pop)
 
-struct MapSize_00408090 {
-    unsigned int width;                 // +0x0
-    unsigned int height;                // +0x4
-
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
-};
+#include "byte_map.h"
 
 struct Map_00408090 {
     char unknown_0[0x80];
