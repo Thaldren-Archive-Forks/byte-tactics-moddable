@@ -11,9 +11,6 @@ struct SquadManager;  // the struct key stays in the mangled name of 0x407d40
 
 #include "squad_timer.h"
 
-SquadTimer::SquadTimer(SquadManager* p, void* q)
-    : owner(p), group((Group*)q), next(0), player(p->index) {}
-
 static inline Vec3 Vec3At(int ax, int ay, int az)
 {
     Vec3 v;
