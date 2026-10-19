@@ -48,22 +48,13 @@ struct ByteMap_00473a00 {
 
 // The header's type, kept local: its explored pointer cannot spell the
 // width/index pair this fog arm needs.
-struct Player {
+struct PlayerView {
     char unknown_0[0x7c];
     ByteMap_00473a00 explored;       // +0x7c
     char unknown_88[0x14b - 0x88];   // stride 331
 };
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[11];     // +0x1b63, stride 0x14b
-    char unknown_299c[0x2a43 - 0x299c];
-    unsigned char playerIndex;       // +0x2a43
-    char unknown_2a44[0x14273 - 0x2a44];
-    unsigned short* visibilityMask;  // +0x14273
-    char unknown_14277[0x14281 - 0x14277];
-    unsigned short mapFlags;         // +0x14281, bit 1 (mask 2)
-};
+#include "../game/game.h"
 
 extern Game* g_game;
 
@@ -72,7 +63,7 @@ static inline int Identity_00473a00(int v) { return v; }
 // The second arm, inlined. The two player parameters are not a typo: the
 // Contains test through `p` and the width in the index through `q` are what
 // stop the index from folding into the imul.
-static inline int IsSeen_00473a00(Player* p, Player* q, int col, int row)
+static inline int IsSeen_00473a00(PlayerView* p, PlayerView* q, int col, int row)
 {
     if (!p->explored.size.Contains((unsigned int)col, (unsigned int)row))
         return 0;
@@ -114,8 +105,8 @@ void NanoParticle::DrawParticle(int dest, short x, short y)
     // per arm, once for the bounds test and once for the index, and a single
     // local makes MSVC 5 fold one of the two away. This spelling keeps both
     // loads and the prologue's register choice.
-    Player* p = &g_game->players[g_game->playerIndex];
-    Player* q = &g_game->players[g_game->playerIndex];
+    PlayerView* p = &((PlayerView*)g_game->players_1b63)[g_game->playerIndex];
+    PlayerView* q = &((PlayerView*)g_game->players_1b63)[g_game->playerIndex];
     int visible;
     if ((g_game->mapFlags & 2) == 2) {
         int col = posw.x >> 5;

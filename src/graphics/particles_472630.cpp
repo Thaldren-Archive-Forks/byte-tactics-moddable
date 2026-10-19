@@ -207,34 +207,7 @@ struct Position_00475150 {             // 16.16 fixed point; only high words rea
 #include "../network/player.h"
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];               // +0x1b63
-    char unknown_2851[0x2a43 - 0x2851];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x14263 - 0x2a44];
-    int gravity;                       // +0x14263
-    char unknown_14267[0x14273 - 0x14267];
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;            // +0x1427f
-    char debugMode;
-    unsigned short mapFlags;           // +0x14281, bit 1 (mask 2)
-    char unknown_14283[0x1431f - 0x14283];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x147cf - 0x14327];
-    void* smoke1;                      // +0x147cf, the "smoke 1" animation
-    void* smoke2;                      // +0x147d3, the "smoke 2" animation
-    char unknown_147d7[0x37ecc - 0x147d7];
-    int windVelX;                      // +0x37ecc
-    char unknown_37ed0[4];
-    int windZ;                         // +0x37ed4
-    char unknown_37ed8[0x38a47 - 0x37ed8];
-    int gameTick;                      // +0x38a47
-    char unknown_38a4b[0x38d77 - 0x38a4b];
-    ParticleLists* lists;              // +0x38d77, the ten per-index lists
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -520,7 +493,7 @@ struct Access_00476710 : Vec_004739b0 {
 // FUNCTION: 0x472630
 void __stdcall EmitSmoke(Vec3_00472630* pos, int emitPeriod, int lifetime, short index)
 {
-    ParticleLists* owner = g_game->lists;
+    ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
         e->Init((Vec3_00474d50*)pos, 0, emitPeriod, 0, lifetime, 0);
@@ -531,7 +504,7 @@ void __stdcall EmitSmoke(Vec3_00472630* pos, int emitPeriod, int lifetime, short
 // FUNCTION: 0x472720
 void __stdcall EmitTimedBlackSmoke(Vec3_00472720* pos, int emitPeriod, int lifetime, short index)
 {
-    ParticleLists* owner = g_game->lists;
+    ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
         e->Init((Vec3_00474d50*)pos, 0, emitPeriod, 0, lifetime, 1);
@@ -542,7 +515,7 @@ void __stdcall EmitTimedBlackSmoke(Vec3_00472720* pos, int emitPeriod, int lifet
 // FUNCTION: 0x472810
 void __stdcall EmitWhiteSmoke(Vec3_00472810* pos, short index)
 {
-    ParticleLists* owner = g_game->lists;
+    ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
         e->Init((Vec3_00474d50*)pos, 0, 1, 0, 0, 0);
@@ -556,7 +529,7 @@ void __stdcall EmitBlackSmoke(Vec3_00474cd0* p, short index)
     // The list owner is read through a reference before the allocation, so
     // g_game and its +0x38d77 field are loaded ahead of the pool call and stay
     // live across it.
-    ParticleLists& l = *g_game->lists;
+    ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
         e->Init((Vec3_00474d50*)p, 0, 1, 0, 0, 1);
@@ -567,7 +540,7 @@ void __stdcall EmitBlackSmoke(Vec3_00474cd0* p, short index)
 // FUNCTION: 0x4729d0
 void __stdcall EmitWeaponSmoke(Vec3_00474cd0* p, short index)
 {
-    ParticleLists& l = *g_game->lists;
+    ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
         e->Init((Vec3_00474d50*)p, 3, 1, 0x1e, 0, 0);
@@ -578,7 +551,7 @@ void __stdcall EmitWeaponSmoke(Vec3_00474cd0* p, short index)
 // FUNCTION: 0x472c50
 void __stdcall EmitTimedSubParticles(Vec3_00475150* p, short index)
 {
-    ParticleLists& l = *g_game->lists;
+    ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     TimedSubParticles* e = new TimedSubParticles;
     if (e) {
         e->Init(p, 5, 0, 0x96);
@@ -591,7 +564,7 @@ void __stdcall EmitTimedSubParticles(Vec3_00475150* p, short index)
 // FUNCTION: 0x474d10 ??_GSmokeParticles@@UAEPAXI@Z
 SmokeParticles::SmokeParticles()
 {
-    time = g_game->gameTick;
+    time = g_game->ticks;
 }
 #pragma auto_inline(on)
 
@@ -600,6 +573,6 @@ SmokeParticles::SmokeParticles()
 // FUNCTION: 0x475110 ??_GTimedSubParticles@@UAEPAXI@Z
 TimedSubParticles::TimedSubParticles()
 {
-    time = g_game->gameTick;
+    time = g_game->ticks;
 }
 #pragma auto_inline(on)

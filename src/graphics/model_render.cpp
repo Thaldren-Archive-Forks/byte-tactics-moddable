@@ -141,7 +141,7 @@ struct Face_459c70 {
 
 // One node of a model's piece tree: its geometry, its box relative to its
 // parent and its child and sibling links.
-struct Object3do {
+struct Object3doView {
     char unknown_0[4];
     int vertexCount;                   // +0x04
     int faceCount;                     // +0x08
@@ -153,8 +153,8 @@ struct Object3do {
     char unknown_20[4];
     Vec3* points;                      // +0x24
     Face_459c70* faces;                // +0x28
-    Object3do* sibling;                // +0x2c
-    Object3do* child;                  // +0x30
+    Object3doView* sibling;
+    Object3doView* child;
 };
 
 // The flags word of one piece record, read whole or through its bits.
@@ -172,7 +172,7 @@ union PieceFlags_459c70 {
 // One 0x36-byte piece record: the model node, its move, turn and transform
 // values, its point list, and its place in the piece tree.
 struct Piece_459c70 {
-    Object3do* object;                 // +0x00
+    Object3doView* object;
     int rot_x;                         // +0x04
     int rot_y;                         // +0x08
     int rot_z;                         // +0x0c
@@ -215,19 +215,7 @@ union Flags_37f06 {
 class CMemoryCache;
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x2a43];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x1427f - 0x2a44];
-    unsigned char seaLevel;            // +0x1427f
-    unsigned char debugMode; // +0x14280
-    char unknown_14281[0x1437b - 0x14281];
-    CMemoryCache* unitTable;           // +0x1437b
-    char unknown_1437f[0x37f06 - 0x1437f];
-    Flags_37f06 visualFlags;           // +0x37f06
-    char unknown_37f08[0x38a47 - 0x37f08];
-    unsigned int gameTick;             // +0x38a47
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 // The memory cache behind the composite buffer: the arena the pictures are
@@ -257,7 +245,7 @@ public:
     void DrawObjectPieces(int param_1, Model_459200* list, Vec3 v, int param_6);
     // Defined at the end of this file, out of address order.
     void DrawPiece(Model_459200* model, void* surface, Vec3* camera,
-        Object3do* info, Vec3* vertices, unsigned char palette, int useColor);
+        Object3doView* info, Vec3* vertices, unsigned char palette, int useColor);
     // Defined in model_render_4589c0.cpp: it needs that file's CMemoryCache, which
     // derives from UnitTable to reach BuildObjectPicture and DrawPieces.
     void DrawObjectPicture(int param_2, Model_459200* model, Vec3 v, int useColor);
@@ -376,9 +364,9 @@ void __stdcall TintFrameBelow(GafFrame* param_1, int value);
 void __stdcall CutFrameBelow(GafFrame* param_1, int value);
 void __stdcall ZeroFramePixels(GafFrame* image);
 void __stdcall RotateByAngles(Vec3* in, Vec3* out, short* angles);
-int __stdcall CountObjects(Object3do* obj);
-Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3do* obj, Piece_459c70* parent);
-Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3do* obj, Piece_459c70* parent);
+int __stdcall CountObjects(Object3doView* obj);
+Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3doView* obj, Piece_459c70* parent);
+Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3doView* obj, Piece_459c70* parent);
 // Defined at the end of this file, out of address order.
 void __fastcall PoseModel(Model_459200* state, Piece_459c70* entry, int flag);
 void __fastcall TransformPieces(Model_459200* model, Piece_459c70* piece,
@@ -486,7 +474,7 @@ int UnitTable::BuildObjectPicture(Model_459200* list, int param_2, int param_3)
         bitmap->dy = (short)ox;
         // kind is an int parameter so the byte at owner+0xff is pushed zero-extended.
         if ((owner->flags & 0x20000000) != 0
-            && (*(unsigned char*)&g_game->visualFlags & 0x20) != 0) {
+            && (*(unsigned char*)&(*(Flags_37f06*)&g_game->flags_37f06) & 0x20) != 0) {
             DrawLitPieces(bitmap, list, owner->playerIndex, param_3);
         } else {
             DrawPieces(bitmap, list, owner->playerIndex, param_3);
@@ -508,7 +496,7 @@ void UnitTable::DrawPieces(GafFrame* bitmap, Model_459200* list,
 
     int mode;
     GafFrame* src;
-    if (g_game->visualFlags.bits.antiAlias) {
+    if ((*(Flags_37f06*)&g_game->flags_37f06).bits.antiAlias) {
         if ((list->owner->flags & 0x20000000) != 0 && useColor != 0) {
             GafFrame* shadow = this->shadow;
             mode = 1;
@@ -535,7 +523,7 @@ void UnitTable::DrawPieces(GafFrame* bitmap, Model_459200* list,
         if (list->pieces[p].flags.bits.visible) {
             if (useColor == -1 || useColor == list->pieces[p].flags.bits.colored
                     || list->owner->buildLeft != 0.0f) {
-                Object3do* info = list->pieces[p].object;
+                Object3doView* info = list->pieces[p].object;
                 int n = list->pieces[p].object->vertexCount;
                 Vec3* verts = list->pieces[p].points;
                 for (int k = 0; k < n; k++) {
@@ -602,7 +590,7 @@ void UnitTable::DrawPieces(GafFrame* bitmap, Model_459200* list,
         }
     }
 
-    if (g_game->visualFlags.bits.antiAlias) {
+    if ((*(Flags_37f06*)&g_game->flags_37f06).bits.antiAlias) {
         if (mode != 0) {
             DownsampleFrame(bitmap, src);
             unsigned char* s = (unsigned char*)src->shade;
@@ -853,7 +841,7 @@ int CMemoryCache::ShadeByIntensity(GafFrame* image, Model_459200* model)
     int a = b;
     b ^= 9;
     a ^= 5;
-    unsigned int map = g_game->gameTick;
+    unsigned int map = (unsigned int)g_game->ticks;
     a += map * 0x21 / 30;
     b += map * 0x39 / 30;
     int palette1;
@@ -961,7 +949,7 @@ void CMemoryCache::DrawShadowShape(GafFrame* view, Model_459200* model)
         while (i >= 0) {
             if (piece->flags.word & 1) {
                 if (piece->flags.word & 2) {
-                    Object3do* info = piece->object;
+                    Object3doView* info = piece->object;
                     Vec3* v = piece->points;
                     for (int j = 0; j < info->vertexCount; j++) {
                         int y = (short)(v->y >> 16);
@@ -996,7 +984,7 @@ void CMemoryCache::DrawShadowShape(GafFrame* view, Model_459200* model)
 }
 
 // FUNCTION: 0x45a8d0
-Model_459200* __stdcall CreateObjectState(Object3do* obj)
+Model_459200* __stdcall CreateObjectState(Object3doView* obj)
 {
     int count = 1;
     if (obj->child != 0) {
@@ -1022,7 +1010,7 @@ struct BuildList_0045a950 {
 };
 
 // FUNCTION: 0x45a950
-Model_459200* __stdcall CreatePlayerObjectState(Object3do* obj, BuildList_0045a950* list, int player)
+Model_459200* __stdcall CreatePlayerObjectState(Object3doView* obj, BuildList_0045a950* list, int player)
 {
     int count = 1;
     if (obj->child != 0) {
@@ -1060,9 +1048,9 @@ void __stdcall FreeObjectState(Model_459200* state)
     for (int i = 0; i < state->count; i++) {
         GameFreeThunk(state->pieces[i].points);
     }
-    if (g_game->unitTable != 0) {
-        g_game->unitTable->ReleaseHandle((int)&state->bitmap);
-        g_game->unitTable->ReleaseHandle((int)&state->shadow);
+    if ((CMemoryCache *)g_game->unitTable != 0) {
+        ((CMemoryCache *)g_game->unitTable)->ReleaseHandle((int)&state->bitmap);
+        ((CMemoryCache *)g_game->unitTable)->ReleaseHandle((int)&state->shadow);
     }
     GameFreeThunk(state);
 }
@@ -1158,7 +1146,7 @@ void __stdcall DrawUnit(void* context, Unit_459200* unit)
                 }
             }
         }
-        g_game->unitTable->DrawObjectState(unit->state, context);
+        ((CMemoryCache *)g_game->unitTable)->DrawObjectState(unit->state, context);
     }
 }
 
@@ -1167,20 +1155,20 @@ void __stdcall DrawUnit(void* context, Unit_459200* unit)
 #pragma auto_inline(off)
 
 // FUNCTION: 0x45ae80
-int __stdcall CountObjects(Object3do* edi)
+int __stdcall CountObjects(Object3doView* edi)
 {
     int esi = 1;
     int eax;
 
     eax = (int)edi->child;
     if (eax != 0) {
-        esi = CountObjects((Object3do*)eax);
+        esi = CountObjects((Object3doView*)eax);
         esi++;
     }
 
     eax = (int)edi->sibling;
     if (eax != 0) {
-        eax = CountObjects((Object3do*)eax);
+        eax = CountObjects((Object3doView*)eax);
         esi = esi + eax;
     }
 
@@ -1190,7 +1178,7 @@ int __stdcall CountObjects(Object3do* edi)
 #pragma auto_inline(on)
 
 // FUNCTION: 0x45aec0
-Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3do* obj,
+Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3doView* obj,
                                        Piece_459c70* parent)
 {
     Piece_459c70* e = &state->pieces[state->count];
@@ -1223,7 +1211,7 @@ Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3do* obj,
 }
 
 // FUNCTION: 0x45af90
-Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3do* obj, Piece_459c70* parent)
+Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3doView* obj, Piece_459c70* parent)
 {
     int i = state->count - 1;
     if (i >= 0) {
@@ -1304,7 +1292,7 @@ void __fastcall PoseModel(Model_459200* model, Piece_459c70* piece, int force)
         pos.y += model->pos.y;
     }
 
-    Object3do* object = piece->object;
+    Object3doView* object = piece->object;
     Vec3 box;
     box.x = piece->rot_x + object->box_x;
     box.y = piece->rot_y + object->box_y;
@@ -1318,7 +1306,7 @@ void __fastcall PoseModel(Model_459200* model, Piece_459c70* piece, int force)
 
 // FUNCTION: 0x4584d0
 void CMemoryCache::DrawPiece(Model_459200* model, void* surface, Vec3* camera,
-    Object3do* info, Vec3* vertices, unsigned char palette, int useColor)
+    Object3doView* info, Vec3* vertices, unsigned char palette, int useColor)
 {
     void* pic;
     int i;

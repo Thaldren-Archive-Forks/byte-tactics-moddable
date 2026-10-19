@@ -46,27 +46,7 @@ struct Layer {
 
 struct UnitSync;
 
-struct Game {
-    char unknown_0[0x519];
-    Gui gui;                            // +0x519
-    char unknown_120f[0x1b63 - 0x120f];
-    Player players[10];                 // +0x1b63
-    char unknown_2851[0x2a30 - 0x2851];
-    UnitSync* sync;                     // +0x2a30
-    char unknown_2a34[0x2a3c - 0x2a34];
-    unsigned short numPlayers;          // +0x2a3c
-    char unknown_2a3e[0x2a42 - 0x2a3e];
-    unsigned char localPlayer;          // +0x2a42
-    char unknown_2a43[0x2bc0 - 0x2a43];
-    unsigned char frontendSubstateRequest;  // +0x2bc0
-    char unknown_2bc1[0x2bee - 0x2bc1];
-    unsigned short dirty : 1;           // +0x2bee
-    unsigned short dirty_rest : 15;
-    char unknown_2bf0[0x38a47 - 0x2bf0];
-    int gameTick;                       // +0x38a47
-    char unknown_38a4b[0x391e9 - 0x38a4b];
-    Mission* mapInfo;                   // +0x391e9
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 struct UnitSync {
@@ -119,7 +99,7 @@ int __stdcall AreAllPlayersReady();
 // The map check at 0x440cd0, which has no callers: /Ob2 inlined it.
 int CheckMapCrc()
 {
-    if (!g_game->mapInfo->GetTerrainLength()) {
+    if (!g_game->net->GetTerrainLength()) {
         return 0;
     }
     unsigned char me = FindHostSlot();
@@ -135,7 +115,7 @@ int CheckMapCrc()
     if (!check) {
         return 1;
     }
-    if (g_game->mapInfo->ComputeMapChecksum() != data->mapCrc)
+    if (g_game->net->ComputeMapChecksum() != data->mapCrc)
         return 0;
     return 1;
 }
@@ -230,16 +210,16 @@ void UpdateBattleRoom()
     Player* pl;
     Gadget_0044a680* entries;
 
-    g_game->gameTick++;
+    g_game->ticks++;
 
     if (HandleNetPackets())
-        g_game->dirty = 1;
+        g_game->bits_2bee_1.dirty = 1;
     else if (!CheckMapCrc())
-        g_game->dirty = 1;
+        g_game->bits_2bee_1.dirty = 1;
 
     pl = &g_game->players[g_game->localPlayer];
     if (pl->rejectReason != 0) {
-        g_game->frontendSubstateRequest = 3;
+        g_game->field_2bc0 = 3;
         CloseTopScreen(&g_game->gui);
         return;
     }
@@ -250,15 +230,15 @@ void UpdateBattleRoom()
         entries[idx].colour = 0x18;
     }
 
-    if (g_game->dirty) {
+    if (g_game->bits_2bee_1.dirty) {
         if (g_battleRoomSlotsBuilt == 0) {
             BuildPlayerSlotGadgets();
         } else {
             CompactActivePlayerSlots();
         }
 
-        if ((unsigned int)g_game->numPlayers != g_lastPlayerCount) {
-            g_lastPlayerCount = g_game->numPlayers;
+        if ((unsigned int)g_game->field_2a3c != g_lastPlayerCount) {
+            g_lastPlayerCount = g_game->field_2a3c;
             UpdateNetGameInfo();
         }
 
@@ -267,7 +247,7 @@ void UpdateBattleRoom()
             if (host != 10) {
                 if (IsScreenNamed(&g_game->gui, "LOUNGE2.GUI") != 0) {
                     PlayerInfo* info = g_game->players[host].info;
-                    g_seams.map->LoadMissionByName(g_game->mapInfo, 0, (char*)info);
+                    g_seams.map->LoadMissionByName(g_game->net, 0, (char*)info);
                     SetNamedSliderValue(&g_game->gui, "MAXUNITS", g_game->players[host].info->maxUnits - 0x14);
                     SetNamedSliderValue(&g_game->gui, "METAL", g_game->players[host].info->metal * 100);
                     SetNamedSliderValue(&g_game->gui, "ENERGY", g_game->players[host].info->energy * 100);
@@ -276,18 +256,18 @@ void UpdateBattleRoom()
                     UpdateMetalText(&g_game->gui, 0);
                 } else if (IsScreenNamed(&g_game->gui, "viewmap.gui") != 0) {
                     PlayerInfo* info = g_game->players[host].info;
-                    if (strcmp(g_seams.map->GetMissionName(g_game->mapInfo), info->map) != 0) {
-                        g_seams.map->LoadMissionByName(g_game->mapInfo, 0, (char*)g_game->players[host].info);
+                    if (strcmp(g_seams.map->GetMissionName(g_game->net), info->map) != 0) {
+                        g_seams.map->LoadMissionByName(g_game->net, 0, (char*)g_game->players[host].info);
                         ShowSelectedMapInfo();
                         MarkLayerChanged(&g_game->gui);
                     }
                 }
             }
         }
-        g_game->dirty = 0;
+        g_game->bits_2bee_1.dirty = 0;
         if (IsScreenNamed(&g_game->gui, "LOUNGE2.GUI") != 0) {
             if (pl->info->flags_97 & 1) {
-                int synched = g_game->sync->AllPlayersSynced();
+                int synched = ((UnitSync *)g_game->field_2a30)->AllPlayersSynced();
                 int ready = AreAllPlayersReady();
                 Gadget_0044a680* start;
 
@@ -297,16 +277,16 @@ void UpdateBattleRoom()
                     if (start->frame < 8) {
                         start->frame++;
                         MarkChanged(&g_game->gui);
-                        g_game->dirty = 1;
+                        g_game->bits_2bee_1.dirty = 1;
                     }
                     g_startCountdownNextTick += 4;
                     if (start->frame == 4)
                         PlaySoundByName("Panel", 0);
                 }
                 if (start->frame != 0 && start->frame < *start->frames - 1)
-                    g_game->dirty = 1;
+                    g_game->bits_2bee_1.dirty = 1;
                 if (ready != 0) {
-                    g_game->dirty = 1;
+                    g_game->bits_2bee_1.dirty = 1;
                     if (start->frame == 0) {
                         start->frame = 1;
                         g_startCountdownNextTick = GetTicks();
@@ -361,7 +341,7 @@ void UpdateBattleRoom()
         SetCurrentFont(&g_game->gui, 0);
     }
 
-    g_game->sync->ProcessSync();
+    ((UnitSync *)g_game->field_2a30)->ProcessSync();
     if (g_heartbeatNextTick < (unsigned int)GetTicks()) {
         unsigned char r;
         PlayerInfo* info;

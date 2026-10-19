@@ -23,21 +23,7 @@ struct Position_00475150 {             // 16.16 fixed point; only high words rea
 };
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14263];
-    int gravity;                       // +0x14263
-    char unknown_14267[0x1431f - 0x14267];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x147cf - 0x14327];
-    void* smoke1;                      // +0x147cf, the animation
-    char unknown_147d3[0x37ecc - 0x147d3];
-    int windVelX;                      // +0x37ecc
-    char unknown_37ed0[4];
-    int windZ;                         // +0x37ed4
-    char unknown_37ed8[0x38a47 - 0x37ed8];
-    int gameTick;                      // +0x38a47
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;

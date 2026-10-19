@@ -119,15 +119,7 @@ union GameFlags_459200 {
     } bits;
 };
 
-struct Game {
-    char unknown_0[0x2a43];
-    unsigned char playerIndex;
-    char unknown_2a44[0x1427f-0x2a44];
-    unsigned char seaLevel;
-    unsigned char debugMode;
-    char unknown_14281[0x37f06-0x14281];
-    GameFlags_459200 visualFlags;
-};
+#include "../game/game.h"
 
 struct Fixed_459200 {
     unsigned short frac;
@@ -240,7 +232,7 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
     short dx = v.p.y.whole;
 
     if (bmp->shade == 0) {
-        GameFlags_459200 gameFlags = g_game->visualFlags;
+        GameFlags_459200 gameFlags = (*(GameFlags_459200*)&g_game->flags_37f06);
         if (gameFlags.whole & 4) {
             f = ((UnitDefFlags_459200*)model->owner->def)->flags;
             if ((f.word & 0x2000000) == 0) {
@@ -292,7 +284,7 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
     }
 
     {
-        GameFlags_459200 gameFlags = g_game->visualFlags;
+        GameFlags_459200 gameFlags = (*(GameFlags_459200*)&g_game->flags_37f06);
         if (gameFlags.whole & 4) {
             f = ((UnitDefFlags_459200*)model->owner->def)->flags;
             if ((f.word & 0x2000000) == 0) {

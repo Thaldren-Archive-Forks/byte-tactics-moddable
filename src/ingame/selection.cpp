@@ -59,50 +59,7 @@ struct Name_0048d630 {
     char unknown_42[0x232 - 0x42];
 };
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                // +0x1b63, 0x14b each
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;         // +0x2a42
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x2c76 - 0x2a44];
-    Point view;                        // +0x2c76
-    char unknown_2c7e[0x2c92 - 0x2c7e];
-    int boxStartX;                     // +0x2c92
-    int boxStartHeight;                // +0x2c96
-    int boxStartZ;                     // +0x2c9a
-    int boxEndX;                       // +0x2c9e
-    int boxEndHeight;                  // +0x2ca2
-    int boxEndZ;                       // +0x2ca6
-    int pos;                           // +0x2caa
-    char unknown_2cae[0x2cba - 0x2cae];
-    unsigned short hoverUnitId;        // +0x2cba
-    char unknown_2cbc[0x2cc3 - 0x2cbc];
-    unsigned char orderMode;           // +0x2cc3
-    char unknown_2cc4[0x142bb - 0x2cc4];
-    Rect minimapHitRect;               // +0x142bb
-    char unknown_142cb[0x1431f - 0x142cb];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x14357 - 0x14327];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    unsigned short* visibleUnitIdList; // +0x1435f
-    Slot_0048cd80* hotRadarUnitList;   // +0x14363
-    int count;                         // +0x14367
-    int hotRadarUnitCount;             // +0x1436b
-    unsigned short focusUnitId;        // +0x1436f
-    char unknown_14371[0x14377 - 0x14371];
-    void** unitModels;                 // +0x14377
-    char unknown_1437b[0x37e27 - 0x1437b];
-    Rect rect;                         // +0x37e27
-    char unknown_37e37[0x37e9c - 0x37e37];
-    unsigned short unitIndex;          // +0x37e9c
-    char unknown_37e9e[0x37ebe - 0x37e9e];
-    Orders_37ebe ordersPanelFlags;     // +0x37ebe
-    char unknown_37ec0[0x37f3d - 0x37ec0];
-    Name_0048d630 sideDefs[5];         // +0x37f3d, one SideDef per side
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -132,7 +89,7 @@ int __stdcall IsUnitVisibleToPlayer(Player* player, Unit* unit);
 void CollectVisibleUnitIds(void)
 {
     int count = 0;
-    unsigned short* out = g_game->visibleUnitIdList;
+    unsigned short* out = g_game->list_1435f;
     Rect* rect = &g_game->rect;
     Player* player = &g_game->players[g_game->playerIndex];
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++) {
@@ -170,7 +127,7 @@ void CollectVisibleUnitIds(void)
             }
         }
     }
-    g_game->count = count;
+    g_game->count_14367 = count;
 }
 
 // Returns 1 when the unit's type id (+0xa8) is in the game's list of ids at
@@ -178,8 +135,8 @@ void CollectVisibleUnitIds(void)
 // FUNCTION: 0x48bcb0
 int __stdcall IsUnitVisible(char* unit)
 {
-    short* ids = (short*)g_game->visibleUnitIdList;
-    int n = g_game->count;
+    short* ids = (short*)g_game->list_1435f;
+    int n = g_game->count_14367;
     for (int i = 0; i < n; i++) {
         if (ids[i] == *(short*)(unit + 0xa8))
             return 1;
@@ -215,7 +172,7 @@ void SelectAllIdleUnits(void)
         } while (u <= pl->unitsEnd);
     }
     SelectStopOrder();
-    g_game->ordersPanelFlags.byte |= 0x10;
+    (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).byte |= 0x10;
 }
 
 // Builds a 512-entry bitmap of the type indices (+0xa6) of the local player's
@@ -267,7 +224,7 @@ void SelectUnitsOfSameTypes(void)
     }
     g_game->unitIndex = 0;
     SelectStopOrder();
-    g_game->ordersPanelFlags.bit4 = 1;
+    (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).bit4 = 1;
 }
 
 // Sets or clears flag 0x10 on every finished unit of the local player that
@@ -298,7 +255,7 @@ void __stdcall SelectUnitsByCategory(char* name, int param_2)
     }
     g_game->unitIndex = 0;
     SelectStopOrder();
-    g_game->ordersPanelFlags.bit4 = 1;
+    (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).bit4 = 1;
 }
 
 // Clears flag bit 5 (0x20) on every unit, then walks the selection list at
@@ -314,8 +271,8 @@ void SelectAllVisibleUnits(void)
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++)
         u->flags &= 0xffffff2f;
     PopUntilNamedLayout(0);
-    unsigned short* list = g_game->visibleUnitIdList;
-    for (int i = 0; i < g_game->count; i++) {
+    unsigned short* list = g_game->list_1435f;
+    for (int i = 0; i < g_game->count_14367; i++) {
         Unit* u = &g_game->units[list[i]];
         unsigned int flags = u->flags;
         if ((flags & 0x20) && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
@@ -328,7 +285,7 @@ void SelectAllVisibleUnits(void)
     if (found) {
         SelectStopOrder();
         g_game->unitIndex = 0;
-        g_game->ordersPanelFlags.byte |= 0x10;
+        (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).byte |= 0x10;
     }
 }
 
@@ -390,8 +347,8 @@ Unit* __stdcall FindNextSelectedUnit(Unit* unit, int dir)
 // FUNCTION: 0x48c320
 void MarkLocalVisibleUnits(void)
 {
-    unsigned short* list = g_game->visibleUnitIdList;
-    for (int i = 0; i < g_game->count; i++) {
+    unsigned short* list = g_game->list_1435f;
+    for (int i = 0; i < g_game->count_14367; i++) {
         Unit* u = &g_game->units[list[i]];
         if (u->playerIndex == g_game->localPlayer)
             u->selectState = 1;
@@ -451,14 +408,14 @@ int __stdcall SelectUnitsInBox(void* param_1)
     g_game->unitIndex = 0;
     for (Unit* v = g_game->units; v <= g_game->unitsEnd; v++)
         v->flags &= 0xffffff3f;
-    unsigned short* list = g_game->visibleUnitIdList;
-    for (int i = 0; i < g_game->count; i++) {
+    unsigned short* list = g_game->list_1435f;
+    for (int i = 0; i < g_game->count_14367; i++) {
         Unit* v = &g_game->units[list[i]];
         if (v->playerIndex == g_game->localPlayer)
             v->selectState = 1;
     }
     if (found)
-        g_game->ordersPanelFlags.byte |= 0x10;
+        (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).byte |= 0x10;
     if (!count)
         return 0;
     if (count == 1) {
@@ -479,7 +436,7 @@ int __stdcall PointInPolygon(Point* pts, int n, int px, int py);
 // FUNCTION: 0x48c6a0
 int __stdcall HitTestUnitScreenHull(Unit* obj, Point* p)
 {
-    void** models = g_game->unitModels;
+    void** models = (void **)g_game->types;
     Vec3 corners[4];
     Point pts[4];
     int i;
@@ -545,22 +502,22 @@ void __stdcall ClickSelectHoverUnit(Param_0048c7f0* param)
         if (unit->selected)
             QueueUnitSpeech(unit, 1, 0);
         g_game->unitIndex = 0;
-        g_game->ordersPanelFlags.flags |= 0x10;
+        (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).flags |= 0x10;
         return;
     }
 
     for (Unit* u = g_game->units; u <= g_game->unitsEnd; u++)
         u->flags &= 0xffffff2f;
     PopUntilNamedLayout(0);
-    unsigned short* list = g_game->visibleUnitIdList;
-    for (int i = 0; i < g_game->count; i++) {
+    unsigned short* list = g_game->list_1435f;
+    for (int i = 0; i < g_game->count_14367; i++) {
         Unit* u = &g_game->units[list[i]];
         if (u->playerIndex == g_game->localPlayer)
             u->flags = u->flags & 0xffffff7f | 0x40;
     }
     unit->flags |= 0x10;
     QueueUnitSpeech(unit, 1, 0);
-    g_game->ordersPanelFlags.flags |= 0x10;
+    (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).flags |= 0x10;
 }
 
 // FUNCTION: 0x48c9b0
@@ -572,7 +529,7 @@ void __stdcall DeselectIfIneligible(Unit* unit)
             || (unit->carrier != 0 && !(((Unit*)unit->carrier)->flags & 0x40000000))) {
             unit->flags = flags & ~0x10;
             g_game->unitIndex = 0;
-            g_game->ordersPanelFlags.byte |= 0x10;
+            (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).byte |= 0x10;
         }
     }
 }
@@ -635,15 +592,15 @@ static inline int FixMul(int a, int b)
 // FUNCTION: 0x48cd80
 unsigned short __stdcall PickUnitUnderCursor(void)
 {
-    Point* p = &g_game->view;
+    Point* p = &g_game->view_2c76;
     unsigned short result = 0;
     if (PointInRect(&g_game->rect, p->x, p->y)) {
         int best = 0x7fff0000;
-        unsigned short* ids = g_game->visibleUnitIdList;
+        unsigned short* ids = g_game->list_1435f;
         if (ids == 0)
             return 0;
         // Walk the id list with the pointer itself (i++, ids++), not ids[i].
-        for (int i = 0; i < g_game->count; i++, ids++) {
+        for (int i = 0; i < g_game->count_14367; i++, ids++) {
             Unit* u = &g_game->units[*ids];
             if (u->unitDefIndex != 0) {
                 if (HitTestUnitScreenHull(u, p)) {
@@ -657,10 +614,10 @@ unsigned short __stdcall PickUnitUnderCursor(void)
                 }
             }
         }
-    } else if (PointInRect(&g_game->minimapHitRect, p->x, p->y)) {
+    } else if (PointInRect(&g_game->viewLimit, p->x, p->y)) {
         int best = 99999;
-        Slot_0048cd80* s = g_game->hotRadarUnitList;
-        for (int i = g_game->hotRadarUnitCount; i > 0; i--) {
+        Slot_0048cd80* s = (Slot_0048cd80 *)g_game->hotRadar;
+        for (int i = g_game->hotRadarCount; i > 0; i--) {
             // Both coordinates are read through p, dy first.
             int dy = s->y - p->y;
             int dx = s->x - p->x;
@@ -727,7 +684,7 @@ int __stdcall ResolveCursorModeForSelection(char arg)
 
     int result = 0x13;
     for (std::vector<Unit*>::iterator it = vec.begin(); it != vec.end(); ++it) {
-        int r = GetOrderCursor(g_game->orderMode, *it, target, &g_game->pos);
+        int r = GetOrderCursor(g_game->orderMode, *it, target, &(*(int*)&g_game->pos_2caa));
         if (r < result)
             result = r;
     }
@@ -811,8 +768,8 @@ void FocusNextLocalUnit(void)
     g_game->focusUnitId = u->id;
     CenterCameraOnMapPosition(&u->pos, 1);
     CollectVisibleUnitIds();
-    unsigned short* list = g_game->visibleUnitIdList;
-    for (int i = 0; i < g_game->count; i++) {
+    unsigned short* list = g_game->list_1435f;
+    for (int i = 0; i < g_game->count_14367; i++) {
         Unit* unit = &g_game->units[list[i]];
         if (unit->playerIndex == g_game->localPlayer)
             unit->selectState = 1;
@@ -838,7 +795,7 @@ void __cdecl ClearCameraFollowState(void);
 void __stdcall FocusCommander(int param_1)
 {
     Player* team = &g_game->players[g_game->playerIndex];
-    char* playerName = g_game->sideDefs[team->info->side].name;
+    char* playerName = (*(Name_0048d630 (*)[5])&g_game->sideDefs)[team->info->side].name;
     Unit* last = team->unitsEnd;
     for (Unit* u = team->unitsBegin; u <= last; u++) {
         if (u->selectable && u->buildLeft == 0.0f && u->postTransferHoldoff == 0
@@ -855,7 +812,7 @@ void __stdcall FocusCommander(int param_1)
                 }
                 PopUntilNamedLayout(0);
                 u->selected = 1;
-                g_game->ordersPanelFlags.bit4 = 1;
+                (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).bit4 = 1;
                 return;
             }
         }
@@ -914,7 +871,7 @@ void __stdcall CycleSelection(void)
         found->flags |= flag;
     }
 done:
-    g_game->ordersPanelFlags.flags |= flag;
+    (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).flags |= flag;
 }
 
 void __stdcall SetUnitSquad(Unit* unit, int arg);
@@ -1001,7 +958,7 @@ select_units:
     }
     SelectStopOrder();
     g_game->unitIndex = 0;
-    g_game->ordersPanelFlags.bit4 = 1;
+    (*(Orders_37ebe*)&g_game->ordersPanelFlags_37ebe).bit4 = 1;
     return cnt > 0;
 }
 
