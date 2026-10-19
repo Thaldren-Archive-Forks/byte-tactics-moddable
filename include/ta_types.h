@@ -1740,7 +1740,7 @@ struct Pic_004295b0;
 struct Pic_4665d0;
 struct Piece;
 struct PieceBits_00487080;
-struct PieceFlags_459c70;
+union PieceFlags_459c70;
 struct PieceFrame;
 struct Piece_00458310;
 struct Placement;
@@ -7561,12 +7561,7 @@ union UnitTypeFlags_459200 {  // 0x4 bytes, 1 view
     union { unsigned int word; struct { unsigned int hi : 30; unsigned int b30 : 1; unsigned int lo : 1; } bits; };  // +0x0
 };
 
-struct PieceFlags_459c70 {  // 0x2 bytes, 4 views
-    unsigned short visible : 1;  // +0x0
-    unsigned short f1 : 1;
-    unsigned short lit : 1;
-    unsigned short rest : 13;
-};
+#include "../src/graphics/model_types.h"
 
 struct Poly_459c70 {  // 0x10 bytes, 1 view
     int x;  // +0x0
@@ -7635,12 +7630,6 @@ struct Vector3 {  // 0xc bytes, 2 views
     int x;  // +0x0
     int y;  // +0x4
     int z;  // +0x8
-};
-
-struct Vector3s {  // 0x6 bytes, 1 view
-    short x;  // +0x0
-    short y;  // +0x2
-    short z;  // +0x4
 };
 
 struct Video_0045bb00 {  // 0x14e bytes, 1 view

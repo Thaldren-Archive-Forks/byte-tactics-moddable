@@ -20,6 +20,7 @@ extern const float DAT_004fd4cc;
 struct GafFrame;
 
 #include "../util/vec3.h"
+#include "model_types.h"
 
 struct Flags_37f06 {
     unsigned short damagebars : 1;
@@ -70,56 +71,6 @@ struct Owner_459c70 {
     unsigned char zBufferFlag;       // +0x114
 };
 
-struct FaceFlags_459c70 {
-    union {
-        unsigned int raw;
-        struct {
-            unsigned int textured : 1;
-            unsigned int usePic : 1;
-            unsigned int shaded : 1;
-            unsigned int rest : 29;
-        } bits;
-    };
-};
-
-struct Face_459c70 {
-    int unknown_0;                   // +0x00
-    int count;                       // +0x04
-    int unknown_8;                   // +0x08
-    unsigned short* indices;         // +0x0c
-    void* pic;                       // +0x10
-    int unknown_14;                  // +0x14
-    unsigned short* color;           // +0x18
-    FaceFlags_459c70 flags;          // +0x1c
-};
-
-struct PieceInfo_459c70 {
-    char unknown_0[4];
-    int vertexCount;                 // +0x04
-    int faceCount;                   // +0x08
-    int firstFace;                   // +0x0c
-    char unknown_10[8];
-    unsigned short* color;           // +0x18
-    char unknown_1c[0xc];
-    Face_459c70* faces;              // +0x28
-};
-
-struct PieceFlags_459c70 {
-    unsigned short visible : 1;
-    unsigned short colored : 1;
-    unsigned short lit : 1;
-    unsigned short rest : 13;
-};
-
-struct Piece_459c70 {
-    PieceInfo_459c70* info;          // +0x00
-    char unknown_4[0x22 - 0x04];
-    Vec3* vertices;                  // +0x22
-    char unknown_26[0x28 - 0x26];
-    PieceFlags_459c70 flags;         // +0x28
-    char unknown_2a[0x36 - 0x2a];
-};
-
 struct List_459c70 {
     int count;                       // +0x00
     char unknown_4[8];
@@ -167,7 +118,7 @@ static __inline int shade_bias(List_459c70* list)
 void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
     int kind, int useColor)
 {
-    PieceInfo_459c70* info;
+    Object3doView* info;
     Poly_459c70 poly[25];
     float accum[2000][3];
     Vec3f normal[2000];
@@ -199,13 +150,13 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
     }
 
     for (int p = list->count - 1; p >= 0; p--) {
-        if (list->pieces[p].flags.visible) {
-            if (useColor == -1 || useColor == list->pieces[p].flags.colored
+        if (list->pieces[p].flags.bits.visible) {
+            if (useColor == -1 || useColor == list->pieces[p].flags.bits.colored
                     || list->owner->intensity != 0.0f) {
-                Vec3* verts = list->pieces[p].vertices;
+                Vec3* verts = list->pieces[p].points;
                 // Own read of the vertices, between verts and info: not v = verts.
-                Vec3* v = list->pieces[p].vertices;
-                info = list->pieces[p].info;
+                Vec3* v = list->pieces[p].points;
+                info = list->pieces[p].object;
                 // No n local or count guard: the loop runs to info->vertexCount.
                 int k;
                 for (k = 0; k < info->vertexCount; k++, v++) {
@@ -285,7 +236,7 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
                 }
 
                 // Divides by weight[k] directly, re-reading the vertex count.
-                for (k = 0; k < list->pieces[p].info->vertexCount; k++) {
+                for (k = 0; k < list->pieces[p].object->vertexCount; k++) {
                     if (weight[k] != 0) {
                         accum[k][0] /= weight[k];
                         accum[k][1] /= weight[k];
@@ -304,7 +255,7 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
                     unsigned short* idx = face->indices;
                     for (int j = 0; j < face->count; j++, idx++) {
                         poly[j] = vertex[*idx];
-                        if (list->pieces[p].flags.lit) {
+                        if (list->pieces[p].flags.bits.lit) {
 #ifdef __clang__
                             double light = (double)accum[*idx][0] * g_lightX + (double)accum[*idx][1] * g_lightY;
                             light += (double)accum[*idx][2] * g_lightZ;
