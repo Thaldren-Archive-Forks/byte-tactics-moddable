@@ -1168,6 +1168,7 @@ void OpenMain2Layout()
 }
 
 int HarnessTestMode();
+unsigned HarnessStepsPerFrame();
 
 // Frame pacing: measures the time since the last call, finds the slowest
 // active player (the one with the lowest tick counter that still has units),
@@ -1181,7 +1182,7 @@ int HarnessTestMode();
 void UpdateFramePacing()
 {
     if (HarnessTestMode()) {
-        g_game->simStepsPending = 1;
+        g_game->simStepsPending = (int)HarnessStepsPerFrame();
         return;
     }
     unsigned int now = GetTicks();
@@ -1296,6 +1297,11 @@ void __stdcall RunGameSteps(int showStats)
         g_seams.players->UpdateBlink();
         g_game->profileTimingBars.AccumulateProfileTime(8);
 
+        Player* shown = &g_game->players[g_game->playerIndex];
+        if (shown->displayTimer < g_game->gameTick)
+            shown->displayTimer += 0x1e;
+        g_seams.los_radar->ExpireEyeballs();
+
         if (showStats && g_usePacketManager != 0) {
             g_seams.economy->UpdateResourceSharing(&g_game->players[g_game->localPlayer]);
             g_packetManager.SendAllQueued(0);
@@ -1308,7 +1314,6 @@ void __stdcall RunGameSteps(int showStats)
     EmptyPostSimStepHook_B();
     EmptyPostSimStepHook_C();
     ExpireOldestMessage();
-    g_seams.los_radar->ExpireEyeballs();
     g_game->profileTimingBars.AccumulateProfileTime(8);
 }
 
