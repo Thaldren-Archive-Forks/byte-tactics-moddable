@@ -798,7 +798,7 @@ void RegisterUnitOrders()
 // FUNCTION: 0x403190
 int __stdcall AttackSpecialOrder(Unit* unit, Order* order, int unused)
 {
-    order->MergeFlagsFromTable(GetOrderType(3, unit, order->target, 0));
+    order->MergeFlagsFromTable(GetOrderType(3, unit, order->target, 0).index);
     order->weapon = 2;
     return 2;
 }
@@ -1510,7 +1510,7 @@ int __stdcall ParkOrder(Unit* unit,Order* order,int flags)
         if(!unit->motion) return 7;
         if(unit->def->flying) {
             order->pos=unit->pos;
-            order->MergeFlagsFromTable("VTOL_MOVE");
+            order->MergeFlagsFromTable(MissionType("VTOL_MOVE").index);
             return 0;
         }
         {

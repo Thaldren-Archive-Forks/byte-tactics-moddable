@@ -113,7 +113,6 @@ struct Order {
     void SetDeadlineTicks(int param);
     void ReattachFxToUnit();
     void MergeFlagsFromTable(int k);
-    void MergeFlagsFromTable(MissionType k);
     void OrStatusFlags(unsigned int flags);
     void SetAttachedFx(OrderFx* obj);
     void AttachApproachRadiusGoal(Vec3* pos, int n);
