@@ -17,6 +17,7 @@
 #include "../src/weapons/weapon_def.h"
 #include "../src/weapons/damage_table.h"
 #include "../src/graphics/nano_particle_vector.h"
+#include "../src/units/squad.h"
 
 #pragma pack(push, 1)
 
@@ -2945,17 +2946,6 @@ struct Slot_4b62d0 {  // 0x10 bytes, 5 views
     int unknown_8;  // +0x8
     int unknown_c;  // +0xc
     virtual void Fire(void);
-};
-
-class Squad {           // 0x20 bytes, 5 views
-public:
-    int field_0;  // +0x0
-    int field_4;  // +0x4
-    int field_8;  // +0x8
-    int field_c;  // +0xc
-    std::vector<int> items;  // +0x10
-    Squad(Squad&);
-    Squad(int, int);
 };
 
 #include "../src/ai/player_ai.h"
