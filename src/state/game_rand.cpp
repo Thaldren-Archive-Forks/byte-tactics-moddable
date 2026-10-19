@@ -1,3 +1,4 @@
+#define BX_CALL __cdecl
 #include "game_rand.h"
 #include "block.h"
 #include "../../lib/bitexact/bitexact.h"
