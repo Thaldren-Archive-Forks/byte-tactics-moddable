@@ -1141,7 +1141,8 @@ struct Game {
         struct {
             char unknown_37f3d_a[34];
             char startPos[2792];
-            char unknown_38a47[10];
+            unsigned int gameTick;
+            char unknown_38a4b[6];
             struct {
                 unsigned short bit_38a51 : 1;
             } bits_38a51;

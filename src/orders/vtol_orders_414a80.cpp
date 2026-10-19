@@ -13,10 +13,6 @@ static inline int Square(const Vec3& v)
     return (int)((a*a) >> 32) + (int)((b*b) >> 32);
 }
 
-struct Point {
-    short x, y;
-};
-
 struct Unit;
 
 #include "unit_motion.h"
@@ -38,11 +34,11 @@ void __stdcall QueueUnitSpeech(Unit* unit, int kind, const char* text);
 void __stdcall EmitReverseNanoParticles(Vec3* box, Vec3* from, int count);
 int __stdcall ComputeReclaimDamagePulse(Unit* unit, Unit* target, int n);
 #include "../../interfaces/seams.h"
-void __stdcall CellToWorldPos(Point cell, Vec3* out, Point origin);
+void __stdcall CellToWorldPos(Point16 cell, Vec3* out, Point16 origin);
 
-static inline Point WorldToCell(Vec3 v, Point origin)
+static inline Point16 WorldToCell(Vec3 v, Point16 origin)
 {
-    Point c;
+    Point16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
@@ -94,8 +90,8 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
     case 1: {
         order->elapsed = ComputeReclaimDamagePulse(unit, target, 15);
         order->duration = 0;
-        Point origin = *(Point*)&unit->footprint;
-        Point cell = WorldToCell(order->pos, origin);
+        Point16 origin = *(Point16*)&unit->footprint;
+        Point16 cell = WorldToCell(order->pos, origin);
         CellToWorldPos(cell, &order->pos, origin);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->target->pos);
         order->SetAttachedFx(obj);
