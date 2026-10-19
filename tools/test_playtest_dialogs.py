@@ -54,7 +54,7 @@ def test_tracediff_poisons_only_b() -> None:
     tracediff.print_diff = lambda diffs: None
     try:
         args = argparse.Namespace(exe=["a.exe", "b.exe"], scenario=["s.txt"], game_dir=None,
-                                  ignore_view_seed=False, poison_b=True)
+                                  ignore_view_seed=False, poison_b=True, reference=None)
         assert tracediff.compare(args) == 1
     finally:
         tracediff.play, tracediff.need, tracediff.parse_trace, tracediff.diff_dumps, tracediff.print_diff = saved
