@@ -57,7 +57,7 @@ union TypeFlags {                      // the type's word at +0x241
     struct {
         unsigned int movOrder : 2;     // bits 0-1
         unsigned int fireOrder : 2;    // bits 2-3
-        unsigned int canAttack : 1;    // bit 4
+        unsigned int initCloaked : 1;
         unsigned int b5 : 1;
         unsigned int b6 : 1;
         unsigned int b7 : 1;           // bit 7
@@ -526,7 +526,7 @@ void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
     unit->lastAttackerSlot = 0xa;
     unit->moveOrder = ((UnitType*)unit->def)->flags.bits.movOrder;
     unit->fireOrder = ((UnitType*)unit->def)->flags.bits.fireOrder;
-    unit->cloakOn = ((UnitType*)unit->def)->flags.bits.canAttack;
+    unit->cloakOn = ((UnitType*)unit->def)->flags.bits.initCloaked;
     unit->f26_27 = 0;
     if (((UnitType*)unit->def)->buildMenuPageCount > 1) {
         unit->f22_23 = 3;
