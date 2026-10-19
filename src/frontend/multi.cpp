@@ -715,12 +715,9 @@ public:
     OrderFx(int param_1);
 };
 
-class PacketManager {
-public:
-    int SendAllQueued(int value);
-};
-
 #pragma pack(pop)
+
+#include "../network/packet_manager.h"
 
 class Class_004a1080;
 struct Dialog;

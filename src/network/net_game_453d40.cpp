@@ -203,11 +203,7 @@ struct AllyFlagsPacket {
 
 #pragma pack(pop)
 
-class PacketManager {
-public:
-    void SendAllQueued(int);
-    void HandleIntegrityNop(int, int, int);
-};
+#include "../network/packet_manager.h"
 
 extern Game* g_game;
 extern char DAT_005119b8[];

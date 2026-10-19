@@ -1,22 +1,33 @@
-// PacketManager: the network packet manager behind the global g_packetManager
-// (0x513000): the eleven per-player packet channels, the outgoing send buffer
-// and the packet receiver, with the packet pools, rings and per-player frame
-// queues they are built from. The one declaration of the class for the files
-// that call its methods, carrying the method signatures the views agree on.
-// The data members stay in packets.cpp's own view, since the channel and
-// receiver arrays behind them have no shared header yet, and so do the methods
-// only packets.cpp calls; the types behind the pointers stay private to it.
 #ifndef PACKET_MANAGER_H
 #define PACKET_MANAGER_H
 
-class PacketChannel;
+#include "packet_channel.h"
+#include "packet_receiver.h"
+
+struct Msg_00461900;
 
 class PacketManager {
 public:
+    virtual ~PacketManager();
+    unsigned long m_defaultSendPacingMs;
+    PacketChannel channels[11];
+    unsigned char* buffer;
+    unsigned int size;
+    unsigned int capacity;
+    PacketReceiver member;
+
+    PacketManager();
+    int AppendToSendBuffer(unsigned char* data, unsigned int len);
+    void ClearSendBuffer();
     void NopRet_D();
+    PacketChannel* FindChannel(int dpid, int create);
+    int InitChannels(int arg1, int arg2);
+    void ReleaseChannel(int id);
+    void ReleaseAllChannels();
     int SendAllQueued(int force);
-    void* QueuePacket(int frame, int dpid, void* data, unsigned int len);
+    int SendFrameState(int from, Msg_00461900* msg);
     int QueueOnChannel(int frame, PacketChannel* channel, int data, int len);
+    int QueuePacket(int frame, int dpid, void* data, unsigned int len);
     void SetDefaultSendPacing(int rate);
     void HandleIntegrityNop(int, int, int);
 };

@@ -216,31 +216,7 @@ struct Msg_00461900 {
     int field_14;                      // +0x14
 };
 
-class PacketManager {
-public:
-    virtual ~PacketManager();
-    unsigned long m_defaultSendPacingMs;   // +0x04
-    PacketChannel channels[11];        // +0x08
-    unsigned char* buffer;             // +0xb2f4
-    unsigned int size;                 // +0xb2f8
-    unsigned int capacity;             // +0xb2fc
-    PacketReceiver member;             // +0xb300
-
-    PacketManager();
-    int AppendToSendBuffer(unsigned char* data, unsigned int len);
-    void ClearSendBuffer();
-    void NopRet_D();
-    PacketChannel* FindChannel(int dpid, int create);
-    int InitChannels(int arg1, int arg2);
-    void ReleaseChannel(int id);
-    void ReleaseAllChannels();
-    int SendAllQueued(int force);
-    int SendFrameState(int from, Msg_00461900* msg);
-    int QueueOnChannel(int frame, PacketChannel* channel, int data, int len);
-    void* QueuePacket(int frame, int dpid, void* data, unsigned int len);
-    void SetDefaultSendPacing(int rate);
-    void HandleIntegrityNop(int, int, int);
-};
+#include "packet_manager.h"
 
 // Defined in packets_460e20.cpp, whose dynamic initialiser (_$E4) and static
 // destructor (packets_460f60.cpp, _$E2) need views of their own.
@@ -544,11 +520,11 @@ int PacketManager::QueueOnChannel(int frame, PacketChannel* channel, int data, i
 }
 
 // FUNCTION: 0x4619b0
-void* PacketManager::QueuePacket(int frame, int dpid, void* data, unsigned int len)
+int PacketManager::QueuePacket(int frame, int dpid, void* data, unsigned int len)
 {
     PacketChannel* obj = FindChannel(dpid, 1);
     if (obj != 0) {
-        return (void*)obj->AddPacket(frame, data, len);
+        return obj->AddPacket(frame, data, len);
     }
     return 0;
 }

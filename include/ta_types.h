@@ -20,6 +20,7 @@
 #include "../src/units/squad.h"
 #include "../src/network/packet_ring.h"
 #include "../src/network/packet_receiver.h"
+#include "../src/network/packet_manager.h"
 #include "../src/network/sub_00460f60.h"
 
 #pragma pack(push, 1)
@@ -7698,12 +7699,6 @@ struct Class_004615f0 {  // 0xb2fc bytes, 1 view
     int field_b2f4;  // +0xb2f4
     int field_b2f8;  // +0xb2f8
     void ClearSendBuffer(void);
-};
-
-class PacketManager {   // 0x1 bytes, 1 view
-public:
-    char unknown_0[1];
-    void ReleaseChannel(int);
 };
 
 struct Entry_004618a0 {  // 0x1044 bytes, 1 view

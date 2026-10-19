@@ -53,20 +53,11 @@ inline PacketChannel::~PacketChannel()
     operator delete(packets);
 }
 
-class PacketManager {
-public:
-    virtual ~PacketManager() { }
-    int m_defaultSendPacingMs;         // +0x04
-    PacketChannel channels[11];        // +0x08
-    char* buffer;                      // +0xb2f4
-    int used;                          // +0xb2f8
-    int capacity;                      // +0xb2fc
-    PacketReceiver member;             // +0xb300
+#include "packet_manager.h"
 
-    PacketManager();
-};
+inline PacketManager::~PacketManager() { }
 
 // FUNCTION: 0x460e20 _$E4
 PacketManager g_packetManager;
 
-PacketManager::PacketManager() : m_defaultSendPacingMs(200), buffer(0), used(0), capacity(0), member(this) { }
+PacketManager::PacketManager() : m_defaultSendPacingMs(200), buffer(0), size(0), capacity(0), member(this) { }
