@@ -69,11 +69,6 @@ struct PlayerInfo_004685a0 {
     unsigned char mobile;              // +0x22f
 };
 
-struct SpotState {
-    char unknown_0[0xc];
-    void* owner;                       // +0xc
-};
-
 // Unused here: its symbol ids keep DrawRotatedQuadOutline (0x467a50) matching.
 struct Unit_00467960 {
     char unknown_0[0x110];

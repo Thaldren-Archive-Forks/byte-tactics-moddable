@@ -4443,22 +4443,6 @@ struct Piece_00458310 {  // 0x36 bytes, 19 views
     Piece_00458310* parent;  // +0x32
 };
 
-struct SpotState {  // 0x76 bytes, 20 views
-    int count;  // +0x0
-    int cacheDrawCount;  // +0x4
-    int animDirty;  // +0x8
-    Owner_459c70* owner;  // +0xc
-    Bitmap_00437b50* bitmap;  // +0x10
-    int shadow;  // +0x14
-    Rot16 pos;  // +0x18
-    Piece_00458310* root;  // +0x1e
-    Piece_00458310 pieces[1];  // +0x22
-    char unknown_58[18];
-    int pos_x;  // +0x6a
-    int pos_y;  // +0x6e
-    int pos_z;  // +0x72
-};
-
 struct Texture_00421700 {  // 0xc bytes, 1 view
     int tex;  // +0x0
     int unknown_4;  // +0x4
@@ -7538,6 +7522,7 @@ union UnitTypeFlags_459200 {  // 0x4 bytes, 1 view
 };
 
 #include "../src/graphics/model_types.h"
+#include "../src/graphics/spot_state.h"
 
 struct Poly_459c70 {  // 0x10 bytes, 1 view
     int x;  // +0x0
