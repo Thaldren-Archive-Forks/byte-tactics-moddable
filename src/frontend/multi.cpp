@@ -2668,7 +2668,7 @@ void UpdateBattleRoomFlags()
     if (i == 10) {
         i = g_game->localPlayer;
     }
-    PlayerInfo* info = ((Player*)((char*)g_game + 0x1b63))[i].info;
+    PlayerInfo* info = g_game->players_1b63[i].info;
 
     SetButtonStageByName((Class_004a1080*)&g_game->gui, "COMMANDER", info->commander);
     SetButtonStageByName((Class_004a1080*)&g_game->gui, "MAPPING", !info->mapping);
@@ -2822,7 +2822,7 @@ void CyclePlayerDisplayMode(void)
 // FUNCTION: 0x446450
 void UpdateWatchingGadgets()
 {
-    PlayerInfo* info = ((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].info;
+    PlayerInfo* info = g_game->players_1b63[g_game->localPlayer].info;
     SetButtonStageByName((Class_004a1080*)&g_game->gui, "WATCHING", info->watching);
     SetButtonStageByName((Class_004a1080*)&g_game->gui, "GAMEOPEN", !info->closed);
     MarkChanged((Dialog*)&g_game->gui);
@@ -2836,7 +2836,7 @@ void UpdateWatchingGadgets()
 // FUNCTION: 0x4464d0
 void __stdcall HandleControlDialogClick(Gui* gui)
 {
-    PlayerInfo* info = ((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].info;
+    PlayerInfo* info = g_game->players_1b63[g_game->localPlayer].info;
     if (gui->hotGadgetIndex != -1) {
         char buf[100];
         for (int i = 0; i < 10; i++) {
@@ -2849,7 +2849,7 @@ void __stdcall HandleControlDialogClick(Gui* gui)
         if (IsCurrentGadgetNamed(gui, "WATCHING")) {
             info->watching = !info->watching;
             PlaySoundByName("Options", 0);
-            info = ((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].info;
+            info = g_game->players_1b63[g_game->localPlayer].info;
             SetButtonStageByName((Class_004a1080*)&g_game->gui, "WATCHING", info->watching);
             SetButtonStageByName((Class_004a1080*)&g_game->gui, "GAMEOPEN", !info->closed);
             MarkChanged((Class_004a1080*)&g_game->gui);
@@ -2882,7 +2882,7 @@ void __stdcall HandleControlDialogClick(Gui* gui)
 // FUNCTION: 0x4466b0
 void OpenControlDialog()
 {
-    PlayerInfo* info = ((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].info;
+    PlayerInfo* info = g_game->players_1b63[g_game->localPlayer].info;
     if (info->bit6) {
         return;
     }
@@ -2890,7 +2890,7 @@ void OpenControlDialog()
     gadget->handler = HandleControlDialogClick;
     gadget->owner = g_game;
     RefreshAlliesScreen(1);
-    info = ((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].info;
+    info = g_game->players_1b63[g_game->localPlayer].info;
     SetButtonStageByName((Class_004a1080*)&g_game->gui, "WATCHING", info->watching);
     SetButtonStageByName((Class_004a1080*)&g_game->gui, "GAMEOPEN", !info->closed);
     MarkChanged((Dialog*)&g_game->gui);
@@ -3186,15 +3186,15 @@ void RebuildAllyList()
     // 52 bytes, not 44: sets the frame size.
     char text[52];
     // No lp local: both pointers are built from g_game->players[...] directly.
-    unsigned char* a = &((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].allied[0];
-    unsigned char* b = &((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].alliedBy[0];
+    unsigned char* a = &g_game->players_1b63[g_game->localPlayer].allied[0];
+    unsigned char* b = &g_game->players_1b63[g_game->localPlayer].alliedBy[0];
 
     if (IsScreenNamed(&g_game->gui, "ALLIES.GUI") != 0) {
         int i;
         // Pointer induction variables, not a[i] / b[i]; i < 10, not i != 10.
         for (i = 0; i < 10; ++i, ++a, ++b) {
-            if (IsAlly_00446fb0(&((Player*)((char*)g_game + 0x1b63))[i]) && i != g_game->localPlayer
-                && IsLive_00446fb0(&((Player*)((char*)g_game + 0x1b63))[i])) {
+            if (IsAlly_00446fb0(&g_game->players_1b63[i]) && i != g_game->localPlayer
+                && IsLive_00446fb0(&g_game->players_1b63[i])) {
                 sprintf(text, "LIVEALLY%d", i);
                 SetButtonStageByName(&g_game->gui, text, (*b << 1) | *a);
             }
@@ -3423,7 +3423,7 @@ void OpenAlliesDialog()
     RefreshAlliesScreen(0);
     RebuildAllyList();
     RefreshTeamIcons();
-    Player* local = &((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer];
+    Player* local = &g_game->players_1b63[g_game->localPlayer];
     int old = (local->info->flags_9d_wide >> 1) & 1;
     unsigned char win = (local->info->flags_9b >> 6) & 1;
     SetButtonStageByName((Class_004a1080*)&g_game->gui, "VICTORY", old);
@@ -4729,7 +4729,7 @@ void __stdcall BindNamedSliderWithCallback_0044c7e0(char* name, int max, int val
 // FUNCTION: 0x44c7e0
 void OpenUnitRestrictions()
 {
-    int host = ((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].info->host & 1;
+    int host = g_game->players_1b63[g_game->localPlayer].info->host & 1;
     Layer_00446f50* layer;
     Gadget* entries;
     char* flags;

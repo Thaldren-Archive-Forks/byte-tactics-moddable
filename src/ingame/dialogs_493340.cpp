@@ -1044,7 +1044,7 @@ void ToggleTabMenu()
     }
     // The players[localPlayer] scale by 0x14b is left to the compiler.
     int mode = g_game->net->GetGameType();
-    if (mode == 3 && !((Player*)((char*)g_game + 0x1b63))[g_game->localPlayer].info->bit6) {
+    if (mode == 3 && !g_game->players_1b63[g_game->localPlayer].info->bit6) {
         int v = count > 0;
         SetGadgetActiveByName(&g_game->gui, "ALLIES", v);
         SetGadgetActiveByName(&g_game->gui, "SHARE", v);
