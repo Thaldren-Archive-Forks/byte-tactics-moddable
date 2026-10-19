@@ -125,13 +125,21 @@ struct Player {
     unsigned short unitCount;          // +0x144
     unsigned char index;               // +0x146
     unsigned char startPos;            // +0x147
-    unsigned char rank;                // +0x148
-    union {                            // +0x149
-        unsigned short flags;
+    union {                            // +0x148
         struct {
-            unsigned short storage : 1;
-            unsigned short bits_149_1 : 15;
-        } bits_149;
+            unsigned char rank;
+            union {
+                unsigned short flags;
+                struct {
+                    unsigned short storage : 1;
+                    unsigned short bits_149_1 : 15;
+                } bits_149;
+            };
+        };
+        struct {
+            unsigned short bits0 : 8;
+            unsigned short started : 1;
+        } bits_148;
     };
 
     Player();
