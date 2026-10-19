@@ -3111,16 +3111,7 @@ public:
     Squad(int, int);
 };
 
-struct Elem_0040cc40 {  // 0x8 bytes, 19 views
-    Point16 pos;  // +0x0
-    float key;  // +0x4
-    Elem_0040cc40(Elem_0040cc40&);
-    Elem_0040cc40(Class_004c9390&, int);
-    Elem_0040cc40(short, short, float);
-    Elem_0040cc40(void);
-    ~Elem_0040cc40(void);
-    unsigned char operator<(Elem_0040cc40&);
-};
+#include "../src/ai/player_ai.h"
 
 struct Point16_00437de0 {  // 0x4 bytes, 5 views
     short x;  // +0x0
@@ -19147,35 +19138,6 @@ public:
     void TickTimers(void);
 };
 
-struct Elem_0040cfb0 {  // 0x3 bytes, 8 views
-    char a;  // +0x0
-    char b;  // +0x1
-    char c;  // +0x2
-};
-
-struct Elem_0040d4f0 {  // 0x1 bytes, 6 views
-    char value;  // +0x0
-};
-
-struct Elem_0040d550 {  // 0x4 bytes, 7 views
-    int unknown_0;  // +0x0
-};
-
-struct Pos_00409160 {  // 0x8 bytes, 2 views
-    short x;  // +0x0
-    short y;  // +0x2
-    int unknown_4;  // +0x4
-    Pos_00409160(short, short);
-};
-
-struct UnitList_00409160 {  // 0x10 bytes, 2 views
-    std::vector<Unit*> units;  // +0x0
-};
-
-struct Group_00409160 {  // 0x10 bytes, 2 views
-    UnitList_00409160 list;  // +0x0
-};
-
 class Owner {  // 0x10d bytes, 21 views
 public:
     char* player;  // +0x0
@@ -19228,32 +19190,6 @@ struct Elem_0040cc40_2 {  // 0x8 bytes, 1 view
     unsigned char operator<(Elem_0040cc40_2&);
 };
 
-struct UnitList_00409730 {  // 0x10 bytes, 1 view
-    std::vector<Unit_3*> units;  // +0x0
-};
-
-class Class_00409730 {  // 0xad bytes, 4 views
-public:
-    Player_00409730* player;  // +0x0
-    unsigned char index;  // +0x4
-    UnitList_00409730 list_5;  // +0x5
-    UnitList_00409730 list_15;  // +0x15
-    UnitList_00409730 list_25;  // +0x25
-    int pos_35[3];  // +0x35
-    int pos_41[3];  // +0x41
-    std::vector<Elem_0040cc40_2> vec_4d;  // +0x4d
-    short centerX;  // +0x5d
-    short centerY;  // +0x5f
-    int field_61;  // +0x61
-    std::vector<Elem_0040cfb0> vec_65;  // +0x65
-    int field_75;  // +0x75
-    int field_79;  // +0x79
-    std::vector<short> vec_7d;  // +0x7d
-    std::vector<unsigned char> vec_8d;  // +0x8d
-    std::vector<unsigned char> vec_9d;  // +0x9d
-    void ComputeBaseWeights(void);
-};
-
 struct Unit_3 {  // 0x4 bytes, 1 view
     int unknown_0;  // +0x0
 };
@@ -19264,13 +19200,6 @@ struct Sub {  // 0xc bytes, 1 view
     short v2;  // +0x4
     short v3;  // +0x6
     int v4;  // +0x8
-};
-
-struct PlayerAI {        // 0x109 bytes, 2 views
-    char unknown_0[241];
-    Sub s0;  // +0xf1
-    Sub s1;  // +0xfd
-    void InitPlacementGrid(void);
 };
 
 struct Class_0040a7b0 {  // 0x5d bytes, 2 views
