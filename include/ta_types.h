@@ -16,6 +16,7 @@
 #include "../src/weapons/unit_weapon_slot.h"
 #include "../src/weapons/weapon_def.h"
 #include "../src/weapons/damage_table.h"
+#include "../src/graphics/nano_particle_vector.h"
 
 #pragma pack(push, 1)
 
@@ -464,7 +465,6 @@ class TimedSubParticles;
 class Class_004750f0;
 class Class_00475150;
 class Class_00475440;
-struct NanoParticleVector;
 class Class_00475bd0;
 class Class_00476210;
 class Vec_00476490;
@@ -9777,13 +9777,6 @@ public:
     virtual void v3(void);
     virtual void v4(void);
     void FUN_00473b50(Seg_00473b50*, Seg_00473b50*, int);
-};
-
-struct NanoParticleVector {  // 0xc bytes, 2 views
-    int unknown_0;  // +0x0
-    int field_4;  // +0x4
-    int field_8;  // +0x8
-    int GetCount(void);
 };
 
 union Fix_00473d50 {  // 0x4 bytes, 1 view

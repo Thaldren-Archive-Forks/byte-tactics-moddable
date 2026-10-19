@@ -11,6 +11,7 @@
 // The expiry is the high half of (length << 16) / 0x40000, so it is 2^16 /
 // step ticks away; a zero step drops the particle.
 #include <math.h>
+#include "nano_particle_vector.h"
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -56,14 +57,6 @@ struct NanoParticle {
     int endTime;                       // +0x2c
 };
 
-// The vector's own out-of-line size() (0x475840) under the name
-// data/symbols.csv gives that address. It is this vector's first pointer at
-// +0x04 and its second at +0x08, so the cast below is a no-op.
-class NanoParticleVector {
-public:
-    unsigned int GetCount() const;
-};
-
 namespace std {
 
 // MSVC 5's _Allocate: the negative-count guard is what the insert's
@@ -102,9 +95,7 @@ _BI2 copy_backward(_BI1 _F, _BI1 _L, _BI2 _X)
 
 // <vector> with the members the original calls left undefined: the three
 // buffers are _First, _Last and _End, behind the empty allocator at +0x00.
-// It derives from the size() view, which is the same object, so the out-of-line
-// GetCount is reached without a cast (the empty base costs nothing).
-template <class _Ty, class _A = allocator<_Ty> > class vector : public NanoParticleVector {
+template <class _Ty, class _A = allocator<_Ty> > class vector {
 public:
     typedef vector<_Ty, _A> _Myt;
     typedef _A allocator_type;
@@ -133,7 +124,7 @@ public:
     size_type raw_size() const
         {return (_First == 0 ? 0 : _Last - _First); }
     size_type size() const
-        {return (this->GetCount()); }
+        {return ((NanoParticleVector*)this)->GetCount(); }
     void reserve(size_type _N);
     void push_back(const _Ty& _X)
         {insert(end(), 1, _X); }

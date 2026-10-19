@@ -48,6 +48,7 @@ struct Elem_00470f00 {
 // The pool object at g_particlePool (vtable 0x4fd580). 0x470c10, its Grow,
 // stays in particles_470c10.cpp.
 #include "object_pool.h"
+#include "nano_particle_vector.h"
 
 // The 12-byte fixed-point vector. The teleport sparks use the first three
 // members and their Length; the teleport records' owner scales the vector
@@ -869,17 +870,6 @@ public:
 class Vec_00476490 {
 public:
     void insert(TimedSubParticle* pos, int count, const TimedSubParticle* src);
-};
-
-// The vector's own out-of-line size() (0x475840) under the name
-// data/symbols.csv gives that address.
-class NanoParticleVector {
-public:
-    int alloc;
-    int _First;
-    int _Last;
-
-    int GetCount();
 };
 
 // std::copy for 14-byte elements, compiled with __stdcall as the default
