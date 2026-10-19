@@ -20,6 +20,8 @@ extern Handler g_handlers[4];
 struct Table { Handler fire; };
 struct Counter { static int count; int n; int Get() const { return n; } void Bump() { n++; } };
 extern Counter g_counter;
+template <class T> struct Vec { T* b; T* begin() { return b; } const T* begin() const { return b; } };
+struct Holder { Vec<int> v; };
 static int s_local;
 int Helper(int);
 void Fill(int* out);
@@ -48,6 +50,10 @@ void Calls() { int local = 0; Fill(&local); Look(&local); Fill(&g_count); Look(&
 void ConstCall() { g_counter.Get(); }
 
 void NonConstCall() { g_counter.Bump(); }
+
+int ConstObject(const Holder* h) { return *h->v.begin(); }
+
+int MutableObject(Holder* h) { return *h->v.begin(); }
 
 int ClassStatic() { return Counter::count; }
 
@@ -136,6 +142,11 @@ class RwsetsTest(unittest.TestCase):
         self.assertEqual(self.by_function["ConstCall"], {("call", "Counter::Get"), ("global_read", "g_counter")})
         self.assertEqual(self.by_function["NonConstCall"], {
             ("call", "Counter::Bump"), ("global_maybe_written", "g_counter")})
+
+    def test_method_call_on_a_const_object_reads_it(self):
+        self.assertIn(("field_read", "Holder::v"), self.by_function["ConstObject"])
+        self.assertNotIn(("field_maybe_written", "Holder::v"), self.by_function["ConstObject"])
+        self.assertIn(("field_maybe_written", "Holder::v"), self.by_function["MutableObject"])
 
     def test_class_static_is_a_global_of_the_class(self):
         self.assertEqual(self.by_function["ClassStatic"], {("global_read", "Counter::count")})

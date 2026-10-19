@@ -4051,7 +4051,10 @@ weapons,orders,shared_write,UnitWeaponSlot::weapon,10
 weapons,orders,shared_write,Vec3::x,94
 weapons,orders,shared_write,Vec3::y,71
 weapons,orders,shared_write,Vec3::z,94
+weapons,orders,shared_write,WeaponDef::energyPerShot,1
+weapons,orders,shared_write,WeaponDef::metalPerShot,1
 weapons,orders,shared_write,WeaponDef::range,9
+weapons,orders,shared_write,WeaponDef::reloadTime,2
 weapons,pathfinding,shared_write,Point16::x,7
 weapons,pathfinding,shared_write,Point16::y,7
 weapons,platform,call,BindModelTextures,1
@@ -4113,8 +4116,8 @@ weapons,presentation,call,Load3do,1
 weapons,presentation,call,MirrorObject,1
 weapons,presentation,call,PlaySoundAt,3
 weapons,presentation,call,UpdateBuildMenuIfFocusUnit,1
-weapons,presentation,shared_write,Debris::angle_x,1
-weapons,presentation,shared_write,Debris::obj,1
+weapons,presentation,shared_write,DebrisView::angle_x,1
+weapons,presentation,shared_write,DebrisView::obj,1
 weapons,presentation,shared_write,ExplodedPiece::rec,1
 weapons,presentation,shared_write,ExplodedPiece::unit,1
 weapons,presentation,shared_write,Face::color,1

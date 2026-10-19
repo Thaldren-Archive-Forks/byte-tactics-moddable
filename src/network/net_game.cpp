@@ -68,9 +68,7 @@ struct Ring_00453640 {                 // 0x48 bytes, 30 of them at g_game+0x12e
     unsigned char flags;               // +0x47
 };
 
-struct WeaponDef {
-    char data[0x115];
-};
+#include "../weapons/weapon_def.h"
 
 struct Holder_00453640;
 #include "../gui/gui.h"

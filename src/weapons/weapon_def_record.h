@@ -1,10 +1,10 @@
-#ifndef DEF_0049D270_H
-#define DEF_0049D270_H
+#ifndef WEAPON_DEF_RECORD_H
+#define WEAPON_DEF_RECORD_H
 
 class Map_0042e440;
 
 #pragma pack(push, 1)
-struct Def_0049d270 {
+struct WeaponDefRecord {
     unsigned char used;
     char unknown_1[31];
     char name2[64];
@@ -87,7 +87,7 @@ struct Def_0049d270 {
 #pragma pack(pop)
 
 #if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
-static_assert(sizeof(Def_0049d270) == 277, "Def_0049d270");
+static_assert(sizeof(WeaponDefRecord) == 277, "WeaponDefRecord");
 #endif
 
 #endif

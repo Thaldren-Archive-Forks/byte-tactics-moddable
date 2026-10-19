@@ -46,8 +46,8 @@
 #include "../units/f14373.h"
 #include "../units/name_004864b0.h"
 #include "../util/point.h"
-#include "../weapons/debris_00420f30.h"
-#include "../weapons/def_0049d270.h"
+#include "../weapons/debris.h"
+#include "../weapons/weapon_def_record.h"
 #include "clock_flags_0042f9a0.h"
 #include "flags_00496ce0.h"
 #include "load_flags_00497f40.h"
@@ -86,7 +86,7 @@ struct List_00420960;
 class Mission;
 class MissionConditions;
 struct Net_4517b0;
-struct Obj_00406f50;
+struct Projectile;
 class PathMap;
 struct PlayerInfo;
 struct SideData;
@@ -377,9 +377,9 @@ struct Game {
             unsigned char bit6_2cc6 : 1;
             unsigned char rest_2cc6 : 1;
             CursorState_0041cc60 cursor;
-            Def_0049d270 weapons[256];
+            WeaponDefRecord weapons[256];
             int projectileCount;
-            Obj_00406f50* projectiles;
+            Projectile* projectiles;
             void* field_141fb;
             void* field_141ff;
             void* field_14203;
@@ -435,7 +435,7 @@ struct Game {
             short blinkTimer;
             unsigned short flags_142f1;
             int value_142f3;
-            Obj_00406f50* tracked;
+            Projectile* tracked;
             int xs[4];
             int ys[4];
             unsigned char valid[4];
@@ -745,7 +745,7 @@ struct Game {
         int panelTop[5];
     };
     int count_1491b;
-    Debris_00420f30 debris[300];
+    Debris debris[300];
     List_00420960* lists[3];
     void* explosionLensFrame;
     Object3do slots[300];

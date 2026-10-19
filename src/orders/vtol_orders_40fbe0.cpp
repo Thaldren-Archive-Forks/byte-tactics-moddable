@@ -12,7 +12,7 @@ struct Order;
 #include "mission_type.h"
 
 #pragma pack(push, 1)
-struct WeaponDef { char pad0[0xdc]; int range; char pade0[0x111-0xe0]; unsigned int flags; };
+#include "../weapons/weapon_def.h"
 #include "../units/unit_def.h"
 struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index; };
 #include "unit_motion.h"
@@ -105,7 +105,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                                 // the test is in this sense on purpose: it is what
                                 // gives the loop the original's jump polarity, its
                                 // register for the pointer and its stack slots
-                                if (!((weapon->flags&2) && weapon->flags&0x10 && ((unsigned char)(((WeaponDef*)weapon->weapon)->flags >> 26)&1) == 0)) {
+                                if (!((weapon->flags&2) && weapon->flags&0x10 && ((unsigned char)(((WeaponDef*)weapon->weapon)->flags.value >> 26)&1) == 0)) {
                                 } else {
                                     Unit* target=g_seams.targeting->GetWeaponTargetUnit(unit,i);
                                     if (!target || !g_seams.weapons->WeaponCanReachUnit(unit,target,i) || Contains(unit->def->weaponCategories[i],target->unitDefIndex))

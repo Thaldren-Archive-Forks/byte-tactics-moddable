@@ -54,15 +54,6 @@ struct Flags241_00466dc0 {
     unsigned int :2;
 };
 
-union Flags111_00466dc0 {
-    unsigned int all;
-    struct {
-        unsigned int :30;
-        unsigned int bit30 : 1;
-        unsigned int :1;
-    } bits;
-};
-
 union Flags14281_00466dc0 {
     unsigned short all;
     struct {
@@ -102,12 +93,7 @@ struct PlayerView {
     char unknown_88[0x14b - 0x88];
 };
 
-struct WeaponDef {
-    char unknown_0[0xe0];
-    int coverage;                        // +0xe0
-    char unknown_e4[0x111 - 0xe4];
-    Flags111_00466dc0 flags;             // +0x111
-};
+#include "../weapons/weapon_def.h"
 
 // These headers' symbol ids replace those of seven declarations and a type that
 // were here to balance the ids (docs/c2-regalloc.md).
@@ -505,7 +491,7 @@ void DrawRadarUnits(void)
                             UnitWeaponSlot* slot = u->weapons;
                             int n = 3;
                             do {
-                                if (slot->weapon->flags.bits.bit30) {
+                                if (slot->weapon->flags.b.interceptor) {
                                     int r = ((int)g_game->width_142eb *
                                              (slot->weapon->coverage - 0x200)) /
                                             g_game->mapWidth;
@@ -541,8 +527,8 @@ void DrawRadarUnits(void)
             int x = (int)g_game->width_142eb * px / g_game->mapWidth;
             int py = q[2] - ((int)q[0] >> 1);
             int y = (int)g_game->screen_h * py / g_game->mapHeight;
-            if ((p->shot->flags.all & 0x60000000) == 0) {
-                if ((p->shot->flags.all & 0x40) == 0) {
+            if ((p->shot->flags.value & 0x60000000) == 0) {
+                if ((p->shot->flags.value & 0x40) == 0) {
                     if (OnRadar_00466dc0(px, py) ||
                         ((Tail_00466dc0*)q)->player ==
                             g_game->playerIndex) {
