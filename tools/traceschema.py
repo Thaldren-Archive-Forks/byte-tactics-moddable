@@ -18,7 +18,26 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TRACE_FORMAT = 3
 TYPES = ROOT / "include/ta_types.h"
-MOVED_TYPES = [ROOT / "src/units/unit.h"]
+
+
+def followed_headers(root_file, seen=None):
+    """Headers under src/ that root_file includes, transitively, in include order."""
+    seen = [] if seen is None else seen
+    for m in re.finditer(r'^#include "([^"]+)"', root_file.read_text(encoding="latin-1"), re.M):
+        path = (root_file.parent / m.group(1)).resolve()
+        if path.is_file() and (ROOT / "src") in path.parents and path not in seen:
+            seen.append(path)
+            followed_headers(path, seen)
+    return seen
+
+
+def moved_types(types=None):
+    found = followed_headers(types or TYPES)
+    unit = ROOT / "src/units/unit.h"
+    return found if unit in found else [unit, *found]
+
+
+MOVED_TYPES = moved_types()
 OUT = ROOT / "src/harness/trace_schema.h"
 
 BASE_SIZES: dict[str, int] = {
@@ -957,6 +976,9 @@ class Schema:
             comment = re.search(r"//\s*\+0x([0-9a-f]+)", line)
             explicit = int(comment.group(1), 16) if comment else None
             line = line.split("//")[0].strip()
+            fn = re.match(r"^[\w\s:*]+?\(\s*(?:\w+\s+)?\*\s*(\w+)\s*\)\s*\(.*\)\s*;$", line)
+            if fn:
+                line = "void* %s;" % fn.group(1)
             if not line.endswith(";") or "(" in line:
                 continue
             line = line[:-1].strip()
@@ -1184,14 +1206,14 @@ def generate():
                      % (key, key, nf, key, npl, size))
     lines.append("")
 
-    game_text = schema.struct_source("Game")[0]
+    game_fields = {l["name"]: l for l in schema.layout("Game")[0]}
     wind = []
     for name, ctype in WIND_FIELDS:
-        m = re.search(r"\b%s;\s*//\s*\+0x([0-9a-f]+)" % name, game_text)
+        m = game_fields.get(name)
         if not m:
             schema.errors.append("Game has no field %s" % name)
             continue
-        wind.append({"name": name, "offset": int(m.group(1), 16), "size": schema.size_of(ctype),
+        wind.append({"name": name, "offset": m["offset"], "size": schema.size_of(ctype),
                      "kind": "scalar", "target": None})
     emit_table(lines, "kWindFields", wind, True)
     lines.append("static const unsigned kWindFieldCount = %d;" % len(wind))
@@ -1200,7 +1222,7 @@ def generate():
     scalars = []
     game_text = schema.struct_source("Game")[0]
     for name, offset, size, target, mask in GAME_SCALARS:
-        has_field = re.search(r"//\s*\+0x%x\b" % offset, game_text) or re.search(r"\bunknown_%x\[" % offset, game_text)
+        has_field = any(l["offset"] == offset for l in game_fields.values()) or re.search(r"\bunknown_%x\[" % offset, game_text)
         if not has_field and offset not in (0x14217,):
             schema.errors.append("Game has no field at %#x for %s" % (offset, name))
         entry = {"name": name, "offset": offset, "size": size, "kind": "pointer" if target else "scalar",

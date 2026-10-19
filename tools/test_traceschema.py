@@ -3,7 +3,9 @@
     uv run tools/test_traceschema.py
 """
 
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import traceschema as ts
@@ -51,6 +53,41 @@ class FlattenUnionsTest(unittest.TestCase):
         (leaves, size), errors = leaves_of("Plain", "    int a;\n    int b;\n", 8)
         self.assertEqual(errors, [])
         self.assertEqual([l["name"] for l in leaves], ["a", "b"])
+
+
+class FunctionPointerTest(unittest.TestCase):
+    def test_function_pointer_fields_are_pointer_sized(self):
+        body = ("    int a;\n    void (__stdcall *handler)(void);\n"
+                "    int (*plain)(int x, char* y);\n    char* (__cdecl *named)();\n    int b;\n")
+        (leaves, size), errors = leaves_of("Widget", body, 0x14)
+        self.assertEqual(errors, [])
+        self.assertEqual([(l["name"], l["offset"], l["size"]) for l in leaves],
+                         [("a", 0, 4), ("handler", 4, 4), ("plain", 8, 4), ("named", 0xC, 4), ("b", 0x10, 4)])
+
+
+class FollowedHeadersTest(unittest.TestCase):
+    def test_follows_includes_under_src_transitively_in_order(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            (root / "include").mkdir()
+            (root / "src").mkdir()
+            (root / "include/top.h").write_text(
+                '#include <stdio.h>\n#include "../src/a.h"\n#include "../src/b.h"\n#include "../src/a.h"\n'
+                '#include "missing.h"\n')
+            (root / "src/a.h").write_text('#include "c.h"\n')
+            (root / "src/b.h").write_text("")
+            (root / "src/c.h").write_text('#include "b.h"\n')
+            with mock.patch.object(ts, "ROOT", root):
+                found = ts.followed_headers(root / "include/top.h")
+                moved = ts.moved_types(root / "include/top.h")
+            self.assertEqual([p.name for p in found], ["a.h", "c.h", "b.h"])
+            self.assertEqual(moved[0], root / "src/units/unit.h")
+
+    def test_real_list_has_unit_and_game(self):
+        names = [p.name for p in ts.MOVED_TYPES]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertIn("unit.h", names)
+        self.assertIn("game.h", names)
 
 
 if __name__ == "__main__":
