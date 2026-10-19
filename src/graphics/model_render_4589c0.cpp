@@ -12,19 +12,7 @@ struct Pos_4589c0 {
     Pos_4589c0(int a, int b, int c) { x = a; y = b; z = c; }
 };
 
-struct GafFrame {
-    unsigned short width;           // +0x00
-    unsigned short height;          // +0x02
-    short dx;                       // +0x04
-    short dy;                       // +0x06
-    unsigned char colour;           // +0x08
-    unsigned char flag9;            // +0x09
-    unsigned char count;            // +0x0a
-    unsigned char kind;             // +0x0b
-    char unknown_c[4];
-    unsigned char* pixels;          // +0x10
-    unsigned char* shade;           // +0x14
-};
+#include "gaf_frame.h"
 
 struct Surface_4589c0 {
     int width;                      // +0x00
@@ -40,7 +28,8 @@ struct Surface_4589c0 {
     unsigned int flag1 : 1;
 };
 
-struct Model_459200;
+#include "model_types.h"
+#include "memory_cache.h"
 
 #include "../units/unit_def.h"
 
@@ -62,52 +51,6 @@ struct UnitDefFlags_459200 {
     UnitTypeFlags_459200 flags;        // +0x241
 };
 
-struct Unit_459200 {
-    char unknown_0[0x6a];
-    int pos_x;
-    int pos_y;
-    int pos_z;
-    char unknown_76[0x8a-0x76];
-    Unit_459200* cargo;
-    Unit_459200* cargoNext;
-    UnitDef* def;
-    char unknown_96[8];
-    Model_459200* state;
-    char unknown_a2[4];
-    short unitDefIndex;
-    char unknown_a8[0xff-0xa8];
-    unsigned char playerIndex;
-    char unknown_100[4];
-    float buildLeft;
-    char unknown_108[6];
-    unsigned char activateFlags;
-    char cobStateFlags;
-    int flags;
-};
-
-struct Piece_459200 {
-    int field_0;                       // +0x0
-    char unknown_4[0x22 - 0x4];
-    int field_22;                      // +0x22
-    char unknown_26[2];
-    unsigned short flags;              // +0x28
-    char unknown_2a[0x36 - 0x2a];
-};
-
-struct Model_459200 {
-    int count;                         // +0x0
-    char unknown_4[0xc - 0x4];
-    Unit_459200* owner;                // +0xc
-    GafFrame* bitmap;                  // +0x10
-    GafFrame* shadow;                  // +0x14
-    char unknown_18[0x22 - 0x18];
-    Piece_459200 pieces[1];            // +0x22
-    char unknown_58[0x6a - 0x58];
-    int pos_x;                         // +0x6a
-    int pos_y;                         // +0x6e
-    int pos_z;                         // +0x72
-};
-
 union GameFlags_459200 {
     unsigned short whole;
     struct {
@@ -121,28 +64,6 @@ union GameFlags_459200 {
 
 #include "../game/game.h"
 
-struct Fixed_459200 {
-    unsigned short frac;
-    short whole;
-};
-
-struct Pos_459200 {
-    Fixed_459200 x;
-    Fixed_459200 y;
-    Fixed_459200 z;
-};
-
-struct Ints_459200 {
-    int x;
-    int y;
-    int z;
-};
-
-union Vec3_459200 {
-    int v[3];
-    Pos_459200 p;
-    Ints_459200 i;
-};
 #pragma pack(pop)
 
 class Surface;
@@ -159,23 +80,6 @@ template <class T> inline void Swap(T& a, T& b)
 
 extern Game* g_game;
 extern const float DAT_004fd4c0;
-
-struct UnitTable { void BuildObjectPicture(Model_459200*,int,int); void DrawPieces(GafFrame*,Model_459200*,int,int); };
-
-// The cache under the name the picture code uses: the same object, so it
-// derives from UnitTable to reach BuildObjectPicture and DrawPieces without a
-// cast (the empty base costs nothing).
-struct CMemoryCache : UnitTable {
-    char unknown_0[0x10];
-    GafFrame* bitmap;               // +0x10
-
-    void BuildShadow(Model_459200*, GafFrame*);
-    void DrawPiece(Model_459200*, int, Vec3_459200*, int, int, unsigned char, int);
-    void DrawObjectPicture(int param_2, Model_459200* model, Vec3_459200 v, int useColor);
-    void MergeIntoComposite(GafFrame* src, Model_459200* model);
-    int ShadeByIntensity(GafFrame* image, Model_459200* model);
-    GafFrame* MakeSilhouette(GafFrame* src);
-};
 
 int __stdcall GetGroundHeight(Pos_459200* p);
 void __stdcall DrawFrameBlended(int param_1, GafFrame* param_2, int x, int y);
@@ -231,7 +135,7 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
     int y = v.p.z.whole - (altitude >> 1) + 0x20;
     short dx = v.p.y.whole;
 
-    if (bmp->shade == 0) {
+    if (bmp->scratch == 0) {
         GameFlags_459200 gameFlags = (*(GameFlags_459200*)&g_game->flags_37f06);
         if (gameFlags.whole & 4) {
             f = ((UnitDefFlags_459200*)model->owner->def)->flags;
@@ -254,7 +158,7 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
             }
         }
         if (model->bitmap == 0) {
-            this->BuildObjectPicture(model, 0, 1);
+            ((UnitTable*)this)->BuildObjectPicture(model, 0, 1);
             bmp = model->bitmap;
         }
         if (!(model->owner->activateFlags & 4) && g_game->debugMode == 0)
@@ -262,18 +166,18 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
         else
             DrawFrameBlended(param_2, bmp, v.p.x.whole + 0x80, z);
         for (int i = model->count - 1; i >= 0; i--) {
-            if ((1 & model->pieces[i].flags) && !(model->pieces[i].flags & 2)) {
-                    DrawPiece(model, param_2, &cv, model->pieces[i].field_0,
-                                 model->pieces[i].field_22, model->owner->playerIndex, useColor);
+            if ((1 & model->pieces[i].flags.word) && !(model->pieces[i].flags.word & 2)) {
+                    DrawPiece(model, (void*)param_2, (Vec3*)&cv, model->pieces[i].object,
+                                 model->pieces[i].points, model->owner->playerIndex, useColor);
                 }
         }
         Unit_459200* unit = model->owner->cargo;
         while (unit) {
             if (!(unit->flags & 0x20000)) {
                 for (int i = unit->state->count - 1; i >= 0; i--) {
-                    Piece_459200* piece = &unit->state->pieces[i];
-                    if (piece->flags & 1) {
-                        DrawPiece(unit->state, param_2, &cv, piece->field_0, piece->field_22,
+                    Piece_459c70* piece = &unit->state->pieces[i];
+                    if (piece->flags.word & 1) {
+                        DrawPiece(unit->state, (void*)param_2, (Vec3*)&cv, piece->object, piece->points,
                                      unit->state->owner->playerIndex, useColor);
                     }
                 }
@@ -318,16 +222,16 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
             }
         }
         if (model->bitmap == 0) {
-            this->BuildObjectPicture(model, 0, 1);
+            ((UnitTable*)this)->BuildObjectPicture(model, 0, 1);
             bmp = model->bitmap;
         }
         MergeIntoComposite(bmp, model);
         if ((model->owner->flags & 0x20000000) == 0 || model->owner->buildLeft == DAT_004fd4c0)
-            this->DrawPieces(this->bitmap,model,model->owner->playerIndex,0);
+            ((UnitTable*)this)->DrawPieces(this->bitmap,model,model->owner->playerIndex,0);
         Unit_459200* unit = model->owner->cargo;
         while (unit) {
             if (!(unit->flags & 0x20000)) {
-                this->BuildObjectPicture(unit->state,1,-1);
+                ((UnitTable*)this)->BuildObjectPicture(unit->state,1,-1);
                 if (unit->state->bitmap) {
                     ShadeByIntensity(unit->state->bitmap,unit->state);
                     // Owner position read through int* op.

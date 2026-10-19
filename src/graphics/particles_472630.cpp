@@ -16,6 +16,7 @@
 // object from the free list and FreeSlot returns one to it; the inlined
 // operator new and delete need them.
 #include "object_pool.h"
+#include "nano_particle_vector.h"
 
 extern ObjectPool g_particlePool;
 extern char g_fxEventPoolBlocked;
@@ -424,17 +425,6 @@ public:
 class Vec_00476490 {
 public:
     void insert(TimedSubParticle* pos, int count, const TimedSubParticle* src);
-};
-
-// The vector's own out-of-line size() (0x475840) under the name
-// data/symbols.csv gives that address.
-class NanoParticleVector {
-public:
-    int alloc;
-    int _First;
-    int _Last;
-
-    int GetCount();
 };
 
 // std::vector<Elem_00473500> and its out-of-line members: size() (0x472d30),

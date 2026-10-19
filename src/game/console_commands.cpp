@@ -68,10 +68,7 @@ struct Tile {
 
 #include "../ai/pathfinder.h"
 
-class CMemoryCache {
-public:
-    void FlushCache();
-};
+#include "../graphics/memory_cache.h"
 
 #include "mission_conditions.h"
 // Unused here: the symbol id this declaration takes keeps 0x4181d0 matching

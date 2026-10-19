@@ -16,6 +16,8 @@
 #include "../src/weapons/unit_weapon_slot.h"
 #include "../src/weapons/weapon_def.h"
 #include "../src/weapons/damage_table.h"
+#include "../src/graphics/nano_particle_vector.h"
+#include "../src/units/squad.h"
 
 #pragma pack(push, 1)
 
@@ -464,7 +466,6 @@ class TimedSubParticles;
 class Class_004750f0;
 class Class_00475150;
 class Class_00475440;
-struct NanoParticleVector;
 class Class_00475bd0;
 class Class_00476210;
 class Vec_00476490;
@@ -1740,7 +1741,7 @@ struct Pic_004295b0;
 struct Pic_4665d0;
 struct Piece;
 struct PieceBits_00487080;
-struct PieceFlags_459c70;
+union PieceFlags_459c70;
 struct PieceFrame;
 struct Piece_00458310;
 struct Placement;
@@ -2767,17 +2768,6 @@ struct Slot_4b62d0 {  // 0x10 bytes, 5 views
     int unknown_8;  // +0x8
     int unknown_c;  // +0xc
     virtual void Fire(void);
-};
-
-class Squad {           // 0x20 bytes, 5 views
-public:
-    int field_0;  // +0x0
-    int field_4;  // +0x4
-    int field_8;  // +0x8
-    int field_c;  // +0xc
-    std::vector<int> items;  // +0x10
-    Squad(Squad&);
-    Squad(int, int);
 };
 
 #include "../src/ai/player_ai.h"
@@ -4256,22 +4246,6 @@ struct Piece_00458310 {  // 0x36 bytes, 19 views
     Piece_00458310* parent;  // +0x32
 };
 
-struct SpotState {  // 0x76 bytes, 20 views
-    int count;  // +0x0
-    int cacheDrawCount;  // +0x4
-    int animDirty;  // +0x8
-    Owner_459c70* owner;  // +0xc
-    Bitmap_00437b50* bitmap;  // +0x10
-    int shadow;  // +0x14
-    Rot16 pos;  // +0x18
-    Piece_00458310* root;  // +0x1e
-    Piece_00458310 pieces[1];  // +0x22
-    char unknown_58[18];
-    int pos_x;  // +0x6a
-    int pos_y;  // +0x6e
-    int pos_z;  // +0x72
-};
-
 struct Texture_00421700 {  // 0xc bytes, 1 view
     int tex;  // +0x0
     int unknown_4;  // +0x4
@@ -5377,15 +5351,7 @@ public:
     void FUN_00437a20(void);
 };
 
-class CMemoryCache {    // 0x14 bytes, 7 views
-public:
-    int unknown_0[4];  // +0x0
-    Bitmap_00437b50* scratch;  // +0x10
-    int AllocHandle(void**, int);
-    int AllocBitmap(Bitmap_00437b50**, int, int);
-    void BuildShadow(SpotState*, Bitmap_00437b50*);
-    int AllocTwoPlaneBitmap(Bitmap_00437b50**, int, int);
-};
+#include "../src/graphics/memory_cache.h"
 
 struct Record_00474cd0 {  // 0x3c bytes, 24 views
     void* data;  // +0x0
@@ -7307,22 +7273,12 @@ struct Fixed_00485140 {  // 0x4 bytes, 2 views
     short whole;  // +0x2
 };
 
-struct Ints_459200 {  // 0xc bytes, 1 view
-    int x;  // +0x0
-    int y;  // +0x4
-    int z;  // +0x8
-};
-
 union UnitTypeFlags_459200 {  // 0x4 bytes, 1 view
     union { unsigned int word; struct { unsigned int hi : 30; unsigned int b30 : 1; unsigned int lo : 1; } bits; };  // +0x0
 };
 
-struct PieceFlags_459c70 {  // 0x2 bytes, 4 views
-    unsigned short visible : 1;  // +0x0
-    unsigned short f1 : 1;
-    unsigned short lit : 1;
-    unsigned short rest : 13;
-};
+#include "../src/graphics/model_types.h"
+#include "../src/graphics/spot_state.h"
 
 struct Poly_459c70 {  // 0x10 bytes, 1 view
     int x;  // +0x0
@@ -7391,12 +7347,6 @@ struct Vector3 {  // 0xc bytes, 2 views
     int x;  // +0x0
     int y;  // +0x4
     int z;  // +0x8
-};
-
-struct Vector3s {  // 0x6 bytes, 1 view
-    short x;  // +0x0
-    short y;  // +0x2
-    short z;  // +0x4
 };
 
 struct Video_0045bb00 {  // 0x14e bytes, 1 view
@@ -9558,13 +9508,6 @@ public:
     virtual void v3(void);
     virtual void v4(void);
     void FUN_00473b50(Seg_00473b50*, Seg_00473b50*, int);
-};
-
-struct NanoParticleVector {  // 0xc bytes, 2 views
-    int unknown_0;  // +0x0
-    int field_4;  // +0x4
-    int field_8;  // +0x8
-    int GetCount(void);
 };
 
 union Fix_00473d50 {  // 0x4 bytes, 1 view

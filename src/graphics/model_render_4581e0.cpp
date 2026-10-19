@@ -20,6 +20,8 @@ extern const float DAT_004fd4cc;
 struct GafFrame;
 
 #include "../util/vec3.h"
+#include "model_types.h"
+#include "memory_cache.h"
 
 struct Flags_37f06 {
     unsigned short damagebars : 1;
@@ -46,113 +48,15 @@ void __stdcall DrawTexturedPolygon(GafFrame* surface, void* pic, void* poly, int
 void __stdcall FillShadedPolygon(GafFrame* surface, void* poly, int count, int flag);
 void __stdcall DrawLitTexturedPolygon(GafFrame* surface, void* pic, void* poly, int flag);
 
-struct GafFrame {
-    unsigned short width;            // +0x00
-    unsigned short height;           // +0x02
-    short xOffset;                   // +0x04
-    short yOffset;                   // +0x06
-    char colorKey;                   // +0x08
-    char unknown_9[7];
-    char* data;                      // +0x10
-    char* data2;                     // +0x14
-};
-
-#pragma pack(push, 1)
-struct Owner_459c70 {
-    char unknown_0[0x92];
-    char* def;                       // +0x92
-    char unknown_96[0xff - 0x96];
-    unsigned char kind;              // +0xff
-    char unknown_100[0x104 - 0x100];
-    float intensity;                 // +0x104
-    char unknown_108[0x110 - 0x108];
-    unsigned int flags;              // +0x110
-    unsigned char zBufferFlag;       // +0x114
-};
-
-struct FaceFlags_459c70 {
-    union {
-        unsigned int raw;
-        struct {
-            unsigned int textured : 1;
-            unsigned int usePic : 1;
-            unsigned int shaded : 1;
-            unsigned int rest : 29;
-        } bits;
-    };
-};
-
-struct Face_459c70 {
-    int unknown_0;                   // +0x00
-    int count;                       // +0x04
-    int unknown_8;                   // +0x08
-    unsigned short* indices;         // +0x0c
-    void* pic;                       // +0x10
-    int unknown_14;                  // +0x14
-    unsigned short* color;           // +0x18
-    FaceFlags_459c70 flags;          // +0x1c
-};
-
-struct PieceInfo_459c70 {
-    char unknown_0[4];
-    int vertexCount;                 // +0x04
-    int faceCount;                   // +0x08
-    int firstFace;                   // +0x0c
-    char unknown_10[8];
-    unsigned short* color;           // +0x18
-    char unknown_1c[0xc];
-    Face_459c70* faces;              // +0x28
-};
-
-struct PieceFlags_459c70 {
-    unsigned short visible : 1;
-    unsigned short colored : 1;
-    unsigned short lit : 1;
-    unsigned short rest : 13;
-};
-
-struct Piece_459c70 {
-    PieceInfo_459c70* info;          // +0x00
-    char unknown_4[0x22 - 0x04];
-    Vec3* vertices;                  // +0x22
-    char unknown_26[0x28 - 0x26];
-    PieceFlags_459c70 flags;         // +0x28
-    char unknown_2a[0x36 - 0x2a];
-};
-
-struct List_459c70 {
-    int count;                       // +0x00
-    char unknown_4[8];
-    Owner_459c70* owner;             // +0x0c
-    GafFrame* bitmap;                // +0x10
-    char unknown_14[0x22 - 0x14];
-    Piece_459c70 pieces[1];          // +0x22
-};
-#pragma pack(pop)
+#include "gaf_frame.h"
 
 struct Poly_459c70 { int x; int y; int z; int shade; };
 
-struct UnitTable {
-    char unknown_0[0x10];
-    GafFrame* shadow;                // +0x10
-
-    void MeasureModel(int* width, int* height, int* originX, int* originY, List_459c70* model, Vec3* offset);
-    int BuildObjectPicture(List_459c70* list, int param_2, int param_3);
-    void DrawPieces(GafFrame* bitmap, List_459c70* list, int kind, int useColor);
-    void DrawLitPieces(GafFrame* bitmap, List_459c70* list, int kind, int useColor);
-};
-
-static __inline int shade_bias(Owner_459c70* owner)
-{
-    bool c = ((*(unsigned int*)(owner->def + 0x241) >> 30) & 1) != 0;
-    return c ? 125 : 50;
-}
-
 // The 50 or 125 bias the original materialises separately in each arm of the
 // doubled-bitmap test, once per projected vertex.
-static __inline int shade_bias(List_459c70* list)
+static __inline int shade_bias(Model_459200* list)
 {
-    bool c = ((*(unsigned int*)(list->owner->def + 0x241) >> 30) & 1) != 0;
+    bool c = ((*(unsigned int*)((char*)list->owner->def + 0x241) >> 30) & 1) != 0;
     return c ? 125 : 50;
 }
 
@@ -164,10 +68,10 @@ static __inline int shade_bias(List_459c70* list)
 // Must stay the first function in the file: compiled later, a lea in the
 // summing loop moves above the fadd.
 // FUNCTION: 0x459c70
-void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
+void UnitTable::DrawLitPieces(GafFrame* bitmap, Model_459200* list,
     int kind, int useColor)
 {
-    PieceInfo_459c70* info;
+    Object3doView* info;
     Poly_459c70 poly[25];
     float accum[2000][3];
     Vec3f normal[2000];
@@ -182,12 +86,12 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
             mode = 1;
             shadow->width = (unsigned short)(bitmap->width << 1);
             shadow->height = (unsigned short)(bitmap->height << 1);
-            shadow->unknown_9[0] = 0;
-            shadow->colorKey = 1;
+            shadow->compressed = 0;
+            shadow->transparency = 1;
             shadow->xOffset = (short)(bitmap->xOffset << 1);
             shadow->yOffset = (short)(bitmap->yOffset << 1);
-            memset(shadow->data2, 0, shadow->width * shadow->height);
-            memset(shadow->data, 1, shadow->width * shadow->height);
+            memset(shadow->scratch, 0, shadow->width * shadow->height);
+            memset(shadow->pixelsOrLayers, 1, shadow->width * shadow->height);
             // Last in the shadow branch.
             src = bitmap;
             bitmap = shadow;
@@ -199,13 +103,13 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
     }
 
     for (int p = list->count - 1; p >= 0; p--) {
-        if (list->pieces[p].flags.visible) {
-            if (useColor == -1 || useColor == list->pieces[p].flags.colored
-                    || list->owner->intensity != 0.0f) {
-                Vec3* verts = list->pieces[p].vertices;
+        if (list->pieces[p].flags.bits.visible) {
+            if (useColor == -1 || useColor == list->pieces[p].flags.bits.colored
+                    || list->owner->buildLeft != 0.0f) {
+                Vec3* verts = list->pieces[p].points;
                 // Own read of the vertices, between verts and info: not v = verts.
-                Vec3* v = list->pieces[p].vertices;
-                info = list->pieces[p].info;
+                Vec3* v = list->pieces[p].points;
+                info = list->pieces[p].object;
                 // No n local or count guard: the loop runs to info->vertexCount.
                 int k;
                 for (k = 0; k < info->vertexCount; k++, v++) {
@@ -285,7 +189,7 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
                 }
 
                 // Divides by weight[k] directly, re-reading the vertex count.
-                for (k = 0; k < list->pieces[p].info->vertexCount; k++) {
+                for (k = 0; k < list->pieces[p].object->vertexCount; k++) {
                     if (weight[k] != 0) {
                         accum[k][0] /= weight[k];
                         accum[k][1] /= weight[k];
@@ -304,7 +208,7 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
                     unsigned short* idx = face->indices;
                     for (int j = 0; j < face->count; j++, idx++) {
                         poly[j] = vertex[*idx];
-                        if (list->pieces[p].flags.lit) {
+                        if (list->pieces[p].flags.bits.lit) {
 #ifdef __clang__
                             double light = (double)accum[*idx][0] * g_lightX + (double)accum[*idx][1] * g_lightY;
                             light += (double)accum[*idx][2] * g_lightZ;
@@ -346,9 +250,9 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
     if (((Flags_37f06*)(g_game + 0x37f06))->antiAlias) {
         if (mode != 0) {
             DownsampleFrame(bitmap, src);
-            unsigned char* s = (unsigned char*)src->data2;
+            unsigned char* s = (unsigned char*)src->scratch;
             if (s != 0) {
-                unsigned char* d = (unsigned char*)bitmap->data2;
+                unsigned char* d = (unsigned char*)bitmap->scratch;
                 for (int y = 0; y < src->height; y++) {
                     int x = src->width;
                     while (x--) {
@@ -362,16 +266,3 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
         }
     }
 }
-
-// Only AllocBitmap and AllocTwoPlaneBitmap are called here; the other
-// members' symbol ids put MeasureModel in the window it matches in.
-class CMemoryCache {
-public:
-    int InitCache(unsigned int size);
-    void FreeCache();
-    int AllocHandle(void** handle, int size);
-    int AllocBitmap(GafFrame** handle, int w, int h);
-    int AllocTwoPlaneBitmap(GafFrame** handle, int w, int h);
-    void FlushCache();
-    void ReleaseHandle(int handle);
-};

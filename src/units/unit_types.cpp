@@ -51,20 +51,7 @@ class UnitTable;
 
 #include "movement_class.h"
 
-// The unit table object at g_game+0x1437b: the memory cache with the composite
-// frame at +0x10, and the three methods this module calls.
-class UnitTable {
-public:
-    char unknown_0[0x10];
-    union {
-        int field_10;                  // +0x10
-        void* ptr;                     // +0x10
-    };
-
-    UnitTable* Construct(void);
-    void Initialize(int size);
-    void Destroy();
-};
+#include "../graphics/memory_cache.h"
 
 // Unused here: the symbol ids these declarations take keep LoadUnitTypes'
 // allocation, standing in for the two view classes merged above

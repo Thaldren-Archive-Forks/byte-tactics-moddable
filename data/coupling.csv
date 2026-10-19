@@ -1053,6 +1053,8 @@ los_radar,features,indirect,StampFeatureMetal,1
 los_radar,features,shared_write,Cell::feature,15
 los_radar,features,shared_write,GafFrame::height,1
 los_radar,features,shared_write,GafFrame::width,1
+los_radar,features,shared_write,GafFrame::xOffset,1
+los_radar,features,shared_write,GafFrame::yOffset,1
 los_radar,features,shared_write,Game::cells,6
 los_radar,features,shared_write,Vec3::x,7
 los_radar,features,shared_write,Vec3::y,5
@@ -1145,11 +1147,11 @@ los_radar,presentation,shared_write,FogGrid::cells,1
 los_radar,presentation,shared_write,FogGrid::height,1
 los_radar,presentation,shared_write,FogGrid::width,1
 los_radar,presentation,shared_write,GafFrame::height,64
-los_radar,presentation,shared_write,GafFrame::pixelsOrLayers,9
-los_radar,presentation,shared_write,GafFrame::transparency,5
-los_radar,presentation,shared_write,GafFrame::width,60
-los_radar,presentation,shared_write,GafFrame::xOffset,21
-los_radar,presentation,shared_write,GafFrame::yOffset,21
+los_radar,presentation,shared_write,GafFrame::pixelsOrLayers,41
+los_radar,presentation,shared_write,GafFrame::transparency,25
+los_radar,presentation,shared_write,GafFrame::width,65
+los_radar,presentation,shared_write,GafFrame::xOffset,44
+los_radar,presentation,shared_write,GafFrame::yOffset,44
 los_radar,presentation,shared_write,Game::cells,2
 los_radar,presentation,shared_write,Game::finalSurface,1
 los_radar,presentation,shared_write,Game::hotRadarCount,1
@@ -2655,6 +2657,8 @@ presentation,economy,shared_write,g_game,19
 presentation,features,shared_write,Fixed::whole,2
 presentation,features,shared_write,GafFrame::height,1
 presentation,features,shared_write,GafFrame::width,1
+presentation,features,shared_write,GafFrame::xOffset,1
+presentation,features,shared_write,GafFrame::yOffset,1
 presentation,features,shared_write,Game::difficulty,2
 presentation,features,shared_write,Player::active,2
 presentation,features,shared_write,Player::id,1
@@ -4185,6 +4189,8 @@ weapons,economy,shared_write,Unit::flags,1
 weapons,economy,shared_write,Unit::workTime,1
 weapons,features,indirect,GetFootprintCentre,1
 weapons,features,shared_write,Fixed::whole,2
+weapons,features,shared_write,GafFrame::xOffset,1
+weapons,features,shared_write,GafFrame::yOffset,1
 weapons,features,shared_write,Point16::x,11
 weapons,features,shared_write,Point16::y,11
 weapons,features,shared_write,Vec3::x,7
@@ -4319,9 +4325,9 @@ weapons,presentation,shared_write,Face::tex,1
 weapons,presentation,shared_write,Face::vindex,1
 weapons,presentation,shared_write,Fixed::value,7
 weapons,presentation,shared_write,Fixed::whole,6
-weapons,presentation,shared_write,GafFrame::transparency,5
-weapons,presentation,shared_write,GafFrame::xOffset,21
-weapons,presentation,shared_write,GafFrame::yOffset,21
+weapons,presentation,shared_write,GafFrame::transparency,25
+weapons,presentation,shared_write,GafFrame::xOffset,44
+weapons,presentation,shared_write,GafFrame::yOffset,44
 weapons,presentation,shared_write,GafRef::pic,1
 weapons,presentation,shared_write,GafRef::src,2
 weapons,presentation,shared_write,Game::count_1491b,1

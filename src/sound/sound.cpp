@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../units/squad.h"
 
 class Sound {
 public:
@@ -811,17 +812,6 @@ int IntDynArray::EraseByValue(int value)
     items.erase(last);
     return 1;
 }
-
-class Squad {
-public:
-    int owner;                         // +0x0
-    int index;                         // +0x4
-    int field_8;                       // +0x8
-    int field_c;                       // +0xc
-    std::vector<int> items;            // +0x10
-
-    Squad(int a, int b);
-};
 
 // Constructor of a class with two values, two zeroed fields and a
 // std::vector (allocator byte +0x10, _First +0x14, _Last +0x18, _End +0x1c).

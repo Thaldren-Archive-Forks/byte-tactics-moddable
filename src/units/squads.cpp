@@ -4,7 +4,7 @@
 #include "../state/block.h"
 #include <algorithm>
 
-class Squad;
+#include "squad.h"
 
 #include "../orders/mission_type.h"
 
@@ -16,20 +16,6 @@ struct Unit;
 #include "unit.h"
 #pragma pack(pop)
 
-class Squad {
-public:
-    int owner;                         // +0x0
-    int index;                         // +0x4
-    int field_8;                       // +0x8
-    int field_c;                       // +0xc
-    std::vector<Unit*> items;          // +0x10
-
-    Squad(int a, int b)
-        : owner(a), index(b), field_8(0), field_c(0)
-    {
-    }
-};
-
 void __cdecl GameFreeThunk(int* p);
 #include "../../interfaces/seams.h"
 
@@ -40,7 +26,14 @@ void __stdcall CreateSquads(Player* owner)
 {
     owner->groups = (Group*)SimAllocTagged("SQUADS", 10 * sizeof(Squad));
     for (int i = 0; i < 10; i++)
-        new (&((Squad*)owner->groups)[i]) Squad((int)owner, i);
+    {
+        Squad* squad = &((Squad*)owner->groups)[i];
+        squad->owner = (int)owner;
+        squad->index = i;
+        squad->field_8 = 0;
+        squad->field_c = 0;
+        new (&squad->items) std::vector<int>;
+    }
 }
 
 // Destroys the owner's ten squads allocated by 0x480190 and frees them.
@@ -82,9 +75,9 @@ void __stdcall SetUnitSquad(Unit* unit, int index)
 {
     // RemoveFast stays a separate inline helper: a flat body inlines push_back's size() calls too.
     if (unit->group != -1)
-        RemoveFast(((Squad*)((Player *)unit->player)->groups)[unit->group].items, unit);
+        RemoveFast((std::vector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[unit->group].items, unit);
     if (index != -1)
-        ((Squad*)((Player *)unit->player)->groups)[index].items.push_back(unit);
+        ((std::vector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[index].items).push_back(unit);
     unit->group = index;
 }
 

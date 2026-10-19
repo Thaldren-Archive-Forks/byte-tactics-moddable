@@ -73,12 +73,7 @@ struct SmokePos {
     Coord x, y, z;
 };
 
-struct GafFrame {
-    unsigned short width;
-    unsigned short height;
-    unsigned short originX;
-    unsigned short originY;
-};
+#include "../graphics/gaf_frame.h"
 
 struct FeatureDamagePacket {
     unsigned char type;
@@ -1061,10 +1056,10 @@ static inline SmokePos SmokeAt(Spot* spot, Feature* f)
     GafFrame* frame = GetGafSequenceFrame(&spot->anim);
     unsigned short w = frame->width;
     // The narrowed (unsigned short)(w >> 2) keeps `r - originX` before the add.
-    p.x.f.whole += Rand(w >> 1) - frame->originX + (unsigned short)(w >> 2);
+    p.x.f.whole += Rand(w >> 1) - (unsigned short)frame->xOffset + (unsigned short)(w >> 2);
     unsigned short h = frame->height;
     // The second term is a shift of a narrowed value: a linear form gets factored.
-    p.y.f.whole += (frame->originY - Rand(h >> 1)) * 2 - ((unsigned short)(h >> 2) << 1);
+    p.y.f.whole += ((unsigned short)frame->yOffset - Rand(h >> 1)) * 2 - ((unsigned short)(h >> 2) << 1);
     return p;
 }
 // Per-tick update of map features: advances the animations of animated
