@@ -57,8 +57,6 @@ struct PlayerInfo_00467440 {
 };
 
 #include "../game/game.h"
-
-inline Player* Game::Current(void) { return &players[playerIndex]; }
 #pragma pack(pop)
 
 class DetectionVisitor {

@@ -97,45 +97,7 @@ struct FixedPos_00496ee0 {
     Fixed_00496ee0 z;
 };
 
-// The ten team records at g_game+0x1b63 are 0x14b bytes. Three functions view
-// them under different names; the fields that disagree over the same bytes sit
-// in anonymous unions. +0xdc and +0xe0 are the two clamped sizes as floats,
-// +0x149 a 1-bit unsigned short bitfield (setting it gives the straight-to-
-// memory `or byte ptr [ecx+0x149], 1`).
-// The header's type, kept local: the info union and the +0x149 bitfield keep
-// the match (docs/c2-regalloc.md).
-struct PlayerView {
-    int active;                        // +0x0
-    int id;                            // +0x4
-    char unknown_8[0x27 - 0x8];
-    PlayerInfo* info;                  // +0x27
-    char unknown_2b[0x73 - 0x2b];
-    char type;                         // +0x73
-    char unknown_74[0xdc - 0x74];
-    union {
-        float size1;                   // +0xdc
-        float width;
-    };
-    union {
-        float size2;                   // +0xe0
-        float height;
-    };
-    char unknown_e4[0x146 - 0xe4];
-    char index;                        // +0x146
-    char unknown_147[0x148 - 0x147];
-    union {
-        struct {
-            unsigned short bits0 : 8;  // +0x148
-            unsigned short started : 1;
-        };
-        struct {
-            char unknown_148[0x149 - 0x148];
-            // Stays a 1-bit bitfield: a plain unsigned char moves the allocation.
-            unsigned short flag_149 : 1;   // +0x149
-            unsigned short rest_149 : 15;
-        };
-    };
-};
+#include "../network/player.h"
 
 // One view of the game state. The ten team records and the sub-object at
 // +0x1cd5 overlap
@@ -369,7 +331,7 @@ void PreBattleFrame()
 {
     // Declared at function scope: keeps its store before the pushes.
     char msg;
-    PlayerView* p = &(*(PlayerView(*)[10])&g_game->players)[g_game->localPlayer];
+    Player* p = &g_game->players[g_game->localPlayer];
     // Each branch keeps its own copy of the state change.
     if (p->info->flags_97 & 1) {
         msg = 8;
@@ -454,19 +416,19 @@ void __stdcall SetStartingStorageBonus(Struct_00496e90* obj, int height, int wid
 // FUNCTION: 0x496ee0
 void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
 {
-    (*(PlayerView(*)[10])&g_game->players)[team].info->side = ((TeamDef_00496ee0*)g_game->options)[team].nameIndex;
-    (*(PlayerView(*)[10])&g_game->players)[team].info->color = ((TeamDef_00496ee0*)g_game->options)[team].index2;
-    PlayerView* p = &(*(PlayerView(*)[10])&g_game->players)[team];
+    g_game->players[team].info->side = ((TeamDef_00496ee0*)g_game->options)[team].nameIndex;
+    g_game->players[team].info->color = ((TeamDef_00496ee0*)g_game->options)[team].index2;
+    Player* p = &g_game->players[team];
     int w = ((TeamDef_00496ee0*)g_game->options)[team].size2;
     int v = ((TeamDef_00496ee0*)g_game->options)[team].size1;
-    p->started = 1;
-    p->size1 = (float)(w >= 200 ? w : 200);
-    p->size2 = (float)(v >= 200 ? v : 200);
+    p->bits_148.started = 1;
+    p->energyStorageBonus = (float)(w >= 200 ? w : 200);
+    p->metalStorageBonus = (float)(v >= 200 ? v : 200);
 
     FixedPos_00496ee0 pos;
     if (g_seams.map->GetStartPosition(g_game->net, 0, (Vec3*)&pos, startpos)) {
         unsigned short id = g_seams.units->FindUnitTypeId(
-            (*(PlayerName_00496ee0(*)[8])&g_game->names_37f5f)[(*(PlayerView(*)[10])&g_game->players)[team].info->side].name);
+            (*(PlayerName_00496ee0(*)[8])&g_game->names_37f5f)[g_game->players[team].info->side].name);
         g_seams.units->CreateUnit(team, id, *(Vec3*)&pos, 1, 1, 0);
     } else {
         char buf[128];
@@ -497,7 +459,7 @@ void __stdcall SpawnCommanderAtStartPos(int team, int startpos)
 static int IsPlaying(unsigned char i)
 {
     if (i < 10) {
-        PlayerView* p = &(*(PlayerView(*)[10])&g_game->players)[i];
+        Player* p = &g_game->players[i];
         if (p->active != 0 && (p->type == 1 || p->type == 2 || p->type == 3)
             && p->index != 10)
             return 1;
@@ -506,11 +468,11 @@ static int IsPlaying(unsigned char i)
 }
 
 // Inlined copy of SetStartingStorageBonus.
-static inline void __stdcall SetSize_00496e90(PlayerView* obj, int height, int width)
+static inline void __stdcall SetSize_00496e90(Player* obj, int height, int width)
 {
-    obj->flag_149 = 1;
-    obj->width = (float)(width >= 200 ? width : 200);
-    obj->height = (float)(height >= 200 ? height : 200);
+    obj->bits_149.storage = 1;
+    obj->energyStorageBonus = (float)(width >= 200 ? width : 200);
+    obj->metalStorageBonus = (float)(height >= 200 ? height : 200);
 }
 
 // Possible original bug: the maxima are applied inside the same loop, so each
@@ -528,7 +490,7 @@ void InitStartingResourcesFromSkirmish()
                 h = s->metal;
             if (s->energy > w)
                 w = s->energy;
-            SetSize_00496e90(&(*(PlayerView(*)[10])&g_game->players)[i], h, w);
+            SetSize_00496e90(&g_game->players[i], h, w);
         }
     }
 }

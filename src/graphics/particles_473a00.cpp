@@ -29,30 +29,7 @@ struct Pos_004739b0 {
 
 #include "rect.h"
 
-struct MapSize_00473a00 {
-    unsigned int width;              // +0x0
-    unsigned int height;             // +0x4
-
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
-};
-
-struct ByteMap_00473a00 {
-    unsigned char* data;             // +0x0
-    MapSize_00473a00 size;           // +0x4
-
-    unsigned char Get(int x, int y) { return data[size.width * y + x]; }
-};
-
-// The header's type, kept local: its explored pointer cannot spell the
-// width/index pair this fog arm needs.
-struct PlayerView {
-    char unknown_0[0x7c];
-    ByteMap_00473a00 explored;       // +0x7c
-    char unknown_88[0x14b - 0x88];   // stride 331
-};
+#include "../network/player.h"
 
 #include "../game/game.h"
 
@@ -63,11 +40,11 @@ static inline int Identity_00473a00(int v) { return v; }
 // The second arm, inlined. The two player parameters are not a typo: the
 // Contains test through `p` and the width in the index through `q` are what
 // stop the index from folding into the imul.
-static inline int IsSeen_00473a00(PlayerView* p, PlayerView* q, int col, int row)
+static inline int IsSeen_00473a00(Player* p, Player* q, int col, int row)
 {
-    if (!p->explored.size.Contains((unsigned int)col, (unsigned int)row))
+    if (!((unsigned int)col < (unsigned int)p->exploredWidth && (unsigned int)row < (unsigned int)p->exploredHeight))
         return 0;
-    return (g_game->visibilityMask[q->explored.size.width * row + col] &
+    return (g_game->visibilityMask[(unsigned int)q->exploredWidth * row + col] &
             (1 << g_game->playerIndex)) != 0;
 }
 
@@ -105,14 +82,14 @@ void NanoParticle::DrawParticle(int dest, short x, short y)
     // per arm, once for the bounds test and once for the index, and a single
     // local makes MSVC 5 fold one of the two away. This spelling keeps both
     // loads and the prologue's register choice.
-    PlayerView* p = &((PlayerView*)g_game->players_1b63)[g_game->playerIndex];
-    PlayerView* q = &((PlayerView*)g_game->players_1b63)[g_game->playerIndex];
+    Player* p = &g_game->players_1b63[g_game->playerIndex];
+    Player* q = &g_game->players_1b63[g_game->playerIndex];
     int visible;
     if ((g_game->mapFlags & 2) == 2) {
         int col = posw.x >> 5;
         int row = (posw.y - (posw.height >> 1)) >> 5;
-        visible = p->explored.size.Contains((unsigned int)col, (unsigned int)row) &&
-                  p->explored.Get(col, row) != 0;
+        visible = (unsigned int)col < (unsigned int)p->exploredWidth && (unsigned int)row < (unsigned int)p->exploredHeight &&
+                  p->explored[(unsigned int)p->exploredWidth * row + col] != 0;
     } else {
         int col = posw.x >> 5;
         int row = (posw.y - (posw.height >> 1)) >> 5;

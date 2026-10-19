@@ -2928,7 +2928,7 @@ void __stdcall DrawProjectiles(void* surface)
         Proj_0049be60* p = (Proj_0049be60*)((char*)(void *)g_game->projectiles + offset);
         if (p->counter == 0) {
             unsigned char player = (char)g_game->playerIndex;
-            char* pb = (char*)g_game + 0x1b63 + 0x14b * player;
+            Player* pb = &g_game->players_1b63[player];
             Vec3* pos = &p->pos;
             if ((g_game->mapFlags & 2) == 2) {
                 int col = (int)*(short*)((char*)pos + 2) >> 5;

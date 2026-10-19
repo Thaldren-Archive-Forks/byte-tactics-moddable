@@ -317,24 +317,8 @@ struct Cell {                          // 13 bytes per cell
     };
 };
 
-struct PlayerData {
-    char unknown_0[0x97];
-    unsigned char flags;               // +0x97
-};
-
-struct PlayerView {
-    int active;                        // +0x0
-    char unknown_4[0x23];
-    PlayerData* data;                  // +0x27
-    char unknown_2b[0x48];
-    unsigned char type;                // +0x73
-    char unknown_74[0xd7];
-};
-
-struct PlayerInfo {
-    char unknown_0[4];
-    int id;                            // +0x4
-};
+#include "../network/player.h"
+#include "../network/player_info.h"
 
 #include "../units/unit.h"
 
@@ -868,7 +852,7 @@ int __stdcall ReclaimFeature(Unit* unit, Vec3* pos)
         packet.sub = 0xff;
         packet.x = x;
         packet.z = z;
-        BroadcastPacket(((PlayerInfo*)unit->player)->id, &packet, 6);
+        BroadcastPacket(((Player*)unit->player)->id, &packet, 6);
     }
     return 1;
 }
@@ -1180,7 +1164,7 @@ void __stdcall DamageFeature(Cell* cell, int x, int z, Weapon* weapon)
     FeatureDamagePacket packet;
     int send;
     if (g_seams.map->GetGameType(g_game->net) == 3) {
-        if (!(((PlayerData*)g_game->players[g_game->playerIndex].info)->flags & 1)) {
+        if (!(g_game->players[g_game->playerIndex].info->flags_97 & 1)) {
             packet.type = 0xf;
             packet.sub = weapon->kind;
             packet.x = x;

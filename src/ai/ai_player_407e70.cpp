@@ -29,28 +29,22 @@ struct Position_00408090 {              // 16.16 fixed point; only high words re
     short z;                            // +0xa
 };
 
-#include "byte_map.h"
+#include "../network/player.h"
 
-// The header's type, kept local: its explored pointer cannot spell the
-// ByteMap this fog test needs.
-struct PlayerView {
-    char unknown_0[0x7c];
-    ByteMap_00408090 explored;          // +0x7c
-};
+int __stdcall IsPointVisible(Player* player, Position_00408090* pos);
 
-int __stdcall IsPointVisible(PlayerView* player, Position_00408090* pos);
-
-static inline int IsExplored(PlayerView* player, Position_00408090* pos)
+static inline int IsExplored(Player* player, Position_00408090* pos)
 {
     // Plain int: an unsigned tx shortens the shift to 16 bits.
     int tx = pos->x >> 5;
     int ty = (pos->z - (pos->y >> 1)) >> 5;
-    if (player->explored.size.Contains(tx, ty) && player->explored.Get(tx, ty))
+    if ((unsigned int)tx < (unsigned int)player->exploredWidth && (unsigned int)ty < (unsigned int)player->exploredHeight &&
+        player->explored[(unsigned int)player->exploredWidth * ty + tx])
         return 1;
     return 0;
 }
 
-static inline int IsVisible(PlayerView* player, Position_00408090* pos)
+static inline int IsVisible(Player* player, Position_00408090* pos)
 {
     if ((g_game->mapFlags & 2) == 2)
         return IsExplored(player, pos);
@@ -137,7 +131,7 @@ void SpatialTimer::OnTimer()
         step = Offset(angle, 0x1400000);
     }
     probe += step;
-    if (IsVisible((PlayerView*)group->player, (Position_00408090*)&probe)) {
+    if (IsVisible((Player*)group->player, (Position_00408090*)&probe)) {
         int r = SumUnitRatingsInRange(player, &probe, 0xa0);
         // Operand order: the bestRating roll is called first.
         if (RandomInt(r) > RandomInt(bestRating)) {

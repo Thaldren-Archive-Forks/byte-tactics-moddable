@@ -7,31 +7,7 @@
 
 #include "../map/mission.h"
 
-struct Unit;
-class HapiBank;
-
-// Mission victory/defeat condition (see 0x48e010.cpp and 0x48fed0.cpp).
-class MissionCondition {
-public:
-    int satisfied;                       // +0x4
-    int celebrated;                      // +0x8
-
-    MissionCondition() { satisfied = celebrated = 0; }
-    virtual int IsSatisfied();                   // IsSatisfied
-    virtual void OnUnitDied(Unit* unit);         // Slot1
-    virtual void OnUnitCaptured(Unit* unit);     // Slot2
-    virtual void OnUnitCreated(Unit* unit);      // Slot3
-    virtual void SaveState(HapiBank* file) = 0;            // Save
-    virtual void LoadState(HapiBank* file) = 0;            // Load
-};
-
-// VictoryCondition_DestroyAllUnits.
-class VictoryDestroyAllUnits : public MissionCondition {
-public:
-    virtual int IsSatisfied();
-    virtual void SaveState(HapiBank* file);
-    virtual void LoadState(HapiBank* file);
-};
+#include "victory_conditions.h"
 
 #include "../network/player.h"
 #include "../state/block.h"
@@ -49,30 +25,18 @@ extern Game* g_game;
 // ecx and gives the linker the established name CheckAlliedVictory.
 int __fastcall CheckAlliedVictory(void* self);
 
-class MissionConditions {
-public:
-    MissionCondition* victory[16];       // +0x00
-    int victoryCount;                    // +0x40
-    MissionCondition* defeat[16];        // +0x44
-    int defeatCount;                     // +0x84
-    int active;                          // +0x88, set to 1 by the constructor (0x48df90)
-
-    // 0x48fed0, written in the class so that /Ob2 inlines it here.
-    inline int AllVictoryConditionsMet()
-    {
-        if (victoryCount == 0) {
-            victory[victoryCount] = new (kSim) VictoryDestroyAllUnits;
-            victoryCount++;
-        }
-        for (int i = 0; i < victoryCount; i++) {
-            if (!victory[i]->IsSatisfied())
-                return 0;
-        }
-        return 1;
+inline int MissionConditions::AllVictoryConditionsMet()
+{
+    if (victoryCount == 0) {
+        victory[victoryCount] = new (kSim) VictoryDestroyAllUnits;
+        victoryCount++;
     }
-
-    int CheckVictory();
-};
+    for (int i = 0; i < victoryCount; i++) {
+        if (!victory[i]->IsSatisfied())
+            return 0;
+    }
+    return 1;
+}
 
 // FUNCTION: 0x490230
 int MissionConditions::CheckVictory()

@@ -37,31 +37,8 @@ struct TdfParser;
 
 #include "../orders/mission_type.h"
 
-struct PlayerData {
-    char unknown_0[0x95];
-    unsigned char side;                // +0x95
-    unsigned char color;               // +0x96
-};
-
-struct Player {
-    int active;                        // +0x00
-    char unknown_4[0x27 - 0x4];
-    PlayerData* data;                  // +0x27
-    char unknown_2b[0x73 - 0x2b];
-    unsigned char type;                // +0x73
-    char unknown_74[0x7c - 0x74];
-    unsigned char* fog;                // +0x7c
-    int fogWidth;                      // +0x80
-    char unknown_84[0x8c - 0x84];
-    float energy;                      // +0x8c
-    char unknown_90[0x98 - 0x90];
-    float metal;                       // +0x98
-    char unknown_9c[0x146 - 0x9c];
-    unsigned char index;               // +0x146
-    char unknown_147[0x14b - 0x147];
-
-    void SetType(int type);
-};
+#include "../network/player.h"
+#include "../network/player_info.h"
 
 struct Movement {
     char unknown_0[0x10];
@@ -123,124 +100,7 @@ struct ViewFlags {
     unsigned short rest : 13;
 };
 
-struct Game {
-    char unknown_0[0x10];
-    void* sound;                       // +0x10
-    char unknown_14[0xdcb - 0x14];
-    unsigned char colors[16];          // +0xdcb
-    char unknown_ddb[0x1b63 - 0xddb];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;         // +0x2a42
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x2c8e - 0x2a44];
-    Point16 point;                    // +0x2c8e
-    char unknown_2c92[0x2caa - 0x2c92];
-    Vec3 pos;                          // +0x2caa
-    char unknown_2cb6[0x2cbc - 0x2cb6];
-    unsigned short cellFeature;        // +0x2cbc
-    char unknown_2cbe[0x14207 - 0x2cbe];
-    Pathfinder* pathfinder;
-    char unknown_1420b[0x14223 - 0x1420b];
-    int mapWidthWorld;                 // +0x14223
-    int mapHeightWorld;                // +0x14227
-    int mapPixelWidth;                 // +0x1422b
-    int mapPixelHeight;                // +0x1422f
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    int viewWidthTiles;                // +0x1423b
-    int viewHeightTiles;               // +0x1423f
-    char unknown_14243[0x1427f - 0x14243];
-    unsigned char seaLevel;            // +0x1427f
-    unsigned char debugMode; // +0x14280
-    ViewFlags mapFlags;                // +0x14281
-    char unknown_14283[0x14287 - 0x14283];
-    Tile* heightMap;                   // +0x14287
-    char unknown_1428b[0x1431f - 0x1428b];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x1434d - 0x14327];
-    unsigned char scrollSpeed;         // +0x1434d
-    char unknown_1434e[0x14357 - 0x1434e];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    char unknown_1435f[0x14371 - 0x1435f];
-    unsigned short autoFollowTicks;    // +0x14371
-    unsigned int bit0 : 1;             // +0x14373
-    unsigned int autoFollow : 1;
-    unsigned int rest_14373 : 30;
-    char unknown_14377[0x1437b - 0x14377];
-    CMemoryCache* unitTable;           // +0x1437b
-    char unknown_1437f[0x1438f - 0x1437f];
-    int unitDefCount;                  // +0x1438f
-    char unknown_14393[0x1439b - 0x14393];
-    UnitDef* unitDefs;                 // +0x1439b
-    char unknown_1439f[0x148db - 0x1439f];
-    void* logos32;                     // +0x148db
-    char unknown_148df[0x37e23 - 0x148df];
-    int screenHeight;                  // +0x37e23
-    char unknown_37e27[0x37efa - 0x37e27];
-    int interfaceType;                 // +0x37efa
-    char unknown_37efe[0x37f02 - 0x37efe];
-    int screenChat;                    // +0x37f02
-    GameFlags visualFlags;             // +0x37f06
-    int gamma;                         // +0x37f08
-    char unknown_37f0c[0x37f2f - 0x37f0c];
-    union {
-        unsigned short uiOptionFlags;  // +0x37f2f
-        struct {
-            unsigned short b0 : 1;
-            unsigned short b1 : 1;
-            unsigned short b2 : 1;
-            unsigned short b3 : 1;
-            unsigned short b4 : 1;
-            unsigned short b5 : 1;
-            unsigned short b6 : 1;
-            unsigned short b7 : 1;
-            unsigned short b8 : 1;
-            unsigned short b9 : 1;
-            unsigned short flag10 : 1;
-            unsigned short rest_37f2f : 5;
-        };
-    };
-    char unknown_37f31[0x37f35 - 0x37f31];
-    int netSendDropPct;                // +0x37f35
-    char unknown_37f39[0x38a37 - 0x37f39];
-    int lastSimBudgetTick;             // +0x38a37
-    char unknown_38a3b[0x38a47 - 0x38a3b];
-    int gameTick;                      // +0x38a47
-    char unknown_38a4b[0x38a53 - 0x38a4b];
-    // The install path the Film command replaces and the film speed value
-    // overlap.
-    union {
-        char path[0x20c];              // +0x38a53
-        struct {
-            char unknown_38a53[0x38c57 - 0x38a53];
-            int movieOutputRate;       // +0x38c57
-        };
-    };
-    int imageOutputDirDirty;           // +0x38c5f
-    int movieOutputRateDirty;          // +0x38c63
-    char unknown_38c67[0x38dd5 - 0x38c67];
-    int profileBarsEnabled;            // +0x38dd5
-    char unknown_38dd9[0x391ed - 0x38dd9];
-    MissionConditions* victoryConditions;  // +0x391ed
-    char unknown_391f1[0x391fd - 0x391f1];
-    int fontSmlFont;                   // +0x391fd
-    char unknown_39201[0x3923b - 0x39201];
-    union {
-        unsigned short endGameFlags;   // +0x3923b
-        struct {
-            unsigned short bits_3923b : 2;
-            unsigned short flag2 : 1;
-            unsigned short bit3 : 1;
-            unsigned short flag4 : 1;
-            unsigned short flag5 : 1;
-            unsigned short flag6 : 1;
-            unsigned short rest_3923b : 9;
-        };
-    };
-};
+#include "../game/game.h"
 
 #pragma pack(pop)
 
@@ -569,8 +429,8 @@ void __stdcall CmdFeature(CommandArgs* args)
 // FUNCTION: 0x416420
 void __stdcall CmdShading(int unused)
 {
-    g_game->visualFlags.shading = !g_game->visualFlags.shading;
-    g_game->unitTable->FlushCache();
+    g_game->visualBits.shading = !g_game->visualBits.shading;
+    ((CMemoryCache*)g_game->unitTable)->FlushCache();
     SaveSettings();
 }
 
@@ -596,7 +456,7 @@ void __stdcall CmdKill(CommandArgs* args)
     } else {
         g_seams.players->KillPlayerUnits(args->GetIntArg(1, 0));
     }
-    g_seams.players->DeactivateConditions(g_game->victoryConditions);
+    g_seams.players->DeactivateConditions(g_game->list_391ed);
 }
 
 // FUNCTION: 0x416500
@@ -608,8 +468,8 @@ void __stdcall CmdZBuffer(int)
 // FUNCTION: 0x416510
 void __stdcall CmdAntiAlias(int unused)
 {
-    g_game->visualFlags.antiAlias = !g_game->visualFlags.antiAlias;
-    g_game->unitTable->FlushCache();
+    g_game->visualBits.antiAlias = !g_game->visualBits.antiAlias;
+    ((CMemoryCache*)g_game->unitTable)->FlushCache();
     SaveSettings();
 }
 
@@ -617,15 +477,15 @@ void __stdcall CmdAntiAlias(int unused)
 // FUNCTION: 0x416550
 void __stdcall CmdShadow(int unused)
 {
-    g_game->visualFlags.shadows = !g_game->visualFlags.shadows;
-    g_game->unitTable->FlushCache();
+    g_game->visualBits.shadows = !g_game->visualBits.shadows;
+    ((CMemoryCache*)g_game->unitTable)->FlushCache();
     SaveSettings();
 }
 
 // FUNCTION: 0x416590
 void __stdcall CmdDither(int unused)
 {
-    g_game->visualFlags.ditheredFog = !g_game->visualFlags.ditheredFog;
+    g_game->visualBits.ditheredFog = !g_game->visualBits.ditheredFog;
     SaveSettings();
 }
 
@@ -633,18 +493,18 @@ void __stdcall CmdDither(int unused)
 void __stdcall CmdSwitchAlt(CommandArgs* args)
 {
     if (args->count < 2) {
-        g_game->visualFlags.switchAlt = !g_game->visualFlags.switchAlt;
+        g_game->visualBits.switchAlt = !g_game->visualBits.switchAlt;
         SaveSettings();
         return;
     }
-    g_game->visualFlags.switchAlt = args->GetIntArg(1, 0);
+    g_game->visualBits.switchAlt = args->GetIntArg(1, 0);
 }
 
 // Toggles one flag bit in a 16-bit bitfield inside the game state.
 // FUNCTION: 0x416630
 void __stdcall CmdTShadow(int unused)
 {
-    g_game->visualFlags.vehicleShadows = !g_game->visualFlags.vehicleShadows;
+    g_game->visualBits.vehicleShadows = !g_game->visualBits.vehicleShadows;
 }
 
 // Toggles one flag bit in a 16-bit bitfield inside the game state (the same
@@ -652,13 +512,13 @@ void __stdcall CmdTShadow(int unused)
 // FUNCTION: 0x416660
 void __stdcall CmdFShadow(int unused)
 {
-    g_game->visualFlags.featureShadows = !g_game->visualFlags.featureShadows;
+    g_game->visualBits.featureShadows = !g_game->visualBits.featureShadows;
 }
 
 // FUNCTION: 0x416690
 void __stdcall CmdLOSType(int unused)
 {
-    g_game->mapFlags.bit2 = !g_game->mapFlags.bit2;
+    g_game->bits_14281.bit2_14281 = !g_game->bits_14281.bit2_14281;
     g_seams.los_radar->RecalculateLineOfSight(0);
 }
 
@@ -666,20 +526,20 @@ void __stdcall CmdLOSType(int unused)
 void __stdcall CmdLight(CommandArgs* args)
 {
     SetLightVector(args->GetIntArg(1, 0), args->GetIntArg(2, 0), args->GetIntArg(3, 0));
-    g_game->unitTable->FlushCache();
+    ((CMemoryCache*)g_game->unitTable)->FlushCache();
 }
 
 // FUNCTION: 0x416710
 void __stdcall CmdRCache(int unused)
 {
-    g_game->unitTable->FlushCache();
+    ((CMemoryCache*)g_game->unitTable)->FlushCache();
 }
 
 // FUNCTION: 0x416730
 void __stdcall CmdEdge(CommandArgs* args)
 {
-    g_game->mapPixelWidth = g_game->mapWidthWorld - args->GetIntArg(1, 0x20);
-    g_game->mapPixelHeight = g_game->mapHeightWorld - args->GetIntArg(2, 0x80);
+    g_game->mapWidth = g_game->baseX - args->GetIntArg(1, 0x20);
+    g_game->mapHeight = g_game->baseY - args->GetIntArg(2, 0x80);
 }
 
 // Console command: sets two fields of a game sub-object, the second from a
@@ -688,33 +548,33 @@ void __stdcall CmdEdge(CommandArgs* args)
 void __stdcall CmdSearch(CommandArgs* args)
 {
     if (args->GetIntArg(1, 0)) {
-        g_game->pathfinder->stepsPerTick = args->GetIntArg(1, 0);
+        ((Pathfinder*)g_game->pathfinder)->stepsPerTick = args->GetIntArg(1, 0);
     }
     if (args->count == 3) {
-        g_game->pathfinder->baseScale = (int)(atof(args->GetArg(2, DAT_005119b8)) * 65536.0);
+        ((Pathfinder*)g_game->pathfinder)->baseScale = (int)(atof(args->GetArg(2, DAT_005119b8)) * 65536.0);
     }
 }
 
 // FUNCTION: 0x4167f0
 void __stdcall CmdCDPlay(CommandArgs* args)
 {
-    ((Sound*)g_game->sound)->PlayCdTrack(args->GetIntArg(1, 0), 1);
+    ((Sound*)g_game->field_10)->PlayCdTrack(args->GetIntArg(1, 0), 1);
 }
 
 // FUNCTION: 0x416810
 void __stdcall CmdCDStop(int unused)
 {
-    ((Sound*)g_game->sound)->StopCdAudio();
+    ((Sound*)g_game->field_10)->StopCdAudio();
 }
 
 // FUNCTION: 0x416820
 void __stdcall CmdSound3D(int unused)
 {
-    if (((Sound*)g_game->sound)->Is3DEnabled()) {
-        ((Sound*)g_game->sound)->Disable3D();
+    if (((Sound*)g_game->field_10)->Is3DEnabled()) {
+        ((Sound*)g_game->field_10)->Disable3D();
         SaveSettings();
     } else {
-        ((Sound*)g_game->sound)->Enable3D();
+        ((Sound*)g_game->field_10)->Enable3D();
         SaveSettings();
     }
 }
@@ -750,8 +610,8 @@ void __stdcall CmdLogo(CommandArgs* args)
                     && p->index != 10) {
                     int v = args->GetIntArg(1, 0);
                     int j = args->GetIntArg(2, 0);
-                    g_game->players[j].data->color = v;
-                    g_game->unitTable->FlushCache();
+                    g_game->players[j].info->color = v;
+                    ((CMemoryCache*)g_game->unitTable)->FlushCache();
                     return;
                 }
             }
@@ -766,13 +626,13 @@ void __stdcall CmdLogo(CommandArgs* args)
 // FUNCTION: 0x4169d0
 void __stdcall CmdIWin(CommandArgs* args)
 {
-    if (g_game->players[g_game->localPlayer].data->side == 1)
+    if (g_game->players[g_game->localPlayer].info->side == 1)
         g_seams.players->KillPlayerUnits(0);
     else
         g_seams.players->KillPlayerUnits(1);
-    g_game->flag4 = 1;
-    g_game->flag5 = 1;
-    g_game->flag2 = 1;
+    g_game->bits.flag4 = 1;
+    g_game->bits.flag5 = 1;
+    g_game->bits.flag2 = 1;
 }
 
 // Command callback: passes the local player's byte at +0x95 of its data
@@ -781,10 +641,10 @@ void __stdcall CmdIWin(CommandArgs* args)
 // FUNCTION: 0x416a30
 void __stdcall CmdILose(CommandArgs* args)
 {
-    g_seams.players->KillPlayerUnits(g_game->players[g_game->localPlayer].data->side);
-    g_game->flag4 = 0;
-    g_game->flag6 = 1;
-    g_game->flag2 = 1;
+    g_seams.players->KillPlayerUnits(g_game->players[g_game->localPlayer].info->side);
+    g_game->bits.flag4 = 0;
+    g_game->bits.flag6 = 1;
+    g_game->bits.flag2 = 1;
 }
 
 // FUNCTION: 0x416a90
@@ -861,7 +721,7 @@ void __stdcall CmdIFace(void* args)
 // FUNCTION: 0x416d50
 void __stdcall CmdLOS(int unused)
 {
-    g_game->mapFlags.bit1 = !g_game->mapFlags.bit1;
+    g_game->bits_14281.bit1_14281 = !g_game->bits_14281.bit1_14281;
     SaveSettings();
     g_seams.los_radar->RecalculateLineOfSight(0);
 }
@@ -870,7 +730,7 @@ void __stdcall CmdLOS(int unused)
 // FUNCTION: 0x416d80
 void __stdcall CmdMapping(int unused)
 {
-    g_game->mapFlags.bit0 = !g_game->mapFlags.bit0;
+    g_game->bits_14281.bit0_14281 = !g_game->bits_14281.bit0_14281;
     SaveSettings();
     g_seams.los_radar->RecalculateLineOfSight(1);
 }
@@ -887,20 +747,20 @@ void __stdcall CmdContour(CommandArgs* args)
 // FUNCTION: 0x416e00
 void __stdcall CmdSelBoxes(int unused)
 {
-    g_game->b2 = !g_game->b2;
+    g_game->uiOptionBits.b2 = !g_game->uiOptionBits.b2;
 }
 
 // FUNCTION: 0x416e30
 void __stdcall CmdTreeDeath(int unused)
 {
-    g_game->b3 = !g_game->b3;
+    g_game->uiOptionBits.b3 = !g_game->uiOptionBits.b3;
 }
 
 // Toggles bit 4 of the flags word at g_game+0x37f2f (like 0x416e30, bit 3).
 // FUNCTION: 0x416e60
 void __stdcall CmdNoShake(int unused)
 {
-    g_game->b4 = !g_game->b4;
+    g_game->uiOptionBits.b4 = !g_game->uiOptionBits.b4;
 }
 
 // FUNCTION: 0x416e90
@@ -933,13 +793,13 @@ void __stdcall CmdDoubleShot(int unused)
 // FUNCTION: 0x417060
 void __stdcall CmdHalfShot(int unused)
 {
-    g_game->b8 = !g_game->b8;
+    g_game->uiOptionBits.b8 = !g_game->uiOptionBits.b8;
 }
 
 // FUNCTION: 0x417090
 void __stdcall CmdRadar(int unused)
 {
-    g_game->b9 = !g_game->b9;
+    g_game->uiOptionBits.b9 = !g_game->uiOptionBits.b9;
 }
 
 // Command callback (cheat): adds 1000 metal and 1000 energy to the local
@@ -954,7 +814,7 @@ void __stdcall CmdATM(CommandArgs* args)
 // FUNCTION: 0x417130
 void __stdcall CmdScreenChat(int unused)
 {
-    g_game->screenChat ^= 1;
+    g_game->screenchat ^= 1;
     SaveSettings();
 }
 
@@ -1000,7 +860,7 @@ void __stdcall CmdNoEnergy(CommandArgs* args)
 void __stdcall CmdGamma(CommandArgs* args)
 {
     SetBrightness(args->GetIntArg(1, 0) * 0.1f);
-    g_game->gamma = args->GetIntArg(1, 0);
+    g_game->brightness = args->GetIntArg(1, 0);
     SaveSettings();
 }
 
@@ -1017,7 +877,7 @@ void __stdcall CmdSing(int unused)
 // FUNCTION: 0x417300
 void __stdcall CmdClock(int unused)
 {
-    g_game->b6 = !g_game->b6;
+    g_game->uiOptionBits.b6 = !g_game->uiOptionBits.b6;
     SaveSettings();
 }
 
@@ -1029,7 +889,7 @@ void __stdcall CmdFilm(CommandArgs* args)
         if (g_game->path[strlen(g_game->path) - 1] == '\\' ||
             g_game->path[strlen(g_game->path) - 1] == '/')
             g_game->path[strlen(g_game->path) - 1] = 0;
-        g_game->imageOutputDirDirty = 1;
+        g_game->valueSet = 1;
         SaveSettings();
     }
 }
@@ -1040,7 +900,7 @@ void __stdcall CmdFilmSpeed(CommandArgs* args)
 {
     if (args->count > 1 && args->GetIntArg(1, 0) > 0) {
         g_game->movieOutputRate = args->GetIntArg(1, 0);
-        g_game->movieOutputRateDirty = 1;
+        g_game->valueSet_38c63 = 1;
         SaveSettings();
     }
 }
@@ -1115,7 +975,7 @@ void __stdcall CmdNowISee(void*)
 void __stdcall CmdNetStats(int)
 {
     FUN_004161f0();
-    DAT_00511c20 = g_game->gameTick;
+    DAT_00511c20 = g_game->ticks;
     g_messageBytesReceived = 0;
     g_messageBytesSent = 0;
     Pair_00419560* p = (Pair_00419560*)&g_messageBytesByType[1];
@@ -1152,26 +1012,26 @@ void __stdcall CmdMakePoster(CommandArgs* args)
     if (args->count > 2)
         h = args->GetIntArg(2, 0);
     if (_strcmpi(args->GetArg(1, DAT_005119b8), "all") == 0) {
-        w = g_game->mapPixelWidth;
-        h = g_game->mapPixelHeight;
+        w = g_game->mapWidth;
+        h = g_game->mapHeight;
     }
-    int sx = g_game->viewWidthTiles;
+    int sx = g_game->screenTilesX;
     w = max(w, sx * 16);
-    w = min(w, g_game->mapPixelWidth);
-    int sy = g_game->viewHeightTiles;
+    w = min(w, g_game->mapWidth);
+    int sy = g_game->screenTilesY;
     h = max(h, sy * 16);
-    h = min(h, g_game->mapPixelHeight);
+    h = min(h, g_game->mapHeight);
     int x = g_game->scrollX - w / 2 + sx * 8;
     int y = g_game->scrollY - h / 2 + sy * 8;
     x = max(x, 0);
-    x = min(x, g_game->mapPixelWidth - w);
+    x = min(x, g_game->mapWidth - w);
     y = max(y, 0);
-    y = min(y, g_game->mapPixelHeight - h);
+    y = min(y, g_game->mapHeight - h);
     char buf[256];
     sprintf(buf, "%s\\screenshots", g_game->path);
     MakeDirectoryPath(buf);
     WriteScreenshot(buf, "BIGSHOT", x, y, w, h);
-    g_game->lastSimBudgetTick = GetTicks();
+    g_game->lastTick = GetTicks();
 }
 
 // Console command: with an argument, calls EnableMeteors or DisableMeteors
@@ -1193,7 +1053,7 @@ void __stdcall CmdMeteor(CommandArgs* args)
 void __stdcall CmdDrop(CommandArgs* args)
 {
     int value = args->GetIntArg(1, 0);
-    g_game->b0 = value == 0;
+    g_game->uiOptionBits.b0 = value == 0;
 }
 
 // Debug-data dump helper (sibling of 0x417430/0x417490): builds
@@ -1226,14 +1086,14 @@ void __stdcall DefaultCommandHandler(CommandArgs* args)
 {
     Vec3 pos=g_game->pos;
     int count=0;
-    for (unsigned short i=1;i<g_game->unitDefCount;++i) {
-        UnitDef* def=&g_game->unitDefs[i];
+    for (unsigned short i=1;i<g_game->count_1438f;++i) {
+        UnitDef* def=&g_game->defs[i];
         if (MatchWildcard(def->unitname,args->GetArg(0,DAT_005119b8))) {
             if (count) pos.x-=def->modelMinX;
             g_seams.map->SnapWorldPosToFootprint(def,&pos);
             g_seams.units->CreateUnit(args->GetIntArg(1,0),i,pos,1,1,0);
             pos.x+=def->modelMaxX+0x200000;
-            if (pos.x >= (g_game->mapPixelWidth<<16)) { pos.x=0xa00000; pos.z+=0xa00000; }
+            if (pos.x >= (g_game->mapWidth<<16)) { pos.x=0xa00000; pos.z+=0xa00000; }
             ++count;
         }
     }
@@ -1526,8 +1386,8 @@ void __stdcall DrawMapDebugOverlay(void* surface)
     int firstY = g_game->scrollY / 16;
     int firstX = g_game->scrollX / 16;
     // __min, not an if-clamp: one store of lastX after the select.
-    int lastX = __min(g_game->viewWidthTiles + firstX + 1, g_game->mapWidthTiles - 1);
-    int lastY = g_game->mapHeightTiles - 1;
+    int lastX = __min(g_game->screenTilesX + firstX + 1, g_game->width - 1);
+    int lastY = g_game->height - 1;
     unsigned char* colors = g_game->colors;
     unsigned char arrowColor;
     for (int y = firstY; y < lastY; ++y) {
@@ -1536,7 +1396,7 @@ void __stdcall DrawMapDebugOverlay(void* surface)
         unsigned char heights[4];
         for (int x = firstX; x < lastX; ++x) {
             // The four corners, walking round the cell from its own tile.
-            Tile* tile = &g_game->heightMap[y * g_game->mapWidthTiles + x];
+            Tile* tile = &((Tile*)g_game->cells)[y * g_game->width + x];
             heights[0] = tile->height;
             p[0].x = (x + 8) * 16 - g_game->scrollX;
             p[0].y = (y + 2) * 16 - (heights[0] >> 1) - g_game->scrollY;
@@ -1544,7 +1404,7 @@ void __stdcall DrawMapDebugOverlay(void* surface)
             heights[1] = tile->height;
             p[1].x = (x + 8) * 16 - g_game->scrollX;
             p[1].y = (y + 2) * 16 - (heights[1] >> 1) - g_game->scrollY;
-            tile += g_game->mapWidthTiles; ++y;
+            tile += g_game->width; ++y;
             heights[2] = tile->height;
             p[2].x = (x + 8) * 16 - g_game->scrollX;
             p[2].y = (y + 2) * 16 - (heights[2] >> 1) - g_game->scrollY;
@@ -1552,8 +1412,8 @@ void __stdcall DrawMapDebugOverlay(void* surface)
             heights[3] = tile->height;
             p[3].x = (x + 8) * 16 - g_game->scrollX;
             p[3].y = (y + 2) * 16 - (heights[3] >> 1) - g_game->scrollY;
-            tile -= g_game->mapWidthTiles; --y;
-            if (p[0].y < g_game->screenHeight) offscreen = 0;
+            tile -= g_game->width; --y;
+            if (p[0].y < g_game->field_37e23) offscreen = 0;
             if (g_game->debugMode == 1) {
                 if (movement) {
                     unsigned int state = (movement->states[movement->width * (y >> 4) + x] >> ((y & 15) * 2)) & 3;
@@ -1563,9 +1423,9 @@ void __stdcall DrawMapDebugOverlay(void* surface)
                         DrawLine(surface, p[1].x, p[1].y, p[3].x, p[3].y, color);
                     }
                 }
-                PathCell* cell = g_game->pathfinder->grid.At(x, y);
+                PathCell* cell = ((Pathfinder*)g_game->pathfinder)->grid.At(x, y);
                 if (cell->flags & 4) {
-                    SetFont(g_game->fontSmlFont);
+                    SetFont((int)g_game->fontSmlFont);
                     SetTextColors(HarnessViewRand() & 255, GetTextKeyColor());
                     DrawString(surface, "G", p[0].x, p[0].y, -1);
                 }
@@ -1621,14 +1481,14 @@ void __stdcall DrawMapDebugOverlay(void* surface)
                     DrawLine(surface, p[0].x, p[0].y, p[1].x, p[1].y, colors[13]);
                     DrawLine(surface, p[0].x, p[0].y, p[3].x, p[3].y, colors[13]);
                 }
-                SetFont(g_game->fontSmlFont);
+                SetFont((int)g_game->fontSmlFont);
                 SetTextColors(colors[15], GetTextKeyColor());
                 char buffer[20];
                 DrawString(surface, _itoa(tile->metal, buffer, 10), p[0].x + 2, p[0].y + 2, -1);
             } else if (g_game->debugMode == 4) {
                 DrawLine(surface, p[0].x, p[0].y, p[1].x, p[1].y, colors[0]);
                 DrawLine(surface, p[0].x, p[0].y, p[3].x, p[3].y, colors[0]);
-                if (player->fog[(y / 2) * player->fogWidth + x / 2]) {
+                if (player->explored[(y / 2) * player->exploredWidth + x / 2]) {
                     Rect r;
                     r.left = p[0].x - 5;
                     r.right = p[0].x + 5;
@@ -1681,7 +1541,7 @@ void __stdcall CmdSenderror(CommandArgs* args)
 // FUNCTION: 0x418ca0
 void __stdcall CmdShootAll(int unused)
 {
-    g_game->flag10 = !g_game->flag10;
+    g_game->uiOptionBits.flag10 = !g_game->uiOptionBits.flag10;
 }
 
 // The commands anyone may type (mask 1).

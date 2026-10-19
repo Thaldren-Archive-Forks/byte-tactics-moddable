@@ -92,91 +92,7 @@ union GameFlags_2a44 {
 
 #include "player_info.h"
 
-// A player record at g_game+0x1b63 (0x14b bytes). One type for every view:
-// where two views name the same bytes differently the union carries both
-// names. Keeps its own view: this file defines IsPlayableSlot (0x456030), which player.h does not declare.
-struct Player {
-    int active;                        // +0x00
-    union {
-        int id;                        // +0x04
-        int dpid;
-    };
-    int joinTime;                      // +0x08
-    int lobbyDataSynced;               // +0x0c
-    int messages;                      // +0x10
-    int ping;                          // +0x14
-    char unknown_18[0x1c - 0x18];
-    int lastHeard;                     // +0x1c
-    unsigned char progress;            // +0x20
-    union {
-        unsigned char keepaliveFlags;  // +0x21
-        unsigned char flags_21;
-    };
-    union {
-        unsigned char reason;          // +0x22
-        unsigned char rejectReason;
-    };
-    char unknown_23[0x27 - 0x23];
-    union {
-        PlayerInfo* info;              // +0x27
-        PlayerInfo* data;
-    };
-    char name[0x1e];                   // +0x2b
-    char fullName[0x2a];               // +0x49
-    union {
-        char state;                    // +0x73
-        unsigned char type;
-        char flag_73;
-        unsigned char valid;
-    };
-    char unknown_74[0x8c - 0x74];
-    union {
-        float energy;                  // +0x8c
-        int energyBits;
-    };
-    char unknown_90[0x98 - 0x90];
-    union {
-        float metal;                   // +0x98
-        int metalBits;
-    };
-    char unknown_9c[0xa4 - 0x9c];
-    union {
-        float energyCapacity;          // +0xa4
-        int energyCapacityBits;
-    };
-    union {
-        float metalCapacity;           // +0xa8
-        int metalCapacityBits;
-    };
-    double totalEnergyProduced;        // +0xac
-    double totalMetalProduced;         // +0xb4
-    double totalEnergyConsumed;        // +0xbc
-    double totalMetalConsumed;         // +0xc4
-    double energyWasted;               // +0xcc
-    double metalWasted;                // +0xd4
-    char unknown_dc[0xe4 - 0xdc];
-    float shareMetal;                  // +0xe4
-    float shareEnergy;                 // +0xe8
-    char unknown_ec[0xfc - 0xec];
-    short kills;                       // +0xfc
-    short losses;                      // +0xfe
-    char unknown_100[0x104 - 0x100];
-    short commanderKills;              // +0x104
-    short commanderLosses;             // +0x106
-    unsigned char allied[11];          // +0x108
-    unsigned char alliedBy[11];        // +0x113
-    unsigned char shareLos[11];        // +0x11e
-    unsigned char shareVision[11];     // +0x129
-    unsigned char shareMapping[11];    // +0x134
-    unsigned char alliance;            // +0x13f
-    int unitsCreated;                  // +0x140
-    short unitCount;                   // +0x144
-    unsigned char index;               // +0x146
-    unsigned char startPos;            // +0x147
-    char unknown_148[0x14b - 0x148];
-    void SetType(int value);
-    int IsPlayableSlot();
-};
+#include "player.h"
 
 // A unit: the player it belongs to, its script and the fields the network
 // game reads. One type for the views of the part files.
@@ -572,7 +488,7 @@ int GetHostDpid()
 static inline int PlayerDpid(Player* p)
 {
     if (p != 0 && p->type != 0)
-        return p->dpid;
+        return p->id;
     return -1;
 }
 
@@ -859,7 +775,7 @@ int __stdcall AddNetPlayer(int id)
         for (int i = 0; i < 10; i++) {
             Player* q = &g_game->players[i];
             if (q->active != 0 && (q->type == 1 || q->type == 2)) {
-                packet.data = *q->data;
+                packet.data = *q->info;
                 packet.data.id = q->id;
                 packet.type = 0x20;
                 BroadcastPacket(q->id, &packet, sizeof(packet));
@@ -912,7 +828,7 @@ static inline int IsPlaying_00450e20(Player* player)
 {
     if (player->active == 0)
         return 0;
-    if (player->state == 1 || player->state == 2)
+    if (player->type == 1 || player->type == 2)
         return 1;
     return 0;
 }
@@ -934,7 +850,7 @@ void LeaveNetGame()
     HAPINET_quitgame(g_game->net);
     SetCloseHandler(0, 0);
     g_game->endGameFlags |= 4;
-    int reason = g_game->players[g_game->localPlayer].reason;
+    int reason = g_game->players[g_game->localPlayer].rejectReason;
     char* text;
     if (reason != 0) {
         switch (reason) {
@@ -976,7 +892,7 @@ static inline int IsPlaying_00450f90(Player* player)
 {
     if (player->active == 0)
         return 0;
-    if (player->state == 1 || player->state == 2)
+    if (player->type == 1 || player->type == 2)
         return 1;
     return 0;
 }
@@ -995,7 +911,7 @@ void BroadcastPlayerInfo()
         for (int i = 0; i < 10; i++) {
             Player* player = &g_game->players[i];
             if (IsPlaying_00450f90(player)) {
-                packet.data = *player->data;
+                packet.data = *player->info;
                 packet.data.id = player->id;
                 packet.type = 0x20;
                 BroadcastPacket(player->id, &packet, sizeof(packet));
@@ -1399,7 +1315,7 @@ void CreateNetGame(void)
 
 static inline int PlayerId_004515d0(unsigned char i)
 {
-    if (i != 10 && g_game->players[i].flag_73)
+    if (i != 10 && g_game->players[i].type)
         return g_game->players[i].id;
     return -1;
 }
@@ -1562,12 +1478,12 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
         if (g_game->flags_2a44 & 1) {
             for (int i = 0; i < 10; i++) {
                 Player* q = &g_game->players[i];
-                if (q->active != 0 && (q->state == 1 || q->state == 2)) {
+                if (q->active != 0 && (q->type == 1 || q->type == 2)) {
                     packet.data = *q->info;
                     packet.data.id = q->id;
                     packet.type = 0x20;
                     BroadcastPacket(q->id, &packet, sizeof(packet));
-                    if (q->active != 0 && (q->state == 1 || q->state == 2)) {
+                    if (q->active != 0 && (q->type == 1 || q->type == 2)) {
                         PlayerIdPacket* msg = (PlayerIdPacket*)g_game->recvPacketPtr;
                         msg->type = 0x24;
                         msg->id = q->id;
@@ -1613,7 +1529,7 @@ static inline unsigned char FindIndex_00451bc0(int id)
 
 static inline int GetPlayerId_00451bc0(unsigned char i)
 {
-    if (i != 10 && g_game->players[i].state != 0)
+    if (i != 10 && g_game->players[i].type != 0)
         return g_game->players[i].id;
     return -1;
 }
@@ -1656,11 +1572,11 @@ int __stdcall SendPacketToPlayer(int from, int to, unsigned char* packet, int si
         toPlayer = &g_game->players[FindSlotByDpid(to)];
 
     if ((g_game->flags_2a44 & 1) && fromPlayer != 0 && fromPlayer->active != 0 &&
-        (fromPlayer->state == 1 || fromPlayer->state == 2) &&
+        (fromPlayer->type == 1 || fromPlayer->type == 2) &&
         fromPlayer->rejectReason == 0 && toPlayer != 0 && toPlayer->active != 0 &&
-        toPlayer->state == 3 && toPlayer->rejectReason == 0) {
+        toPlayer->type == 3 && toPlayer->rejectReason == 0) {
         Player* target = &g_game->players[FindPlayerIndex_00451bc0(to)];
-        if (target->active == 0 || (target->state != 1 && target->state != 2)) {
+        if (target->active == 0 || (target->type != 1 && target->type != 2)) {
             if (g_usePacketManager != 0)
                 return g_packetManager.QueuePacket(from, to, packet, size);
             if (HAPINET_sendpacket(g_game->net, from, to, packet, size) != 0)
@@ -1698,7 +1614,7 @@ int __stdcall BroadcastPacket(int id, unsigned char* packet, int size)
     Player* p = FindPlayer_00451df0(id);
     if (p == 0 || p->active == 0)
         return 0;
-    if (p->state != 1 && p->state != 2)
+    if (p->type != 1 && p->type != 2)
         return 0;
     if (p->rejectReason != 0)
         return 0;
@@ -1716,7 +1632,7 @@ int __stdcall BroadcastPacket(int id, unsigned char* packet, int size)
         for (int i = 0; i < 10; i++) {
             if (g_game->players[i].active == 0)
                 continue;
-            if (g_game->players[i].state != 3)
+            if (g_game->players[i].type != 3)
                 continue;
             if (g_broadcastPeersSeen[g_game->players[i].lobbyDataSynced] != 0)
                 continue;
@@ -1883,7 +1799,7 @@ void __stdcall ReleasePacketData(Class_00451fd0* obj)
 
 static inline int GetPlayerId_004523e0(unsigned char i)
 {
-    if (i != 10 && g_game->players[i].state)
+    if (i != 10 && g_game->players[i].type)
         return g_game->players[i].id;
     return -1;
 }
@@ -1910,7 +1826,7 @@ int __stdcall AssignPlayerColor(int from, int to, int group)
         int j;
         for (j = 0; j < 10; j++) {
             Player* p = &g_game->players[j];
-            if (p->state != 0 && p->state != 4 && p->id != to && p->data->color == group)
+            if (p->type != 0 && p->type != 4 && p->id != to && p->info->color == group)
                 break;
         }
         if (j == 10) {
@@ -1919,13 +1835,13 @@ int __stdcall AssignPlayerColor(int from, int to, int group)
         }
     }
     if (to == g_game->players[g_game->localPlayer].id) {
-        g_game->players[g_game->localPlayer].data->color = group;
+        g_game->players[g_game->localPlayer].info->color = group;
         return 1;
     }
     packet[2] = 0x18;
     int result = SendPacketToPlayer(from, to, packet + 2, 2);
     if (result != 0 && g_usePacketManager != 0) {
-        g_game->players[FindPlayerIndex_004523e0(to)].data->color = group;
+        g_game->players[FindPlayerIndex_004523e0(to)].info->color = group;
         g_packetManager.SendAllQueued(1);
     }
     return result;
@@ -1941,7 +1857,7 @@ static __inline unsigned char FindSlot_00452570(int id)
         if (i == 10) {
             v = -1;
         } else {
-            v = g_game->players[i].valid ? g_game->players[i].id : -1;
+            v = g_game->players[i].type ? g_game->players[i].id : -1;
         }
         if (v == id) {
             return i;
@@ -1971,7 +1887,7 @@ int __stdcall IsColorFree(int id, int slot)
         FindSlot_00452570(id);
     }
     for (int j = 0; j < 10; j++) {
-        if (g_game->players[j].valid != 0 && g_game->players[j].id != id &&
+        if (g_game->players[j].type != 0 && g_game->players[j].id != id &&
             g_game->players[j].info->color != 0xff) {
             colorOwner[g_game->players[j].info->color] = (unsigned char)j;
         }
@@ -1983,7 +1899,7 @@ static inline unsigned char FindReadyPlayer()
 {
     // Tests the fields directly, not through a per-index helper.
     for (unsigned char i = 0; i < 10; i++) {
-        if (g_game->players[i].flag_73 && g_game->players[i].info->host)
+        if (g_game->players[i].type && g_game->players[i].info->host)
             return i;
     }
     return 10;
@@ -2021,7 +1937,7 @@ int __stdcall RequestPlayerColor(int param)
 
 static inline int PlayerId_00452800(unsigned char i)
 {
-    if (i != 10 && g_game->players[i].flag_73)
+    if (i != 10 && g_game->players[i].type)
         return g_game->players[i].id;
     return -1;
 }
@@ -2048,7 +1964,7 @@ int __stdcall BroadcastPlayerLeft(int id)
     msg->id = id;
     unsigned char index = LookupPlayer(id);
     Player* player = &g_game->players[index];
-    if ((player->active != 0 && player->flag_73 == 3)
+    if ((player->active != 0 && player->type == 3)
         || !(g_game->flags_38d75 & 1)
         || (g_game->flags_38d75 & 2)) {
         RemovePlayer(id);
@@ -2190,7 +2106,7 @@ static inline int IsPlaying_00452bd0(Player* player)
 {
     if (player->active == 0)
         return 0;
-    if (player->state == 1 || player->state == 2)
+    if (player->type == 1 || player->type == 2)
         return 1;
     return 0;
 }
@@ -2401,7 +2317,7 @@ static inline int FindActiveId_00453010()
     int i = 0;
     while (1) {
         if (g_game->players[i].active != 0
-            && (g_game->players[i].state == 1 || g_game->players[i].state == 2))
+            && (g_game->players[i].type == 1 || g_game->players[i].type == 2))
             return g_game->players[i].id;
         i++;
         if (i >= 10)
@@ -2434,12 +2350,12 @@ int __stdcall RejectPlayer(int id, unsigned char value)
     msg->value = value;
 
     if (p->active != 0
-        && (p->state == 1 || p->state == 2)
+        && (p->type == 1 || p->type == 2)
         && p->rejectReason == 0) {
-        if (p->state == 1) {
+        if (p->type == 1) {
             for (int i = 0; i < 10; i++) {
                 if (g_game->players[i].active != 0
-                    && (g_game->players[i].state == 1 || g_game->players[i].state == 2)) {
+                    && (g_game->players[i].type == 1 || g_game->players[i].type == 2)) {
                     msg->id = g_game->players[i].id;
                     BroadcastPacket(FindActiveId_00453010(), msg, 6);
                     RemovePlayer(p->id);
@@ -2453,10 +2369,10 @@ int __stdcall RejectPlayer(int id, unsigned char value)
             RemovePlayer(p->id);
             result = 1;
         }
-    } else if (p->active != 0 && p->state == 3 && p->rejectReason == 0) {
+    } else if (p->active != 0 && p->type == 3 && p->rejectReason == 0) {
         msg->id = id;
         result = BroadcastPacket(FindActiveId_00453010(), msg, 6);
-        if (p->active != 0 && p->state == 3 && p->info->kind == 1) {
+        if (p->active != 0 && p->type == 3 && p->info->kind == 1) {
             unsigned char c = p->lobbyDataSynced;
             for (int i = 0; i < 10; i++) {
                 if (g_game->players[i].lobbyDataSynced == c) {
@@ -2577,7 +2493,7 @@ int __stdcall ReceiveNetPacket(void)
 
 static inline int GetPlayerId_00453640(unsigned char i)
 {
-    if (i != 10 && g_game->players[i].state)
+    if (i != 10 && g_game->players[i].type)
         return g_game->players[i].id;
     return -1;
 }
@@ -2636,7 +2552,7 @@ void UpdateTimeoutDialog()
     else
         player = &g_game->players[FindPlayerIndex_00453640(g_timeoutPlayerDpid)];
 
-    if (player != 0 && player->active != 0 && player->state == 3) {
+    if (player != 0 && player->active != 0 && player->type == 3) {
         int elapsed = (GetTicks() - player->lastHeard) / 30;
         char buf[200];
         sprintf(buf, Translate("will be rejected in %d seconds"),
@@ -2689,7 +2605,7 @@ static __inline unsigned char FindSlot_00453a50(int id)
         if (i == 10) {
             v = -1;
         } else {
-            v = g_game->players[i].valid ? g_game->players[i].id : -1;
+            v = g_game->players[i].type ? g_game->players[i].id : -1;
         }
         if (v == id) {
             return i;
@@ -2741,7 +2657,7 @@ void __stdcall OpenTimeoutDialog(int id)
 
 static inline int IsTimedOut(Player* p, unsigned int now)
 {
-    if (p->active != 0 && p->state == 3) {
+    if (p->active != 0 && p->type == 3) {
         unsigned int last = p->lastHeard;
         if (g_timeoutTimerStart > last)
             last = g_timeoutTimerStart;
@@ -2789,7 +2705,7 @@ void CheckPlayerTimeouts()
 // FUNCTION: 0x456030
 int Player::IsPlayableSlot()
 {
-    if (active != 0 && (state == 1 || state == 2)) {
+    if (active != 0 && (type == 1 || type == 2)) {
         return 1;
     }
     return 0;
@@ -3140,7 +3056,7 @@ void __stdcall HandlePing(LatencyPacket* p)
     if (pl->active == 0) {
         return;
     }
-    if (pl->state != 1 && pl->state != 2) {
+    if (pl->type != 1 && pl->type != 2) {
         return;
     }
     unsigned char other = FindPlayerIndex(g_game->lobby2);
@@ -3177,10 +3093,10 @@ int AreAllPlayersReady()
     for (unsigned char j = 0; j < 10; j++) {
         Player* p = &g_game->players[j];
         if (p->active != 0 && (p->type == 1 || p->type == 2 || IsPlaying(j))) {
-            if (!(g_game->players[j].data->flags_9b & 0x20))
+            if (!(g_game->players[j].info->flags_9b & 0x20))
                 return 0;
         }
-        if (g_game->players[j].active == 0 || !(g_game->players[j].data->flags_9b & 0x40))
+        if (g_game->players[j].active == 0 || !(g_game->players[j].info->flags_9b & 0x40))
             all = 0;
     }
     if (g_game->numPlayers == 1)
@@ -3193,7 +3109,7 @@ unsigned char FindHostSlot()
 {
     unsigned char i;
     for (i = 0; i < 10; i++) {
-        if (g_game->players[i].type != 0 && (g_game->players[i].data->flags_97 & 1))
+        if (g_game->players[i].type != 0 && (g_game->players[i].info->flags_97 & 1))
             return i;
     }
     return 10;
@@ -3378,7 +3294,7 @@ void __stdcall SendLoadProgress()
 static inline int PlayerDpid(unsigned char i)
 {
     if (i != 10 && g_game->players[i].type != 0)
-        return g_game->players[i].dpid;
+        return g_game->players[i].id;
     return -1;
 }
 
@@ -3440,7 +3356,7 @@ void __stdcall SendShareEnergy(unsigned char from, unsigned char to, int value)
 static inline int PlayerDpid_00457d30(unsigned char i)
 {
     if (g_game->players[i].type != 0)
-        return g_game->players[i].dpid;
+        return g_game->players[i].id;
     return -1;
 }
 
@@ -3485,7 +3401,7 @@ int BroadcastPendingViewState()
                 // Two sibling ifs, each with its own call: the jump layout and
                 // registers follow the original.
                 if (pj->active != 0 && pj->type == 3) {
-                    if (pj->data->kind == 1
+                    if (pj->info->kind == 1
                         && (pi->shareLos[pj->index] == 0
                             || pi->shareMapping[pj->index] == 0
                             || pi->shareVision[pj->index] == 0))
@@ -3544,7 +3460,7 @@ void __stdcall SendPlayerEconomy(Player* player, Player* target,
 
     if (target != 0) {
         if (target->rejectReason == 0)
-            SendPacketToPlayer(player->dpid, target->dpid, &packet, 0x3a);
+            SendPacketToPlayer(player->id, target->id, &packet, 0x3a);
         return;
     }
 
@@ -3553,11 +3469,11 @@ void __stdcall SendPlayerEconomy(Player* player, Player* target,
             continue;
         if (g_game->players[i].type != 3)
             continue;
-        if (g_game->players[i].data->kind != 1)
+        if (g_game->players[i].info->kind != 1)
             continue;
         if (g_game->players[i].rejectReason != 0)
             continue;
-        SendPacketToPlayer(player->dpid, g_game->players[i].dpid, &packet, 0x3a);
+        SendPacketToPlayer(player->id, g_game->players[i].id, &packet, 0x3a);
     }
 }
 
@@ -3627,7 +3543,7 @@ void __stdcall HandlePlayerEconomy(PlayerViewStatePacket* packet, Player* player
             team.ackMapping = 1;
         else
             team.ackMapping = 0;
-        SendPacketToPlayer(p->dpid, player->dpid, &team, 3);
+        SendPacketToPlayer(p->id, player->id, &team, 3);
         if (g_game->victoryConditions->CheckVictory() != 0)
             continue;
         if (p->shareLos[player->index] != 0)
@@ -3699,7 +3615,7 @@ void __cdecl LeaveNetGameCallback(int)
         for (int i = 0; i < 10; i++) {
             if (g_game->players[i].active != 0
                 && (g_game->players[i].type == 1 || g_game->players[i].type == 2))
-                RemovePlayer(g_game->players[i].dpid);
+                RemovePlayer(g_game->players[i].id);
         }
         ShutdownScoreTables();
     }
@@ -3777,7 +3693,7 @@ int CountHumanPlayers()
     for (int i = 0; i < 10; i++) {
         if ((g_game->players[i].active != 0 && g_game->players[i].type == 1)
             || (g_game->players[i].active != 0 && g_game->players[i].type == 3
-                && g_game->players[i].data->kind == 1))
+                && g_game->players[i].info->kind == 1))
             count++;
     }
     return count;
@@ -3790,7 +3706,7 @@ int CountComputerPlayers()
     for (int i = 0; i < 10; i++) {
         if ((g_game->players[i].active != 0 && g_game->players[i].type == 2)
             || (g_game->players[i].active != 0 && g_game->players[i].type == 3
-                && g_game->players[i].data->kind == 2))
+                && g_game->players[i].info->kind == 2))
             count++;
     }
     return count;
@@ -3865,8 +3781,8 @@ int CountCombatPlayers()
             && g_game->players[i].index != 10
             && (g_game->players[i].unitCount != 0 || g_game->players[i].unitsCreated == 0)
             && (g_game->players[i].type == 1
-                || (g_game->players[i].type == 3 && g_game->players[i].data->kind == 1))
-            && !(g_game->players[i].data->flags_9b & 0x40))
+                || (g_game->players[i].type == 3 && g_game->players[i].info->kind == 1))
+            && !(g_game->players[i].info->flags_9b & 0x40))
             count++;
     }
     return count;

@@ -2852,91 +2852,7 @@ union Coord_00407ae0 {  // 0x4 bytes, 4 views
 
 #include "../src/ai/byte_map.h"
 
-struct Player {  // 0x14b bytes, 312 views
-    int active;  // +0x0
-    int id;  // +0x4
-    int field_8;  // +0x8
-    int field_c;  // +0xc
-    int messages;  // +0x10
-    unsigned int ping;  // +0x14
-    int ticks;  // +0x18
-    int last_time;  // +0x1c
-    unsigned char progress;  // +0x20
-    unsigned char field_21;  // +0x21
-    unsigned char rejectReason;  // +0x22
-    char unknown_23[4];
-    Data_0046d970* info;  // +0x27
-    char name[16];  // +0x2b
-    char unknown_3b[14];
-    char name_49[1];  // +0x49
-    char unknown_4a[29];
-    Unit* unitsBegin;  // +0x67
-    Unit* unitsEnd;  // +0x6b
-    unsigned short firstIndex;  // +0x6f
-    unsigned short lastIndex;  // +0x71
-    unsigned char type;  // +0x73
-    int field_74;  // +0x74
-    Squad* squads;           // +0x78
-    ByteMap_00408090 explored;  // +0x7c
-    int seenCount;  // +0x88
-    float metal;  // +0x8c
-    int field_90;  // +0x90
-    unsigned char field_94;  // +0x94
-    unsigned char field_95;  // +0x95
-    unsigned char field_96;  // +0x96
-    unsigned char f97_0 : 1;  // +0x97
-    unsigned char f97_rest : 7;
-    float energy;  // +0x98
-    char unknown_9c[1];
-    unsigned char f9d_0 : 2;  // +0x9d
-    unsigned char f9d_2 : 1;
-    unsigned char f9d_rest : 5;
-    char unknown_9e;  // +0x9e
-    char unknown_9f[1];
-    int fa0;  // +0xa0
-    float energyCapacity;  // +0xa4
-    float metalCapacity;  // +0xa8
-    char unknown_ac[8];
-    double totalMetalProduced;  // +0xb4
-    char unknown_bc[8];
-    double field_c4;  // +0xc4
-    double energyWasted;  // +0xcc
-    char unknown_d4[8];
-    float width;  // +0xdc
-    float height;  // +0xe0
-    float share_metal;  // +0xe4
-    float share_energy;  // +0xe8
-    UnitResources* econ;  // +0xec
-    int field_f0;  // +0xf0
-    int ff4;  // +0xf4
-    int ff8;  // +0xf8
-    short field_fc;  // +0xfc
-    short field_fe;  // +0xfe
-    short f100;  // +0x100
-    short f102;  // +0x102
-    short field_104;  // +0x104
-    short field_106;  // +0x106
-    char allied[1];  // +0x108
-    char unknown_109[10];
-    unsigned char field_113[11];  // +0x113
-    unsigned char t0[11];  // +0x11e
-    char allied_129[10];  // +0x129
-    char unknown_133[1];
-    unsigned char team_134[11];  // +0x134
-    unsigned char alliance;  // +0x13f
-    int unitsCreated;  // +0x140
-    short field_144;  // +0x144
-    unsigned char index;  // +0x146
-    unsigned char field_147;  // +0x147
-    unsigned char field_148;  // +0x148
-    unsigned short flag_149 : 1;  // +0x149
-    unsigned short rest_149 : 15;
-    float GetEnergy(void);
-    int IsAllied(unsigned char);
-    void Clear(void);
-    void SetType(int);
-    float GetMetal(void);
-};
+#include "../src/network/player.h"
 
 #include "../src/orders/unit_motion.h"
 
@@ -3622,26 +3538,7 @@ public:
     void DrawObjectState(SpotState*, Vec3*);
 };
 
-class MissionConditions {  // 0x8c bytes, 23 views
-public:
-    MissionCondition* victory[16];    // +0x0
-    int victoryCount;  // +0x40
-    MissionCondition* defeat[16];    // +0x44
-    int defeatCount;  // +0x84
-    int field_88;  // +0x88
-    MissionConditions(void);
-    ~MissionConditions(void);
-    int AllVictoryConditionsMet(void);
-    int AnyDefeatConditionMet(void);
-    int CheckVictory(void);
-    void RegisterConditions(TdfFile*);
-    void SaveConditions(void*);
-    void LoadConditions(HapiBank*);
-    void Deactivate(void);
-    void NotifyUnitDied(int);
-    void NotifyUnitCaptured(int);
-    void NotifyUnitCreated(int);
-};
+#include "../src/game/victory_conditions.h"
 
 struct Flags_004165c0 {  // 0x2 bytes, 1 view
     unsigned short low : 8;  // +0x0
@@ -6749,24 +6646,6 @@ struct Unit_0044dfb0 {  // 0xaa bytes, 1 view
     short id;  // +0xa8
 };
 
-class Class_0044e080 {  // 0x36 bytes, 2 views
-public:
-    char unknown_0[8];
-    unsigned short flags;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Owner_0044e080* owner;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    int pos_x;  // +0x26
-    int pos_y;  // +0x2a
-    int pos_z;  // +0x2e
-    char unknown_32[4];
-    Class_0044e080(Class_0044e080&);
-    Class_0044e080(Owner_0044e080*, BitReader*);
-};
-
 class Class_0044e3a0 {  // 0x1e bytes, 1 view
 public:
     char unknown_0[8];
@@ -6987,13 +6866,6 @@ public:
     virtual int TryGetDesiredHeading(void);
     virtual void FUN_0044cf50(void);
     virtual int KeepAfterComplete(void);
-};
-
-struct Struct_004907e0 {  // 0x76 bytes, 1 view
-    char unknown_0[92];
-    Target_0044f2a0* field_5c;  // +0x5c
-    char unknown_60[10];
-    Vec3 pos;  // +0x6a
 };
 
 struct Class_0044f480 {  // 0x68 bytes, 1 view
@@ -11652,222 +11524,6 @@ struct Unit32_0048d9a0 {  // 0x118 bytes, 1 view
     char unknown_114[4];
 };
 
-class VictoryKillAllMobileUnits {  // 0x14 bytes, 2 views
-public:
-    char unknown_0[16];
-    int count;  // +0x10
-    VictoryKillAllMobileUnits(VictoryKillAllMobileUnits&);
-    VictoryKillAllMobileUnits(void);
-    void FUN_0048ec20(Player_0048ec20*);
-    void VisitUnit(void*);
-    void OnUnitDied(void);
-};
-
-class VictoryBuildUnitType {  // 0x34 bytes, 2 views
-public:
-    char unknown_0[16];
-    char name[32];  // +0x10
-    short field_30;  // +0x30
-    char unknown_32[2];
-    VictoryBuildUnitType(VictoryBuildUnitType&);
-    void VisitUnit(void*);
-    int FUN_0048edb0(void);
-};
-
-class VictoryCaptureUnitType {  // 0x2c bytes, 2 views
-public:
-    int done;  // +0x4
-    int announced;  // +0x8
-    char name[32];  // +0xc
-    VictoryCaptureUnitType(VictoryCaptureUnitType&);
-    virtual void FUN_0048eeb0(Player_0048eeb0*);
-};
-
-class VictoryKillAllOfType {  // 0x36 bytes, 2 views
-public:
-    char unknown_0[16];
-    char name[32];  // +0x10
-    short id;  // +0x30
-    int count;  // +0x32
-    VictoryKillAllOfType(VictoryKillAllOfType&);
-    void FUN_0048efb0(Player_48efb0*);
-    void VisitUnit(void*);
-    int Visit(Unit_0048ec20*);
-};
-
-class VictoryMoveUnitToRadius {  // 0x40 bytes, 3 views
-public:
-    char unknown_0[16];
-    char name[32];  // +0x10
-    Vec3 pos;  // +0x30
-    int radius;  // +0x3c
-    VictoryMoveUnitToRadius(VictoryMoveUnitToRadius&);
-    VictoryMoveUnitToRadius(char*, int, int, int);
-    int FUN_0048f200(void);
-    void FUN_0048f250(Unit*);
-    void VisitUnit(void*);
-};
-
-class VictoryUnitTypePassesX {  // 0x34 bytes, 2 views
-public:
-    char unknown_0[16];
-    char name[32];  // +0x10
-    int field_30;  // +0x30
-    VictoryUnitTypePassesX(VictoryUnitTypePassesX&);
-    VictoryUnitTypePassesX(char*, int);
-    int FUN_0048f3e0(void);
-    void VisitUnit(void*);
-};
-
-class VictoryUnitTypePassesZ {  // 0x34 bytes, 2 views
-public:
-    char unknown_0[16];
-    char name[32];  // +0x10
-    int field_30;  // +0x30
-    VictoryUnitTypePassesZ(VictoryUnitTypePassesZ&);
-    VictoryUnitTypePassesZ(char*, int);
-    void VisitUnit(void*);
-    int FUN_0048f530(void);
-};
-
-class DefeatAllUnitsKilled {  // 0x10 bytes, 4 views
-public:
-    char unknown_0[4];
-    int satisfied;  // +0x4
-    int celebrated;  // +0x8
-    char unknown_c[4];
-    int FUN_0048ea00(void);
-    int FUN_0048f7e0(void);
-    void SaveState(HapiBank*);
-    void LoadState(void*);
-    void VisitUnit(void*);
-};
-
-class DefeatAllUnitsKilledOfType {  // 0x36 bytes, 2 views
-public:
-    char unknown_0[16];
-    char name[32];  // +0x10
-    short id;  // +0x30
-    int count;  // +0x32
-    DefeatAllUnitsKilledOfType(DefeatAllUnitsKilledOfType&);
-    void VisitUnit(void*);
-    void FUN_0048f9d0(Player_0048f9d0*);
-    int Visit(Unit_0048ec20*);
-};
-
-class DefeatAnyUnitPassesX {  // 0x14 bytes, 2 views
-public:
-    char unknown_0[16];
-    int field_10;  // +0x10
-    DefeatAnyUnitPassesX(DefeatAnyUnitPassesX&);
-    int FUN_0048fb60(void);
-    void VisitUnit(void*);
-};
-
-class DefeatAnyUnitPassesZ {  // 0x14 bytes, 2 views
-public:
-    char unknown_0[16];
-    int field_10;  // +0x10
-    DefeatAnyUnitPassesZ(DefeatAnyUnitPassesZ&);
-    int FUN_0048fc70(void);
-    void VisitUnit(void*);
-};
-
-class MissionCondition {    // 0xc bytes, 22 views
-public:
-    int done;  // +0x4
-    int announced;  // +0x8
-    MissionCondition(MissionCondition&);
-    MissionCondition(void);
-    virtual int FUN_0048f200(void);
-    virtual int FUN_0048f3e0(void);
-    virtual int FUN_0048fb60(void);
-    virtual int FUN_0048fc70(void);
-    virtual int IsSatisfied(void) = 0;
-    virtual void FUN_0048efb0(Player_48efb0*) = 0;
-    virtual void FUN_0048f9d0(Player_0048f9d0*) = 0;
-    virtual void Slot0(void);
-    virtual void Unknown_0(void);
-    virtual void FUN_0048ec20(Player_0048ec20*);
-    virtual void FUN_0048f0f0(Player_0048f0f0*);
-    virtual void Slot1(int);
-    virtual void Slot1(void);
-    virtual int FUN_0048ea00(void);
-    virtual int FUN_0048eb40(void) = 0;
-    virtual int FUN_0048f7e0(void) = 0;
-    virtual void Slot2(int);
-    virtual void OnUnitDied(void);
-    virtual void Slot3(int);
-    virtual void OnUnitCaptured(void);
-    virtual void SaveState(void*) = 0;
-    virtual void OnUnitCreated(void);
-    virtual void Load(void*) = 0;
-    virtual void FUN_0048eb80(void*) = 0;
-    virtual void FUN_0048ebc0(void*) = 0;
-    virtual void LoadState(void*) = 0;
-};
-
-class VictoryKillEnemyCommander : public MissionCondition {  // 0xc bytes, 2 views
-public:
-    virtual int FUN_0048ea00(void);
-};
-
-class VictoryDestroyAllUnits : public MissionCondition {  // 0xc bytes, 4 views
-public:
-    virtual int FUN_0048ea00(void);
-    virtual int FUN_0048eb40(void);
-    virtual void FUN_0048eb80(void*);
-    virtual void FUN_0048ebc0(void*);
-};
-
-class VictoryKillUnitType : public MissionCondition {  // 0x30 bytes, 2 views
-public:
-    char name[32];  // +0xc
-    int count;  // +0x2c
-    VictoryKillUnitType(VictoryKillUnitType&);
-    VictoryKillUnitType(char*, int);
-    virtual void FUN_0048f0f0(Player_0048f0f0*);
-};
-
-class VictoryTimerRunsOut : public MissionCondition {  // 0x10 bytes, 2 views
-public:
-    unsigned int field_c;  // +0xc
-    VictoryTimerRunsOut(VictoryTimerRunsOut&);
-    int FUN_0048f610(void);
-};
-
-class DefeatCommanderKilled : public MissionCondition {  // 0xc bytes, 2 views
-public:
-    virtual void OnUnitDied(void);
-    void FUN_0048f6b0(Unit*);
-};
-
-class DefeatUnitTypeKilled : public MissionCondition {  // 0x30 bytes, 2 views
-public:
-    char name[32];  // +0xc
-    int numLeftToKill;  // +0x2c
-    DefeatUnitTypeKilled(DefeatUnitTypeKilled&);
-    DefeatUnitTypeKilled(char*, int);
-    void FUN_0048f8c0(Unit_0048f8c0*);
-};
-
-class DefeatDeathTimerRunsOut : public MissionCondition {  // 0x10 bytes, 2 views
-public:
-    int field_c;  // +0xc
-    DefeatDeathTimerRunsOut(DefeatDeathTimerRunsOut&);
-    int FUN_0048fd50(void);
-};
-
-class Listener_0048f250 {  // 0x4 bytes, 1 view
-public:
-    virtual void VisitUnit(void*) = 0;
-};
-
-class Listener_0048ff40 {  // 0x4 bytes, 1 view
-public:
-    virtual void VisitUnit(void*) = 0;
-};
-
 class Class_0048ea40 {  // 0xc bytes, 1 view
 public:
     int unknown_0;  // +0x0
@@ -12407,19 +12063,7 @@ public:
     virtual void VisitUnit(void*) = 0;
 };
 
-class PackedGoal : public PathGoal {            // 0x28 bytes, 8 views
-public:
-    Vec3 pos;  // +0xc
-    Vec3 vel;  // +0x18
-    short field_24;  // +0x24
-    char field_26;  // +0x26
-    unsigned char dirty : 1;  // +0x27
-    unsigned char mode : 2;
-    unsigned char : 5;
-    PackedGoal(Unit*);
-    virtual void TickTowardGoal(void);
-    virtual void ExportGoalPose(int, int, int);
-};
+#include "../src/game/packed_goal.h"
 
 class Class_00490650 {  // 0x28 bytes, 1 view
 public:

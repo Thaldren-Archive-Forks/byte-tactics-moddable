@@ -26,31 +26,8 @@ struct Position_00475470 {             // 16.16 fixed point; only high words rea
     short z;                           // +0xa
 };
 
-struct MapSize_00475470 {
-    unsigned int width;                // +0x0
-    unsigned int height;               // +0x4
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
-};
-
-struct ByteMap_00475470 {
-    unsigned char* data;               // +0x0
-    MapSize_00475470 size;             // +0x4
-    int Index(int x, int y) { return size.width * y + x; }
-    // Get goes through Index: the extra register shapes both arms.
-    unsigned char Get(int x, int y) { return data[Index(x, y)]; }
-};
-
 #pragma pack(push, 1)
-// The header's type, kept local: its explored pointer cannot spell the
-// ByteMap this fog test needs.
-struct PlayerView {
-    char unknown_0[0x7c];
-    ByteMap_00475470 explored;         // +0x7c
-    char unknown_88[0x14b - 0x88];
-};
+#include "../network/player.h"
 
 #include "../game/game.h"
 #pragma pack(pop)
@@ -61,31 +38,32 @@ int __stdcall GetGafFrameCount(void* ptr);
 void* __stdcall GetGafFrame(void* a, int b);
 void __stdcall DrawFrameBlended(void* dest, void* src, int x, int y);
 
-static inline int IsExplored(PlayerView* map, Position_00475470* pos)
+static inline int IsExplored(Player* map, Position_00475470* pos)
 {
     int tx = pos->x >> 5;
     int ty = (pos->z - (pos->y >> 1)) >> 5;
-    if (map->explored.size.Contains(tx, ty) && map->explored.Get(tx, ty))
+    if ((unsigned int)tx < (unsigned int)map->exploredWidth && (unsigned int)ty < (unsigned int)map->exploredHeight &&
+        map->explored[(unsigned int)map->exploredWidth * ty + tx])
         return 1;
     return 0;
 }
 
 // The body of the matched 0x408090.
-static inline int IsSeen(PlayerView* map, Position_00475470* pos)
+static inline int IsSeen(Player* map, Position_00475470* pos)
 {
     int tx = pos->x >> 5;
     int ty = (pos->z - (pos->y >> 1)) >> 5;
-    if (!map->explored.size.Contains(tx, ty)) {
+    if (!((unsigned int)tx < (unsigned int)map->exploredWidth && (unsigned int)ty < (unsigned int)map->exploredHeight)) {
         return 0;
     }
     // Pointer local declared after the Contains test: the extra register
     // makes the width load materialise.
-    ByteMap_00475470* b = &map->explored;
-    return (g_game->visibilityMask[b->Index(tx, ty)] &
+    Player* b = map;
+    return (g_game->visibilityMask[(unsigned int)b->exploredWidth * ty + tx] &
             (1 << g_game->playerIndex)) != 0;
 }
 
-static inline int IsVisible(PlayerView* map, Position_00475470* pos)
+static inline int IsVisible(Player* map, Position_00475470* pos)
 {
     if ((g_game->mapFlags & 2) == 2)
         return IsExplored(map, pos);
@@ -112,7 +90,7 @@ struct SmokeParticle {
     {
         short sx = posw.x - px + 0x80;
         short sy = posw.z - (posw.y >> 1) - py + 0x20;
-        if (IsVisible(&((PlayerView*)g_game->players)[g_game->playerIndex], &posw))
+        if (IsVisible(&g_game->players[g_game->playerIndex], &posw))
             DrawFrameBlended(dest, GetGafFrame(data, count), sx, sy);
     }
 };
