@@ -4527,16 +4527,7 @@ struct Pool_00422170 {  // 0x10 bytes, 1 view
     int headC;  // +0xc
 };
 
-class Class_004c9390 {  // 0x4 bytes, 85 views
-public:
-    char* data;  // +0x0
-    Class_004c9390(Class_004c9390&);
-    ~Class_004c9390(void);
-    Class_004c9390(void);
-    Class_004c9390* Assign(Class_004c9390*);
-    void ReleaseRef(void);
-    Class_004c9390& operator=(Class_004c9390&);
-};
+#include "../src/map/class_004c9390.h"
 
 struct Elem_004222e0 {  // 0x4 bytes, 1 view
     Class_004c9390 name;  // +0x0
