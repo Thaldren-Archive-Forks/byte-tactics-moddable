@@ -25,7 +25,7 @@ class UnitMotion { public: char pad0[0x2e]; unsigned char flags; void SetFlightM
 class Class_0044e730 { public: void SetApproachRadius(int); };
 class Class_0044e720 { public: void SetHeading(int); };
 class Class_0044e6c0 { public: void SetAltitude(int); };
-class MissionType { public: unsigned char index; MissionType(const char*); };
+#include "mission_type.h"
 
 class PathOrderAttach { public: void SetUnit(Unit*); };
 #pragma pack(push, 1)

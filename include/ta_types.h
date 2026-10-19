@@ -2217,14 +2217,7 @@ struct PlayerRes_00401360 {  // 0xc bytes, 1 view
     float used;  // +0x8
 };
 
-class MissionType {     // 0x1 bytes, 46 views
-public:
-    unsigned char index;  // +0x0
-    MissionType(char*);
-    MissionType(void);
-    int GetTableEntry(void);
-    int operator==(MissionType&);
-};
+#include "../src/orders/mission_type.h"
 
 class Class_00438880 {  // 0x46 bytes, 30 views
 public:

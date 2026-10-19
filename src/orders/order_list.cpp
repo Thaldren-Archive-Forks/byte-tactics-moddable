@@ -184,13 +184,7 @@ struct UnitType_0043cd20 {           // 0x249 bytes
 
 #include "../units/cob_script.h"
 
-// The command kind, one byte wide, but not a POD type.
-class MissionType {
-public:
-    unsigned char index;
-
-    MissionType() {}
-};
+#include "mission_type.h"
 
 struct Unit;
 class Order;

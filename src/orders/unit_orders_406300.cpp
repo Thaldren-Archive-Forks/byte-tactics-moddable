@@ -10,7 +10,7 @@ class UnitMotion;
 struct Player;
 struct Unit;
 struct Order;
-class MissionType { public: unsigned char index; MissionType() {} MissionType(const char*); int operator==(const MissionType& v) const { return index==v.index; } };
+#include "mission_type.h"
 
 #pragma pack(push, 1)
 struct WeaponDef { char pad0[0x111]; unsigned int flags; };

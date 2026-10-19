@@ -34,7 +34,7 @@ public:
 };
 #include "../state/block.h"
 #include "path_order_attach.h"
-class MissionType { public: unsigned char index; MissionType(const char*); };
+#include "mission_type.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep the
 // allocation of the functions after the merged views (docs/c2-regalloc.md).
