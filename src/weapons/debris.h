@@ -3,8 +3,8 @@
 
 #ifndef TA_TYPES_H
 #include "../graphics/handle.h"
-#include "../util/vec3.h"
 #endif
+#include "../util/vec3.h"
 
 #pragma pack(push, 1)
 struct Debris {

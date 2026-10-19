@@ -6,6 +6,22 @@ struct Vec3 {
     int y;
     int z;
 
+    Vec3 operator+(const Vec3& o) const
+    {
+        Vec3 r;
+        r.x = x + o.x;
+        r.y = y + o.y;
+        r.z = z + o.z;
+        return r;
+    }
+    Vec3 operator-(const Vec3& o) const
+    {
+        Vec3 r;
+        r.x = x - o.x;
+        r.y = y - o.y;
+        r.z = z - o.z;
+        return r;
+    }
     void operator+=(const Vec3& v)
     {
         x += v.x;

@@ -207,15 +207,6 @@ struct Seg_00473b50 {
         (g).end.z -= (g).start.z;            \
     }
 
-static inline Vec3 operator-(const Vec3& a, const Vec3& o)
-{
-    Vec3 r;
-    r.x = a.x - o.x;
-    r.y = a.y - o.y;
-    r.z = a.z - o.z;
-    return r;
-}
-
 // One exhaust puff (the element of ThrustParticles' vector), 0x3c bytes.
 class ThrustParticle {
 public:

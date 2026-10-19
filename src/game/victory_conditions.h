@@ -3,9 +3,7 @@
 
 #include <string.h>
 #include "mission_conditions.h"
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 
 struct Unit;
 class HapiBank;

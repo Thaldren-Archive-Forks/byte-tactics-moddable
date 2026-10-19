@@ -1,9 +1,7 @@
 #ifndef UNIT_H
 #define UNIT_H
 
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 #include "../util/angles.h"
 #include "../game/unit_resources.h"
 #include "../weapons/unit_weapon_slot.h"
