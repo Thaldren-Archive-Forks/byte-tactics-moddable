@@ -95,7 +95,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -134,7 +134,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         obj->SetApproachRadius(0x80);
         order->flags |= 0xe0;
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         return 2;
     }
     if (order->range && (int)_hypot(unit->xWhole - order->x, unit->zWhole - order->z) >= order->range)
@@ -159,7 +159,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
                 Vec3 to = Offset(unit->heading, unit->def->maxvelocity);
                 AirManeuverOrder* obj = new (kSim) AirManeuverOrder(order, from, to);
                 obj->SetAltitude(unit->def->altitude);
-                order->SetAttachedFx((int)obj);
+                order->SetAttachedFx(obj);
                 order->SetDeadlineTicks(RandomInt(0x1e) + 0x3c);
                 order->ticks = 0;
                 return 2;
@@ -176,7 +176,7 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
                 Vec3 p = order->target->pos;
                 p.x += ((UnitMotion*)order->target->motion)->velocity.x * 45;
                 p.z += ((UnitMotion*)order->target->motion)->velocity.z * 45;
-                order->SetAttachedFx((int)new (kSim) AirManeuverOrder(order, p,
+                order->SetAttachedFx(new (kSim) AirManeuverOrder(order, p,
                     Sum(((UnitMotion*)order->target->motion)->velocity, Offset(order->target->heading, order->target->def->maxvelocity / 2))));
             }
             order->SetDeadlineTicks(0x2d);

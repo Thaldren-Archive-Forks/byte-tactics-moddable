@@ -111,7 +111,6 @@ struct Order {
     Order(MissionType kind, Unit* unit, void* pos, int a, int b, int c);
     Order(unsigned char kind, int a, int b, int c, int d, int e);
     Order(Unit* unit, HapiBank* file, char* name);
-    Order(Unit* unit, void* file, char* name);
     ~Order();
     void SetDeadlineTicks(int param);
     void ReattachFxToUnit();
@@ -119,7 +118,6 @@ struct Order {
     void MergeFlagsFromTable(MissionType k);
     void OrStatusFlags(unsigned int flags);
     void SetAttachedFx(OrderFx* obj);
-    void SetAttachedFx(int obj);
     void AttachApproachRadiusGoal(Vec3* pos, int n);
     void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
     void AttachBuildFootprintMarker(Point16 cell, Point16 size);
@@ -129,7 +127,6 @@ struct Order {
     Vec3* Position() { return &pos; }
     int Advance(int distance);
     int SerializeToSave(Unit* unit, HapiBank* file, char* name);
-    int SerializeToSave(Unit* unit, void* file, char* name);
 };
 #pragma pack(pop)
 

@@ -106,7 +106,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     Vec3 pos=order->pos+Offset((short)order->angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16);
     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
     move->SetApproachRadius(128);
-    order->SetAttachedFx((int)move);
+    order->SetAttachedFx((OrderFx*)move);
     order->SetDeadlineTicks(30);
     order->flags|=0xf8;
     return 2;
@@ -125,7 +125,7 @@ int __stdcall VtolSeekGuardOrder(Unit* unit, Order* order, int flags)
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         move->SetApproachRadius(128);
         order->flags|=0xe0;
-        order->SetAttachedFx((int)move);
+        order->SetAttachedFx((OrderFx*)move);
         return 2;
     }
     switch(order->state) {

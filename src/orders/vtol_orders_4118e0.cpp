@@ -100,7 +100,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -155,7 +155,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         order->angle += 0x4000;
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
         obj->SetApproachRadius(0x80);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags = 0xe8;
         order->state = 1;
         return 2;
@@ -164,7 +164,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target, -1);
         // The setters live in Class_0044e2d0; obj is another constructor view of the same object.
         ((Class_0044e2d0*)obj)->SetApproachRadius(0xa0);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags = 0xe8;
         return 1;
     }
@@ -177,7 +177,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         }
         Class_0044e250* obj = new (kSim) Class_0044e250(order, order->target, order->angle);
         ((Class_0044e2d0*)obj)->SetApproachRadius(0x30);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags = 0xe8;
         return 1;
     }
@@ -198,7 +198,7 @@ int __stdcall VtolLandingOrder(Unit* unit, Order* order, int flags)
         else
             ((Class_0044e2d0*)obj)->SetAltitude(0);
         g_seams.units->StartScript((CobScript*)unit->script, "EndTransport", 0, 1);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->SetDeadlineTicks(0xf);
         order->state = 5;
         order->flags |= 0xe8;

@@ -57,7 +57,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -89,7 +89,7 @@ int __stdcall VtolReclaimOrder(Unit* unit, Order* order, int flags)
         break;
     case 1: {
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags = 0xe0;
         return 1;
     }

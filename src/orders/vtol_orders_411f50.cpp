@@ -99,7 +99,7 @@ void __stdcall PrepVtolClimb(Unit* unit, Order* order, unsigned int flags)
         ((UnitMotion*)unit->motion)->SetFlightMode(unit, 2);
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, unit->pos);
         obj->SetAltitude(unit->def->altitude / 2);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->flags |= flags | 0xe0;
     }
 }
@@ -187,7 +187,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         else
             obj = new (kSim) Class_0044e2d0(order, order->pos);
         obj->SetApproachRadius(time);
-        order->SetAttachedFx((int)obj);
+        order->SetAttachedFx((OrderFx*)obj);
         order->SetDeadlineTicks(1);
         order->flags |= 0x100e8;
         return 2;
@@ -229,5 +229,5 @@ static inline void AttachMove(Order* order, const Vec3& dest, short radius)
 {
     Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
     obj->SetApproachRadius(radius);
-    order->SetAttachedFx((int)obj);
+    order->SetAttachedFx((OrderFx*)obj);
 }

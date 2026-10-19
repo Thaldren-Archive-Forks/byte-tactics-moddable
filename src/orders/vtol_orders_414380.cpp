@@ -108,7 +108,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
                     ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
-                    order->SetAttachedFx((int)move);
+                    order->SetAttachedFx((OrderFx*)move);
                     order->flags|=0xe0;
                 }
                 return 1;
@@ -119,7 +119,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
         order->retries=0;
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,order->target->pos);
         ((Class_0044e730*)move)->SetApproachRadius(unit->def->buildRange);
-        order->SetAttachedFx((int)move);
+        order->SetAttachedFx((OrderFx*)move);
         order->flags=0xe0;
         return 1;
     }
@@ -138,7 +138,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             Vec3 pos=PosMinus(*base,Offset(angle,range));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             ((Class_0044e720*)move)->SetHeading((unsigned short)angle);
-            order->SetAttachedFx((int)move);
+            order->SetAttachedFx((OrderFx*)move);
         }
         int rate=0; rate=unit->def->buildRate;
         // The ok local is needed: it adds a register candidate that keeps order in esi.
