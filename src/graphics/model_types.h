@@ -3,6 +3,7 @@
 
 #include "../util/vec3.h"
 #include "gaf_frame.h"
+#include "object3do.h"
 
 struct Vector3s {
     short x;
@@ -33,22 +34,6 @@ struct Face_459c70 {
     FaceFlags_459c70 flags;
 };
 
-struct Object3doView {
-    char unknown_0[4];
-    int vertexCount;
-    int faceCount;
-    int firstFace;
-    int box_x;
-    int box_y;
-    int box_z;
-    const char* name;
-    char unknown_20[4];
-    Vec3* points;
-    Face_459c70* faces;
-    Object3doView* sibling;
-    Object3doView* child;
-};
-
 #pragma pack(push, 2)
 union PieceFlags_459c70 {
     unsigned short word;
@@ -61,7 +46,7 @@ union PieceFlags_459c70 {
 };
 
 struct Piece_459c70 {
-    Object3doView* object;
+    Object3do* object;
     int rot_x;
     int rot_y;
     int rot_z;

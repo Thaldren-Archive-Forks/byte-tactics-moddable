@@ -71,7 +71,7 @@ static __inline int shade_bias(Model_459200* list)
 void UnitTable::DrawLitPieces(GafFrame* bitmap, Model_459200* list,
     int kind, int useColor)
 {
-    Object3doView* info;
+    Object3do* info;
     Poly_459c70 poly[25];
     float accum[2000][3];
     Vec3f normal[2000];
@@ -143,10 +143,10 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, Model_459200* list,
                 Face_459c70* face;
                 int fi;
                 if (info->firstFace != -1) {
-                    face = info->faces + 1;
+                    face = (Face_459c70*)info->faces + 1;
                     fi = 1;
                 } else {
-                    face = info->faces;
+                    face = (Face_459c70*)info->faces;
                     fi = 0;
                 }
                 for (; fi < info->faceCount; fi++, face++) {
@@ -169,10 +169,10 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, Model_459200* list,
                 }
 
                 if (info->firstFace != -1) {
-                    face = info->faces + 1;
+                    face = (Face_459c70*)info->faces + 1;
                     fi = 1;
                 } else {
-                    face = info->faces;
+                    face = (Face_459c70*)info->faces;
                     fi = 0;
                 }
                 for (; fi < info->faceCount; fi++, face++) {
@@ -198,10 +198,10 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, Model_459200* list,
                 }
 
                 if (info->firstFace != -1) {
-                    face = info->faces + 1;
+                    face = (Face_459c70*)info->faces + 1;
                     fi = 1;
                 } else {
-                    face = info->faces;
+                    face = (Face_459c70*)info->faces;
                     fi = 0;
                 }
                 for (; fi < info->faceCount; fi++, face++) {

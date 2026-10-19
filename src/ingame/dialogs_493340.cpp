@@ -21,23 +21,6 @@ unsigned int __cdecl GetMilliseconds(void);
 
 #include "../network/packet_manager.h"
 
-class FrameTimersView {
-public:
-    int last;                           // +0x00
-    int total;                          // +0x04
-    int values[9];                      // +0x08
-    int acc[9];                         // +0x2c
-
-    void AccumulateProfileTime(int i) {
-        unsigned int t = GetMilliseconds();
-        int d = t - last;
-        int v = acc[i];
-        v = v + d;
-        acc[i] = v;
-        last = t;
-    }
-};
-
 struct Game;
 
 #pragma pack(push, 1)
@@ -77,6 +60,16 @@ struct Flags16 {
 
 #include "../game/game.h"
 #pragma pack(pop)
+
+static inline void AccumulateProfileTime(FrameTimers* timers, int i)
+{
+    unsigned int t = GetMilliseconds();
+    int d = t - timers->last;
+    int v = timers->acc[i];
+    v = v + d;
+    timers->acc[i] = v;
+    timers->last = t;
+}
 
 extern int g_shareDialogPlayerNetIds[10];
 extern int g_nonCampaignGame;
@@ -1171,20 +1164,20 @@ void __stdcall RunGameSteps(int showStats)
         if (showStats) {
             HandleNetPackets();
             HarnessPhase(0);
-            ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(0);
+            AccumulateProfileTime(&g_game->timers, 0);
         }
         g_seams.units->UpdateAllUnits();
         HarnessPhase(1);
-        ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(1);
+        AccumulateProfileTime(&g_game->timers, 1);
         g_seams.weapons->UpdateProjectiles();
         HarnessPhase(2);
-        ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(7);
+        AccumulateProfileTime(&g_game->timers, 7);
         g_seams.weapons->UpdateExplosions();
         HarnessPhase(3);
-        ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(8);
+        AccumulateProfileTime(&g_game->timers, 8);
         g_seams.players->UpdatePlayers();
         HarnessPhase(4);
-        ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(2);
+        AccumulateProfileTime(&g_game->timers, 2);
 
         g_seams.features->UpdateFeatures();
         HarnessPhase(5);
@@ -1194,12 +1187,12 @@ void __stdcall RunGameSteps(int showStats)
         g_seams.wind_meteors->UpdateMeteors();
         HarnessPhase(7);
         UpdateCameraFollow();
-        ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(8);
+        AccumulateProfileTime(&g_game->timers, 8);
 
         UpdateParticles();
-        ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(6);
+        AccumulateProfileTime(&g_game->timers, 6);
         g_seams.players->UpdateBlink();
-        ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(8);
+        AccumulateProfileTime(&g_game->timers, 8);
 
         Player* shown = &g_game->players[g_game->playerIndex];
         if (shown->displayTimer < g_game->ticks)
@@ -1209,7 +1202,7 @@ void __stdcall RunGameSteps(int showStats)
         if (showStats && g_usePacketManager != 0) {
             g_seams.economy->UpdateResourceSharing(&g_game->players[g_game->localPlayer]);
             g_packetManager.SendAllQueued(0);
-            ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(0);
+            AccumulateProfileTime(&g_game->timers, 0);
         }
         HarnessAfterStep();
     }
@@ -1218,7 +1211,7 @@ void __stdcall RunGameSteps(int showStats)
     EmptyPostSimStepHook_B();
     EmptyPostSimStepHook_C();
     ExpireOldestMessage();
-    ((FrameTimersView*)&g_game->timers)->AccumulateProfileTime(8);
+    AccumulateProfileTime(&g_game->timers, 8);
 }
 
 // Mission-script event dispatcher: the argument selects one of six cases out

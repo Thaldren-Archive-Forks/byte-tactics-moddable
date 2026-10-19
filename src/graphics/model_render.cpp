@@ -155,9 +155,9 @@ void __stdcall TintFrameBelow(GafFrame* param_1, int value);
 void __stdcall CutFrameBelow(GafFrame* param_1, int value);
 void __stdcall ZeroFramePixels(GafFrame* image);
 void __stdcall RotateByAngles(Vec3* in, Vec3* out, short* angles);
-int __stdcall CountObjects(Object3doView* obj);
-Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3doView* obj, Piece_459c70* parent);
-Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3doView* obj, Piece_459c70* parent);
+int __stdcall CountObjects(Object3do* obj);
+Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3do* obj, Piece_459c70* parent);
+Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3do* obj, Piece_459c70* parent);
 // Defined at the end of this file, out of address order.
 void __fastcall PoseModel(Model_459200* state, Piece_459c70* entry, int flag);
 void __fastcall TransformPieces(Model_459200* model, Piece_459c70* piece,
@@ -314,7 +314,7 @@ void UnitTable::DrawPieces(GafFrame* bitmap, Model_459200* list,
         if (list->pieces[p].flags.bits.visible) {
             if (useColor == -1 || useColor == list->pieces[p].flags.bits.colored
                     || list->owner->buildLeft != 0.0f) {
-                Object3doView* info = list->pieces[p].object;
+                Object3do* info = list->pieces[p].object;
                 int n = list->pieces[p].object->vertexCount;
                 Vec3* verts = list->pieces[p].points;
                 for (int k = 0; k < n; k++) {
@@ -343,10 +343,10 @@ void UnitTable::DrawPieces(GafFrame* bitmap, Model_459200* list,
                 Face_459c70* face;
                 int fi;
                 if (info->firstFace != -1) {
-                    face = info->faces + 1;
+                    face = (Face_459c70*)info->faces + 1;
                     fi = 1;
                 } else {
-                    face = info->faces;
+                    face = (Face_459c70*)info->faces;
                     fi = 0;
                 }
                 for (; fi < info->faceCount; fi++, face++) {
@@ -739,7 +739,7 @@ void CMemoryCache::DrawShadowShape(GafFrame* view, Model_459200* model)
         while (i >= 0) {
             if (piece->flags.word & 1) {
                 if (piece->flags.word & 2) {
-                    Object3doView* info = piece->object;
+                    Object3do* info = piece->object;
                     Vec3* v = piece->points;
                     for (int j = 0; j < info->vertexCount; j++) {
                         int y = (short)(v->y >> 16);
@@ -750,7 +750,7 @@ void CMemoryCache::DrawShadowShape(GafFrame* view, Model_459200* model)
                         verts[j].y += view->yOffset;
                         v++;
                     }
-                    Face_459c70* seg = info->faces;
+                    Face_459c70* seg = (Face_459c70*)info->faces;
                     if (info->firstFace != -1) {
                         seg++;
                         segno = 1;
@@ -774,7 +774,7 @@ void CMemoryCache::DrawShadowShape(GafFrame* view, Model_459200* model)
 }
 
 // FUNCTION: 0x45a8d0
-Model_459200* __stdcall CreateObjectState(Object3doView* obj)
+Model_459200* __stdcall CreateObjectState(Object3do* obj)
 {
     int count = 1;
     if (obj->child != 0) {
@@ -800,7 +800,7 @@ struct BuildList_0045a950 {
 };
 
 // FUNCTION: 0x45a950
-Model_459200* __stdcall CreatePlayerObjectState(Object3doView* obj, BuildList_0045a950* list, int player)
+Model_459200* __stdcall CreatePlayerObjectState(Object3do* obj, BuildList_0045a950* list, int player)
 {
     int count = 1;
     if (obj->child != 0) {
@@ -855,7 +855,7 @@ int __fastcall RestorePieceVertices(Piece_459c70* piece, int force)
 {
     int result = force;
     if (piece->modified == 0 || force) {
-        memcpy(piece->points, piece->object->points, piece->object->vertexCount * 12);
+        memcpy(piece->points, piece->object->vertices, piece->object->vertexCount * 12);
         piece->offset.x = 0;
         piece->offset.y = 0;
         piece->offset.z = 0;
@@ -945,20 +945,20 @@ void __stdcall DrawUnit(void* context, Unit_459200* unit)
 #pragma auto_inline(off)
 
 // FUNCTION: 0x45ae80
-int __stdcall CountObjects(Object3doView* edi)
+int __stdcall CountObjects(Object3do* edi)
 {
     int esi = 1;
     int eax;
 
     eax = (int)edi->child;
     if (eax != 0) {
-        esi = CountObjects((Object3doView*)eax);
+        esi = CountObjects((Object3do*)eax);
         esi++;
     }
 
     eax = (int)edi->sibling;
     if (eax != 0) {
-        eax = CountObjects((Object3doView*)eax);
+        eax = CountObjects((Object3do*)eax);
         esi = esi + eax;
     }
 
@@ -968,7 +968,7 @@ int __stdcall CountObjects(Object3doView* edi)
 #pragma auto_inline(on)
 
 // FUNCTION: 0x45aec0
-Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3doView* obj,
+Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3do* obj,
                                        Piece_459c70* parent)
 {
     Piece_459c70* e = &state->pieces[state->count];
@@ -976,7 +976,7 @@ Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3doView* obj,
     e->object = obj;
     e->modified = 0;
     e->points = (Vec3*)GameAllocIgnoreTag("Point List", obj->vertexCount * 12);
-    memcpy(e->points, obj->points, obj->vertexCount * 12);
+    memcpy(e->points, obj->vertices, obj->vertexCount * 12);
     if (obj->vertexCount >= 3) {
         e->flags.word |= 1;
     } else {
@@ -1001,7 +1001,7 @@ Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3doView* obj,
 }
 
 // FUNCTION: 0x45af90
-Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3doView* obj, Piece_459c70* parent)
+Piece_459c70* __stdcall LinkStateEntries(Model_459200* state, Object3do* obj, Piece_459c70* parent)
 {
     int i = state->count - 1;
     if (i >= 0) {
@@ -1082,7 +1082,7 @@ void __fastcall PoseModel(Model_459200* model, Piece_459c70* piece, int force)
         pos.y += model->pos.y;
     }
 
-    Object3doView* object = piece->object;
+    Object3do* object = piece->object;
     Vec3 box;
     box.x = piece->rot_x + object->box_x;
     box.y = piece->rot_y + object->box_y;
@@ -1096,7 +1096,7 @@ void __fastcall PoseModel(Model_459200* model, Piece_459c70* piece, int force)
 
 // FUNCTION: 0x4584d0
 void CMemoryCache::DrawPiece(Model_459200* model, void* surface, Vec3* camera,
-    Object3doView* info, Vec3* vertices, unsigned char palette, int useColor)
+    Object3do* info, Vec3* vertices, unsigned char palette, int useColor)
 {
     void* pic;
     int i;
@@ -1118,10 +1118,10 @@ void CMemoryCache::DrawPiece(Model_459200* model, void* surface, Vec3* camera,
     }
     Face_459c70* face;
     if (info->firstFace != -1) {
-        face = info->faces + 1;
+        face = (Face_459c70*)info->faces + 1;
         i = 1;
     } else {
-        face = info->faces;
+        face = (Face_459c70*)info->faces;
         i = 0;
     }
     if (i < info->faceCount) do {

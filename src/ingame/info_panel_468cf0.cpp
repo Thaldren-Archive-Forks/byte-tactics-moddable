@@ -129,7 +129,6 @@ struct Feature_00468cf0 {    // 0x100 bytes
 #pragma pack(pop)
 
 struct Unit_00468cf0;
-struct MapGridView { Unit_00468cf0 **buf; Unit_00468cf0 ***cursor; ushort *count; char pad1[0x2c]; int width; int height; char pad2[0x10]; int stride; int rows; char pad3[0x34]; Tile_00468cf0 *tiles; };
 struct Bits8 { ushort b0:1; ushort b1:1; ushort b2:1; ushort b3:1; ushort b4:1; ushort b5:1; ushort b6:1; ushort b7:1; };
 struct UnitFlags { uint kind:2; uint b2:1; uint b3:1; uint b4:1; uint b5:1; uint b6:1; uint b7:1; };
 
@@ -347,7 +346,7 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
   byte idx;
   int cy;
   Resources res;
-  MapGridView *mv;
+  MapGrid *mv;
   byte *colors;
   int cx;
   int x;
@@ -410,7 +409,7 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
 
   // features and units on the visible part of the map
   idx = g_game->playerIndex;
-  mv = (MapGridView*)&g_game->sortUnits;
+  mv = &g_game->sortUnits;
   player = &(*(PlayerState_00468cf0 (*)[11])&g_game->players_1b63)[idx];
   SetFont((int)(*(SideDef_00468cf0 (*)[5])&g_game->sideDefs)[player->info->bSideId].pFontData);
   SetTextColors(g_game->colors[15], GetTextKeyColor());
@@ -448,7 +447,7 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
       Unit_00468cf0 *unit = (Unit_00468cf0 *)((int)g_game->units + *pIdx * 0x118);
       int row = ((int)unit->zWhole - g_game->scrollY) / 16 + 0x10;
       if (row >= 0 && row < mv->rows) {
-        Unit_00468cf0 ***pCur = &mv->cursor[row];
+        Unit_00468cf0 ***pCur = (Unit_00468cf0***)&mv->cursor[row];
         mv->count[row]++;
         if (*pCur != 0) {
           **pCur = unit;
@@ -466,7 +465,7 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
     i = 0;
     while (i < h) {
       x = x0;
-      Tile_00468cf0 *tile = mv->tiles + (mv->width * y + x);
+      Tile_00468cf0 *tile = (Tile_00468cf0*)mv->tiles + (mv->width * y + x);
       int c = 0;
       while (c < w) {
         tile->flags &= 0xfb;
@@ -496,7 +495,7 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
       // row and y are computed inside the loop: y becomes the induction variable.
       int row = i + skip;
       y = y0 + i;
-      Unit_00468cf0 **pUnit = mv->buf + row * mv->stride;
+      Unit_00468cf0 **pUnit = (Unit_00468cf0**)mv->buf + row * mv->stride;
       for (k = 0; k < mv->count[row]; k++, pUnit++) {
 
         Unit_00468cf0 *u = *pUnit;
@@ -507,7 +506,7 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
             DrawUnit((int)&ctx, (int)u);
         }
       }
-      Tile_00468cf0 *tile = mv->tiles + (y * mv->width + x0);
+      Tile_00468cf0 *tile = (Tile_00468cf0*)mv->tiles + (y * mv->width + x0);
       for (int c = 0; c < w; c++, tile++) {
         x = x0 + c;
 
@@ -530,7 +529,7 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
     DrawExplosions((int)&ctx);
     DrawParticleList((int)&ctx, 7);
     for (i = 0; i < mv->rows; i++) {
-      Unit_00468cf0 **pUnit = mv->buf + mv->stride * i;
+      Unit_00468cf0 **pUnit = (Unit_00468cf0**)mv->buf + mv->stride * i;
       k = 0;
       while (k < mv->count[i]) {
         Unit_00468cf0 *u = *pUnit;
