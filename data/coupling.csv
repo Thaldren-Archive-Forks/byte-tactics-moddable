@@ -185,6 +185,7 @@ features,ai,shared_write,Vec3::x,22
 features,ai,shared_write,Vec3::y,15
 features,ai,shared_write,Vec3::z,22
 features,economy,shared_write,Point16::x,1
+features,game,call,GameRand,1
 features,game,call,SimAllocTagged,1
 features,game,call,StepGafSequence,1
 features,game,shared_write,Vec3::x,2
@@ -581,7 +582,8 @@ game,players,indirect,SetupPlayerSlot,2
 game,players,indirect,TransferEnergy,1
 game,players,indirect,TransferMetal,1
 game,players,indirect,UpdateBlink,1
-game,players,indirect,UpdatePlayers,2
+game,players,indirect,UpdatePlayers,1
+game,players,indirect,UpdatePlayersOnStream,1
 game,players,shared_write,Game::commanderDeath,1
 game,players,shared_write,Game::difficulty,3
 game,players,shared_write,Game::endGameCountdown,1
@@ -940,7 +942,7 @@ game,wind_meteors,indirect,EmptyShutdownPreCleanup,1
 game,wind_meteors,indirect,InitMeteors,1
 game,wind_meteors,indirect,LoadMeteors,1
 game,wind_meteors,indirect,SaveMeteors,1
-game,wind_meteors,indirect,UpdateWind,1
+game,wind_meteors,indirect,UpdateWindOnStream,1
 game,wind_meteors,shared_write,Game::gameTick,2
 game,wind_meteors,shared_write,Game::ticks,1
 game,wind_meteors,shared_write,Game::windCounter,1
@@ -954,6 +956,7 @@ harness,economy,shared_write,Game::localPlayer,8
 harness,features,shared_write,Game::difficulty,2
 harness,features,shared_write,Game::playerIndex,1
 harness,game,call,ApplySlotsToGamePlayers,1
+harness,game,call,GameHoldrand,1
 harness,game,shared_write,Game::difficulty,4
 harness,game,shared_write,Game::localPlayer,13
 harness,game,shared_write,Game::playerIndex,6
@@ -1383,6 +1386,7 @@ network,features,shared_write,Player::active,2
 network,features,shared_write,Player::data,1
 network,features,shared_write,Player::type,2
 network,features,shared_write,PlayerInfo::id,1
+network,game,call,GameRand,1
 network,game,call,SetCursorMode,1
 network,game,call,SetGameSpeed,1
 network,game,shared_write,Game::bit4_3923b,1
@@ -2220,6 +2224,7 @@ players,features,shared_write,Point16::y,2
 players,features,shared_write,Vec3::x,7
 players,features,shared_write,Vec3::y,5
 players,features,shared_write,Vec3::z,7
+players,game,call,GameRand,1
 players,game,call,SimAlloc,1
 players,game,shared_write,Game::endGameCountdown,1
 players,game,shared_write,Game::localPlayer,13
@@ -3106,7 +3111,8 @@ seams,game,shared_write,PlayersSeam::KillPlayerUnits,3
 seams,game,shared_write,PlayersSeam::TransferEnergy,1
 seams,game,shared_write,PlayersSeam::TransferMetal,1
 seams,game,shared_write,PlayersSeam::UpdateBlink,1
-seams,game,shared_write,PlayersSeam::UpdatePlayers,2
+seams,game,shared_write,PlayersSeam::UpdatePlayers,1
+seams,game,shared_write,PlayersSeam::UpdatePlayersOnStream,1
 seams,game,shared_write,Seams::ai,2
 seams,game,shared_write,Seams::economy,1
 seams,game,shared_write,Seams::features,5
@@ -3125,7 +3131,8 @@ seams,game,shared_write,UnitsSeam::UpdateAllUnits,1
 seams,game,shared_write,WeaponsSeam::UpdateExplosions,1
 seams,game,shared_write,WeaponsSeam::UpdateProjectiles,1
 seams,game,shared_write,WindMeteorsSeam::UpdateMeteors,1
-seams,game,shared_write,WindMeteorsSeam::UpdateWind,2
+seams,game,shared_write,WindMeteorsSeam::UpdateWind,1
+seams,game,shared_write,WindMeteorsSeam::UpdateWindOnStream,1
 seams,los_radar,shared_write,AiSeam::IsPointVisible,2
 seams,los_radar,shared_write,FeaturesSeam::PlaceFeature,1
 seams,los_radar,shared_write,LosRadarSeam::RecalculateLineOfSight,2
@@ -3276,11 +3283,13 @@ seams,players,shared_write,MapSeam::GetCellMeanHeight,1
 seams,players,shared_write,MapSeam::GetGameType,8
 seams,players,shared_write,MapSeam::VisitObjectsInRange,1
 seams,players,shared_write,PathfindingSeam::RunSearches,1
+seams,players,shared_write,PlayersSeam::UpdatePlayersOnStream,1
 seams,players,shared_write,Seams::ai,5
 seams,players,shared_write,Seams::economy,4
 seams,players,shared_write,Seams::los_radar,3
 seams,players,shared_write,Seams::map,10
 seams,players,shared_write,Seams::pathfinding,1
+seams,players,shared_write,Seams::players,1
 seams,players,shared_write,Seams::units,6
 seams,players,shared_write,Seams::weapons,3
 seams,players,shared_write,UnitsSeam::CreateUnit,2
@@ -3402,7 +3411,9 @@ seams,weapons,shared_write,UnitsSeam::StartScript,3
 seams,weapons,shared_write,UnitsSeam::StartScriptWithArgs,9
 seams,wind_meteors,call,MeteorParams::LoadMeteorDefaults,1
 seams,wind_meteors,shared_write,Seams::weapons,2
+seams,wind_meteors,shared_write,Seams::wind_meteors,1
 seams,wind_meteors,shared_write,WeaponsSeam::SpawnProjectile,1
+seams,wind_meteors,shared_write,WindMeteorsSeam::UpdateWindOnStream,1
 targeting,platform,call,Bits::Test,1
 targeting,platform,call,RandomInt,1
 targeting,presentation,call,Class_004800c0::EraseSwapBack,1
@@ -3969,6 +3980,7 @@ weapons,features,shared_write,Fixed::whole,2
 weapons,features,shared_write,Vec3::x,7
 weapons,features,shared_write,Vec3::y,5
 weapons,features,shared_write,Vec3::z,7
+weapons,game,call,GameRand,1
 weapons,game,call,SimAllocTagged,1
 weapons,game,call,StepGafSequence,1
 weapons,game,shared_write,Game::selected,1
@@ -4187,6 +4199,7 @@ wind_meteors,features,shared_write,Point16::y,2
 wind_meteors,features,shared_write,Vec3::x,7
 wind_meteors,features,shared_write,Vec3::y,5
 wind_meteors,features,shared_write,Vec3::z,7
+wind_meteors,game,call,GameRand,4
 wind_meteors,game,shared_write,Game::windCounter,1
 wind_meteors,game,shared_write,Vec3::x,2
 wind_meteors,game,shared_write,Vec3::z,2
