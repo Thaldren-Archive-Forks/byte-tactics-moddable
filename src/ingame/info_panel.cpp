@@ -122,22 +122,6 @@ struct Team_004689c0 {                 // 347 bytes
     char unknown_8[347 - 8];
 };
 
-struct Sub_004679a0_a {
-    char unknown_0[1];
-    int field_1;                       // +0x01
-    char unknown_5[0xd - 0x5];
-    int field_d;                       // +0x0d
-    char unknown_11[0x19 - 0x11];
-    int field_19;                      // +0x19
-    int field_1d;                      // +0x1d
-};
-
-struct Sub_004679a0_b {
-    char unknown_0[0x30];
-    int field_30;                      // +0x30
-    unsigned short* lightbar;          // +0x34
-};
-
 #include "../graphics/handle.h"
 
 struct Feature {
@@ -164,113 +148,7 @@ struct Def_004685a0 {
     char name[0x229];                  // +0x20
 };
 
-struct Game {
-    char unknown_0[0x519];
-    char message[0x51d - 0x519];       // +0x519, the game's message line
-    void* gaf;                         // +0x51d
-    int field_521;                     // +0x521
-    int field_525;                     // +0x525
-    char unknown_529[4];
-    int field_52d;                     // +0x52d
-    Team_004689c0* layer;              // +0x531
-    char unknown_535[0x57d - 0x535];
-    int team_index;                    // +0x57d
-    char unknown_581[0xdcb - 0x581];
-    // The 16-colour palette; 0x467a50 reads the byte at +0xdd5, 0x468310 and
-    // 0x468380 the one at +0xdda, which is colours[15].
-    union {
-        unsigned char colors[16];      // +0xdcb
-        struct {
-            char unknown_dcb[0xdd5 - 0xdcb];
-            unsigned char color2;         // +0xdd5
-            char unknown_dd6[0xdda - 0xdd6];
-            unsigned char shadowColor; // +0xdda
-        };
-    };
-    char unknown_ddb[0x1b63 - 0xddb];
-    PlayerInfo_00467440 players[10];          // +0x1b63, stride 0x14b
-    char unknown_2851[0x2a3c - 0x2851];
-    unsigned short numPlayers;         // +0x2a3c
-    char unknown_2a3e[0x2a42 - 0x2a3e];
-    unsigned char localPlayer;         // +0x2a42
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x2bee - 0x2a44];
-    unsigned short flag0 : 1;          // +0x2bee, bit 0
-    unsigned short bits1 : 15;
-    char unknown_2bf0[0x1420b - 0x2bf0];
-    FeatureSpot* spots;                // +0x1420b
-    Unit* unit;                        // +0x1420f
-    char unknown_14213[0x14233 - 0x14213];
-    int mapWidthTiles;                 // +0x14233
-    char unknown_14237[0x1426f - 0x14237];
-    Feature* features;                 // +0x1426f
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x14281 - 0x14280];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x1431f - 0x14283];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x14357 - 0x14327];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    char unknown_1435f[0x14377 - 0x1435f];
-    Object_004cb650** unitModels;      // +0x14377
-    char unknown_1437b[0x14383 - 0x1437b];
-    Vec3* tempXformPts;               // +0x14383
-    Point* tempProjectedPts;           // +0x14387
-    Point* assemPts;                   // +0x1438b
-    char unknown_1438f[0x1439b - 0x1438f];
-    Def_004685a0* unitDefs;            // +0x1439b
-    char unknown_1439f[0x1481f - 0x1439f];
-    unsigned short* sidePanelTopSeq[5];  // +0x1481f
-    unsigned short* sidePanelBotSeq[5];  // +0x14833
-    unsigned short* sidePanelSideSeq[5];  // +0x14847
-    char unknown_1485b[0x148db - 0x1485b];
-    void* logos32;                     // +0x148db
-    char unknown_148df[0x37e1b - 0x148df];
-    void* offscreen;                   // +0x37e1b
-    int screenWidth;                   // +0x37e1f
-    int screenHeight;                  // +0x37e23
-    char unknown_37e27[0x37e3f - 0x37e27];
-    union {
-        struct {
-            Sub_004679a0_a resources;  // +0x37e3f
-            Sub_004679a0_b selectionInfoCache; // +0x37e60
-        };
-        struct {
-            char unknown_37e3f[0x37e90 - 0x37e3f];
-            int panel;                 // +0x37e90
-            void* sprite;              // +0x37e94
-        };
-    };
-    char unknown_37e98[0x37ee6 - 0x37e98];
-    unsigned short maxUnits;           // +0x37ee6
-    char unknown_37ee8[0x37f06 - 0x37ee8];
-    unsigned short visualFlags;        // +0x37f06
-    char unknown_37f08[0x37f2f - 0x37f08];
-    unsigned short uiOptionFlags;      // +0x37f2f
-    char unknown_37f31[0x38a47 - 0x37f31];
-    union {
-        int gameTick;                  // +0x38a47
-        unsigned int tick;
-    };
-    unsigned short speedCtrl;          // +0x38a4b
-    unsigned short effectiveGameSpeed; // +0x38a4d
-    char unknown_38a4f[0x38d89 - 0x38a4f];
-    int total;                         // +0x38d89
-    int values[8];                     // +0x38d8d
-    char unknown_38dad[0x391b3 - 0x38dad];
-    int unitInfoHoverTrack;            // +0x391b3
-    unsigned short unitInfoHoverUnitId; // +0x391b7
-    int unitBuilderHoverTrack;         // +0x391b9
-    unsigned short unitBuilderHoverUnitId; // +0x391bd
-    char unknown_391bf[0x391f9 - 0x391bf];
-    int fontComix;                     // +0x391f9
-
-    PlayerInfo_00467440* Current() { return &players[playerIndex]; }
-};
+#include "../game/game.h"
 
 class DetectionVisitor {
 public:
@@ -486,15 +364,15 @@ void SonarJamVisitor::ApplySonarJamFlag(Unit* unit)
 // FUNCTION: 0x4679a0
 void LoadLightBar()
 {
-    Sub_004679a0_a* a = &g_game->resources;
+    Sub_004679a0_a* a = &g_game->a;
     a->field_1 = a->field_d = a->field_19 = a->field_1d = 0;
-    Sub_004679a0_b* b = &g_game->selectionInfoCache;
+    Sub_004679a0_b* b = &g_game->b;
     b->field_30 = 0;
     b->lightbar = 0;
     unsigned short* frames = FindGafEntry(g_game->gaf, "LIGHTBAR");
-    g_game->selectionInfoCache.lightbar = (unsigned short*)GetGafFrame(frames, 1);
-    g_game->selectionInfoCache.lightbar[3] = 0;
-    g_game->selectionInfoCache.lightbar[2] = 0;
+    g_game->b.lightbar = (unsigned short*)GetGafFrame(frames, 1);
+    g_game->b.lightbar[3] = 0;
+    g_game->b.lightbar[2] = 0;
 }
 
 // FUNCTION: 0x467a20
@@ -511,9 +389,9 @@ void __stdcall BlitGafFrameAtOffset(void* param_1, short* param_2, int param_3, 
 void __stdcall DrawRotatedQuadOutline(void* surface, Vec3* offset,
                             Vec3* corners, short* angles)
 {
-    Vec3* scratch = g_game->tempXformPts;
-    Point* points = g_game->tempProjectedPts;
-    unsigned char color = g_game->color2;
+    Vec3* scratch = (Vec3 *)g_game->xform;
+    Point* points = (Point *)g_game->projected;
+    unsigned char color = g_game->field_dd5;
     // corners is copied to c, which is the loop's induction variable: this
     // fixes the stack slot of the loop counter.
     Vec3* c = corners;
@@ -531,7 +409,7 @@ void __stdcall DrawRotatedQuadOutline(void* surface, Vec3* offset,
         points++;
     }
 
-    Point* quad = g_game->tempProjectedPts;
+    Point* quad = (Point *)g_game->projected;
     DrawLine(surface, quad[0].x, quad[0].y, quad[1].x, quad[1].y, color);
     DrawLine(surface, quad[1].x, quad[1].y, quad[2].x, quad[2].y, color);
     DrawLine(surface, quad[2].x, quad[2].y, quad[3].x, quad[3].y, color);
@@ -621,11 +499,11 @@ void __stdcall DrawKillCount(void* surface, Unit* unit, int x, int y)
 // FUNCTION: 0x467d70
 void DrawLightBars()
 {
-    void* surf = g_game->offscreen;
+    void* surf = (void *)g_game->screen;
     SetOffscreenSurface(surf);
     FillSurface(surf, 0);
 
-    int side = g_game->players[g_game->playerIndex].data->side;
+    int side = (*(PlayerInfo_00467440 (*)[10])&g_game->players)[g_game->playerIndex].data->side;
 
     short* bar = (short*)GetGafFrame(g_game->sidePanelTopSeq[side], 0);
     DrawFrame(surf, bar, bar[2] + 0x81, bar[3]);
@@ -770,7 +648,7 @@ int __stdcall DrawUnitStateProbe(void* surface)
 // FUNCTION: 0x468310
 void __stdcall DrawPercentBar(void* surface, Rect* rect, int percent)
 {
-    unsigned char& color = g_game->shadowColor;
+    unsigned char& color = g_game->field_dda;
     DrawRectangle(surface, rect, color);
     if (percent >= 100)
         percent = 100;
@@ -789,7 +667,7 @@ void __stdcall DrawPercentBar(void* surface, Rect* rect, int percent)
 // DrawPercentBar, the out-of-line bar, written here so both calls inline.
 static void Bar(void* surface, Rect* rect, int percent)
 {
-    unsigned char& color = g_game->shadowColor;
+    unsigned char& color = g_game->field_dda;
     DrawRectangle(surface, rect, color);
     if (percent >= 100)
         percent = 100;
@@ -808,7 +686,7 @@ void __stdcall DrawNetworkStats(void* surface)
     Rect r;
     r.left = 0x81;
     r.right = 0xc1;
-    r.top = g_game->screenHeight - 0x5f;
+    r.top = g_game->field_37e23 - 0x5f;
     r.bottom = r.top + 8;
     int h = GetFontHeight();
     GetByteRates(&sent, &received);
@@ -900,7 +778,7 @@ int __stdcall DrawUnitBuilderProbe(void* surface)
             do {
                 unsigned short id = ((UnitType_004685a0 *)unit->def)->ids[i];
                 int prob = GetBuildRating(unit->playerIndex, id);
-                Def_004685a0* def = &g_game->unitDefs[id];
+                Def_004685a0* def = &((Def_004685a0 *)g_game->defs)[id];
                 Rect bar;
                 bar.left = 0x88;
                 bar.top = y + 1;
@@ -938,7 +816,7 @@ void __stdcall DrawStatusPanel(Surface* win)
     int v = g_game->panel;
     if (g_statusPanelNextTick < (int)GetMilliseconds()) {
         g_statusPanelNextTick = GetMilliseconds() + 15;
-        if (!IsKeyDown(0x20) || (g_game->team_index != -1 && ((unsigned char*)g_game->layer->data)[g_game->team_index * 347] == 3)) {
+        if (!IsKeyDown(0x20) || (g_game->team_index != -1 && ((unsigned char*)((Team_004689c0 *)g_game->layer)->data)[g_game->team_index * 347] == 3)) {
             if (v < 0) {
                 if (v == -31)
                     PlaySoundByName("Panel", 0);
@@ -972,7 +850,7 @@ void __stdcall DrawStatusPanel(Surface* win)
     int left = bounds.left;
     int bottom = bounds.bottom + v;
     DrawFrame(win, g_game->sprite, left, bottom);
-    unsigned int tick = g_game->tick;
+    unsigned int tick = (unsigned int)g_game->ticks;
     int hours = tick / 108000;
     int rest = tick - hours * 108000;
     int minutes = rest / 1800;
@@ -981,15 +859,15 @@ void __stdcall DrawStatusPanel(Surface* win)
     DrawTextClipped(win, buf, left + 0x19, bottom + 0xa, -1, 0);
     int team = g_game->localPlayer;
     sprintf(buf, "%s : %d  (Max %d)", Translate("Total Units"),
-            g_game->players[team].unitCount, g_game->maxUnits);
+            (*(PlayerInfo_00467440 (*)[10])&g_game->players)[team].unitCount, g_game->field_37ee6);
     DrawTextClipped(win, buf, left + 0xbe, bottom + 0xa, -1, 0);
-    if (g_game->effectiveGameSpeed == 10)
+    if ((unsigned short)g_game->effectiveGameSpeed == 10)
         sprintf(num, Translate("Normal"));
     else
-        sprintf(num, "%+d", (int)g_game->effectiveGameSpeed - 10);
+        sprintf(num, "%+d", (int)(unsigned short)g_game->effectiveGameSpeed - 10);
     sprintf(buf, "%s %s", Translate("Game Speed"), num);
-    if (g_game->effectiveGameSpeed != g_game->speedCtrl)
-        sprintf(buf + strlen(buf), " (%+d)", (int)g_game->speedCtrl - 10);
+    if ((unsigned short)g_game->effectiveGameSpeed != g_game->gameSpeed)
+        sprintf(buf + strlen(buf), " (%+d)", (int)g_game->gameSpeed - 10);
     DrawTextClipped(win, buf, left + 0x17c, bottom + 0xa, -1, 0);
     g_game->field_52d = g_game->field_521;
 }
@@ -1049,7 +927,7 @@ void __stdcall DrawSelectionBox(Vec3* view, Unit* unit)
     if (f->flag) {
         Vec3 lo;
         Vec3 hi;
-        GetObjectBounds(g_game->unitModels[unit->unitDefIndex], &lo, &hi, 0);
+        GetObjectBounds(((Object_004cb650 **)g_game->types)[unit->unitDefIndex], &lo, &hi, 0);
         Vec3 corners[4];
         corners[0].x = lo.x;
         corners[0].y = lo.y;
@@ -1079,7 +957,7 @@ void __stdcall DrawSelectionBox(Vec3* view, Unit* unit)
 void __stdcall DrawProfileBarLine(int surface, const char* text, int index)
 {
     Rect rect;
-    int x = g_game->screenWidth - 0x5a;
+    int x = g_game->width_37e1f - 0x5a;
     int c = GetFontHeight();
 
     rect.left = x - 0xc8;
@@ -1160,8 +1038,8 @@ void __stdcall DrawModel3doProjected(void* surface, Vec3* offset,
                             Object_0046bae0* obj, short* angles)
 {
     Vec3* v = obj->verts;
-    Vec3* scratch = g_game->tempXformPts;
-    Point* points = g_game->tempProjectedPts;
+    Vec3* scratch = (Vec3 *)g_game->xform;
+    Point* points = (Point *)g_game->projected;
     int i = 0;
     // Every increment of both loops stays in the for header.
     for (; i < obj->count; i++, v++, scratch++, points++) {
@@ -1183,9 +1061,9 @@ void __stdcall DrawModel3doProjected(void* surface, Vec3* offset,
     }
     for (; j < obj->faceCount; j++, e++) {
         unsigned short* idx = e->indices;
-        Point* dst = g_game->assemPts;
+        Point* dst = (Point *)g_game->field_1438b;
         for (int k = 0; k < e->count; k++, idx++, dst++) {
-            *dst = g_game->tempProjectedPts[*idx];
+            *dst = ((Point *)g_game->projected)[*idx];
         }
         if (!e->flag0) {
             if (e->count == 4) {
@@ -1194,10 +1072,10 @@ void __stdcall DrawModel3doProjected(void* surface, Vec3* offset,
                     tex = (void*)GetGafSequenceFrame((short*)((char*)e + 0x10));
                 else
                     tex = (void*)e->pic;
-                DrawFrameQuad(surface, tex, g_game->assemPts, 0);
+                DrawFrameQuad(surface, tex, (Point *)g_game->field_1438b, 0);
             }
         } else {
-            FillPolygon(surface, g_game->assemPts, e->count, e->colorIndex);
+            FillPolygon(surface, (Point *)g_game->field_1438b, e->count, e->colorIndex);
         }
     }
 }
@@ -1217,12 +1095,12 @@ int __stdcall ShowGameMessage(char* text, int mode)
     int result = 1;
     if (mode == 0) {
         AddMessage(text, 0x10, 0, 10);
-        g_game->flag0 = 1;
+        g_game->bits_2bee_1.dirty = 1;
         return 1;
     }
     if (mode == 1) {
         int t = GetScreenWidth();
-        result = OpenMessageBox(g_game->message, text, (int)(t * 0.5), 1, 1);
+        result = OpenMessageBox((*(char (*)[4])&g_game->field_519), text, (int)(t * 0.5), 1, 1);
     }
     return result;
 }

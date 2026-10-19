@@ -85,9 +85,7 @@ struct SoundCat_0047fd70 {
     Slot_0047fd70 slots[24];           // +0x40
 };
 
-// The header's type, kept local: its explored sizes are ints where these
-// compares are unsigned.
-struct Player {
+struct PlayerView {
     char unknown_0[0x7c];
     unsigned char* explored;           // +0x7c
     unsigned int exploredWidth;        // +0x80
@@ -95,43 +93,9 @@ struct Player {
     char unknown_88[0x14b - 0x88];
 };
 
-struct Game {
-    char unknown_0[0xc];
-    SoundParams_0047ed40* displayContext;  // +0xc
-    Sound* sound;                      // +0x10
-    char unknown_14[0x1b63 - 0x14];
-    Player players[10];       // +0x1b63
-    char unknown_2851[0x2a43 - 0x2851];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x14233 - 0x2a44];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    int viewWidthTiles;                // +0x1423b
-    int viewHeightTiles;               // +0x1423f
-    char unknown_14243[0x14273 - 0x14243];
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x14281 - 0x14277];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x1431f - 0x14283];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x33a0f - 0x14327];
-    int soundCount;                    // +0x33a0f
-    int sounds[256];                   // +0x33a13
-    char soundNames[512][0x20];        // +0x33e13
-    SoundCat_0047fd70* soundCategories;     // +0x37e13
-    char unknown_37e17[0x37f0c - 0x37e17];
-    int fxVolume;                      // +0x37f0c
-    char unknown_37f10[0x37f17 - 0x37f10];
-    unsigned char unitChat;            // +0x37f17
-    unsigned char unitChatText;        // +0x37f18
-    unsigned char soundFlags;          // +0x37f19
-    char unknown_37f1a[0x38a47 - 0x37f1a];
-    unsigned int gameTick;             // +0x38a47
+#include "../game/game.h"
 
-    Player* Current() { return &players[playerIndex]; }
-    Player* Current2() { int i = playerIndex; return &players[i]; }
-};
+inline Player* Game::Current(void) { return &players[playerIndex]; }
 
 // One queued speech (0x11 bytes).
 struct SpeechEntry {
@@ -243,15 +207,15 @@ void InitSound(void)
         g_noDirectSound = 1;
     }
     if (!g_noDirectSound) {
-        int hr = g_game->sound->InitDirectSound(0x2b11, 0x10, 2, g_game->displayContext->hwnd);
+        int hr = ((Sound *)g_game->field_10)->InitDirectSound(0x2b11, 0x10, 2, ((SoundParams_0047ed40 *)g_game->unknown_c)->hwnd);
         if (hr == 0) {
-            if (g_game->sound->HasNoDriver())
+            if (((Sound *)g_game->field_10)->HasNoDriver())
                 g_noDirectSound = 1;
             else
                 FatalError(g_soundInitError);
         }
     }
-    g_game->sound->OpenCdAudio();
+    ((Sound *)g_game->field_10)->OpenCdAudio();
     g_speechQueue = new SpeechQueue(0x1e, 0x96);
 }
 
@@ -315,13 +279,13 @@ void ShutdownSound()
         operator delete(list);
         g_speechQueue = 0;
     }
-    g_game->sound->RestoreMixerVolumes();
-    Sound* sound = g_game->sound;
+    ((Sound *)g_game->field_10)->RestoreMixerVolumes();
+    Sound* sound = (Sound *)g_game->field_10;
     if (sound) {
         sound->ReleaseDirectSound();
         operator delete(sound);
     }
-    g_game->sound = 0;
+    (*(Sound **)&g_game->field_10) = 0;
 }
 
 // FUNCTION: 0x47efc0
@@ -349,7 +313,7 @@ void* __stdcall LoadSoundFile(const char* name)
     if (g_useWindowsSound != 0) {
         return HAPI_LoadFile(path, 0);
     }
-    return g_game->sound->LoadSample(path);
+    return ((Sound *)g_game->field_10)->LoadSample(path);
 }
 
 // Releases a set of sound buffers: frees the set directly when
@@ -361,14 +325,14 @@ void __stdcall FreeSoundSet(IDirectSoundBuffer** set)
         GameFreeThunk(set);
         return;
     }
-    g_game->sound->ReleaseSampleSet(set);
+    ((Sound *)g_game->field_10)->ReleaseSampleSet(set);
 }
 
 // FUNCTION: 0x47f090
 void __stdcall StreamSoundDelayed(char* param_1, int param_2, int param_3)
 {
     if (g_noDirectSound == 0) {
-        g_game->sound->StreamSampleDelayed(param_1, param_2, param_3);
+        ((Sound *)g_game->field_10)->StreamSampleDelayed(param_1, param_2, param_3);
     }
 }
 
@@ -385,7 +349,7 @@ int __stdcall PlaySoundByIndex(int index, int param_2)
                 return PlayLoopingWavMemory(sound);
             return PlayWavMemory(sound);
         }
-        if (g_game->fxVolume != 0 && (g_game->soundFlags & 7) != 0
+        if (g_game->volume1 != 0 && (g_game->soundFlags_37f19 & 7) != 0
             && g_noDirectSound == 0) {
             if (param_2) {
                 Packet_0047f0c0 packet;
@@ -395,8 +359,8 @@ int __stdcall PlaySoundByIndex(int index, int param_2)
                 BroadcastPacket(GetLocalDpid(), &packet, sizeof(packet));
             }
             if (g_playLooping)
-                return g_game->sound->PlayLooping(sound, -585);
-            return g_game->sound->PlaySampleSet(sound, -585, 0);
+                return ((Sound *)g_game->field_10)->PlayLooping(sound, -585);
+            return ((Sound *)g_game->field_10)->PlaySampleSet(sound, -585, 0);
         }
     }
     return 0;
@@ -407,7 +371,7 @@ int __stdcall PlaySoundByIndex(int index, int param_2)
 static inline int FindSound(char* name)
 {
     for (int i = 0; i < g_game->soundCount; i++) {
-        if (g_game->soundNames[i][0] && _strcmpi(g_game->soundNames[i], name) == 0)
+        if (g_game->soundNames_33e13_4000[i][0] && _strcmpi(g_game->soundNames_33e13_4000[i], name) == 0)
             return i;
     }
     return 0xffff;
@@ -436,8 +400,8 @@ int __stdcall PlaySoundFile(char* name)
 {
     if (g_useWindowsSound)
         return PlayWavFromDisk(name);
-    if (name && strlen(name) && g_game->fxVolume && (g_game->soundFlags & 7) && !g_noDirectSound)
-        return g_game->sound->PlaySample(name, -0x249, 0);
+    if (name && strlen(name) && g_game->volume1 && (g_game->soundFlags_37f19 & 7) && !g_noDirectSound)
+        return ((Sound *)g_game->field_10)->PlaySample(name, -0x249, 0);
     return 0;
 }
 
@@ -458,9 +422,9 @@ int __stdcall PlaySoundAt(int index, Pos_0047f300* pos, int param_3)
         return PlaySoundByIndex(index, param_3);
     if (index == 0xffff)
         return 0;
-    if (g_game->fxVolume == 0)
+    if (g_game->volume1 == 0)
         return 0;
-    if ((g_game->soundFlags & 7) == 0)
+    if ((g_game->soundFlags_37f19 & 7) == 0)
         return 0;
     if (g_noDirectSound != 0)
         return 0;
@@ -481,8 +445,8 @@ int __stdcall PlaySoundAt(int index, Pos_0047f300* pos, int param_3)
 
     // pi stays an int; the player address goes through the inline Current() to get the original's lea.
     int pi = g_game->playerIndex;
-    Player* player = g_game->Current();
-    Player* player2 = g_game->Current();
+    PlayerView* player = (PlayerView*)g_game->Current();
+    PlayerView* player2 = (PlayerView*)g_game->Current();
     // vis stays an int (char or bool changes the 1/0 pair); the flag is compared to 2 explicitly.
     int vis;
     if ((g_game->mapFlags & 2) == 2) {
@@ -503,23 +467,23 @@ int __stdcall PlaySoundAt(int index, Pos_0047f300* pos, int param_3)
                 & (1 << pi)) ? 1 : 0;
     }
     if (vis != 0) {
-        if (g_game->sound->Is3DEnabled()) {
+        if (((Sound *)g_game->field_10)->Is3DEnabled()) {
             Vector3_0047f300 p;
-            p.x = pos->x - g_game->scrollX - (g_game->viewWidthTiles / 2) * 16;
-            p.z = g_game->scrollY + (g_game->viewHeightTiles / 2) * 16
+            p.x = pos->x - g_game->scrollX - (g_game->screenTilesX / 2) * 16;
+            p.z = g_game->scrollY + (g_game->screenTilesY / 2) * 16
                 + (pos->y >> 1) - pos->z;
             // p.z is written before p.y: the store order follows the original.
             p.y = 0;
-            g_game->sound->Set3DDistances(
-                (float)(((g_game->viewWidthTiles + g_game->viewHeightTiles) / 2) * 16),
-                (float)((g_game->mapWidthTiles + g_game->mapHeightTiles) * 16));
-            return g_game->sound->PlaySampleSet(sound, -585, &p);
+            ((Sound *)g_game->field_10)->Set3DDistances(
+                (float)(((g_game->screenTilesX + g_game->screenTilesY) / 2) * 16),
+                (float)((g_game->width + g_game->height) * 16));
+            return ((Sound *)g_game->field_10)->PlaySampleSet(sound, -585, &p);
         } else {
             if (g_game->scrollX > pos->x || g_game->scrollY > pos->z
-                || g_game->scrollX + g_game->viewWidthTiles * 16 < pos->x
-                || g_game->scrollY + g_game->viewHeightTiles * 16 < pos->z)
-                return g_game->sound->PlaySampleSet(sound, -1585, 0);
-            return g_game->sound->PlaySampleSet(sound, -585, 0);
+                || g_game->scrollX + g_game->screenTilesX * 16 < pos->x
+                || g_game->scrollY + g_game->screenTilesY * 16 < pos->z)
+                return ((Sound *)g_game->field_10)->PlaySampleSet(sound, -1585, 0);
+            return ((Sound *)g_game->field_10)->PlaySampleSet(sound, -585, 0);
         }
     }
     return 0;
@@ -546,9 +510,9 @@ void PlayNextSpeech()
     SpeechQueue* driver = g_speechQueue;
     int& count = g_speechQueue->count;
     if (count) {
-        if (g_game->gameTick >= g_speechQueue->lastFrame + g_speechQueue->interval) {
+        if ((unsigned int)g_game->ticks >= g_speechQueue->lastFrame + g_speechQueue->interval) {
             g_speechQueue->PlaySpeech(0, 1, 1);
-            driver->lastFrame = g_game->gameTick;
+            driver->lastFrame = (unsigned int)g_game->ticks;
         } else {
             g_speechQueue->PlaySpeech(0, 0, 1);
         }
@@ -568,7 +532,7 @@ void PlayNextSpeech()
 void StopAllSounds()
 {
     if (g_noDirectSound == 0) {
-        g_game->sound->StopAllBuffers();
+        ((Sound *)g_game->field_10)->StopAllBuffers();
     }
     if (g_useWindowsSound != 0) {
         StopWindowsSound();
@@ -651,7 +615,7 @@ void SpeechQueue::ClearSpeechEntries(void)
 // FUNCTION: 0x47fad0
 void SpeechQueue::EnqueueSpeech(Unit* unit, int kind, char* text)
 {
-    if (g_game->gameTick < g_speechTypes[kind].minFrame)
+    if ((unsigned int)g_game->ticks < g_speechTypes[kind].minFrame)
         return;
 
     for (int i = 0; i < count; i++)
@@ -682,7 +646,7 @@ void SpeechQueue::EnqueueSpeech(Unit* unit, int kind, char* text)
     }
 
     entries[j].kind = kind;
-    entries[j].frame = g_game->gameTick;
+    entries[j].frame = (unsigned int)g_game->ticks;
     entries[j].unit = unit;
     entries[j].priority = g_speechTypes[kind].priority;
     if (text) {
@@ -702,9 +666,9 @@ void SpeechQueue::PlayNextSpeechEntry()
     if (count == 0) {
         return;
     }
-    if (g_game->gameTick >= interval + lastFrame) {
+    if ((unsigned int)g_game->ticks >= interval + lastFrame) {
         this->PlaySpeech(0, 1, 1);
-        lastFrame = g_game->gameTick;
+        lastFrame = (unsigned int)g_game->ticks;
     } else {
         this->PlaySpeech(0, 0, 1);
     }
@@ -735,15 +699,15 @@ void SpeechQueue::PlaySpeech(int index, int param_2, int param_3)
     int slot = entries[index].kind;
     unsigned int catIndex = 0;
     catIndex = (unsigned short)entries[index].unit->def->soundcategory;
-    SoundCat_0047fd70* cat = &g_game->soundCategories[catIndex];
+    SoundCat_0047fd70* cat = &((SoundCat_0047fd70 *)g_game->entries_37e13)[catIndex];
     int count = cat->slots[slot].count;
     int idx = (int)((__int64)HarnessViewRand() * count / 0x8000);
 
     if ((int)e->priority > 10 - g_game->unitChat && count > 0 && param_2 != 0
-        && (g_game->soundFlags & 0x40)) {
+        && (g_game->soundFlags_37f19 & 0x40)) {
         char* name;
         if (g_cmdSingEnabled)
-            name = (char*)(((g_game->gameTick / 30) & 7) ? "sing" : "honk");
+            name = (char*)((((unsigned int)g_game->ticks / 30) & 7) ? "sing" : "honk");
         else
             name = cat->slots[slot].table1 + idx * 0x40;
 
@@ -751,12 +715,12 @@ void SpeechQueue::PlaySpeech(int index, int param_2, int param_3)
         BuildDataPath(path, "sounds", name, "WAV");
         if (g_useWindowsSound) {
             PlayWavFromDisk(path);
-        } else if (path && strlen(path) && g_game->fxVolume
-                   && (g_game->soundFlags & 7) && g_noDirectSound == 0) {
-            g_game->sound->PlaySample(path, -0x249, 0);
+        } else if (path && strlen(path) && g_game->volume1
+                   && (g_game->soundFlags_37f19 & 7) && g_noDirectSound == 0) {
+            ((Sound *)g_game->field_10)->PlaySample(path, -0x249, 0);
         }
         g_speechTypes[slot].minFrame =
-            g_game->gameTick + g_speechTypes[slot].cooldown * 0x1e;
+            (unsigned int)g_game->ticks + g_speechTypes[slot].cooldown * 0x1e;
     }
 
     if (param_3 != 0 && (int)e->priority > 10 - g_game->unitChatText) {

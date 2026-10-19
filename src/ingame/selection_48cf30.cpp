@@ -44,25 +44,14 @@ struct UnitDef_0048cf30 {
 #include "../units/unit.h"
 
 // Kept a view of its own at this file's symbol count; the header's names.
-struct Player {
+struct PlayerView {
     char unknown_0[0x67];
     Unit* unitsBegin;                   // +0x67
     Unit* unitsEnd;                     // +0x6b
     char unknown_6f[0x14b - 0x6f];
 };
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                 // +0x1b63
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;          // +0x2a42
-    char unknown_2a43[0x2caa - 0x2a43];
-    void* pos;                          // +0x2caa
-    char unknown_2cae[0x2cba - 0x2cae];
-    unsigned short hoverUnitId;         // +0x2cba
-    char unknown_2cbc[0x14357 - 0x2cbc];
-    Unit* units;                        // +0x14357
-};
+#include "../game/game.h"
 
 extern Game* g_game;
 
@@ -92,7 +81,7 @@ void __stdcall IssueOrderToSelection(OrderTypeEntry* entry, unsigned char mode,
         else
             except = (Unit*)((char*)g_game->units + 280 * g_game->hoverUnitId);
     }
-    Player* p = &g_game->players[g_game->localPlayer];
+    PlayerView* p = &((PlayerView*)g_game->players)[g_game->localPlayer];
     int count = 0;
     int sum_x = 0;
     int sum_z = 0;
@@ -115,7 +104,7 @@ void __stdcall IssueOrderToSelection(OrderTypeEntry* entry, unsigned char mode,
         if (!(((unsigned char)u->flags) & 0x10) || u == except)
             continue;
         if (mode)
-            kind.index = GetOrderType(mode, u, except, &g_game->pos).index;
+            kind.index = GetOrderType(mode, u, except, &g_game->pos_2caa).index;
         if (!kind.index)
             continue;
         // fire and move are named locals from the Order() wrapper, not constructed
