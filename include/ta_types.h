@@ -4889,23 +4889,7 @@ struct Class_004402e0 {  // 0x20 bytes, 3 views
     ~Class_004402e0(void);
 };
 
-struct MovementClass {   // 0x20 bytes, 9 views
-    int* name;  // +0x0
-    short footprintX;  // +0x4
-    short footprintZ;  // +0x6
-    short maxWaterDepth;  // +0x8
-    short minWaterDepth;  // +0xa
-    unsigned char maxSlope;  // +0xc
-    unsigned char badSlope;  // +0xd
-    unsigned char maxWaterSlope;  // +0xe
-    unsigned char badWaterSlope;  // +0xf
-    int width;  // +0x10
-    int height;  // +0x14
-    void* cells;  // +0x18
-    int lastTick;  // +0x1c
-    MovementClass(void);
-    void ReadMoveInfo(Source_00440340*);
-};
+#include "../src/units/movement_class.h"
 
 struct UnitType {        // 0x220 bytes, 2 views
     char unknown_0[542];
@@ -4956,12 +4940,6 @@ struct CobFile_0042d1f0 {  // 0x194 bytes, 2 views
     int offset_28;  // +0x28
     char unknown_2c[356];
     int field_18e;  // +0x190
-};
-
-struct MovementClassTable {  // 0x400 bytes, 7 views
-    MovementClass entries[32];   // +0x0
-    ~MovementClassTable(void);
-    static MovementClassTable g_movementClasses;
 };
 
 class Class_00458180 {  // 0x14 bytes, 2 views

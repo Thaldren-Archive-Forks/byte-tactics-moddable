@@ -204,32 +204,7 @@ class UnitTable;
 
 #include "../game/game.h"
 
-// The game's movement classes: 0x20-byte entries in a 32-entry table.
-struct MovementClass {
-    int* name;                         // +0x0
-    short footprintX;                  // +0x4
-    short footprintZ;                  // +0x6
-    short maxWaterDepth;               // +0x8
-    short minWaterDepth;               // +0xa
-    unsigned char maxSlope;            // +0xc
-    unsigned char badSlope;            // +0xd
-    unsigned char maxWaterSlope;       // +0xe
-    unsigned char badWaterSlope;       // +0xf
-    int width;                         // +0x10
-    int height;                        // +0x14
-    void* cells;                       // +0x18
-    int lastTick;                      // +0x1c
-
-    MovementClass();
-    ~MovementClass();
-    void ReadMoveInfo(void* parser);
-};
-
-struct MovementClassTable {
-    MovementClass entries[32];
-
-    static MovementClassTable g_movementClasses;
-};
+#include "movement_class.h"
 
 // The unit table object at g_game+0x1437b: the memory cache with the composite
 // frame at +0x10, and the three methods this module calls.
@@ -770,7 +745,7 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             MovementClass movement;
             MovementClass* move = (MovementClass*)unitdef->movementclass;
             if (move == 0) {
-                (&movement)->ReadMoveInfo(&parser);
+                (&movement)->ReadMoveInfo((Source_00440340*)&parser);
                 move = &movement;
             }
             unitdef->footprintx = move->footprintX;
@@ -933,7 +908,7 @@ void LoadUnitTypes() {
             if (parser.SelectRecord(classbuf)) {
                 parser.current->GetFieldString(classbuf, "name", 100, DAT_005119b8);
                 cls->name = (int*)GameStrdup(classbuf);
-                cls->ReadMoveInfo(&parser);
+                cls->ReadMoveInfo((Source_00440340*)&parser);
             }
             cls++;
             i++;
