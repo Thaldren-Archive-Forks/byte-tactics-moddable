@@ -45048,8 +45048,8 @@ address,function,file,kind,target
 ,Find_00499cd0,src/weapons/weapons.cpp,call,end
 ,Find_00499cd0,src/weapons/weapons.cpp,call,operator()
 ,Find_00499cd0,src/weapons/weapons.cpp,field_escape,Pair_00499cd0::value
-,Find_00499cd0,src/weapons/weapons.cpp,field_maybe_written,Table_00499cd0::v
 ,Find_00499cd0,src/weapons/weapons.cpp,field_read,Pair_00499cd0::name
+,Find_00499cd0,src/weapons/weapons.cpp,field_read,Table_00499cd0::v
 ,Find_00499cd0,src/weapons/weapons.cpp,function,
 ,Find_004a3ef0,src/gui/gui_4a3ef0.cpp,field_read,<anon>::count
 ,Find_004a3ef0,src/gui/gui_4a3ef0.cpp,field_read,Gadget::team
