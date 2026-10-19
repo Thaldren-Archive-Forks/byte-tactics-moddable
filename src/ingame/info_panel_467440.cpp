@@ -103,7 +103,7 @@ static inline int IsSeen_00467440(PlayerInfo_00467440* p, UnitPos_00467440* pos)
 // FUNCTION: 0x467440
 void UpdateSensorRadarAndCloak(void)
 {
-    if (g_game->field_2a3c < 2) {
+    if (g_game->numPlayers < 2) {
         return;
     }
     unsigned char player = g_game->playerIndex;

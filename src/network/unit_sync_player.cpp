@@ -101,10 +101,10 @@ extern Game* g_game;
 // FUNCTION: 0x470300 ??_GUnitSyncPlayer@@QAEPAXI@Z
 void FinishUnitSync()
 {
-    ((UnitSync *)g_game->field_2a30)->ApplyToUnitTypes();
-    if ((UnitSync *)g_game->field_2a30)
-        delete (UnitSync *)g_game->field_2a30;
-    (*(UnitSync **)&g_game->field_2a30) = 0;
+    ((UnitSync *)g_game->sync)->ApplyToUnitTypes();
+    if ((UnitSync *)g_game->sync)
+        delete (UnitSync *)g_game->sync;
+    (*(UnitSync **)&g_game->sync) = 0;
 }
 
 // The copy constructor. Its one caller copies a 0x5c-byte array of these.

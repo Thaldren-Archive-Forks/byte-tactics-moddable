@@ -237,8 +237,8 @@ void UpdateBattleRoom()
             CompactActivePlayerSlots();
         }
 
-        if ((unsigned int)g_game->field_2a3c != g_lastPlayerCount) {
-            g_lastPlayerCount = g_game->field_2a3c;
+        if ((unsigned int)g_game->numPlayers != g_lastPlayerCount) {
+            g_lastPlayerCount = g_game->numPlayers;
             UpdateNetGameInfo();
         }
 
@@ -267,7 +267,7 @@ void UpdateBattleRoom()
         g_game->bits_2bee_1.dirty = 0;
         if (IsScreenNamed(&g_game->gui, "LOUNGE2.GUI") != 0) {
             if (pl->info->flags_97 & 1) {
-                int synched = ((UnitSync *)g_game->field_2a30)->AllPlayersSynced();
+                int synched = ((UnitSync *)g_game->sync)->AllPlayersSynced();
                 int ready = AreAllPlayersReady();
                 Gadget_0044a680* start;
 
@@ -341,7 +341,7 @@ void UpdateBattleRoom()
         SetCurrentFont(&g_game->gui, 0);
     }
 
-    ((UnitSync *)g_game->field_2a30)->ProcessSync();
+    ((UnitSync *)g_game->sync)->ProcessSync();
     if (g_heartbeatNextTick < (unsigned int)GetTicks()) {
         unsigned char r;
         PlayerInfo* info;

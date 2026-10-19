@@ -1398,7 +1398,7 @@ void RunFrontendStateMachine(void)
             PresentFrontendFrame();
             return;
         case 21: {
-            int unit = (int)g_game->field_4e5;
+            int unit = (int)g_game->dplConnection;
             if (unit)
                 g_game->players[(unsigned char)g_game->localPlayer].info->host = *(unsigned int*)(unit + 4) >> 1;
             else

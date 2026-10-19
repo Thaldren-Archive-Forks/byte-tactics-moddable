@@ -231,9 +231,9 @@ int LoadUnitInfo()
             double version = parser.GetDouble("Version", 0.0);
             int major = (int)floor(version);
             int minor = (int)floor((version - major) * 10.0);
-            if (major < (signed char)g_game->field_1)
+            if (major < (signed char)g_game->version)
                 u->flags1 |= 0x800000;
-            else if (major == (signed char)g_game->field_1 && minor <= (signed char)g_game->field_2)
+            else if (major == (signed char)g_game->version && minor <= (signed char)g_game->versionMinor)
                 u->flags1 |= 0x800000;
             else
                 u->flags1 &= ~0x800000;

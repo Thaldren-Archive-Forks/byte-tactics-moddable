@@ -413,7 +413,7 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
             InitMissionStatus();
         if (g_seams.map->GetGameType(g_game->net) == 2) {
             (((HapiBank*)g_game->pendingSaveStore))->OpenAccount("summary");
-            g_game->field_2a3c =
+            g_game->numPlayers =
                 (unsigned short)((short)(((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("Players", 0));
             ((SkirmishInfo*)g_game->options)->commanderDeath =
                 (((HapiBank*)g_game->pendingSaveStore))->GetIntegerItem("CommanderDeath", 1);

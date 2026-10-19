@@ -65,6 +65,7 @@
 struct AnimEntry_00429700;
 struct BuildList_0041ace0;
 struct Cell;
+struct ChatPacket;
 class Class_00437c80;
 struct Class_0045ae80;
 class Class_0046d040;
@@ -100,8 +101,8 @@ struct Game {
     union {
         struct {
             char unknown_0;
-            unsigned char field_1;
-            unsigned char field_2;
+            unsigned char version;
+            unsigned char versionMinor;
             unsigned char field_3;
         };
         int field_0;
@@ -123,8 +124,8 @@ struct Game {
             char unknown_449[40];
             Settings settings;
             char unknown_4c1[8];
-            int lobby2;
-            int local_id;
+            int from_id;
+            int lobby1;
             char unknown_4d1[12];
         };
         struct {
@@ -137,7 +138,7 @@ struct Game {
         char net_14[1225];
     };
     char unknown_4dd[8];
-    Net_4517b0* field_4e5;
+    Net_4517b0* dplConnection;
     char unknown_4e9[4];
     int field_4ed;
     int netMode;
@@ -181,10 +182,13 @@ struct Game {
             void* surface;
             char unknown_11ef[256];
             Entry_00463ca0 entries[30];
-            int field_1b5f;
+            int lobbySyncTick;
             Player players[10];
             char unknown_2851[331];
-            int field_299c;
+            union {
+                int duplicateIds;
+                int duplicatePlayerTypeFlag;
+            };
         };
         struct {
             int field_519;
@@ -249,19 +253,25 @@ struct Game {
         struct {
             int loaded[10];
             char unknown_29cc[4];
-            int field_29d0[11];
-            int field_29fc[10];
+            int startPosAssignAck[11];
+            int startPosShuffle[10];
             char unknown_2a24[4];
-            int field_2a28;
+            int startPosShuffleReady;
             char unknown_2a2c[4];
         };
         int shareVisionReady[11];
         PlayerSlots_00497f40 slots_29a4;
     };
-    Class_0046d040* field_2a30;
-    int field_2a34;
-    unsigned char* buffer;
-    unsigned short field_2a3c;
+    Class_0046d040* sync;
+    int recvPacketSize;
+    union {
+        unsigned char* recvPacketPtr;
+        ChatPacket* chat;
+    };
+    union {
+        unsigned short numPlayers;
+        short numPlayersSigned;
+    };
     unsigned short tail;
     unsigned short head;
     unsigned char localPlayer;
@@ -1234,7 +1244,7 @@ struct Game {
         struct {
             char field_39201[1];
             char unknown_39202[15];
-            int field_39211;
+            int connection;
             int field_39215;
         };
         char providerGuid[16];

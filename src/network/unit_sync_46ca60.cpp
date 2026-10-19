@@ -122,7 +122,7 @@ extern Game* g_game;
 // __fastcall: keeps the erase loop comparing the iterator slot directly.
 void __fastcall FinishUnitSync()
 {
-    ((UnitSync *)g_game->field_2a30)->ApplyToUnitTypes();
-    delete (UnitSync *)g_game->field_2a30;
-    (*(UnitSync **)&g_game->field_2a30) = 0;
+    ((UnitSync *)g_game->sync)->ApplyToUnitTypes();
+    delete (UnitSync *)g_game->sync;
+    (*(UnitSync **)&g_game->sync) = 0;
 }
