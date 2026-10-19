@@ -17,11 +17,6 @@
 #include <d3d.h>
 #include <memory.h>
 #include <math.h>
-// ta_types.h is included for its symbol ids: the vector instantiations below
-// follow the ids the unit's headers gave them. Its views of two element types
-// have no copy constructor a vector can use, so those two are renamed here and
-// defined below.
-
 // Unused here: the symbol ids these declarations take keep the allocation
 // (docs/c2-regalloc.md), standing in for the placeholder class ta_types.h
 // no longer declares. They sit before the header so the vector it
@@ -29,18 +24,7 @@
 void RegisterEmptyAtexitB(void);
 bool __cdecl ReadGdperf(unsigned long, void*);
 
-#define Elem_0040cc40 Elem_0040cc40_view
 #include "ta_types.h"
-#undef Elem_0040cc40
-
-// A map cell and its sort key, the element of the vector at +0x4d.
-struct Elem_0040cc40 {
-    Point16 pos;                       // +0x0
-    float key;                         // +0x4
-    Elem_0040cc40() {}
-    Elem_0040cc40(const Elem_0040cc40& o) : pos(o.pos), key(o.key) {}
-    bool operator<(const Elem_0040cc40& o) const { return key < o.key; }
-};
 
 #include <new>
 // The placement copies of Elem_0040cc40 and Elem_0040d4f0 that insert and

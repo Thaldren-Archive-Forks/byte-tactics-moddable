@@ -1792,7 +1792,7 @@ int AiSearchGoal::HasReadyWaypoints()
 // FUNCTION: 0x44f2a0
 void AiSearchGoal::SetPathOrder(void* param)
 {
-    g_seams.pathfinding->AbortIfGoalMatch((Pathfinder *)g_game->pathfinder, this);
+    g_seams.pathfinding->AbortIfGoalMatch(g_game->pathfinder, this);
     if (target)
         ((OrderFx*)target)->AddFlags(0x80);
     active = 0;
@@ -1845,7 +1845,7 @@ void AiSearchGoal::SetPathOrder(void* param)
 // FUNCTION: 0x44f450
 AiSearchGoal::~AiSearchGoal()
 {
-    g_seams.pathfinding->AbortIfGoalMatch((Pathfinder *)g_game->pathfinder, this);
+    g_seams.pathfinding->AbortIfGoalMatch(g_game->pathfinder, this);
 }
 
 // Slot 7: true when there is something to send: flag 3 of +0x64 (the path changed) is
@@ -1939,13 +1939,13 @@ void PatrolGoal::FillWaypointWorldPos(Vec3* out, int unused, int n)
 // FUNCTION: 0x44f6a0
 void CreatePathfinder()
 {
-    (*(Pathfinder **)&g_game->pathfinder) = new (kSim) Pathfinder;
+    g_game->pathfinder = new (kSim) Pathfinder;
 }
 
 // Deletes the object at g_game+0x14207 and clears the pointer.
 // FUNCTION: 0x44f6e0
 void DestroyPathfinder()
 {
-    g_seams.pathfinding->Destroy((Pathfinder *)g_game->pathfinder);
-    (*(Pathfinder **)&g_game->pathfinder) = 0;
+    g_seams.pathfinding->Destroy(g_game->pathfinder);
+    g_game->pathfinder = 0;
 }
