@@ -115,7 +115,7 @@ struct Player {
     unsigned char alliedBy[11];        // +0x113
     unsigned char shareLos[11];        // +0x11e
     unsigned char shareVision[11];     // +0x129
-    unsigned char shareMapping[11];// +0x134
+    unsigned char shareMapping[11];    // +0x134
     unsigned char alliance;            // +0x13f
     int unitsCreated;                  // +0x140
     unsigned short unitCount;          // +0x144
