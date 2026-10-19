@@ -512,6 +512,7 @@ address,function,file,kind,target
 0x403180,RegisterUnitOrders,src/orders/unit_orders.cpp,function,
 0x403190,AttackSpecialOrder,src/orders/unit_orders.cpp,call,GetOrderType
 0x403190,AttackSpecialOrder,src/orders/unit_orders.cpp,call,Order::MergeFlagsFromTable
+0x403190,AttackSpecialOrder,src/orders/unit_orders.cpp,field_read,MissionType::index
 0x403190,AttackSpecialOrder,src/orders/unit_orders.cpp,field_read,Order::target
 0x403190,AttackSpecialOrder,src/orders/unit_orders.cpp,field_write,Order::weapon
 0x403190,AttackSpecialOrder,src/orders/unit_orders.cpp,function,
@@ -1243,6 +1244,7 @@ address,function,file,kind,target
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,call,Order::SetDeadlineTicks
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,call,SubPoint
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,call,operator=
+0x4061a0,ParkOrder,src/orders/unit_orders.cpp,field_read,MissionType::index
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,field_read,Order::next
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,field_read,Order::state
 0x4061a0,ParkOrder,src/orders/unit_orders.cpp,field_read,Point16::x
@@ -10758,32 +10760,32 @@ address,function,file,kind,target
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,deref_write,*Order
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_escape,Order::next
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_escape,Unit::list
-0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
+0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_read,Order::next
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_read,Unit::carrier
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_read,Unit::list
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_read,Unit::list2
-0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,function,
 0x4384a0,AddBeCarriedOrder,src/orders/order_queue_4384a0.cpp,global_read,kSim
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,call,SendScriptCall
-0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
+0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Seams::units
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Unit::script
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,UnitsSeam::FindScript
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,UnitsSeam::StartScriptWithArgsByIndex
-0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,function,
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,global_read,g_seams
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,indirect_call,"indirect via int (*)(CobScript *, const char *) __attribute__((stdcall)) [UnitsSeam::FindScript]"
 0x438590,StartBuildingScript,src/orders/order_queue_4384a0.cpp,indirect_call,"indirect via int (*)(CobScript *, int, Callback *, int, int, int, int, int, int) __attribute__((stdcall)) [UnitsSeam::StartScriptWithArgsByIndex]"
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,call,SendScriptCallNoArgs
-0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
+0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Seams::units
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,Unit::script
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,UnitsSeam::FindScript
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_read,UnitsSeam::StartScriptWithArgsByIndex
-0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,function,
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,global_read,g_seams
 0x4385f0,StopBuildingScript,src/orders/order_queue_4384a0.cpp,indirect_call,"indirect via int (*)(CobScript *, const char *) __attribute__((stdcall)) [UnitsSeam::FindScript]"
@@ -10820,20 +10822,20 @@ address,function,file,kind,target
 0x438870,Order::OrStatusFlags,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438870,Order::OrStatusFlags,src/orders/order_queue_4384a0.cpp,function,
 0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,call,QueueUnitSpeech
-0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
-0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
-0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
+0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
+0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 0x438880,Order::AnnounceStatusIfFlagged,src/orders/order_queue_4384a0.cpp,function,
 0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,deref_read,*void
-0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
 0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
+0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
 0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,function,
 0x4388b0,Order::ReattachFxToUnit,src/orders/order_queue_4384a0.cpp,indirect_call,"indirect via void (*)(void *, int) __attribute__((thiscall))"
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,call,operator delete
-0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Order::subFlags
+0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Owner_0043a1f0::slot
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_read,Unit::motion
 0x4388d0,Order::SetAttachedFx,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
@@ -10844,14 +10846,15 @@ address,function,file,kind,target
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,call,operator new
-0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,deref_read,*int
-0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Order::subFlags
+0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Owner_0043a1f0::slot
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Unit::def
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Unit::motion
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,UnitType::flags32
+0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Vec3::x
+0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_read,Vec3::z
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438930,Order::AttachApproachRadiusGoal,src/orders/order_queue_4384a0.cpp,function,
@@ -10861,15 +10864,15 @@ address,function,file,kind,target
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,call,operator new
-0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Order::subFlags
+0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Owner_0043a1f0::slot
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Unit::def
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Unit::motion
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,UnitType::flags32
-0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Vec3_0043a1f0::x
-0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Vec3_0043a1f0::z
+0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Vec3::x
+0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_read,Vec3::z
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
 0x438a00,Order::AttachRingApproachGoal,src/orders/order_queue_4384a0.cpp,function,
@@ -10879,9 +10882,9 @@ address,function,file,kind,target
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,call,OrderFx::~OrderFx
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,call,operator new
-0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Order::subFlags
+0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Owner_0043a1f0::slot
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Unit::def
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,field_read,Unit::motion
@@ -10893,10 +10896,10 @@ address,function,file,kind,target
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,indirect_call,virtual OrderFx::~OrderFx
 0x438ad0,Order::AttachBuildFootprintMarker,src/orders/order_queue_4384a0.cpp,indirect_call,virtual Slot_0043a1f0::Attach
 0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,Entry_0043a1f0::flags
-0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::kind
-0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
-0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_write,Head_0043a1f0::kind
-0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,MissionType::index
+0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
+0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_write,MissionType::index
+0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,function,
 0x438b90,Order::MergeFlagsFromTable,src/orders/order_queue_4384a0.cpp,global_read,g_missionOrderTableBegin
 0x438be0,GetOrderFlags,src/orders/order_queue_4384a0.cpp,deref_read,*int
@@ -11067,7 +11070,7 @@ address,function,file,kind,target
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,call,DrawWeaponCoverage
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,call,operator=
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Elem_0043c390::drawMask
-0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Order::kind
+0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,MissionType::index
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Order::next
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Unit::list
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,field_read,Unit::pos
@@ -11075,7 +11078,7 @@ address,function,file,kind,target
 0x439b30,DrawOrderOverlays,src/orders/order_list.cpp,global_read,g_missionOrderTableBegin
 0x439cf0,GetOrderTargetIfFlagged,src/orders/order_list.cpp,deref_read,*int
 0x439cf0,GetOrderTargetIfFlagged,src/orders/order_list.cpp,function,
-0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,Order::flags
+0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,Order::flags_42
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,Order::id
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,Order::next
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,Order::progress
@@ -11083,8 +11086,8 @@ address,function,file,kind,target
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,UnitWeaponSlot::weapon
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,field_read,WeaponDef::reloadTime
 0x439d20,GetBuildWeaponPercent,src/orders/order_list.cpp,function,
-0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::amount
-0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::flags
+0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::count
+0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::flags_42
 0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::id
 0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Order::next
 0x439d80,SumQueuedBuildCount,src/orders/order_list.cpp,field_read,Unit::list
@@ -11093,12 +11096,12 @@ address,function,file,kind,target
 0x439dd0,GetOrderTarget,src/orders/order_list.cpp,deref_read,*int
 0x439dd0,GetOrderTarget,src/orders/order_list.cpp,function,
 0x439df0,GetOrderName,src/orders/order_list.cpp,field_read,Elem_0043c390::value
-0x439df0,GetOrderName,src/orders/order_list.cpp,field_read,Order::kind
+0x439df0,GetOrderName,src/orders/order_list.cpp,field_read,MissionType::index
 0x439df0,GetOrderName,src/orders/order_list.cpp,field_read,Unit::list
 0x439df0,GetOrderName,src/orders/order_list.cpp,function,
 0x439df0,GetOrderName,src/orders/order_list.cpp,global_read,g_missionOrderTableBegin
 0x439e30,FindOrderByType,src/orders/order_list.cpp,field_read,Elem_0043c390::flags
-0x439e30,FindOrderByType,src/orders/order_list.cpp,field_read,Order::kind
+0x439e30,FindOrderByType,src/orders/order_list.cpp,field_read,MissionType::index
 0x439e30,FindOrderByType,src/orders/order_list.cpp,field_read,Order::next
 0x439e30,FindOrderByType,src/orders/order_list.cpp,field_read,Unit::list
 0x439e30,FindOrderByType,src/orders/order_list.cpp,field_read,Unit::list2
@@ -11118,11 +11121,11 @@ address,function,file,kind,target
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,deref_write,*Order
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_escape,Order::next
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_escape,Unit::list
-0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_read,Order::flags
+0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_read,Order::flags_42
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_read,Order::next
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_read,Unit::list
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_read,Unit::list2
-0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_write,Order::flags
+0x439eb0,DeleteOrders,src/orders/order_list.cpp,field_write,Order::flags_42
 0x439eb0,DeleteOrders,src/orders/order_list.cpp,function,
 0x439f80,DeleteOrder,src/orders/order_list.cpp,call,Order::~Order
 0x439f80,DeleteOrder,src/orders/order_list.cpp,call,operator delete
@@ -11131,10 +11134,10 @@ address,function,file,kind,target
 0x439f80,DeleteOrder,src/orders/order_list.cpp,field_escape,Order::next
 0x439f80,DeleteOrder,src/orders/order_list.cpp,field_escape,Unit::list
 0x439f80,DeleteOrder,src/orders/order_list.cpp,field_escape,Unit::list2
-0x439f80,DeleteOrder,src/orders/order_list.cpp,field_read,Order::flags
+0x439f80,DeleteOrder,src/orders/order_list.cpp,field_read,Order::flags_42
 0x439f80,DeleteOrder,src/orders/order_list.cpp,field_read,Order::next
 0x439f80,DeleteOrder,src/orders/order_list.cpp,field_read,Unit::list
-0x439f80,DeleteOrder,src/orders/order_list.cpp,field_write,Order::flags
+0x439f80,DeleteOrder,src/orders/order_list.cpp,field_write,Order::flags_42
 0x439f80,DeleteOrder,src/orders/order_list.cpp,function,
 0x439fe0,MoveOrderToTail,src/orders/order_list.cpp,deref_read,*char
 0x439fe0,MoveOrderToTail,src/orders/order_list.cpp,deref_write,*char
@@ -11142,13 +11145,14 @@ address,function,file,kind,target
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,call,InsertBefore
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,call,operator new
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_escape,Unit::pos
-0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_read,Order::flags
-0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_read,Order::kind
+0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_read,MissionType::index
+0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_read,Order::next
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_read,Unit::list
-0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_write,Order::flags
+0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,function,
 0x43a020,EnsurePatrolReturnOrder,src/orders/order_list.cpp,global_read,kSim
+0x43a0c0,Order::Order,src/orders/order_list.cpp,call,MissionTypeOf
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,PathOrderAttach::SetUnit
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,PathOrderAttach::SetValue
 0x43a0c0,Order::Order,src/orders/order_list.cpp,call,operator=
@@ -11156,13 +11160,13 @@ address,function,file,kind,target
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_maybe_written,Order::link
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_read,Elem_0043c390::flags
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_read,Game::ticks
-0x43a0c0,Order::Order,src/orders/order_list.cpp,field_read,Order::flags
+0x43a0c0,Order::Order,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::attached
-0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::count
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::flags
-0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::flags6
+0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::next
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::pos
+0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::state
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::subFlags
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::unit
 0x43a0c0,Order::Order,src/orders/order_list.cpp,field_write,Order::wakeFrame
@@ -11175,11 +11179,11 @@ address,function,file,kind,target
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,call,operator delete
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_escape,Order::link
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Entry_0043a1f0::notify
-0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::flags6
-0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::kind
-0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
+0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,MissionType::index
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
+0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
+0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Owner_0043a1f0::slot
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Seams::units
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,Seams::weapons
@@ -11191,7 +11195,7 @@ address,function,file,kind,target
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,UnitsSeam::UnitRefUnlink
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_read,WeaponsSeam::ReleaseWeapons
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
-0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,function,
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,global_read,g_missionOrderTableBegin
 0x43a1f0,Order::~Order,src/orders/order_queue_4384a0.cpp,global_read,g_seams
@@ -11236,12 +11240,16 @@ address,function,file,kind,target
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,call,sprintf
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,call,strcmp
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,call,strlen
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,deref_read,*Point16
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,deref_read,*Vec3
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_escape,SaveDesc_0043a1f0::cached
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_escape,SaveDesc_0043a1f0::pos
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_escape,SaveDesc_0043a1f0::start
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_maybe_written,Order::link
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,Entry_0043a1f0::name
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,Game::ticks
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,Game::units
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,Order::unitType
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::cached
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::field_26
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::field_4
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::flag5
@@ -11250,30 +11258,28 @@ address,function,file,kind,target
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::kind
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::last_id
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::ownerType
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::pos
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::progress
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::radius
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::start
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::subFlags
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::unitType
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,Seams::units
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_read,UnitsSeam::LoadUnit
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Head_0043a1f0::flag5
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Head_0043a1f0::flags6
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Head_0043a1f0::kind
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Head_0043a1f0::last_id
-0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Head_0043a1f0::unit
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,MissionType::index
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::attached
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::cached
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::created
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::next
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::pos
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::progress
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::radius
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::start
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::state
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::subFlags
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::unit
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::unitType
+0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,Order::wakeFrame
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,field_write,SaveDesc_0043a1f0::kind
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,function,
 0x43a420,Order::Order,src/orders/order_queue_4384a0.cpp,global_read,g_game
@@ -11293,24 +11299,26 @@ address,function,file,kind,target
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,call,sprintf
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,call,strcmp
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,call,strlen
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,deref_read,*Vec3_0043a1f0
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,deref_read,*int
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_escape,Order::cached
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_escape,Order::pos
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_escape,Order::start
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_maybe_written,UnitType::name
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Entry_0043a1f0::name
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Game::count_1438f
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Game::defs
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::flag5
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::flags6
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::kind
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::last_id
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Head_0043a1f0::unit
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,MissionType::index
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::attached
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::cached
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::pos
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::progress
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::radius
-0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::start
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::state
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::subFlags
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::unit
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::unitType
+0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Order::wakeFrame
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,PathOrderAttach::owner
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,SaveDesc_0043a1f0::field_4
 0x43a970,Order::SerializeToSave,src/orders/order_queue_4384a0.cpp,field_read,Unit::flags
@@ -11340,8 +11348,8 @@ address,function,file,kind,target
 0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_escape,Order::next
 0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_escape,Unit::list
 0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_escape,Unit::list2
-0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_read,Order::flags
-0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_write,Order::flags
+0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_read,Order::flags_42
+0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_write,Order::next
 0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,field_write,Order::unit
 0x43ac60,InsertOrderBefore,src/orders/order_list.cpp,function,
@@ -11350,10 +11358,10 @@ address,function,file,kind,target
 0x43acb0,AppendOrder,src/orders/order_list.cpp,field_escape,Order::next
 0x43acb0,AppendOrder,src/orders/order_list.cpp,field_escape,Unit::list
 0x43acb0,AppendOrder,src/orders/order_list.cpp,field_escape,Unit::list2
-0x43acb0,AppendOrder,src/orders/order_list.cpp,field_read,Order::flags
+0x43acb0,AppendOrder,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43acb0,AppendOrder,src/orders/order_list.cpp,field_read,Unit::list
 0x43acb0,AppendOrder,src/orders/order_list.cpp,field_read,Unit::list2
-0x43acb0,AppendOrder,src/orders/order_list.cpp,field_write,Order::flags
+0x43acb0,AppendOrder,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43acb0,AppendOrder,src/orders/order_list.cpp,field_write,Order::next
 0x43acb0,AppendOrder,src/orders/order_list.cpp,field_write,Order::unit
 0x43acb0,AppendOrder,src/orders/order_list.cpp,function,
@@ -11362,7 +11370,7 @@ address,function,file,kind,target
 0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_escape,Order::next
 0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_escape,Unit::list
 0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_escape,Unit::list2
-0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_read,Order::flags
+0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_read,Order::next
 0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_write,Order::next
 0x43ad10,AppendOrderToTail,src/orders/order_list.cpp,field_write,Order::unit
@@ -11371,9 +11379,9 @@ address,function,file,kind,target
 0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,deref_write,*Order
 0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_escape,Order::next
 0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_escape,Unit::list
-0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_read,Order::flags
+0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_read,Order::next
-0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_write,Order::flags
+0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_write,Order::next
 0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,field_write,Order::unit
 0x43ad50,InsertOrderAfterMarked,src/orders/order_list.cpp,function,
@@ -11383,9 +11391,9 @@ address,function,file,kind,target
 0x43adc0,AddOrder,src/orders/order_list.cpp,call,PruneUsed
 0x43adc0,AddOrder,src/orders/order_list.cpp,call,operator new
 0x43adc0,AddOrder,src/orders/order_list.cpp,field_maybe_written,Unit::list
-0x43adc0,AddOrder,src/orders/order_list.cpp,field_read,Order::flags
+0x43adc0,AddOrder,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43adc0,AddOrder,src/orders/order_list.cpp,field_read,Unit::list
-0x43adc0,AddOrder,src/orders/order_list.cpp,field_write,Order::flags
+0x43adc0,AddOrder,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43adc0,AddOrder,src/orders/order_list.cpp,function,
 0x43adc0,AddOrder,src/orders/order_list.cpp,global_read,kSim
 0x43afc0,IssueOrCancelOrder,src/orders/order_list.cpp,call,AddOrder
@@ -11403,15 +11411,15 @@ address,function,file,kind,target
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_escape,Unit::list
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_escape,Unit::list2
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Elem_0043c390::flags
-0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Order::amount
-0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Order::flags
+0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,MissionType::index
+0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Order::count
+0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Order::id
-0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Order::kind
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Order::next
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Unit::list
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_read,Unit::list2
-0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_write,Order::amount
-0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_write,Order::flags
+0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_write,Order::count
+0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,function,
 0x43b0b0,AdjustBuildCount,src/orders/order_list.cpp,global_read,g_missionOrderTableBegin
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,call,GetOrderType
@@ -11422,7 +11430,7 @@ address,function,file,kind,target
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_escape,Unit::pos
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_maybe_written,Unit::pos
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,MissionType::index
-0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,Order::flags
+0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,Unit::def
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,Unit::flags
 0x43b1f0,IssueAttackOrder,src/orders/order_list.cpp,field_read,Unit::list
@@ -11440,7 +11448,7 @@ address,function,file,kind,target
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_escape,Unit::pos
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_maybe_written,Unit::pos
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,MissionType::index
-0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,Order::flags
+0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,Unit::def
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,Unit::flags
 0x43b400,IssueRepairOrder,src/orders/order_list.cpp,field_read,Unit::list
@@ -11456,10 +11464,10 @@ address,function,file,kind,target
 0x43b700,FindBestTargetIfFireAtWill,src/orders/order_list.cpp,function,
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,call,InsertBefore
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,call,operator new
-0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_read,Order::flags
+0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_read,Unit::list
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_read,Unit::list2
-0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_write,Order::flags
+0x43b730,EnqueueOrderType,src/orders/order_list.cpp,field_write,Order::flags_42
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,function,
 0x43b730,EnqueueOrderType,src/orders/order_list.cpp,global_read,kSim
 0x43b7c0,RunOrders,src/orders/order_list.cpp,call,ClearTargets_0043b7c0
@@ -11470,11 +11478,11 @@ address,function,file,kind,target
 0x43b7c0,RunOrders,src/orders/order_list.cpp,call,Wait_0043b7c0
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Elem_0043c390::notify
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Game::ticks
-0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::count
+0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,MissionType::index
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::flags
-0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::flags6
-0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::kind
+0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::flags_42
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::next
+0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::state
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::subFlags
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::unit
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Order::wakeFrame
@@ -11485,9 +11493,9 @@ address,function,file,kind,target
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Unit::netDirtyFlags
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,Unit::player
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_read,UnitType_0043cd20::defaultmissiontype
-0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Order::count
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Order::flags
-0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Order::flags6
+0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Order::flags_42
+0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Order::state
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Order::subFlags
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Order::wakeFrame
 0x43b7c0,RunOrders,src/orders/order_list.cpp,field_write,Unit::netDirtyFlags
@@ -11499,15 +11507,15 @@ address,function,file,kind,target
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,call,RemoveAndDelete
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Elem_0043c390::notify
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Game::ticks
-0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::count
-0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::flags6
-0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::kind
+0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,MissionType::index
+0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::flags
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::next
+0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::state
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::unit
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Order::wakeFrame
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_read,Unit::list2
-0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_write,Order::count
-0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_write,Order::flags6
+0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_write,Order::flags
+0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_write,Order::state
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,field_write,Order::wakeFrame
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,function,
 0x43bad0,RunSecondaryOrders,src/orders/order_list.cpp,global_read,g_game
@@ -26646,13 +26654,9 @@ address,function,file,kind,target
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::n
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::pf
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,<anon>::wf
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,MissionSlot::type
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,OrdersSeam::AddOrder
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,OrdersSeam::GetOrderType
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::a
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::g
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::m
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::p
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Outs_t::u
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Seams::orders
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Seams::units
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_read,Unit::flags
@@ -26665,11 +26669,7 @@ address,function,file,kind,target
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,<anon>::n
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,<anon>::pf
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,<anon>::wf
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::a
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::g
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::m
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::p
-0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Outs_t::u
+0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,MissionSlot::type
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Unit::flags
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Vec3_00487bf0::x
 0x487bf0,RunInitialMission,src/units/unit_commands.cpp,field_write,Vec3_00487bf0::y
@@ -28742,27 +28742,27 @@ address,function,file,kind,target
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,indirect_call,virtual OrderFx::GetDesiredHeading
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,indirect_call,virtual OrderFx::KeepAfterComplete
 0x490690,PackedGoal::TickTowardGoal,src/game/victory.cpp,indirect_call,virtual PathGoal::SetPathOrder
-0x490840,LiteGoal::LiteGoal,src/game/victory.cpp,field_write,PackedGoal::dirty
-0x490840,LiteGoal::LiteGoal,src/game/victory.cpp,field_write,PackedGoal::mode
+0x490840,LiteGoal::LiteGoal,src/game/victory.cpp,field_write,LiteGoal::dirty
+0x490840,LiteGoal::LiteGoal,src/game/victory.cpp,field_write,LiteGoal::mode
 0x490840,LiteGoal::LiteGoal,src/game/victory.cpp,function,
-0x490860,LiteGoal::SetPathOrder,src/game/victory.cpp,field_write,PackedGoal::dirty
+0x490860,LiteGoal::SetPathOrder,src/game/victory.cpp,field_write,LiteGoal::dirty
 0x490860,LiteGoal::SetPathOrder,src/game/victory.cpp,function,
 0x490860,LiteGoal::SetPathOrder,src/game/victory.cpp,indirect_call,virtual PathGoal::SetPathOrder
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,call,PackedGoal::TickTowardGoal
-0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,PackedGoal::mode
+0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,LiteGoal::mode
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,PathGoal::owner
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,Target_00490880::flags
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_read,Unit::motion
-0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_write,PackedGoal::dirty
+0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,field_write,LiteGoal::dirty
 0x490880,LiteGoal::TickTowardGoal,src/game/victory.cpp,function,
-0x4908b0,LiteGoal::HasNetUnitState,src/game/victory.cpp,field_read,PackedGoal::netDirtyFlags
+0x4908b0,LiteGoal::HasNetUnitState,src/game/victory.cpp,field_read,LiteGoal::netDirtyFlags
 0x4908b0,LiteGoal::HasNetUnitState,src/game/victory.cpp,function,
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,call,BitWriter::WriteBits
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,PathGoal::owner
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,PathGoal::target
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,Target_00490880::mode
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_read,Unit::motion
-0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_write,PackedGoal::state
+0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,field_write,LiteGoal::state
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,function,
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,indirect_call,virtual OrderFx::GetType
 0x4908c0,LiteGoal::SerializeNetUnitState,src/game/victory.cpp,indirect_call,virtual OrderFx::SerializeToBits
@@ -43252,10 +43252,10 @@ address,function,file,kind,target
 ,AddFront,src/orders/order_list.cpp,field_escape,Order::next
 ,AddFront,src/orders/order_list.cpp,field_escape,Unit::list
 ,AddFront,src/orders/order_list.cpp,field_escape,Unit::list2
-,AddFront,src/orders/order_list.cpp,field_read,Order::flags
+,AddFront,src/orders/order_list.cpp,field_read,Order::flags_42
 ,AddFront,src/orders/order_list.cpp,field_read,Unit::list
 ,AddFront,src/orders/order_list.cpp,field_read,Unit::list2
-,AddFront,src/orders/order_list.cpp,field_write,Order::flags
+,AddFront,src/orders/order_list.cpp,field_write,Order::flags_42
 ,AddFront,src/orders/order_list.cpp,field_write,Order::next
 ,AddFront,src/orders/order_list.cpp,field_write,Order::unit
 ,AddFront,src/orders/order_list.cpp,function,
@@ -43306,9 +43306,9 @@ address,function,file,kind,target
 ,AddMarked,src/orders/order_list.cpp,deref_write,*Order
 ,AddMarked,src/orders/order_list.cpp,field_escape,Order::next
 ,AddMarked,src/orders/order_list.cpp,field_escape,Unit::list
-,AddMarked,src/orders/order_list.cpp,field_read,Order::flags
+,AddMarked,src/orders/order_list.cpp,field_read,Order::flags_42
 ,AddMarked,src/orders/order_list.cpp,field_read,Order::next
-,AddMarked,src/orders/order_list.cpp,field_write,Order::flags
+,AddMarked,src/orders/order_list.cpp,field_write,Order::flags_42
 ,AddMarked,src/orders/order_list.cpp,field_write,Order::next
 ,AddMarked,src/orders/order_list.cpp,field_write,Order::unit
 ,AddMarked,src/orders/order_list.cpp,function,
@@ -46025,7 +46025,6 @@ address,function,file,kind,target
 ,HashU32,src/harness/harness.cpp,function,
 ,Head,src/state/block.cpp,function,
 ,Head,src/state/block.cpp,global_read,g_base
-,Head_0043a1f0::Head_0043a1f0,src/orders/order_queue_4384a0.cpp,function,
 ,Hits_0049a120::AddFeature,src/weapons/weapons.cpp,field_read,Hits_0049a120::features
 ,Hits_0049a120::AddFeature,src/weapons/weapons.cpp,field_read,Hits_0049a120::numFeatures
 ,Hits_0049a120::AddFeature,src/weapons/weapons.cpp,field_write,Hits_0049a120::features
@@ -46121,10 +46120,10 @@ address,function,file,kind,target
 ,Insert,src/orders/order_list.cpp,field_escape,Order::next
 ,Insert,src/orders/order_list.cpp,field_escape,Unit::list
 ,Insert,src/orders/order_list.cpp,field_escape,Unit::list2
-,Insert,src/orders/order_list.cpp,field_read,Order::flags
+,Insert,src/orders/order_list.cpp,field_read,Order::flags_42
 ,Insert,src/orders/order_list.cpp,field_read,Unit::list
 ,Insert,src/orders/order_list.cpp,field_read,Unit::list2
-,Insert,src/orders/order_list.cpp,field_write,Order::flags
+,Insert,src/orders/order_list.cpp,field_write,Order::flags_42
 ,Insert,src/orders/order_list.cpp,field_write,Order::next
 ,Insert,src/orders/order_list.cpp,field_write,Order::unit
 ,Insert,src/orders/order_list.cpp,function,
@@ -46133,8 +46132,8 @@ address,function,file,kind,target
 ,InsertBefore,src/orders/order_list.cpp,field_escape,Order::next
 ,InsertBefore,src/orders/order_list.cpp,field_escape,Unit::list
 ,InsertBefore,src/orders/order_list.cpp,field_escape,Unit::list2
-,InsertBefore,src/orders/order_list.cpp,field_read,Order::flags
-,InsertBefore,src/orders/order_list.cpp,field_write,Order::flags
+,InsertBefore,src/orders/order_list.cpp,field_read,Order::flags_42
+,InsertBefore,src/orders/order_list.cpp,field_write,Order::flags_42
 ,InsertBefore,src/orders/order_list.cpp,field_write,Order::next
 ,InsertBefore,src/orders/order_list.cpp,field_write,Order::unit
 ,InsertBefore,src/orders/order_list.cpp,function,
@@ -46143,17 +46142,17 @@ address,function,file,kind,target
 ,InsertBefore,src/orders/order_queue_4384a0.cpp,field_escape,Order::next
 ,InsertBefore,src/orders/order_queue_4384a0.cpp,field_escape,Unit::list
 ,InsertBefore,src/orders/order_queue_4384a0.cpp,field_escape,Unit::list2
-,InsertBefore,src/orders/order_queue_4384a0.cpp,field_read,Order::flags
-,InsertBefore,src/orders/order_queue_4384a0.cpp,field_write,Head_0043a1f0::unit
-,InsertBefore,src/orders/order_queue_4384a0.cpp,field_write,Order::flags
+,InsertBefore,src/orders/order_queue_4384a0.cpp,field_read,Order::flags_42
+,InsertBefore,src/orders/order_queue_4384a0.cpp,field_write,Order::flags_42
 ,InsertBefore,src/orders/order_queue_4384a0.cpp,field_write,Order::next
+,InsertBefore,src/orders/order_queue_4384a0.cpp,field_write,Order::unit
 ,InsertBefore,src/orders/order_queue_4384a0.cpp,function,
 ,InsertCommand,src/orders/order_list.cpp,call,InsertOrderBefore
 ,InsertCommand,src/orders/order_list.cpp,call,operator new
-,InsertCommand,src/orders/order_list.cpp,field_read,Order::flags
+,InsertCommand,src/orders/order_list.cpp,field_read,Order::flags_42
 ,InsertCommand,src/orders/order_list.cpp,field_read,Unit::list
 ,InsertCommand,src/orders/order_list.cpp,field_read,Unit::list2
-,InsertCommand,src/orders/order_list.cpp,field_write,Order::flags
+,InsertCommand,src/orders/order_list.cpp,field_write,Order::flags_42
 ,InsertCommand,src/orders/order_list.cpp,function,
 ,InsertCommand,src/orders/order_list.cpp,global_read,kSim
 ,InsertNew,src/util/tdf_4c54f0.cpp,call,MakeElem
@@ -47757,7 +47756,7 @@ address,function,file,kind,target
 ,Marked,src/orders/order_dispatch.cpp,function,
 ,Matches,src/orders/order_list.cpp,call,InRange
 ,Matches,src/orders/order_list.cpp,deref_read,*int
-,Matches,src/orders/order_list.cpp,field_read,Order::kind
+,Matches,src/orders/order_list.cpp,field_read,MissionType::index
 ,Matches,src/orders/order_list.cpp,field_read,PathOrderAttach::owner
 ,Matches,src/orders/order_list.cpp,field_read,Vec3::x
 ,Matches,src/orders/order_list.cpp,field_read,Vec3::z
@@ -47849,10 +47848,12 @@ address,function,file,kind,target
 ,MissionExistsNative,src/seams/native.cpp,call,Mission::MissionExists
 ,MissionExistsNative,src/seams/native.cpp,function,
 ,MissionHolder::MissionHolder,src/units/unit_types.cpp,function,
+,MissionSlot::MissionSlot,src/units/unit_commands.cpp,function,
 ,MissionType::MissionType,src/orders/mission_type.h,function,
-,MissionType::MissionType,src/units/unit_commands.cpp,function,
 ,MissionType::operator==,src/orders/mission_type.h,field_read,MissionType::index
 ,MissionType::operator==,src/orders/mission_type.h,function,
+,MissionTypeOf,src/orders/order_list.cpp,field_write,MissionType::index
+,MissionTypeOf,src/orders/order_list.cpp,function,
 ,MoveClasses,src/harness/harness.cpp,function,
 ,MoveClasses,src/harness/harness.cpp,global_escape,DAT_00512370
 ,MoveOrderToTail,src/orders/order_list.cpp,deref_read,*Order
@@ -49277,12 +49278,12 @@ address,function,file,kind,target
 ,PruneLoose,src/orders/order_list.cpp,call,UnlinkNode
 ,PruneLoose,src/orders/order_list.cpp,deref_read,*Order
 ,PruneLoose,src/orders/order_list.cpp,field_escape,Order::next
-,PruneLoose,src/orders/order_list.cpp,field_read,Order::flags
+,PruneLoose,src/orders/order_list.cpp,field_read,Order::flags_42
 ,PruneLoose,src/orders/order_list.cpp,function,
 ,PruneUsed,src/orders/order_list.cpp,call,RemoveFromList
 ,PruneUsed,src/orders/order_list.cpp,field_escape,Unit::list
 ,PruneUsed,src/orders/order_list.cpp,field_escape,Unit::list2
-,PruneUsed,src/orders/order_list.cpp,field_read,Order::flags
+,PruneUsed,src/orders/order_list.cpp,field_read,Order::flags_42
 ,PruneUsed,src/orders/order_list.cpp,field_read,Unit::list
 ,PruneUsed,src/orders/order_list.cpp,function,
 ,PushKey,src/gui/keyboard.cpp,call,GetDisplay
@@ -49563,10 +49564,10 @@ address,function,file,kind,target
 ,RemoveAndDelete,src/orders/order_list.cpp,field_escape,Order::next
 ,RemoveAndDelete,src/orders/order_list.cpp,field_escape,Unit::list
 ,RemoveAndDelete,src/orders/order_list.cpp,field_escape,Unit::list2
-,RemoveAndDelete,src/orders/order_list.cpp,field_read,Order::flags
+,RemoveAndDelete,src/orders/order_list.cpp,field_read,Order::flags_42
 ,RemoveAndDelete,src/orders/order_list.cpp,field_read,Order::next
 ,RemoveAndDelete,src/orders/order_list.cpp,field_read,Unit::list
-,RemoveAndDelete,src/orders/order_list.cpp,field_write,Order::flags
+,RemoveAndDelete,src/orders/order_list.cpp,field_write,Order::flags_42
 ,RemoveAndDelete,src/orders/order_list.cpp,function,
 ,RemoveFast,src/units/squads.cpp,call,begin
 ,RemoveFast,src/units/squads.cpp,call,end
@@ -49587,9 +49588,9 @@ address,function,file,kind,target
 ,RemoveNode,src/orders/order_list.cpp,field_escape,Order::next
 ,RemoveNode,src/orders/order_list.cpp,field_escape,Unit::list
 ,RemoveNode,src/orders/order_list.cpp,field_escape,Unit::list2
-,RemoveNode,src/orders/order_list.cpp,field_read,Order::flags
+,RemoveNode,src/orders/order_list.cpp,field_read,Order::flags_42
 ,RemoveNode,src/orders/order_list.cpp,field_read,Order::next
-,RemoveNode,src/orders/order_list.cpp,field_write,Order::flags
+,RemoveNode,src/orders/order_list.cpp,field_write,Order::flags_42
 ,RemoveNode,src/orders/order_list.cpp,function,
 ,Remove_00452cc0,src/network/net_game.cpp,call,Player::SetType
 ,Remove_00452cc0,src/network/net_game.cpp,field_write,Player::active
@@ -50613,9 +50614,9 @@ address,function,file,kind,target
 ,UnlinkNode,src/orders/order_list.cpp,call,Order::~Order
 ,UnlinkNode,src/orders/order_list.cpp,call,operator delete
 ,UnlinkNode,src/orders/order_list.cpp,deref_write,*Order
-,UnlinkNode,src/orders/order_list.cpp,field_read,Order::flags
+,UnlinkNode,src/orders/order_list.cpp,field_read,Order::flags_42
 ,UnlinkNode,src/orders/order_list.cpp,field_read,Order::next
-,UnlinkNode,src/orders/order_list.cpp,field_write,Order::flags
+,UnlinkNode,src/orders/order_list.cpp,field_write,Order::flags_42
 ,UnlinkNode,src/orders/order_list.cpp,function,
 ,Unlock,src/graphics/palette.cpp,call,host_atomic_exchange
 ,Unlock,src/graphics/palette.cpp,call,host_event_set
@@ -51688,8 +51689,8 @@ address,function,file,kind,target
 ,VisitWorld,src/harness/harness.cpp,global_read,s_traceTick@src/harness/harness.cpp
 ,Wait_0043b7c0,src/orders/order_list.cpp,call,RandomInt
 ,Wait_0043b7c0,src/orders/order_list.cpp,field_read,Game::ticks
-,Wait_0043b7c0,src/orders/order_list.cpp,field_read,Order::flags6
-,Wait_0043b7c0,src/orders/order_list.cpp,field_write,Order::flags6
+,Wait_0043b7c0,src/orders/order_list.cpp,field_read,Order::flags
+,Wait_0043b7c0,src/orders/order_list.cpp,field_write,Order::flags
 ,Wait_0043b7c0,src/orders/order_list.cpp,field_write,Order::wakeFrame
 ,Wait_0043b7c0,src/orders/order_list.cpp,function,
 ,Wait_0043b7c0,src/orders/order_list.cpp,global_read,g_game

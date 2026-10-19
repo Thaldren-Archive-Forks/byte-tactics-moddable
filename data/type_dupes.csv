@@ -47,8 +47,8 @@ BmpInfoHeader,no,2,include/ta_types.h:16328|src/graphics/pcx.cpp:708,identical,i
 BmpWriter,no,2,src/graphics/pcx.cpp:669|src/ingame/keys.cpp:54,differs,src/graphics/pcx.cpp
 Body_004aeac0,no,2,include/ta_types.h:13161|src/gui/gui_file.cpp:981,differs,src/gui/gui_file.cpp
 Bounds_src_004b8310,no,2,include/ta_types.h:14043|src/graphics/gaf.cpp:318,identical,include/ta_types.h
-BuildEntry_0041ace0,no,2,include/ta_types.h:3785|src/ingame/control_panel.cpp:137,differs,include/ta_types.h
-BuildList_0041ace0,no,2,include/ta_types.h:3792|src/ingame/control_panel.cpp:144,identical,include/ta_types.h
+BuildEntry_0041ace0,no,2,include/ta_types.h:3785|src/ingame/control_panel.cpp:129,differs,include/ta_types.h
+BuildList_0041ace0,no,2,include/ta_types.h:3792|src/ingame/control_panel.cpp:136,identical,include/ta_types.h
 BuilderLinkPacket,no,3,include/ta_types.h:6956|src/network/net_game.cpp:1168|src/network/net_game_453d40.cpp:151,differs,include/ta_types.h
 ByteMap_00467440,no,2,src/ingame/info_panel.cpp:92|src/ingame/info_panel_467440.cpp:34,identical,src/ingame/info_panel.cpp
 CMemoryCache,yes,2,src/graphics/memory_cache.h:12|src/units/unit_motion.cpp:112,differs,src/graphics/memory_cache.h
@@ -62,7 +62,7 @@ Channel_004b0c40,no,2,include/ta_types.h:13413|src/units/cob.cpp:19,same-layout,
 Chunk,no,3,include/ta_types.h:5313|src/graphics/surface.cpp:1004|src/state/block.cpp:29,differs,include/ta_types.h
 Chunk_4d1820,no,2,include/ta_types.h:16566|src/util/sqsh.cpp:565,identical,include/ta_types.h
 ClaimFootprintVisitor,no,3,include/ta_types.h:10069|src/map/terrain.cpp:134|src/map/terrain_47d0e0.cpp:48,same-layout,include/ta_types.h
-Class_0043db50,no,3,include/ta_types.h:5687|src/orders/order_list.cpp:840|src/units/sfx_occupy.h:6,differs,src/units/sfx_occupy.h
+Class_0043db50,no,3,include/ta_types.h:5687|src/orders/order_list.cpp:803|src/units/sfx_occupy.h:6,differs,src/units/sfx_occupy.h
 Class_00440500,no,2,include/ta_types.h:5845|src/units/movement_class.cpp:67,differs,include/ta_types.h
 Class_0044cf00,no,2,include/ta_types.h:6167|src/orders/order_targets.cpp:115,same-layout,include/ta_types.h
 Class_0044e5b0,no,2,include/ta_types.h:6524|src/orders/order_targets.cpp:609,differs,include/ta_types.h
@@ -110,7 +110,7 @@ DirectDrawState,no,2,include/ta_types.h:13759|src/graphics/display.cpp:60,differ
 DirectPlay_4c97b0,no,2,include/ta_types.h:15365|src/network/hapinet.cpp:69,same-layout,include/ta_types.h
 Display,no,2,src/frontend/endgame.cpp:92|src/graphics/surface.cpp:65,differs,src/graphics/surface.cpp
 DisplayContext,no,4,include/ta_types.h:14603|src/graphics/palette.cpp:14|src/gui/keyboard.cpp:19|src/util/hpi.cpp:120,differs,src/graphics/palette.cpp
-Display_0041ce90,no,2,include/ta_types.h:3833|src/ingame/control_panel.cpp:186,differs,include/ta_types.h
+Display_0041ce90,no,2,include/ta_types.h:3833|src/ingame/control_panel.cpp:178,differs,include/ta_types.h
 Display_00425d80,no,2,include/ta_types.h:4456|src/frontend/frontend.cpp:127,same-layout,include/ta_types.h
 Display_0047c3a0,no,2,include/ta_types.h:10038|src/graphics/movies.cpp:97,identical,include/ta_types.h
 Display_004b8310,no,2,include/ta_types.h:14023|src/graphics/gaf.cpp:290,differs,src/graphics/gaf.cpp
@@ -230,7 +230,7 @@ IDirectSound3DBuffer,no,3,include/ta_types.h:16458|src/sound/cd_audio.cpp:58|src
 IconSet_00466780,no,2,include/ta_types.h:8126|src/map/radar.cpp:39,differs,include/ta_types.h
 Id_004df1e0,no,2,include/ta_types.h:17325|src/debug/debug_lib.cpp:4432,differs,include/ta_types.h
 Iface_00417f30,no,2,include/ta_types.h:3625|src/game/console_commands.cpp:161,same-layout,include/ta_types.h
-Iface_0043dd20,no,2,include/ta_types.h:5643|src/orders/order_list.cpp:826,same-layout,include/ta_types.h
+Iface_0043dd20,no,2,include/ta_types.h:5643|src/orders/order_list.cpp:789,same-layout,include/ta_types.h
 ImageFrame,no,2,include/ta_types.h:4022|src/weapons/explosions.cpp:44,identical,include/ta_types.h
 Info,no,2,src/util/hpi.cpp:82|src/util/hpi_4bd830.cpp:30,differs,src/util/hpi.cpp
 Info_00477510,no,2,include/ta_types.h:9717|src/frontend/campaign_menu.cpp:28,same-layout,include/ta_types.h
@@ -262,7 +262,6 @@ ListWrap_0046d1a0,no,2,include/ta_types.h:8432|src/network/unit_sync_46d1a0.cpp:
 List_00421f20,no,2,include/ta_types.h:4252|src/map/features_421f20.cpp:13,same-layout,include/ta_types.h
 Listener_00471120,no,2,include/ta_types.h:9013|src/graphics/particles_471160.cpp:12,same-layout,include/ta_types.h
 Listener_004896f0,no,2,include/ta_types.h:10995|src/units/unit_targets.cpp:18,same-layout,include/ta_types.h
-LiteGoal,yes,2,src/game/victory.cpp:1349|src/orders/order_goals.h:15,differs,src/orders/order_goals.h
 LiveNode,no,2,include/ta_types.h:8468|src/debug/debug_lib_4db7d0.cpp:29,differs,include/ta_types.h
 LoadedImage,no,2,include/ta_types.h:17220|src/debug/debug_lib.cpp:3752,differs,include/ta_types.h
 Lobby_4c9a70,no,2,include/ta_types.h:15599|src/network/hapinet.cpp:114,same-layout,include/ta_types.h
@@ -288,8 +287,7 @@ Message_0047fad0,no,2,include/ta_types.h:10281|src/sound/sound.cpp:134,differs,s
 MeteorParams,no,4,include/ta_types.h:5197|src/map/map_list.cpp:63|src/map/meteors.cpp:23|src/seams/native.cpp:25,differs,include/ta_types.h
 MissionHolder,no,2,include/ta_types.h:4679|src/units/unit_types.cpp:97,differs,include/ta_types.h
 MissionName_00467e50,no,2,include/ta_types.h:8218|src/ingame/info_panel.cpp:193,differs,include/ta_types.h
-MissionOrderTable,no,2,include/ta_types.h:5604|src/orders/order_list.cpp:793,differs,include/ta_types.h
-MissionType,yes,3,src/ingame/control_panel.cpp:24|src/orders/mission_type.h:8|src/units/unit_commands.cpp:38,differs,src/orders/mission_type.h
+MissionOrderTable,no,2,include/ta_types.h:5604|src/orders/order_list.cpp:756,differs,include/ta_types.h
 Mission_00467e50,no,2,include/ta_types.h:8223|src/ingame/info_panel.cpp:184,differs,include/ta_types.h
 ModeList_004b5330,no,2,include/ta_types.h:6042|src/graphics/display.cpp:144,differs,include/ta_types.h
 Mode_00446310,no,2,include/ta_types.h:6034|src/frontend/multi.cpp:589,differs,include/ta_types.h
@@ -365,9 +363,8 @@ Object_00477510,no,2,include/ta_types.h:9722|src/frontend/campaign_menu.cpp:33,s
 Object_00499c10,no,2,include/ta_types.h:12024|src/weapons/weapons.cpp:351,differs,include/ta_types.h
 Object_0049c920,no,2,include/ta_types.h:12110|src/weapons/weapons.cpp:1414,same-layout,include/ta_types.h
 Options,no,2,src/frontend/endgame.cpp:163|src/game/settings.cpp:21,differs,src/game/settings.cpp
-Order,yes,3,src/orders/order.h:23|src/orders/order_list.cpp:191|src/orders/order_queue_4384a0.cpp:160,differs,src/orders/order.h
 OrderFx,yes,3,src/frontend/multi.cpp:709|src/orders/order_fx.h:18|src/orders/order_targets.cpp:43,differs,src/orders/order_fx.h
-OrderType,no,3,src/ingame/info_panel.cpp:198|src/ingame/selection_48cf30.cpp:24|src/orders/order_queue_4384a0.cpp:331,differs,src/ingame/selection_48cf30.cpp
+OrderType,no,3,src/ingame/info_panel.cpp:198|src/ingame/selection_48cf30.cpp:24|src/orders/order_queue_4384a0.cpp:278,differs,src/ingame/selection_48cf30.cpp
 OrderTypeEntry,no,2,include/ta_types.h:11184|src/ingame/selection_48cf30.cpp:15,same-layout,include/ta_types.h
 Outs_t,no,2,include/ta_types.h:10892|src/units/unit_commands.cpp:48,differs,src/units/unit_commands.cpp
 Owner,no,7,include/ta_types.h:18005|src/ai/ai_player_40b530.cpp:12|src/orders/unit_orders_406300.cpp:17|src/orders/vtol_orders_40fbe0.cpp:17|src/orders/vtol_orders_4103e0.cpp:25|src/orders/vtol_orders_410850.cpp:25|src/orders/vtol_orders_410c70.cpp:14,differs,include/ta_types.h
@@ -375,7 +372,6 @@ Owner_0044d2c0,no,2,include/ta_types.h:6219|src/orders/order_targets.cpp:202,sam
 Owner_0044d720,no,2,include/ta_types.h:6306|src/orders/order_targets.cpp:261,same-layout,include/ta_types.h
 OwnershipTransferPacket,no,3,include/ta_types.h:10896|src/network/net_game_453d40.cpp:168|src/units/unit_commands.cpp:345,differs,include/ta_types.h
 PCX_004caa40,no,2,include/ta_types.h:16230|src/graphics/pcx.cpp:9,identical,include/ta_types.h
-PackedPosGoal,yes,2,src/game/victory.cpp:1422|src/orders/order_goals.h:9,differs,src/orders/order_goals.h
 PacketManager,yes,2,src/network/packet_manager.h:9|src/network/packets_460f60.cpp:15,differs,src/network/packet_manager.h
 PacketSequencer,no,4,include/ta_types.h:8362|src/network/unit_sync.cpp:666|src/network/unit_sync_46cc10.cpp:17|src/network/unit_sync_46dad0.cpp:92,differs,src/network/unit_sync.cpp
 Packet_00453d40,no,2,src/network/net_game.cpp:1181|src/network/net_game_453d40.cpp:98,differs,src/network/net_game.cpp
@@ -384,7 +380,7 @@ Packet_0047f0c0,no,3,include/ta_types.h:10208|src/network/net_game_453d40.cpp:15
 Packet_0047f300,no,2,include/ta_types.h:10227|src/sound/sound.cpp:66,differs,include/ta_types.h
 Page_0045f8c0,no,2,include/ta_types.h:7424|src/frontend/options.cpp:399,identical,include/ta_types.h
 Pair_0040d880,no,2,include/ta_types.h:2799|src/ai/pathfinder.h:134,identical,src/ai/pathfinder.h
-Pair_00419560,no,4,include/ta_types.h:3384|src/game/console_commands.cpp:190|src/ingame/control_panel.cpp:33|src/network/net_stats.cpp:17,differs,include/ta_types.h
+Pair_00419560,no,4,include/ta_types.h:3384|src/game/console_commands.cpp:190|src/ingame/control_panel.cpp:25|src/network/net_stats.cpp:17,differs,include/ta_types.h
 Pair_0046faf0,no,2,include/ta_types.h:8933|src/network/unit_sync_player.cpp:31,differs,include/ta_types.h
 Pair_004db000,no,3,src/debug/debug_lib.cpp:1661|src/debug/free_block_map.cpp:19|src/debug/free_block_map.h:14,identical,src/debug/free_block_map.h
 Param2_004addf0,no,2,include/ta_types.h:12991|src/gui/gui_file.cpp:513,identical,include/ta_types.h
@@ -392,7 +388,7 @@ ParticleLists,no,5,include/ta_types.h:8995|src/graphics/particle_lists.h:15|src/
 ParticleSystem,no,4,src/graphics/particle_system.h:15|src/graphics/particles_471820.cpp:22|src/graphics/particles_471a50.cpp:22|src/graphics/particles_472630.cpp:25,same-layout,src/graphics/particle_system.h
 PathGoal,yes,2,src/ai/ai_search_goal.h:15|src/orders/order_targets.cpp:818,differs,src/ai/ai_search_goal.h
 PathOrder,no,2,include/ta_types.h:6389|src/orders/order_targets.cpp:424,differs,include/ta_types.h
-PatrolGoal,yes,2,src/orders/order_goals.h:21|src/orders/order_targets.cpp:882,differs,src/orders/order_goals.h
+PatrolGoal,yes,2,src/orders/order_goals.h:37|src/orders/order_targets.cpp:882,differs,src/orders/order_goals.h
 PerformanceDialog,no,3,src/debug/debug_lib.cpp:4920|src/debug/debug_lib_4dfd10.cpp:10|src/debug/debug_lib_4dfd50.cpp:13,differs,src/debug/debug_lib_4dfd10.cpp
 Pic_004295b0,no,2,include/ta_types.h:4588|src/game/data_files.cpp:197,same-layout,include/ta_types.h
 PlayerData_004ca6a0,no,3,include/ta_types.h:16061|src/network/hapinet.cpp:177|src/network/net_game_453d40.cpp:85,differs,include/ta_types.h
@@ -563,7 +559,7 @@ UnitSyncEntry,no,4,src/network/unit_sync.cpp:285|src/network/unit_sync_46ca60.cp
 UnitSyncPacket,no,3,src/network/unit_sync.cpp:328|src/network/unit_sync_46dad0.cpp:27|src/network/unit_sync_46eba0.cpp:13,differs,src/network/unit_sync_46dad0.cpp
 UnitSyncPlayer,no,6,include/ta_types.h:8849|src/network/unit_sync.cpp:515|src/network/unit_sync_46ca60.cpp:45|src/network/unit_sync_46d1a0.cpp:35|src/network/unit_sync_46f7a0.cpp:17|src/network/unit_sync_player.cpp:40,differs,src/network/unit_sync_player.cpp
 UnitTable,yes,2,src/graphics/memory_cache.h:57|src/units/unit_motion.cpp:93,differs,src/graphics/memory_cache.h
-UnitType,no,8,include/ta_types.h:4650|src/game/victory.cpp:41|src/ingame/control_panel.cpp:97|src/ingame/markers.cpp:61|src/orders/order_queue_4384a0.cpp:28|src/units/unit_position.cpp:52|src/units/unit_targets.cpp:40|src/units/units_485010.cpp:85,differs,src/ingame/control_panel.cpp
+UnitType,no,8,include/ta_types.h:4650|src/game/victory.cpp:41|src/ingame/control_panel.cpp:89|src/ingame/markers.cpp:61|src/orders/order_queue_4384a0.cpp:28|src/units/unit_position.cpp:52|src/units/unit_targets.cpp:40|src/units/units_485010.cpp:85,differs,src/ingame/control_panel.cpp
 UnitTypeFlags_459200,no,2,include/ta_types.h:7255|src/graphics/model_render_4589c0.cpp:39,differs,src/graphics/model_render_4589c0.cpp
 UnitTypeSet,no,3,include/ta_types.h:2673|src/ingame/selection.cpp:29|src/units/unit_type_set.h:6,same-layout,src/units/unit_type_set.h
 Unit_0043e490,no,2,src/orders/order_dispatch.cpp:43|src/units/unit_scripts.cpp:405,identical,src/orders/order_dispatch.cpp
