@@ -98,22 +98,7 @@ struct Player;
 
 #include "../units/unit.h"
 
-struct Order {
-    char unknown_0[4];
-    unsigned char kind;               // +0x4
-    char unknown_5[0xe - 5];
-    Unit* unit;                       // +0xe
-    char unknown_12[0x16 - 0x12];
-    Unit* target;                     // +0x16
-    char unknown_1a[0x22 - 0x1a];
-    Pos pos;                          // +0x22
-    Point start;                   // +0x2e
-    Point cached;                     // +0x32
-    unsigned short type;              // +0x36
-    char unknown_38[0x42 - 0x38];
-    unsigned int flags;               // +0x42
-    unsigned int timestamp;           // +0x46
-};
+#include "../orders/order.h"
 
 struct MissionOrderTableEntry {       // 0x19-byte entries, table at g_missionOrderTableBegin
     char unknown_0[0x10];
@@ -222,17 +207,17 @@ static int ScreenY(View* v, int z, int y)
 void __stdcall DrawBuildFootprint(void* surface, View* view, Order* order,
                             Pos* out, int unused)
 {
-    if (order->type == 0)
+    if ((unsigned short)order->type == 0)
         return;
-    UnitType* type = &g_game->unitDefs[order->type];
-    Pos lo = order->pos + type->lo;
-    Pos hi = order->pos + type->hi;
+    UnitType* type = &g_game->unitDefs[(unsigned short)order->type];
+    Pos lo = *(Pos*)&order->pos + type->lo;
+    Pos hi = *(Pos*)&order->pos + type->hi;
     Rect r;
     r.left = ScreenX(view, lo.x.whole);
     r.top = ScreenY(view, lo.z.whole, lo.y.whole);
     r.right = ScreenX(view, hi.x.whole);
     r.bottom = ScreenY(view, hi.z.whole, lo.y.whole);
-    int level = __min(__max(g_game->gameTick - order->timestamp, 0), 10);
+    int level = __min(__max(g_game->gameTick - order->created, 0), 10);
     int dx = (r.right - r.left) * level / 10;
     int dy = (r.bottom - r.top) * level / 10;
     unsigned char outer;
@@ -252,7 +237,7 @@ void __stdcall DrawBuildFootprint(void* surface, View* view, Order* order,
     DrawLine(surface, r.right - dx, r.top, r.right - dx, r.bottom, inner);
     DrawLine(surface, r.left, r.top + dy, r.right, r.top + dy, inner);
     DrawLine(surface, r.left, r.bottom - dy, r.right, r.bottom - dy, inner);
-    *out = order->pos;
+    *out = *(Pos*)&order->pos;
 }
 
 // The offset of the point at this angle and distance from the centre.
@@ -483,7 +468,7 @@ void __stdcall DrawPathAnim(void* surface, View* view,
 
     // Order matters: end, then the clamped age, then the deltas; no `int&` for the timestamp.
     Pos end = *out;
-    int t = __max(g_game->gameTick - order->timestamp, 0);
+    int t = __max(g_game->gameTick - order->created, 0);
     // Plain-int Vec3: Length() converts each component to its own double.
     Vec3 d;
     d.x = end.x.value - start.x.value;
@@ -520,7 +505,7 @@ void __stdcall DrawWeaponCoverage(void* surface, View* view, Order* order,
     Pos pos;
     Unit* u = order->unit;
     if (order->target != 0) {
-        if (IsUnitVisibleToPlayer(u->player, order->target) == 0 && (order->flags & 0x200000) != 0) {
+        if (IsUnitVisibleToPlayer(u->player, order->target) == 0 && (order->flags_42 & 0x200000) != 0) {
             pos.x.value = order->cached.x << 16;
             pos.y.value = order->target->pos.y;
             pos.z.value = order->cached.y << 16;
@@ -528,17 +513,17 @@ void __stdcall DrawWeaponCoverage(void* surface, View* view, Order* order,
             pos = *(Pos*)&order->target->pos;
             order->cached.x = pos.x.whole;
             order->cached.y = pos.z.whole;
-            order->flags |= 0x200000;
+            order->flags_42 |= 0x200000;
         }
     } else {
-        pos = order->pos;
+        pos = *(Pos*)&order->pos;
     }
-    if (g_missionOrderTableBegin[order->kind].markerAnim == 0) {
+    if (g_missionOrderTableBegin[order->kind.index].markerAnim == 0) {
         *out = pos;
         return;
     }
     if (g_game->showRanges != 0 &&
-        (g_missionOrderTableBegin[order->kind].markerAnim == 1 || g_missionOrderTableBegin[order->kind].markerAnim == 2)) {
+        (g_missionOrderTableBegin[order->kind.index].markerAnim == 1 || g_missionOrderTableBegin[order->kind.index].markerAnim == 2)) {
         int color;
         if (g_game->gameTick & 1)
             color = g_game->color1;
@@ -560,7 +545,7 @@ void __stdcall DrawWeaponCoverage(void* surface, View* view, Order* order,
         if (len != 0)
             DrawRangeCircle(surface, view, &pos, len, color, "attack length", 2);
     }
-    Anim* anim = g_game->cursorModeSeq[g_missionOrderTableBegin[order->kind].markerAnim];
+    Anim* anim = g_game->cursorModeSeq[g_missionOrderTableBegin[order->kind.index].markerAnim];
     unsigned int n = g_game->gameTick / ((unsigned int)anim->duration * 2);
     n = n % anim->count;
     void* bmp = *(void**)((char*)anim + n * 8 + 0x28);
@@ -581,7 +566,7 @@ void __stdcall DrawOrderRangeRing(void* surface, View* view, Order* order,
         p = *(Pos*)&order->target->pos;
         height = ((UnitType*)order->target->def)->field_178;
     } else {
-        p = order->pos;
+        p = *(Pos*)&order->pos;
         height = 0x20;
     }
     int ry = (int)(height * 0.89);

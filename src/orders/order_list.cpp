@@ -189,20 +189,7 @@ struct UnitType_0043cd20 {           // 0x249 bytes
 struct Unit;
 class Order;
 
-// The 0x10-byte link at +0x12: its constructor puts the object in its
-// owner's list; 0x489650 is its destructor.
-class PathOrderAttach {
-public:
-    void* vptr;                      // +0x0
-    Unit* owner;                     // +0x4
-    PathOrderAttach* next;           // +0x8
-    void* value;                     // +0xc, the object the link belongs to
-
-    void SetValue(void* v) { value = v; }
-
-    PathOrderAttach(Unit* o, int v);
-    void SetUnit(Unit* o);
-};
+#include "path_order_attach.h"
 
 #include "order_base.h"
 

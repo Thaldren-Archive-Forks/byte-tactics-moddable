@@ -37,7 +37,7 @@ class BitWriter;
 class BitReader;
 struct Block;
 struct Beacon;
-struct Order;
+struct OrderView;
 struct Spawn;
 struct UnitType;
 struct Player;
@@ -107,7 +107,7 @@ public:
 
 // The seven byte order record the caller at 0x48aac0 builds on its stack and
 // 0x48ab70 and 0x48b3f0 read.
-struct Order {
+struct OrderView {
     unsigned char type;                // +0x00
     unsigned short id1;                // +0x01
     unsigned short id2;                // +0x03
@@ -152,7 +152,7 @@ void __stdcall AlignUnitToGround(Unit* unit);
 int __cdecl FUN_004b715a(int x, int z);
 int __cdecl GetLocalDpid();
 int __stdcall BroadcastPacket(int player, void* data, int size);
-void __stdcall ApplyAttachUnit(Order* order);
+void __stdcall ApplyAttachUnit(OrderView* order);
 void __stdcall DeselectIfIneligible(Unit* u);
 void __stdcall UpdateWindGenerator(Unit* u);
 void __stdcall UpdateUnitHeight(Unit* u);
@@ -275,7 +275,7 @@ int __stdcall SetUnitPosition(Unit* unit, Vec3 pos, int param_5)
 // FUNCTION: 0x48aac0
 void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4)
 {
-    Order packet;
+    OrderView packet;
     if ((unit->flags & 0x10000000) && !(unit->flags & 0x20000000) && unit->cargo == 0
         && (target == 0
             || ((target->flags & 0x10000000) && target != unit && target->carrier == 0))) {
@@ -317,7 +317,7 @@ void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char p3, char p4)
 // +0x241 set. DeselectIfIneligible then refreshes the order, and it is only reached on
 // the paths that got that far: every test that fails jumps past it.
 // FUNCTION: 0x48ab70
-void __stdcall ApplyAttachUnit(Order* order)
+void __stdcall ApplyAttachUnit(OrderView* order)
 {
     extern Game* g_game;
     Unit* u = !order->id1 ? 0 : &g_game->units[order->id1];
@@ -598,7 +598,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
     u->SetStateBits((unsigned char)~state, zero);
     int colour = reader->ReadBits(2);
     if (reader->ReadBit()) {
-        Order order;
+        OrderView order;
         order.id1 = u->id;
         order.id2 = (unsigned short)reader->ReadBits(0xf);
         // `param` before `param2`: the reverse order hoists the byte store above the reads.
@@ -608,7 +608,7 @@ void __stdcall ReadUnitState(BitReader* reader, Unit* u)
         return;
     }
     if (u->carrier) {
-        Order order;
+        OrderView order;
         order.id1 = u->id;
         order.id2 = 0;
         order.param = 0xff;

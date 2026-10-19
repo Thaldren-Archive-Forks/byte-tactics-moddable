@@ -2430,39 +2430,7 @@ struct UnitDef {  // 0x249 bytes, 220 views
     unsigned int MaxHealth(void);
 };
 
-struct Order {  // 0x56 bytes, 87 views
-    void* vtable;  // +0x0
-    unsigned char kind;  // +0x4
-    unsigned char state;  // +0x5
-    unsigned int low : 15;  // +0x6
-    unsigned int waiting : 1;
-    unsigned int high : 16;
-    unsigned int wakeFrame;  // +0xa
-    Unit* unit;  // +0xe
-    char unknown_12[4];
-    Unit* target;  // +0x16
-    char unknown_1a[8];
-    Vec3 pos;  // +0x22
-    Point16 start;  // +0x2e
-    int field_32;  // +0x32
-    int field_36;  // +0x36
-    int unused;  // +0x3a
-    int range;  // +0x3e
-    unsigned int flags;  // +0x42
-    int field_46;  // +0x46
-    Order* next;  // +0x4a
-    int field_4e;  // +0x4e
-    void* attached;  // +0x52
-    Order(int, ListOwner_0043a1f0*, Vec3*, int, int, int);
-    ~Order(void);
-    Order(Order&);
-    Order(Unit*, HapiBank*, char*);
-    void OrStatusFlags(unsigned int);
-    Unit* Target(void);
-    int SerializeToSave(Unit*, File_0043a970*, char*);
-    Vec3* Position(void);
-    void Wait(void);
-};
+#include "../src/orders/order.h"
 
 struct Order_5 {  // 0x42 bytes, 1 view
     char unknown_0[5];

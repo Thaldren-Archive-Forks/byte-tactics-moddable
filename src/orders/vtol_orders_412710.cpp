@@ -49,33 +49,7 @@ struct Feature;
 int __stdcall IsUnitCommander(Unit*);
 void __stdcall AlignUnitToGround(Unit*);
 
-struct Order {
-    char pad0[5]; unsigned char state; unsigned int flags;
-    char padA[0x16 - 0xa]; Unit* target;
-    char pad1a[0x22 - 0x1a]; Vec3 pos;
-    short x; short z;
-    char pad32[0x3e - 0x32]; int range;
-    unsigned int flags_42;
-    char pad46[4]; int next;
-    void AnnounceStatusIfFlagged(const char*);
-    void SetAttachedFx(int);
-    void SetDeadlineTicks(int);
-    Order(MissionType type, int a, Vec3* b, int c, int d, int e);
-    char unknown_4e[0x8];
-    // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-    void ReattachFxToUnit();
-    void MergeFlagsFromTable(int k);
-    void AttachRingApproachGoal(Vec3* pos, int radius1, int radius2);
-    ~Order();
-    Order(Unit* unit, void* file, char* name);
-    int SerializeToSave(Unit* unit, void* file, char* name);
-    void OrStatusFlags(unsigned int flags);
-    void AttachApproachRadiusGoal(Vec3* pos, int radius);
-    Unit* Target();
-    void Wait();
-    Vec3* Position();
-    int Advance(int distance);
-};
+#include "order.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall DirectionFromStep(int, int);
 int __stdcall FindWeaponTarget(Unit*, unsigned char, int);
@@ -148,12 +122,12 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
 {
     int speed = GetSpeed(unit);
     if (flags & 0x1000a) {
-        if (order->next == 0 && (unit->flags & 0x300000))
-            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", (int)order->target, &order->pos, 0, 0, 0));
+        if (*(int*)&order->next == 0 && (unit->flags & 0x300000))
+            AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", order->target, &order->pos, 0, 0, 0));
         return 5;
     }
     if (order->target == 0 && (order->flags_42 & 0x200)) {
-        if (order->next == 0)
+        if (*(int*)&order->next == 0)
             AppendOrderToTail(unit, new (kSim) Order("VTOL_SEEKATTACK", 0, &unit->pos, 0, 0, 0));
         return 5;
     }
@@ -216,7 +190,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
             if (!v.empty()) {
                 order->SetAttachedFx(0);
                 Unit* target = v[RandomInt(v.size())];
-                AppendOrder(unit, new (kSim) Order("VTOL_LANDING", (int)target, 0, 0, 0, 0));
+                AppendOrder(unit, new (kSim) Order("VTOL_LANDING", target, 0, 0, 0, 0));
                 order->flags = 0;
                 return 0;
             }

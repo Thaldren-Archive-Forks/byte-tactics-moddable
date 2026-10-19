@@ -122,20 +122,7 @@ extern Game* g_game;
 extern Entry_0043a1f0* g_missionOrderTableBegin;
 extern Entry_0043a1f0* g_missionOrderTableEnd;
 
-// The 0x10-byte link at +0x12: its constructor puts the object in its
-// owner's list; 0x489650 is its destructor.
-class PathOrderAttach {
-public:
-    void* vptr;                        // +0x0
-    Unit* owner;                       // +0x4
-    PathOrderAttach* next;             // +0x8
-    void* value;                       // +0xc, the object the link belongs to
-
-    void SetValue(void* v) { value = v; }
-
-    PathOrderAttach(Unit* o, int v);
-    void SetUnit(Unit* o);
-};
+#include "path_order_attach.h"
 
 // An order type held as its index in the sorted order-type table. Callers
 // build it from a name as a by-value temporary (0x403260, 0x4118e0, ...), so
@@ -218,7 +205,9 @@ public:
     // Slot 0 of vtable 0x4fd2c8, overriding the base's.
     virtual void OrStatusFlags(unsigned int);
 
-    PathOrderAttach link;              // +0x12
+    union {
+        PathOrderAttach link;          // +0x12
+    };
     Vec3_0043a1f0 pos;                 // +0x22
     int start;                         // +0x2e
     int cached;                        // +0x32
