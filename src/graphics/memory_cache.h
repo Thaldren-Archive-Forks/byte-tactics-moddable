@@ -1,11 +1,3 @@
-// CMemoryCache: the model memory cache (Cavedog's own name), the arena the
-// object pictures are allocated from and the handles that keep them, at
-// g_game+0x1437b. The one declaration of the class for the files that call it;
-// the types behind the pointers stay private to their own files, so this
-// includes nothing and forward declares them. The picture methods that call
-// the UnitTable side (BuildObjectPicture, DrawPieces) keep the declarations of
-// that class in the file that defines them. A file that matches only at its
-// old view's symbol count keeps its own view.
 #ifndef MEMORY_CACHE_H
 #define MEMORY_CACHE_H
 
@@ -14,20 +6,12 @@ struct Chunk_00437a30;
 struct Vec3;
 union Vec3_459200;
 struct Model_459200;
-struct Model_4584d0;
-struct Vec3_4584d0;
-struct PieceInfo_4584d0;
-struct Vertex_4584d0;
-struct List_458810;
-struct Vec3_458810;
-struct State_0045a790;
-struct Model_00458fa0;
+struct Object3doView;
 struct Pos_4589c0;
 
 class CMemoryCache {
 public:
     int cap;                           // +0x00, the arena's length
-    // unit_motion stores the arena address as an int, explosions as an int*.
     union {
         int base;                      // +0x04, the arena
         int* basePointer;              // +0x04
@@ -52,12 +36,11 @@ public:
     int AllocTwoPlaneBitmap(GafFrame** handle, int w, int h);
     void FlushCache();
     void ReleaseHandle(int handle);
-    void DrawObjectState(List_458810* list, Vec3_458810* result);
+    void DrawObjectState(Model_459200* list, void* context);
     void CopyPicture(GafFrame* source);
-    void BuildShadow(State_0045a790* obj, GafFrame* dest);
-    void DrawPiece(Model_4584d0* model, void* surface, Vec3_4584d0* camera,
-        PieceInfo_4584d0* info, Vertex_4584d0* vertices, unsigned int palette,
-        int useColor);
+    void BuildShadow(Model_459200* model, GafFrame* dest);
+    void DrawPiece(Model_459200* model, void* surface, Vec3* camera,
+        Object3doView* info, Vec3* vertices, unsigned char palette, int useColor);
     void DrawObjectPicture(int param_2, Model_459200* model, Vec3_459200 v, int useColor);
     void DrawObjectPieces(int param_1, Model_459200* list, Vec3 v, int param_6);
     void MergeIntoComposite(GafFrame* src, Model_459200* model);
@@ -65,10 +48,21 @@ public:
         Model_459200* model, Pos_4589c0 pos);
     void RecolorByShade(GafFrame* img, unsigned char level, int above, int below, int between);
     int ShadeByIntensity(GafFrame* image, Model_459200* model);
-    void DrawPieceEdges(GafFrame* view, Model_00458fa0* model, int color);
+    void DrawPieceEdges(GafFrame* view, Model_459200* model, int color);
     GafFrame* MakeSilhouette(GafFrame* src);
     void MeasureShadow(int* width, int* height, int* originX, int* originY, Model_459200* model);
     void DrawShadowShape(GafFrame* view, Model_459200* model);
+};
+
+class UnitTable : public CMemoryCache {
+public:
+    UnitTable* Construct(void);
+    int Initialize(unsigned int size);
+    void Destroy();
+    void MeasureModel(int* width, int* height, int* originX, int* originY, Model_459200* model, Vec3* offset);
+    int BuildObjectPicture(Model_459200* list, int param_2, int param_3);
+    void DrawPieces(GafFrame* bitmap, Model_459200* list, int kind, int useColor);
+    void DrawLitPieces(GafFrame* bitmap, Model_459200* list, int kind, int useColor);
 };
 
 #endif

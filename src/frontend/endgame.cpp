@@ -15,11 +15,7 @@
 
 #include "../map/mission.h"
 
-class CMemoryCache {
-public:
-    void ClearPointers();
-    void FreeBuffer();
-};
+#include "../graphics/memory_cache.h"
 
 struct Amount {
     int current;                       // +0x0

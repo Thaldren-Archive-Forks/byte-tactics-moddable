@@ -29,6 +29,7 @@ struct Surface_4589c0 {
 };
 
 #include "model_types.h"
+#include "memory_cache.h"
 
 #include "../units/unit_def.h"
 
@@ -63,28 +64,6 @@ union GameFlags_459200 {
 
 #include "../game/game.h"
 
-struct Fixed_459200 {
-    unsigned short frac;
-    short whole;
-};
-
-struct Pos_459200 {
-    Fixed_459200 x;
-    Fixed_459200 y;
-    Fixed_459200 z;
-};
-
-struct Ints_459200 {
-    int x;
-    int y;
-    int z;
-};
-
-union Vec3_459200 {
-    int v[3];
-    Pos_459200 p;
-    Ints_459200 i;
-};
 #pragma pack(pop)
 
 class Surface;
@@ -101,23 +80,6 @@ template <class T> inline void Swap(T& a, T& b)
 
 extern Game* g_game;
 extern const float DAT_004fd4c0;
-
-struct UnitTable { void BuildObjectPicture(Model_459200*,int,int); void DrawPieces(GafFrame*,Model_459200*,int,int); };
-
-// The cache under the name the picture code uses: the same object, so it
-// derives from UnitTable to reach BuildObjectPicture and DrawPieces without a
-// cast (the empty base costs nothing).
-struct CMemoryCache : UnitTable {
-    char unknown_0[0x10];
-    GafFrame* bitmap;               // +0x10
-
-    void BuildShadow(Model_459200*, GafFrame*);
-    void DrawPiece(Model_459200*, int, Vec3_459200*, int, int, unsigned char, int);
-    void DrawObjectPicture(int param_2, Model_459200* model, Vec3_459200 v, int useColor);
-    void MergeIntoComposite(GafFrame* src, Model_459200* model);
-    int ShadeByIntensity(GafFrame* image, Model_459200* model);
-    GafFrame* MakeSilhouette(GafFrame* src);
-};
 
 int __stdcall GetGroundHeight(Pos_459200* p);
 void __stdcall DrawFrameBlended(int param_1, GafFrame* param_2, int x, int y);
@@ -196,7 +158,7 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
             }
         }
         if (model->bitmap == 0) {
-            this->BuildObjectPicture(model, 0, 1);
+            ((UnitTable*)this)->BuildObjectPicture(model, 0, 1);
             bmp = model->bitmap;
         }
         if (!(model->owner->activateFlags & 4) && g_game->debugMode == 0)
@@ -205,8 +167,8 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
             DrawFrameBlended(param_2, bmp, v.p.x.whole + 0x80, z);
         for (int i = model->count - 1; i >= 0; i--) {
             if ((1 & model->pieces[i].flags.word) && !(model->pieces[i].flags.word & 2)) {
-                    DrawPiece(model, param_2, &cv, (int)model->pieces[i].object,
-                                 (int)model->pieces[i].points, model->owner->playerIndex, useColor);
+                    DrawPiece(model, (void*)param_2, (Vec3*)&cv, model->pieces[i].object,
+                                 model->pieces[i].points, model->owner->playerIndex, useColor);
                 }
         }
         Unit_459200* unit = model->owner->cargo;
@@ -215,7 +177,7 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
                 for (int i = unit->state->count - 1; i >= 0; i--) {
                     Piece_459c70* piece = &unit->state->pieces[i];
                     if (piece->flags.word & 1) {
-                        DrawPiece(unit->state, param_2, &cv, (int)piece->object, (int)piece->points,
+                        DrawPiece(unit->state, (void*)param_2, (Vec3*)&cv, piece->object, piece->points,
                                      unit->state->owner->playerIndex, useColor);
                     }
                 }
@@ -260,16 +222,16 @@ void CMemoryCache::DrawObjectPicture(int param_2, Model_459200* model, Vec3_4592
             }
         }
         if (model->bitmap == 0) {
-            this->BuildObjectPicture(model, 0, 1);
+            ((UnitTable*)this)->BuildObjectPicture(model, 0, 1);
             bmp = model->bitmap;
         }
         MergeIntoComposite(bmp, model);
         if ((model->owner->flags & 0x20000000) == 0 || model->owner->buildLeft == DAT_004fd4c0)
-            this->DrawPieces(this->bitmap,model,model->owner->playerIndex,0);
+            ((UnitTable*)this)->DrawPieces(this->bitmap,model,model->owner->playerIndex,0);
         Unit_459200* unit = model->owner->cargo;
         while (unit) {
             if (!(unit->flags & 0x20000)) {
-                this->BuildObjectPicture(unit->state,1,-1);
+                ((UnitTable*)this)->BuildObjectPicture(unit->state,1,-1);
                 if (unit->state->bitmap) {
                     ShadeByIntensity(unit->state->bitmap,unit->state);
                     // Owner position read through int* op.

@@ -21,6 +21,7 @@ struct GafFrame;
 
 #include "../util/vec3.h"
 #include "model_types.h"
+#include "memory_cache.h"
 
 struct Flags_37f06 {
     unsigned short damagebars : 1;
@@ -49,52 +50,13 @@ void __stdcall DrawLitTexturedPolygon(GafFrame* surface, void* pic, void* poly, 
 
 #include "gaf_frame.h"
 
-#pragma pack(push, 1)
-struct Owner_459c70 {
-    char unknown_0[0x92];
-    char* def;                       // +0x92
-    char unknown_96[0xff - 0x96];
-    unsigned char kind;              // +0xff
-    char unknown_100[0x104 - 0x100];
-    float intensity;                 // +0x104
-    char unknown_108[0x110 - 0x108];
-    unsigned int flags;              // +0x110
-    unsigned char zBufferFlag;       // +0x114
-};
-
-struct List_459c70 {
-    int count;                       // +0x00
-    char unknown_4[8];
-    Owner_459c70* owner;             // +0x0c
-    GafFrame* bitmap;                // +0x10
-    char unknown_14[0x22 - 0x14];
-    Piece_459c70 pieces[1];          // +0x22
-};
-#pragma pack(pop)
-
 struct Poly_459c70 { int x; int y; int z; int shade; };
-
-struct UnitTable {
-    char unknown_0[0x10];
-    GafFrame* shadow;                // +0x10
-
-    void MeasureModel(int* width, int* height, int* originX, int* originY, List_459c70* model, Vec3* offset);
-    int BuildObjectPicture(List_459c70* list, int param_2, int param_3);
-    void DrawPieces(GafFrame* bitmap, List_459c70* list, int kind, int useColor);
-    void DrawLitPieces(GafFrame* bitmap, List_459c70* list, int kind, int useColor);
-};
-
-static __inline int shade_bias(Owner_459c70* owner)
-{
-    bool c = ((*(unsigned int*)(owner->def + 0x241) >> 30) & 1) != 0;
-    return c ? 125 : 50;
-}
 
 // The 50 or 125 bias the original materialises separately in each arm of the
 // doubled-bitmap test, once per projected vertex.
-static __inline int shade_bias(List_459c70* list)
+static __inline int shade_bias(Model_459200* list)
 {
-    bool c = ((*(unsigned int*)(list->owner->def + 0x241) >> 30) & 1) != 0;
+    bool c = ((*(unsigned int*)((char*)list->owner->def + 0x241) >> 30) & 1) != 0;
     return c ? 125 : 50;
 }
 
@@ -106,7 +68,7 @@ static __inline int shade_bias(List_459c70* list)
 // Must stay the first function in the file: compiled later, a lea in the
 // summing loop moves above the fadd.
 // FUNCTION: 0x459c70
-void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
+void UnitTable::DrawLitPieces(GafFrame* bitmap, Model_459200* list,
     int kind, int useColor)
 {
     Object3doView* info;
@@ -143,7 +105,7 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
     for (int p = list->count - 1; p >= 0; p--) {
         if (list->pieces[p].flags.bits.visible) {
             if (useColor == -1 || useColor == list->pieces[p].flags.bits.colored
-                    || list->owner->intensity != 0.0f) {
+                    || list->owner->buildLeft != 0.0f) {
                 Vec3* verts = list->pieces[p].points;
                 // Own read of the vertices, between verts and info: not v = verts.
                 Vec3* v = list->pieces[p].points;
@@ -304,16 +266,3 @@ void UnitTable::DrawLitPieces(GafFrame* bitmap, List_459c70* list,
         }
     }
 }
-
-// Only AllocBitmap and AllocTwoPlaneBitmap are called here; the other
-// members' symbol ids put MeasureModel in the window it matches in.
-class CMemoryCache {
-public:
-    int InitCache(unsigned int size);
-    void FreeCache();
-    int AllocHandle(void** handle, int size);
-    int AllocBitmap(GafFrame** handle, int w, int h);
-    int AllocTwoPlaneBitmap(GafFrame** handle, int w, int h);
-    void FlushCache();
-    void ReleaseHandle(int handle);
-};

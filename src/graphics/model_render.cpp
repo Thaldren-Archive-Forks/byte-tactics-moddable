@@ -51,12 +51,6 @@ union Fixed {
     };
 };
 
-struct Pos_459200 {
-    Fixed x;
-    Fixed y;
-    Fixed z;
-};
-
 #include "../util/vec3.h"
 
 struct Vec3f { float x; float y; float z; };
@@ -115,70 +109,11 @@ union Flags_37f06 {
 
 // The game state the module reads: the unit table, the render flags and the
 // screen height.
-class CMemoryCache;
+#include "memory_cache.h"
 
 #pragma pack(push, 1)
 #include "../game/game.h"
 #pragma pack(pop)
-
-// The memory cache behind the composite buffer: the arena the pictures are
-// allocated from and the handles that keep them.
-class CMemoryCache {
-public:
-    char unknown_0[0x10];
-    union {
-        GafFrame* bitmap;              // +0x10
-        int field_10;                  // +0x10
-        void* buffer;                  // +0x10
-        void* ptr;                     // +0x10
-        GafFrame* shadow;              // +0x10
-    };
-
-    void ClearPointers(void);
-    int InitCache(unsigned int size);
-    void FreeBuffer();
-    void FreeCache();
-    int AllocHandle(void** handle, int size);
-    int AllocBitmap(GafFrame** handle, int w, int h);
-    int AllocTwoPlaneBitmap(GafFrame** handle, int w, int h);
-    void FlushCache();
-    void ReleaseHandle(int handle);
-    void BuildShadow(Model_459200*, GafFrame*);
-    void DrawObjectState(Model_459200*, void* context);
-    void DrawObjectPieces(int param_1, Model_459200* list, Vec3 v, int param_6);
-    // Defined at the end of this file, out of address order.
-    void DrawPiece(Model_459200* model, void* surface, Vec3* camera,
-        Object3doView* info, Vec3* vertices, unsigned char palette, int useColor);
-    // Defined in model_render_4589c0.cpp: it needs that file's CMemoryCache, which
-    // derives from UnitTable to reach BuildObjectPicture and DrawPieces.
-    void DrawObjectPicture(int param_2, Model_459200* model, Vec3 v, int useColor);
-    void MergeIntoComposite(GafFrame* src, Model_459200* model);
-    void MeasureShadow(int* width, int* height, int* originX, int* originY, Model_459200* model);
-    void DrawShadowShape(GafFrame* view, Model_459200* model);
-    void AddModelBounds(int* minX, int* maxX, int* minY, int* maxY, Model_459200* model,
-                        Pos_4589c0 pos);
-    // level stays unsigned char: only the low byte of the quotient is needed.
-    void RecolorByShade(GafFrame* img, unsigned char level, int above, int below, int between);
-    int ShadeByIntensity(GafFrame* image, Model_459200* model);
-    // Defined in model_render_458fa0.cpp: only matches at that file's symbol count.
-    void DrawPieceEdges(GafFrame* view, Model_459200* model, int color);
-    GafFrame* MakeSilhouette(GafFrame* src);
-};
-
-// The cache seen by the picture builder: the same object as CMemoryCache, so
-// it derives from it rather than repeating the members (the base costs nothing).
-class UnitTable : public CMemoryCache {
-public:
-    UnitTable* Construct(void);
-    int Initialize(unsigned int size);
-    void Destroy();
-    void MeasureModel(int* width, int* height, int* originX, int* originY, Model_459200* model, Vec3* offset);
-    int BuildObjectPicture(Model_459200* list, int param_2, int param_3);
-    void DrawPieces(GafFrame* bitmap, Model_459200* list, int kind, int useColor);
-    // Defined in model_render_4581e0.cpp: it must be the first function after its
-    // own types, and the merged context still moves its summing loop's lea.
-    void DrawLitPieces(GafFrame* bitmap, Model_459200* list, int kind, int useColor);
-};
 
 // Unused here: the symbol ids these declarations take keep the allocation,
 // standing in for the four view classes merged into CMemoryCache above
@@ -505,7 +440,7 @@ void CMemoryCache::AddModelBounds(int* minX, int* maxX, int* minY, int* maxY,
 void CMemoryCache::DrawObjectPieces(int param_1, Model_459200* list, Vec3 v, int param_6)
 {
     if (list->bitmap != 0) {
-        DrawObjectPicture(param_1, list, v, param_6);
+        DrawObjectPicture(param_1, list, (Vec3_459200&)v, param_6);
         return;
     }
     for (int i = list->count - 1; i >= 0; i--) {

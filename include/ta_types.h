@@ -5596,15 +5596,7 @@ public:
     void FUN_00437a20(void);
 };
 
-class CMemoryCache {    // 0x14 bytes, 7 views
-public:
-    int unknown_0[4];  // +0x0
-    Bitmap_00437b50* scratch;  // +0x10
-    int AllocHandle(void**, int);
-    int AllocBitmap(Bitmap_00437b50**, int, int);
-    void BuildShadow(SpotState*, Bitmap_00437b50*);
-    int AllocTwoPlaneBitmap(Bitmap_00437b50**, int, int);
-};
+#include "../src/graphics/memory_cache.h"
 
 struct Record_00474cd0 {  // 0x3c bytes, 24 views
     void* data;  // +0x0
@@ -7549,12 +7541,6 @@ struct Class_0045a470 {  // 0x14 bytes, 2 views
 struct Fixed_00485140 {  // 0x4 bytes, 2 views
     unsigned short frac;  // +0x0
     short whole;  // +0x2
-};
-
-struct Ints_459200 {  // 0xc bytes, 1 view
-    int x;  // +0x0
-    int y;  // +0x4
-    int z;  // +0x8
 };
 
 union UnitTypeFlags_459200 {  // 0x4 bytes, 1 view

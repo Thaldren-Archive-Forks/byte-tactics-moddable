@@ -126,4 +126,29 @@ struct Model_459200 {
 };
 #pragma pack(pop)
 
+#pragma pack(push, 1)
+struct Fixed_459200 {
+    unsigned short frac;
+    short whole;
+};
+
+struct Pos_459200 {
+    Fixed_459200 x;
+    Fixed_459200 y;
+    Fixed_459200 z;
+};
+
+struct Ints_459200 {
+    int x;
+    int y;
+    int z;
+};
+
+union Vec3_459200 {
+    int v[3];
+    Pos_459200 p;
+    Ints_459200 i;
+};
+#pragma pack(pop)
+
 #endif
