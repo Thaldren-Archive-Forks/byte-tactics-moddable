@@ -1265,6 +1265,14 @@ struct Game {
 };
 #pragma pack(pop)
 
+inline Player* Game::Current(void) { return &players[playerIndex]; }
+
+inline Player* Game::Current2(void)
+{
+    int i = playerIndex;
+    return &players[i];
+}
+
 #if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
 #include <stddef.h>
 static_assert(sizeof(Game) == 0x3924d, "Game is 0x3924d bytes");

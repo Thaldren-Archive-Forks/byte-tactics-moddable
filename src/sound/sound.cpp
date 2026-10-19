@@ -95,8 +95,6 @@ struct PlayerView {
 
 #include "../game/game.h"
 
-inline Player* Game::Current(void) { return &players[playerIndex]; }
-
 // One queued speech (0x11 bytes).
 struct SpeechEntry {
     int kind;                          // +0x0
