@@ -51,6 +51,7 @@ static unsigned s_fixedLocations = 1;
 static int s_localPlayer = -1;
 static int s_localPlayerLine = 0;
 static unsigned s_ticks = 0;
+static unsigned s_stepsPerFrame = 1;
 static int s_started = 0;
 static int s_dumpEnabled = 0;
 static char s_scenarioPath[512];
@@ -344,7 +345,11 @@ static void ReadKey(int lineNo, const char* key, char* value)
         s_localPlayer = ParseRange(lineNo, key, value, MAX_PLAYERS - 1);
         s_localPlayerLine = lineNo;
     }
-    else if (strcmp(key, "ticks") == 0) {
+    else if (strcmp(key, "steps_per_frame") == 0) {
+        s_stepsPerFrame = ParseNumber(lineNo, key, value);
+        if (s_stepsPerFrame < 1 || s_stepsPerFrame > 8)
+            FailLine(lineNo, "must be from 1 to 8", key, "");
+    } else if (strcmp(key, "ticks") == 0) {
         s_ticks = ParseNumber(lineNo, key, value);
         if (s_ticks == 0)
             FailLine(lineNo, "must be at least 1", key, "");
@@ -596,6 +601,11 @@ void HarnessInit(char* cmdLine)
 int HarnessTestMode()
 {
     return s_testMode;
+}
+
+unsigned HarnessStepsPerFrame()
+{
+    return s_stepsPerFrame;
 }
 
 unsigned HarnessGameSeed(unsigned live)
