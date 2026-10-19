@@ -101,8 +101,8 @@ struct Game {
     union {
         struct {
             char unknown_0;
-            unsigned char version;
-            unsigned char versionMinor;
+            signed char version;
+            signed char versionMinor;
             unsigned char field_3;
         };
         int field_0;

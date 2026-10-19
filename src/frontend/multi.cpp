@@ -358,7 +358,7 @@ void __stdcall UpdateGameSelection(Gui* menu, Gadget* entry)
     int index = FindGadgetIndex(gadgets, "WATCH", 1);
     if (index != -1) {
         gd = (Gadget*)((char*)gadgets + index * 0x15b);
-        gv = ((value & 0xff) >= (int)(signed char)g_game->version) ? 1 : 0;
+        gv = ((value & 0xff) >= g_game->version) ? 1 : 0;
         p = (unsigned short*)((char*)gd + 0x13c);
         r = (unsigned short)((~flags & 0x80) | (flags >> 8));
         r >>= 3;
@@ -369,7 +369,7 @@ void __stdcall UpdateGameSelection(Gui* menu, Gadget* entry)
     index = FindGadgetIndex(gadgets, "JOINGAME", 1);
     if (index != -1) {
         gd = (Gadget*)((char*)gadgets + index * 0x15b);
-        gv = ((value & 0xff) >= (int)(signed char)g_game->version) ? 1 : 0;
+        gv = ((value & 0xff) >= g_game->version) ? 1 : 0;
         p = (unsigned short*)((char*)gd + 0x13c);
         r = (unsigned short)((flags >> 11) | (flags & 0x10));
         r >>= 4;
@@ -479,7 +479,7 @@ shown:
             strcpy(p[3], temp);
             p[3] += strlen(p[3]) + 1;
 
-            if ((sb.s.version & 0xff) >= (int)(signed char)g_game->version) {
+            if ((sb.s.version & 0xff) >= g_game->version) {
                 if (sb.s.lock)
                     msg = "Lock";
                 else if (sb.s.playing)
@@ -1897,7 +1897,7 @@ void __stdcall HandleSelectGameClick(Gui* param_1)
         flags = *(unsigned int*)((char*)&msg.group + 2);
         ver = *(unsigned int*)((char*)&msg.group + 0xe) & 0xff;
 
-        if (ver <= (int)(signed char)g_game->version && ver >= (int)(signed char)g_game->version) {
+        if (ver <= g_game->version && ver >= g_game->version) {
             if ((flags & 0x8000) != 0 || (flags & 0x10) != 0) {
                 PlaySoundByName("Previous", 0);
                 ClearSelectedGadget(param_1);
