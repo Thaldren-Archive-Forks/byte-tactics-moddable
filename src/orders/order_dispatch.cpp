@@ -293,14 +293,14 @@ static inline Feature_0043e490* GetFeature(Cell* cell) {
     if (id < 0xfffb) {
         if (id >= g_game->featureCount)
             return 0;
-        return &(*(struct Feature_0043e490 **)&g_game->features)[id];
+        return &((struct Feature_0043e490 *)g_game->features)[id];
     }
     if (id != 0xfffe)
         return 0;
     id = (cell - (cell->offsetY * g_game->width + cell->offsetX))->feature;
     if (id >= 0xfffb)
         return 0;
-    return &(*(struct Feature_0043e490 **)&g_game->features)[id];
+    return &((struct Feature_0043e490 *)g_game->features)[id];
 }
 
 // Returns `result` from the calling function when the unit's def has `mask`
@@ -471,14 +471,14 @@ static inline Thing_0043f0e0* Lookup(Pos_0043f0e0* pos) {
     if (id < 0xfffb) {
         if (id >= g_game->featureCount)
             return 0;
-        return (Thing_0043f0e0*)((char*)(*(struct Feature_0043e490 **)&g_game->features) + (id << 8));
+        return (Thing_0043f0e0*)((char*)(struct Feature_0043e490 *)g_game->features + (id << 8));
     }
     if (id != 0xfffe)
         return 0;
     id = (cell - (cell->offsetY * g_game->width + cell->offsetX))->feature;
     if (id >= 0xfffb)
         return 0;
-    return (Thing_0043f0e0*)((char*)(*(struct Feature_0043e490 **)&g_game->features) + (id << 8));
+    return (Thing_0043f0e0*)((char*)(struct Feature_0043e490 *)g_game->features + (id << 8));
 }
 
 // FUNCTION: 0x43f0e0

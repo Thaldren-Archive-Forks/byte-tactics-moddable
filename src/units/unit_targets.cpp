@@ -706,7 +706,7 @@ void __cdecl FUN_004b7173(unsigned short deg, Pos2_0048a490* p);
 // FUNCTION: 0x48a490
 void __stdcall AlignUnitToGround(Unit* u)
 {
-    MapInfo_0048a490* m = (*(MapInfo_0048a490 ***)&g_game->types)[u->unitDefIndex];
+    MapInfo_0048a490* m = ((MapInfo_0048a490 **)g_game->types)[u->unitDefIndex];
     MapRow_0048a490* row = m->rows + m->count;
     if (m->count < 0)
         return;
@@ -739,7 +739,7 @@ void __stdcall AlignUnitToGround(Unit* u)
                 return;
             if (gz >= g_game->height - 1)
                 return;
-            unsigned char* tb = (*(unsigned char **)&g_game->cells) + (gz * gw + gx) * 13;
+            unsigned char* tb = (unsigned char *)g_game->cells + (gz * gw + gx) * 13;
             int b0 = tb[4];
             // mapWidthTiles read again, not gw: keeps the allocation.
             unsigned char* tb1 = tb + g_game->width * 13;

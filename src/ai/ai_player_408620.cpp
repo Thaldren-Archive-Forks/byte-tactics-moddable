@@ -35,5 +35,5 @@ void BuildTimer::TryIssueIdleFactoryBuildOrder(Obj_00408620* unit)
         return;
     unsigned short idx = ChooseBuildOption(player, unit);
     if (idx != 0)
-        QueueBuildOrder((*(Item_00408620 **)&g_game->defs)[idx].name, unit, 1);
+        QueueBuildOrder(((Item_00408620 *)g_game->defs)[idx].name, unit, 1);
 }

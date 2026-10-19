@@ -393,8 +393,8 @@ void BuildAllPassMaps(void)
     unsigned int* q = (unsigned int*)DAT_00512370;
     do {
         if (q[-6] != 0) {
-            unsigned int h = (*(unsigned int*)&g_game->height);
-            unsigned int w = (*(unsigned int*)&g_game->width);
+            unsigned int h = (unsigned int)g_game->height;
+            unsigned int w = (unsigned int)g_game->width;
             q[-2] = w;
             q[-1] = h;
             // Size from the stored entry fields q[-1], q[-2], not the w/h locals.
@@ -470,7 +470,7 @@ void __stdcall RefreshPassMapsForUnit(Struct_00440a70* p)
 {
     if (p->unit != 0) {
         unsigned int last = p->unit->lastTick;
-        p->unit->lastTick = (*(unsigned int*)&g_game->ticks);
+        p->unit->lastTick = (unsigned int)g_game->ticks;
         for (int i = 0; i < 32; i++) {
             if (last < MovementClassTable::g_movementClasses.entries[i].lastTick) {
                 ((MovementClass*)&MovementClassTable::g_movementClasses.entries[i])->RefreshPassMap(p->a, p->b);
@@ -487,7 +487,7 @@ void __stdcall RefreshPassMapsForUnit(Struct_00440a70* p)
 // FUNCTION: 0x440af0
 void MovementClass::RefreshMovedUnits(Object_00440af0* p)
 {
-    unsigned int now = (*(unsigned int*)&g_game->ticks);
+    unsigned int now = (unsigned int)g_game->ticks;
     unsigned int old = lastTick;
     if (now <= 0x1e) {
         now = 0x1e;
@@ -495,12 +495,12 @@ void MovementClass::RefreshMovedUnits(Object_00440af0* p)
     unsigned int start = now - 0x1e;
     lastTick = start;
     unsigned int prev = p->unit->lastTick;
-    p->unit->lastTick = (*(unsigned int*)&g_game->ticks);
+    p->unit->lastTick = (unsigned int)g_game->ticks;
     if (prev < old) {
         g_seams.map->RefreshPassMap(this, 0, p->a, p->b);
     }
     if (start != old) {
-        for (Record_00440af0* r = &(*(Record_00440af0 **)&g_game->units)[1]; r <= (*(Record_00440af0 **)&g_game->unitsEnd); r++) {
+        for (Record_00440af0* r = &((Record_00440af0 *)g_game->units)[1]; r <= (Record_00440af0 *)g_game->unitsEnd; r++) {
             if ((r->flags & 0x10000000) != 0 && r->unit != 0) {
                 unsigned int t = r->unit->lastTick;
                 if (t >= old && t < start) {

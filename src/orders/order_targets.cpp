@@ -2417,7 +2417,7 @@ void AiSearchGoal::TickTowardGoal()
 AiSearchGoal* AiSearchGoal::TryClaimRepath()
 {
     if (flags & 2) {
-        unsigned int limit = (*(unsigned int*)&g_game->ticks);
+        unsigned int limit = (unsigned int)g_game->ticks;
         if (limit >= repathClaimTick + 0x3c) {
             repathClaimTick = limit;
             return this;
@@ -2442,7 +2442,7 @@ int AiSearchGoal::HasReadyWaypoints()
 // FUNCTION: 0x44f2a0
 void AiSearchGoal::SetPathOrder(void* param)
 {
-    g_seams.pathfinding->AbortIfGoalMatch((*(Pathfinder **)&g_game->pathfinder), this);
+    g_seams.pathfinding->AbortIfGoalMatch((Pathfinder *)g_game->pathfinder, this);
     if (target)
         ((OrderFx*)target)->AddFlags(0x80);
     active = 0;
@@ -2484,7 +2484,7 @@ void AiSearchGoal::SetPathOrder(void* param)
             }
         }
     }
-    if (repathClaimTick <= (*(unsigned int*)&g_game->ticks) - 10)
+    if (repathClaimTick <= (unsigned int)g_game->ticks - 10)
         repathClaimTick = 0;
     flag_3 = 1;
 }
@@ -2495,7 +2495,7 @@ void AiSearchGoal::SetPathOrder(void* param)
 // FUNCTION: 0x44f450
 AiSearchGoal::~AiSearchGoal()
 {
-    g_seams.pathfinding->AbortIfGoalMatch((*(Pathfinder **)&g_game->pathfinder), this);
+    g_seams.pathfinding->AbortIfGoalMatch((Pathfinder *)g_game->pathfinder, this);
 }
 
 // Slot 7: true when there is something to send: flag 3 of +0x64 (the path changed) is
@@ -2596,6 +2596,6 @@ void CreatePathfinder()
 // FUNCTION: 0x44f6e0
 void DestroyPathfinder()
 {
-    g_seams.pathfinding->Destroy((*(Pathfinder **)&g_game->pathfinder));
+    g_seams.pathfinding->Destroy((Pathfinder *)g_game->pathfinder);
     (*(Pathfinder **)&g_game->pathfinder) = 0;
 }

@@ -383,12 +383,12 @@ void __stdcall AllocateUnitMemory(void)
     unsigned int ten = g_game->field_37ee6 * 10;
     (*(void **)&g_game->list_1435f) = GameAllocIgnoreTag("HOT UNITS", ten * 2);
     g_game->hotRadar = GameAllocIgnoreTag("HOT RADAR UNITS", ten * 10);
-    (*(unsigned char **)&g_game->unitsEnd) = (*(unsigned char **)&g_game->units) + g_game->poolCount * 0x118 - 0x118;
+    (*(unsigned char **)&g_game->unitsEnd) = (unsigned char *)g_game->units + g_game->poolCount * 0x118 - 0x118;
 
     unsigned short n;
     for (n = 0; n < g_game->poolCount; n++) {
         *(unsigned short*)(pool + n * 0x118 + 0xa8) = n;
-        *(UnitType**)(pool + n * 0x118 + 0x92) = (*(UnitType **)&g_game->defs);
+        *(UnitType**)(pool + n * 0x118 + 0x92) = (UnitType *)g_game->defs;
     }
 
     Player* v[10];
@@ -448,8 +448,8 @@ void FreeUnitMemory(void)
     if (g_game->hotRadar != 0)
         GameFreeThunk(g_game->hotRadar);
     g_game->hotRadar = 0;
-    if ((*(void **)&g_game->list_1435f) != 0)
-        GameFreeThunk((*(void **)&g_game->list_1435f));
+    if ((void *)g_game->list_1435f != 0)
+        GameFreeThunk((void *)g_game->list_1435f);
     (*(void **)&g_game->list_1435f) = 0;
     if (g_game->units != 0)
         GameFreeThunk(g_game->units);
@@ -464,7 +464,7 @@ int __stdcall RandomInt(int range);
 // FUNCTION: 0x485a40
 void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
 {
-    unit->def = (UnitDef*)&(*(UnitType **)&g_game->defs)[(unsigned short)unit->unitDefIndex];
+    unit->def = (UnitDef*)&((UnitType *)g_game->defs)[(unsigned short)unit->unitDefIndex];
     unit->alive = 1;
     unit->immobile = (((UnitType*)unit->def)->mobile == 0);
     unit->killPending = 0;
@@ -610,7 +610,7 @@ ObjectState_00485d40* __stdcall CreateObjectState(Object3do* obj);
 // FUNCTION: 0x485d40
 void __stdcall InitUnitScript(Unit* self)
 {
-    Object3do* obj = (*(Object3do ***)&g_game->types)[self->unitDefIndex];
+    Object3do* obj = ((Object3do **)g_game->types)[self->unitDefIndex];
     if (((UnitType*)self->def)->data) {
         self->script = (Class_004b0a70*)new (kSim) UnitScript;
         ((CobScript*)self->script)->SetCob(((UnitType*)self->def)->data);
@@ -673,7 +673,7 @@ extern void* g_weaponAimCobVtable[];
 // FUNCTION: 0x485e90
 void __stdcall InitUnit(int unitType, Vec3 pos, int param_5, Unit* unit)
 {
-    UnitType* type = &(*(UnitType **)&g_game->defs)[(unsigned short)unitType];
+    UnitType* type = &((UnitType *)g_game->defs)[(unsigned short)unitType];
     if (unit) {
         for (int i = 0; i < 3; i++)
             unit->weapons[i].aimCob.ppVtbl = g_weaponAimCobVtable;
@@ -707,7 +707,7 @@ void __stdcall BroadcastBuilderLink(Unit* a, Unit* b);
 static inline void __stdcall InitUnit_00485e90(unsigned short unitType, Vec3 pos,
                                                int param_5, Unit* unit)
 {
-    UnitType* type = &(*(UnitType **)&g_game->defs)[unitType];
+    UnitType* type = &((UnitType *)g_game->defs)[unitType];
     if (unit) {
         for (int i = 0; i < 3; i++)
             unit->weapons[i].aimCob.ppVtbl = g_weaponAimCobVtable;
@@ -731,7 +731,7 @@ Unit* __stdcall CreateUnit(unsigned char player, unsigned short typeId, Vec3 pos
     Player* pl = (Player*)((char*)g_game + off + 0x1b63);
     if (typeId == 0)
         return 0;
-    UnitType* type = &(*(UnitType **)&g_game->defs)[typeId];
+    UnitType* type = &((UnitType *)g_game->defs)[typeId];
     if (!(type->flags.all & 0x800000))
         return 0;
     if (type->limit != -1) {
@@ -845,7 +845,7 @@ void __stdcall CreateUnitCorpse(Unit* unit, int depth, int flag)
         if (id >= 0xfffb) {
             return;
         }
-        id = (*(Entry_486360 **)&g_game->features)[id].next;
+        id = ((Entry_486360 *)g_game->features)[id].next;
     }
     if (id < 0xfffb) {
         void* target = g_seams.los_radar->GetMapCell(unit->cell.x, unit->cell.y);
@@ -1150,7 +1150,7 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
     unit->unitDefIndex = 0;
     // Keep this order: adjacent clears would fold into one `and`.
     unit->flags &= ~0x10000000;
-    unit->def = (UnitDef*)(*(UnitType **)&g_game->defs);
+    unit->def = (UnitDef*)(UnitType *)g_game->defs;
     unit->flags &= ~0x30;
     unit->player->unitCount--;
     if (unit->player->unitCount == 0) {
@@ -1257,7 +1257,7 @@ int __stdcall FindHighestPointOnLine(Vec3_004851c0 a, Vec3_004851c0 b)
     for (int i = 0; i <= n; i++) {
         Cell* c = CellAt(a.x / 0x100000, a.z / 0x100000);
         if (c) {
-            short v = ((unsigned char*)(*(Entry_486360 **)&g_game->features))[c->feature * 256 + 0xfa] + c->height;
+            short v = ((unsigned char*)(Entry_486360 *)g_game->features)[c->feature * 256 + 0xfa] + c->height;
             if (best < v) best = v;
             if (c->unit) {
                 Unit* o = &g_game->units[c->unit];

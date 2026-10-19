@@ -111,7 +111,7 @@ Proj_0049b720* AllocProjectile()
 {
     Proj_0049b720* p = 0;
     if (g_game->projectileCount < 300) {
-        p = &(*(Proj_0049b720 **)&g_game->projectiles)[g_game->projectileCount++];
+        p = &((Proj_0049b720 *)g_game->projectiles)[g_game->projectileCount++];
         p->flags.dead = 0;
         p->f4e = 0;
     }
@@ -127,8 +127,8 @@ static inline void Fall(Vec3_0049b720* v)
 
 static inline void Remove(Proj_0049b720* p)
 {
-    if (p == (*(Proj_0049b720 **)&g_game->tracked)) {
-        (*(Vec3_0049b720*)&g_game->trackedPos) = (*(Proj_0049b720 **)&g_game->tracked)->pos;
+    if (p == (Proj_0049b720 *)g_game->tracked) {
+        (*(Vec3_0049b720*)&g_game->trackedPos) = ((Proj_0049b720 *)g_game->tracked)->pos;
         (*(unsigned short*)&g_game->value_1434b) = p->type->holdTime;
         (*(Proj_0049b720 **)&g_game->tracked) = 0;
     }
@@ -142,13 +142,13 @@ void UpdateProjectiles()
 {
     int n = g_game->projectileCount;
     for (int i = 0; i < n; i++) {
-        Proj_0049b720* p = &(*(Proj_0049b720 **)&g_game->projectiles)[i];
+        Proj_0049b720* p = &((Proj_0049b720 *)g_game->projectiles)[i];
         // type is read before oldY: orders the two spill stores.
         WeaponDef* type = p->type;
         int oldY = p->pos.yw.hi;
 
         if (p->counter != 0) {
-            if ((*(unsigned int*)&g_game->ticks) >= p->f42 + type->burstRate) {
+            if ((unsigned int)g_game->ticks >= p->f42 + type->burstRate) {
                 if (type->burstRate >= 5 || (p->counter & 1)) {
                     unsigned char w;
                     for (w = 0; w < 3; w++) {
@@ -162,13 +162,13 @@ void UpdateProjectiles()
                 Proj_0049b720* q = AllocProjectile();
                 if (q) {
                     *q = *p;
-                    q->f42 = (*(unsigned int*)&g_game->ticks);
+                    q->f42 = (unsigned int)g_game->ticks;
                     if (type->flags.b.soundTrigger)
                         PlaySoundAt(type->sound, &p->pos, 0);
                     if (type->lifetime != 0)
-                        q->f46 = (*(unsigned int*)&g_game->ticks) + type->lifetime;
+                        q->f46 = (unsigned int)g_game->ticks + type->lifetime;
                     else
-                        q->f46 = (p->range + 0x100000) / p->speed + (*(unsigned int*)&g_game->ticks);
+                        q->f46 = (p->range + 0x100000) / p->speed + (unsigned int)g_game->ticks;
                     if (type->lifeRand != 0)
                         q->f46 += RandomInt(type->lifeRand) - (type->lifeRand >> 1);
                     q->counter = 0;
@@ -189,7 +189,7 @@ void UpdateProjectiles()
             p->f64 += 0x400;
 
         if (type->flags.b.selfProp) {
-            if (p->f46 > (*(unsigned int*)&g_game->ticks)) {
+            if (p->f46 > (unsigned int)g_game->ticks) {
                 if (type->flags.b.waterWeapon && p->pos.yw.hi >= g_game->seaLevel) {
                     Fall(&p->vel);
                     p->pitch = 0;
@@ -222,7 +222,7 @@ void UpdateProjectiles()
                 Fall(&p->vel);
                 if (type->flags.b.twoPhase) {
                     if (p->flags.state == 0) {
-                        p->f46 = (*(unsigned int*)&g_game->ticks) + p->type->flightTime;
+                        p->f46 = (unsigned int)g_game->ticks + p->type->flightTime;
                         p->flags.state++;
                         if (!p->type->flags.b.tracks) {
                             p->f56 = 0;
@@ -234,12 +234,12 @@ void UpdateProjectiles()
             p->pos += p->vel;
             CheckProjectileCollision(type, p);
         } else if (type->flags.b.lineOfSight) {
-            if (p->f46 > (*(unsigned int*)&g_game->ticks)) {
+            if (p->f46 > (unsigned int)g_game->ticks) {
                 p->pos += p->vel;
                 if (type->flags.b.beamWeapon) {
                     if (p->flags.b0)
                         p->start += p->vel;
-                    else if ((*(unsigned int*)&g_game->ticks) > p->f42 + type->duration)
+                    else if ((unsigned int)g_game->ticks > p->f42 + type->duration)
                         p->flags.b0 = 1;
                 }
                 CheckProjectileCollision(type, p);
@@ -248,7 +248,7 @@ void UpdateProjectiles()
             }
         } else if (type->flags.b.ballistic) {
             if (type->lifetime != 0) {
-                if (p->f46 > (*(unsigned int*)&g_game->ticks)) {
+                if (p->f46 > (unsigned int)g_game->ticks) {
                     p->pos += p->vel;
                     p->pos += (*(Vec3_0049b720*)&g_game->wind);
                     p->vel.y -= g_game->gravity;
@@ -278,13 +278,13 @@ void UpdateProjectiles()
         }
 
         if (!p->flags.dead) {
-            if (type->flags.b.smokeTrail && p->f46 > (*(unsigned int*)&g_game->ticks) && p->f4a < (*(unsigned int*)&g_game->ticks)) {
+            if (type->flags.b.smokeTrail && p->f46 > (unsigned int)g_game->ticks && p->f4a < (unsigned int)g_game->ticks) {
                 EmitWhiteSmoke(&p->pos, 9);
                 p->f4a += type->smokeRate;
             }
             if (oldY > g_game->seaLevel && p->pos.yw.hi <= g_game->seaLevel) {
                 Cell* cell = g_seams.los_radar->GetMapCellAtPosition((Vec3*)&p->pos);
-                if (cell && cell->high < g_game->seaLevel && (*(Net_0049b720 **)&g_game->net)->noSeaLevelTrigger == 0)
+                if (cell && cell->high < g_game->seaLevel && ((Net_0049b720 *)g_game->net)->noSeaLevelTrigger == 0)
                     AddExplosionEffect(&p->pos, type->splash, 0, 1);
             }
         }

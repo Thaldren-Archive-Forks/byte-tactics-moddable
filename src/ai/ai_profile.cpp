@@ -167,11 +167,11 @@ void AIProfileParser::ReportParseError(char* text)
 // FUNCTION: 0x428fc0
 void ProtectUnitDefsReadOnly()
 {
-    ProtectBlockReadOnly((*(void **)&g_game->defs));
+    ProtectBlockReadOnly((void *)g_game->defs);
 }
 
 // FUNCTION: 0x428fe0
 void ProtectUnitDefsReadWrite()
 {
-    ProtectBlockReadWrite((*(void **)&g_game->defs));
+    ProtectBlockReadWrite((void *)g_game->defs);
 }

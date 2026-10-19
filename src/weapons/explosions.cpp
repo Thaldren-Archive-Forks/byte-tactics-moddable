@@ -480,16 +480,16 @@ void UpdateExplosions()
                     d->vel.y = -(d->vel.y / 2);
                     if (*(short*)((char*)&d->vel.y + 2) <= 0) {
                         if (d->flag)
-                            AddExplosionEffect(&d->pos, (*(GafSequence **)&g_game->src3), 0, 0);
+                            AddExplosionEffect(&d->pos, (GafSequence *)g_game->src3, 0, 0);
                         d->obj->state = 0xff;
                         d->obj = 0;
                     }
                 }
             } else {
                 if (d->flag) {
-                    Net* net = (*(Net **)&g_game->net);
+                    Net* net = (Net *)g_game->net;
                     if (net->f_d48 == 0) {
-                        GafSequence* src = net->f_d44 != 0 ? (*(GafSequence **)&g_game->src2) : (*(GafSequence **)&g_game->src1);
+                        GafSequence* src = net->f_d44 != 0 ? (GafSequence *)g_game->src2 : (GafSequence *)g_game->src1;
                         AddExplosionEffect(&d->pos, src, -1, 1);
                     }
                 }
@@ -649,12 +649,12 @@ int __stdcall UpdateExplodedPiece(ExplodedPiece* obj)
 
     Vec3 pos;
     if (inner->pos.y <= (int)((unsigned)g_game->seaLevel << 16)) {
-        if (obj->b4 && (*(Net **)&g_game->net)->f_d48 == 0) {
+        if (obj->b4 && ((Net *)g_game->net)->f_d48 == 0) {
             GafSequence* src;
-            if ((*(Net **)&g_game->net)->f_d44 != 0)
-                src = (*(GafSequence **)&g_game->src2);
+            if (((Net *)g_game->net)->f_d44 != 0)
+                src = (GafSequence *)g_game->src2;
             else
-                src = (*(GafSequence **)&g_game->src1);
+                src = (GafSequence *)g_game->src1;
             pos.x = inner->pos.x;
             pos.y = inner->pos.y;
             pos.z = inner->pos.z;
@@ -681,7 +681,7 @@ int __stdcall UpdateExplodedPiece(ExplodedPiece* obj)
                 pos.x = inner->pos.x;
                 pos.y = inner->pos.y;
                 pos.z = inner->pos.z;
-                AddExplosionEffect(&pos, (*(GafSequence **)&g_game->src3), 0, 0);
+                AddExplosionEffect(&pos, (GafSequence *)g_game->src3, 0, 0);
             }
             return 0;
         }

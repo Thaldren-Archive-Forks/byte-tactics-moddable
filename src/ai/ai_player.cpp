@@ -622,7 +622,7 @@ void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
     g_seams.units->NotifyUnitRefs(unit,16);
     if (attacker && !attacker->unitDefIndex) attacker=0;
     if ((unit->def->flags2&0x1000) && unit->player->active && unit->player->type==2) {
-        unit->player->ai->nextAction=RandomInt(300)+(*(unsigned int*)&g_game->ticks)+30;
+        unit->player->ai->nextAction=RandomInt(300)+(unsigned int)g_game->ticks+30;
         g_seams.orders->DeleteOrders(unit,0);
     }
     if (attacker && unit->player->active && (unit->player->type==1 || unit->player->type==2) &&
@@ -836,7 +836,7 @@ void AssaultTimer::OnTimer()
 {
     Vec3 pos;
     Vec3 retreat;
-    next = (*(unsigned int*)&g_game->ticks) + 300;
+    next = (unsigned int)g_game->ticks + 300;
     RebalanceAssaultGroupByCentroid(kind, limit);
     if (!group->units.empty()) {
         if ((int)group->units.size() <= minimum || (!attacking && (int)group->units.size() < maximum)) {
@@ -883,7 +883,7 @@ EscortTimer::EscortTimer(SquadManager* p, Group* q, int a)
 // FUNCTION: 0x4079f0
 void EscortTimer::OnTimer()
 {
-    next = (*(unsigned int*)&g_game->ticks) + 150;
+    next = (unsigned int)g_game->ticks + 150;
     SquadTimer* o = owner->timers[other];
     if (!group->units.empty()
         && !o->group->units.empty()) {
@@ -946,7 +946,7 @@ void SquadScoutTimer::OnTimer()
     Vec3 dest;
     // Computed first: in one expression with next it folds into a lea.
     int delay = RandomInt(900) + 30;
-    next = (*(unsigned int*)&g_game->ticks) + delay;
+    next = (unsigned int)g_game->ticks + delay;
     if ((int)group->units.size() < 5) {
         // Read through an inline returning by value: pos must not be the local
         // whose address goes to GetBasePosition.
@@ -1014,7 +1014,7 @@ void __stdcall UpdateConverter(Unit* unit)
 // FUNCTION: 0x4086d0
 void BuildTimer::OnTimer()
 {
-    next = (*(unsigned int*)&g_game->ticks) + 30;
+    next = (unsigned int)g_game->ticks + 30;
     for (std::vector<Unit*>::iterator it = group->units.begin(); it != group->units.end(); ++it) {
         Unit* u = *it;
         if ((u->flags & 0x20000000) && (u->flags & 0x10000000) && !(u->flags & 0x4000)) {
@@ -1120,7 +1120,7 @@ void SquadManager::TickTimers()
         AssignSquads();
     }
     for (int i = 0; i < 10; i++) {
-        if (timers[i] != 0 && timers[i]->next <= (*(unsigned int*)&g_game->ticks)) {
+        if (timers[i] != 0 && timers[i]->next <= (unsigned int)g_game->ticks) {
             timers[i]->OnTimer();
         }
     }
@@ -1135,7 +1135,7 @@ void SquadManager::TickIfActive()
             AssignSquads();
         }
         for (int i = 0; i < 10; i++) {
-            if (timers[i] != 0 && timers[i]->next <= (*(unsigned int*)&g_game->ticks)) {
+            if (timers[i] != 0 && timers[i]->next <= (unsigned int)g_game->ticks) {
                 timers[i]->OnTimer();
             }
         }
@@ -1532,9 +1532,9 @@ void PlayerAI::BuildFeatureCells()
 // FUNCTION: 0x40ad20
 void PlayerAI::UpdateEveryThirtyTicks()
 {
-    if ((*(unsigned int*)&g_game->ticks) >= lastTick + 0x1e) {
+    if ((unsigned int)g_game->ticks >= lastTick + 0x1e) {
         this->RefreshUnitLists();
-        lastTick = (*(unsigned int*)&g_game->ticks);
+        lastTick = (unsigned int)g_game->ticks;
         if (RandomInt(0x1e) == 0) {
             this->ComputeBaseWeights();
         }
@@ -1607,9 +1607,9 @@ bool __stdcall HasReadyUnitInRange(int player, Vec3_40b0d0* p, int range)
 void __stdcall UpdatePlayerAI(int player)
 {
     PlayerAI* p = g_playerAI[player];
-    if (p && (*(unsigned int*)&g_game->ticks) >= p->lastTick + 0x1e) {
+    if (p && (unsigned int)g_game->ticks >= p->lastTick + 0x1e) {
         p->RefreshUnitLists();
-        p->lastTick = (*(unsigned int*)&g_game->ticks);
+        p->lastTick = (unsigned int)g_game->ticks;
         if (RandomInt(0x1e) == 0) {
             p->ComputeBaseWeights();
         }
@@ -1812,8 +1812,8 @@ void __stdcall DumpPlayerAI(int player, FILE* file)
 {
     PlayerAI* ai=g_playerAI[player];
     char buffer[256];
-    unsigned int hours=(*(unsigned int*)&g_game->ticks)/108000;
-    int remaining=(*(unsigned int*)&g_game->ticks)-hours*108000;
+    unsigned int hours=(unsigned int)g_game->ticks/108000;
+    int remaining=(unsigned int)g_game->ticks-hours*108000;
     int minutes=remaining/1800;
     int seconds=(remaining-minutes*1800)/30;
     sprintf(buffer,"%02d:%02d:%02d",hours,minutes,seconds);

@@ -568,7 +568,7 @@ void __stdcall EnsurePatrolReturnOrder(Unit* p, Order* item)
 // FUNCTION: 0x43a0c0
 Order::Order(unsigned char k, Unit* o, Vec3* p, int a, int b, int c)
     : kind(k), link(o, 0), start(PointInit_0043a1f0(0, 0)), cached(PointInit_0043a1f0(0, 0)),
-      id(a), amount(b), progress(c), created((*(unsigned int*)&g_game->ticks))
+      id(a), amount(b), progress(c), created((unsigned int)g_game->ticks)
 {
     // Through the inline method: a plain `link.value = this` reorders the
     // position pointer's compare before the vtable store.
@@ -606,7 +606,7 @@ void __stdcall WriteUnitTypeNameKey(HapiBank* file, unsigned short id)
     char key[0x80];
     sprintf(key, "UTYPENAME%4d", id);
     if (!file->HasItem(key) && id >= 1 && id < g_game->count_1438f)
-        file->SetStringItem(key, (*(UnitType_0043cd20 **)&g_game->defs)[id].name);
+        file->SetStringItem(key, ((UnitType_0043cd20 *)g_game->defs)[id].name);
 }
 
 // Resolves a unit definition slot number to a unit type id. The parsed text
@@ -624,7 +624,7 @@ short __stdcall ResolveUnitTypeKey(HapiBank* file, unsigned short id)
     int i, n = 0;                     // n counts every table entry, k only the
     unsigned short k = 0;             // ones without flag bit 5
     for (i = 1; i < g_game->count_1438f; i++, n++) {
-        if (!((*(UnitType_0043cd20 **)&g_game->defs)[(unsigned short)i].flags & 0x20)) {
+        if (!(((UnitType_0043cd20 *)g_game->defs)[(unsigned short)i].flags & 0x20)) {
             if (k == id)
                 return n;
             k++;
@@ -1196,7 +1196,7 @@ static void Wait_0043b7c0(Order* node, int n)
 {
     unsigned int when = RandomInt(n) + 0x1e;
     node->flags6 |= 1;
-    node->wakeFrame = (*(unsigned int*)&g_game->ticks) + when;
+    node->wakeFrame = (unsigned int)g_game->ticks + when;
 }
 
 
@@ -1222,7 +1222,7 @@ void __stdcall RunOrders(Unit* unit)
         node = unit->list;
         if (node == 0)
             break;
-        if ((*(unsigned int*)&g_game->ticks) >= node->wakeFrame) {
+        if ((unsigned int)g_game->ticks >= node->wakeFrame) {
             node->wakeFrame = 0xffffffff;
             node->subFlags |= 1;
         }
@@ -1313,7 +1313,7 @@ void __stdcall RunSecondaryOrders(Unit* p)
 {
     Order* child = p->list2;
     while (child != 0) {
-        if (child->flags6 == 0 || (*(unsigned int*)&g_game->ticks) >= child->wakeFrame) {
+        if (child->flags6 == 0 || (unsigned int)g_game->ticks >= child->wakeFrame) {
             child->flags6 = 0;
             // Case order (3, 1, 0, 2/4, 5/8/9, 6/7, default) sets the body layout.
             switch (g_missionOrderTableBegin[child->kind].notify(child->unit, child, 0)) {
@@ -1322,7 +1322,7 @@ void __stdcall RunSecondaryOrders(Unit* p)
                 // folded into one lea, which is what the original does.
                 unsigned int when = RandomInt(0xf) + 0x1e;
                 child->flags6 |= 1;
-                child->wakeFrame = (*(unsigned int*)&g_game->ticks) + when;
+                child->wakeFrame = (unsigned int)g_game->ticks + when;
                 break;
             }
             case 1:

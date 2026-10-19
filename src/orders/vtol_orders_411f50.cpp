@@ -204,7 +204,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         UnitDef* def = unit->def;
         // size and rate are loaded before the !rate test.
         int size = def->altitude;
-        int rate = (*(Struct_Game391e9 **)&g_game->net)->gravity;
+        int rate = ((Struct_Game391e9 *)g_game->net)->gravity;
         if (!rate)
             break;
         // Float local x: keeps the constant multiply from moving outermost.

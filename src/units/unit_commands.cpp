@@ -610,8 +610,8 @@ static inline int Less_00488a50(const char* a, const char* b)
 UnitType_00488b10* __stdcall FindUnitType(const char* name)
 {
     // `end` before `lo`: the order decides which registers the base loads use.
-    UnitType_00488b10* end = (*(UnitType_00488b10 **)&g_game->defs) + g_game->count_1438f;
-    UnitType_00488b10* lo = (*(UnitType_00488b10 **)&g_game->defs) + 1;
+    UnitType_00488b10* end = (UnitType_00488b10 *)g_game->defs + g_game->count_1438f;
+    UnitType_00488b10* lo = (UnitType_00488b10 *)g_game->defs + 1;
     int n = (int)(end - lo);
     while (n > 0) {
         int half = n / 2;
@@ -637,8 +637,8 @@ UnitType_00488b10* __stdcall FindUnitType(const char* name)
 unsigned short __stdcall FindUnitTypeId(const char* name)
 {
     // `last` before `first`: the order decides the register of the table base.
-    UnitType_00488b10* last = (*(UnitType_00488b10 **)&g_game->defs) + g_game->count_1438f;
-    UnitType_00488b10* first = (*(UnitType_00488b10 **)&g_game->defs) + 1;
+    UnitType_00488b10* last = (UnitType_00488b10 *)g_game->defs + g_game->count_1438f;
+    UnitType_00488b10* first = (UnitType_00488b10 *)g_game->defs + 1;
     int n = ((char*)last - (char*)first) / 0x249;
     while (n > 0) {
         int mid = n / 2;
@@ -732,7 +732,7 @@ static inline UnitType_00488b10* FindByName(UnitType_00488b10* first, UnitType_0
 // FUNCTION: 0x488d30
 void UnitTypeSet::AddTypeOrCategory(char* text, int* out)
 {
-    UnitType_00488b10* base = (*(UnitType_00488b10 **)&g_game->defs);
+    UnitType_00488b10* base = (UnitType_00488b10 *)g_game->defs;
     UnitType_00488b10* last = base + g_game->count_1438f;
     UnitType_00488b10* first = FindByName(base + 1, last, text);
     unsigned short v = first ? first->id : 0;

@@ -482,14 +482,14 @@ static inline Feature_0043e490* GetFeature(Cell* cell) {
     if (id < 0xfffb) {
         if (id >= g_game->featureCount)
             return 0;
-        return &(*(Feature_0043e490 **)&g_game->features)[id];
+        return &((Feature_0043e490 *)g_game->features)[id];
     }
     if (id != 0xfffe)
         return 0;
     id = (cell - (cell->offsetY * g_game->width + cell->offsetX))->feature;
     if (id >= 0xfffb)
         return 0;
-    return &(*(Feature_0043e490 **)&g_game->features)[id];
+    return &((Feature_0043e490 *)g_game->features)[id];
 }
 
 // Returns `result` from the calling function when the unit's def has `mask`

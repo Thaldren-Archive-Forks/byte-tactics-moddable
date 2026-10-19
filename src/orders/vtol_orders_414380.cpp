@@ -154,7 +154,7 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
         MarkSelectionOrdersDirty(unit);
         return 1;
     case 3: {
-        if ((*(unsigned int*)&g_game->ticks)%150==0) {
+        if ((unsigned int)g_game->ticks%150==0) {
             int angle=GetHeadingBetween(&unit->pos,&order->target.Get()->pos);
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;

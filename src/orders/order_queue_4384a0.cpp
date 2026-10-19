@@ -619,7 +619,7 @@ short __stdcall ResolveUnitTypeKey(HapiBank* file, unsigned short id)
     int i, n = 0;
     unsigned short k = 0;
     for (i = 1; i < g_game->count_1438f; i++, n++) {
-        if (!((*(UnitType **)&g_game->defs)[(unsigned short)i].flags & 0x20)) {
+        if (!(((UnitType *)g_game->defs)[(unsigned short)i].flags & 0x20)) {
             if (k == id)
                 return n;
             k++;
@@ -673,7 +673,7 @@ Order::Order(Unit* punit, HapiBank* file, char* name)
     link.SetUnit(0);
     next = 0;
     attached = 0;
-    created = (*(unsigned int*)&g_game->ticks);
+    created = (unsigned int)g_game->ticks;
     if (file == 0)
         return;
     if (name == 0)
@@ -813,7 +813,7 @@ int Order::SerializeToSave(Unit* punit, HapiBank* file, char* name)
         char buf2[0x80];
         sprintf(buf2, "UTYPENAME%4d", id);
         if (!file->HasItem(buf2) && id >= 1 && id < g_game->count_1438f)
-            file->SetStringItem(buf2, (*(UnitType **)&g_game->defs)[id].name);
+            file->SetStringItem(buf2, ((UnitType *)g_game->defs)[id].name);
     }
 
     if (desc.field_4 != 0) {
