@@ -20,6 +20,7 @@ extern char DAT_005119b8[];
 void __cdecl AllocNotifyNop(int);
 
 #include "string_ref.h"
+#include "tdf.h"
 
 // Unused here: the symbol ids these declarations take keep the allocation of
 // the functions below (docs/c2-regalloc.md).
@@ -36,16 +37,6 @@ static inline bool Ne(const StringRef& a, const StringRef& b)
 {
     return !(a == b);
 }
-
-// One entry of the translations: a key and a value, both string handles. Its
-// destructor (0x4c5190) is in tdf.cpp.
-struct TdfField {
-    StringRef key;                  // +0x0
-    StringRef value;                // +0x4
-
-    TdfField(const StringRef& a, const StringRef& b);
-    ~TdfField();
-};
 
 // The destroy loop of the entry vector releases the two handles inline.
 namespace std {
@@ -106,7 +97,6 @@ static inline StringRef* InsertNew(TranslationTable* s, TdfField* e, const Strin
     return (StringRef*)&((TdfFieldVector*)&s->v)->Insert(e, MakeElem(key, StringRef()))->value;
 }
 
-#include "tdf.h"
 #include "../quirks/quirks.h"
 
 // Reloads one TDF file into the global map (g_translations):

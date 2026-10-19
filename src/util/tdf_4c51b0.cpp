@@ -8,11 +8,6 @@
 
 #include "string_ref.h"
 
-struct TdfField {
-    StringRef a;                // +0x0 key
-    StringRef b;                // +0x4 value
-};
-
 void __cdecl GameFreeThunk(int* param_1);
 
 #include <new>
