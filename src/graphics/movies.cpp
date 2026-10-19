@@ -101,14 +101,7 @@ struct Display_0047c3a0 {
 };
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x10];
-    Display_0047bdf0* sound;            // +0x10
-    char unknown_14[0x37e1b - 0x14];
-    Display_0047c3a0* offscreen;        // +0x37e1b
-    char unknown_37e1f[0x39241 - 0x37e1f];
-    int introMovieLoop;                 // +0x39241
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;                    // 0x511de8
@@ -200,7 +193,7 @@ MoviePlayer::MoviePlayer(char* path, int a, int b, int c, int d, int e)
     frame = 0;
     if (a)
         SmackSoundEnable((HWND)b);
-    void* sound = g_game->sound->sound;
+    void* sound = ((Display_0047bdf0 *)g_game->field_10)->sound;
     SmackSoundUseDirectSound(sound);
     smack = SmackOpen(path, 0xfe100, -1);
     if (!smack)
@@ -389,8 +382,8 @@ void MoviePlayer::PlayFrame(HWND hwnd)
         }
         wrapper->palette->SetEntries(0, 0, 256, entries);
     }
-    SetOffscreenSurface(g_game->offscreen);
-    SmackToBuffer(smack, 0, (0x1e0 - smack->height) >> 1, g_game->offscreen->width, smack->height, g_game->offscreen->height, 0);
+    SetOffscreenSurface((Display_0047c3a0 *)g_game->screen);
+    SmackToBuffer(smack, 0, (0x1e0 - smack->height) >> 1, ((Display_0047c3a0 *)g_game->screen)->width, smack->height, ((Display_0047c3a0 *)g_game->screen)->height, 0);
     SmackDoFrame(smack);
     FlipScreen();
     if (SmackToBufferRect(smack, 1) && smack->lastLeft == 0 && smack->lastTop == 0

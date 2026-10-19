@@ -699,60 +699,7 @@ void MemSetAtexitHandler(void);
 void SetValueAtexitHandler(void);
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x1b63];
-    union {
-        Player players[10];                // +0x1b63, stride 0x14b
-        // Stays its own view: the wake draw (0x4745e0) matches only with this
-        // map's Get member, which re-reads the width.
-        Map_004745e0 players_004745e0[10];
-    };
-    char unknown_2851[0x2a43 - 0x2851];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x14263 - 0x2a44];
-    int gravity;                       // +0x14263
-    char unknown_14267[0x14273 - 0x14267];
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x1427f - 0x14277];
-    unsigned char seaLevel;            // +0x1427f
-    char debugMode;
-    unsigned short mapFlags;           // +0x14281, bit 1 (mask 2)
-    char unknown_14283[0x1431f - 0x14283];
-    int scrollX;                       // +0x1431f, the map scroll
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x147cf - 0x14327];
-    void* smoke1;                      // +0x147cf, the "smoke 1" animation
-    void* smoke2;                      // +0x147d3, the "smoke 2" animation
-    char unknown_147d7[0x147f3 - 0x147d7];
-    union {
-        void* flameStreamSeq;          // +0x147f3, the spark animation
-        unsigned short* bits_147f3;
-    };
-    char unknown_147f7[0x37ecc - 0x147f7];
-    int windVelX;                      // +0x37ecc
-    char unknown_37ed0[4];
-    int windZ;                         // +0x37ed4
-    char unknown_37ed8[0x38a47 - 0x37ed8];
-    union {
-        int gameTick;                  // +0x38a47, the tick
-        int time;
-        unsigned int now;
-    };
-    char unknown_38a4b[0x38d77 - 0x38a4b];
-    union {
-        ParticleLists* lists;          // +0x38d77, the ten per-index lists
-        ParticleLists* lists_00472200;
-        Lists_00471d90* lists_00471d90;
-        Lists_00471eb0* lists_00471eb0;
-        Lists_471f40* lists_471f40;
-        Lists_00471f90* lists_00471f90;
-        Lists_00471fd0* lists_00471fd0;
-        Lists_004720d0* lists_004720d0;
-        Lists_00472330* lists_00472330;
-        Lists_00472430* lists_00472430;
-        Lists_00472530* lists_00472530;
-    };
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -842,8 +789,8 @@ static inline int IsSeen_00474b80(Player* p, Player* q, int col, int row)
 // arms keep their own fail block, as the original does.
 inline int Pos_004745e0::Visible()
 {
-    Map_004745e0* p = &g_game->players_004745e0[g_game->playerIndex];
-    Map_004745e0* p2 = &g_game->players_004745e0[g_game->playerIndex];
+    Map_004745e0* p = &(*(Map_004745e0 (*)[10])&g_game->players)[g_game->playerIndex];
+    Map_004745e0* p2 = &(*(Map_004745e0 (*)[10])&g_game->players)[g_game->playerIndex];
     int visible;
     if ((g_game->mapFlags & 2) == 2) {
         int col = x >> 5;
@@ -1293,7 +1240,7 @@ void __stdcall ParticleSystem::operator delete(void* p)
 // FUNCTION: 0x471d70
 void ParticleSystem::SetLifetime(int ticks)
 {
-    deadline = g_game->time + ticks;
+    deadline = g_game->ticks + ticks;
 }
 #pragma auto_inline(on)
 
@@ -1301,7 +1248,7 @@ void ParticleSystem::SetLifetime(int ticks)
 // FUNCTION: 0x471d90
 void CreateParticleLists()
 {
-    g_game->lists_00471d90 = new Lists_00471d90;
+    (*(Lists_00471d90 **)&g_game->lists_38d77) = new Lists_00471d90;
 }
 
 // Walks the ten listener lists (see 0x471d90, 0x471f40): a listener whose
@@ -1310,7 +1257,7 @@ void CreateParticleLists()
 // FUNCTION: 0x471eb0
 void UpdateParticles()
 {
-    Lists_00471eb0* l = g_game->lists_00471eb0;
+    Lists_00471eb0* l = (Lists_00471eb0 *)g_game->lists_38d77;
     for (int i = 0; i < 10; i++) {
         std::vector<Listener_00471eb0*>& v = l->lists[i];
         std::vector<Listener_00471eb0*>::iterator it = v.begin();
@@ -1330,7 +1277,7 @@ void UpdateParticles()
 // FUNCTION: 0x471f40
 void __stdcall DrawParticles(int arg)
 {
-    Lists_471f40* l = g_game->lists_471f40;
+    Lists_471f40* l = (Lists_471f40 *)g_game->lists_38d77;
     for (int i = 0; i < 10; i++) {
         for (std::vector<Listener_471f40*>::iterator it = l->lists[i].begin(); it != l->lists[i].end(); ++it) {
             (*it)->Slot2(arg);
@@ -1343,7 +1290,7 @@ void __stdcall DrawParticles(int arg)
 // FUNCTION: 0x471f90
 void __stdcall DrawParticleList(void* msg, short kind)
 {
-    std::vector<Listener_00471f90*>& v = g_game->lists_00471f90->lists[kind];
+    std::vector<Listener_00471f90*>& v = ((Lists_00471f90 *)g_game->lists_38d77)->lists[kind];
     for (std::vector<Listener_00471f90*>::iterator it = v.begin(); it != v.end(); ++it) {
         (*it)->Slot2(msg);
     }
@@ -1367,7 +1314,7 @@ static void __stdcall Add(Lists_00471fd0* l, short index, ParticleSystem* p)
 // FUNCTION: 0x471fd0
 void __stdcall EmitTeleportParticles(int posA, int posB, int lifetime, short index)
 {
-    Lists_00471fd0* l = g_game->lists_00471fd0;
+    Lists_00471fd0* l = (Lists_00471fd0 *)g_game->lists_38d77;
     TeleportParticles* p = new TeleportParticles;
     if (p) {
         p->Init((Vec3_004736e0*)posA, (Vec3_004736e0*)posB, lifetime);
@@ -1404,7 +1351,7 @@ void __stdcall EmitNanoParticles(Vec3_004720d0* p, void* posB, short index)
     Ctx_004720d0 ctx;
     ctx.a = *p;
     ctx.b = *p;
-    Lists_004720d0* lists = g_game->lists_004720d0;
+    Lists_004720d0* lists = (Lists_004720d0 *)g_game->lists_38d77;
     NanoParticles* q = new NanoParticles;
     if (q) {
         q->Init((Seg_00473b50*)&ctx.a, (Seg_00473b50*)posB, 1);
@@ -1424,7 +1371,7 @@ void __stdcall EmitReverseNanoParticles(Pos_00472200* targetBounds, Vec3* origin
     Pos_00472200 pos;
     pos.a = *origin;
     pos.b = *origin;
-    ParticleLists* lists = g_game->lists_00472200;
+    ParticleLists* lists = (ParticleLists *)g_game->lists_38d77;
     NanoParticles* p = new NanoParticles;
     if (p) {
         p->Init((Seg_00473b50*)targetBounds, (Seg_00473b50*)&pos, 1);
@@ -1445,7 +1392,7 @@ void __stdcall EmitThrustParticles(int posA, int posB, int period, int lifetime,
                             short index)
 {
     // Bound to a local at the top: g_game is loaded before the prologue pushes.
-    Lists_00472330* lists = g_game->lists_00472330;
+    Lists_00472330* lists = (Lists_00472330 *)g_game->lists_38d77;
     ThrustParticles* p = new ThrustParticles;
     if (p) {
         p->Init((Shape_00472ab0*)posA, (Shape_00472ab0*)posB, period, lifetime);
@@ -1462,7 +1409,7 @@ void __stdcall EmitThrustParticles(int posA, int posB, int period, int lifetime,
 // FUNCTION: 0x472430
 void __stdcall EmitWakeParticles(int posA, int posB, int period, short index)
 {
-    Lists_00472430* l = g_game->lists_00472430;
+    Lists_00472430* l = (Lists_00472430 *)g_game->lists_38d77;
     WakeParticles* p = new WakeParticles;
     if (p) {
         p->Init((Vec3_00474760*)posA, (Vec3_00474760*)posB, period, 1, 1);
@@ -1481,7 +1428,7 @@ void __stdcall EmitWakeParticles(int posA, int posB, int period, short index)
 void __stdcall EmitBubbles(int posA, int posB, int period, short index)
 {
     // Local read before the new: otherwise g_game is reloaded after the virtual call.
-    Lists_00472530* l = g_game->lists_00472530;
+    Lists_00472530* l = (Lists_00472530 *)g_game->lists_38d77;
     WakeParticles* p = new WakeParticles;
     if (p) {
         p->Init((Vec3_00474760*)posA, (Vec3_00474760*)posB, period, 1, 0);
@@ -1503,7 +1450,7 @@ void TeleportParticles::Update()
 
     while (it != items.end()) {
         it->Step();
-        if (it->IsExpired(g_game->gameTick)) {
+        if (it->IsExpired(g_game->ticks)) {
             items.erase(it);
         } else {
             ++it;
@@ -1519,7 +1466,7 @@ void TeleportParticles::Update()
 int TeleportParticles::IsEmitDue()
 {
     if (time <= deadline) {
-        unsigned int game_val = g_game->gameTick;
+        unsigned int game_val = g_game->ticks;
         if ((unsigned int)time <= game_val) {
             return 1;
         }
@@ -1554,7 +1501,7 @@ void NanoParticles::Update()
     std::vector<NanoParticle>::iterator it = items.begin();
     while (it != items.end()) {
         it->Step();
-        if (it->IsExpired(g_game->gameTick))
+        if (it->IsExpired(g_game->ticks))
             it = items.erase(it);
         else
             ++it;
@@ -1568,7 +1515,7 @@ void NanoParticles::Update()
 int NanoParticles::IsEmitDue()
 {
     if (time <= deadline) {
-        unsigned int game_val = g_game->gameTick;
+        unsigned int game_val = g_game->ticks;
         if ((unsigned int)time <= game_val) {
             return 1;
         }
@@ -1601,7 +1548,7 @@ void ThrustParticles::Update()
 {
     for (std::vector<ThrustParticle>::iterator it = items.begin(); it != items.end(); ) {
         it->Step();
-        if (it->IsExpired(g_game->gameTick))
+        if (it->IsExpired(g_game->ticks))
             items.erase(it);
         else
             ++it;
@@ -1615,7 +1562,7 @@ void ThrustParticles::Update()
 int ThrustParticles::IsEmitDue()
 {
     if (time <= deadline) {
-        unsigned int val = g_game->gameTick;
+        unsigned int val = g_game->ticks;
         if ((unsigned int)time <= val) {
             return 1;
         }
@@ -1650,7 +1597,7 @@ void WakeParticles::Update()
 
     while (it != items.end()) {
         it->Step();
-        if (it->IsExpired(g_game->gameTick)) {
+        if (it->IsExpired(g_game->ticks)) {
             items.erase(it);
         } else {
             ++it;
@@ -1665,7 +1612,7 @@ void WakeParticles::Update()
 // FUNCTION: 0x473220
 int WakeParticles::IsEmitDue()
 {
-    if (time <= deadline && time <= g_game->now) {
+    if (time <= deadline && time <= (unsigned int)g_game->ticks) {
         return 1;
     }
     return 0;
@@ -1789,7 +1736,7 @@ int HarnessViewRand();
 // FUNCTION: 0x4737c0
 void TeleportParticles::Emit()
 {
-    int grow = (deadline - g_game->gameTick + 10) / 10;
+    int grow = (deadline - g_game->ticks + 10) / 10;
 
     // The inlined vector::reserve itself is needed, not a hand-written block.
     if (grow > 0)
@@ -1801,16 +1748,16 @@ void TeleportParticles::Emit()
         e.pos1 = pos1;
         e.pos2 = pos2;
         e.dir = dir;
-        e.endTime = g_game->gameTick + sparkLifetime;
-        e.data = g_game->flameStreamSeq;
-        e.frameCount = GetGafFrameCount(g_game->flameStreamSeq) - 1;
+        e.endTime = g_game->ticks + sparkLifetime;
+        e.data = g_game->unknown_147f3;
+        e.frameCount = GetGafFrameCount(g_game->unknown_147f3) - 1;
         e.frame = (int)(((__int64)HarnessViewRand() * e.frameCount) / 0x8000);
         // Not push_back: calling through the List layout keeps the insert out of line.
         List_004737c0* v = (List_004737c0*)&items;
         v->insert(v->last, 1, e);
     }
 
-    time = g_game->gameTick + 10;
+    time = g_game->ticks + 10;
 }
 
 // Advances the position by its velocity and steps a 1..7 animation counter
@@ -1928,7 +1875,7 @@ void ThrustParticles::Init(Vec3_004742c0* p, Vec3_004742c0* q, int a, int b)
 // FUNCTION: 0x4743a0
 void ThrustParticles::Emit()
 {
-    int extra = deadline - g_game->gameTick + 1;
+    int extra = deadline - g_game->ticks + 1;
     if (extra > 0) {
         items.reserve(extra + items.size());
     }
@@ -1942,12 +1889,12 @@ void ThrustParticles::Emit()
         rec.pos0 = *p;
         rec.pos1 = pos1;
         rec.pos2 = pos2;
-        rec.bitmask = g_game->bits_147f3;
-        rec.frameCount = (int)GetGafFrameCount(g_game->flameStreamSeq) - 1;
+        rec.bitmask = (unsigned short *)g_game->unknown_147f3;
+        rec.frameCount = (int)GetGafFrameCount(g_game->unknown_147f3) - 1;
         rec.frame = 0;
         ((Class_00475bd0*)v)->insert(v->end(), 1, rec);
     }
-    time = g_game->gameTick + 1;
+    time = g_game->ticks + 1;
 }
 
 // Moves by the velocity, then every `period` ticks steps a value that wraps
@@ -2033,7 +1980,7 @@ void WakeParticles::Init(Vec3_00474760* a, Vec3_00474760* b, int newPeriod,
 // FUNCTION: 0x474880
 void WakeParticles::Emit()
 {
-    int grow = deadline - g_game->gameTick + 1;
+    int grow = deadline - g_game->ticks + 1;
 
     if (grow > 0)
         items.reserve(grow + items.size());
@@ -2045,14 +1992,14 @@ void WakeParticles::Emit()
 
         e.tick = 0;
         e.period = period;
-        e.endTime = g_game->gameTick + period * 6;
+        e.endTime = g_game->ticks + period * 6;
         e.pos = pos_a;
         e.pos.xp.hi += (int)((__int64)HarnessViewRand() * 7 / 0x8000) - 3;
         e.pos.yp.hi += (int)((__int64)HarnessViewRand() * 7 / 0x8000) - 3;
         e.pos.zp.hi += (int)((__int64)HarnessViewRand() * 7 / 0x8000) - 3;
         e.pos2 = pos_b;
         e.vel = dir;
-        e.data = g_game->smoke1;
+        e.data = g_game->unknown_147cf;
         e.min = 0x61;
         e.max = 0x67;
         if (ascending) {
@@ -2066,7 +2013,7 @@ void WakeParticles::Emit()
         v->insert(v->last, 1, e);
     } while (--i);
 
-    time = g_game->gameTick + 1;
+    time = g_game->ticks + 1;
 }
 
 // Drifts the puff by the game's per-tick counts (x, z by the wind times 8, y
@@ -2076,7 +2023,7 @@ void WakeParticles::Emit()
 // FUNCTION: 0x474b00
 void SmokeParticle::Step()
 {
-    pos.x += g_game->windVelX * 8;
+    pos.x += g_game->windX * 8;
     pos.y += g_game->gravity * 4;
     pos.z += g_game->windZ * 8;
     if (--timer == 0) {
@@ -2109,9 +2056,9 @@ void SmokeParticles::Init(Vec3_00474d50* p, int limit, int a, int b, int c,
     emitPeriod = a;
     altAnimation = alt;
     if (alt)
-        maxFrame = GetGafFrameCount(g_game->smoke2) - 1;
+        maxFrame = GetGafFrameCount(g_game->unknown_147d3) - 1;
     else
-        maxFrame = GetGafFrameCount(g_game->smoke1) - 1;
+        maxFrame = GetGafFrameCount(g_game->unknown_147cf) - 1;
     if (limit != 0)
         maxFrame = limit < maxFrame ? limit : maxFrame;
     if (b != 0)
@@ -2128,7 +2075,7 @@ void SmokeParticles::Init(Vec3_00474d50* p, int limit, int a, int b, int c,
 // FUNCTION: 0x474df0
 void SmokeParticles::Emit()
 {
-    int periods = (deadline - g_game->gameTick + emitPeriod) / emitPeriod;
+    int periods = (deadline - g_game->ticks + emitPeriod) / emitPeriod;
     if (periods > 0) {
         records.reserve(periods + records.size());
     }
@@ -2139,12 +2086,12 @@ void SmokeParticles::Emit()
         rec.pos = *p;
         rec.period = holdPeriod;
         rec.timer = holdPeriod;
-        rec.data = altAnimation ? g_game->smoke2 : g_game->smoke1;
+        rec.data = altAnimation ? g_game->unknown_147d3 : g_game->unknown_147cf;
         rec.limit = (int)(((__int64)HarnessViewRand() * (maxFrame - 2)) / 0x8000) + 2;
         rec.count = 0;
         ((Class_00476210*)v)->insert(v->end(), 1, rec);
     }
-    time = g_game->gameTick + emitPeriod;
+    time = g_game->ticks + emitPeriod;
 }
 
 // Slot 3: true once there are no particles and the game time has passed the
@@ -2158,7 +2105,7 @@ int SmokeParticles::IsFinished()
 
     bool isZero = (count == 0);
     if (isZero) {
-        if ((unsigned int)deadline < (unsigned int)g_game->gameTick) {
+        if ((unsigned int)deadline < (unsigned int)g_game->ticks) {
             return 1;
         }
     }
@@ -2174,7 +2121,7 @@ int SmokeParticles::IsFinished()
 // FUNCTION: 0x474fc0
 void TimedSubParticle::Step()
 {
-    pos.x += g_game->windVelX * 8;
+    pos.x += g_game->windX * 8;
     pos.y += g_game->gravity * 16;
     pos.z += g_game->windZ * 8;
     if (--timer == 0) {
@@ -2212,7 +2159,7 @@ void TimedSubParticles::Init(Vec3_00475150* p, int a, int b, int c)
     SetLifetime(c);
     pos = *p;
     emitPeriod = a;
-    maxFrame = GetGafFrameCount(g_game->smoke1) - 1;
+    maxFrame = GetGafFrameCount(g_game->unknown_147cf) - 1;
     if (b != 0)
         holdPeriod = b;
     else
@@ -2226,7 +2173,7 @@ void TimedSubParticles::Init(Vec3_00475150* p, int a, int b, int c)
 // FUNCTION: 0x4751c0
 void TimedSubParticles::Emit()
 {
-    int missed = (deadline - g_game->gameTick + emitPeriod) / emitPeriod;
+    int missed = (deadline - g_game->ticks + emitPeriod) / emitPeriod;
     if (missed > 0)
         records.reserve(records.size() + missed);
     // The two pointers have to be locals: the original hoists both addresses
@@ -2241,12 +2188,12 @@ void TimedSubParticles::Emit()
         rec.pos = *p;
         rec.period = holdPeriod;
         rec.timer = holdPeriod;
-        rec.data = g_game->smoke1;
+        rec.data = g_game->unknown_147cf;
         rec.limit = (int)((__int64)HarnessViewRand() * (maxFrame - 2) / 0x8000) + 2;
         rec.count = 0;
         ((Vec_00476490*)v)->insert(v->end(), 1, &rec);
     } while (--i);
-    time = g_game->gameTick + emitPeriod;
+    time = g_game->ticks + emitPeriod;
 }
 
 // Slot 3: this class always answers 0.
@@ -2268,7 +2215,7 @@ void SmokeParticles::Update()
 {
     std::vector<SmokeParticle>::iterator it = records.begin();
     while (it != records.end()) {
-        it->pos.x += g_game->windVelX * 8;
+        it->pos.x += g_game->windX * 8;
         it->pos.y += g_game->gravity * 4;
         it->pos.z += g_game->windZ * 8;
         if (--it->timer == 0) {
@@ -2290,7 +2237,7 @@ void SmokeParticles::Update()
 // FUNCTION: 0x475440
 int SmokeParticles::IsEmitDue()
 {
-    if (time <= deadline && (unsigned int)time <= (unsigned int)g_game->gameTick) {
+    if (time <= deadline && (unsigned int)time <= (unsigned int)g_game->ticks) {
         return 1;
     }
     return 0;
@@ -2306,7 +2253,7 @@ void TimedSubParticles::Update()
 {
     std::vector<TimedSubParticle>::iterator it = records.begin();
     while (it != records.end()) {
-        it->pos.x += g_game->windVelX * 8;
+        it->pos.x += g_game->windX * 8;
         it->pos.y += g_game->gravity * 16;
         it->pos.z += g_game->windZ * 8;
         if (--it->timer == 0) {
@@ -2379,7 +2326,7 @@ void __stdcall EmitJitteredThrustParticles(Shape_00472ab0* pos, short index)
     s.v[2].hi += (int)((__int64)HarnessViewRand() * 3 / 0x8000) - 1;
     // A statement of its own before the allocation: rand() runs before the g_game load.
     int r = (int)((__int64)HarnessViewRand() * 3 / 0x8000) + 1;
-    Lists_00472330* lists = g_game->lists_00472330;
+    Lists_00472330* lists = (Lists_00472330 *)g_game->lists_38d77;
     ThrustParticles* p = new ThrustParticles;
     if (p) {
         p->Init(&s, &s, 1, r);

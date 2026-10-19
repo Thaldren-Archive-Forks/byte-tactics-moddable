@@ -46,36 +46,13 @@ struct ByteMap_00475470 {
 #pragma pack(push, 1)
 // The header's type, kept local: its explored pointer cannot spell the
 // ByteMap this fog test needs.
-struct Player {
+struct PlayerView {
     char unknown_0[0x7c];
     ByteMap_00475470 explored;         // +0x7c
     char unknown_88[0x14b - 0x88];
 };
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];       // +0x1b63
-    char unknown_2851[0x2a43 - 0x2851];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x14263 - 0x2a44];
-    int gravity;                       // +0x14263
-    char unknown_14267[0x14273 - 0x14267];
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_14277[0x14281 - 0x14277];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_14283[0x1431f - 0x14283];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x147cf - 0x14327];
-    void* smoke1;                      // +0x147cf, the smoke animation
-    void* smoke2;                      // +0x147d3, the other smoke animation
-    char unknown_147d7[0x37ecc - 0x147d7];
-    int windVelX;                      // +0x37ecc
-    char unknown_37ed0[4];
-    int windZ;                         // +0x37ed4
-    char unknown_37ed8[0x38a47 - 0x37ed8];
-    int gameTick;                      // +0x38a47
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -84,7 +61,7 @@ int __stdcall GetGafFrameCount(void* ptr);
 void* __stdcall GetGafFrame(void* a, int b);
 void __stdcall DrawFrameBlended(void* dest, void* src, int x, int y);
 
-static inline int IsExplored(Player* map, Position_00475470* pos)
+static inline int IsExplored(PlayerView* map, Position_00475470* pos)
 {
     int tx = pos->x >> 5;
     int ty = (pos->z - (pos->y >> 1)) >> 5;
@@ -94,7 +71,7 @@ static inline int IsExplored(Player* map, Position_00475470* pos)
 }
 
 // The body of the matched 0x408090.
-static inline int IsSeen(Player* map, Position_00475470* pos)
+static inline int IsSeen(PlayerView* map, Position_00475470* pos)
 {
     int tx = pos->x >> 5;
     int ty = (pos->z - (pos->y >> 1)) >> 5;
@@ -108,7 +85,7 @@ static inline int IsSeen(Player* map, Position_00475470* pos)
             (1 << g_game->playerIndex)) != 0;
 }
 
-static inline int IsVisible(Player* map, Position_00475470* pos)
+static inline int IsVisible(PlayerView* map, Position_00475470* pos)
 {
     if ((g_game->mapFlags & 2) == 2)
         return IsExplored(map, pos);
@@ -135,7 +112,7 @@ struct SmokeParticle {
     {
         short sx = posw.x - px + 0x80;
         short sy = posw.z - (posw.y >> 1) - py + 0x20;
-        if (IsVisible(&g_game->players[g_game->playerIndex], &posw))
+        if (IsVisible(&((PlayerView*)g_game->players)[g_game->playerIndex], &posw))
             DrawFrameBlended(dest, GetGafFrame(data, count), sx, sy);
     }
 };
