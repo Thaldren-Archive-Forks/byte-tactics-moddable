@@ -60,6 +60,7 @@ struct MusicFlags_0042f9a0 {
 
 #include "../sound/sound.h"
 #include "../../interfaces/seams.h"
+#include "../host/settings_io.h"
 
 #pragma pack(pop)
 
@@ -67,12 +68,6 @@ extern Game* g_game;
 extern char g_onlineLobbyPlayerName[];
 extern char g_cmdlineHostGameName[];
 
-int __stdcall ReadRegistryDword(void* section, void* key, void* value);
-int __stdcall ReadRegistryData(void* section, void* key, void* buf, void* size);
-void __stdcall WriteRegistryString(void* section, void* key, void* value);
-void __stdcall WriteRegistryDword(void* section, void* key, int value);
-int __stdcall ReadRegistryValue(const char* app, const char* key, void* buf, unsigned int* size);
-void __stdcall WriteRegistryBinary(void* subKey, void* valueName, void* data, int unused);
 int __stdcall GetWindowsUserName(void* buf);
 int __cdecl IsOnlineConfigLoaded();
 void __cdecl ProtectBlockReadWrite(void* p);
@@ -86,7 +81,7 @@ void __stdcall SaveTrackSettings(unsigned char* tracks)
 
     for (i = 0; i < 10; i++) {
         sprintf(name, "track%d", i);
-        WriteRegistryDword((void*)"Total Annihilation", name, tracks[i]);
+        SettingSetInt((void*)"Total Annihilation", name, tracks[i]);
     }
 }
 
@@ -95,14 +90,14 @@ void __stdcall SaveTrackSettings(unsigned char* tracks)
 // FUNCTION: 0x42f960
 void __stdcall WriteGameRegistryValue(void* key, void* buf, int value)
 {
-    WriteRegistryBinary((void*)"Total Annihilation", key, buf, value);
+    SettingSetBlob((void*)"Total Annihilation", key, buf, value);
 }
 
 // Reads a value from the game's registry key (see ReadRegistryValue/0x4b6880).
 // FUNCTION: 0x42f980
 int __stdcall ReadGameRegistryValue(const char* key, void* buf, unsigned int* size)
 {
-    return ReadRegistryValue("Total Annihilation", key, buf, size);
+    return SettingGetBlob("Total Annihilation", key, buf, size);
 }
 
 // Reads a DWORD under the game key into g_game->*field; a missing value stores
@@ -111,19 +106,19 @@ int __stdcall ReadGameRegistryValue(const char* key, void* buf, unsigned int* si
 // the hoisted zero register.
 static inline void ReadSettingInt(const char* key, int Game::* field, int defaultValue, int& value)
 {
-    int ok = ReadRegistryDword((void*)"Total Annihilation", (void*)key, &value);
+    int ok = SettingGetInt((void*)"Total Annihilation", (void*)key, &value);
     if (ok != 0) {
         g_game->*field = value;
     } else {
         g_game->*field = defaultValue;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)key, g_game->*field);
+        SettingSetInt((void*)"Total Annihilation", (void*)key, g_game->*field);
     }
 }
 
 // Same, but a missing value is not written back.
 static inline void ReadSettingIntOr(const char* key, int Game::* field, int defaultValue, int& value)
 {
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)key, &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)key, &value) != 0) {
         g_game->*field = value;
     } else {
         g_game->*field = defaultValue;
@@ -133,19 +128,19 @@ static inline void ReadSettingIntOr(const char* key, int Game::* field, int defa
 // Same for g_game->options.
 static inline void ReadSettingInt(const char* key, int Options::* field, int defaultValue, int& value)
 {
-    int ok = ReadRegistryDword((void*)"Total Annihilation", (void*)key, &value);
+    int ok = SettingGetInt((void*)"Total Annihilation", (void*)key, &value);
     if (ok != 0) {
         ((Options*)g_game->options)->*field = value;
     } else {
         ((Options*)g_game->options)->*field = defaultValue;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)key, ((Options*)g_game->options)->*field);
+        SettingSetInt((void*)"Total Annihilation", (void*)key, ((Options*)g_game->options)->*field);
     }
 }
 
 // Reads one per-player skirmish value; a missing value is not written back.
 static inline void ReadPlayerSetting(const char* key, int SkirmishPlayer::* field, int defaultValue, int& value, int i)
 {
-    if (ReadRegistryDword((void*)"Total Annihilation\\Skirmish", (void*)key, &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation\\Skirmish", (void*)key, &value) != 0) {
         ((Options*)g_game->options)->players[i].*field = value;
     } else {
         ((Options*)g_game->options)->players[i].*field = defaultValue;
@@ -162,44 +157,44 @@ void LoadSettings()
     char buf[256];
     int i;
 
-    int ok1 = ReadRegistryDword((void*)"Total Annihilation", (void*)"Interface Type", &value);
+    int ok1 = SettingGetInt((void*)"Total Annihilation", (void*)"Interface Type", &value);
     if (ok1 != 0) {
         if (value > 1) value = 1;
         g_game->interfaceType = value;
     } else {
         g_game->interfaceType = 0;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Interface Type", g_game->interfaceType);
+        SettingSetInt((void*)"Total Annihilation", (void*)"Interface Type", g_game->interfaceType);
     }
     ReadSettingInt("DisplaymodeWidth", &Game::width_37f1b, 0x280, value);
     ReadSettingInt("DisplaymodeHeight", &Game::height_37f1f, 0x1e0, value);
     ReadSettingInt("side", &Game::flag_37ef2, 0, value);
-    int ok5 = ReadRegistryDword((void*)"Total Annihilation", (void*)"Difficulty", &value);
+    int ok5 = SettingGetInt((void*)"Total Annihilation", (void*)"Difficulty", &value);
     if (ok5 != 0) {
         g_game->difficulty = value & 0xffff;
     } else {
         g_game->difficulty = 1;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Difficulty", g_game->difficulty);
+        SettingSetInt((void*)"Total Annihilation", (void*)"Difficulty", g_game->difficulty);
     }
-    int ok6 = ReadRegistryDword((void*)"Total Annihilation", (void*)"scrollspeed", &value);
+    int ok6 = SettingGetInt((void*)"Total Annihilation", (void*)"scrollspeed", &value);
     if (ok6 != 0) {
         g_game->scrollSpeed = (unsigned char)value;
     } else {
         g_game->scrollSpeed = 0x20;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"scrollspeed", g_game->scrollSpeed);
+        SettingSetInt((void*)"Total Annihilation", (void*)"scrollspeed", g_game->scrollSpeed);
     }
     ReadSettingInt("SingleCommanderDeath", &Game::singleCommanderDeath, 1, value);
     ReadSettingInt("SingleMapping", &Game::singleMapping, 1, value);
     ReadSettingInt("SingleLineOfSight", &Game::singleLineOfSight, 1, value);
     ReadSettingInt("SingleLOSType", &Game::singleLOSType, 1, value);
     ReadSettingInt("screenchat", &Game::screenchat, 1, value);
-    int ok12 = ReadRegistryDword((void*)"Total Annihilation", (void*)"damagebars", &value);
+    int ok12 = SettingGetInt((void*)"Total Annihilation", (void*)"damagebars", &value);
     if (ok12 != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).damagebars = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).damagebars = 0;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"damagebars", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).damagebars);
+        SettingSetInt((void*)"Total Annihilation", (void*)"damagebars", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).damagebars);
     }
-    int ok13 = ReadRegistryDword((void*)"Total Annihilation", (void*)"Sound Mode", &value);
+    int ok13 = SettingGetInt((void*)"Total Annihilation", (void*)"Sound Mode", &value);
     if (ok13 != 0) {
         if (value == 2) {
             ((Sound*)g_game->field_10)->Enable3D();
@@ -208,75 +203,75 @@ void LoadSettings()
         }
         (*(struct SoundFlags*)&g_game->soundFlags).soundMode = value;
     } else {
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Sound Mode",
+        SettingSetInt((void*)"Total Annihilation", (void*)"Sound Mode",
                      (((Sound*)g_game->field_10)->Is3DEnabled() != 0) + 1);
         (*(struct SoundFlags*)&g_game->soundFlags).soundMode = 1;
     }
-    int ok14 = ReadRegistryDword((void*)"Total Annihilation", (void*)"MixingBuffers", &value);
+    int ok14 = SettingGetInt((void*)"Total Annihilation", (void*)"MixingBuffers", &value);
     if (ok14 != 0) {
         ((Sound*)g_game->field_10)->SetMaxBuffers(value);
     } else {
         ((Sound*)g_game->field_10)->SetMaxBuffers(8);
     }
-    int ok15 = ReadRegistryDword((void*)"Total Annihilation", (void*)"RestoreVolume", &value);
+    int ok15 = SettingGetInt((void*)"Total Annihilation", (void*)"RestoreVolume", &value);
     if (ok15 != 0) {
         (*(struct SoundFlags*)&g_game->soundFlags).restoreVolume = value;
     } else {
         (*(struct SoundFlags*)&g_game->soundFlags).restoreVolume = 0;
     }
     if ((*(struct SoundFlags*)&g_game->soundFlags).restoreVolume) {
-        int ok16 = ReadRegistryDword((void*)"Total Annihilation", (void*)"WaveOutVolume", &value);
+        int ok16 = SettingGetInt((void*)"Total Annihilation", (void*)"WaveOutVolume", &value);
         if (ok16 != 0) {
             ((Sound*)g_game->field_10)->SetWaveVolume(value);
         }
-        int ok17 = ReadRegistryDword((void*)"Total Annihilation", (void*)"CDAudioVolume", &value);
+        int ok17 = SettingGetInt((void*)"Total Annihilation", (void*)"CDAudioVolume", &value);
         if (ok17 != 0) {
             ((Sound*)g_game->field_10)->SetAuxVolume(value, 0);
         }
     }
-    int ok18 = ReadRegistryDword((void*)"Total Annihilation", (void*)"Anti-Alias", &value);
+    int ok18 = SettingGetInt((void*)"Total Annihilation", (void*)"Anti-Alias", &value);
     if (ok18 != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).antiAlias = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).antiAlias = 1;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Anti-Alias", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).antiAlias);
+        SettingSetInt((void*)"Total Annihilation", (void*)"Anti-Alias", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).antiAlias);
     }
-    int ok19 = ReadRegistryDword((void*)"Total Annihilation", (void*)"Shadows", &value);
+    int ok19 = SettingGetInt((void*)"Total Annihilation", (void*)"Shadows", &value);
     if (ok19 != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shadows = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shadows = 1;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Shadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shadows);
+        SettingSetInt((void*)"Total Annihilation", (void*)"Shadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shadows);
     }
-    int ok20 = ReadRegistryDword((void*)"Total Annihilation", (void*)"FeatureShadows", &value);
+    int ok20 = SettingGetInt((void*)"Total Annihilation", (void*)"FeatureShadows", &value);
     if (ok20 != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).featureShadows = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).featureShadows = 1;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"FeatureShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).featureShadows);
+        SettingSetInt((void*)"Total Annihilation", (void*)"FeatureShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).featureShadows);
     }
-    int ok21 = ReadRegistryDword((void*)"Total Annihilation", (void*)"VehicleShadows", &value);
+    int ok21 = SettingGetInt((void*)"Total Annihilation", (void*)"VehicleShadows", &value);
     if (ok21 != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).vehicleShadows = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).vehicleShadows = 1;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"VehicleShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).vehicleShadows);
+        SettingSetInt((void*)"Total Annihilation", (void*)"VehicleShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).vehicleShadows);
     }
-    int ok22 = ReadRegistryDword((void*)"Total Annihilation", (void*)"Shading", &value);
+    int ok22 = SettingGetInt((void*)"Total Annihilation", (void*)"Shading", &value);
     if (ok22 != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shading = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shading = 1;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Shading", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shading);
+        SettingSetInt((void*)"Total Annihilation", (void*)"Shading", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shading);
     }
-    int ok23 = ReadRegistryDword((void*)"Total Annihilation", (void*)"DitheredFog", &value);
+    int ok23 = SettingGetInt((void*)"Total Annihilation", (void*)"DitheredFog", &value);
     if (ok23 != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).ditheredFog = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).ditheredFog = 0;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"DitheredFog", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).ditheredFog);
+        SettingSetInt((void*)"Total Annihilation", (void*)"DitheredFog", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).ditheredFog);
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"Gamma", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"Gamma", &value) != 0) {
         if (value == 10) {
             g_game->brightness = 0xc;
         } else {
@@ -284,16 +279,16 @@ void LoadSettings()
         }
     } else {
         g_game->brightness = 0xc;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Gamma", g_game->brightness);
+        SettingSetInt((void*)"Total Annihilation", (void*)"Gamma", g_game->brightness);
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"SwitchAlt", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"SwitchAlt", &value) != 0) {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).switchAlt = value;
     } else {
         (*(struct Flags_0042f9a0*)&g_game->flags_37f06).switchAlt = 0;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"SwitchAlt", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).switchAlt);
+        SettingSetInt((void*)"Total Annihilation", (void*)"SwitchAlt", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).switchAlt);
     }
     value = 0xb;
-    if (ReadRegistryData((void*)"Total Annihilation", (void*)"Password", g_game->password_2be3_1176a, &value) == 0) {
+    if (SettingGetString((void*)"Total Annihilation", (void*)"Password", g_game->password_2be3_1176a, &value) == 0) {
         g_game->password_2be3_1176a[0] = 0;
     }
     if (IsOnlineConfigLoaded() != 0 && g_onlineLobbyPlayerName[0] != 0) {
@@ -301,7 +296,7 @@ void LoadSettings()
         strncat(g_game->nickname, g_onlineLobbyPlayerName, 0x10);
     } else {
         value = 0x11;
-        if (ReadRegistryData((void*)"Total Annihilation", (void*)"Nickname", g_game->nickname, &value) == 0) {
+        if (SettingGetString((void*)"Total Annihilation", (void*)"Nickname", g_game->nickname, &value) == 0) {
             g_game->nickname[0] = 0;
         }
     }
@@ -310,12 +305,12 @@ void LoadSettings()
         strncat(g_game->gameName_2bc1, g_cmdlineHostGameName, 0x10);
     } else {
         value = 0x11;
-        if (ReadRegistryData((void*)"Total Annihilation", (void*)"Game Name", g_game->gameName_2bc1, &value) == 0) {
+        if (SettingGetString((void*)"Total Annihilation", (void*)"Game Name", g_game->gameName_2bc1, &value) == 0) {
             g_game->gameName_2bc1[0] = 0;
         }
     }
     value = 0x100;
-    if (ReadRegistryData((void*)"Total Annihilation", (void*)"Image Output Directory",
+    if (SettingGetString((void*)"Total Annihilation", (void*)"Image Output Directory",
                      g_game->imageOutputDirectory, &value) == 0) {
         if (GetWindowsUserName(buf) == 0) {
             strcpy(buf, "user_images");
@@ -326,55 +321,55 @@ void LoadSettings()
     ReadSettingIntOr("textlines", &Game::textLines, 10, value);
     ReadSettingIntOr("textscroll", &Game::textScroll, 10, value);
     ReadSettingIntOr("mousespeed", &Game::mousespeed, 10, value);
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"gamespeed", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"gamespeed", &value) != 0) {
         g_game->gameSpeed = (unsigned short)value;
     } else {
         g_game->gameSpeed = 10;
     }
     g_game->effectiveGameSpeed = (short)(g_game->gameSpeed);
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"unitchat", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"unitchat", &value) != 0) {
         g_game->unitChat = (unsigned char)value;
     } else {
         g_game->unitChat = 10;
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"unitchattext", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"unitchattext", &value) != 0) {
         g_game->unitChatText = (unsigned char)value;
     } else {
         g_game->unitChatText = 5;
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"musicmode", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"musicmode", &value) != 0) {
         (*(struct MusicFlags_0042f9a0*)&g_game->flags_37f14_37f14).musicmode = value;
     } else {
         (*(struct MusicFlags_0042f9a0*)&g_game->flags_37f14_37f14).musicmode = 1;
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"cdmode", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"cdmode", &value) != 0) {
         g_game->cdMode = (unsigned char)value;
     } else {
         g_game->cdMode = 4;
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"ackfx", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"ackfx", &value) != 0) {
         (*(struct SoundFlags*)&g_game->soundFlags).ackfx = value;
     } else {
         (*(struct SoundFlags*)&g_game->soundFlags).ackfx = 1;
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"buildfx", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"buildfx", &value) != 0) {
         (*(struct SoundFlags*)&g_game->soundFlags).buildfx = value;
     } else {
         (*(struct SoundFlags*)&g_game->soundFlags).buildfx = 1;
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"speechfx", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"speechfx", &value) != 0) {
         (*(struct SoundFlags*)&g_game->soundFlags).speechfx = value;
     } else {
         (*(struct SoundFlags*)&g_game->soundFlags).speechfx = 1;
     }
     ReadSettingIntOr("fxvol", &Game::volume1, 0x1b, value);
     ReadSettingIntOr("musicvol", &Game::volume2, 0x20, value);
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"clock", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"clock", &value) != 0) {
         g_game->uiOptionFlags_37f2f.clock = value;
     } else {
         g_game->uiOptionFlags_37f2f.clock = 0;
     }
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"NumSkirmishPlayers", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"NumSkirmishPlayers", &value) != 0) {
         if (value > 1 && value <= 10) {
             g_game->playerCount = value;
         } else {
@@ -391,23 +386,23 @@ void LoadSettings()
     ReadSettingInt("SkirmishMapping", &Options::skirmishMapping, 1, value);
     ReadSettingInt("SkirmishLineOfSight", &Options::skirmishLineOfSight, 1, value);
     ReadSettingInt("SkirmishLOSType", &Options::skirmishLOSType, 1, value);
-    if (ReadRegistryDword((void*)"Total Annihilation", (void*)"SkirmishDifficulty", &value) != 0) {
+    if (SettingGetInt((void*)"Total Annihilation", (void*)"SkirmishDifficulty", &value) != 0) {
         ((Options*)g_game->options)->skirmishDifficulty = value & 0xffff;
     } else {
         ((Options*)g_game->options)->skirmishDifficulty = 1;
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"SkirmishDifficulty",
+        SettingSetInt((void*)"Total Annihilation", (void*)"SkirmishDifficulty",
                      ((Options*)g_game->options)->skirmishDifficulty);
     }
     ReadSettingInt("SkirmishLocation", &Options::fixedLocations, 1, value);
     value = 0x100;
-    if (ReadRegistryData((void*)"Total Annihilation", (void*)"SkirmishMap",
+    if (SettingGetString((void*)"Total Annihilation", (void*)"SkirmishMap",
                      ((Options*)g_game->options)->skirmishMap, &value) == 0) {
         g_seams.map->SetMissionType(2);
         g_seams.map->RefreshMapList(g_game->net, 0, 0);
         strncpy(((Options*)g_game->options)->skirmishMap,
                 g_seams.map->GetMissionName(g_game->net), 0x100);
         g_seams.map->SetMissionType(0);
-        WriteRegistryString((void*)"Total Annihilation", (void*)"SkirmishMap", ((Options*)g_game->options)->skirmishMap);
+        SettingSetString((void*)"Total Annihilation", (void*)"SkirmishMap", ((Options*)g_game->options)->skirmishMap);
     }
     for (i = 0; i < g_game->playerCount; i++) {
         wsprintfA(name, "Player%dController", i);
@@ -423,18 +418,18 @@ void LoadSettings()
         wsprintfA(name, "Player%dEnergy", i);
         ReadPlayerSetting(name, &SkirmishPlayer::energy, 1000, value, i);
     }
-    int ok26 = ReadRegistryDword((void*)"Total Annihilation", (void*)"PlayMovie", &value);
+    int ok26 = SettingGetInt((void*)"Total Annihilation", (void*)"PlayMovie", &value);
     if (ok26 != 0) {
         g_game->playMovie = value;
     } else {
         g_game->playMovie = 1;
     }
-    int ok27 = ReadRegistryDword((void*)"Total Annihilation", (void*)"DisplaymodeDepth", &value);
+    int ok27 = SettingGetInt((void*)"Total Annihilation", (void*)"DisplaymodeDepth", &value);
     if (ok27 == 0) {
         value = 0;
     }
     if (value == 0x100) {
-        int ok28 = ReadRegistryDword((void*)"Total Annihilation", (void*)"Games", &value);
+        int ok28 = SettingGetInt((void*)"Total Annihilation", (void*)"Games", &value);
         if (ok28 == 0) value=0;
         if (value == 1) g_game->uiOptionFlags_37f2f.bit1=1;
         else g_game->uiOptionFlags_37f2f.bit1=0;
@@ -443,7 +438,7 @@ label_430e7f:
     g_game->uiOptionFlags_37f2f.bit2 = 1;
     g_game->uiOptionFlags_37f2f.bit3 = 1;
     g_game->uiOptionFlags_37f2f.bit4 = 0;
-    int ok29 = ReadRegistryDword((void*)"Total Annihilation", (void*)"AllMissions", &value);
+    int ok29 = SettingGetInt((void*)"Total Annihilation", (void*)"AllMissions", &value);
     if (ok29 != 0) {
         g_game->allMissionsFlags.allMissions = value;
         return;
@@ -461,95 +456,95 @@ void SaveSettings()
     char name[32];
     int i;
 
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"Interface Type", g_game->interfaceType);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"DisplaymodeWidth", g_game->width_37f1b);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"DisplaymodeHeight", g_game->height_37f1f);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"side", g_game->flag_37ef2);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"FixedLocations", ((Options*)g_game->options)->fixedLocations);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"scrollspeed", g_game->scrollSpeed);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SingleCommanderDeath", g_game->singleCommanderDeath);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SingleMapping", g_game->singleMapping);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SingleLineOfSight", g_game->singleLineOfSight);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SingleLOSType", g_game->singleLOSType);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"screenchat", g_game->screenchat);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"damagebars", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).damagebars);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"Sound Mode", (*(struct SoundFlags*)&g_game->soundFlags).soundMode);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"RestoreVolume", (*(struct SoundFlags*)&g_game->soundFlags).restoreVolume);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"MixingBuffers",
+    SettingSetInt((void*)"Total Annihilation", (void*)"Interface Type", g_game->interfaceType);
+    SettingSetInt((void*)"Total Annihilation", (void*)"DisplaymodeWidth", g_game->width_37f1b);
+    SettingSetInt((void*)"Total Annihilation", (void*)"DisplaymodeHeight", g_game->height_37f1f);
+    SettingSetInt((void*)"Total Annihilation", (void*)"side", g_game->flag_37ef2);
+    SettingSetInt((void*)"Total Annihilation", (void*)"FixedLocations", ((Options*)g_game->options)->fixedLocations);
+    SettingSetInt((void*)"Total Annihilation", (void*)"scrollspeed", g_game->scrollSpeed);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SingleCommanderDeath", g_game->singleCommanderDeath);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SingleMapping", g_game->singleMapping);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SingleLineOfSight", g_game->singleLineOfSight);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SingleLOSType", g_game->singleLOSType);
+    SettingSetInt((void*)"Total Annihilation", (void*)"screenchat", g_game->screenchat);
+    SettingSetInt((void*)"Total Annihilation", (void*)"damagebars", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).damagebars);
+    SettingSetInt((void*)"Total Annihilation", (void*)"Sound Mode", (*(struct SoundFlags*)&g_game->soundFlags).soundMode);
+    SettingSetInt((void*)"Total Annihilation", (void*)"RestoreVolume", (*(struct SoundFlags*)&g_game->soundFlags).restoreVolume);
+    SettingSetInt((void*)"Total Annihilation", (void*)"MixingBuffers",
                  ((Sound*)g_game->field_10)->GetMaxBuffers());
     if ((*(struct SoundFlags*)&g_game->soundFlags).restoreVolume) {
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"WaveOutVolume",
+        SettingSetInt((void*)"Total Annihilation", (void*)"WaveOutVolume",
                      ((Sound*)g_game->field_10)->QueryWaveVolume());
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"CDAudioVolume",
+        SettingSetInt((void*)"Total Annihilation", (void*)"CDAudioVolume",
                      ((Sound*)g_game->field_10)->QueryAuxVolume());
     }
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"Anti-Alias", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).antiAlias);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"Shadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shadows);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"FeatureShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).featureShadows);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"VehicleShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).vehicleShadows);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"Shading", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shading);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"DitheredFog", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).ditheredFog);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"Difficulty", g_game->difficulty);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"Gamma", g_game->brightness);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SwitchAlt", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).switchAlt);
-    WriteRegistryString((void*)"Total Annihilation", (void*)"Password", g_game->password_2be3_1176a);
-    WriteRegistryString((void*)"Total Annihilation", (void*)"Nickname", g_game->nickname);
-    WriteRegistryString((void*)"Total Annihilation", (void*)"Game Name", g_game->gameName_2bc1);
+    SettingSetInt((void*)"Total Annihilation", (void*)"Anti-Alias", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).antiAlias);
+    SettingSetInt((void*)"Total Annihilation", (void*)"Shadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shadows);
+    SettingSetInt((void*)"Total Annihilation", (void*)"FeatureShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).featureShadows);
+    SettingSetInt((void*)"Total Annihilation", (void*)"VehicleShadows", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).vehicleShadows);
+    SettingSetInt((void*)"Total Annihilation", (void*)"Shading", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).shading);
+    SettingSetInt((void*)"Total Annihilation", (void*)"DitheredFog", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).ditheredFog);
+    SettingSetInt((void*)"Total Annihilation", (void*)"Difficulty", g_game->difficulty);
+    SettingSetInt((void*)"Total Annihilation", (void*)"Gamma", g_game->brightness);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SwitchAlt", (*(struct Flags_0042f9a0*)&g_game->flags_37f06).switchAlt);
+    SettingSetString((void*)"Total Annihilation", (void*)"Password", g_game->password_2be3_1176a);
+    SettingSetString((void*)"Total Annihilation", (void*)"Nickname", g_game->nickname);
+    SettingSetString((void*)"Total Annihilation", (void*)"Game Name", g_game->gameName_2bc1);
     if (g_game->valueSet) {
-        WriteRegistryString((void*)"Total Annihilation", (void*)"Image Output Directory",
+        SettingSetString((void*)"Total Annihilation", (void*)"Image Output Directory",
                      g_game->imageOutputDirectory);
         g_game->valueSet = 0;
     }
     if (g_game->valueSet_38c63) {
-        WriteRegistryDword((void*)"Total Annihilation", (void*)"Movie Output Rate", g_game->movieOutputRate);
+        SettingSetInt((void*)"Total Annihilation", (void*)"Movie Output Rate", g_game->movieOutputRate);
         g_game->valueSet_38c63 = 0;
     }
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"unitchat", g_game->unitChat);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"unitchattext", g_game->unitChatText);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"textlines", g_game->textLines);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"textscroll", g_game->textScroll);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"mousespeed", g_game->mousespeed);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"gamespeed", g_game->gameSpeed);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"clock", g_game->uiOptionFlags_37f2f.clock);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"musicmode", g_game->musicMode & 1);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"cdmode", g_game->cdMode);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"ackfx", (*(struct SoundFlags*)&g_game->soundFlags).ackfx);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"buildfx", (*(struct SoundFlags*)&g_game->soundFlags).buildfx);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"speechfx", (*(struct SoundFlags*)&g_game->soundFlags).speechfx);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"fxvol", g_game->volume1);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"musicvol", g_game->volume2);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"MultiCommanderDeath", g_game->multiCommanderDeath);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"MultiMapping", g_game->multiMapping);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"MultiLineOfSight", g_game->multiLineOfSight);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"MultiLOSType", g_game->multiLOSType);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SkirmishCommanderDeath",
+    SettingSetInt((void*)"Total Annihilation", (void*)"unitchat", g_game->unitChat);
+    SettingSetInt((void*)"Total Annihilation", (void*)"unitchattext", g_game->unitChatText);
+    SettingSetInt((void*)"Total Annihilation", (void*)"textlines", g_game->textLines);
+    SettingSetInt((void*)"Total Annihilation", (void*)"textscroll", g_game->textScroll);
+    SettingSetInt((void*)"Total Annihilation", (void*)"mousespeed", g_game->mousespeed);
+    SettingSetInt((void*)"Total Annihilation", (void*)"gamespeed", g_game->gameSpeed);
+    SettingSetInt((void*)"Total Annihilation", (void*)"clock", g_game->uiOptionFlags_37f2f.clock);
+    SettingSetInt((void*)"Total Annihilation", (void*)"musicmode", g_game->musicMode & 1);
+    SettingSetInt((void*)"Total Annihilation", (void*)"cdmode", g_game->cdMode);
+    SettingSetInt((void*)"Total Annihilation", (void*)"ackfx", (*(struct SoundFlags*)&g_game->soundFlags).ackfx);
+    SettingSetInt((void*)"Total Annihilation", (void*)"buildfx", (*(struct SoundFlags*)&g_game->soundFlags).buildfx);
+    SettingSetInt((void*)"Total Annihilation", (void*)"speechfx", (*(struct SoundFlags*)&g_game->soundFlags).speechfx);
+    SettingSetInt((void*)"Total Annihilation", (void*)"fxvol", g_game->volume1);
+    SettingSetInt((void*)"Total Annihilation", (void*)"musicvol", g_game->volume2);
+    SettingSetInt((void*)"Total Annihilation", (void*)"MultiCommanderDeath", g_game->multiCommanderDeath);
+    SettingSetInt((void*)"Total Annihilation", (void*)"MultiMapping", g_game->multiMapping);
+    SettingSetInt((void*)"Total Annihilation", (void*)"MultiLineOfSight", g_game->multiLineOfSight);
+    SettingSetInt((void*)"Total Annihilation", (void*)"MultiLOSType", g_game->multiLOSType);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SkirmishCommanderDeath",
                  ((Options*)g_game->options)->skirmishCommanderDeath);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SkirmishMapping", ((Options*)g_game->options)->skirmishMapping);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SkirmishLineOfSight",
+    SettingSetInt((void*)"Total Annihilation", (void*)"SkirmishMapping", ((Options*)g_game->options)->skirmishMapping);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SkirmishLineOfSight",
                  ((Options*)g_game->options)->skirmishLineOfSight);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SkirmishLOSType", ((Options*)g_game->options)->skirmishLOSType);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SkirmishLocation", ((Options*)g_game->options)->fixedLocations);
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"SkirmishDifficulty",
+    SettingSetInt((void*)"Total Annihilation", (void*)"SkirmishLOSType", ((Options*)g_game->options)->skirmishLOSType);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SkirmishLocation", ((Options*)g_game->options)->fixedLocations);
+    SettingSetInt((void*)"Total Annihilation", (void*)"SkirmishDifficulty",
                  ((Options*)g_game->options)->skirmishDifficulty);
-    WriteRegistryString((void*)"Total Annihilation", (void*)"SkirmishMap", ((Options*)g_game->options)->skirmishMap);
+    SettingSetString((void*)"Total Annihilation", (void*)"SkirmishMap", ((Options*)g_game->options)->skirmishMap);
     for (i = 0; i < g_game->playerCount; i++) {
         wsprintfA(name, "Player%dController", i);
-        WriteRegistryDword((void*)"Total Annihilation\\Skirmish", name,
+        SettingSetInt((void*)"Total Annihilation\\Skirmish", name,
                      ((Options*)g_game->options)->players[i].controller);
         wsprintfA(name, "Player%dSide", i);
-        WriteRegistryDword((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].side);
+        SettingSetInt((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].side);
         wsprintfA(name, "Player%dColor", i);
-        WriteRegistryDword((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].color);
+        SettingSetInt((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].color);
         wsprintfA(name, "Player%dAllyGroup", i);
-        WriteRegistryDword((void*)"Total Annihilation\\Skirmish", name,
+        SettingSetInt((void*)"Total Annihilation\\Skirmish", name,
                      ((Options*)g_game->options)->players[i].allyGroup);
         wsprintfA(name, "Player%dMetal", i);
-        WriteRegistryDword((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].metal);
+        SettingSetInt((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].metal);
         wsprintfA(name, "Player%dEnergy", i);
-        WriteRegistryDword((void*)"Total Annihilation\\Skirmish", name,
+        SettingSetInt((void*)"Total Annihilation\\Skirmish", name,
                      ((Options*)g_game->options)->players[i].energy);
     }
-    WriteRegistryDword((void*)"Total Annihilation", (void*)"PlayMovie", g_game->playMovie);
+    SettingSetInt((void*)"Total Annihilation", (void*)"PlayMovie", g_game->playMovie);
 }
 
 // Applies the unit-type restrictions listed in the embedded list entry that

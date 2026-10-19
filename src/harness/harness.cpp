@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <float.h>
 #include <time.h>
+#include "../../interfaces/host.h"
 
 #include "../../include/ta_types.h"
 #include "../map/mission.h"
@@ -69,10 +70,8 @@ static int s_quirkTamper = 0;
 
 static void Fail(const char* text)
 {
-    DWORD written;
-    OutputDebugStringA(text);
-    WriteFile(GetStdHandle(STD_ERROR_HANDLE), text, (DWORD)strlen(text), &written, NULL);
-    ExitProcess(2);
+    host_log(text);
+    host_exit(2);
 }
 
 static void FailLine(int lineNo, const char* what, const char* key, const char* detail)
@@ -661,9 +660,8 @@ void HarnessInit(char* cmdLine)
     OpenTrace(cw);
     if (IsMemSet()) {
         char note[96];
-        DWORD noted;
         sprintf(note, "testmode: allocations are filled with 0x%08x\n", (unsigned)GetMemSetValue());
-        WriteFile(GetStdHandle(STD_ERROR_HANDLE), note, (DWORD)strlen(note), &noted, NULL);
+        host_log(note);
     }
 }
 
@@ -706,7 +704,6 @@ void HarnessAfterStep()
     if (!s_testMode || (unsigned)g_game->ticks < s_ticks)
         return;
     char msg[64];
-    DWORD written;
     if (s_trace != NULL)
         fclose(s_trace);
     if (s_dump != NULL)
@@ -714,8 +711,8 @@ void HarnessAfterStep()
     s_trace = NULL;
     s_dump = NULL;
     sprintf(msg, "testmode: reached tick %u\n", s_ticks);
-    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, (DWORD)strlen(msg), &written, NULL);
-    TerminateProcess(GetCurrentProcess(), 0);
+    host_log(msg);
+    host_exit(0);
 }
 
 #include "trace_schema.h"

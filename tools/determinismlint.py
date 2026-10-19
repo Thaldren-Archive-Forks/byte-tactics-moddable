@@ -13,7 +13,7 @@ GAME_LOGIC_DIRS, so a new function is covered before the csv is regenerated.
 Flagged, outside comments and string literals:
 
   * calls to wall-clock time: GetTicks, GetTickCount, timeGetTime, time,
-    QueryPerformanceCounter;
+    QueryPerformanceCounter, host_time_ms, host_time_counter;
   * calls to the presentation random stream, HarnessViewRand;
   * any use of std::unordered_map, unordered_set and their multi variants,
     whose iteration order is unspecified;
@@ -61,7 +61,7 @@ ALLOWLIST: dict[tuple[int, str], str] = {
     (0x453640, "GetTicks"): NET_TIME,
     (0x453c20, "GetTicks"): NET_TIME,
     (0x453d40, "GetTicks"): NET_TIME,
-    (0x4565a0, "GetTickCount"): NET_TIME,
+    (0x4565a0, "host_time_ms"): NET_TIME,
     (0x4624a0, "GetTicks"): NET_TIME,
     (0x462ae0, "GetTicks"): NET_TIME,
     (0x466dc0, "pointer"): ARRAY_BOUND,
@@ -86,7 +86,7 @@ ALLOWLIST: dict[tuple[int, str], str] = {
     (0x48d790, "pointer"): ARRAY_BOUND,
     (0x4917d0, "GetTicks"): LOAD_TIME,
     (0x4948e0, "GetTicks"): UI_TIME,
-    (0x497180, "QueryPerformanceCounter"): LOAD_TIME,
+    (0x497180, "host_time_counter"): LOAD_TIME,
     (0x497180, "time"): LOAD_TIME,
     (0x49be60, "HarnessViewRand"): VIEW_ONLY,
     (0x4a2e40, "GetTicks"): UI_TIME,
@@ -98,10 +98,10 @@ ALLOWLIST: dict[tuple[int, str], str] = {
     (0x4a81e0, "GetTicks"): UI_TIME,
     (0x4a9b90, "GetTicks"): UI_TIME,
     (0x4a9fd0, "GetTicks"): UI_TIME,
-    (0x4b6340, "GetTickCount"): TIMER_LIB,
+    (0x4b6340, "host_time_ms"): TIMER_LIB,
     (0x4b6340, "GetTicks"): TIMER_LIB,
-    (0x4b63f0, "GetTickCount"): TIMER_LIB,
-    (0x4b6560, "GetTickCount"): TIMER_LIB,
+    (0x4b63f0, "host_time_ms"): TIMER_LIB,
+    (0x4b6560, "host_time_ms"): TIMER_LIB,
     (0x4b88d0, "pointer"): ARRAY_BOUND,
     (0x4baff0, "pointer"): ARRAY_BOUND,
     (0x4bff20, "pointer"): ARRAY_BOUND,
@@ -112,7 +112,8 @@ ALLOWLIST: dict[tuple[int, str], str] = {
     (0x4ded60, "time"): TIMER_LIB,
 }
 
-CLOCK_CALLS = ("GetTicks", "GetTickCount", "timeGetTime", "time", "QueryPerformanceCounter")
+CLOCK_CALLS = ("GetTicks", "GetTickCount", "timeGetTime", "time", "QueryPerformanceCounter", "host_time_ms",
+               "host_time_counter")
 VIEW_STREAM_CALLS = ("HarnessViewRand",)
 CALL = re.compile(r"(?<![\w])(" + "|".join(CLOCK_CALLS + VIEW_STREAM_CALLS) + r")\s*\(")
 UNORDERED = re.compile(r"\b(unordered_(?:multi)?(?:map|set))\b")

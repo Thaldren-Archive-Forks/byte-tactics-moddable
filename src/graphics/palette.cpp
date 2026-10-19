@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <ddraw.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 
 // The display context at g_display, as this module sees it: the GDI and
 // DirectDraw palettes, the table buffers at +0xc0 to +0xd0, the flags at
@@ -65,14 +66,14 @@ extern const char g_shadeTableName[];
 static inline LONG Lock()
 {
     while (1) {
-        LONG r = InterlockedExchange(&g_gfxBlitLockHeld, 0x4d41494e);
+        LONG r = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
         if (r == 0) {
             g_gfxBlitLockOwner = 0x4d41494e;
             return 0;
         }
         if (g_gfxBlitLockOwner == 0x4d41494e)
             return r;
-        WaitForSingleObject(g_gfxBlitLockEvent, INFINITE);
+        host_event_wait(g_gfxBlitLockEvent, HOST_WAIT_FOREVER);
     }
 }
 
@@ -80,8 +81,8 @@ static inline void Unlock(LONG held)
 {
     if (held == 0) {
         g_gfxBlitLockOwner = 0;
-        InterlockedExchange(&g_gfxBlitLockHeld, 0);
-        SetEvent(g_gfxBlitLockEvent);
+        host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0);
+        host_event_set(g_gfxBlitLockEvent);
     }
 }
 

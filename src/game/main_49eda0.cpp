@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <malloc.h>
+#include "../../interfaces/host.h"
 
 #pragma pack(push, 1)
 struct Game_0049ee30 {
@@ -240,7 +241,7 @@ int __stdcall ParseCommandLine(char* cmdLine, char* appName)
                 if (!registered) {
                     MessageBeep(MB_ICONHAND);
                     p = Translate("DirectPlay registration failed.");
-                    MessageBoxA(NULL, p, appName, MB_ICONHAND);
+                    host_message(NULL, appName, p, HOST_MESSAGE_ERROR);
                 }
                 return 0;
             }

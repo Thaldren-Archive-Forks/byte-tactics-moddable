@@ -6,9 +6,6 @@
 
 #include "../graphics/rect.h"
 
-int __stdcall AccessRegistryValue(char* subKey, char* valueName, LPBYTE data, LPDWORD size,
-                                  DWORD type, DWORD read);
-
 // Returns 1 when rectangle a lies entirely inside rectangle b.
 // FUNCTION: 0x4b6750
 int __stdcall RectInsideRect(Rect* a, Rect* b)
@@ -72,102 +69,6 @@ void __stdcall SetBytes1To3(unsigned char* buf, unsigned char b2, unsigned char 
     buf[3] = b4;
 }
 
-// Reads a registry value through AccessRegistryValue (see ReadGameRegistryValue).
-// FUNCTION: 0x4b6860
-int __stdcall ReadRegistryValue(const char* app, const char* key, void* buf, unsigned int* size)
-{
-    return AccessRegistryValue((char*)app, (char*)key, (LPBYTE)buf, (LPDWORD)size, 0, 1);
-}
-
-// The read path accepts ERROR_SUCCESS and ERROR_MORE_DATA (0xea).
-// FUNCTION: 0x4b6880
-int __stdcall AccessRegistryValue(char* subKey, char* valueName, LPBYTE data, LPDWORD size,
-                           DWORD type, DWORD read)
-{
-    // Zeroed in this order: HKEYs with `= 0`, result by a later statement.
-    int result;
-    HKEY key1 = 0;
-    HKEY key2 = 0;
-    HKEY key3 = 0;
-    REGSAM samDesired = read ? KEY_READ : KEY_WRITE;
-    int doRead = read;
-    // lpdwDisposition for the three calls. Left uninitialised on purpose: the
-    // key is never read back, and initialising it costs a store (301 bytes).
-    DWORD disp;
-    // Call results go through a LONG before the compare.
-    LONG err;
-    result = 0;
-    err = RegCreateKeyExA(HKEY_CURRENT_USER, "Software", 0, 0, 0, samDesired, 0,
-                          &key1, &disp);
-    if (err != 0)
-        goto close;
-    err = RegCreateKeyExA(key1, "Cavedog Entertainment", 0, 0, 0, samDesired, 0,
-                          &key2, &disp);
-    if (err != 0)
-        goto close;
-    err = RegCreateKeyExA(key2, subKey, 0, 0, 0, samDesired, 0, &key3, &disp);
-    if (err != 0)
-        goto close;
-    if (doRead) {
-        err = RegQueryValueExA(key3, valueName, 0, 0, data, size);
-        if (err != 0 && err != ERROR_MORE_DATA)
-            goto close;
-    } else {
-        err = RegSetValueExA(key3, valueName, 0, type, data, *size);
-        if (err != 0)
-            goto close;
-    }
-    result = 1;
-close:
-    if (key3 != 0) {
-        RegCloseKey(key3);
-    }
-    if (key2 != 0) {
-        RegCloseKey(key2);
-    }
-    if (key1 != 0) {
-        RegCloseKey(key1);
-    }
-    return result;
-}
-
-// FUNCTION: 0x4b69b0
-int __stdcall ReadRegistryData(void* subKey, void* valueName, void* data, void* size)
-{
-    return AccessRegistryValue((char*)subKey, (char*)valueName, (LPBYTE)data, (LPDWORD)size, 0, 1);
-}
-
-// Reads a 4-byte value through AccessRegistryValue (same family as 0x4b69b0).
-// FUNCTION: 0x4b69d0
-int __stdcall ReadRegistryDword(void* subKey, void* valueName, void* value)
-{
-    int size = 4;
-    return AccessRegistryValue((char*)subKey, (char*)valueName, (LPBYTE)value, (LPDWORD)&size, 0, 1);
-}
-
-// FUNCTION: 0x4b6a00
-void __stdcall WriteRegistryBinary(void* subKey, void* valueName, void* data, int unused)
-{
-    AccessRegistryValue((char*)subKey, (char*)valueName, (LPBYTE)data, (LPDWORD)&unused, 3, 0);
-}
-
-// Stores a string value (type 1) through AccessRegistryValue, passing its length
-// including the terminator.
-// FUNCTION: 0x4b6a20
-void __stdcall WriteRegistryString(void* subKey, void* valueName, char* value)
-{
-    unsigned int size = strlen(value) + 1;
-    AccessRegistryValue((char*)subKey, (char*)valueName, (LPBYTE)value, (LPDWORD)&size, 1, 0);
-}
-
-// Stores a DWORD value (type 4) through AccessRegistryValue, compare 0x4b6a20.
-// FUNCTION: 0x4b6a50
-void __stdcall WriteRegistryDword(char* key, char* name, int value)
-{
-    unsigned int size = 4;
-    AccessRegistryValue(key, name, (LPBYTE)&value, (LPDWORD)&size, 4, 0);
-}
-
 // FUNCTION: 0x4b6a80
 int __stdcall GetWindowsUserName(char* out)
 {
@@ -211,24 +112,6 @@ char* __stdcall SkipTextLines(char* text, int n)
         }
     }
     return text + i;
-}
-
-extern unsigned int __cdecl _beginthread(void* start, unsigned int stack, void* param);
-
-// FUNCTION: 0x4b6b20
-int __stdcall StartThread(void* start, unsigned int stack, void* param)
-{
-    unsigned int result = _beginthread(start, stack, param);
-    if (result != (unsigned int)-1) {
-        return 1;
-    }
-    return 0;
-}
-
-// FUNCTION: 0x4b6b50
-void __stdcall SleepMilliseconds(unsigned int milliseconds)
-{
-    Sleep(milliseconds);
 }
 
 extern void* g_display;
