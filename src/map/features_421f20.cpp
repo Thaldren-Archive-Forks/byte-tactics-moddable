@@ -36,26 +36,8 @@ struct List_00421f20 {
     NameEntry_00421f20* entries;       // +0x20
 };
 
-struct AnimManager_00421f20 {
-    char unknown_0[0x10];
-    AnimEntry_00421f20* anim;          // +0x10
-    FeatureUnit_00421f20* featureUnit; // +0x14
-    int activeHead;                    // +0x18
-    int idleHead;                      // +0x1c
-    int freeHead;                      // +0x20
-    char unknown_24[0x58 - 0x24];
-    int nameCount;                     // +0x58
-    char unknown_5c[0x74 - 0x5c];
-    char (*names)[0x100];              // +0x74
-};
-
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x141fb];
-    AnimManager_00421f20 anim;         // +0x141fb
-    char unknown_14273[0x1439b - 0x14273];
-    int unitDefs;                      // +0x1439b
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -85,7 +67,7 @@ void __stdcall InitFeatureAnimPool(List_00421f20* list)
     m->featureUnit->flags_110 |= 0x20000000;
     m->featureUnit->unitDefIndex = 0;
     m->featureUnit->flags_114 |= 1;
-    m->featureUnit->def = g_game->unitDefs;
+    m->featureUnit->def = (int)g_game->defs;
     m->names = 0;
     m->nameCount = 0;
 

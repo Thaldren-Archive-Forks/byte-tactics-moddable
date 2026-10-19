@@ -32,14 +32,7 @@ struct UnitSyncPacket { // 0xe bytes
     int value;           // +0xa
 };
 
-struct Game {
-    char unknown_0[0x1b63];
-    PlayerInfo_0046dad0 players[10]; // +0x1b63
-    char unknown_2851[0x1438f - 0x2851];
-    int unitDefCount; // +0x1438f
-    char unknown_14393[0x1439b - 0x14393];
-    UnitDef* unitDefs; // +0x1439b
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 // Inline-budget filler, see the header.
@@ -165,7 +158,7 @@ void UnitSync::ProcessSync() {
             do {
                 int live = 0;
                 for (int i = 0; i < 10; i++) {
-                    PlayerInfo_0046dad0* p = &g_game->players[i];
+                    PlayerInfo_0046dad0* p = &(*(PlayerInfo_0046dad0 (*)[10])&g_game->players)[i];
                     if (p->active != 0 && p->type == 3 && p->data->kind == 1 &&
                         it->id == p->id) {
                         live = 1;
@@ -182,7 +175,7 @@ void UnitSync::ProcessSync() {
         }
 
         for (int i = 0; i < 10; i++) {
-            PlayerInfo_0046dad0* p = &g_game->players[i];
+            PlayerInfo_0046dad0* p = &(*(PlayerInfo_0046dad0 (*)[10])&g_game->players)[i];
             if (p->active != 0 && p->type == 3 && p->data->kind == 1) {
                 int found = 0;
                 for (std::vector<SyncPlayerRecord>::iterator j = players.begin(); j != players.end();
@@ -232,11 +225,11 @@ void UnitSync::ProcessSync() {
     }
 
     if (pendingPlayerCount > 0) {
-        if (checksumProgress < g_game->unitDefCount) {
+        if (checksumProgress < g_game->count_1438f) {
             if (checksumProgress == 0) {
                 if (GetHostDpid() == -1)
                     return;
-                int v = g_game->unitDefCount - 1;
+                int v = g_game->count_1438f - 1;
                 if (disabled == 0) {
                     UnitSyncPacket packet;
                     packet.type = 0x1a;
@@ -258,9 +251,9 @@ void UnitSync::ProcessSync() {
             // when checksumProgress >= unitDefCount.
             for (int n = 0; n < 4;) {
                 Game* game = g_game;
-                if (checksumProgress >= game->unitDefCount)
+                if (checksumProgress >= game->count_1438f)
                     return;
-                UnitDef* def = &game->unitDefs[checksumProgress];
+                UnitDef* def = &game->defs[checksumProgress];
                 ComputeUnitScriptChecksum(def);
                 // y then key, read into locals before the disabled test.
                 int y = def->scriptChecksum;

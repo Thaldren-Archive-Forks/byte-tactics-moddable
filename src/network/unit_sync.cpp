@@ -164,11 +164,6 @@ struct Net_4c97b0 {                     // the object at g_game+0x14
 #include "../units/unit_def.h"
 
 #pragma pack(push, 1)
-struct PlayerEntry_0046d6c0 {           // 0x14b bytes, one slot of g_game's players
-    int id;                             // +0x0, g_game + 0x1b67
-    char unknown_4[0x14b - 4];
-};
-
 // UnitDef::flags1 (+0x241) read as bit fields.
 struct UnitDefFlags_0046e160 {
     unsigned int bits_0 : 23;
@@ -180,24 +175,7 @@ struct UnitDefFlags_0046e160 {
 struct UnitSync;
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14];
-    Net_4c97b0 session;                 // +0x14
-    char unknown_25[0x1b67 - 0x14 - sizeof(Net_4c97b0)];
-    PlayerEntry_0046d6c0 players[10];   // +0x1b67
-    char unknown_283d[0x2a30 - 0x1b67 - sizeof(PlayerEntry_0046d6c0) * 10];
-    UnitSync* sync;                     // +0x2a30
-    char unknown_2a34[0x2a42 - 0x2a30 - sizeof(UnitSync*)];
-    unsigned char localPlayer;          // +0x2a42
-    char unknown_2a43[0x1438f - 0x2a42 - sizeof(unsigned char)];
-    int unitDefCount;                   // +0x1438f
-    char unknown_14393[0x1439b - 0x1438f - sizeof(int)];
-    UnitDef* unitDefs;                  // +0x1439b
-    char unknown_1439f[0x391e9 - 0x1439b - sizeof(UnitDef*)];
-    Mission* mapInfo;                   // +0x391e9
-    char unknown_391ed[0x39201 - 0x391e9 - sizeof(Mission*)];
-    char providerGuid[1];               // +0x39201, the selected service provider's GUID
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -232,11 +210,11 @@ int __stdcall ReportGameEvent(int msg)
     if (!g_onlineReportPlayers || !g_onlineReportScoreBoards || !g_onlineReportScores)
         return 1;
 
-    Rect_0046c620 rect = *GetSessionGuidInstance(&g_game->session);
-    int thing = GetCreatedLobbyInterface(&g_game->session);
+    Rect_0046c620 rect = *GetSessionGuidInstance(&(*(Net_4c97b0*)((char*)g_game + 0x14)));
+    int thing = GetCreatedLobbyInterface(&(*(Net_4c97b0*)((char*)g_game + 0x14)));
 
     if (msg == 1) {
-        g_reportPlayerName = g_game->session.name;
+        g_reportPlayerName = (*(Net_4c97b0*)((char*)g_game + 0x14)).name;
         char* p = g_reportPlayerName.text + 15;
         while (p > g_reportPlayerName.text && *p == ' ')
             *p-- = 0;
@@ -250,8 +228,8 @@ int __stdcall ReportGameEvent(int msg)
         if (g_reportFlags & 3) {
             // its own statement, not an argument: the call has to be emitted
             // ahead of the other nine arguments being set up
-            int team = (int)g_game->mapInfo->GetMissionName();
-            if (RIReport(msg, &rect, (char*)&g_game->providerGuid, thing, &g_reportPlayerName,
+            int team = (int)g_game->net->GetMissionName();
+            if (RIReport(msg, &rect, (char*)&g_game->field_39201, thing, &g_reportPlayerName,
                              team, g_game->localPlayer,
                              id, g_onlineReportPlayers, g_onlineReportScoreBoards))
                 g_hapinetOnlineReport = 0;
@@ -259,8 +237,8 @@ int __stdcall ReportGameEvent(int msg)
     }
 
     if (g_reporterDll) {
-        int team = (int)g_game->mapInfo->GetMissionName();
-        g_riReport(msg, &rect, (char*)&g_game->providerGuid, thing, &g_reportPlayerName,
+        int team = (int)g_game->net->GetMissionName();
+        g_riReport(msg, &rect, (char*)&g_game->field_39201, thing, &g_reportPlayerName,
                      team, g_game->localPlayer,
                      id, g_onlineReportPlayers, g_onlineReportScoreBoards);
     }
@@ -624,7 +602,7 @@ public:
 
 static inline UnitDef* Defs_0046d040()
 {
-    return g_game->unitDefs;
+    return g_game->defs;
 }
 
 // The flag expression in its own small inline helper.
@@ -656,7 +634,7 @@ public:
 // FUNCTION: 0x46c8e0
 void __stdcall CreateUnitSync(int param_1)
 {
-    g_game->sync = new UnitSync(param_1);
+    (*(UnitSync **)&g_game->field_2a30) = new UnitSync(param_1);
 }
 
 // Releases the overlay object at g_game+0x2a30 (UnitSync, built by 0x46c8e0
@@ -666,9 +644,9 @@ void __stdcall CreateUnitSync(int param_1)
 // __fastcall: keeps the erase loop comparing the iterator slot directly.
 void __fastcall DeleteUnitSync()
 {
-    if (g_game->sync)
-        delete (UnitSyncDel_0046c920*)g_game->sync;
-    g_game->sync = 0;
+    if ((UnitSync *)g_game->field_2a30)
+        delete (UnitSyncDel_0046c920*)(UnitSync *)g_game->field_2a30;
+    (*(UnitSync **)&g_game->field_2a30) = 0;
 }
 
 // --- PacketSequencer ---------------------------------------------------------
@@ -812,13 +790,13 @@ UnitSync::UnitSync(int param)
     sub2.checksumProgress = 0;
     {
         UnitSyncEntry v;
-        for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
-            unsigned int key = g_game->unitDefs[i].fbiChecksum;
+        for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+            unsigned int key = g_game->defs[i].fbiChecksum;
             v.x = key;
             v.y = 0;
             v.w = 1;
             v.h = (short)sub2.direct;
-            v.limit = FlagOf_0046d040(&g_game->unitDefs[i]) ? 0 : -1;
+            v.limit = FlagOf_0046d040(&g_game->defs[i]) ? 0 : -1;
             map[key] = v;
         }
     }
@@ -829,13 +807,13 @@ UnitSync::UnitSync(int param)
 void UnitSync::ResetEntries()
 {
     UnitSyncEntry v;
-    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
-        v.x = g_game->unitDefs[i].fbiChecksum;
+    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+        v.x = g_game->defs[i].fbiChecksum;
         // Dead store that must stay: the uninitialised slot is what the insert copies.
         v.y = 0;
         v.w = 1;
         v.h = (short)direct;
-        v.limit = FlagOf_0046d040(&g_game->unitDefs[i]) ? 0 : -1;
+        v.limit = FlagOf_0046d040(&g_game->defs[i]) ? 0 : -1;
         ((std::map<unsigned int, UnitSyncEntry>&)map)[v.x] = v;
     }
 }
@@ -954,7 +932,7 @@ void UnitSync::HandleSyncPacket(UnitSyncPacket* packet, unsigned char player)
     if (direct != 0) {
         std::vector<PlayerSync_0046e0b0>::iterator i = players.begin();
         if (i != players.end()) {
-            unsigned int id = g_game->players[player].id;
+            unsigned int id = g_game->players_1b67[player].id;
             for (; i != players.end(); i++) {
                 if (i->id == id) {
                     break;
@@ -1073,9 +1051,9 @@ void UnitSync::CheckUnitAvailable(unsigned int key, int y)
     int h = 1;
     if (y != 0) {
         if (it.ptr->value.y == 0) {
-            int n = g_game->unitDefCount;
+            int n = g_game->count_1438f;
             for (int i = 1; i < n; i++) {
-                UnitDef* def = &g_game->unitDefs[i];
+                UnitDef* def = &g_game->defs[i];
                 if (def->fbiChecksum == key) {
                     ComputeUnitScriptChecksum(def);
                     it.ptr->value.y = def->scriptChecksum;
@@ -1225,8 +1203,8 @@ void UnitSync::ApplyToUnitTypes()
 {
     if (disabled != 0)
         return;
-    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
-        UnitDef* def = &g_game->unitDefs[i];
+    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+        UnitDef* def = &g_game->defs[i];
         UnitSyncIter it = Find(&def->fbiChecksum);
         if (it == End()) {
             ProtectUnitDefsReadWrite();

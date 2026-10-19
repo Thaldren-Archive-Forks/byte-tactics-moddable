@@ -30,7 +30,7 @@ struct Pos {
     short y;
 };
 
-struct Point {
+struct PointS16 {
     short x;
     short y;
 };
@@ -72,20 +72,11 @@ struct FogCell {
 };
 
 // Typed cells: grid.h's byte pointer would need a cast at every use.
-struct Grid {
+struct FogGrid {
     FogCell* cells;                    // +0x0
     unsigned int width;                // +0x4
     unsigned int height;               // +0x8
     int count;                         // +0xc
-};
-
-struct Grid2 {
-    FogCell* cells;                    // +0x0
-    unsigned int width;                // +0x4
-    unsigned int height;               // +0x8
-    int count;                         // +0xc
-    int widthFixed;                    // +0x10
-    int heightFixed;                   // +0x14
 };
 
 // A 10-byte cell of the second fog grid.
@@ -98,7 +89,7 @@ struct Rec {
 };
 
 // The explored-terrain grid of one player (at +0x7c).
-struct PlayerGrid {
+struct PlayerGridView {
     unsigned char* cells;              // +0x0
     unsigned int width;                // +0x4
     unsigned int height;               // +0x8
@@ -220,7 +211,7 @@ void __stdcall CollectVisibleUnitIds();
 
 union Slot {
     int n;
-    Point p;
+    PointS16 p;
 };
 
 class Mission;
@@ -237,67 +228,7 @@ struct Flags_004848e0 {
     unsigned short switchAlt : 1;
 };
 
-struct Game {
-    char unknown_0[0xdcb];
-    unsigned char colors[16];          // +0xdcb
-    char unknown_ddb[0x1b63 - 0xddb];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x2a43 - 0x2851];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x141fb - 0x2a44];
-    int* sortUnitList;                 // +0x141fb
-    int* sortIndices;                  // +0x141ff
-    int* sortLineCount;                // +0x14203
-    char unknown_14207[0x1421f - 0x14207];
-    Grid* grid;                        // +0x1421f
-    int mapWidthWorld;                 // +0x14223, map size in x
-    int mapHeightWorld;                // +0x14227, map size in y
-    int mapPixelWidth;                 // +0x1422b
-    int mapPixelHeight;                // +0x1422f
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x1426b - 0x1423b];
-    void* radarFrame;                  // +0x1426b
-    char unknown_1426f[0x14273 - 0x1426f];
-    unsigned short* visibilityMask;    // +0x14273
-    int count;                         // +0x14277
-    Eye* eyes;                         // +0x1427b
-    unsigned char seaLevel;            // +0x1427f
-    unsigned char debugMode;
-    Flags_14281 mapFlags;              // +0x14281
-    IconSet* iconSet;                  // +0x14283
-    Cell* heightMap;                   // +0x14287
-    unsigned short* mapValues;         // +0x1428b
-    Grid losHalfResHeightBand;         // +0x1428f
-    Grid2 spatialGrid;                 // +0x1429f
-    Rec* overflowBucket;               // +0x142b7
-    char unknown_142bb[0x142f1 - 0x142bb];
-    Flags_142f1 viewDirtyFlags;        // +0x142f1
-    char unknown_142f3[0x1431f - 0x142f3];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x14357 - 0x14327];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    char unknown_1435f[0x1485b - 0x1435f];
-    FrameTable* losTable;              // +0x1485b
-    void* black1Seq[4];                // +0x1485f
-    void* gray1Seq[4];                 // +0x1486f
-    char unknown_1487f[0x37e27 - 0x1487f];
-    Rect rect;                         // +0x37e27
-    int viewPixelWidth;                // +0x37e37
-    int viewPixelHeight;               // +0x37e3b
-    char unknown_37e3f[0x37f06 - 0x37e3f];
-    Flags_004848e0 visualFlags;        // +0x37f06
-    char unknown_37f08[0x38a47 - 0x37f08];
-    unsigned int gameTick;             // +0x38a47
-    char unknown_38a4b[0x38d6b - 0x38a4b];
-    int pendingSaveStore;              // +0x38d6b
-    char unknown_38d6f;
-    unsigned char loadProgress;        // +0x38d70
-    char unknown_38d71[0x391e9 - 0x38d71];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 
 #pragma pack(pop)
 
@@ -350,7 +281,7 @@ void __stdcall UpdateLineOfSight(SightQuery* params);
 void __stdcall AddLineOfSight(SightQuery* params);
 void __stdcall RemoveLineOfSight(SightQuery* params);
 void __stdcall RevealAroundUnit(SightQuery* params);
-void __stdcall UpdateCellHeightRange(Point pos, Point size);
+void __stdcall UpdateCellHeightRange(PointS16 pos, PointS16 size);
 void UpdateRadarMapped();
 void DrawRadarUnits();
 void BuildFogTiles();
@@ -369,15 +300,15 @@ void __cdecl operator delete(void* p);
 
 // Returns int, not bool: a bool return breaks the fused compare.
 struct Expired {
-    int operator()(const Eye& e) const { return e.expires < g_game->gameTick; }
+    int operator()(const Eye& e) const { return e.expires < (unsigned int)g_game->ticks; }
 };
 
-static inline int SumX(Point a, Point b) { return a.x + b.x; }
-static inline int SumY(Point a, Point b) { return a.y + b.y; }
+static inline int SumX(PointS16 a, PointS16 b) { return a.x + b.x; }
+static inline int SumY(PointS16 a, PointS16 b) { return a.y + b.y; }
 
-static inline Point MakePoint(int x, int y)
+static inline PointS16 MakePoint(int x, int y)
 {
-    Point p;
+    PointS16 p;
     p.x = x;
     p.y = y;
     return p;
@@ -385,8 +316,8 @@ static inline Point MakePoint(int x, int y)
 
 static inline Cell* GetCell(int x, int y)
 {
-    if (x >= 0 && x < g_game->mapWidthTiles && y >= 0 && y < g_game->mapHeightTiles)
-        return &g_game->heightMap[y * g_game->mapWidthTiles + x];
+    if (x >= 0 && x < g_game->width && y >= 0 && y < g_game->height)
+        return &g_game->cells[y * g_game->width + x];
     return 0;
 }
 
@@ -394,8 +325,8 @@ static inline Cell* GetCell(int x, int y)
 // the caller keeps in parallel with the cell row `y`.
 static inline Cell* GetCellPixel(int x, int y, int py)
 {
-    if (x >= 0 && x < g_game->mapWidthTiles && py >= 0 && y < g_game->mapHeightTiles)
-        return &g_game->heightMap[y * g_game->mapWidthTiles + x];
+    if (x >= 0 && x < g_game->width && py >= 0 && y < g_game->height)
+        return &g_game->cells[y * g_game->width + x];
     return 0;
 }
 
@@ -428,22 +359,22 @@ void FreeLosTables()
 // FUNCTION: 0x481500
 void InitEyeballs()
 {
-    g_game->count = 0;
-    g_game->eyes = (Eye*)GameAllocIgnoreTag("EYEBALL MEMORY", 0x2d0);
+    g_game->count_14277 = 0;
+    (*(Eye **)&g_game->eyes) = (Eye*)GameAllocIgnoreTag("EYEBALL MEMORY", 0x2d0);
 }
 
 // FUNCTION: 0x481530
 void FreeEyeballs()
 {
-    int temp = (int)g_game->eyes;
+    int temp = (int)(Eye *)g_game->eyes;
     GameFreeThunk((void*)temp);
 }
 
 // FUNCTION: 0x481550
 Cell* __stdcall GetMapCell(int x, int y)
 {
-    if (x >= 0 && x < g_game->mapWidthTiles && y >= 0 && y < g_game->mapHeightTiles)
-        return &g_game->heightMap[y * g_game->mapWidthTiles + x];
+    if (x >= 0 && x < g_game->width && y >= 0 && y < g_game->height)
+        return &g_game->cells[y * g_game->width + x];
     return 0;
 }
 
@@ -452,8 +383,8 @@ Cell* __stdcall GetMapCellAtPosition(Vec3* pos)
 {
     int x = pos->x >> 20;
     int y = pos->z >> 20;
-    if (x >= 0 && x < g_game->mapWidthTiles && y >= 0 && y < g_game->mapHeightTiles)
-        return &g_game->heightMap[y * g_game->mapWidthTiles + x];
+    if (x >= 0 && x < g_game->width && y >= 0 && y < g_game->height)
+        return &g_game->cells[y * g_game->width + x];
     return 0;
 }
 
@@ -462,17 +393,17 @@ Cell* __stdcall GetOriginCellAtPosition(Vec3* pos)
 {
     int x = pos->x >> 20;
     int z = pos->z >> 20;
-    if (x < 0 || x >= g_game->mapWidthTiles || z < 0 || z >= g_game->mapHeightTiles)
+    if (x < 0 || x >= g_game->width || z < 0 || z >= g_game->height)
         return 0;
-    Cell* cell = &g_game->heightMap[z * g_game->mapWidthTiles + x];
+    Cell* cell = &g_game->cells[z * g_game->width + x];
     if (cell->feature == 0xfffe)
     {
         x -= cell->sf.offsetX;
         z -= cell->sf.offsetY;
-        if (x < 0 || x >= g_game->mapWidthTiles || z < 0 || z >= g_game->mapHeightTiles)
+        if (x < 0 || x >= g_game->width || z < 0 || z >= g_game->height)
             cell = 0;
         else
-            cell = &g_game->heightMap[z * g_game->mapWidthTiles + x];
+            cell = &g_game->cells[z * g_game->width + x];
     }
     return cell;
 }
@@ -498,7 +429,7 @@ void __stdcall RemoveUnitLineOfSight(Unit* unit)
 int __stdcall IsEyeballExpired(Eye* obj)
 {
     unsigned int field_val = obj->expires;
-    unsigned int cmp_val = g_game->gameTick;
+    unsigned int cmp_val = (unsigned int)g_game->ticks;
     return field_val < cmp_val ? 1 : 0;
 }
 
@@ -507,18 +438,18 @@ void ExpireEyeballs()
 {
     // Left uninitialised, as in the original.
     int changed;
-    Eye* p = g_game->eyes;
-    for (int i = 0; i < g_game->count; i++, p++) {
-        if (p->expires < g_game->gameTick) {
+    Eye* p = (Eye *)g_game->eyes;
+    for (int i = 0; i < g_game->count_14277; i++, p++) {
+        if (p->expires < (unsigned int)g_game->ticks) {
             RemoveLineOfSight((SightQuery*)p);
             changed = 1;
         }
     }
     if (!changed)
         return;
-    Eye* end = g_game->eyes + g_game->count;
-    Eye* n = std::remove_if(g_game->eyes, end, Expired());
-    g_game->count = n - g_game->eyes;
+    Eye* end = (Eye *)g_game->eyes + g_game->count_14277;
+    Eye* n = std::remove_if((Eye *)g_game->eyes, end, Expired());
+    g_game->count_14277 = n - (Eye *)g_game->eyes;
 }
 
 // Needed: their symbols are what 0x4825b0's, 0x482830's and 0x483fa0's
@@ -529,7 +460,7 @@ void ExpireEyeballs()
 // FUNCTION: 0x4825b0
 void __stdcall UpdateLineOfSight(SightQuery* params)
 {
-    if ((g_game->mapFlags.raw & 4) == 4) {
+    if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 4) == 4) {
         int x = ((short*)&params->pos.x)[1] >> 5;
         int v = params->eyeHeight + ((short*)&params->pos.y)[1];
         if (v < 0) {
@@ -542,20 +473,20 @@ void __stdcall UpdateLineOfSight(SightQuery* params)
         int diff = abs((int)*params->frameIdx - v);
         unsigned char c = *params->frameIdx;
         if (params->cacheCell[0] != x || params->cacheCell[1] != y || diff > 5) {
-            if (c != 0 && (g_game->mapFlags.raw & 2)) {
+            if (c != 0 && ((*(Flags_14281*)&g_game->mapFlags_14281).raw & 2)) {
                 RemoveLineOfSight(params);
             }
             params->cacheCell[0] = (short)x;
             params->cacheCell[1] = (short)y;
-            if ((unsigned)x >= g_game->losHalfResHeightBand.width || (unsigned)y >= g_game->losHalfResHeightBand.height) {
+            if ((unsigned)x >= g_game->grid1.width || (unsigned)y >= g_game->grid1.height) {
                 *params->frameIdx = 0;
                 return;
             }
             *params->frameIdx = (unsigned char)v;
-            if ((unsigned char)(g_game->mapFlags.raw >> 1) & 1) {
+            if ((unsigned char)((*(Flags_14281*)&g_game->mapFlags_14281).raw >> 1) & 1) {
                 AddLineOfSight(params);
             }
-            if (g_game->mapFlags.raw & 1) {
+            if ((*(Flags_14281*)&g_game->mapFlags_14281).raw & 1) {
                 RevealAroundUnit(params);
             }
         }
@@ -574,7 +505,7 @@ void __stdcall UpdateLineOfSight(SightQuery* params)
         cx -= e->xOffset;
         cy -= e->yOffset;
         if (params->cacheCell[0] != cx || params->cacheCell[1] != cy || *params->frameIdx != i) {
-            if ((g_game->mapFlags.raw & 2) == 2) {
+            if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 2) == 2) {
                 RemoveLineOfSight(params);
                 params->cacheCell[0] = (short)cx;
                 params->cacheCell[1] = (short)cy;
@@ -585,7 +516,7 @@ void __stdcall UpdateLineOfSight(SightQuery* params)
                 params->cacheCell[1] = (short)cy;
                 *params->frameIdx = (unsigned char)i;
             }
-            if (g_game->mapFlags.raw & 1) {
+            if ((*(Flags_14281*)&g_game->mapFlags_14281).raw & 1) {
                 RevealAroundUnit(params);
             }
         }
@@ -612,11 +543,11 @@ void __stdcall UpdateUnitLineOfSight(Unit* unit)
 // FUNCTION: 0x482830
 void __stdcall InitUnitSightCircleReveal(SightQuery* params)
 {
-    if ((g_game->mapFlags.rawByte & 2) != 2) {
+    if (((*(Flags_14281*)&g_game->mapFlags_14281).rawByte & 2) != 2) {
         return;
     }
     *params->frameIdx = 0;
-    if ((g_game->mapFlags.rawByte & 4) == 4) {
+    if (((*(Flags_14281*)&g_game->mapFlags_14281).rawByte & 4) == 4) {
         UpdateLineOfSight(params);
         return;
     }
@@ -645,12 +576,12 @@ void __stdcall InitUnitSightCircleReveal(SightQuery* params)
 void BuildDerivedLayers(void)
 {
     Rec* rec = new (kSim) Rec;
-    g_game->overflowBucket = rec;
-    g_game->overflowBucket->flags = 0x1f;
+    (*(Rec **)&g_game->overflowBucket) = rec;
+    ((Rec *)g_game->overflowBucket)->flags = 0x1f;
 
-    Grid2* grid2 = &g_game->spatialGrid;
-    int b = g_game->mapHeightWorld * 0x10000;
-    int a = g_game->mapWidthWorld * 0x10000;
+    Grid2* grid2 = &g_game->spatialGrid_1429f;
+    int b = g_game->baseY * 0x10000;
+    int a = g_game->baseX * 0x10000;
     grid2->heightFixed = b;
     grid2->widthFixed = a;
     int w2;
@@ -666,7 +597,7 @@ void BuildDerivedLayers(void)
     grid2->cells = count2 != 0 ? (FogCell*)new (kSim) Rec[count2] : 0;
     int outer;
     unsigned char* cells2 = (unsigned char*)grid2->cells;
-    unsigned char* cellp = (unsigned char*)g_game->heightMap;
+    unsigned char* cellp = (unsigned char*)g_game->cells;
     int inner;
     int accum;
 
@@ -685,9 +616,9 @@ void BuildDerivedLayers(void)
         ((unsigned char*)grid2->cells)[d * 10] = g_game->seaLevel;
 
     {
-        for (int y = 0; y < g_game->mapHeightTiles; y++) {
+        for (int y = 0; y < g_game->height; y++) {
             unsigned char* recp = cells2;
-            for (int x = 0; x < g_game->mapWidthTiles; x++, cellp += 0xd) {
+            for (int x = 0; x < g_game->width; x++, cellp += 0xd) {
                 if (cellp[5] > recp[0])
                     recp[0] = cellp[5];
                 if ((x & 7) == 7)
@@ -728,11 +659,11 @@ void BuildDerivedLayers(void)
         p[1] = prev;
     }
 
-    Grid* grid1 = &g_game->losHalfResHeightBand;
+    FogGrid* grid1 = (FogGrid*)&g_game->grid1;
     // Declared apart from the assignments: decides which register each takes.
     int w1, h1;
-    h1 = g_game->mapHeightTiles / 2;
-    w1 = g_game->mapWidthTiles / 2;
+    h1 = g_game->height / 2;
+    w1 = g_game->width / 2;
 
     grid1->width = w1;
     grid1->height = h1;
@@ -745,18 +676,18 @@ void BuildDerivedLayers(void)
         ((unsigned char*)grid1->cells)[hf * 2 + 1] = 0xff;
     }
 
-    for (outer = 0; outer < g_game->mapWidthTiles; outer++) {
+    for (outer = 0; outer < g_game->width; outer++) {
         int t20 = (outer - 1) >> 1;
         int t24 = outer >> 1;
         unsigned char* p1 = 0;
         unsigned char* p2 = 0;
         inner = 0;
         // Guarded do-while: sinks the accum = 0 store below the guard.
-        if (inner < g_game->mapHeightTiles) {
+        if (inner < g_game->height) {
             accum = 0;
             do {
-                int idx = g_game->mapWidthTiles * inner + outer;
-                int cellval = ((unsigned char*)g_game->heightMap)[idx * 0xd + 4];
+                int idx = g_game->width * inner + outer;
+                int cellval = ((unsigned char*)g_game->cells)[idx * 0xd + 4];
                 int v = accum - (cellval >> 1);
                 int block = v >> 5;
                 if (block > -1) {
@@ -797,7 +728,7 @@ void BuildDerivedLayers(void)
                 }
                 inner++;
                 accum += 0x10;
-            } while (inner < g_game->mapHeightTiles);
+            } while (inner < g_game->height);
         }
     }
 
@@ -818,10 +749,10 @@ void BuildDerivedLayers(void)
 }
 
 // FUNCTION: 0x483210
-void __stdcall UpdateCellHeightRange(Point pos, Point size)
+void __stdcall UpdateCellHeightRange(PointS16 pos, PointS16 size)
 {
-    int width = g_game->mapWidthTiles;
-    int height = g_game->mapHeightTiles;
+    int width = g_game->width;
+    int height = g_game->height;
     int xmax = SumX(pos, size);
     int ymax = SumY(pos, size);
     if (pos.x < 0)
@@ -838,7 +769,7 @@ void __stdcall UpdateCellHeightRange(Point pos, Point size)
         return;
     int col, row;
     for (row = pos.y; row < ymax; row++) {
-        Cell* c = &g_game->heightMap[row * width + pos.x];
+        Cell* c = &g_game->cells[row * width + pos.x];
         for (col = pos.x; col < xmax; col++, c++) {
             unsigned char lo = c->height;
             unsigned char hi = c->height;
@@ -872,23 +803,23 @@ void __stdcall UpdateCellHeightRange(Point pos, Point size)
 // FUNCTION: 0x483370
 void UpdateAllCellHeightRanges()
 {
-    UpdateCellHeightRange(MakePoint(0, 0), MakePoint(g_game->mapWidthTiles, g_game->mapHeightTiles));
+    UpdateCellHeightRange(MakePoint(0, 0), MakePoint(g_game->width, g_game->height));
 }
 
 // FUNCTION: 0x4833b0
 void ClearBorderFeatures()
 {
-    g_game->mapPixelWidth = g_game->mapWidthWorld - 0x20;
-    g_game->mapPixelHeight = g_game->mapHeightWorld - 0x80;
+    g_game->mapWidth = g_game->baseX - 0x20;
+    g_game->mapHeight = g_game->baseY - 0x80;
 
-    int col = g_game->mapWidthTiles - 2;
-    for (int row = 0; row < g_game->mapHeightTiles; row++) {
+    int col = g_game->width - 2;
+    for (int row = 0; row < g_game->height; row++) {
         Cell* c = GetCell(col, row);
         ClearFeature(c);
         ClearFeature(c + 1);
     }
 
-    for (int x = 0; x < g_game->mapWidthTiles; x++) {
+    for (int x = 0; x < g_game->width; x++) {
         int y = 0;
         int y16 = 0;
         for (;; y++, y16 += 16) {
@@ -899,21 +830,21 @@ void ClearBorderFeatures()
         }
     }
 
-    for (int x2 = 0; x2 < g_game->mapWidthTiles; x2++) {
-        int y2 = g_game->mapHeightTiles - 1;
+    for (int x2 = 0; x2 < g_game->width; x2++) {
+        int y2 = g_game->height - 1;
         int y16b = y2 * 16;
         for (;; y2--, y16b -= 16) {
             Cell* c = GetCell(x2, y2);
-            if (y16b - (c->height >> 1) <= g_game->mapPixelHeight)
+            if (y16b - (c->height >> 1) <= g_game->mapHeight)
                 break;
-            Cell* prev = c - g_game->mapWidthTiles;
+            Cell* prev = c - g_game->width;
             ClearFeature(prev);
         }
     }
 
-    if (g_game->mapInfo->lavaWorld != 0) {
-        Cell* c = g_game->heightMap;
-        Cell* end = c + g_game->mapWidthTiles * g_game->mapHeightTiles;
+    if (g_game->net->lavaWorld != 0) {
+        Cell* c = g_game->cells;
+        Cell* end = c + g_game->width * g_game->height;
         while (c < end) {
             if (c->low <= g_game->seaLevel)
                 ClearFeature(c);
@@ -928,7 +859,7 @@ struct MapSettings {
     int* sortIndices;                  // +0x04
     int* sortLineCount;                // +0x08
     char unknown_c[0x24 - 0xc];
-    Grid* grid;                        // +0x24
+    FogGrid* grid;
     int baseX;                         // +0x28
     int baseY;                         // +0x2c
     char unknown_30[0x38 - 0x30];
@@ -969,7 +900,7 @@ void LoadTntMap()
     int* tnt;
 
     // REGION r1 begin
-    tnt = (int*)g_seams.map->GetNameSlot(g_game->mapInfo, 1);
+    tnt = (int*)g_seams.map->GetNameSlot(g_game->net, 1);
     tnt = LoadFileWithProgress(tnt);
     info.version = *tnt;
     switch (info.version) {
@@ -1017,17 +948,17 @@ void LoadTntMap()
     // REGION r1 end
 
     // REGION r2 begin
-    a.n = g_game->mapInfo->minWindSpeed;
+    a.n = g_game->net->minWindSpeed;
     if (a.n >= 0 && info.version >= 0x2000)
         mapSettings->windSpeedMin = a.n;
     else
         mapSettings->windSpeedMin = info.sea_a;
-    a.n = g_game->mapInfo->maxWindSpeed;
+    a.n = g_game->net->maxWindSpeed;
     if (a.n >= 0 && info.version >= 0x2000)
         mapSettings->windSpeedMax = a.n;
     else
         mapSettings->windSpeedMax = info.sea_b;
-    a.n = g_game->mapInfo->gravity;
+    a.n = g_game->net->gravity;
     // Parenthesised so the two constant multiplies are not folded into one.
     if (a.n >= 0 && info.version >= 0x2000)
         mapSettings->rise = (int)((a.n * 65536.0) * 0.0011111111111111111);
@@ -1035,8 +966,8 @@ void LoadTntMap()
         mapSettings->rise = (int)((info.sea_d * 65536.0) * 0.0011111111111111111);
     else
         mapSettings->rise = 0x1fdb;
-    if (g_game->mapInfo->tidalStrength >= 0.0f)
-        mapSettings->tidal = *(int*)&g_game->mapInfo->tidalStrength;
+    if (g_game->net->tidalStrength >= 0.0f)
+        mapSettings->tidal = *(int*)&g_game->net->tidalStrength;
     else
         mapSettings->tidal = 0x3f000000;
     mapSettings->seaLevel = (unsigned char)info.flag;
@@ -1072,7 +1003,7 @@ void LoadTntMap()
     a.n = mapSettings->width * mapSettings->height;
     unsigned char* plot = (unsigned char*)SimAllocTagged("PLOT MEMORY", a.n * 0xd);
     mapSettings->cells = (Cell*)plot;
-    int fill = g_game->mapInfo->surfaceMetal;
+    int fill = g_game->net->surfaceMetal;
     if (fill < 0 || info.version < 0x2000)
         fill = 0;
     for (int i = a.n; i > 0; i--) {
@@ -1152,8 +1083,8 @@ void LoadTntMap()
     memcpy(mapSettings->iconSet->data, info.tile_set_src, info.tile_set_count * 0x400);
     GameFreeThunk(tnt);
     g_losTables.LoadLosTables();
-    int mw = g_game->viewPixelWidth;
-    int mh = g_game->viewPixelHeight;
+    int mw = g_game->viewWidth;
+    int mh = g_game->viewHeight;
     mapSettings->screenTilesX = mw / 16;
     mapSettings->screenTilesY = mh / 16;
     mapSettings->blocksX = mw / 32;
@@ -1168,7 +1099,7 @@ void LoadTntMap()
         obj = list;
     }
     int rb = 2;
-    mapSettings->grid = (Grid*)obj;
+    mapSettings->grid = (FogGrid*)obj;
     a.n = 2;
     if (mw % 32 != 0)
         a.n = 3;
@@ -1188,11 +1119,11 @@ void LoadTntMap()
     else
         buf = 0;
     obj[0] = buf;
-    g_game->mapFlags.raw &= 0xfff7;
+    (*(Flags_14281*)&g_game->mapFlags_14281).raw &= 0xfff7;
     b.p.x = 0;
     b.p.y = 0;
-    a.p.x = (short)g_game->mapWidthTiles;
-    a.p.y = (short)g_game->mapHeightTiles;
+    a.p.x = (short)g_game->width;
+    a.p.y = (short)g_game->height;
     UpdateCellHeightRange(b.p, a.p);
     // REGION r4 end
 
@@ -1212,8 +1143,8 @@ void LoadTntMap()
     mapSettings->sortIndices = (int*)GameAllocIgnoreTag("SORT INDICES", mapSettings->sortRowCount << 2);
     mapSettings->sortLineCount = (int*)GameAllocIgnoreTag("SORT LINE COUNT", mapSettings->sortRowCount << 1);
     g_seams.features->StampFeatureMetal();
-    g_game->count = 0;
-    g_game->eyes = (Eye*)SimAllocTagged("EYEBALL MEMORY", 0x2d0);
+    g_game->count_14277 = 0;
+    (*(Eye **)&g_game->eyes) = (Eye*)SimAllocTagged("EYEBALL MEMORY", 0x2d0);
     mapSettings->featureReproduceCursor = 0;
     g_game->loadProgress = 100;
     // REGION r5 end
@@ -1222,50 +1153,50 @@ void LoadTntMap()
 // FUNCTION: 0x483dd0
 void FreeMapResources()
 {
-    GameFreeThunk(g_game->eyes);
+    GameFreeThunk((Eye *)g_game->eyes);
     g_seams.features->FreeFeaturePool();
     if (g_game->radarFrame) {
         GameFreeThunk(g_game->radarFrame);
         g_game->radarFrame = 0;
     }
-    GameFreeThunk(g_game->sortLineCount);
-    GameFreeThunk(g_game->sortIndices);
-    GameFreeThunk(g_game->sortUnitList);
-    GameFreeThunk(g_game->iconSet);
+    GameFreeThunk((int *)g_game->field_14203);
+    GameFreeThunk((int *)g_game->field_141ff);
+    GameFreeThunk((int *)g_game->field_141fb);
+    GameFreeThunk((IconSet *)g_game->iconSet);
     GameFreeThunk(g_game->visibilityMask);
-    GameFreeThunk(g_game->heightMap);
+    GameFreeThunk(g_game->cells);
     GameFreeThunk(g_game->mapValues);
-    g_game->sortLineCount = 0;
-    g_game->sortIndices = 0;
-    g_game->sortUnitList = 0;
-    g_game->iconSet = 0;
+    (*(int **)&g_game->field_14203) = 0;
+    (*(int **)&g_game->field_141ff) = 0;
+    (*(int **)&g_game->field_141fb) = 0;
+    (*(IconSet **)&g_game->iconSet) = 0;
     g_game->visibilityMask = 0;
-    g_game->heightMap = 0;
+    g_game->cells = 0;
     g_game->mapValues = 0;
 
-    void** p = (void**)g_game->grid;
+    void** p = (void**)(FogGrid *)g_game->field_1421f;
     if (p) {
         operator delete(p[0]);
         operator delete(p);
     }
-    g_game->grid = 0;
+    (*(FogGrid **)&g_game->field_1421f) = 0;
 
-    Grid* g1 = &g_game->losHalfResHeightBand;
+    FogGrid* g1 = (FogGrid*)&g_game->grid1;
     g1->width = 0;
     g1->height = 0;
     operator delete(g1->cells);
     g1->count = 0;
     g1->cells = 0;
 
-    Grid2* g2 = &g_game->spatialGrid;
+    Grid2* g2 = &g_game->spatialGrid_1429f;
     g2->width = 0;
     g2->height = 0;
     operator delete(g2->cells);
     g2->count = 0;
     g2->cells = 0;
 
-    operator delete(g_game->overflowBucket);
-    g_game->overflowBucket = 0;
+    operator delete((Rec *)g_game->overflowBucket);
+    (*(Rec **)&g_game->overflowBucket) = 0;
 }
 
 // FUNCTION: 0x483fa0
@@ -1285,8 +1216,8 @@ void __stdcall DrawMapTiles(void* surface)
     scrollX = g_game->scrollX;
     scrollY = g_game->scrollY;
     // View size is loaded before the divisions.
-    viewW = g_game->viewPixelWidth;
-    viewH = g_game->viewPixelHeight;
+    viewW = g_game->viewWidth;
+    viewH = g_game->viewHeight;
     tileX = scrollX / 32;
     tileY = scrollY / 32;
     offX = scrollX - tileX * 32;
@@ -1299,7 +1230,7 @@ void __stdcall DrawMapTiles(void* surface)
         tilesX++;
     if (edgeY != 0)
         tilesY++;
-    int stride = g_game->mapWidthTiles / 2;
+    int stride = g_game->width / 2;
     bmp.width = 32;
     bmp.height = 32;
     bmp.xOffset = 0;
@@ -1314,11 +1245,11 @@ void __stdcall DrawMapTiles(void* surface)
         // Index loops: screen coordinates are written from the index, no counters.
         for (int j = 0; j < tilesY; j++) {
             if (offX != 0) {
-                bmp.pixelsOrLayers = g_game->iconSet->data + *left * 0x400;
+                bmp.pixelsOrLayers = ((IconSet *)g_game->iconSet)->data + *left * 0x400;
                 DrawFrameOpaque(surface, &bmp, screenX - offX, (screenY + j * 32) - offY);
             }
             if (edgeX != 0) {
-                bmp.pixelsOrLayers = g_game->iconSet->data + *right * 0x400;
+                bmp.pixelsOrLayers = ((IconSet *)g_game->iconSet)->data + *right * 0x400;
                 DrawFrameOpaque(surface, &bmp, tilesX * 32 + screenX - offX - 32, (screenY + j * 32) - offY);
             }
             left += stride;
@@ -1332,11 +1263,11 @@ void __stdcall DrawMapTiles(void* surface)
         unsigned short* bottom = g_game->mapValues + (tileY + tilesY - 1) * stride + tileX;
         for (int i = 0; i < tilesX; i++) {
             if (offY != 0) {
-                bmp.pixelsOrLayers = g_game->iconSet->data + *top * 0x400;
+                bmp.pixelsOrLayers = ((IconSet *)g_game->iconSet)->data + *top * 0x400;
                 DrawFrameOpaque(surface, &bmp, (screenX + i * 32) - offX, screenY - offY);
             }
             if (edgeY != 0) {
-                bmp.pixelsOrLayers = g_game->iconSet->data + *bottom * 0x400;
+                bmp.pixelsOrLayers = ((IconSet *)g_game->iconSet)->data + *bottom * 0x400;
                 DrawFrameOpaque(surface, &bmp, (screenX + i * 32) - offX, tilesY * 32 + screenY - offY - 32);
             }
             top++;
@@ -1364,7 +1295,7 @@ void __stdcall DrawMapTiles(void* surface)
         unsigned short* p = g_game->mapValues + (tileY + j) * (unsigned short)stride + tileX;
         // Map pointer advanced in the for increment.
         for (int i = 0; i < tilesX; i++, p++) {
-            DrawTile(surface, screenX + i * 32, screenY + j * 32, g_game->iconSet->data + *p * 0x400);
+            DrawTile(surface, screenX + i * 32, screenY + j * 32, ((IconSet *)g_game->iconSet)->data + *p * 0x400);
         }
     }
 }
@@ -1372,12 +1303,12 @@ void __stdcall DrawMapTiles(void* surface)
 // FUNCTION: 0x4848e0
 void __stdcall DrawFogOfWar(void* surface)
 {
-    if (!(g_game->mapFlags.raw & 8)) {
+    if (!((*(Flags_14281*)&g_game->mapFlags_14281).raw & 8)) {
         BuildFogTiles();
-        g_game->mapFlags.raw |= 8;
+        (*(Flags_14281*)&g_game->mapFlags_14281).raw |= 8;
     }
 
-    Grid* grid = g_game->grid;
+    FogGrid* grid = (FogGrid *)g_game->field_1421f;
     int scrollY = g_game->scrollY;
     int scrollX = g_game->scrollX;
     int q = (scrollY + 16) / 32 + (scrollX + 16) / 32;
@@ -1405,14 +1336,14 @@ void __stdcall DrawFogOfWar(void* surface)
             } else {
                 if (cell->level1 != 0) {
                     if (cell->level1 != 0xf) {
-                        void* bmp = GetGafFrame(g_game->gray1Seq[(i + j + q) & 3], cell->level1 - 1);
-                        if (g_game->visualFlags.ditheredFog) {
+                        void* bmp = GetGafFrame(g_game->gray[(i + j + q) & 3], cell->level1 - 1);
+                        if ((*(Flags_004848e0*)&g_game->flags_37f06).ditheredFog) {
                             EraseFrameDithered(surface, bmp, r.left, r.top, parity);
                         } else {
                             DrawFrameGray(surface, bmp, r.left, r.top);
                         }
                     } else {
-                        if (g_game->visualFlags.ditheredFog) {
+                        if ((*(Flags_004848e0*)&g_game->flags_37f06).ditheredFog) {
                             DitherRectangle(surface, &r, parity);
                         } else {
                             GrayRectangle(surface, &r);
@@ -1420,7 +1351,7 @@ void __stdcall DrawFogOfWar(void* surface)
                     }
                 }
                 if (cell->level0 > 0) {
-                    void* bmp = GetGafFrame(g_game->black1Seq[(i + j + q) & 3], cell->level0 - 1);
+                    void* bmp = GetGafFrame(g_game->black[(i + j + q) & 3], cell->level0 - 1);
                     DrawFrame(surface, bmp, r.left, r.top);
                 }
             }
@@ -1433,12 +1364,12 @@ void __stdcall ClampWorldPosToTerrain(int x, int y, Vec3* out)
 {
     if (x < 0)
         x = 0;
-    if (x >= g_game->mapWidthWorld)
-        x = g_game->mapWidthWorld - 1;
+    if (x >= g_game->baseX)
+        x = g_game->baseX - 1;
     if (y < 0)
         y = 0;
-    if (y >= g_game->mapHeightWorld)
-        y = g_game->mapHeightWorld - 1;
+    if (y >= g_game->baseY)
+        y = g_game->baseY - 1;
 
     Vec3 p;
     int s1;
@@ -1479,8 +1410,8 @@ done:
 void __stdcall RecalculateLineOfSight(int arg)
 {
     if (arg != 0) {
-        memset(g_game->visibilityMask, (g_game->mapFlags.raw & 1) ? 0 : 0xFFFF,
-               g_game->mapWidthTiles * g_game->mapHeightTiles * sizeof(short) / 4);
+        memset(g_game->visibilityMask, ((*(Flags_14281*)&g_game->mapFlags_14281).raw & 1) ? 0 : 0xFFFF,
+               g_game->width * g_game->height * sizeof(short) / 4);
     }
     for (unsigned char i = 0; i < 10; i++) {
         if (i >= 10) continue;
@@ -1488,7 +1419,7 @@ void __stdcall RecalculateLineOfSight(int arg)
         if (p->active == 0) continue;
         if (p->type != 1 && p->type != 2 && p->type != 3) continue;
         if (p->index == 10) continue;
-        memset(p->explored, (unsigned char)~((unsigned char)g_game->mapFlags.raw >> 1) & 1, p->exploredSize);
+        memset(p->explored, (unsigned char)~((unsigned char)(*(Flags_14281*)&g_game->mapFlags_14281).raw >> 1) & 1, p->exploredSize);
     }
     for (Unit* u = g_game->units + 1; u <= g_game->unitsEnd; u++) {
         if (u->unitDefIndex == 0)
@@ -1502,9 +1433,9 @@ void __stdcall RecalculateLineOfSight(int arg)
         params.eyeHeight = u->def->field_170;
         if (params.pos.y < (int)((g_game->seaLevel + 1) << 16))
             params.pos.y = (g_game->seaLevel + 1) << 16;
-        if ((g_game->mapFlags.raw & 2) == 2) {
+        if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 2) == 2) {
             *params.frameIdx = 0;
-            if ((g_game->mapFlags.raw & 4) == 4) {
+            if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 4) == 4) {
                 UpdateLineOfSight(&params);
             } else {
                 int i = params.sightDistance / 32 - 5;
@@ -1530,8 +1461,8 @@ void __stdcall RecalculateLineOfSight(int arg)
             }
         }
     }
-    g_game->viewDirtyFlags.mapChanged = 1;
-    g_game->mapFlags.raw &= 0xfff7;
+    (*(Flags_142f1*)&g_game->viewDirtyFlags).mapChanged = 1;
+    (*(Flags_14281*)&g_game->mapFlags_14281).raw &= 0xfff7;
     UpdateRadarMapped();
     DrawRadarUnits();
 }
@@ -1558,12 +1489,12 @@ void __stdcall RevealAroundUnit(SightQuery* params)
     int i, stride, off;
     unsigned int bit = 1 << ((Player*)params->player)->index;
     GafFrame* frame;
-    int halfW = g_game->mapWidthTiles / 2;
-    int halfH = g_game->mapHeightTiles / 2;
+    int halfW = g_game->width / 2;
+    int halfH = g_game->height / 2;
     x = params->cacheCell[0];
     y = params->cacheCell[1];
-    if (g_game->mapFlags.flag2 == 1) {
-        Grid* grid = &g_game->losHalfResHeightBand;
+    if ((*(Flags_14281*)&g_game->mapFlags_14281).flag2 == 1) {
+        FogGrid* grid = (FogGrid*)&g_game->grid1;
         if ((unsigned)x < grid->width && (unsigned)y < grid->height) {
             LosTable* table =
                 (LosTable*)g_losTables
@@ -1657,8 +1588,8 @@ void __stdcall RevealAroundUnit(SightQuery* params)
         }
     }
     if (changed && ((Player*)params->player)->index == g_game->playerIndex) {
-        g_game->mapFlags.flag3 = 0;
-        g_game->viewDirtyFlags.rawByte |= 4;
+        (*(Flags_14281*)&g_game->mapFlags_14281).flag3 = 0;
+        (*(Flags_142f1*)&g_game->viewDirtyFlags).rawByte |= 4;
     }
 }
 
@@ -1666,8 +1597,8 @@ void __stdcall RevealAroundUnit(SightQuery* params)
 // Plain int parameters: a char or unsigned char one changes the stack frame.
 void __stdcall AddEyeball(Vec3* src, int a, int b, int c)
 {
-    if ((g_game->mapFlags.raw & 2) == 2 && g_game->count < 0x14) {
-        Eye* e = &g_game->eyes[g_game->count];
+    if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 2) == 2 && g_game->count_14277 < 0x14) {
+        Eye* e = &((Eye *)g_game->eyes)[g_game->count_14277];
         e->player = &g_game->players[g_game->playerIndex];
         // Assigned before screen: &e->screenPos would clobber ecx, which holds g_game.
         e->screen = &e->screenPos;
@@ -1679,10 +1610,10 @@ void __stdcall AddEyeball(Vec3* src, int a, int b, int c)
         if (e->pos.y < minY) {
             e->pos.y = minY;
         }
-        e->expires = g_game->gameTick + c;
-        if ((g_game->mapFlags.raw & 2) == 2) {
+        e->expires = (unsigned int)g_game->ticks + c;
+        if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 2) == 2) {
             *e->flagPtr = 0;
-            if ((g_game->mapFlags.raw & 4) == 4) {
+            if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 4) == 4) {
                 UpdateLineOfSight((SightQuery*)e);
             } else {
                 int lod = e->x / 32 - 5;
@@ -1703,7 +1634,7 @@ void __stdcall AddEyeball(Vec3* src, int a, int b, int c)
                 RevealAroundUnit((SightQuery*)e);
             }
         }
-        g_game->count++;
+        g_game->count_14277++;
     }
 }
 
@@ -1721,9 +1652,9 @@ void __stdcall RevealNewUnit(Unit* unit)
     if (p.pos.y < min_y) {
         p.pos.y = min_y;
     }
-    if ((g_game->mapFlags.raw & 2) == 2) {
+    if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 2) == 2) {
         *p.frameIdx = 0;
-        if ((g_game->mapFlags.raw & 4) == 4) {
+        if (((*(Flags_14281*)&g_game->mapFlags_14281).raw & 4) == 4) {
             UpdateLineOfSight(&p);
         } else {
             int i = p.sightDistance / 32 - 5;

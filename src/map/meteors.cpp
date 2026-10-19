@@ -6,18 +6,7 @@
 #include "../state/game_rand.h"
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14233];
-    int mapWidthTiles;               // +0x14233
-    int mapHeightTiles;              // +0x14237
-    char unknown_1423b[0x38a47 - 0x1423b];
-    // UpdateMeteors reads this as the tick counter, StartMeteorShower as a
-    // plain int.
-    union {
-        unsigned int gameTick;       // +0x38a47
-        int field_38a47;             // +0x38a47
-    };
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 // The 0x115-byte weapon definition, its flags read as a byte here.
@@ -146,11 +135,11 @@ static inline Point16 AddPoints(Point16 a, Point16 b)
 static inline void StartShower()
 {
     g_meteorActive = 1;
-    g_meteorStrikeEndTime = g_meteorShowerDuration + g_game->gameTick;
+    g_meteorStrikeEndTime = g_meteorShowerDuration + (unsigned int)g_game->ticks;
     g_meteorNextStrikeTime = g_meteorScheduleGap + g_meteorStrikeEndTime;
-    g_meteorNextHitTime = g_game->gameTick;
-    g_meteorTarget = MakePoint((int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->mapWidthTiles / 0x8000),
-                             (int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->mapHeightTiles / 0x8000));
+    g_meteorNextHitTime = (unsigned int)g_game->ticks;
+    g_meteorTarget = MakePoint((int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->width / 0x8000),
+                             (int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->height / 0x8000));
     g_meteorOrigin = AddPoints(MakePoint((int)((__int64)GameRand(RAND_STREAM_MAIN) * 30 / 0x8000) - 15,
                                        (int)((__int64)GameRand(RAND_STREAM_MAIN) * 10 / 0x8000) - 15),
                              g_meteorTarget);
@@ -164,14 +153,14 @@ static inline void StartShower()
 // FUNCTION: 0x437de0
 void UpdateMeteors()
 {
-    if (g_meteorNextStrikeTime <= g_game->gameTick) {
+    if (g_meteorNextStrikeTime <= (unsigned int)g_game->ticks) {
         StartShower();
         if (g_meteorsEnabled == 0)
             g_meteorActive = 0;
     }
     if (g_meteorActive != 0) {
-        if (g_meteorNextHitTime <= g_game->gameTick) {
-            g_meteorNextHitTime = g_meteorSpawnInterval + g_game->gameTick;
+        if (g_meteorNextHitTime <= (unsigned int)g_game->ticks) {
+            g_meteorNextHitTime = g_meteorSpawnInterval + (unsigned int)g_game->ticks;
             Vec3 vel;
             vel.x = ((g_meteorTarget.x - g_meteorOrigin.x) << 20) / 90;
             vel.y = -15 << 16;
@@ -191,7 +180,7 @@ void UpdateMeteors()
             pos.z += g_meteorOrigin.y << 20;
             g_seams.weapons->SpawnProjectile(g_meteorWeapon, &pos, &vel, 1);
         }
-        if (g_meteorStrikeEndTime <= g_game->gameTick)
+        if (g_meteorStrikeEndTime <= (unsigned int)g_game->ticks)
             g_meteorActive = 0;
     }
 }
@@ -200,11 +189,11 @@ void UpdateMeteors()
 void StartMeteorShower()
 {
     g_meteorActive = 1;
-    g_meteorStrikeEndTime = g_meteorShowerDuration + g_game->field_38a47;
+    g_meteorStrikeEndTime = g_meteorShowerDuration + g_game->ticks;
     g_meteorNextStrikeTime = g_meteorScheduleGap + g_meteorStrikeEndTime;
-    g_meteorNextHitTime = g_game->field_38a47;
-    g_meteorTarget = MakePoint((int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->mapWidthTiles / 0x8000),
-                             (int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->mapHeightTiles / 0x8000));
+    g_meteorNextHitTime = g_game->ticks;
+    g_meteorTarget = MakePoint((int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->width / 0x8000),
+                             (int)((__int64)GameRand(RAND_STREAM_MAIN) * g_game->height / 0x8000));
     g_meteorOrigin = AddPoints(MakePoint((int)((__int64)GameRand(RAND_STREAM_MAIN) * 30 / 0x8000) - 15,
                                        (int)((__int64)GameRand(RAND_STREAM_MAIN) * 10 / 0x8000) - 15),
                              g_meteorTarget);

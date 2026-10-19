@@ -138,10 +138,7 @@ public:
     void ApplyToUnitTypes();
 };
 
-struct Game {
-    char unknown_0[0x2a30];
-    UnitSync* sync;
-};
+#include "../game/game.h"
 
 extern Game* g_game;
 
@@ -149,7 +146,7 @@ extern Game* g_game;
 // __fastcall: keeps the erase loop comparing the iterator slot directly.
 void __fastcall FinishUnitSync()
 {
-    g_game->sync->ApplyToUnitTypes();
-    delete g_game->sync;
-    g_game->sync = 0;
+    ((UnitSync *)g_game->field_2a30)->ApplyToUnitTypes();
+    delete (UnitSync *)g_game->field_2a30;
+    (*(UnitSync **)&g_game->field_2a30) = 0;
 }

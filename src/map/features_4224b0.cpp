@@ -82,12 +82,7 @@ struct FeatureDef_004224b0 {
 };
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14253];
-    int featureCount;                   // +0x14253
-    char unknown_14257[0x1426f - 0x14257];
-    FeatureDef_004224b0* features;      // +0x1426f
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -170,9 +165,9 @@ int __stdcall LoadFeatureType(char* name)
         sprintf(path, "Record \"%s\" missing from feature files", name);
         FatalError(path);
     }
-    g_game->features = (FeatureDef_004224b0*)GameReallocTagged(g_game->features, "FEATURES",
+    (*(FeatureDef_004224b0 **)&g_game->features) = (FeatureDef_004224b0*)GameReallocTagged((FeatureDef_004224b0 *)g_game->features, "FEATURES",
                                                           (g_game->featureCount + 1) * 0x100);
-    FeatureDef_004224b0* def = &g_game->features[g_game->featureCount];
+    FeatureDef_004224b0* def = &((FeatureDef_004224b0 *)g_game->features)[g_game->featureCount];
     strncpy(def->name, name, 0x80);
     entry->current->GetFieldString(def->description, "Description", 0x14, DAT_005119b8);
     def->footprintx = entry->current->GetFieldInt("footprintx", 0);
@@ -186,9 +181,9 @@ int __stdcall LoadFeatureType(char* name)
         def->noobject = 1;
         entry->current->GetFieldString(file, "filename", 0x100, DAT_005119b8);
         for (j = 0; j < g_game->featureCount; j++) {
-            if (strncmp(g_game->features[j].filename, file, 0x10) == 0) {
+            if (strncmp(((FeatureDef_004224b0 *)g_game->features)[j].filename, file, 0x10) == 0) {
                 def->anims = 0;
-                anims = g_game->features[j].anims;
+                anims = ((FeatureDef_004224b0 *)g_game->features)[j].anims;
                 strcpy(def->filename, "REUSE");
                 break;
             }

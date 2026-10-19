@@ -94,7 +94,7 @@ struct ByteMap_00466dc0 {
     unsigned char Get(int x, int y) { return data[Index(x, y)]; }
 };
 
-struct Player {
+struct PlayerView {
     char unknown_0[0x27];
     PlayerInfo* info;               // +0x27
     char unknown_2b[0x7c - 0x2b];
@@ -152,113 +152,7 @@ struct Tail_00466dc0 {
 // originY/sizeX/sizeY and the four-element `dim` the rectangle test indexes,
 // depending on the function; the union in Game keeps every spelling addressable.
 
-// The radar redraw flag word at +0x142f1. Most functions test and set its bits
-// as a 16-bit unit placed after blinkTimer (blinkOn bit 0, pending bit 1,
-// mapChanged bit 2); the unit draw reads bit 0 as a byte and bit 1 through the
-// word at +0x142f0, so both views must stay.
-union RadarTimer_00466dc0 {
-    struct {
-        short blinkTimer;                // +0x142ef
-        struct {
-            unsigned short blinkOn : 1;  // +0x142f1 bit 0
-            unsigned short pending : 1;  // bit 1
-            unsigned short mapChanged : 1; // bit 2
-            unsigned short :13;
-        } flags;
-    } word;
-    struct {
-        unsigned char unknown_142ef;     // +0x142ef
-        union {
-            unsigned short all;
-            struct {
-                unsigned char lo;        // +0x142f0
-                unsigned char hi;        // +0x142f1
-            } b;
-            struct {
-                unsigned short :8;
-                unsigned short bit0 : 1; // +0x142f1 bit 0
-                unsigned short bit1 : 1;
-                unsigned short bit2 : 1;
-                unsigned short :5;
-            } bits;
-        } field_142f0;
-    } byte;
-};
-
-struct Game {
-    char unknown_0[0xc];
-    Fx_00466c20* displayContext;         // +0xc
-    char unknown_10[0xdcb - 0x10];
-    unsigned char fogColor;              // +0xdcb
-    char unknown_dcc[0xdd9 - 0xdcc];
-    unsigned char hudPalette14;          // +0xdd9
-    char unknown_dda[0x1b63 - 0xdda];
-    Player players[1];      // +0x1b63, 0x14b bytes each
-    char unknown_1cae[0x2a43 - 0x1cae];
-    unsigned char playerIndex;           // +0x2a43
-    char unknown_2a44[0x2cba - 0x2a44];
-    short hoverUnitId;                   // +0x2cba
-    char unknown_2cbc[0x141f3 - 0x2cbc];
-    int projectileCount;                 // +0x141f3
-    Projectile_00466dc0* projectiles;    // +0x141f7
-    char unknown_141fb[0x1422b - 0x141fb];
-    int mapPixelWidth;                   // +0x1422b
-    int mapPixelHeight;                  // +0x1422f
-    int mapWidthTiles;                   // +0x14233
-    int mapHeightTiles;                  // +0x14237
-    int viewWidthTiles;                  // +0x1423b
-    int viewHeightTiles;                 // +0x1423f
-    char unknown_14243[0x1426b - 0x14243];
-    GafFrame* radarFrame;                // +0x1426b
-    char unknown_1426f[0x14273 - 0x1426f];
-    unsigned short* visibilityMask;      // +0x14273
-    char unknown_14277[0x14281 - 0x14277];
-    Flags14281_00466dc0 mapFlags;        // +0x14281
-    IconSet_00466780* iconSet;           // +0x14283
-    char unknown_14287[0x1428b - 0x14287];
-    unsigned short* mapValues;           // +0x1428b
-    char unknown_1428f[0x142bb - 0x1428f];
-    int viewLeft;                        // +0x142bb
-    int viewTop;                         // +0x142bf
-    int viewRight;                       // +0x142c3
-    int viewBottom;                      // +0x142c7
-    char field_142cb[0x142db - 0x142cb]; // +0x142cb
-    void* finalSurface;                  // +0x142db
-    void* mappedSurface;                 // +0x142df
-    void* pictureSurface;                // +0x142e3
-    union {                              // +0x142e7
-        struct {
-            short minimapGadgetX;            // +0x142e7
-            short minimapGadgetY;            // +0x142e9
-            short minimapGadgetW;            // +0x142eb
-            short minimapGadgetH;            // +0x142ed
-        };
-        struct {
-            short originX;                   // +0x142e7
-            short originY;                   // +0x142e9
-            short sizeX;                     // +0x142eb
-            short sizeY;                     // +0x142ed
-        };
-        struct { short v[4]; } dim;
-    };
-    RadarTimer_00466dc0 timer;           // +0x142ef
-    char unknown_142f3[0x1431f - 0x142f3];
-    int scrollX;                         // +0x1431f
-    int scrollY;                         // +0x14323
-    char unknown_14327[0x14357 - 0x14327];
-    Unit* units;                         // +0x14357
-    Unit* unitsEnd;                      // +0x1435b
-    char unknown_1435f[0x14363 - 0x1435f];
-    unsigned short* hotRadarUnitList;    // +0x14363
-    char unknown_14367[0x1436b - 0x14367];
-    int hotRadarUnitCount;               // +0x1436b
-    char unknown_1436f[0x147df - 0x1436f];
-    void* radlogo;                       // +0x147df
-    void* radlogohigh;                   // +0x147e3
-    void* nuclogo;                       // +0x147e7
-    char unknown_147eb[0x37f2f - 0x147eb];
-    Flags14281_00466dc0 uiOptionFlags;   // +0x37f2f
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -362,28 +256,28 @@ void __stdcall ResizeRadarPicture(GafFrame* pic, int x, int y, int w, int h)
 // FUNCTION: 0x466780
 void __stdcall BuildRadarPicture()
 {
-    int mapWidth = g_game->mapPixelWidth;
-    int mapHeight = g_game->mapPixelHeight;
+    int mapWidth = g_game->mapWidth;
+    int mapHeight = g_game->mapHeight;
     int width;
     int height;
     if (mapWidth >= mapHeight) {
         width = 126;
         height = mapHeight * 126 / mapWidth;
-        g_game->minimapGadgetX = 0;
-        g_game->minimapGadgetY = (126 - height) / 2;
+        g_game->posX = 0;
+        g_game->posY = (126 - height) / 2;
     } else {
         width = mapWidth * 126 / mapHeight;
         height = 126;
-        g_game->minimapGadgetX = (126 - width) / 2;
-        g_game->minimapGadgetY = 0;
+        g_game->posX = (126 - width) / 2;
+        g_game->posY = 0;
     }
-    g_game->minimapGadgetW = width;
-    g_game->minimapGadgetH = height;
+    g_game->width_142eb = width;
+    g_game->screen_h = height;
     g_game->pictureSurface = AllocSurface(g_radarPictureName, width, height);
     GafFrame frame;
     FrameFromSurface(&frame, g_game->pictureSurface);
-    if (g_game->radarFrame) {
-        DownsampleFrame(g_game->radarFrame, &frame);
+    if ((GafFrame *)g_game->radarFrame) {
+        DownsampleFrame((GafFrame *)g_game->radarFrame, &frame);
         return;
     }
     int h2 = height * 2;
@@ -391,9 +285,9 @@ void __stdcall BuildRadarPicture()
     void* temp = AllocSurface(g_radarPicTempName, w2, h2);
     for (int j = 0; j < h2; j++) {
         for (int i = 0; i < w2; i++) {
-            int x = g_game->mapPixelWidth * i / w2;
-            int y = g_game->mapPixelHeight * j / h2;
-            int index = (y / 32) * (g_game->mapWidthTiles / 2) + x / 32;
+            int x = g_game->mapWidth * i / w2;
+            int y = g_game->mapHeight * j / h2;
+            int index = (y / 32) * (g_game->width / 2) + x / 32;
             unsigned short value = g_game->mapValues[index];
             if (value >= g_game->iconSet->count) {
                 value = 0;
@@ -445,18 +339,18 @@ void __stdcall DrawRadar(void* param_1)
 {
     if (g_game->timer.word.flags.pending) {
         g_game->timer.word.flags.pending = 0;
-        DrawSurface(param_1, g_game->finalSurface, g_game->minimapGadgetX, g_game->minimapGadgetY);
-        DrawRectangle(param_1, g_game->field_142cb, g_game->hudPalette14);
+        DrawSurface(param_1, g_game->finalSurface, g_game->posX, g_game->posY);
+        DrawRectangle(param_1, g_game->field_142cb, g_game->unknown_dd9);
     }
 }
 
 // FUNCTION: 0x466b70
 void __stdcall CalcRadarViewportRect(int* param_1)
 {
-    param_1[0] = g_game->sizeX * g_game->scrollX / g_game->mapPixelWidth + g_game->originX;
-    param_1[1] = g_game->sizeY * g_game->scrollY / g_game->mapPixelHeight + g_game->originY;
-    param_1[2] = g_game->sizeX * g_game->viewWidthTiles * 16 / g_game->mapPixelWidth + param_1[0] - 1;
-    param_1[3] = g_game->sizeY * g_game->viewHeightTiles * 16 / g_game->mapPixelHeight + param_1[1] - 1;
+    param_1[0] = g_game->width_142eb * g_game->scrollX / g_game->mapWidth + g_game->posX;
+    param_1[1] = g_game->screen_h * g_game->scrollY / g_game->mapHeight + g_game->posY;
+    param_1[2] = g_game->width_142eb * g_game->screenTilesX * 16 / g_game->mapWidth + param_1[0] - 1;
+    param_1[3] = g_game->screen_h * g_game->screenTilesY * 16 / g_game->mapHeight + param_1[1] - 1;
 }
 
 // FUNCTION: 0x466c20
@@ -464,20 +358,20 @@ void UpdateRadarMapped()
 {
     if (g_game->timer.word.flags.mapChanged) {
         g_game->timer.word.flags.mapChanged = 0;
-        unsigned char fog = g_game->fogColor;
-        Player* t = &g_game->players[g_game->playerIndex];
+        unsigned char fog = g_game->textColor;
+        PlayerView* t = (PlayerView*)&g_game->players_1b63_14b[g_game->playerIndex];
         unsigned int mask = 1 << g_game->playerIndex;
         unsigned char* dst = *(unsigned char**)((char*)g_game->mappedSurface + 0xc);
         unsigned char* src = *(unsigned char**)((char*)g_game->pictureSurface + 0xc);
-        int halfWidth = g_game->mapWidthTiles / 2;
-        int halfHeight = g_game->mapHeightTiles / 2;
-        for (int i = 0; i < g_game->minimapGadgetH; i++) {
+        int halfWidth = g_game->width / 2;
+        int halfHeight = g_game->height / 2;
+        for (int i = 0; i < g_game->screen_h; i++) {
             int mapY = i * halfHeight;
             int mapX = 0;
             int j = 0;
             // A while loop, tail in this order: a for loop computes dst+1 before the store.
-            while (j < g_game->minimapGadgetW) {
-                int index = (mapY / g_game->minimapGadgetH) * halfWidth + mapX / g_game->minimapGadgetW;
+            while (j < g_game->width_142eb) {
+                int index = (mapY / g_game->screen_h) * halfWidth + mapX / g_game->width_142eb;
                 // Outputs assigned directly in each branch, no pixel temporary;
                 // the unsigned short cast stays.
                 if (!(unsigned short)(g_game->visibilityMask[index] & mask)) {
@@ -485,7 +379,7 @@ void UpdateRadarMapped()
                 } else if (t->explored.data[index]) {
                     *dst = *src;
                 } else {
-                    *dst = g_game->displayContext->colorMap[*src];
+                    *dst = ((Fx_00466c20 *)g_game->unknown_c)->colorMap[*src];
                 }
                 j++;
                 mapX += halfWidth;
@@ -505,14 +399,14 @@ void UpdateRadarMapped()
 // The radar helpers use the ByteMap Index/Get methods (width materialised,
 // `mov ecx, [edx+0x80]; imul ecx, edi`) and the slot loop reads `slot->weapon`
 // at each use instead of a `shot` local.
-static Player* Player_Get(unsigned char p)
+static PlayerView* Player_Get(unsigned char p)
 {
-    return &g_game->players[0] + p;
+    return (PlayerView*)&g_game->players_1b63_14b[0] + p;
 }
 
 // True when (px, py) is inside the current player's visible area. The two
 // halves match the uint8 terrain bitmap and the packed 16-bit bitfield variant.
-static inline int OnRadarByte_00466dc0(Player* pi, int px, int py)
+static inline int OnRadarByte_00466dc0(PlayerView* pi, int px, int py)
 {
     int tx = px >> 5;
     int ty = py >> 5;
@@ -521,7 +415,7 @@ static inline int OnRadarByte_00466dc0(Player* pi, int px, int py)
     return 0;
 }
 
-static inline int OnRadarShort_00466dc0(Player* pi, int px, int py)
+static inline int OnRadarShort_00466dc0(PlayerView* pi, int px, int py)
 {
     int tx = px >> 5;
     int ty = py >> 5;
@@ -535,8 +429,8 @@ static inline int OnRadarShort_00466dc0(Player* pi, int px, int py)
 
 static inline int OnRadar_00466dc0(int px, int py)
 {
-    Player* pi = Player_Get(g_game->playerIndex);
-    if ((g_game->mapFlags.all & 2) == 2)
+    PlayerView* pi = Player_Get(g_game->playerIndex);
+    if (((*(Flags14281_00466dc0*)&g_game->mapFlags_14281).all & 2) == 2)
         return OnRadarByte_00466dc0(pi, px, py);
     return OnRadarShort_00466dc0(pi, px, py);
 }
@@ -544,25 +438,25 @@ static inline int OnRadar_00466dc0(int px, int py)
 // A unit's screen y (height folded into z) times the minimap scale.
 static inline int ScaleY_00466dc0(Unit* u)
 {
-    return ((int)u->zWhole - ((int)u->yWhole >> 1)) * (int)g_game->minimapGadgetH;
+    return ((int)u->zWhole - ((int)u->yWhole >> 1)) * (int)g_game->screen_h;
 }
 
 // FUNCTION: 0x466dc0
 void DrawRadarUnits(void)
 {
     unsigned char* base = (unsigned char*)g_game + 0xdcb;
-    unsigned short* out = g_game->hotRadarUnitList;
+    unsigned short* out = (unsigned short *)g_game->hotRadar;
 
-    g_game->hotRadarUnitCount = 0;
+    g_game->hotRadarCount = 0;
     void* surface = g_game->finalSurface;
     DrawSurface(surface, g_game->mappedSurface, 0, 0);
 
     int enabled;
-    if (g_game->mapFlags.bits.bit0 || g_game->mapFlags.bits.bit1)
+    if ((*(Flags14281_00466dc0*)&g_game->mapFlags_14281).bits.bit0 || (*(Flags14281_00466dc0*)&g_game->mapFlags_14281).bits.bit1)
         enabled = 0;
     else
         enabled = 1;
-    if (g_game->uiOptionFlags.bits.bit9)
+    if ((*(Flags14281_00466dc0*)&g_game->uiOptionFlags_37f2f).bits.bit9)
         enabled = 1;
 
     Unit* u = g_game->units;
@@ -573,9 +467,9 @@ void DrawRadarUnits(void)
             if (u->unitDefIndex != 0) {
                 if (enabled != 0 || (u->flags & 0x300) != 0 ||
                     u->playerIndex == g_game->playerIndex) {
-                    int x = u->xWhole * g_game->minimapGadgetW /
-                            g_game->mapPixelWidth;
-                    int y = ScaleY_00466dc0(u) / g_game->mapPixelHeight;
+                    int x = u->xWhole * g_game->width_142eb /
+                            g_game->mapWidth;
+                    int y = ScaleY_00466dc0(u) / g_game->mapHeight;
                     if (u->recentlyDamagedTimer == 0 ||
                         (g_game->timer.byte.field_142f0.b.hi & 1) != 0) {
                         DrawFrame(surface,
@@ -583,7 +477,7 @@ void DrawRadarUnits(void)
                                 Player_Get(u->playerIndex)->info->color),
                             x, y);
                     }
-                    if ((short)u->id == g_game->hoverUnitId) {
+                    if ((short)u->id == (short)g_game->hoverUnitId) {
                         DrawFrame(surface,
                             GetGafFrame(g_game->radlogohigh, 0), x, y);
                     }
@@ -592,29 +486,29 @@ void DrawRadarUnits(void)
                             (type->flags2 & 4) == 0) {
                             if (type->radardistance != 0)
                                 DrawCircle(surface, x, y,
-                                    (int)g_game->minimapGadgetW * type->radardistance /
-                                    g_game->mapPixelWidth, base[0xa]);
+                                    (int)g_game->width_142eb * type->radardistance /
+                                    g_game->mapWidth, base[0xa]);
                             if (type->sonardistance != 0)
                                 DrawCircle(surface, x, y,
-                                    (int)g_game->minimapGadgetW * type->sonardistance /
-                                    g_game->mapPixelWidth, base[0xa]);
+                                    (int)g_game->width_142eb * type->sonardistance /
+                                    g_game->mapWidth, base[0xa]);
                             if (type->radardistancejam != 0)
                                 DrawCircle(surface, x, y,
-                                    (int)g_game->minimapGadgetW * type->radardistancejam /
-                                    g_game->mapPixelWidth, base[0xc]);
+                                    (int)g_game->width_142eb * type->radardistancejam /
+                                    g_game->mapWidth, base[0xc]);
                             if (type->sonardistancejam != 0)
                                 DrawCircle(surface, x, y,
-                                    (int)g_game->minimapGadgetW * type->sonardistancejam /
-                                    g_game->mapPixelWidth, base[0xc]);
+                                    (int)g_game->width_142eb * type->sonardistancejam /
+                                    g_game->mapWidth, base[0xc]);
                         }
                         if (type->flags1.bit29) {
                             UnitWeaponSlot* slot = u->weapons;
                             int n = 3;
                             do {
                                 if (slot->weapon->flags.bits.bit30) {
-                                    int r = ((int)g_game->minimapGadgetW *
+                                    int r = ((int)g_game->width_142eb *
                                              (slot->weapon->coverage - 0x200)) /
-                                            g_game->mapPixelWidth;
+                                            g_game->mapWidth;
                                     if (slot->stockpile != 0)
                                         DrawDashedCircle(surface, x, y, r, base[0xf],
                                                      0x20,
@@ -628,25 +522,25 @@ void DrawRadarUnits(void)
                         }
                     }
                     out[0] = u->id;
-                    *(int*)(out + 1) = g_game->minimapGadgetX + x;
-                    *(int*)(out + 3) = g_game->minimapGadgetY + y;
+                    *(int*)(out + 1) = g_game->posX + x;
+                    *(int*)(out + 3) = g_game->posY + y;
                     out += 5;
-                    g_game->hotRadarUnitCount++;
+                    g_game->hotRadarCount++;
                 }
             }
             u = (Unit*)((char*)u + 0x118);
         } while (u <= g_game->unitsEnd);
     }
 
-    Projectile_00466dc0* p = g_game->projectiles;
+    Projectile_00466dc0* p = (Projectile_00466dc0 *)g_game->projectiles;
     int i = 0;
     if (g_game->projectileCount > 0) {
         short* q = (short*)((char*)p + 0xa);
         do {
             int px = q[-2];
-            int x = (int)g_game->minimapGadgetW * px / g_game->mapPixelWidth;
+            int x = (int)g_game->width_142eb * px / g_game->mapWidth;
             int py = q[2] - ((int)q[0] >> 1);
-            int y = (int)g_game->minimapGadgetH * py / g_game->mapPixelHeight;
+            int y = (int)g_game->screen_h * py / g_game->mapHeight;
             if ((p->shot->flags.all & 0x60000000) == 0) {
                 if ((p->shot->flags.all & 0x40) == 0) {
                     if (OnRadar_00466dc0(px, py) ||

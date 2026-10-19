@@ -58,29 +58,7 @@ struct Player_482270 {
 
 #include "sight_query.h"
 
-struct Game {
-    char unknown_0[0x2a43];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2a44[0x14233 - 0x2a44];
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_1423b[0x14281 - 0x1423b];
-    unsigned short bit0 : 1;           // +0x14281
-    unsigned short bit1 : 1;
-    unsigned short flag2 : 1;
-    unsigned short flag3 : 1;
-    unsigned short rest : 12;
-    char unknown_14283[0x1428f - 0x14283];
-    Grid losHalfResHeightBand;         // +0x1428f
-    char unknown_1429f[0x142f1 - 0x1429f];
-    unsigned short f0 : 1;             // +0x142f1 bit 0
-    unsigned short f1 : 1;
-    unsigned short flagA : 1;          // bit 2, mask 4
-    unsigned short f3 : 5;
-    unsigned short fhi : 8;
-    char unknown_142f3[0x1485b - 0x142f3];
-    void* losTable;                    // +0x1485b
-};
+#include "../game/game.h"
 
 #include "../graphics/gaf_frame.h"
 
@@ -94,15 +72,15 @@ GafFrame* __stdcall GetGafFrame(unsigned short* table, int index);
 void __stdcall AddLineOfSight(SightQuery* params)
 {
     if (((Player_482270*)params->player)->playerIndex == g_game->playerIndex) {
-        g_game->flag3 = 0;
-        g_game->flagA = 1;
+        g_game->bits_14281_1.flag3 = 0;
+        g_game->bits_142f1_2.flagA = 1;
     }
-    int halfW = g_game->mapWidthTiles / 2;
-    int halfH = g_game->mapHeightTiles / 2;
+    int halfW = g_game->width / 2;
+    int halfH = g_game->height / 2;
     int x = params->cacheCell[0];
     int y = params->cacheCell[1];
-    if (g_game->flag2 == 1) {
-        Grid* grid = &g_game->losHalfResHeightBand;
+    if (g_game->bits_14281_1.flag2 == 1) {
+        Grid* grid = &g_game->grid1;
         if ((unsigned)x >= grid->width)
             return;
         if ((unsigned)y >= grid->height)
@@ -156,7 +134,7 @@ void __stdcall AddLineOfSight(SightQuery* params)
     } else {
         int ref = *params->frameIdx;
         GafFrame* frame =
-            GetGafFrame((unsigned short*)g_game->losTable, ref);
+            GetGafFrame((unsigned short*)(void *)g_game->losTable, ref);
         // limitX and limitY are if/else statements, not ?:.
         int limitX;
         if (x + frame->width >= halfW)

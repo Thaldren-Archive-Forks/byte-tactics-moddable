@@ -10,14 +10,7 @@
 #pragma pack(push, 1)
 #include "player_info.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];                // +0x1b63
-    char unknown_2851[0x2a42 - 0x2851];
-    unsigned char localPlayer;         // +0x2a42
-    char unknown_2a43[0x391f1 - 0x2a43];
-    int frontendState;                 // +0x391f1
-};
+#include "../game/game.h"
 
 struct Msg_00450530 {
     unsigned char type;                // +0x0
@@ -91,7 +84,7 @@ void SendLobbySyncRequests()
 {
     // Function scope, before the mode == 6 guard: orders the stores in the three branches.
     Msg_00450530 msg;
-    if (g_game->frontendState == 6)
+    if (g_game->mode_391f1 == 6)
         return;
     for (int i = 0; i < 10; i++) {
         Player* p = &g_game->players[i];
