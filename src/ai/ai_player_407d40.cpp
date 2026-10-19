@@ -6,74 +6,33 @@
 
 extern Game* g_game;
 
-struct Vec3_00407d40 {
-    int x, y, z;
-
-    Vec3_00407d40() {}
-    // The declaration of ax, the double and the assignment are three separate
-    // statements on purpose: folding them into `int ax = (int)(game->mapWidthWorld / 2
-    // * 65536.0);` moves the constructor's `pop edi` back between c.y and c.z
-    // and the function stops matching.
-    Vec3_00407d40(Game* game) {
-        int ax;
-        double halfX = ((double)(((game->baseX / 2) * 65536.0)));
-        ax = (int)halfX;
-        *this = Vec3_00407d40(ax, 0, (int)((game->baseY / 2) * 65536.0));
-    }
-    Vec3_00407d40(int ax, int ay, int az) : x(ax), y(ay), z(az) {}
-};
-
 struct SquadManager;  // the struct key stays in the mangled name of 0x407d40
 #include "squad_manager.h"
 
-// Vtable 0x4fc980, constructor 0x407350, ??_G 0x407390.
-class SquadTimer {
-public:
-    SquadManager* owner;               // +0x4
-    void* group;                       // +0x8
-    int next;                          // +0xc
-    unsigned int player;               // +0x10
-
-    SquadTimer(SquadManager* p, void* q);
-    virtual void OnTimer();                         // slot 0
-    virtual ~SquadTimer() {}                        // slot 1
-};
-
-extern void* DAT_004fc980[];
-extern void* g_spatialTimerVtable[];
-
-class SpatialTimer {
-public:
-    // Plain field, not a virtual class: both vtable stores come from source.
-    void* vptr_slot;                   // +0x0
-    SquadManager* owner;               // +0x4
-    void* group;                       // +0x8
-    int next;                          // +0xc
-    unsigned int player;               // +0x10
-    Vec3_00407d40 best;                // +0x14, the best position found so far
-    Vec3_00407d40 probe;               // +0x20, the position being rated
-    Vec3_00407d40 step;                // +0x2c, added to probe each timer tick
-    int bestRating;                    // +0x38, the unit rating at best
-
-    SpatialTimer(SquadManager* p, void* q);
-};
+#include "squad_timer.h"
 
 SquadTimer::SquadTimer(SquadManager* p, void* q)
-    : owner(p), group(q), next(0), player(p->index) {}
+    : owner(p), group((Group*)q), next(0), player(p->index) {}
+
+static inline Vec3 MakeVec3(int ax, int ay, int az)
+{
+    Vec3 v;
+    v.x = ax;
+    v.y = ay;
+    v.z = az;
+    return v;
+}
 
 // FUNCTION: 0x407d40
+// FUNCTION: 0x407e70 ??_GSpatialTimer@@UAEPAXI@Z
 SpatialTimer::SpatialTimer(SquadManager* p, void* q)
+    : SquadTimer(p, (Group*)q)
 {
-    owner = p;
-    group = q;
-    next = 0;
-    player = p->index;
-    vptr_slot = DAT_004fc980;
-    best = Vec3_00407d40(g_game);
-    probe = Vec3_00407d40(g_game);
-    Vec3_00407d40 temp(g_game);
-    // Order matters: bestRating, then the late vtable store, then step.
+    int x = (int)(g_game->baseX / 2 * 65536.0);
+    best = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    x = (int)(g_game->baseX / 2 * 65536.0);
+    probe = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    x = (int)(g_game->baseX / 2 * 65536.0);
+    step = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     bestRating = 0;
-    vptr_slot = g_spatialTimerVtable;
-    step = temp;
 }

@@ -15,6 +15,7 @@ public:
     unsigned int player;
 
     SquadTimer(SquadManager* p, Group* q);
+    SquadTimer(SquadManager* p, void* q);
     virtual void OnTimer();
     virtual ~SquadTimer() {}
     int TryGetBaseBuildOrScoutCentroid(Vec3* out);
