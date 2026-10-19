@@ -8,21 +8,16 @@
 #include <minmax.h>
 #include <setjmp.h>
 
-// Own Vec3, not vec3.h: it has operator+.
-struct PosVec3 {
-    int x;
-    int y;
-    int z;
+#include "../util/vec3.h"
 
-    PosVec3 operator+(const PosVec3& o) const
-    {
-        PosVec3 r;
-        r.x = x + o.x;
-        r.y = y + o.y;
-        r.z = z + o.z;
-        return r;
-    }
-};
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x + b.x;
+    r.y = a.y + b.y;
+    r.z = a.z + b.z;
+    return r;
+}
 
 struct Vec3f {
     float x;
@@ -33,11 +28,6 @@ struct Vec3f {
 struct Point {
     int x;
     int y;
-};
-
-struct PointXZ {
-    short x;
-    short z;
 };
 
 struct Fixed {
@@ -122,7 +112,7 @@ struct Object3D {
     char unknown_10[12];
     const char* name;                  // +0x1c
     int active;                        // +0x20
-    PosVec3* verts;
+    Vec3* verts;
     Face* faces;                       // +0x28
     char unknown_2c[8];
 };
@@ -153,7 +143,7 @@ struct Cell {
 
 struct Feature {
     char unknown_0[0x94];
-    PointXZ footprint;
+    Point16 footprint;
     char unknown_98[0x100 - 0x98];
 };
 
@@ -191,8 +181,8 @@ struct PieceRec {
     short angle_10;                    // +0x10
     short angle_12;                    // +0x12
     short angle_14;                    // +0x14
-    PosVec3 pos;
-    PosVec3* verts;
+    Vec3 pos;
+    Vec3* verts;
     char unknown_26[2];
     unsigned short flags;              // +0x28
     char unknown_2a[0x36 - 0x2a];
@@ -229,10 +219,10 @@ struct Debris {
     Object3D* obj;                     // +0x00
     GafRef ref1;                       // +0x04
     GafRef ref2;                       // +0x10
-    PosVec3 pos;
-    PosVec3 size;
-    PosVec3 vel;
-    PosVec3 spin;
+    Vec3 pos;
+    Vec3 size;
+    Vec3 vel;
+    Vec3 spin;
     short angle_x;                     // +0x4c
     short angle_y;                     // +0x4e
     short angle_z;                     // +0x50
@@ -260,7 +250,7 @@ struct Game {
     Explosion* explosions[3];          // +0x1ab8f
     void* explosionLensFrame;          // +0x1ab9b
     Object3D pieces[300];              // +0x1ab9f
-    PosVec3 vertices[300][8];
+    Vec3 vertices[300][8];
     Face frames[300][6];
     char unknown_33a0f[0x37e27 - 0x33a0f];
     int viewport[4];                   // +0x37e27
@@ -294,12 +284,12 @@ void __stdcall FillPolygon(void* surface, Point* points, int count, int flags);
 void __stdcall DrawFrameQuad(void* surface, void* pic, Point* points, void* src);
 int __stdcall RandomInt(int range);
 int __stdcall StepGafSequence(GafRef* ref);
-void __stdcall RotateByAngles(PosVec3* in, PosVec3* out, short* angles);
+void __stdcall RotateByAngles(Vec3* in, Vec3* out, short* angles);
 Vec3f __stdcall VectorFromTo(Vec3f from, Vec3f to);
 Vec3f __stdcall CrossProduct(Vec3f a, Vec3f b);
 Vec3f __stdcall NormalizeVector(Vec3f v);
 #include "../../interfaces/seams.h"
-void __stdcall AddExplosionEffect(PosVec3* pos, GafSequence* src, int index, int flag);
+void __stdcall AddExplosionEffect(Vec3* pos, GafSequence* src, int index, int flag);
 Explosion* __stdcall BuildCalcedExplosion(int n, int from, int to);
 void* __stdcall BuildExplosionFrame(int size);
 int __stdcall UpdateExplodedPiece(ExplodedPiece* obj);
@@ -396,7 +386,7 @@ void FreeExplosions(void)
 // Appends one entry (up to 300) to the table at g_game+0x1491b: a position and
 // two references built by InitGafSequence.
 // FUNCTION: 0x420a30
-void __stdcall AddExplosionEffect(PosVec3* pos, GafSequence* src, int index, int flag)
+void __stdcall AddExplosionEffect(Vec3* pos, GafSequence* src, int index, int flag)
 {
     int* pCount = &g_game->count;
     if (*pCount < 300) {
@@ -506,7 +496,7 @@ void UpdateExplosions()
     int n;
     for (n = 0; n < *pCount; n++, d++) {
         if (d->obj != 0) {
-            PosVec3 old = d->pos;
+            Vec3 old = d->pos;
             d->pos.x += d->size.x + d->vel.x;
             d->pos.y += d->size.y + d->vel.y;
             d->pos.z += d->size.z + d->vel.z;
@@ -623,9 +613,9 @@ void __stdcall DrawExplodedPieceFaces(void* surface, ExplodedPiece* obj, PieceRe
         return;
     }
 
-    PosVec3* v = inner->verts;
+    Vec3* v = inner->verts;
     // Indexed destination with a walked source pointer u: the byte-exact form.
-    PosVec3* u = v;
+    Vec3* u = v;
     for (i = 0; i < arr->vertexCount; i++, u++) {
         projected[i].x = (short)((u->x + off.a) >> 16) + 0x80;
         projected[i].y = (short)((off.b - u->z) >> 16)
@@ -689,7 +679,7 @@ int __stdcall UpdateExplodedPiece(ExplodedPiece* obj)
     if (n == 0)
         return 0;
 
-    PosVec3 pos;
+    Vec3 pos;
     if (inner->pos.y <= (int)((unsigned)g_game->seaLevel << 16)) {
         if (obj->b4 && g_game->mapInfo->f_d48 == 0) {
             GafSequence* src;
@@ -803,7 +793,7 @@ void __stdcall StartExplodePiece(ExplodedPiece* piece)
     PieceRec* dst = (PieceRec*)((char*)block + 0x30);
     block->header.rec = dst;
     *dst = *rec;
-    block->header.rec->verts = (PosVec3*)((char*)block->header.rec + 0x36);
+    block->header.rec->verts = (Vec3*)((char*)block->header.rec + 0x36);
     block->header.rec->pos.x += obj->pos.x;
     block->header.rec->pos.y += obj->pos.y;
     block->header.rec->pos.z += obj->pos.z;
@@ -837,7 +827,7 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
         (PieceRec*)((char*)unit->state + 0x22 + param->index * 0x36);
     int* count = &g_game->count;
     Object3D* desc = piece->desc;
-    PosVec3* verts = piece->verts;
+    Vec3* verts = piece->verts;
     if (param->scale == 0)
         param->scale = 1;
     for (int i = 0; i < desc->faceCount; i++) {
@@ -845,7 +835,7 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
             return;
         if (desc->faces[i].nverts == 4 && !(desc->faces[i].flags.raw & 1) && desc->firstFace != i) {
             Debris* d = (Debris*)(count + 1) + (*count)++;
-            d->pos = piece->pos + *(PosVec3*)&unit->pos;
+            d->pos = PosPlus(piece->pos, unit->pos);
             d->obj = AllocExplodePieceObject();
             if (d->obj == 0)
                 return;
@@ -872,7 +862,7 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
                 o->verts[k] = verts[desc->faces[i].vindex[k]];
                 o->verts[7 - k] = verts[desc->faces[i].vindex[k]];
             }
-            PosVec3* v = o->verts;
+            Vec3* v = o->verts;
             Vec3f a, b, c;
             a.x = FIX2F(v[0].x);
             a.y = FIX2F(v[0].y);
@@ -935,18 +925,18 @@ void __stdcall BreakPieceIntoDebris(ExplodedPiece* param)
 }
 
 // FUNCTION: 0x421da0
-unsigned short __stdcall FindFeatureAtPos(PosVec3* pos, PointXZ* cell, PointXZ* size)
+unsigned short __stdcall FindFeatureAtPos(Vec3* pos, Point16* cell, Point16* size)
 {
-    PointXZ c;
+    Point16 c;
     c.x = (short)(pos->x >> 20);
-    c.z = (short)(pos->z >> 20);
-    Cell* p = g_seams.los_radar->GetMapCell(c.x, c.z);
+    c.y = (short)(pos->z >> 20);
+    Cell* p = g_seams.los_radar->GetMapCell(c.x, c.y);
     if (p == 0)
         return 0xffff;
     if (p->feature == 0xfffe) {
         c.x -= p->offsetX;
-        c.z -= p->offsetY;
-        p = g_seams.los_radar->GetMapCell(c.x, c.z);
+        c.y -= p->offsetY;
+        p = g_seams.los_radar->GetMapCell(c.x, c.y);
     }
     if (p->feature >= 0xfffb)
         return 0xffff;
