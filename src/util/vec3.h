@@ -18,7 +18,7 @@ struct Vec3 {
         y -= v.y;
         z -= v.z;
     }
-    int Square() const
+    int SquareXZ() const
     {
         __int64 a = x, b = z;
         return (int)((a * a) >> 32) + (int)((b * b) >> 32);

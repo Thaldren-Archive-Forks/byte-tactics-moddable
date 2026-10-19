@@ -50466,9 +50466,9 @@ address,function,file,kind,target
 ,Value_004e2620::operator=,src/debug/debug_lib_4e2620.cpp,call,memcpy
 ,Value_004e2620::operator=,src/debug/debug_lib_4e2620.cpp,deref_read,*Value_004e2620
 ,Value_004e2620::operator=,src/debug/debug_lib_4e2620.cpp,function,
-,Vec3::Square,src/util/vec3.h,field_read,Vec3::x
-,Vec3::Square,src/util/vec3.h,field_read,Vec3::z
-,Vec3::Square,src/util/vec3.h,function,
+,Vec3::SquareXZ,src/util/vec3.h,field_read,Vec3::x
+,Vec3::SquareXZ,src/util/vec3.h,field_read,Vec3::z
+,Vec3::SquareXZ,src/util/vec3.h,function,
 ,Vec3::Vec3,src/ai/ai_player_408100.cpp,function,
 ,Vec3::operator+,src/ai/ai_player_408100.cpp,field_read,Vec3::x
 ,Vec3::operator+,src/ai/ai_player_408100.cpp,field_read,Vec3::y
