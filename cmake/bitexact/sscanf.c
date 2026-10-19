@@ -4,6 +4,10 @@
 
 #include "bitexact.h"
 
+#if !defined(_MSC_VER) && !defined(__cdecl)
+#define __cdecl
+#endif
+
 #define MAX_FORWARD 12
 
 static int is_space(char c)

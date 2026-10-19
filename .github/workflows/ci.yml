@@ -158,3 +158,55 @@ jobs:
         run: |
           uv run tools/test_coupling.py
           uv run tools/coupling.py --check
+
+  bitexact-portable:
+    name: bitexact-portable (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    env:
+      UV_VERSION: 0.12.19
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            os: ubuntu-24.04
+            configure: ""
+          - name: linux-i686
+            os: ubuntu-24.04
+            configure: "-DCMAKE_C_FLAGS=-m32"
+            multilib: true
+          - name: linux-arm64
+            os: ubuntu-24.04-arm
+            configure: ""
+          - name: macos-arm64
+            os: macos-latest
+            configure: ""
+          - name: windows-x64
+            os: windows-latest
+            configure: "-A x64"
+          - name: windows-win32
+            os: windows-latest
+            configure: "-A Win32"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Install 32-bit support
+        if: matrix.multilib
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-multilib
+
+      - name: Configure
+        shell: bash
+        run: cmake -S lib/bitexact -B build/bxp -DCMAKE_BUILD_TYPE=Release ${{ matrix.configure }}
+
+      - name: Build
+        run: cmake --build build/bxp --config Release
+
+      - name: Test
+        run: ctest --test-dir build/bxp -C Release --output-on-failure
