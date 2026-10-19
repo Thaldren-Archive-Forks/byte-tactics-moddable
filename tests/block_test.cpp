@@ -136,8 +136,47 @@ static void Fresh(Run* r, int rounds)
     r->blockSum = Sum(SimBlockBase(), kSimBlockBytes);
 }
 
+static unsigned int Stream(int i)
+{
+    return *SimRandStream(i);
+}
+
+static unsigned int Next(unsigned int h)
+{
+    return h * 214013u + 2531011u;
+}
+
+static void RunStreamTests()
+{
+    SimBlockReset();
+    SimBlockInit();
+    Check(Stream(0) == 1 && Stream(1) == 1, "both streams start at holdrand 1");
+    Check((char*)SimRandStream(0) == (char*)SimBlockBase() + 0x10, "the main stream is at 0x10");
+    Check((char*)SimRandStream(1) == (char*)SimBlockBase() + 0x14, "the load stream is at 0x14");
+
+    *SimRandStream(0) = Next(*SimRandStream(0));
+    Check(Stream(0) == 2531011u + 214013u && Stream(1) == 1, "drawing from main leaves load alone");
+    *SimRandStream(1) = 0x1234567u;
+    Check(Stream(1) == 0x1234567u && Stream(0) == 2531011u + 214013u, "seeding load leaves main alone");
+
+    void* copy = VirtualAlloc(0, kSimBlockBytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    void* base = SimBlockBase();
+    memcpy(copy, base, kSimBlockBytes);
+    *SimRandStream(0) = 77;
+    *SimRandStream(1) = 88;
+    SimBlockAttach(copy);
+    Check(Stream(0) == 2531011u + 214013u && Stream(1) == 0x1234567u, "an attached copy carries its stream values");
+    SimBlockAttach(base);
+    Check(Stream(0) == 77 && Stream(1) == 88, "the first block keeps its own stream values");
+    VirtualFree(copy, 0, MEM_RELEASE);
+
+    SimBlockReset();
+    Check(Stream(0) == 1 && Stream(1) == 1, "both streams are 1 again after SimBlockReset");
+}
+
 int main()
 {
+    RunStreamTests();
     Run a, b;
     Fresh(&a, 400);
     Fresh(&b, 400);

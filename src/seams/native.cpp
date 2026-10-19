@@ -28,6 +28,7 @@ public:
 };
 
 void __cdecl UpdateWind(void);
+void __cdecl UpdateWindOnStream(RandStream stream);
 void __stdcall UpdateMeteors(void);
 void __stdcall InitMeteors(void);
 void __stdcall EmptyShutdownPreCleanup(void);
@@ -355,6 +356,7 @@ void __stdcall UpdateProjectiles(void);
 void __stdcall UpdateExplosions(void);
 void __stdcall UpdateAllUnits(void);
 void __stdcall UpdatePlayers(void);
+void __stdcall UpdatePlayersOnStream(RandStream stream);
 
 static unsigned char __fastcall ChooseWeaponNative(Unit* self)
 {
@@ -689,6 +691,7 @@ void InstallNativeSeams()
     s_wind_meteors.SaveMeteors = SaveMeteors;
     s_wind_meteors.LoadMeteors = LoadMeteors;
     s_wind_meteors.CmdMeteor = CmdMeteor;
+    s_wind_meteors.UpdateWindOnStream = UpdateWindOnStream;
     s_economy.UpdateResourceSharing = UpdateResourceSharing;
     s_economy.GetEnergyUse = GetEnergyUse;
     s_economy.UpdatePlayerEconomy = UpdatePlayerEconomy;
@@ -887,6 +890,7 @@ void InstallNativeSeams()
     s_players.DeleteConditions = DeleteConditionsNative;
     s_players.NotifyUnitCreated = NotifyUnitCreatedNative;
     s_players.NotifyUnitDied = NotifyUnitDiedNative;
+    s_players.UpdatePlayersOnStream = UpdatePlayersOnStream;
     s_units.AllocateUnitMemory = AllocateUnitMemory;
     s_units.FreeUnitMemory = FreeUnitMemory;
     s_units.FreeUnitInfo = FreeUnitInfo;

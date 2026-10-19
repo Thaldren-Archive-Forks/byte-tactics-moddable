@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include "../state/block.h"
+#include "../state/game_rand.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -1468,12 +1469,12 @@ int FUN_00490200()
 }
 
 // FUNCTION: 0x490360
-int MissionConditions::CheckDefeat()
+int MissionConditions::CheckDefeat(RandStream stream)
 {
     if (active) {
         if (GetCdPathMismatch()) {
             if (g_cdMismatchDefeatTick == 0) {
-                g_cdMismatchDefeatTick = (int)((__int64)rand() * 0x2328 / 0x8000) + 0x2328;
+                g_cdMismatchDefeatTick = (int)((__int64)GameRand(stream) * 0x2328 / 0x8000) + 0x2328;
             }
             if (g_cdMismatchDefeatTick <= ((unsigned int)g_game->ticks)) {
                 g_cdMismatchDefeatTick = 0;

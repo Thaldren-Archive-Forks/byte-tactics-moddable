@@ -3,6 +3,11 @@
 
 #include <stddef.h>
 
+/* The calling convention of the functions a /Gz game build calls: the library itself is cdecl, so such a build defines this as __cdecl first. */
+#ifndef BX_CALL
+#define BX_CALL
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -78,10 +83,10 @@ typedef struct {
 } bx_rand_state;
 
 /* LIBCMT srand: restarts the stream s from seed. */
-void bx_srand(bx_rand_state *s, bx_u32 seed);
+BX_CALL void bx_srand(bx_rand_state *s, bx_u32 seed);
 
 /* LIBCMT rand: advances the stream s and returns the next value, 0 to 0x7fff. */
-int bx_rand(bx_rand_state *s);
+BX_CALL int bx_rand(bx_rand_state *s);
 
 /* std::random_shuffle(first, last) as MSVC 5's STL compiles it for an int array: draws last - first - 1 times from s, none for an empty or one-element range. */
 void bx_random_shuffle_int(bx_rand_state *s, int *first, int *last);

@@ -15,6 +15,7 @@
 #include <string.h>
 #include <algorithm>
 #include <time.h>
+#include "../state/game_rand.h"
 // Needed: without it the x87 schedule of the map-name block differs.
 #include <ddraw.h>
 
@@ -381,7 +382,7 @@ void __cdecl LoadMatch(void*)
 
     QueryPerformanceCounter(&perfCount);
     SeedRandom(HarnessGameSeed(perfCount.LowPart + perfCount.HighPart));
-    srand(HarnessCrtSeed((unsigned)time(NULL)));
+    GameSrand(RAND_STREAM_LOAD, HarnessCrtSeed((unsigned)time(NULL)));
     g_game->ticks = 0;
 
     // Six of these casts stay: taking more than two out in this function moves
@@ -551,8 +552,9 @@ void __cdecl LoadMatch(void*)
                         }
                     }
                 }
-                if (n > 2 || (int)(((__int64)rand() * 2) / 0x8000) != 0) {
-                    std::random_shuffle(order, order + n);
+                if (n > 2 || (int)(((__int64)GameRand(RAND_STREAM_LOAD) * 2) / 0x8000) != 0) {
+                    GameShuffleDraw draw(RAND_STREAM_LOAD);
+                    std::random_shuffle(order, order + n, draw);
                 }
                 int k = 0;
                 for (int i4 = 0; i4 < 10; i4++) {
@@ -603,7 +605,7 @@ tail:
     currec->data->flags_9b |= 0x10;
     BroadcastPlayerInfo();
     UpdateNetGameInfo();
-    g_seams.players->UpdatePlayers();
+    g_seams.players->UpdatePlayersOnStream(RAND_STREAM_LOAD);
     g_seams.players->InitPlayerResources();
 
     HapiBank* mission = ((HapiBank*)g_game->pendingSaveStore);
