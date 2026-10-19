@@ -564,9 +564,6 @@ game,platform,call,ProtectBlockReadOnly,1
 game,platform,call,ProtectBlockReadWrite,1
 game,platform,call,QuitApp,1
 game,platform,call,RandomInt,1
-game,platform,call,ReadRegistryData,2
-game,platform,call,ReadRegistryDword,4
-game,platform,call,ReadRegistryValue,1
 game,platform,call,RegisterDataArchives,2
 game,platform,call,RemoveFile,1
 game,platform,call,ReportException,1
@@ -574,10 +571,14 @@ game,platform,call,SeedRandom,1
 game,platform,call,SetCloseHandler,10
 game,platform,call,SetOutOfMemoryHandler,2
 game,platform,call,SetResolution,2
+game,platform,call,SettingGetBlob,1
+game,platform,call,SettingGetInt,4
+game,platform,call,SettingGetString,2
+game,platform,call,SettingSetBlob,1
+game,platform,call,SettingSetInt,5
+game,platform,call,SettingSetString,3
 game,platform,call,ShutdownEnvironment,1
 game,platform,call,SkipTextLines,4
-game,platform,call,SleepMilliseconds,2
-game,platform,call,StartThread,1
 game,platform,call,TdfFile::GetCurrentRecord,2
 game,platform,call,TdfFile::LoadFile,2
 game,platform,call,TdfFile::ResetCurrentRecord,2
@@ -592,9 +593,13 @@ game,platform,call,TdfRecord::GetFieldString,1
 game,platform,call,ToggleFullScreen,2
 game,platform,call,Translate,7
 game,platform,call,UpdateTimers,1
-game,platform,call,WriteRegistryBinary,1
-game,platform,call,WriteRegistryDword,5
-game,platform,call,WriteRegistryString,3
+game,platform,call,host_message,2
+game,platform,call,host_setting_get,1
+game,platform,call,host_setting_set,1
+game,platform,call,host_sleep_ms,3
+game,platform,call,host_thread_start,1
+game,platform,call,host_time_counter,1
+game,platform,call,host_time_ms,1
 game,platform,call,operator delete,6
 game,platform,call,operator new,4
 game,platform,shared_write,Vec3::x,21
@@ -1018,6 +1023,8 @@ harness,orders,shared_write,Game::playerIndex,1
 harness,pathfinding,shared_write,Game::field_2a3c,1
 harness,platform,call,GetMemSetValue,1
 harness,platform,call,IsMemSet,1
+harness,platform,call,host_exit,1
+harness,platform,call,host_log,1
 harness,players,call,HarnessConditionClass,1
 harness,players,call,ResetPlayerSlots,1
 harness,players,shared_write,Game::difficulty,3
@@ -1514,10 +1521,11 @@ network,platform,call,LzssExpand,1
 network,platform,call,QuitApp,2
 network,platform,call,SetCloseHandler,2
 network,platform,call,SkipTextLines,2
-network,platform,call,SleepMilliseconds,1
 network,platform,call,ToggleFullScreen,2
 network,platform,call,Translate,10
 network,platform,call,_Destroy,2
+network,platform,call,host_sleep_ms,3
+network,platform,call,host_time_ms,2
 network,platform,call,operator delete,26
 network,platform,call,operator new,18
 network,platform,call,operator==,5
@@ -2487,10 +2495,10 @@ players,platform,call,HapiBank::SetDoubleItem,1
 players,platform,call,HapiBank::SetIntegerItem,19
 players,platform,call,HapiBank::WriteBox,1
 players,platform,call,RandomInt,1
+players,platform,call,SettingSetInt,1
 players,platform,call,TdfRecord::GetFieldInt,1
 players,platform,call,TdfRecord::GetFieldString,1
 players,platform,call,Translate,2
-players,platform,call,WriteRegistryDword,1
 players,platform,call,operator delete,3
 players,platform,call,operator new,5
 players,platform,shared_write,Point16::x,9
@@ -3036,8 +3044,6 @@ presentation,platform,call,SetDefaultCommandHandler,1
 presentation,platform,call,SetMediaNotifyCallback,1
 presentation,platform,call,SetOutOfMemoryHandler,1
 presentation,platform,call,SkipTextLines,27
-presentation,platform,call,SleepMilliseconds,3
-presentation,platform,call,StartThread,2
 presentation,platform,call,StringRef::GetUnique,2
 presentation,platform,call,StringRef::~StringRef,1
 presentation,platform,call,TdfFile::GetCurrentRecord,1
@@ -3057,6 +3063,15 @@ presentation,platform,call,Vec3::Scale,1
 presentation,platform,call,VectorFromToInt,1
 presentation,platform,call,WorldToCell,2
 presentation,platform,call,WriteBufferToFile,3
+presentation,platform,call,host_atomic_exchange,10
+presentation,platform,call,host_event_create,2
+presentation,platform,call,host_event_reset,2
+presentation,platform,call,host_event_set,5
+presentation,platform,call,host_event_wait,5
+presentation,platform,call,host_message,1
+presentation,platform,call,host_sleep_ms,4
+presentation,platform,call,host_thread_start,2
+presentation,platform,call,host_time_ms,5
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
 presentation,platform,call,operator-,5
