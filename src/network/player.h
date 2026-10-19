@@ -147,6 +147,8 @@ struct Player {
     void SetType(int newType);
     int IsPlayableSlot();
     void Clear() { active = 0; type = 0; }
+    float GetEnergy() { return energy; }
+    float GetMetal() { return metal; }
 };
 #pragma pack(pop)
 
