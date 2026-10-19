@@ -23,7 +23,7 @@ struct Position_00475470 {             // 16.16 fixed point; only high words rea
 struct SmokeParticle {
     void* data;                        // +0x00, the animation
     union {
-        Vec3 pos;             // +0x04
+        Vec3 pos;
         Position_00475470 posw;
     };
     int limit;                         // +0x10, the rounds it lives

@@ -160,11 +160,11 @@ struct Pos_004739b0 {
 struct NanoParticle {
 public:
     union {
-        Vec3 pos;             // +0x0
+        Vec3 pos;
         Pos_004739b0 posw;
     };
     char unknown_c[0xc];
-    Vec3 vel;                 // +0x18
+    Vec3 vel;
     char unknown_24[4];
     int flags;                         // +0x28, low 4 bits: frame; the colour
     int endTime;                       // +0x2c, the tick it expires
@@ -222,9 +222,9 @@ public:
     unsigned short* bitmask;           // +0x00, the animation
     union {
         struct {
-            Vec3 pos0;        // +0x04
-            Vec3 pos1;        // +0x10
-            Vec3 pos2;        // +0x1c
+            Vec3 pos0;
+            Vec3 pos1;
+            Vec3 pos2;
         };
         struct {
             char unknown_4[0x6 - 0x4];
@@ -387,9 +387,9 @@ public:
     int time;                                           // +0x8, the next emit tick
     Vec_004743a0 items;                                 // +0xc (_First +0x10)
     int period;                                         // +0x1c
-    Vec3 pos0;                                 // +0x20
-    Vec3 pos1;                                 // +0x2c
-    Vec3 pos2;                                 // +0x38
+    Vec3 pos0;
+    Vec3 pos1;
+    Vec3 pos2;
 
     ThrustParticles() {}
     virtual void Update();                              // slot 1, 0x473010
@@ -562,7 +562,7 @@ struct Position_00475150 {             // 16.16 fixed point; only high words rea
 struct TimedSubParticle {
     void* data;                        // +0x00, the animation
     union {
-        Vec3 pos;             // +0x04
+        Vec3 pos;
         Position_00475150 posw;
     };
     int limit;                         // +0x10, the rounds it lives
@@ -584,7 +584,7 @@ public:
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
     int altAnimation;                                   // +0x28, the other animation
-    Vec3 pos;                                  // +0x2c
+    Vec3 pos;
 
     SmokeParticles();
     virtual void Update();                              // slot 1, 0x475340

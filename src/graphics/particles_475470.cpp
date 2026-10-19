@@ -71,7 +71,7 @@ static inline int IsVisible(Player* map, Position_00475470* pos)
 struct SmokeParticle {
     void* data;                        // +0x00, the animation
     union {
-        Vec3 pos;             // +0x04
+        Vec3 pos;
         Position_00475470 posw;
     };
     int limit;                         // +0x10, the rounds it lives
@@ -110,7 +110,7 @@ public:
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
     int altAnimation;                                   // +0x28, the other animation
-    Vec3 pos;                                  // +0x2c
+    Vec3 pos;
 
     SmokeParticles();
     virtual void Update();                              // slot 1, 0x475340

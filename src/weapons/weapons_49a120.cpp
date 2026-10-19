@@ -30,15 +30,15 @@ struct CellPos_0049a120 {
 // Not units/unit_def.h: the header takes 0x49a120 out of its symbol-id window.
 struct UnitDef_0049a120 {
     char unknown_0[0x15e];
-    Vec3 boxMin;              // +0x15e
-    Vec3 boxMax;              // +0x16a
+    Vec3 boxMin;
+    Vec3 boxMax;
 };
 
 struct Holder_0049a120;
 
 struct Unit_0049a120 {
     char unknown_0[0x6a];
-    Vec3 pos;                 // +0x6a
+    Vec3 pos;
     char unknown_76[0x92 - 0x76];
     UnitDef_0049a120* def;             // +0x92
     Holder_0049a120* player;           // +0x96
@@ -49,9 +49,9 @@ struct Unit_0049a120 {
 
 struct Weapon_0049a120 {
     WeaponDef* def;                    // +0x0
-    Vec3 pos;                 // +0x4
+    Vec3 pos;
     char unknown_10[0x28 - 0x10];
-    Vec3 aim;                 // +0x28
+    Vec3 aim;
     char unknown_34[0x52 - 0x34];
     Unit_0049a120* attacker;           // +0x52
     char unknown_56[0x66 - 0x56];
@@ -86,7 +86,7 @@ struct Cell {
 
 struct Spot_0049a120 {
     char unknown_0[8];
-    Vec3 pos;                 // +0x8
+    Vec3 pos;
     char unknown_14[0x30 - 0x14];
 };
 
@@ -98,7 +98,7 @@ struct FeatureDef_0049a120 {
 // receiver at 0x49af90 in the weapons file holds the other.
 struct ProjectileDetonatePacket {
     unsigned char type;                // +0x0
-    Vec3 aim;                 // +0x1
+    Vec3 aim;
     unsigned char weaponIndex;         // +0xd
 };
 

@@ -71,7 +71,7 @@ public:
     virtual int IsFinished();                           // slot 3, 0x475330
     virtual void Emit();                                // slot 4, 0x4751c0
     virtual int IsEmitDue();                            // slot 5, 0x4750f0
-    virtual void Init(Vec3* p, int a, int b, int c);          // slot 6
+    virtual void Init(Vec3* p, int a, int b, int c);
 };
 
 // The owner of the per-index lists.

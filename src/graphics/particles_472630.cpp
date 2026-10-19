@@ -163,7 +163,7 @@ struct Pos_004745e0 {
 struct TimedSubParticle {
     void* data;                        // +0x00, the animation
     union {
-        Vec3 pos;             // +0x04
+        Vec3 pos;
         Position_00475150 posw;
     };
     int limit;                         // +0x10, the rounds it lives
@@ -185,7 +185,7 @@ public:
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
     int altAnimation;                                   // +0x28, the other animation
-    Vec3 pos;                                  // +0x2c
+    Vec3 pos;
 
     SmokeParticles();
     virtual void Update();                              // slot 1, 0x475340
@@ -205,7 +205,7 @@ public:
     int emitPeriod;                                     // +0x1c, the emit period
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
-    Vec3 pos;                                  // +0x28
+    Vec3 pos;
 
     TimedSubParticles();
     virtual void Update();                              // slot 1, 0x475600
@@ -215,7 +215,7 @@ public:
     // In particles_4750f0.cpp: it is defined returning bool, and Update tests
     // its result as an int.
     virtual int IsEmitDue();                            // slot 5, 0x4750f0
-    virtual void Init(Vec3* pos, int a, int b, int c); // slot 6, 0x475150
+    virtual void Init(Vec3* pos, int a, int b, int c);
 };
 
 // One teleport spark (the element of TeleportParticles' vector), 0x34 bytes.
@@ -249,11 +249,11 @@ public:
 struct NanoParticle {
 public:
     union {
-        Vec3 pos;             // +0x0
+        Vec3 pos;
         Pos_004739b0 posw;
     };
     char unknown_c[0xc];
-    Vec3 vel;                 // +0x18
+    Vec3 vel;
     char unknown_24[4];
     int flags;                         // +0x28, low 4 bits: frame; the colour
     int endTime;                       // +0x2c, the tick it expires
@@ -330,9 +330,9 @@ public:
     int time;                                           // +0x8
     std::vector<ThrustParticle> items;                  // +0xc (_First +0x10)
     int period;                                         // +0x1c
-    Vec3 pos0;                                 // +0x20
-    Vec3 pos1;                                 // +0x2c
-    Vec3 pos2;                                 // +0x38
+    Vec3 pos0;
+    Vec3 pos1;
+    Vec3 pos2;
 
     ThrustParticles() {}
     virtual void Update();                              // slot 1, 0x473010
