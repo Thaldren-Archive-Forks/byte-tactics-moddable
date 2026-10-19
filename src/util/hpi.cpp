@@ -14,6 +14,7 @@
 #include <io.h>
 #include <direct.h>
 #include <stddef.h>
+#include <vector>
 
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void RegisterUnitOrders(void);
@@ -1015,17 +1016,6 @@ int __stdcall CountDirectoryEntries(const char* path, int flag)
 
 #include "string_ref.h"
 
-namespace std {
-template<class T> class allocator;
-template<class T, class A = allocator<T> > class vector {
-public:
-    char allocator_;                   // +0x0
-    T* _First;                         // +0x4
-    T* _Last;                          // +0x8
-    T* _End;                           // +0xc
-    void insert(T* pos, unsigned int n, const T& x);
-};
-}
 typedef std::vector<StringRef> FileList;
 
 // FUNCTION: 0x4bca30
@@ -1038,7 +1028,7 @@ void __stdcall ListDirectory(const char* path, int dirsOnly, FileList* list)
             if (strcmp(fd.name, ".") != 0 && strcmp(fd.name, "..") != 0
                 && (dirsOnly == 0 || (fd.attrib & 0x10) != 0)) {
                 StringRef key(fd.name);
-                list->insert(list->_Last, 1, key);
+                list->insert(list->end(), 1, key);
             }
         } while (HAPI_FindNext((FindFiles*)h, &fd) != -1);
         if (h != 0) {
@@ -1078,7 +1068,7 @@ void __stdcall FindFilesRecursive(char* path, const char* pat, FileList* tree, i
                 } else if (MatchWildcard(fd.name, pat)) {
                     sprintf(buf, "%s\\%s", path, fd.name);
                     StringRef key(buf);
-                    tree->insert(tree->_Last, 1, key);
+                    tree->insert(tree->end(), 1, key);
                 }
             }
         } while ((r = HAPI_FindNext((FindFiles*)h, &fd)) != -1);
