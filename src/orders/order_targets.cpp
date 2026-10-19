@@ -570,12 +570,7 @@ class Pathfinder;
 
 extern Game* g_game;
 
-class Pathfinder {
-public:
-    char unknown_0[0xc9];
-
-    Pathfinder();
-};
+#include "../ai/pathfinder.h"
 
 #include "../../interfaces/seams.h"
 

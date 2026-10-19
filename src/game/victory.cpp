@@ -1598,25 +1598,7 @@ class AiSearchGoal;                    // slot 6's result
 
 #include "../orders/air_maneuver_order.h"
 
-// Vtable 0x4fd428, constructor 0x44ef20, ??_G 0x44ef60.
-class PathGoal {
-public:
-    OrderFx* target;                   // +0x4
-    Struct_004907e0* owner;             // +0x8
-
-    PathGoal(Struct_004907e0* p);
-    virtual ~PathGoal() {}                          // slot 0
-    virtual void SetPathOrder(void* param);         // slot 1
-    virtual void TickTowardGoal();                  // slot 2
-    virtual void FillWaypointWorldPos(Vec3*, int, int);  // slot 3
-    virtual void ExportGoalPose(Vec3*, Vec3*, short*);  // slot 4
-    virtual int HasReadyWaypoints();                // slot 5
-    virtual AiSearchGoal* TryClaimRepath();         // slot 6
-    virtual int HasNetUnitState();                  // slot 7
-    virtual void SerializeNetUnitState(BitWriter*);  // slot 8
-    virtual void DeserializeNetUnitState(BitReader*);  // slot 9
-    virtual void DrawOnSurface(void*);              // slot 10
-};
+#include "../ai/ai_search_goal.h"
 
 // PackedGoal: a moving object that follows its owner, derived from
 // PathGoal (see order_targets_44ef20.cpp for the family) and the base of
@@ -1653,7 +1635,7 @@ unsigned short __stdcall GetHeadingBetween(Vec3* from, Vec3* to);
 // FUNCTION: 0x4905e0
 // FUNCTION: 0x490630 ??_GPackedGoal@@UAEPAXI@Z
 PackedGoal::PackedGoal(Struct_004907e0* p)
-    : PathGoal(p)
+    : PathGoal((Unit*)p)
 {
     pos = p->pos;
     vel = MakeVec3(0, 0, 0);
@@ -1690,7 +1672,7 @@ void PackedGoal::TickTowardGoal()
     if (!target)
         return;
     Vec3 old = pos;
-    target->FillWorldPos(&pos);
+    ((OrderFx*)target)->FillWorldPos(&pos);
     vel = pos - old;
     int dist = (int)_hypot(owner->pos.x - pos.x, owner->pos.z - pos.z);
     if (dist > 0xa00000) {
@@ -1699,13 +1681,13 @@ void PackedGoal::TickTowardGoal()
         else
             // altitude via owner->def-> and first in the add: keeps the two
             // branches from being tail-merged.
-            pos.y = (owner->def->altitude + owner->spatialBucket[1]) << 16;
+            pos.y = (owner->def->altitude + ((unsigned char*)owner->spatialBucket)[1]) << 16;
     }
-    if (dist > 0x1400000 || (!target->GetDesiredHeading((unsigned short*)&heading) && dist > 0x100000))
+    if (dist > 0x1400000 || (!((OrderFx*)target)->GetDesiredHeading((unsigned short*)&heading) && dist > 0x100000))
         heading = (short)GetHeadingBetween(&owner->pos, &pos);
-    if (target->ContainsUnit((Unit*)owner)) {
-        target->AddFlags(0x20);
-        if (!target->KeepAfterComplete())
+    if (((OrderFx*)target)->ContainsUnit((Unit*)owner)) {
+        ((OrderFx*)target)->AddFlags(0x20);
+        if (!((OrderFx*)target)->KeepAfterComplete())
             SetPathOrder(0);
     }
 }
@@ -1751,7 +1733,7 @@ void LiteGoal::SetPathOrder(void* param)
 // FUNCTION: 0x490880
 void LiteGoal::TickTowardGoal()
 {
-    if ((owner->target->flags & 3) != mode)
+    if ((((Target_00490880*)owner->motion)->flags & 3) != mode)
         dirty = 1;
     PackedGoal::TickTowardGoal();
 }
@@ -1771,15 +1753,15 @@ void LiteGoal::SerializeNetUnitState(BitWriter* stream)
 {
     if (target == 0) {
         stream->WriteBits(0, 2);
-    } else if (target->GetType() == 2) {
+    } else if (((OrderFx*)target)->GetType() == 2) {
         stream->WriteBits(1, 2);
-        target->SerializeToBits(stream);
-    } else if (target->GetType() == 3) {
+        ((OrderFx*)target)->SerializeToBits(stream);
+    } else if (((OrderFx*)target)->GetType() == 3) {
         stream->WriteBits(2, 2);
-        target->SerializeToBits(stream);
+        ((OrderFx*)target)->SerializeToBits(stream);
     }
-    stream->WriteBits(owner->target->mode, 2);
-    state = owner->target->mode << 1;     // clears the dirty bit too
+    stream->WriteBits(((Target_00490880*)owner->motion)->mode, 2);
+    state = ((Target_00490880*)owner->motion)->mode << 1;
 }
 
 #pragma pack(push, 2)
@@ -1818,7 +1800,7 @@ PackedPosGoal::PackedPosGoal(Struct_004907e0* p)
 // FUNCTION: 0x4909e0
 PackedPosGoal::~PackedPosGoal()
 {
-    delete target;
+    delete (OrderFx*)target;
     target = 0;
 }
 
@@ -1829,16 +1811,16 @@ PackedPosGoal::~PackedPosGoal()
 void PackedPosGoal::DeserializeNetUnitState(BitReader* reader)
 {
     if (target) {
-        delete target;
+        delete (OrderFx*)target;
         target = 0;
     }
     int kind = reader->ReadBits(2);
     if (kind == 1)
-        target = new (kSim) Class_0044e080(owner, reader);
+        target = (Base_00490a10*)new (kSim) Class_0044e080((Struct_004907e0*)owner, reader);
     else if (kind == 2)
-        target = new (kSim) AirManeuverOrder((Owner_0044e9c0*)owner, reader);
+        target = (Base_00490a10*)new (kSim) AirManeuverOrder((Owner_0044e9c0*)owner, reader);
     int state = reader->ReadBits(2);
-    owner->obj->SetFlightMode((Unit*)owner, state);
+    ((UnitMotion*)owner->motion)->SetFlightMode(owner, state);
 }
 
 // FUNCTION: 0x490aa0

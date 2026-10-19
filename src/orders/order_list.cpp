@@ -853,7 +853,9 @@ public:
 class PackedPosGoal { public: char unknown[0x27]; PackedPosGoal(Unit* unit); };
 class LiteGoal { public: char unknown[0x28]; LiteGoal(Unit* unit); };
 class PatrolGoal { public: char unknown[0x1c]; PatrolGoal(Unit* unit); };
-class AiSearchGoal { public: char unknown[0x65]; AiSearchGoal(Unit* unit); };
+#pragma pack(push, 1)
+#include "../ai/ai_search_goal.h"
+#pragma pack(pop)
 class Class_0043db50 { public: void UpdateSfxOccupy(Unit* u); };
 
 #include "unit_motion.h"

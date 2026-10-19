@@ -20,14 +20,6 @@
 
 extern Game* g_game;
 
-struct Vec3_00407d40 {
-    int x, y, z;
-
-    Vec3_00407d40() {}
-    Vec3_00407d40(int ax, int ay, int az) : x(ax), y(ay), z(az) {}
-    void operator+=(const Vec3_00407d40& v) { x += v.x; y += v.y; z += v.z; }
-};
-
 struct Position_00408090 {              // 16.16 fixed point; only high words read
     short xFrac;
     short x;                            // +0x2
@@ -37,22 +29,7 @@ struct Position_00408090 {              // 16.16 fixed point; only high words re
     short z;                            // +0xa
 };
 
-struct MapSize_00408090 {
-    unsigned int width;                 // +0x0
-    unsigned int height;                // +0x4
-
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
-};
-
-struct ByteMap_00408090 {
-    unsigned char* data;                // +0x0
-    MapSize_00408090 size;              // +0x4
-
-    unsigned char Get(int x, int y) { return data[size.width * y + x]; }
-};
+#include "byte_map.h"
 
 // The header's type, kept local: its explored pointer cannot spell the
 // ByteMap this fog test needs.
@@ -95,71 +72,51 @@ struct UnitDefFlags_00407e90 {
 
 #include "../units/unit.h"
 
-struct Group_00407e90 {
-    PlayerView* player;
-    int id;                             // +0x4
-    char unknown_8[0x10 - 0x8];
-    std::vector<Unit*> units;           // +0x10
-};
-
 #include "../orders/mission_type.h"
 
 #include "squad_manager.h"
 
-// Vtable 0x4fc980, constructor 0x407350, ??_G 0x407390.
-class SquadTimer {
-public:
-    SquadManager* owner;                // +0x4
-    void* group;                        // +0x8
-    int next;                           // +0xc
-    unsigned int player;                // +0x10
+#include "group.h"
+#include "squad_timer.h"
 
-    SquadTimer(SquadManager* p, void* q);
-    virtual void OnTimer();                         // slot 0
-    virtual ~SquadTimer() {}                        // slot 1
-};
-
-// Vtable 0x4fc9a0, constructor 0x407d40, ??_G 0x407e70.
-class SpatialTimer : public SquadTimer {
-public:
-    Vec3_00407d40 best;                 // +0x14, the best position found so far
-    Vec3_00407d40 probe;                // +0x20, the position being rated
-    Vec3_00407d40 step;                 // +0x2c, added to probe each timer tick
-    int bestRating;                     // +0x38, the unit rating at best
-
-    SpatialTimer(SquadManager* p, void* q);
-    virtual void OnTimer();                         // slot 0, 0x407e90
-};
+static inline Vec3 MakeVec3(int ax, int ay, int az)
+{
+    Vec3 v;
+    v.x = ax;
+    v.y = ay;
+    v.z = az;
+    return v;
+}
 
 int __stdcall RandomInt(int range);
 int __cdecl FUN_004b70ef(int angle, int distance);
 int __cdecl FUN_004b7123(int angle, int distance);
 
-static inline Vec3_00407d40 Offset(int angle, int distance)
+static inline Vec3 Offset(int angle, int distance)
 {
-    Vec3_00407d40 v;
+    Vec3 v;
     v.x = -FUN_004b70ef(angle, distance);
     v.y = 0;
     v.z = -FUN_004b7123(angle, distance);
     return v;
 }
 
-int __stdcall SumUnitRatingsInRange(int index, Vec3_00407d40* pos, int range);
+int __stdcall SumUnitRatingsInRange(int index, Vec3* pos, int range);
 #include "../../interfaces/seams.h"
 
 // Constructor 0x407d40 defined again, unannotated: emits the vtable and the
 // scalar deleting destructor.
 // FUNCTION: 0x407e70 ??_GSpatialTimer@@UAEPAXI@Z
 SpatialTimer::SpatialTimer(SquadManager* p, void* q)
-    : SquadTimer(p, q)
+    : SquadTimer(p, (Group*)q)
 {
     // Half of g_game's mapWidthWorld and mapHeightWorld, in 16.16 fixed point.
     int x = (int)(g_game->baseX / 2 * 65536.0);
-    best = Vec3_00407d40(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    best = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     x = (int)(g_game->baseX / 2 * 65536.0);
-    probe = Vec3_00407d40(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    probe = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     x = (int)(g_game->baseX / 2 * 65536.0);
-    step = Vec3_00407d40(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    step = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     bestRating = 0;
 }
 
@@ -169,7 +126,7 @@ void SpatialTimer::OnTimer()
     // Computed first or the sum folds into one lea.
     int delay = RandomInt(150) + 30;
     next = g_game->ticks + delay;
-    if (((Group_00407e90*)group)->units.empty())
+    if (group->units.empty())
         return;
     // Unused on purpose: it emits the operator delete call after the loop.
     std::vector<Unit*> unused;
@@ -180,7 +137,7 @@ void SpatialTimer::OnTimer()
         step = Offset(angle, 0x1400000);
     }
     probe += step;
-    if (IsVisible(((Group_00407e90*)group)->player, (Position_00408090*)&probe)) {
+    if (IsVisible((PlayerView*)group->player, (Position_00408090*)&probe)) {
         int r = SumUnitRatingsInRange(player, &probe, 0xa0);
         // Operand order: the bestRating roll is called first.
         if (RandomInt(r) > RandomInt(bestRating)) {
@@ -188,8 +145,8 @@ void SpatialTimer::OnTimer()
             best = probe;
         }
     }
-    for (std::vector<Unit*>::iterator it = ((Group_00407e90*)group)->units.begin();
-         it != ((Group_00407e90*)group)->units.end(); ++it) {
+    for (std::vector<Unit*>::iterator it = group->units.begin();
+         it != group->units.end(); ++it) {
         Unit* u = *it;
         if (((UnitDefFlags_00407e90*)u->def)->flag4) {
             if (u->motion || g_seams.weapons->WeaponCanReachPos(u, (Vec3*)&u->pos, (Vec3*)&best, 0)) {

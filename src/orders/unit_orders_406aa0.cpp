@@ -4,7 +4,7 @@
 #include <math.h>
 #include "../util/vec3.h"
 #include "../../interfaces/seams.h"
-struct Vec { int x, y, z; Vec() {} Vec(int a,int b,int c):x(a),y(b),z(c) {} };
+#include "../ai/vec.h"
 static inline Vec Add(const Vec& a,const Vec& b) { Vec r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 static inline Vec Sub(const Vec& a,const Vec& b) { Vec r; r.x=a.x-b.x; r.y=a.y-b.y; r.z=a.z-b.z; return r; }
 #pragma pack(push,1)
