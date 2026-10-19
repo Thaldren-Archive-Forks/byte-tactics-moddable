@@ -83,7 +83,8 @@ struct Model_459200;
 
 #pragma pack(push, 1)
 struct Unit_459200 {
-    char unknown_0[0x64];
+    void* motion;
+    char unknown_4[0x60];
     Vector3s angles;
     int pos_x;
     int pos_y;
