@@ -25,11 +25,7 @@ class Class_0044e6c0 { public: void SetAltitude(int); };
 class Class_0044e730 { public: void SetApproachRadius(short); };
 
 #pragma pack(push, 1)
-struct UnitDef {
-    char pad0[0x1fa]; unsigned int maxHealth;
-    char pad1fe[0x21c - 0x1fe]; short altitude;
-    char pad21e[0x241 - 0x21e]; unsigned int flags;
-};
+#include "../units/unit_def.h"
 #include "../weapons/weapon_def.h"
 // Unused here: these forward declarations take the symbol ids that keep 0x412710 matching (docs/c2-regalloc.md).
 struct Sound;
@@ -137,7 +133,7 @@ int __stdcall AirToGroundOrder(Unit* unit, Order* order, int flags)
     state = order->state;
     switch (state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             order->AnnounceStatusIfFlagged("Attacking");
             PrepVtolClimb(unit, order, 0);
             return 1;

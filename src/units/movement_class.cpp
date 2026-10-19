@@ -85,21 +85,6 @@ public:
 
 int __stdcall GetPassMapCellValue(Class_00440500* obj, Cell* cell);
 
-// A static data member holding 32 entries. 0x440230 is its compiler-generated
-// initialiser (the entry constructor inlined as a loop), and 0x440290 the
-// destructor it registers with atexit. MSVC guards the destructor of a static
-// data member with a "$S" flag, which is the byte right after the table.
-// The destructor is implicit (there is no user-written body to write): its body
-// is the compiler's own destruction of the 32 entries, each inlining
-// ~MovementClass (GameFreeThunk on name, then operator delete on cells),
-// which is the loop 0x440290 registers with atexit. A user-written loop would
-// otherwise run on top of that destruction.
-struct MovementClassTable {
-    MovementClass entries[32];
-
-    static MovementClassTable g_movementClasses;
-};
-
 // The pathfinder's dirty-list view of the unit object 0x440a70 refreshes from
 // (0x440af0 / 0x440be0 declare the same bytes as Object_00440af0).
 #pragma pack(push, 2)

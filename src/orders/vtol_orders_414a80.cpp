@@ -23,18 +23,7 @@ struct Unit;
 
 
 #pragma pack(push, 1)
-struct UnitDef {
-    char unknown_0[0x15e];
-    Vec3 min;                          // +0x15e
-    Vec3 max;                          // +0x16a
-    char unknown_176[0x212 - 0x176];
-    unsigned short buildRange;         // +0x212
-    char unknown_214[0x21c - 0x214];
-    short altitude;                    // +0x21c
-    char unknown_21e[0x241 - 0x21e];
-    unsigned int flags;                // +0x241
-    unsigned int flags2;               // +0x245
-};
+#include "../units/unit_def.h"
 
 #include "../units/unit.h"
 
@@ -88,7 +77,7 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
         return 5;
     switch (order->state) {
     case 0:
-        if (unit->motion && (unit->def->flags & 0x800)) {
+        if (unit->motion && (unit->def->flags1 & 0x800)) {
             if (!(unit->def->flags2 & 0x400)) {
                 QueueUnitSpeech(unit, 7, "Reclamation failed");
                 return 7;
@@ -132,11 +121,11 @@ int __stdcall VtolReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
             Vec3 bounds[2];
             bounds[1] = order->target->pos;
             bounds[0] = order->target->pos;
-            bounds[0].x += order->target->def->min.x;
-            bounds[0].z += order->target->def->min.z;
-            bounds[1].x += order->target->def->max.x;
-            bounds[1].z += order->target->def->max.z;
-            bounds[1].y += order->target->def->max.y;
+            bounds[0].x += order->target->def->modelMinX;
+            bounds[0].z += order->target->def->modelMinZ;
+            bounds[1].x += order->target->def->modelMaxX;
+            bounds[1].z += order->target->def->modelMaxZ;
+            bounds[1].y += order->target->def->modelMaxY;
             EmitReverseNanoParticles(bounds, &start, 6);
             order->SetDeadlineTicks(2);
             order->duration += 2;

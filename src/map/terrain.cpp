@@ -60,24 +60,7 @@ struct UnitBucket {                     // 10 bytes: a spatial bucket, the head 
     Unit* first;                        // +0x6
 };
 
-// Keeps its own view: with unit_def.h's symbol ids CanBuildAt (0x47d2e0) no longer matches.
-struct UnitDef {
-    char unknown_0[0x14a];
-    Point16 origin;                    // +0x14a, footprint in map cells
-    unsigned char* mask;                // +0x14e, one byte per footprint cell
-    char unknown_152[0x1be - 0x152];
-    short maxwaterdepth;                // +0x1be
-    short minwaterdepth;                // +0x1c0
-    char unknown_1c2[0x228 - 0x1c2];
-    unsigned char maxslope;             // +0x228
-    unsigned char maxwaterslope;        // +0x229
-    char unknown_22a[0x22c - 0x22a];
-    unsigned char draft;                // +0x22c
-    char unknown_22d[0x22f - 0x22d];
-    unsigned char mobile;               // +0x22f
-    char unknown_230[0x241 - 0x230];
-    unsigned int flags;                 // +0x241
-};
+#include "../units/unit_def.h"
 
 struct Feature {
     char unknown_0[0xec];
@@ -194,7 +177,7 @@ void __stdcall ClaimFootprintCells(Unit* obj)
         int index = 0;
         for (int j = size.y; j > 0; j--) {
             for (int i = size.x; i > 0; i--) {
-                if (obj->def->mask[index] & (obj->bit2 ? 2 : 4)) {
+                if (((unsigned char*)obj->def->yardmap)[index] & (obj->bit2 ? 2 : 4)) {
                     Unit* rec;
                     unsigned short id = cell->unit;
                     if (id == 0)
@@ -461,7 +444,7 @@ int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* 
     int ok;
     g_lastPlaceHeight = 0;
     g_lastPlaceMetalSum = 0;
-    Point16 origin = unit->origin;
+    Point16 origin = *(Point16*)&unit->footprintx;
     // The guard reads cell.x and cell.y directly.
     if (cell.x < 1 || cell.y < 1 || cell.x + origin.x >= g_game->width ||
         cell.y + origin.y >= g_game->height)
@@ -506,7 +489,7 @@ int __stdcall CanBuildAt(UnitDef* unit, Point16 cell, short type, Los_0047d2e0* 
         do {
             for (col = 0; col < cols; col++) {
                 g_lastPlaceMetalSum += c->metal;
-                int m = unit->mask[index++];
+                int m = ((unsigned char*)unit->yardmap)[index++];
                 if (m & 8) {
                     if (c->low < min6)
                         min6 = c->low;
@@ -588,7 +571,7 @@ int __stdcall IsFootprintClear(Unit* obj, int flag)
         Cell* c = g_game->cells + y * width;
         for (int x = p.x; x < xend; x++) {
             // The post-increment stays inside the mask read, not at the loop bottom.
-            if ((obj->def->mask[n++] & bit) && c[x].unit != 0 && c[x].unit != obj->id)
+            if ((((unsigned char*)obj->def->yardmap)[n++] & bit) && c[x].unit != 0 && c[x].unit != obj->id)
                 return 0;
         }
     }
@@ -657,7 +640,7 @@ static inline int SteepCell(Cell* c)
 // FUNCTION: 0x47db70
 int __stdcall CanPlaceUnitFootprint(UnitDef* unit, unsigned short otherTypeId, Point16 cell, int flags)
 {
-    Point16 fp = unit->origin;
+    Point16 fp = *(Point16*)&unit->footprintx;
     if (cell.x < 0 || cell.y < 0)
         return flags == 2;
     int fx = fp.x;
@@ -725,8 +708,8 @@ void __stdcall SnapWorldPosToFootprint(UnitDef* unit, Vec3* pos)
 {
     if (unit->mobile)
         return;
-    Point16 cell = WorldToCell(*pos, unit->origin);
-    CellToWorld(unit->origin, cell, pos);
+    Point16 cell = WorldToCell(*pos, *(Point16*)&unit->footprintx);
+    CellToWorld(*(Point16*)&unit->footprintx, cell, pos);
     pos->y = GetFootprintHeight(unit, cell) << 16;
 }
 

@@ -19,13 +19,7 @@ struct Unit;
 
 #include "path_order_attach.h"
 #pragma pack(push, 1)
-struct UnitDef {
-    char pad0[0x14a]; PointS16 origin;
-    char pad14e[0x15e-0x14e]; Vec3 min, max;
-    char pad176[0x1fe-0x176]; unsigned short buildRate;
-    char pad200[0x212-0x200]; unsigned short buildRange;
-    char pad214[0x249-0x214];
-};
+#include "../units/unit_def.h"
 #include "../units/unit.h"
 #include "order.h"
 #include "../game/game.h"
@@ -78,10 +72,10 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
     switch (state) {
     case 0: {
         UnitDef* def = &Definitions()[order->type];
-        PointS16 cell = WorldToCell(order->pos, def->origin);
-        CellToWorld(def->origin, cell, &order->pos);
+        PointS16 cell = WorldToCell(order->pos, *(PointS16*)&def->footprintx);
+        CellToWorld(*(PointS16*)&def->footprintx, cell, &order->pos);
         order->retries = 0;
-        order->AttachBuildFootprintMarker((*(Point16*)&cell), (*(Point16*)&def->origin));
+        order->AttachBuildFootprintMarker((*(Point16*)&cell), (*(Point16*)&def->footprintx));
         order->flags = 0xe0;
         return 1;
     }
@@ -91,7 +85,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
             Fixed distance;
             distance.value = (int)_hypot(unit->pos.x - order->pos.x, unit->pos.z - order->pos.z);
             int gap = distance.whole - (int)(_hypot(unit->footprint.x, unit->footprint.y) * 8.0);
-            gap += (int)(_hypot(def->origin.x, def->origin.y) * -8.0);
+            gap += (int)(_hypot(def->footprintx, def->footprintz) * -8.0);
             unsigned int range = 0;
             range = unit->def->buildRange;
             if (gap > (int)range) {
@@ -99,7 +93,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
                 return 8;
             }
         }
-        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, WorldToCell16(order->pos, Definitions()[order->type].origin), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, WorldToCell16(order->pos, *(PointS16*)&Definitions()[order->type].footprintx), 1)) {
             if (!order->retries)
                 QueueUnitSpeech(unit, 7, "Waiting for target area to clear");
             else if (order->retries > 10) {
@@ -134,8 +128,8 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit, &start);
             Vec3 bounds[2];
-            bounds[0] = PosPlus(order->target->pos, order->target->def->min);
-            bounds[1] = PosPlus(order->target->pos, order->target->def->max);
+            bounds[0] = PosPlus(order->target->pos, *(Vec3*)&order->target->def->modelMinX);
+            bounds[1] = PosPlus(order->target->pos, *(Vec3*)&order->target->def->modelMaxX);
             EmitNanoParticles(&start, bounds, 6);
         }
         unit->workTime = g_game->ticks + 300;

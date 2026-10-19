@@ -2337,101 +2337,7 @@ struct Point16 {  // 0x4 bytes, 113 views
 
 #include "../src/units/unit.h"
 
-struct UnitDef {  // 0x249 bytes, 220 views
-    char name[32];  // +0x0
-    char name_20[1];  // +0x20
-    char unknown_21[31];
-    char f040[64];  // +0x40
-    char objectname[32];  // +0x80
-    char unknown_a0[26];
-    short field_ba;  // +0xba
-    char unknown_bc[22];
-    Entry_0044c370* field_d2;  // +0xd2
-    char unknown_d6[40];
-    char f0fe[64];  // +0xfe
-    unsigned int key;  // +0x13e
-    int y;  // +0x142
-    unsigned int field_146;  // +0x146
-    Point16 origin;  // +0x14a
-    unsigned char* mask;  // +0x14e
-    int count;  // +0x152
-    int f156;  // +0x156
-    int limit;  // +0x15a
-    Vec3 min;  // +0x15e
-    Vec3 max;  // +0x16a
-    int field_176;  // +0x176
-    int field_17a;  // +0x17a
-    int field_17e;  // +0x17e
-    int radius;  // +0x182
-    float field_186;  // +0x186
-    float field_18a;  // +0x18a
-    void* field_18e;  // +0x18e
-    int field_192;  // +0x192
-    int maxslopevelocity;  // +0x196
-    int field_19a;  // +0x19a
-    int field_19e;  // +0x19e
-    int field_1a2;  // +0x1a2
-    int pitchscale;  // +0x1a6
-    int f1aa;  // +0x1aa
-    int moverate1;  // +0x1ae
-    int moverate2;  // +0x1b2
-    int field_1b6;  // +0x1b6
-    unsigned short max_turn;  // +0x1ba
-    short f1bc;  // +0x1bc
-    short field_1be;  // +0x1be
-    short field_1c0;  // +0x1c0
-    float field_1c2;  // +0x1c2
-    float field_1c6;  // +0x1c6
-    float metalmake;  // +0x1ca
-    float field_1ce;  // +0x1ce
-    float field_1d2;  // +0x1d2
-    float tidalgenerator;  // +0x1d6
-    float cost;  // +0x1da
-    float costActive;  // +0x1de
-    float energystorage;  // +0x1e2
-    float metalstorage;  // +0x1e6
-    int field_1ea;  // +0x1ea
-    Sub_00409520* arr[3];  // +0x1ee
-    unsigned int maxHealth;  // +0x1fa
-    unsigned short buildRate;  // +0x1fe
-    short healtime;  // +0x200
-    short field_202;  // +0x202
-    short field_204;  // +0x204
-    short field_206;  // +0x206
-    short mincloakdistance;  // +0x208
-    short field_20a;  // +0x20a
-    short field_20c;  // +0x20c
-    short soundcategory;  // +0x20e
-    short field_210;  // +0x210
-    unsigned short buildRange;  // +0x212
-    unsigned short field_214;  // +0x214
-    unsigned short attackLength;  // +0x216
-    unsigned short radius_218;  // +0x218
-    short sortbias;  // +0x21a
-    short field_21c;  // +0x21c
-    unsigned short id;  // +0x21e
-    int f220;  // +0x220
-    int f224;  // +0x224
-    unsigned char field_228;  // +0x228
-    unsigned char maxwaterslope;  // +0x229
-    unsigned char capacity;  // +0x22a
-    char transportcapacity;  // +0x22b
-    unsigned char draft;  // +0x22c
-    char field_22d;  // +0x22d
-    unsigned char field_22e;  // +0x22e
-    unsigned char field_22f;  // +0x22f
-    char f230;  // +0x230
-    unsigned int* weaponCategories[3];  // +0x231
-    unsigned int* categories;  // +0x23d
-    unsigned int flags;  // +0x241
-    unsigned int flags2;  // +0x245
-    UnitDef& operator=(UnitDef&);
-    float EnergyCost(void);
-    int HasField1ce(void);
-    float MetalCost(void);
-    unsigned int Health(void);
-    unsigned int MaxHealth(void);
-};
+#include "../src/units/unit_def.h"
 
 #include "../src/orders/order.h"
 
@@ -4760,23 +4666,7 @@ struct Class_004402e0 {  // 0x20 bytes, 3 views
     ~Class_004402e0(void);
 };
 
-struct MovementClass {   // 0x20 bytes, 9 views
-    int* name;  // +0x0
-    short footprintX;  // +0x4
-    short footprintZ;  // +0x6
-    short maxWaterDepth;  // +0x8
-    short minWaterDepth;  // +0xa
-    unsigned char maxSlope;  // +0xc
-    unsigned char badSlope;  // +0xd
-    unsigned char maxWaterSlope;  // +0xe
-    unsigned char badWaterSlope;  // +0xf
-    int width;  // +0x10
-    int height;  // +0x14
-    void* cells;  // +0x18
-    int lastTick;  // +0x1c
-    MovementClass(void);
-    void ReadMoveInfo(Source_00440340*);
-};
+#include "../src/units/movement_class.h"
 
 struct UnitType {        // 0x220 bytes, 2 views
     char unknown_0[542];
@@ -4827,12 +4717,6 @@ struct CobFile_0042d1f0 {  // 0x194 bytes, 2 views
     int offset_28;  // +0x28
     char unknown_2c[356];
     int field_18e;  // +0x190
-};
-
-struct MovementClassTable {  // 0x400 bytes, 7 views
-    MovementClass entries[32];   // +0x0
-    ~MovementClassTable(void);
-    static MovementClassTable g_movementClasses;
 };
 
 class Class_00458180 {  // 0x14 bytes, 2 views
@@ -10575,69 +10459,9 @@ struct Elem_4b0610 {  // 0xa4 bytes, 8 views
     char unknown_24[128];
 };
 
-class CobScript {       // 0x540 bytes, 10 views
-public:
-    int field_4;  // +0x4
-    int field_8;  // +0x8
-    int unknown_c;  // +0xc
-    void* ptr10;  // +0x10
-    void* ptr14;  // +0x14
-    int field_18;  // +0x18
-    Elem_4b0610 arr[8];  // +0x1c
-    int field_53c;  // +0x53c
-    virtual ~CobScript(void);
-    CobScript(CobScript&);
-    CobScript(void);
-    virtual void SetPieceTranslation(int, int, int) = 0;
-    virtual void SetPieceRotation(int, int, int) = 0;
-    virtual void SetPieceVisible(int, int) = 0;
-    virtual void SetPieceCached(int, int) = 0;
-    virtual void SetPieceShaded(int, int) = 0;
-    virtual int GetPieceTranslation(int, int) = 0;
-    virtual int GetPieceRotation(int, int) = 0;
-    virtual int IsPieceVisible(int);
-    virtual int IsPieceCached(int);
-    virtual int IsPieceShaded(int);
-    virtual void ExplodeLegacy(int, int, int);
-    virtual void PlaySoundNoop(int);
-    virtual void EmitSfx(int, int);
-    virtual void ExplodePiece(int, int);
-    virtual void AttachUnit(int, int, int);
-    virtual void DropUnit(int);
-    virtual void SetUnitValue(int, int);
-    virtual int GetUnitValue(int, int, int, int, int);
-    virtual int IsCarryingUnit(int);
-    virtual int GetTransporterId(void);
-    int LoadScriptState(HapiBank*);
-    void SetCob(BuildList_0045a950*);
-    void SaveScriptState(Class_004b4cf0*);
-};
+#include "../src/units/cob_script.h"
 
-class UnitScript : public CobScript {           // 0x544 bytes, 9 views
-public:
-    BuildList_0045a950* data;  // +0x540
-    virtual void SetPieceTranslation(int, int, int);
-    virtual void SetPieceRotation(int, int, int);
-    virtual void SetPieceVisible(int, int);
-    virtual void SetPieceCached(int, int);
-    virtual void SetPieceShaded(int, int);
-    virtual int GetPieceTranslation(int, int);
-    virtual int GetPieceRotation(int, int);
-    virtual int IsPieceVisible(int);
-    virtual int IsPieceCached(int);
-    virtual int IsPieceShaded(int);
-    virtual void ExplodeLegacy(int, int, int);
-    virtual void PlaySoundNoop(int);
-    virtual void EmitSfx(int, int);
-    virtual void ExplodePiece(int, int);
-    virtual void AttachUnit(int, int, int);
-    virtual void DropUnit(int);
-    virtual void SetUnitValue(int, int);
-    virtual int GetUnitValue(int, int, int, int, int);
-    virtual int IsCarryingUnit(int);
-    virtual int GetTransporterId(void);
-    void FUN_00481140(int, unsigned int);
-};
+#include "../src/units/unit_script.h"
 
 class Class_00480d40 {  // 0x544 bytes, 2 views
 public:
@@ -13677,25 +13501,7 @@ public:
     void RemoveCallback(int);
 };
 
-struct Callback {  // 0x4 bytes, 1 view
-    virtual void Complete(int) = 0;
-};
-
-struct Channel {  // 0xa4 bytes, 1 view
-    unsigned int state;  // +0x0
-    int pc;  // +0x4
-    int sp;  // +0x8
-    int delay;  // +0xc
-    int piece;  // +0x10
-    int axis;  // +0x14
-    int waiting;  // +0x18
-    int signal;  // +0x1c
-    Callback* callback;  // +0x20
-    int stack[32];  // +0x24
-    int Pop(void);
-    void Push(int);
-    void XorOp(void);
-};
+#include "../src/units/cob_types.h"
 
 class Class_004b0da0 {  // 0x540 bytes, 6 views
 public:
@@ -13729,21 +13535,6 @@ public:
     virtual int GetTransporterId(void);
     void RunThread(unsigned int, int);
     void Wake(unsigned int);
-};
-
-struct Piece {  // 0x4c bytes, 1 view
-    int active;  // +0x0
-    int move[3];  // +0x4
-    int moveSpeed[3];  // +0x10
-    int turn[3];  // +0x1c
-    int turnSpeed[3];  // +0x28
-    int spin[3];  // +0x34
-    int acceleration[3];  // +0x40
-};
-
-struct ScriptTable {  // 0x28 bytes, 1 view
-    char unknown_0[36];
-    int* code;  // +0x24
 };
 
 struct Data_004b1c00 {  // 0x4c bytes, 1 view
