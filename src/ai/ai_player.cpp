@@ -205,78 +205,7 @@ struct Obj_00406f50 {
     Target_00406f50* target;           // +0x52
 };
 
-// Vtable 0x4fc980, constructor 0x407350, ??_G 0x407390.
-class SquadTimer {
-public:
-    SquadManager* owner;               // +0x4
-    Group* group;                      // +0x8
-    int next;                          // +0xc
-    unsigned int player;               // +0x10
-
-    SquadTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0
-    virtual ~SquadTimer() {}                        // slot 1
-    int TryGetBaseBuildOrScoutCentroid(Vec3* out);
-    int GetAveragePosition(Vec3* out);
-    int CountGroupUnitsInRadius(Vec3* pos, int radius);
-};
-
-// Vtable 0x4fc988, constructor 0x407930, ??_G 0x407980.
-class AssaultTimer : public SquadTimer {
-public:
-    int minimum;                       // +0x14
-    int maximum;                       // +0x18
-    int limit;                         // +0x1c
-    int kind;                          // +0x20
-    int attacking;                     // +0x24
-
-    AssaultTimer(SquadManager* p, Group* q, int a, int b);
-    virtual void OnTimer();                         // slot 0, 0x4077e0
-    void RebalanceAssaultGroupByCentroid(int kind, int limit);
-};
-
-// Vtable 0x4fc990, constructor 0x4079a0, ??_G 0x4079d0.
-class EscortTimer : public SquadTimer {
-public:
-    int other;                         // +0x14
-
-    EscortTimer(SquadManager* p, Group* q, int a);
-    virtual void OnTimer();                         // slot 0, 0x4079f0
-};
-
-// Vtable 0x4fc998, constructor 0x407a90, ??_G 0x407ac0.
-class SquadScoutTimer : public SquadTimer {
-public:
-    SquadScoutTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0, 0x407ae0
-};
-
-// Vtable 0x4fc9a8, constructor 0x4085d0, ??_G 0x408600.
-class ScoutTimer : public SquadTimer {
-public:
-    ScoutTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0, 0x408100
-};
-
-// Vtable 0x4fc9b0, constructor 0x4087e0, ??_G 0x408810.
-class BuildTimer : public SquadTimer {
-public:
-    BuildTimer(SquadManager* p, Group* q);
-    virtual void OnTimer();                         // slot 0, 0x4086d0
-};
-
-// Vtable 0x4fc9a0, constructor 0x407d40, ??_G 0x407e70. Its constructor and
-// slot 0 stay in ai_player_407d40.cpp and ai_player_407e70.cpp.
-class SpatialTimer : public SquadTimer {
-public:
-    Vec3 best;                         // +0x14, the best position found so far
-    Vec3 probe;                        // +0x20, the position being rated
-    Vec3 step;                         // +0x2c, added to probe each timer tick
-    int bestRating;                    // +0x38, the unit rating at best
-
-    SpatialTimer(SquadManager* p, void* q);
-    virtual void OnTimer();                         // slot 0, 0x407e90
-};
+#include "squad_timer.h"
 
 // The AI controller (SquadManager) and the assault slot (AssaultTimer) methods
 // that had class views of their own are declared on those classes now, and the
