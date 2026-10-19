@@ -126,21 +126,7 @@ struct UnitDef {
     short range;                       // +0x202
 };
 
-struct Unit {
-    char unknown_0[0x6a];
-    Vec3 pos;                          // +0x6a
-    char unknown_76[4];                // +0x76
-    short losCacheCellX;               // +0x7a
-    short losCacheCellZ;               // +0x7c
-    char unknown_7e[0x92 - 0x7e];
-    UnitDef* def;                      // +0x92
-    Player* player;                    // +0x96
-    char unknown_9a[0xa6 - 0x9a];
-    unsigned short unitDefIndex;       // +0xa6
-    char unknown_a8[0xf8 - 0xa8];
-    unsigned char losSightFrameIdx[4];         // +0xf8
-    char unknown_fc[0x118 - 0xfc];     // stride 0x118
-};
+#include "../units/unit.h"
 
 #include "../graphics/gaf_frame.h"
 
@@ -498,7 +484,7 @@ void __stdcall RemoveUnitLineOfSight(Unit* unit)
     p.player = unit->player;
     p.cacheCell = &unit->losCacheCellX;
     p.sightDistance = unit->def->range;
-    p.frameIdx = unit->losSightFrameIdx;
+    p.frameIdx = &unit->losSightFrameIdx;
     p.pos = unit->pos;
     p.eyeHeight = unit->def->field_170;
     int minY = (g_game->seaLevel + 1) << 16;
@@ -613,7 +599,7 @@ void __stdcall UpdateUnitLineOfSight(Unit* unit)
     p.player = unit->player;
     p.cacheCell = &unit->losCacheCellX;
     p.sightDistance = unit->def->range;
-    p.frameIdx = unit->losSightFrameIdx;
+    p.frameIdx = &unit->losSightFrameIdx;
     p.pos = unit->pos;
     p.eyeHeight = unit->def->field_170;
     int minY = (g_game->seaLevel + 1) << 16;
@@ -1511,7 +1497,7 @@ void __stdcall RecalculateLineOfSight(int arg)
         params.player = u->player;
         params.cacheCell = &u->losCacheCellX;
         params.sightDistance = u->def->range;
-        params.frameIdx = u->losSightFrameIdx;
+        params.frameIdx = &u->losSightFrameIdx;
         params.pos = u->pos;
         params.eyeHeight = u->def->field_170;
         if (params.pos.y < (int)((g_game->seaLevel + 1) << 16))
@@ -1728,7 +1714,7 @@ void __stdcall RevealNewUnit(Unit* unit)
     p.player = unit->player;
     p.cacheCell = &unit->losCacheCellX;
     p.sightDistance = unit->def->range;
-    p.frameIdx = unit->losSightFrameIdx;
+    p.frameIdx = &unit->losSightFrameIdx;
     p.pos = unit->pos;
     p.eyeHeight = unit->def->field_170;
     int min_y = (g_game->seaLevel + 1) << 16;

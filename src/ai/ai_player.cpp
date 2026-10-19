@@ -79,68 +79,37 @@ struct Order {
     unsigned int flags;                // +0x42
 };
 
-union Fixed {                          // a 16.16 fixed-point value
-    int value;
-    struct {
-        unsigned short fraction;
-        short whole;
-    };
-};
+#include "../util/vec3.h"
 
-// Own Vec3, not vec3.h: each coordinate is also a Fixed or two words, and it has
-// operator+ and operator-.
-#define VEC3_H
-struct Vec3 {
-    union {
-        int x;
-        Fixed xf;
-        struct {
-            unsigned short xFrac;
-            short xWhole;
-        };
-    };
-    union {
-        int y;
-        Fixed yf;
-        struct {
-            unsigned short yFrac;
-            short yWhole;
-        };
-    };
-    union {
-        int z;
-        Fixed zf;
-        struct {
-            unsigned short zFrac;
-            short zWhole;
-        };
-    };
+static inline int Vec3Length(const Vec3* v)
+{
+    double fx = v->x;
+    double fy = v->y;
+    double fz = v->z;
+    return (int)sqrt(fx * fx + fy * fy + fz * fz);
+}
 
-    Vec3 operator+(Vec3& o) { Vec3 r; r.x = x + o.x; r.y = y + o.y; r.z = z + o.z; return r; }
-    Vec3 operator-(Vec3& o) { Vec3 r; r.x = x - o.x; r.y = y - o.y; r.z = z - o.z; return r; }
-    void operator+=(Vec3& v) { x += v.x; y += v.y; z += v.z; }
-    int Length() const
-    {
-        // One double local per component: `(double)x * x` reorders the sum.
-        double fx = x;
-        double fy = y;
-        double fz = z;
-        return (int)sqrt(fx * fx + fy * fy + fz * fz);
-    }
-    void Scale(int s)                  // s is 16.16 fixed point
-    {
-        x = (int)(((__int64)x * s) >> 16);
-        y = (int)(((__int64)y * s) >> 16);
-        z = (int)(((__int64)z * s) >> 16);
-    }
-};
+static inline void Vec3Scale(Vec3* v, int s)
+{
+    v->x = (int)(((__int64)v->x * s) >> 16);
+    v->y = (int)(((__int64)v->y * s) >> 16);
+    v->z = (int)(((__int64)v->z * s) >> 16);
+}
 
-static inline Vec3 operator-(const Vec3& p, const Vec3& q)
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& b)
 {
     Vec3 r;
-    r.x = p.x - q.x;
-    r.y = p.y - q.y;
-    r.z = p.z - q.z;
+    r.x = a.x + b.x;
+    r.y = a.y + b.y;
+    r.z = a.z + b.z;
+    return r;
+}
+static inline Vec3 PosMinus(const Vec3& a, const Vec3& b)
+{
+    Vec3 r;
+    r.x = a.x - b.x;
+    r.y = a.y - b.y;
+    r.z = a.z - b.z;
     return r;
 }
 
@@ -154,11 +123,6 @@ static inline Vec3 MakeVec3(int x, int y, int z)
     v.z = z;
     return v;
 }
-
-struct Point16 {
-    short x;
-    short y;
-};
 
 struct Sub_00409520 {
     char unknown_0[0xd4];
@@ -534,11 +498,11 @@ static inline float Max(float a, float b) { return a > b ? a : b; }
 
 static inline Vec3 MoveTowards(const Vec3* from, const Vec3* to, int maxLen)
 {
-    Vec3 d = *to - *from;
-    int len = d.Length();
+    Vec3 d = PosMinus(*to, *from);
+    int len = Vec3Length(&d);
     if (maxLen >= len)
         return *to;
-    d.Scale((int)(((__int64)maxLen << 16) / len));
+    Vec3Scale(&d, (int)(((__int64)maxLen << 16) / len));
     Vec3 r;
     r.x = from->x + d.x;
     r.y = from->y + d.y;
@@ -765,9 +729,9 @@ int SquadTimer::GetAveragePosition(Vec3* out)
         return 0;
     int x = 0, y = 0, z = 0;
     for (std::vector<Unit*>::iterator it = g->units.begin(); it != g->units.end(); ++it) {
-        x += (*it)->pos.xf.whole;
-        y += (*it)->pos.yf.whole;
-        z += (*it)->pos.zf.whole;
+        x += (*it)->xWhole;
+        y += (*it)->yWhole;
+        z += (*it)->zWhole;
     }
     // Built as a temporary and assigned whole: per-field stores interleave with the divisions.
     *out = MakeVec3(x / n << 16, y / n << 16, z / n << 16);
@@ -783,8 +747,8 @@ int SquadTimer::CountGroupUnitsInRadius(Vec3* pos, int radius)
     Unit* last = group->player->unitsEnd;
     for (; u <= last; ++u) {
         if (u->group == group->id) {
-            int dz = pos->z - u->pos.zf.value;
-            int dx = pos->x - u->pos.xf.value;
+            int dz = pos->z - u->pos.z;
+            int dx = pos->x - u->pos.x;
             int distance = (int)(((__int64)dx * dx) >> 32) + (int)(((__int64)dz * dz) >> 32);
             if (distance <= squared)
                 ++count;
@@ -814,8 +778,8 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
     int sx = 0, sz = 0;
     std::vector<Unit*>::iterator it;
     for (it = group->units.begin(); it != group->units.end(); ++it) {
-        sx += (*it)->pos.xWhole;
-        sz += (*it)->pos.zWhole;
+        sx += (*it)->xWhole;
+        sz += (*it)->zWhole;
     }
     int cx, cz;
     while (1) {
@@ -827,8 +791,8 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
         int maxd = 0;
         std::vector<Unit*>::iterator best = g->units.end();
         for (it = g->units.begin(); it != g->units.end(); ++it) {
-            int dx = (*it)->pos.xWhole - cx;
-            int dz = (*it)->pos.zWhole - cz;
+            int dx = (*it)->xWhole - cx;
+            int dz = (*it)->zWhole - cz;
             int d = dx * dx + dz * dz;
             if (d > maxd) {
                 maxd = d;
@@ -838,13 +802,13 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
         if (maxd < limit * (int)g->units.size())
             break;
         SetUnitSquad(*best, kind);
-        sx -= (*best)->pos.xWhole;
-        sz -= (*best)->pos.zWhole;
+        sx -= (*best)->xWhole;
+        sz -= (*best)->zWhole;
     }
     std::vector<Unit*> list;
     for (it = other->group->units.begin(); it != other->group->units.end(); ++it) {
-        int dx = (*it)->pos.xWhole - cx;
-        int dz = (*it)->pos.zWhole - cz;
+        int dx = (*it)->xWhole - cx;
+        int dz = (*it)->zWhole - cz;
         // Own statement: inside the comparison the size() ternary goes first.
         int d = dx * dx + dz * dz;
         if (d < limit * (int)group->units.size())
@@ -987,7 +951,7 @@ void SquadScoutTimer::OnTimer()
         // Read through an inline returning by value: pos must not be the local
         // whose address goes to GetBasePosition.
         Vec3 pos = GetRallyPoint(player);
-        if ((pos.xWhole | pos.zWhole) == 0) {
+        if ((((Vec3Words*)&pos)->xWhole | ((Vec3Words*)&pos)->zWhole) == 0) {
             GetAveragePosition(&dest);
             Unit* target = owner->FindNearestEnemyUnit(dest);
             group->Send(9, 1, 0, &target->pos, 0, 0);
@@ -1527,7 +1491,7 @@ bool PlayerAI::FindRandomPlacementCell(UnitDef* type, Vec3* pos, int range, Poin
     for (int i = 0; i < 30; i++) {
         int dist = RandomInt(range) << 16;
         int angle = RandomInt(0x10000);
-        Vec3 v = Direction(angle, dist) + *pos;
+        Vec3 v = PosPlus(Direction(angle, dist), *pos);
         Point16 cell = WorldToCell(v, *(Point16*)&type->f14a);
         cell.x = cell.x / spacing.x * spacing.x + offset.x + RandomInt(spacing.x - margin - type->footprintx);
         cell.y = cell.y / spacing.y * spacing.y + offset.y + RandomInt(spacing.y - margin - type->footprintz);

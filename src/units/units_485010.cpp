@@ -465,13 +465,13 @@ int __stdcall RandomInt(int range);
 void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
 {
     unit->def = (UnitDef*)&(*(UnitType **)&g_game->defs)[(unsigned short)unit->unitDefIndex];
-    unit->f110.b28 = 1;
-    unit->f110.b29 = (((UnitType*)unit->def)->mobile == 0);
-    unit->f110.b14 = 0;
+    unit->alive = 1;
+    unit->immobile = (((UnitType*)unit->def)->mobile == 0);
+    unit->killPending = 0;
     unit->footprint = ((UnitType*)unit->def)->offset;
-    unit->f110.b31 = ((UnitType*)unit->def)->flags.bits.hi;
+    unit->armed = ((UnitType*)unit->def)->flags.bits.hi;
     unit->zBufferBit0 = ((UnitType*)unit->def)->flags.bits.b7;
-    unit->f110.b30 = ((UnitType*)unit->def)->flags.bits.b9;
+    unit->cargoSelectable = ((UnitType*)unit->def)->flags.bits.b9;
 
     if (param_5) {
         unit->buildLeft = 0;
@@ -486,16 +486,14 @@ void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
     unit->bit1 = 0;
     unit->bit2 = 0;
     unit->bit3 = 0;
-    unit->f110.b0 = 1;
-    unit->f110.b1 = 0;
-    unit->f110.b2 = 0;
-    unit->f110.b3 = 0;
-    unit->f110.b4 = 0;
-    unit->f110.b5 = 1;
-    unit->f110.b10 = 0;
-    unit->f110.b11 = 0;
-    unit->f110.b16 = 1;
-    unit->f110.b17 = 0;
+    unit->mode = 1;
+    unit->unknown_110_2 = 0;
+    unit->selected = 0;
+    unit->selectable = 1;
+    unit->unknown_110_10 = 0;
+    unit->cloakOn = 0;
+    unit->moved = 1;
+    unit->carriedNoPiece = 0;
     unit->healthPercent = 0;
     unit->prevHealthPercent = 0;
     unit->activateFlags = 0;
@@ -516,8 +514,8 @@ void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
     unit->losCacheCellZ = 0;
     unit->recentlyDamagedTimer = 0;
     unit->postTransferHoldoff = 0;
-    unit->f110.b9 = (unit->player->index == g_game->playerIndex);
-    unit->f110.b8 = 0;
+    unit->ownerIsLocal = (unit->player->index == g_game->playerIndex);
+    unit->unknown_110_8 = 0;
 
     for (int i = 0; i < 3; i++) {
         g_seams.targeting->ResetWeaponTarget((Unit*)unit, i);
@@ -530,7 +528,7 @@ void __stdcall InitUnitFromType(Unit* unit, Vec3 pos, int param_5)
     unit->lastAttackerSlot = 0xa;
     unit->moveOrder = ((UnitType*)unit->def)->flags.bits.movOrder;
     unit->fireOrder = ((UnitType*)unit->def)->flags.bits.fireOrder;
-    unit->f110.b11 = ((UnitType*)unit->def)->flags.bits.canAttack;
+    unit->cloakOn = ((UnitType*)unit->def)->flags.bits.canAttack;
     unit->f26_27 = 0;
     if (((UnitType*)unit->def)->buildMenuPageCount > 1) {
         unit->f22_23 = 3;
@@ -771,7 +769,7 @@ found:
             ((Unit*)unit)->SetStateBits(1, 1);
         if (((UnitType*)unit->def)->flags.bit24) {
             unit->lastDamageType = 7;
-            unit->f110.b14 = 1;
+            unit->killPending = 1;
         }
     }
     g_seams.los_radar->RevealNewUnit(unit);

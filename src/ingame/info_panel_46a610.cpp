@@ -57,13 +57,7 @@ struct Cell {
 
 #include "feature_spot.h"
 
-struct Unit {
-    char unknown_0[0x64];
-    Angles16 angles;               // +0x64
-    Vec3 pos;                          // +0x6a
-    char unknown_76[0x9e - 0x76];
-    ObjectState* state;                // +0x9e
-};
+#include "../units/unit.h"
 
 struct Game {
     char unknown_0[0x1420b];
@@ -133,7 +127,7 @@ void __stdcall BlitFeatureGaf(void* dest, Cell* cell, int ix, int iy)
         } else {
             Unit* unit = g_game->unit;
             ObjectState* st = (ObjectState*)spot->state;
-            unit->state = st;
+            unit->state = (SpotState*)st;
             st->unit = unit;
             unit->angles = spot->rot;
             unit->pos = spot->pos;
