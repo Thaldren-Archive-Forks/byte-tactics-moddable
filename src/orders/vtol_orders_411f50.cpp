@@ -12,7 +12,7 @@
 #include <math.h>
 #include <vector>
 
-struct Point { short x, y; };
+struct PointS16 { short x, y; };
 #include "../util/vec3.h"
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 {
@@ -57,7 +57,7 @@ struct Order {
     char pad0[5]; unsigned char state; unsigned int flags;
     char padA[0x12 - 0xa]; PathOrderAttach target;
     Vec3 pos;
-    Point start;                       // +0x2e
+    PointS16 start;
     char pad32[0x3e - 0x32]; int range;
     unsigned int flags_42;
     char pad46[0x4a - 0x46]; int next;
@@ -73,7 +73,7 @@ struct Order {
     Order(Unit* unit, void* file, char* name);
     void OrStatusFlags(unsigned int flags);
     void AttachApproachRadiusGoal(Vec3* pos, int radius);
-    void AttachBuildFootprintMarker(Point cell, Point size);
+    void AttachBuildFootprintMarker(PointS16 cell, PointS16 size);
     Unit* Target();
     void Wait();
     Vec3* Position();
@@ -81,9 +81,7 @@ struct Order {
 struct Struct_Game391e9 {
     char pad0[0xd3c]; int gravity;
 };
-struct Game {
-    char pad0[0x391e9]; Struct_Game391e9* mapInfo;
-};
+#include "../game/game.h"
 class Class_0044e2d0 {
 public:
     char unknown_0[0x36];
@@ -206,7 +204,7 @@ int __stdcall AirStrikeOrder(Unit* unit, Order* order, unsigned int flags)
         UnitDef* def = unit->def;
         // size and rate are loaded before the !rate test.
         int size = def->altitude;
-        int rate = g_game->mapInfo->gravity;
+        int rate = ((Struct_Game391e9 *)g_game->net)->gravity;
         if (!rate)
             break;
         // Float local x: keeps the constant multiply from moving outermost.

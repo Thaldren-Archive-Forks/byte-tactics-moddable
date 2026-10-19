@@ -62,10 +62,7 @@ struct Node_00489a90 {
     Node_00489a90* next;               // +0x8e
 };
 
-struct Game {
-    char unknown_0[0x1427f];
-    unsigned char seaLevel;            // +0x1427f
-};
+#include "../game/game.h"
 
 #include "../network/player.h"
 

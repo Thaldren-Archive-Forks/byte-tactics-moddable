@@ -3,7 +3,7 @@
 // Stays in its own file: in unit_orders.cpp the first state's cell lookup loads g_game before the index, and the nano box corners need a member operator+ view of Vec3.
 #include <windows.h>
 #include <math.h>
-struct Point { short x, y; };
+struct PointS16 { short x, y; };
 #include "../util/vec3.h"
 
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
@@ -20,7 +20,7 @@ struct Unit;
 #include "path_order_attach.h"
 #pragma pack(push, 1)
 struct UnitDef {
-    char pad0[0x14a]; Point origin;
+    char pad0[0x14a]; PointS16 origin;
     char pad14e[0x15e-0x14e]; Vec3 min, max;
     char pad176[0x1fe-0x176]; unsigned short buildRate;
     char pad200[0x212-0x200]; unsigned short buildRange;
@@ -34,7 +34,7 @@ struct Order {
     char pad1A[8]; Vec3 pos;
     char pad2E[8]; int type;
     int unused; int retries;
-    void AttachBuildFootprintMarker(Point, Point);
+    void AttachBuildFootprintMarker(PointS16, PointS16);
     void SetDeadlineTicks(int);
     // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
     void ReattachFxToUnit();
@@ -46,13 +46,10 @@ struct Order {
     void Wait();
     Vec3* Position();
 };
-struct Game {
-    char pad0[0x1439b]; UnitDef* unitDefs;
-    char pad1439f[0x38a47-0x1439f]; int tick;
-};
+#include "../game/game.h"
 #pragma pack(pop)
 extern Game* g_game;
-static inline UnitDef* Definitions() { return g_game->unitDefs; }
+static inline UnitDef* Definitions() { return g_game->defs; }
 union Fixed { int value; struct { unsigned short fraction; short whole; }; };
 void __stdcall QueueUnitSpeech(Unit*, int, const char*);
 void __stdcall MarkSelectionOrdersDirty(Unit*);
@@ -61,21 +58,21 @@ short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
 void __stdcall EmitNanoParticles(Vec3*, Vec3*, int);
-static inline Point WorldToCell(Vec3 v, Point origin)
+static inline PointS16 WorldToCell(Vec3 v, PointS16 origin)
 {
-    Point c;
+    PointS16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
-static inline Point16 WorldToCell16(Vec3 v, Point origin)
+static inline Point16 WorldToCell16(Vec3 v, PointS16 origin)
 {
     Point16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
-static inline void CellToWorld(Point origin, Point c, Vec3* v)
+static inline void CellToWorld(PointS16 origin, PointS16 c, Vec3* v)
 {
     v->x = (origin.x + c.x * 2) << 19;
     v->z = (origin.y + c.y * 2) << 19;
@@ -99,7 +96,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
     switch (state) {
     case 0: {
         UnitDef* def = &Definitions()[order->type];
-        Point cell = WorldToCell(order->pos, def->origin);
+        PointS16 cell = WorldToCell(order->pos, def->origin);
         CellToWorld(def->origin, cell, &order->pos);
         order->retries = 0;
         order->AttachBuildFootprintMarker(cell, def->origin);
@@ -159,7 +156,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
             bounds[1] = PosPlus(order->target->pos, order->target->def->max);
             EmitNanoParticles(&start, bounds, 6);
         }
-        unit->workTime = g_game->tick + 300;
+        unit->workTime = g_game->ticks + 300;
         if (order->target->buildLeft != 0.0f) {
             order->SetDeadlineTicks(1);
             order->flags |= 0xa;

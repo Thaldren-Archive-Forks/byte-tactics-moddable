@@ -12,7 +12,7 @@ struct Def { char pad[0x15e]; Vec low, high; };
 
 #include "../units/unit.h"
 struct Order { char pad[0x22]; Vec pos; };
-struct Game { char pad[0x14357]; Unit* units; Unit* unitsEnd; };
+#include "../game/game.h"
 #pragma pack(pop)
 extern Game* g_game;
 void __stdcall EmitTeleportParticles(Vec*,Vec*,int,int);

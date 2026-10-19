@@ -26,16 +26,7 @@ struct UnitType_437840 {
 
 #include "unit.h"
 
-struct Game {
-    char unknown_0[0x1431f];
-    int scrollX;                       // +0x1431f
-    int scrollY;                       // +0x14323
-    char unknown_14327[0x37ed8 - 0x14327];
-    unsigned short windDirection;      // +0x37ed8
-    int windSpeed;                     // +0x37eda
-    char unknown_37ede[0x37ee2 - 0x37ede];
-    int windEnabled;                   // +0x37ee2
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 union Fixed_437840 {

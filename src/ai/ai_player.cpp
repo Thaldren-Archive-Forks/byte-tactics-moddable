@@ -359,47 +359,7 @@ struct PlayerInfo {
 
 // The players array and its info-array view at +0x1b8e. The union is the
 // compiler's anonymous one, so both names stay reachable.
-struct Game {
-    char unknown_0[0x1b63];
-    union {
-        Player players[10];            // +0x1b63
-        struct {
-            char unknown_2b[0x1b8e - 0x1b63];
-            PlayerInfo playerInfo[10]; // +0x1b8e
-        };
-    };
-    char unknown_1[0x2a43 - 0x287c];
-    unsigned char playerIndex;         // +0x2a43
-    char unknown_2[0x14223 - 0x2a44];
-    int mapWidthWorld;                 // +0x14223
-    int mapHeightWorld;                // +0x14227
-    int mapPixelWidth;                 // +0x1422b
-    int mapPixelHeight;                // +0x1422f
-    int mapWidthTiles;                 // +0x14233
-    int mapHeightTiles;                // +0x14237
-    char unknown_6[0x1426f - 0x1423b];
-    Feature* features;                 // +0x1426f
-    unsigned short* visibilityMask;    // +0x14273
-    char unknown_7[0x14281 - 0x14277];
-    unsigned short mapFlags;           // +0x14281
-    char unknown_8[0x14357 - 0x14283];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    char unknown_9[0x1438f - 0x1435f];
-    int unitDefCount;                  // +0x1438f
-    char unknown_10[0x1439b - 0x14393];
-    UnitDef* unitDefs;                 // +0x1439b
-    char unknown_11[0x37ee6 - 0x1439f];
-    unsigned short maxUnits;           // +0x37ee6
-    char unknown_12[0x37eee - 0x37ee8];
-    int difficulty;                    // +0x37eee
-    char unknown_13[0x37f30 - 0x37ef2];
-    unsigned char matchFlags;          // +0x37f30, tested with 0x4 in 0x40b7b0
-    char unknown_14[0x38a47 - 0x37f31];
-    unsigned int gameTick;             // +0x38a47
-    char unknown_15[0x391e9 - 0x38a4b];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 
 #include "player_ai.h"
 
@@ -662,7 +622,7 @@ void __stdcall ReactToAttack(Unit* attacker, Unit* unit, int unused)
     g_seams.units->NotifyUnitRefs(unit,16);
     if (attacker && !attacker->unitDefIndex) attacker=0;
     if ((unit->def->flags2&0x1000) && unit->player->active && unit->player->type==2) {
-        unit->player->ai->nextAction=RandomInt(300)+g_game->gameTick+30;
+        unit->player->ai->nextAction=RandomInt(300)+(unsigned int)g_game->ticks+30;
         g_seams.orders->DeleteOrders(unit,0);
     }
     if (attacker && unit->player->active && (unit->player->type==1 || unit->player->type==2) &&
@@ -876,7 +836,7 @@ void AssaultTimer::OnTimer()
 {
     Vec3 pos;
     Vec3 retreat;
-    next = g_game->gameTick + 300;
+    next = (unsigned int)g_game->ticks + 300;
     RebalanceAssaultGroupByCentroid(kind, limit);
     if (!group->units.empty()) {
         if ((int)group->units.size() <= minimum || (!attacking && (int)group->units.size() < maximum)) {
@@ -923,7 +883,7 @@ EscortTimer::EscortTimer(SquadManager* p, Group* q, int a)
 // FUNCTION: 0x4079f0
 void EscortTimer::OnTimer()
 {
-    next = g_game->gameTick + 150;
+    next = (unsigned int)g_game->ticks + 150;
     SquadTimer* o = owner->timers[other];
     if (!group->units.empty()
         && !o->group->units.empty()) {
@@ -986,7 +946,7 @@ void SquadScoutTimer::OnTimer()
     Vec3 dest;
     // Computed first: in one expression with next it folds into a lea.
     int delay = RandomInt(900) + 30;
-    next = g_game->gameTick + delay;
+    next = (unsigned int)g_game->ticks + delay;
     if ((int)group->units.size() < 5) {
         // Read through an inline returning by value: pos must not be the local
         // whose address goes to GetBasePosition.
@@ -997,7 +957,7 @@ void SquadScoutTimer::OnTimer()
             group->Send(9, 1, 0, &target->pos, 0, 0);
         } else {
             int n = RandomInt(2) + 2;
-            int w = g_game->mapWidthWorld / 8, h = g_game->mapHeightWorld / 8;
+            int w = g_game->baseX / 8, h = g_game->baseY / 8;
             for (int i = 0; i < n; i++) {
                 // dx and dz stay named: the sum then lands in pos's register.
                 int dx = (RandomInt(w) - w / 2) << 16;
@@ -1014,11 +974,11 @@ void SquadScoutTimer::OnTimer()
     } else {
         dest.y = 0;
         if (RandomInt(2)) {
-            dest.x = RandomInt(g_game->mapWidthWorld) << 16;
-            dest.z = (RandomInt(2) ? MakeFixed(0) : MakeFixed(g_game->mapHeightWorld - 1)).value;
+            dest.x = RandomInt(g_game->baseX) << 16;
+            dest.z = (RandomInt(2) ? MakeFixed(0) : MakeFixed(g_game->baseY - 1)).value;
         } else {
-            dest.x = (RandomInt(2) ? MakeFixed(0) : MakeFixed(g_game->mapWidthWorld - 1)).value;
-            dest.z = RandomInt(g_game->mapHeightWorld) << 16;
+            dest.x = (RandomInt(2) ? MakeFixed(0) : MakeFixed(g_game->baseX - 1)).value;
+            dest.z = RandomInt(g_game->baseY) << 16;
         }
         group->Send(9, 0, 0, &dest, 0, 0);
     }
@@ -1054,7 +1014,7 @@ void __stdcall UpdateConverter(Unit* unit)
 // FUNCTION: 0x4086d0
 void BuildTimer::OnTimer()
 {
-    next = g_game->gameTick + 30;
+    next = (unsigned int)g_game->ticks + 30;
     for (std::vector<Unit*>::iterator it = group->units.begin(); it != group->units.end(); ++it) {
         Unit* u = *it;
         if ((u->flags & 0x20000000) && (u->flags & 0x10000000) && !(u->flags & 0x4000)) {
@@ -1067,7 +1027,7 @@ void BuildTimer::OnTimer()
             } else if (u->def->count && !u->list) {
                 unsigned short id = ChooseBuildOption(player, u);
                 if (id)
-                    QueueBuildOrder((char*)&g_game->unitDefs[id].unitname[0], u, 1);
+                    QueueBuildOrder((char*)&g_game->defs[id].unitname[0], u, 1);
             }
         }
     }
@@ -1127,7 +1087,7 @@ void __stdcall RetargetWeapon(Unit* unit, unsigned int weapon)
 // FUNCTION: 0x4089a0
 void SquadManager::RetargetWeapons(int force)
 {
-    for (int i = 0; i <= g_game->maxUnits / 30; i++) {
+    for (int i = 0; i <= g_game->field_37ee6 / 30; i++) {
         if (cursor && cursor != player->unitsEnd)
             cursor++;
         else
@@ -1160,7 +1120,7 @@ void SquadManager::TickTimers()
         AssignSquads();
     }
     for (int i = 0; i < 10; i++) {
-        if (timers[i] != 0 && timers[i]->next <= g_game->gameTick) {
+        if (timers[i] != 0 && timers[i]->next <= (unsigned int)g_game->ticks) {
             timers[i]->OnTimer();
         }
     }
@@ -1175,7 +1135,7 @@ void SquadManager::TickIfActive()
             AssignSquads();
         }
         for (int i = 0; i < 10; i++) {
-            if (timers[i] != 0 && timers[i]->next <= g_game->gameTick) {
+            if (timers[i] != 0 && timers[i]->next <= (unsigned int)g_game->ticks) {
                 timers[i]->OnTimer();
             }
         }
@@ -1230,12 +1190,12 @@ void SquadManager::DeleteTimers()
 // FUNCTION: 0x409160
 PlayerAI::PlayerAI(unsigned char p)
     : owner(&g_game->players[p]), index(p),
-      center(g_game->mapWidthTiles / 2, g_game->mapHeightTiles / 2), builders(0)
+      center(g_game->width / 2, g_game->height / 2), builders(0)
 {
     lastTick = 0;
     searchRadius = 0;
     InitPlacementGrid();
-    int n = g_game->unitDefCount;
+    int n = g_game->count_1438f;
     weights.resize(n, 0);
     counts.resize(n, 0);
     // Fill values stay in block scopes so they share the dead parameter slot.
@@ -1268,9 +1228,9 @@ PlayerAI::PlayerAI(unsigned char p)
 // FUNCTION: 0x409470
 void PlayerAI::InitUnitTables()
 {
-    int n = g_game->unitDefCount;
+    int n = g_game->count_1438f;
     for (int i = 0; i < n; ++i) {
-        UnitDef* def = &g_game->unitDefs[i];
+        UnitDef* def = &g_game->defs[i];
         weights[i] = 0;
         if (!def->mobile)
             weights[i] += 40;
@@ -1347,7 +1307,7 @@ int __stdcall RateUnitType(UnitDef* p)
 void __stdcall ScaleUnitWeights(int player, unsigned int* mask, float scale, int lock)
 {
     PlayerAI* p = g_playerAI[player];
-    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
+    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
         if (mask[i >> 5] & (1 << (i & 0x1f))) {
             // Own local: the address is then encoded as [offset + base].
             int off = i * 4;
@@ -1364,7 +1324,7 @@ void __stdcall ScaleUnitWeights(int player, unsigned int* mask, float scale, int
 void __stdcall SetUnitLimits(int player, unsigned int* mask, int value, int lock)
 {
     PlayerAI* p = g_playerAI[player];
-    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
+    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
         if ((mask[i >> 5] & (1 << (i & 0x1f))) && p->locked[i].unknown_0 == 0) {
             p->values[i].unknown_0 = value;
             if (lock)
@@ -1379,7 +1339,7 @@ void __stdcall SetUnitLimits(int player, unsigned int* mask, int value, int lock
 // FUNCTION: 0x409f20
 int __stdcall IsUnderLimit(int player, unsigned short index, int value)
 {
-    if (index >= 1 && index < g_game->unitDefCount) {
+    if (index >= 1 && index < g_game->count_1438f) {
         int* values = (int*)&g_playerAI[player]->values[0];
         if (values[index] == -1)
             return 1;
@@ -1394,8 +1354,8 @@ void __stdcall ParseDownloadableAiWeightScripts(int player)
 {
     PlayerAI* p = g_playerAI[player];
     EnableAICommands();
-    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
-        UnitDef* def = &g_game->unitDefs[i];
+    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+        UnitDef* def = &g_game->defs[i];
         if (((Flags241*)&def->flags1)->downloadable) {
             if (p->vec_bd[i].unknown_0 != 1) {
                 int len = strlen(def->aiWeight);
@@ -1414,8 +1374,8 @@ void __stdcall ReparseAiWeightScriptsIfLimitNotSticky(int player)
 {
     PlayerAI* p = g_playerAI[player];
     EnableAICommands();
-    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
-        UnitDef* def = &g_game->unitDefs[i];
+    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+        UnitDef* def = &g_game->defs[i];
         if (((Flags241*)&def->flags1)->downloadable) {
             if (p->locked[i].unknown_0 != 1) {
                 int len = strlen(def->aiWeight);
@@ -1524,7 +1484,7 @@ bool PlayerAI::FindRandomPlacementCell(UnitDef* type, Vec3* pos, int range, Poin
 {
     int areaY = type->footprintz;
     int areaX = type->footprintx;
-    int threshold = g_game->mapInfo->surfaceMetal * areaY * areaX * 2;
+    int threshold = g_game->net->surfaceMetal * areaY * areaX * 2;
     Point16 spacing = type->minwaterdepth < 0 ? spacing0 : spacing1;
     Point16 offset = type->minwaterdepth < 0 ? offset0 : offset1;
     int margin = type->minwaterdepth < 0 ? margin0 : margin1;
@@ -1554,8 +1514,8 @@ bool PlayerAI::FindRandomPlacementCell(UnitDef* type, Vec3* pos, int range, Poin
 void PlayerAI::BuildFeatureCells()
 {
     cells.clear();
-    int w = g_game->mapWidthTiles;
-    for (int y = 0; y < g_game->mapHeightTiles; y++) {
+    int w = g_game->width;
+    for (int y = 0; y < g_game->height; y++) {
         Cell* row = g_seams.los_radar->GetMapCell(0, y);
         for (int x = 0; x < w; x++) {
             if (row[x].feature < 0xfffb) {
@@ -1572,9 +1532,9 @@ void PlayerAI::BuildFeatureCells()
 // FUNCTION: 0x40ad20
 void PlayerAI::UpdateEveryThirtyTicks()
 {
-    if (g_game->gameTick >= lastTick + 0x1e) {
+    if ((unsigned int)g_game->ticks >= lastTick + 0x1e) {
         this->RefreshUnitLists();
-        lastTick = g_game->gameTick;
+        lastTick = (unsigned int)g_game->ticks;
         if (RandomInt(0x1e) == 0) {
             this->ComputeBaseWeights();
         }
@@ -1647,9 +1607,9 @@ bool __stdcall HasReadyUnitInRange(int player, Vec3_40b0d0* p, int range)
 void __stdcall UpdatePlayerAI(int player)
 {
     PlayerAI* p = g_playerAI[player];
-    if (p && g_game->gameTick >= p->lastTick + 0x1e) {
+    if (p && (unsigned int)g_game->ticks >= p->lastTick + 0x1e) {
         p->RefreshUnitLists();
-        p->lastTick = g_game->gameTick;
+        p->lastTick = (unsigned int)g_game->ticks;
         if (RandomInt(0x1e) == 0) {
             p->ComputeBaseWeights();
         }
@@ -1723,10 +1683,10 @@ void __stdcall GetBasePosition(int index, Struct_0040ba80* out)
 // FUNCTION: 0x40bab0
 void __stdcall GetMirroredBasePosition(int index, int unused, Struct_0040bab0* out)
 {
-    out->a = (g_game->mapWidthWorld << 16) -
+    out->a = (g_game->baseX << 16) -
              ((Struct_0040bab0*)((char*)g_playerAI[index] + 0x35))->a;
     out->b = 0;
-    out->c = (g_game->mapWidthWorld << 16) -
+    out->c = (g_game->baseX << 16) -
              ((Struct_0040bab0*)((char*)g_playerAI[index] + 0x35))->c;
 }
 
@@ -1750,7 +1710,7 @@ int __stdcall GetBuildRating(int player,unsigned short type)
     Player* p=&g_game->players[player];
     if(p->energy<50.0f) return 0;
     if(p->metal<25.0f) return 0;
-    if(g_seams.map->GetGameType(g_game->mapInfo)==1 && (g_game->unitDefs[type].flags1&0x20)) return 0;
+    if(g_seams.map->GetGameType(g_game->net)==1 && (g_game->defs[type].flags1&0x20)) return 0;
     int energyCap=min(1000,(int)p->energyCapacity);
     int metalCap=min(500,(int)p->metalCapacity);
     int energy=(int)Max(0.0f,(energyCap-p->energy)*0.125f);
@@ -1784,7 +1744,7 @@ unsigned short __stdcall ChooseBuildOption(unsigned int player, Unit* unit)
         }
     }
     if (chosen != 0) {
-        if (strcmp(unit->def->side, g_game->unitDefs[chosen].side) != 0)
+        if (strcmp(unit->def->side, g_game->defs[chosen].side) != 0)
             chosen = 0;
     }
     return chosen;
@@ -1814,12 +1774,12 @@ Vec3_0040beb0 __stdcall MoveToward(const Vec3_0040beb0* from, const Vec3_0040beb
 int __stdcall FindBuildPosition(int player, const Vec3* from, UnitDef* type, Vec3* out)
 {
     PlayerAI* ai=g_playerAI[player];
-    int maximum=g_game->mapWidthWorld > g_game->mapHeightWorld ? g_game->mapWidthWorld : g_game->mapHeightWorld;
+    int maximum=g_game->baseX > g_game->baseY ? g_game->baseX : g_game->baseY;
     if (ai->searchRadius<maximum) ai->searchRadius+=160;
     Vec3 pos=MoveTowards(from,(const Vec3*)&ai->centre,ai->searchRadius<<16);
     Point16 cell;
     int result;
-    if (type->extractsMetal!=0.0f && g_game->mapInfo->surfaceMetal<RandomInt(255))
+    if (type->extractsMetal!=0.0f && g_game->net->surfaceMetal<RandomInt(255))
         result=ai->FindCellNearFeatures(type,&pos,&ai->cells,ai->searchRadius*4,&cell);
     else result=ai->FindRandomPlacementCell(type,&pos,ai->searchRadius,&cell);
     if (result) {
@@ -1852,27 +1812,27 @@ void __stdcall DumpPlayerAI(int player, FILE* file)
 {
     PlayerAI* ai=g_playerAI[player];
     char buffer[256];
-    unsigned int hours=g_game->gameTick/108000;
-    int remaining=g_game->gameTick-hours*108000;
+    unsigned int hours=(unsigned int)g_game->ticks/108000;
+    int remaining=(unsigned int)g_game->ticks-hours*108000;
     int minutes=remaining/1800;
     int seconds=(remaining-minutes*1800)/30;
     sprintf(buffer,"%02d:%02d:%02d",hours,minutes,seconds);
     fprintf(file,"gametime: '%s'\r\n",buffer);
-    fprintf(file,"player:   '%s' num: %d\r\n",g_game->playerInfo[player].name,player);
-    switch(g_game->playerInfo[player].control) {
+    fprintf(file,"player:   '%s' num: %d\r\n",(*(PlayerInfo (*)[10])((char*)g_game + 0x1b8e))[player].name,player);
+    switch((*(PlayerInfo (*)[10])((char*)g_game + 0x1b8e))[player].control) {
     case 1: strcpy(buffer,"HUMAN"); break;
     case 2: strcpy(buffer,"AI"); break;
     default: strcpy(buffer,"INVALID"); break;
     }
     fprintf(file,"controller: %s\r\n",buffer);
-    fprintf(file,"terrain:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->mapInfo,1));
-    fprintf(file,"profile:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->mapInfo,7));
+    fprintf(file,"terrain:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->net,1));
+    fprintf(file,"profile:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->net,7));
     const char* difficulties[]={"EASY","MEDIUM","HARD"};
     fprintf(file,"difficulty: '%s'\r\n",difficulties[g_game->difficulty]);
     fprintf(file,"================================================\r\n");
     fprintf(file,"<limit> - <base:baseML:baseEL> : <end result - before economy-based tweaks> - <unit name>\r\n");
-    for (unsigned short i=1;i<g_game->unitDefCount;++i) {
-        UnitDef* type=&g_game->unitDefs[i];
+    for (unsigned short i=1;i<g_game->count_1438f;++i) {
+        UnitDef* type=&g_game->defs[i];
         if (ai->values[i].unknown_0<0) fprintf(file,"n/a ");
         else fprintf(file,"%4d",ai->values[i].unknown_0);
         sprintf(buffer," - %3d : %3d : %3d = %3d - '%s\t\t:%s'\r\n",ai->vec_65[i].a,ai->vec_65[i].b,ai->vec_65[i].c,ai->vec_ad[i].value,type->unitname,type->name);

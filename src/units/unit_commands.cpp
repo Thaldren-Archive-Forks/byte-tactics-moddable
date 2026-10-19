@@ -254,21 +254,7 @@ struct MissionUnit {               // 0x24 bytes
 #include "../map/mission.h"
 #include "../game/mission_conditions.h"
 
-struct Game {
-    char unknown_0[0x1b63];
-    Player players[10];               // +0x1b63
-    char unknown_2851[0x14267 - 0x2851];
-    float tidal;                      // +0x14267
-    char unknown_1426b[0x1438f - 0x1426b];
-    int unitDefCount;                 // +0x1438f
-    char unknown_14393[0x1439b - 0x14393];
-    UnitType_00488b10* unitDefs;      // +0x1439b
-    char unknown_1439f[0x37ede - 0x1439f];
-    float windFraction;               // +0x37ede
-    char unknown_37ee2[0x391e9 - 0x37ee2];
-    Mission* mapInfo;                 // +0x391e9
-    MissionConditions* victoryConditions;       // +0x391ed
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -324,10 +310,10 @@ void __cdecl CreateMissionUnits()
 {
     Player* p;
     char buf[100];
-    int n = g_game->mapInfo->unitCount;        // only the constructor takes it; the
-    std::vector<Unit*> units(n);       // loops re-read mapInfo->unitCount themselves
-    for (int i = 0; i < g_game->mapInfo->unitCount; i++) {
-        MissionUnit* e = &g_game->mapInfo->units[i];
+    int n = g_game->net->unitCount;
+    std::vector<Unit*> units(n);
+    for (int i = 0; i < g_game->net->unitCount; i++) {
+        MissionUnit* e = &g_game->net->units[i];
         UnitType_00488b10* item = (UnitType_00488b10*)g_seams.units->FindUnitType(e->name);
         if (item == 0) {
             units[i] = 0;
@@ -351,13 +337,13 @@ void __cdecl CreateMissionUnits()
             units[i] = u;
         }
     }
-    for (int j = 0; j < g_game->mapInfo->unitCount; j++) {
-        MissionUnit* e = &g_game->mapInfo->units[j];
+    for (int j = 0; j < g_game->net->unitCount; j++) {
+        MissionUnit* e = &g_game->net->units[j];
         if (e->initialMission && units[j])
             RunInitialMission(units[j], e->initialMission, (Table_00487bf0*)&units);
     }
-    if (g_game->mapInfo->unitCount <= 0)
-        g_seams.players->DeactivateConditions(g_game->victoryConditions);
+    if (g_game->net->unitCount <= 0)
+        g_seams.players->DeactivateConditions(g_game->list_391ed);
 }
 
 // Moves a unit to another player. Does nothing when the unit already belongs
@@ -394,7 +380,7 @@ void __stdcall GiveUnitToPlayer(Unit* unit, Player* other, OwnershipTransferPack
         return;
     if (unit->flags & 0x4000)
         return;
-    g_game->victoryConditions->NotifyUnitCaptured(unit);
+    g_game->list_391ed->NotifyUnitCaptured(unit);
 
     Player* cur = unit->player;
     if (cur->active != 0 && (cur->type == 1 || cur->type == 2)) {
@@ -624,8 +610,8 @@ static inline int Less_00488a50(const char* a, const char* b)
 UnitType_00488b10* __stdcall FindUnitType(const char* name)
 {
     // `end` before `lo`: the order decides which registers the base loads use.
-    UnitType_00488b10* end = g_game->unitDefs + g_game->unitDefCount;
-    UnitType_00488b10* lo = g_game->unitDefs + 1;
+    UnitType_00488b10* end = (UnitType_00488b10 *)g_game->defs + g_game->count_1438f;
+    UnitType_00488b10* lo = (UnitType_00488b10 *)g_game->defs + 1;
     int n = (int)(end - lo);
     while (n > 0) {
         int half = n / 2;
@@ -651,8 +637,8 @@ UnitType_00488b10* __stdcall FindUnitType(const char* name)
 unsigned short __stdcall FindUnitTypeId(const char* name)
 {
     // `last` before `first`: the order decides the register of the table base.
-    UnitType_00488b10* last = g_game->unitDefs + g_game->unitDefCount;
-    UnitType_00488b10* first = g_game->unitDefs + 1;
+    UnitType_00488b10* last = (UnitType_00488b10 *)g_game->defs + g_game->count_1438f;
+    UnitType_00488b10* first = (UnitType_00488b10 *)g_game->defs + 1;
     int n = ((char*)last - (char*)first) / 0x249;
     while (n > 0) {
         int mid = n / 2;
@@ -746,8 +732,8 @@ static inline UnitType_00488b10* FindByName(UnitType_00488b10* first, UnitType_0
 // FUNCTION: 0x488d30
 void UnitTypeSet::AddTypeOrCategory(char* text, int* out)
 {
-    UnitType_00488b10* base = g_game->unitDefs;
-    UnitType_00488b10* last = base + g_game->unitDefCount;
+    UnitType_00488b10* base = (UnitType_00488b10 *)g_game->defs;
+    UnitType_00488b10* last = base + g_game->count_1438f;
     UnitType_00488b10* first = FindByName(base + 1, last, text);
     unsigned short v = first ? first->id : 0;
     if (v != 0) {
@@ -774,7 +760,7 @@ float __stdcall GetEnergyUse(UnitDef* def)
         return def->energyuse;
     }
     if (def->windgenerator > 0.0f) {
-        return -(g_game->windFraction * def->windgenerator);
+        return -(g_game->windStrength * def->windgenerator);
     }
     if (def->tidalgenerator > 0.0f) {
         return -(g_game->tidal * def->tidalgenerator);

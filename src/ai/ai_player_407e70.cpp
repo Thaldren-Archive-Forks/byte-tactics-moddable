@@ -15,15 +15,7 @@
 #include <vector>
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x14223];
-    int mapWidthWorld;                  // +0x14223
-    int mapHeightWorld;                 // +0x14227
-    char unknown_1422b[0x14281 - 0x1422b];
-    unsigned short mapFlags;            // +0x14281
-    char unknown_14283[0x38a47 - 0x14283];
-    int gameTick;                       // +0x38a47
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -64,14 +56,14 @@ struct ByteMap_00408090 {
 
 // The header's type, kept local: its explored pointer cannot spell the
 // ByteMap this fog test needs.
-struct Player {
+struct PlayerView {
     char unknown_0[0x7c];
     ByteMap_00408090 explored;          // +0x7c
 };
 
-int __stdcall IsPointVisible(Player* player, Position_00408090* pos);
+int __stdcall IsPointVisible(PlayerView* player, Position_00408090* pos);
 
-static inline int IsExplored(Player* player, Position_00408090* pos)
+static inline int IsExplored(PlayerView* player, Position_00408090* pos)
 {
     // Plain int: an unsigned tx shortens the shift to 16 bits.
     int tx = pos->x >> 5;
@@ -81,7 +73,7 @@ static inline int IsExplored(Player* player, Position_00408090* pos)
     return 0;
 }
 
-static inline int IsVisible(Player* player, Position_00408090* pos)
+static inline int IsVisible(PlayerView* player, Position_00408090* pos)
 {
     if ((g_game->mapFlags & 2) == 2)
         return IsExplored(player, pos);
@@ -104,7 +96,7 @@ struct UnitDefFlags_00407e90 {
 #include "../units/unit.h"
 
 struct Group_00407e90 {
-    Player* player;                     // +0x0
+    PlayerView* player;
     int id;                             // +0x4
     char unknown_8[0x10 - 0x8];
     std::vector<Unit*> units;           // +0x10
@@ -162,12 +154,12 @@ SpatialTimer::SpatialTimer(SquadManager* p, void* q)
     : SquadTimer(p, q)
 {
     // Half of g_game's mapWidthWorld and mapHeightWorld, in 16.16 fixed point.
-    int x = (int)(g_game->mapWidthWorld / 2 * 65536.0);
-    best = Vec3_00407d40(x, 0, (int)(g_game->mapHeightWorld / 2 * 65536.0));
-    x = (int)(g_game->mapWidthWorld / 2 * 65536.0);
-    probe = Vec3_00407d40(x, 0, (int)(g_game->mapHeightWorld / 2 * 65536.0));
-    x = (int)(g_game->mapWidthWorld / 2 * 65536.0);
-    step = Vec3_00407d40(x, 0, (int)(g_game->mapHeightWorld / 2 * 65536.0));
+    int x = (int)(g_game->baseX / 2 * 65536.0);
+    best = Vec3_00407d40(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    x = (int)(g_game->baseX / 2 * 65536.0);
+    probe = Vec3_00407d40(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    x = (int)(g_game->baseX / 2 * 65536.0);
+    step = Vec3_00407d40(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     bestRating = 0;
 }
 
@@ -176,7 +168,7 @@ void SpatialTimer::OnTimer()
 {
     // Computed first or the sum folds into one lea.
     int delay = RandomInt(150) + 30;
-    next = g_game->gameTick + delay;
+    next = g_game->ticks + delay;
     if (((Group_00407e90*)group)->units.empty())
         return;
     // Unused on purpose: it emits the operator delete call after the loop.

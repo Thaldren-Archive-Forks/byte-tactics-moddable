@@ -7,10 +7,7 @@ struct Item_00408620 {                 // 0x249 bytes
     char name[0x249 - 0x20];           // +0x20
 };
 
-struct Game {
-    char unknown_0[0x1439b];
-    Item_00408620* unitDefs;           // +0x1439b
-};
+#include "../game/game.h"
 #pragma pack(pop)
 
 struct Obj_00408620 {
@@ -38,5 +35,5 @@ void BuildTimer::TryIssueIdleFactoryBuildOrder(Obj_00408620* unit)
         return;
     unsigned short idx = ChooseBuildOption(player, unit);
     if (idx != 0)
-        QueueBuildOrder(g_game->unitDefs[idx].name, unit, 1);
+        QueueBuildOrder(((Item_00408620 *)g_game->defs)[idx].name, unit, 1);
 }
