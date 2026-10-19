@@ -59,10 +59,7 @@ struct Order {
     void Wait();
     int Advance(int distance);
 };
-struct Game {
-    char pad0[0x1422b]; int width; int height;
-    char pad14233[0x142b7 - 0x14233]; int overflowBucket;
-};
+#include "../game/game.h"
 class Class_0044e2d0 {
 public:
     char unknown_0[0x36];
@@ -156,8 +153,8 @@ int __stdcall AirToAirOrder(Unit* unit, Order* order, int flags)
     }
     if (unit->spatialBucket == g_game->overflowBucket) {
         Vec3 centre;
-        centre.x = g_game->width / 2 << 16;
-        centre.z = g_game->height / 2 << 16;
+        centre.x = g_game->mapWidth / 2 << 16;
+        centre.z = g_game->mapHeight / 2 << 16;
         short angle = GetHeadingBetween(&unit->pos, &centre);
         Vec3 dest = AddVec3(unit->pos, Offset(angle, 0x3200000));
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);

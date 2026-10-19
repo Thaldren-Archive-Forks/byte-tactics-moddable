@@ -137,7 +137,7 @@ struct UnitDef {
 };
 
 // Keeps its own view: the declarations of player.h move the symbol ids that 0x402b70, 0x404730 and 0x405d90 match at.
-struct Player {
+struct PlayerView {
     int active;                        // +0x0
     char unknown_4[0x73 - 0x4];
     unsigned char type;                // +0x73
@@ -163,17 +163,7 @@ struct WeaponDef {
     unsigned int flags;                // +0x111
 };
 
-struct Game {
-    char unknown_0[0x14357];
-    Unit* units;                       // +0x14357
-    Unit* unitsEnd;                    // +0x1435b
-    char unknown_1435f[0x1439b - 0x1435f];
-    UnitDef* unitDefs;                 // +0x1439b
-    char unknown_1439f[0x37eee - 0x1439f];
-    int difficulty;                    // +0x37eee
-    char unknown_37ef2[0x38a47 - 0x37ef2];
-    int gameTick;                      // +0x38a47
-};
+#include "../game/game.h"
 
 struct Sub_403010 {
     char unknown_0[0x245];
@@ -548,7 +538,7 @@ int __stdcall SelfRepairOrder(Unit* unit, Order* order, int unused)
     case 1:
         if ((unsigned int)unit->health >= unit->def->maxHealth)
             return 1;
-        unit->workTime = g_game->gameTick + 0x96;
+        unit->workTime = g_game->ticks + 0x96;
         if (g_seams.units->AddRepairProgress(order->target.owner, unit, (float)(order->target.owner->def->workerTime / 30))) {
             Vec3 nano;
             g_seams.units->GetNanoPiecePosition(order->target.owner, &nano);
@@ -644,7 +634,7 @@ int __stdcall BuildingBuildOrder(Unit* unit, Order* order, int flags)
         int piece = -1;
         g_seams.units->QueryScript((CobScript*)unit->script, "QueryBuildInfo", &piece, 0, 0, 0);
         order->pos = g_seams.units->GetPiecePosition(unit, piece);
-        UnitDef* ut = &g_game->unitDefs[order->unitType];
+        UnitDef* ut = &g_game->defs[order->unitType];
         Point16 cell = GridCell(order->pos, ut->footprint);
         if (!g_seams.map->CanPlaceUnitFootprint(ut, 0, cell, unit->flags & 3)) {
             order->SetDeadlineTicks(15);
@@ -1099,10 +1089,10 @@ struct FeatureDamagePacket {
 
 class DamagedAllyCollector {
 public:
-    Player* owner;
+    PlayerView* owner;
     std::vector<Unit*>* units;
     Unit* self;
-    DamagedAllyCollector(Player* o, std::vector<Unit*>* v, Unit* s) : owner(o), units(v), self(s) {}
+    DamagedAllyCollector(PlayerView* o, std::vector<Unit*>* v, Unit* s) : owner(o), units(v), self(s) {}
     virtual void CollectDamagedAlly(Unit*);
 };
 
@@ -1272,7 +1262,7 @@ int __stdcall SuppressOrder(Unit* unit,Order* order,unsigned flags)
 
 // Unused here (0x403a20 stays in its own file): the symbol ids these helpers
 // take keep the allocation (docs/c2-regalloc.md).
-static inline UnitDef* Definitions() { return g_game->unitDefs; }
+static inline UnitDef* Definitions() { return g_game->defs; }
 
 static inline Point16 WorldToCell(Vec3 v, Point16 footprint)
 {
@@ -1371,7 +1361,7 @@ int __stdcall CaptureOrder(Unit* unit, Order* order, unsigned int flags)
         bounds[1].z += order->target.Get()->def->bounds.hi.z;
         bounds[1].y += order->target.Get()->def->bounds.hi.y;
         EmitReverseNanoParticles(bounds, &start, 6);
-        unit->workTime = g_game->gameTick + 900;
+        unit->workTime = g_game->ticks + 900;
         order->elapsed += 2;
         order->SetDeadlineTicks(2);
         return 2;
@@ -1459,7 +1449,7 @@ int __stdcall ReclaimUnitOrder(Unit* unit, Order* order, unsigned int flags)
                 g_seams.weapons->DamageUnit(unit, order->target.Get(), order->elapsed, 5, 0);
                 order->duration = 0;
             }
-            unit->workTime = g_game->gameTick + 900;
+            unit->workTime = g_game->ticks + 900;
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(order->source, &start);
             Vec3 bounds[2];
@@ -1537,7 +1527,7 @@ int __stdcall RepairUnitOrder(Unit* unit, Order* order, int flags)
             order->SetDeadlineTicks(15);
             return 0;
         }
-        unit->workTime = g_game->gameTick + 150;
+        unit->workTime = g_game->ticks + 150;
         if (g_seams.units->AddRepairProgress(unit, order->target.owner, (float)(unit->def->workerTime / 30))) {
             Vec3 nano;
             g_seams.units->GetNanoPiecePosition(order->source, &nano);
@@ -1582,7 +1572,7 @@ int __stdcall RepairUnitNoMoveOrder(Unit* unit, Order* order, int unused)
     case 1: {
         if ((unsigned int)target->health >= target->def->maxHealth) return 1;
         if (target->flags & 0xc) return 1;
-        unit->workTime = g_game->gameTick + 150;
+        unit->workTime = g_game->ticks + 150;
         int rate = 0;
         rate = unit->def->workerTime;
         if (g_seams.units->AddRepairProgress(unit, order->target.Get(), (float)(rate / 30))) {
@@ -1930,7 +1920,7 @@ int __stdcall HelpBuildOrder(Unit* unit, Order* order, int flags)
             bounds[1] = (Vec3Sum&)order->target.owner->pos + order->target.owner->def->bounds.hi;
             EmitNanoParticles(&start, (Box*)bounds, 6);
         }
-        unit->workTime = g_game->gameTick + 300;
+        unit->workTime = g_game->ticks + 300;
         if (order->target.owner->buildLeft != 0.0f) {
             order->SetDeadlineTicks(1);
             order->flags |= 0xa;
