@@ -1,9 +1,7 @@
 #ifndef MODEL_TYPES_H
 #define MODEL_TYPES_H
 
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 #include "gaf_frame.h"
 
 struct Vector3s {

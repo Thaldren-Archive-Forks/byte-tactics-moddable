@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "../state/block.h"
 #include "../util/vec3.h"
-static inline Vec3 operator+(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
+static inline Vec3 PosPlus(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 struct Unit;
 struct Order;
 #include "mission_type.h"
@@ -151,8 +151,8 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             short angle=order->angle;
             Vec3 pos;
             if ((unsigned char)(unit->flags>>31)&1)
-                pos=order->target->pos+Offset(angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16);
-            else pos=order->target->pos+Offset(angle,0x1400000);
+                pos=PosPlus(order->target->pos,Offset(angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16));
+            else pos=PosPlus(order->target->pos,Offset(angle,0x1400000));
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
             order->SetAttachedFx(move);

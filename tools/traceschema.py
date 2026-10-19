@@ -963,8 +963,33 @@ class Schema:
             i += 1
         return "\n".join(out)
 
+    def strip_method_bodies(self, body):
+        out = []
+        depth = 0
+        pending = False
+        for raw in body.split("\n"):
+            code = raw.split("//")[0].strip()
+            if depth == 0:
+                if pending and code.startswith("{"):
+                    pending = False
+                    depth = code.count("{") - code.count("}")
+                    continue
+                pending = False
+                m = re.search(r"\)\s*(?:const\s*)?(\{.*)?$", code)
+                if m and not code.endswith(";") and not code.startswith("}"):
+                    out.append(raw)
+                    if m.group(1) is None:
+                        pending = True
+                    else:
+                        depth = max(m.group(1).count("{") - m.group(1).count("}"), 0)
+                    continue
+                out.append(raw)
+            else:
+                depth += code.count("{") - code.count("}")
+        return "\n".join(out)
+
     def parse(self, name, body, declared):
-        body = self.flatten_unions(body)
+        body = self.flatten_unions(self.strip_method_bodies(body))
         leaves = []
         pos = 0
         group = None

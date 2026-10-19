@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "../state/block.h"
 #include "../util/vec3.h"
-static inline Vec3 operator+(const Vec3& a, const Vec3& b) { Vec3 r; r.x=a.x+b.x; r.y=a.y+b.y; r.z=a.z+b.z; return r; }
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 class UnitMotion;
 struct Player;

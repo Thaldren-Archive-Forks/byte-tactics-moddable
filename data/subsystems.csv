@@ -4150,6 +4150,7 @@ PosPlus,src/ai/ai_player.cpp,ai,file:src/ai/,
 PosPlus,src/orders/order_list.cpp,orders,file:src/orders/,
 PosPlus,src/orders/unit_orders_403a20.cpp,orders,file:src/orders/,
 PosPlus,src/orders/vtol_orders.cpp,orders,file:src/orders/,
+PosPlus,src/orders/vtol_orders_40fbe0.cpp,orders,file:src/orders/,
 PosPlus,src/orders/vtol_orders_411f50.cpp,orders,file:src/orders/,
 PosPlus,src/orders/vtol_orders_412710.cpp,orders,file:src/orders/,
 PosPlus,src/orders/vtol_orders_414380.cpp,orders,file:src/orders/,
@@ -4446,10 +4447,9 @@ Value_004b8bf0,src/graphics/gaf.cpp,presentation,presentation,
 Value_004e2620::operator=,src/debug/debug_lib_4e2620.cpp,platform,folder:src/debug/,
 Vec3::Scale,src/util/vec3.h,platform,folder:src/util/,
 Vec3::SquareXZ,src/util/vec3.h,platform,folder:src/util/,
-Vec3::Vec3,src/ai/ai_player_408100.cpp,ai,file:src/ai/,
-Vec3::operator+,src/ai/ai_player_408100.cpp,ai,file:src/ai/,
+Vec3::operator+,src/util/vec3.h,platform,folder:src/util/,
 Vec3::operator+=,src/util/vec3.h,platform,folder:src/util/,
-Vec3::operator-,src/ai/ai_player_408100.cpp,ai,file:src/ai/,
+Vec3::operator-,src/util/vec3.h,platform,folder:src/util/,
 Vec3::operator-=,src/util/vec3.h,platform,folder:src/util/,
 Vec3Add,src/orders/order_list.cpp,orders,file:src/orders/,
 Vec3Add,src/orders/unit_orders.cpp,orders,file:src/orders/,
@@ -4618,15 +4618,9 @@ operator delete,src/state/block.cpp,platform,library,
 operator delete[],src/state/block.cpp,game,default,
 operator new,src/state/block.cpp,platform,library,
 operator new[],src/state/block.cpp,game,default,
-operator+,src/orders/unit_orders_406300.cpp,platform,file:src/orders/,platform
-operator+,src/orders/vtol_orders_40fbe0.cpp,platform,file:src/orders/,platform
-operator+,src/orders/vtol_orders_410850.cpp,platform,file:src/orders/,platform
-operator+,src/units/unit_scripts.cpp,platform,default:src/units/,platform
 operator-,src/ai/ai_player.cpp,platform,file:src/ai/,platform
-operator-,src/game/victory.cpp,platform,file:src/game/victory,platform
 operator-,src/graphics/particles.cpp,platform,presentation,platform
 operator-,src/ingame/markers.cpp,platform,presentation,platform
-operator-,src/units/unit_types.cpp,platform,default:src/units/,platform
 operator-,src/weapons/weapons.cpp,platform,file:src/weapons/,platform
 operator<,src/ai/pathfind.cpp,pathfinding,file:src/ai/pathfind,
 operator==,src/util/commands.cpp,platform,folder:src/util/,

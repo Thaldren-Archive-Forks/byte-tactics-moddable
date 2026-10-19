@@ -1248,16 +1248,6 @@ void MissionConditions::NotifyUnitCreated(Unit* unit)
     }
 }
 
-// Inline and by value: all three differences are computed before the first store.
-static inline Vec3 operator-(const Vec3& p, const Vec3& q)
-{
-    Vec3 r;
-    r.x = p.x - q.x;
-    r.y = p.y - q.y;
-    r.z = p.z - q.z;
-    return r;
-}
-
 #include "../units/unit_def.h"
 
 // The flags at +0x241 read as the original's bitfield; the header keeps the

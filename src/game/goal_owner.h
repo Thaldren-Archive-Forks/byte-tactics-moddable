@@ -3,9 +3,7 @@
 
 #include "../orders/order_target_types.h"
 #include "../util/angles.h"
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 
 struct UnitDef;
 class UnitMotion;

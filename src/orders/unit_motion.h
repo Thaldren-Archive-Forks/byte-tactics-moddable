@@ -8,9 +8,7 @@
 #ifndef UNIT_MOTION_H
 #define UNIT_MOTION_H
 
-#ifndef TA_TYPES_H
 #include "../util/vec3.h"
-#endif
 
 struct Unit;
 class HapiBank;

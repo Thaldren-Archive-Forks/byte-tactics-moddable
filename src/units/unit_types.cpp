@@ -136,14 +136,6 @@ void LoadUnitInfo();
 // The float fields' getter. The outer parentheses matter (note 7 of 0x42bf40).
 #define GETFLOAT(section, key) ((float)(section)->GetFieldDouble(key, 0.0))
 
-static inline Vec3 operator-(const Vec3& a, const Vec3& b) {
-    Vec3 r;
-    r.x = a.x - b.x;
-    r.y = a.y - b.y;
-    r.z = a.z - b.z;
-    return r;
-}
-
 // UnitDef::operator= for the 0x249-byte UnitDef element. Hand-written:
 // char arrays are copied with byte loops, plain ints/shorts/structs member by
 // member, and the two flag words at +0x241/+0x245 bit by bit.
