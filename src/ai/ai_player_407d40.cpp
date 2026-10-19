@@ -14,7 +14,7 @@ struct SquadManager;  // the struct key stays in the mangled name of 0x407d40
 SquadTimer::SquadTimer(SquadManager* p, void* q)
     : owner(p), group((Group*)q), next(0), player(p->index) {}
 
-static inline Vec3 MakeVec3(int ax, int ay, int az)
+static inline Vec3 Vec3At(int ax, int ay, int az)
 {
     Vec3 v;
     v.x = ax;
@@ -29,10 +29,10 @@ SpatialTimer::SpatialTimer(SquadManager* p, void* q)
     : SquadTimer(p, (Group*)q)
 {
     int x = (int)(g_game->baseX / 2 * 65536.0);
-    best = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    best = Vec3At(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     x = (int)(g_game->baseX / 2 * 65536.0);
-    probe = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    probe = Vec3At(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     x = (int)(g_game->baseX / 2 * 65536.0);
-    step = MakeVec3(x, 0, (int)(g_game->baseY / 2 * 65536.0));
+    step = Vec3At(x, 0, (int)(g_game->baseY / 2 * 65536.0));
     bestRating = 0;
 }
