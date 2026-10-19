@@ -26,11 +26,6 @@
 
 #include "sight_query.h"
 
-struct ScreenPos {
-    short x;
-    short y;
-};
-
 #include "../graphics/rect.h"
 
 // A map cell (13 bytes): the feature at +0x8, its footprint offsets at +0xa,
@@ -118,32 +113,7 @@ struct FrameTable {
     void* entries;                     // +0x28
 };
 
-// One of the "eyeball" records of the array at g_game + 0x1427b. The two
-// pointer fields point into the record itself: +4 at its screen position, +0xc
-// at the byte flag, so the copy has to re-point them at the destination.
-struct Eye {
-    void* player;                      // +0x00
-    ScreenPos* screen;
-    short x;                           // +0x08
-    unsigned char flagA;               // +0x0a
-    char flagB;                        // +0x0b
-    char* flagPtr;                     // +0x0c, &flagB
-    Vec3 pos;                          // +0x10
-    unsigned int expires;              // +0x1c
-    ScreenPos screenPos;
-    Eye& operator=(const Eye& s) {
-        player = s.player;
-        screen = &screenPos;
-        x = s.x;
-        flagPtr = &flagB;
-        pos = s.pos;
-        flagA = s.flagA;
-        expires = s.expires;
-        screenPos = s.screenPos;
-        flagB = s.flagB;
-        return *this;
-    }
-};
+#include "eye.h"
 
 union Flags_14281 {
     unsigned short raw;                // +0x0
