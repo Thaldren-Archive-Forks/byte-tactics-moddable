@@ -39,10 +39,10 @@ public:
     void LoadLosTables();
     void ResizeTables(short n);
 
-    std::allocator<int> allocator;     // +0x0
-    int* first;                        // +0x4
-    int* last;                         // +0x8
-    int* end;                          // +0xc
+    std::allocator<int> allocator;
+    int* first;
+    int* last;
+    int* end;
 };
 
 #endif

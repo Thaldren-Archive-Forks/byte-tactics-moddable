@@ -3,19 +3,19 @@
 
 #pragma pack(push, 1)
 struct AnimEntry_00421f20 {
-    short next;                        // +0x0
-    short prev;                        // +0x2
+    short next;
+    short prev;
     char unknown_4[0x2c];
 };
 
 struct FeatureUnit_00421f20 {
     char unknown_0[0x92];
-    int def;                           // +0x92
+    int def;
     char unknown_96[0xa6 - 0x96];
-    unsigned short unitDefIndex;       // +0xa6
+    unsigned short unitDefIndex;
     char unknown_a8[0x110 - 0xa8];
-    int flags_110;                     // +0x110
-    int flags_114;                     // +0x114
+    int flags_110;
+    int flags_114;
 };
 
 struct FeatureAnimPool {
