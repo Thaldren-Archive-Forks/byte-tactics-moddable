@@ -73,12 +73,6 @@ struct Struct_00496e90 {
 };
 
 
-struct Vec3_00437320 {
-    int x;
-    int y;
-    int z;
-};
-
 #include "../map/mission.h"
 #include "../util/vec3.h"
 #include "../../interfaces/seams.h"

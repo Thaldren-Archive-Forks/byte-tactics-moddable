@@ -475,7 +475,7 @@ static char* __fastcall GetMissionNameNative(Mission* self)
 
 static int __fastcall GetStartPositionNative(Mission* self, int unusedEdx, Vec3* out, int id)
 {
-    return self->GetStartPosition((Vec3_00437320*)out, id);
+    return self->GetStartPosition((Vec3*)out, id);
 }
 
 static void __fastcall LoadCampaignNative(Mission* self, int unusedEdx, char* file)

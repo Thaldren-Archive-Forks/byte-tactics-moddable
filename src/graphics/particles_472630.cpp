@@ -67,38 +67,10 @@ public:
 // The owner of the per-index lists (see 0x471d90).
 #include "particle_lists.h"
 
-struct Vec3_00472630 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00472720 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00472810 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00474cd0 {
-    int x;
-    int y;
-    int z;
-};
+#include "../util/vec3.h"
 
 // The smoke puff's position views and the record.
 #include "smoke_particle.h"
-
-struct Vec3_00475150 {
-    int x;
-    int y;
-    int z;
-};
 
 struct Vec3_00473560 {
     int x;
@@ -233,7 +205,7 @@ struct Pos_004745e0 {
 struct TimedSubParticle {
     void* data;                        // +0x00, the animation
     union {
-        Vec3_00475150 pos;             // +0x04
+        Vec3 pos;             // +0x04
         Position_00475150 posw;
     };
     int limit;                         // +0x10, the rounds it lives
@@ -255,7 +227,7 @@ public:
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
     int altAnimation;                                   // +0x28, the other animation
-    Vec3_00474d50 pos;                                  // +0x2c
+    Vec3 pos;                                  // +0x2c
 
     SmokeParticles();
     virtual void Update();                              // slot 1, 0x475340
@@ -263,7 +235,7 @@ public:
     virtual int IsFinished();                           // slot 3, 0x474f80
     virtual void Emit();                                // slot 4, 0x474df0
     virtual int IsEmitDue();                            // slot 5, 0x475440
-    virtual void Init(Vec3_00474d50* pos, int limit, int a, int b, int c,
+    virtual void Init(Vec3* pos, int limit, int a, int b, int c,
                               int alt);                 // slot 6, 0x474d50
 };
 
@@ -275,7 +247,7 @@ public:
     int emitPeriod;                                     // +0x1c, the emit period
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
-    Vec3_00475150 pos;                                  // +0x28
+    Vec3 pos;                                  // +0x28
 
     TimedSubParticles();
     virtual void Update();                              // slot 1, 0x475600
@@ -285,7 +257,7 @@ public:
     // In particles_4750f0.cpp: it is defined returning bool, and Update tests
     // its result as an int.
     virtual int IsEmitDue();                            // slot 5, 0x4750f0
-    virtual void Init(Vec3_00475150* pos, int a, int b, int c); // slot 6, 0x475150
+    virtual void Init(Vec3* pos, int a, int b, int c); // slot 6, 0x475150
 };
 
 // One teleport spark (the element of TeleportParticles' vector), 0x34 bytes.
@@ -481,40 +453,40 @@ struct Access_00476710 : Vec_004739b0 {
 };
 
 // FUNCTION: 0x472630
-void __stdcall EmitSmoke(Vec3_00472630* pos, int emitPeriod, int lifetime, short index)
+void __stdcall EmitSmoke(Vec3* pos, int emitPeriod, int lifetime, short index)
 {
     ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)pos, 0, emitPeriod, 0, lifetime, 0);
+        e->Init((Vec3*)pos, 0, emitPeriod, 0, lifetime, 0);
         owner->Add(index, e);
     }
 }
 
 // FUNCTION: 0x472720
-void __stdcall EmitTimedBlackSmoke(Vec3_00472720* pos, int emitPeriod, int lifetime, short index)
+void __stdcall EmitTimedBlackSmoke(Vec3* pos, int emitPeriod, int lifetime, short index)
 {
     ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)pos, 0, emitPeriod, 0, lifetime, 1);
+        e->Init((Vec3*)pos, 0, emitPeriod, 0, lifetime, 1);
         owner->Add(index, e);
     }
 }
 
 // FUNCTION: 0x472810
-void __stdcall EmitWhiteSmoke(Vec3_00472810* pos, short index)
+void __stdcall EmitWhiteSmoke(Vec3* pos, short index)
 {
     ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)pos, 0, 1, 0, 0, 0);
+        e->Init((Vec3*)pos, 0, 1, 0, 0, 0);
         owner->Add(index, e);
     }
 }
 
 // FUNCTION: 0x4728f0
-void __stdcall EmitBlackSmoke(Vec3_00474cd0* p, short index)
+void __stdcall EmitBlackSmoke(Vec3* p, short index)
 {
     // The list owner is read through a reference before the allocation, so
     // g_game and its +0x38d77 field are loaded ahead of the pool call and stay
@@ -522,24 +494,24 @@ void __stdcall EmitBlackSmoke(Vec3_00474cd0* p, short index)
     ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)p, 0, 1, 0, 0, 1);
+        e->Init((Vec3*)p, 0, 1, 0, 0, 1);
         l.Add(index, e);
     }
 }
 
 // FUNCTION: 0x4729d0
-void __stdcall EmitWeaponSmoke(Vec3_00474cd0* p, short index)
+void __stdcall EmitWeaponSmoke(Vec3* p, short index)
 {
     ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)p, 3, 1, 0x1e, 0, 0);
+        e->Init((Vec3*)p, 3, 1, 0x1e, 0, 0);
         l.Add(index, e);
     }
 }
 
 // FUNCTION: 0x472c50
-void __stdcall EmitTimedSubParticles(Vec3_00475150* p, short index)
+void __stdcall EmitTimedSubParticles(Vec3* p, short index)
 {
     ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     TimedSubParticles* e = new TimedSubParticles;
