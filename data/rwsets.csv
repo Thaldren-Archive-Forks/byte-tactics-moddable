@@ -45295,7 +45295,19 @@ address,function,file,kind,target
 ,Game::Game,src/frontend/endgame.cpp,function,
 ,GameAt,src/harness/harness.cpp,function,
 ,GameAt,src/harness/harness.cpp,global_read,g_game
+,GameHoldrand,src/state/game_rand.cpp,call,Stream
+,GameHoldrand,src/state/game_rand.cpp,field_read,bx_rand_state::holdrand
+,GameHoldrand,src/state/game_rand.cpp,function,
+,GameRand,src/state/game_rand.cpp,call,Stream
+,GameRand,src/state/game_rand.cpp,call,bx_rand
+,GameRand,src/state/game_rand.cpp,function,
 ,GameShuffleDraw::GameShuffleDraw,src/state/game_rand.h,function,
+,GameShuffleDraw::operator(),src/state/game_rand.cpp,call,GameRand
+,GameShuffleDraw::operator(),src/state/game_rand.cpp,field_read,GameShuffleDraw::stream
+,GameShuffleDraw::operator(),src/state/game_rand.cpp,function,
+,GameSrand,src/state/game_rand.cpp,call,Stream
+,GameSrand,src/state/game_rand.cpp,call,bx_srand
+,GameSrand,src/state/game_rand.cpp,function,
 ,GameU32,src/harness/harness.cpp,call,GameAt
 ,GameU32,src/harness/harness.cpp,deref_read,*unsigned int
 ,GameU32,src/harness/harness.cpp,function,
@@ -49916,6 +49928,8 @@ address,function,file,kind,target
 ,SteepCell,src/map/terrain.cpp,function,
 ,SteepCell,src/map/terrain.cpp,global_read,g_game
 ,StepPage,src/ingame/control_panel.cpp,function,
+,Stream,src/state/game_rand.cpp,call,SimRandStream
+,Stream,src/state/game_rand.cpp,function,
 ,StringRef::GetUnique,src/graphics/surface.cpp,call,free
 ,StringRef::GetUnique,src/graphics/surface.cpp,call,malloc
 ,StringRef::GetUnique,src/graphics/surface.cpp,call,strcpy

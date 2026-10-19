@@ -188,6 +188,7 @@ features,ai,shared_write,Vec3::y,14
 features,ai,shared_write,Vec3::z,21
 features,economy,shared_write,Point16::x,1
 features,economy,shared_write,Point16::y,1
+features,game,call,GameRand,1
 features,game,call,SimAllocTagged,1
 features,game,call,StepGafSequence,1
 features,game,shared_write,Vec3::x,2
@@ -966,6 +967,7 @@ harness,economy,shared_write,Game::localPlayer,8
 harness,features,shared_write,Game::difficulty,2
 harness,features,shared_write,Game::playerIndex,1
 harness,game,call,ApplySlotsToGamePlayers,1
+harness,game,call,GameHoldrand,1
 harness,game,shared_write,Game::difficulty,4
 harness,game,shared_write,Game::localPlayer,13
 harness,game,shared_write,Game::playerIndex,6
@@ -1355,6 +1357,7 @@ network,features,call,StartFeatureBurning,1
 network,features,shared_write,Player::active,2
 network,features,shared_write,Player::type,2
 network,features,shared_write,PlayerInfo::id,1
+network,game,call,GameRand,1
 network,game,call,SetCursorMode,1
 network,game,call,SetGameSpeed,1
 network,game,shared_write,Game::bit4_3923b,1
@@ -2190,6 +2193,7 @@ players,features,shared_write,Point16::y,11
 players,features,shared_write,Vec3::x,7
 players,features,shared_write,Vec3::y,5
 players,features,shared_write,Vec3::z,7
+players,game,call,GameRand,1
 players,game,call,SimAlloc,1
 players,game,shared_write,Game::endGameCountdown,1
 players,game,shared_write,Game::localPlayer,13
@@ -3952,6 +3956,7 @@ weapons,features,shared_write,Point16::y,11
 weapons,features,shared_write,Vec3::x,7
 weapons,features,shared_write,Vec3::y,5
 weapons,features,shared_write,Vec3::z,7
+weapons,game,call,GameRand,1
 weapons,game,call,SimAllocTagged,1
 weapons,game,call,StepGafSequence,1
 weapons,game,shared_write,Game::selected,1
@@ -4179,6 +4184,7 @@ wind_meteors,features,shared_write,Point16::y,11
 wind_meteors,features,shared_write,Vec3::x,7
 wind_meteors,features,shared_write,Vec3::y,5
 wind_meteors,features,shared_write,Vec3::z,7
+wind_meteors,game,call,GameRand,4
 wind_meteors,game,shared_write,Game::windCounter,1
 wind_meteors,game,shared_write,Vec3::x,2
 wind_meteors,game,shared_write,Vec3::z,2
