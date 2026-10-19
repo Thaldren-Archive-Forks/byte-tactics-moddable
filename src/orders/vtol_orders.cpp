@@ -889,7 +889,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     case 3:
         WaitIfNotInBuildStance(unit,order,10);
     case 4: {
-        if (g_game->gameTick%150==0) {
+        if ((unsigned int)g_game->ticks%150==0) {
             int angle=GetHeadingBetween(&unit->pos,&order->target->pos);
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
