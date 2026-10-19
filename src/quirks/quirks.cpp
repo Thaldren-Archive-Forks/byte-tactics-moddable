@@ -15,7 +15,7 @@ struct QuirkInfo {
 };
 
 const QuirkInfo s_quirks[] = {
-#define QUIRK(member, name, scope, oa) { name, &Quirks::member, QUIRK_SCOPE_##scope },
+#define QUIRK(member, flagName, scope, openAnnihilationId) { flagName, &Quirks::member, QUIRK_SCOPE_##scope },
 #define QUIRK_SCOPE_sim true
 #define QUIRK_SCOPE_view false
 #include "quirks.def"

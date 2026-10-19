@@ -1,4 +1,3 @@
-// QUIRK(member in Quirks, dotted flag name, scope: sim or view, Open Annihilation id or "")
 QUIRK(ignoreNullDeathRecord, "units.ignore-null-death-record", sim, "")
 QUIRK(patrolNullEnemySkip, "ai.patrol-null-enemy-skip", sim, "")
 QUIRK(skipEmptyYardmap, "units.skip-empty-yardmap", sim, "")
