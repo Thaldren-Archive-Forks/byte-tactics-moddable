@@ -370,8 +370,12 @@ the stored traces; it is a check on presentation code, not the gate.
 `--check --exe <exe> --quirks <spec>` plays every scenario with a `quirks <spec>` line added to a
 temporary copy (before the first `order` line), and prints one line per scenario: `equal` (the digests
 equal the stored ones; the header's `quirks` line is not compared), `differs` with the first differing
-tick (and the kept run's path, as for `DIFF`), or `FAIL` for a crash, a hang, a dialog or a nonzero exit. The
-total counts equal, differ and failed. A difference is not a failure: the exit status is 1 only when a
+tick and phase with the function the phase runs, or `FAIL` for a crash, a hang, a dialog or a nonzero
+exit. The stored digests have no phases, so each differing scenario is played again with every flag off
+(the gate proves that equals the reference) and the two `trace.txt` files are compared; both run
+directories are kept (`build/scratch/check-<scenario>-<time>/` and `check-<scenario>-alloff-<time>/`) and the line ends with their paths. If that rerun fails, or
+differs from the stored trace (the exe does not pass the gate, which is not the flag's effect), the scenario is `FAIL`.
+The total counts equal, differ and failed. A difference is not a failure: the exit status is 1 only when a
 scenario failed (or a trace has no scenario). It builds no reference, and it is not the gate. It
 works with `--quick`, `--steps-per-frame` and `--parallel`, and not with `--poison`.
 

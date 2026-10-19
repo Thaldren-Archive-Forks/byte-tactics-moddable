@@ -60,67 +60,104 @@ class WithQuirksTest(unittest.TestCase):
 class CheckQuirksTest(unittest.TestCase):
     NAMES = ("eq", "diff", "bad")
     STORED = [(1, "a" * 16), (2, "b" * 16)]
+    DIFFERS = [(1, "a" * 16), (2, "c" * 16)]
 
-    def run_check(self, header_extra: dict[str, str], diff_digests, failed_names=("bad",)):
-        """check_traces(quirks=...) with play_all mocked; (exit status or None, output, spec lines played)."""
-        header = {"game_seed": "1", "crt_seed": "1", "view_seed": "1", **header_extra}
-        stored = ({"game_seed": "1", "crt_seed": "1", "view_seed": "1"}, self.STORED)
-        results = {
-            "eq": (header, self.STORED, 1.0, None),
-            "bad": (header, self.STORED, 1.0, None),
-            "diff": (header, diff_digests, 1.0, reference.ROOT / "build/scratch/check-diff-x"),
-        }
-        played = {}
+    def run_check(self, header_extra=None, diff_digests=None, failed_names=(), off_failed=None, off_digests=None):
+        """check_traces(quirks=...) with play_all mocked, for a quirks run and the all-off rerun of "diff".
 
-        def fake_play_all(exe, scenarios, game_dir, parallel, expected, poison, failed):
-            for name, path in scenarios.items():
-                played[name] = path.read_text()
-            for name in failed_names:
-                failed[name] = "playtest.py ended with a crash"
-            return results
+        Returns (exit status or None, output, scenario texts played, the names rerun).
+        """
+        header = {"game_seed": "1", "crt_seed": "1", "view_seed": "1", **(header_extra or {})}
+        plain = {"game_seed": "1", "crt_seed": "1", "view_seed": "1"}
+        stored = (plain, self.STORED)
+        played, reruns = {}, []
 
-        files = {}
         with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+
+            def kept(name, phase_hashes):
+                d = tmp / name
+                d.mkdir()
+                rows = [f"{t} {ph} {h}" for t, ph, h in phase_hashes]
+                (d / "trace.txt").write_text("bt-trace 3\n" + "\n".join(rows) + "\n")
+                return d
+
+            quirk_rows = [(1, "units", "1" * 16), (2, "units", "2" * 16), (2, "players", "9" * 16)]
+            off_rows = [(1, "units", "1" * 16), (2, "units", "2" * 16), (2, "players", "3" * 16)]
+
+            def fake_play_all(exe, scenarios, game_dir, parallel, expected, poison, failed, keep_always=False):
+                if keep_always:
+                    reruns.extend(scenarios)
+                    if off_failed:
+                        failed["diff"] = off_failed
+                        return {}
+                    return {"diff": (plain, off_digests or self.STORED, 1.0, kept("off", off_rows))}
+                for name, path in scenarios.items():
+                    played[name] = path.read_text()
+                for name in failed_names:
+                    failed[name] = "playtest.py ended with a crash"
+                return {
+                    "eq": (header, self.STORED, 1.0, None),
+                    "bad": (header, self.STORED, 1.0, None),
+                    "diff": (header, diff_digests or self.STORED, 1.0, kept("quirks", quirk_rows)),
+                }
+
+            files = {}
             for n in self.NAMES:
-                files[n] = Path(tmp) / f"{n}.txt"
+                files[n] = tmp / f"{n}.txt"
                 files[n].write_text("ticks 2\norder 1 0:A:1 move 1 2\n")
+            (tmp / "traces").mkdir()
+            for n in self.NAMES:
+                (tmp / "traces" / f"{n}.txt").write_text("")
             out = io.StringIO()
             status = None
             with mock.patch.object(reference, "scenario_files", lambda: files), \
-                    mock.patch.object(reference, "TRACES", Path(tmp) / "traces"), \
+                    mock.patch.object(reference, "TRACES", tmp / "traces"), \
                     mock.patch.object(reference.tracedigest, "parse_digest", lambda p: stored), \
                     mock.patch.object(reference, "play_all", fake_play_all), \
                     contextlib.redirect_stdout(out):
-                (Path(tmp) / "traces").mkdir()
-                for n in self.NAMES:
-                    (Path(tmp) / "traces" / f"{n}.txt").write_text("")
                 try:
                     reference.check_traces(Path("x.exe"), None, 1, quirks="recommended")
                 except SystemExit as e:
                     status = e.code
-        return status, out.getvalue(), played
+        return status, out.getvalue(), played, reruns
 
     def test_header_quirks_line_alone_is_equal(self):
-        status, out, played = self.run_check({"quirks": "0000abcd recommended"}, self.STORED, failed_names=())
+        status, out, played, reruns = self.run_check({"quirks": "0000abcd recommended"})
         self.assertIn("equal   eq", out)
         self.assertIn("equal   diff", out)
         self.assertNotIn("differs", out)
         self.assertIn("3 equal, 0 differ, 0 failed", out)
         self.assertIsNone(status)
+        self.assertEqual(reruns, [])
         self.assertIn("quirks recommended\norder", played["eq"])
 
-    def test_difference_names_the_tick_and_is_not_a_failure(self):
-        status, out, _ = self.run_check({}, [(1, "a" * 16), (2, "c" * 16)], failed_names=())
+    def test_difference_names_the_tick_and_phase_and_is_not_a_failure(self):
+        status, out, played, reruns = self.run_check(diff_digests=self.DIFFERS)
         self.assertIn("differs diff", out)
-        self.assertIn("tick 2", out)
-        self.assertIn("[kept: build/scratch/check-diff-x]", out)
+        self.assertIn("tick 2, phase players", out)
+        self.assertIn("FUNCTION:", out)
         self.assertIn("2 equal, 1 differ, 0 failed", out)
         self.assertIsNone(status)
+        self.assertEqual(reruns, ["diff"])
+        self.assertIn("quirks recommended\norder", played["diff"])
 
     def test_failed_scenario_exits_1(self):
-        status, out, _ = self.run_check({}, self.STORED)
+        status, out, _, _ = self.run_check(failed_names=("bad",))
         self.assertIn("FAIL bad: playtest.py ended with a crash", out)
         self.assertIn("2 equal, 0 differ, 1 failed", out)
+        self.assertEqual(status, 1)
+
+    def test_failed_all_off_rerun_is_a_failure(self):
+        status, out, _, _ = self.run_check(diff_digests=self.DIFFERS, off_failed="the exe hung")
+        self.assertIn("FAIL diff: the all-off rerun failed: the exe hung", out)
+        self.assertIn("2 equal, 0 differ, 1 failed", out)
+        self.assertEqual(status, 1)
+
+    def test_all_off_rerun_differing_from_stored_is_a_failure(self):
+        status, out, _, _ = self.run_check(diff_digests=self.DIFFERS, off_digests=self.DIFFERS)
+        self.assertIn("FAIL diff: all-off run differs from the stored trace", out)
+        self.assertNotIn("differs diff", out)
         self.assertEqual(status, 1)
 
     def test_usage_errors(self):
