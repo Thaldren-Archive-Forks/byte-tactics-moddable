@@ -2018,8 +2018,12 @@ void __cdecl AllocNotifyNop(int);
 #include "player_info.h"
 
 // FUNCTION: 0x463be0
-Player::Player() : active(0), type(0), grid()
+Player::Player() : active(0), type(0)
 {
+    exploredWidth = 0;
+    exploredHeight = 0;
+    exploredSize = 0;
+    explored = 0;
     index = 10;
     info = (PlayerInfo*)operator new(0xb9);
     AllocNotifyNop((int)info);

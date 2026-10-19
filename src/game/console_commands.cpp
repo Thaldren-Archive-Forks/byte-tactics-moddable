@@ -37,31 +37,8 @@ struct TdfParser;
 
 #include "../orders/mission_type.h"
 
-struct PlayerData {
-    char unknown_0[0x95];
-    unsigned char side;                // +0x95
-    unsigned char color;               // +0x96
-};
-
-struct Player {
-    int active;                        // +0x00
-    char unknown_4[0x27 - 0x4];
-    PlayerData* data;                  // +0x27
-    char unknown_2b[0x73 - 0x2b];
-    unsigned char type;                // +0x73
-    char unknown_74[0x7c - 0x74];
-    unsigned char* fog;                // +0x7c
-    int fogWidth;                      // +0x80
-    char unknown_84[0x8c - 0x84];
-    float energy;                      // +0x8c
-    char unknown_90[0x98 - 0x90];
-    float metal;                       // +0x98
-    char unknown_9c[0x146 - 0x9c];
-    unsigned char index;               // +0x146
-    char unknown_147[0x14b - 0x147];
-
-    void SetType(int type);
-};
+#include "../network/player.h"
+#include "../network/player_info.h"
 
 struct Movement {
     char unknown_0[0x10];
@@ -750,7 +727,7 @@ void __stdcall CmdLogo(CommandArgs* args)
                     && p->index != 10) {
                     int v = args->GetIntArg(1, 0);
                     int j = args->GetIntArg(2, 0);
-                    g_game->players[j].data->color = v;
+                    g_game->players[j].info->color = v;
                     g_game->unitTable->FlushCache();
                     return;
                 }
@@ -766,7 +743,7 @@ void __stdcall CmdLogo(CommandArgs* args)
 // FUNCTION: 0x4169d0
 void __stdcall CmdIWin(CommandArgs* args)
 {
-    if (g_game->players[g_game->localPlayer].data->side == 1)
+    if (g_game->players[g_game->localPlayer].info->side == 1)
         g_seams.players->KillPlayerUnits(0);
     else
         g_seams.players->KillPlayerUnits(1);
@@ -781,7 +758,7 @@ void __stdcall CmdIWin(CommandArgs* args)
 // FUNCTION: 0x416a30
 void __stdcall CmdILose(CommandArgs* args)
 {
-    g_seams.players->KillPlayerUnits(g_game->players[g_game->localPlayer].data->side);
+    g_seams.players->KillPlayerUnits(g_game->players[g_game->localPlayer].info->side);
     g_game->flag4 = 0;
     g_game->flag6 = 1;
     g_game->flag2 = 1;
@@ -1628,7 +1605,7 @@ void __stdcall DrawMapDebugOverlay(void* surface)
             } else if (g_game->debugMode == 4) {
                 DrawLine(surface, p[0].x, p[0].y, p[1].x, p[1].y, colors[0]);
                 DrawLine(surface, p[0].x, p[0].y, p[3].x, p[3].y, colors[0]);
-                if (player->fog[(y / 2) * player->fogWidth + x / 2]) {
+                if (player->explored[(y / 2) * player->exploredWidth + x / 2]) {
                     Rect r;
                     r.left = p[0].x - 5;
                     r.right = p[0].x + 5;

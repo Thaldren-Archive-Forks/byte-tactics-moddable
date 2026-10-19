@@ -5,8 +5,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "../map/grid.h"
-
 struct PlayerInfo;
 struct Unit;
 class SquadManager;
@@ -37,15 +35,10 @@ struct Player {
     unsigned char type;                // +0x73
     SquadManager* ai;                  // +0x74
     Group* groups;                     // +0x78
-    union {
-        struct {
-            unsigned char* explored;   // +0x7c
-            int exploredWidth;         // +0x80
-            int exploredHeight;        // +0x84
-            int exploredSize;          // +0x88
-        };
-        Grid grid;
-    };
+    unsigned char* explored;
+    int exploredWidth;
+    int exploredHeight;
+    int exploredSize;
     union {                            // +0x8c
         float energy;
         int energyBits;
