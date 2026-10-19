@@ -7,9 +7,9 @@
 #include "gaf_frame.h"
 
 struct Vector3s {
-    short x;                           // +0x0
-    short y;                           // +0x2
-    short z;                           // +0x4
+    short x;
+    short y;
+    short z;
 };
 
 struct FaceFlags_459c70 {
@@ -25,28 +25,28 @@ struct FaceFlags_459c70 {
 };
 
 struct Face_459c70 {
-    int unknown_0;                     // +0x00
-    int count;                         // +0x04
-    int unknown_8;                     // +0x08
-    unsigned short* indices;           // +0x0c
-    void* pic;                         // +0x10
-    int unknown_14;                    // +0x14
-    unsigned short* color;             // +0x18
-    FaceFlags_459c70 flags;            // +0x1c
+    int unknown_0;
+    int count;
+    int unknown_8;
+    unsigned short* indices;
+    void* pic;
+    int unknown_14;
+    unsigned short* color;
+    FaceFlags_459c70 flags;
 };
 
 struct Object3doView {
     char unknown_0[4];
-    int vertexCount;                   // +0x04
-    int faceCount;                     // +0x08
-    int firstFace;                     // +0x0c
-    int box_x;                         // +0x10
-    int box_y;                         // +0x14
-    int box_z;                         // +0x18
-    const char* name;                  // +0x1c
+    int vertexCount;
+    int faceCount;
+    int firstFace;
+    int box_x;
+    int box_y;
+    int box_z;
+    const char* name;
     char unknown_20[4];
-    Vec3* points;                      // +0x24
-    Face_459c70* faces;                // +0x28
+    Vec3* points;
+    Face_459c70* faces;
     Object3doView* sibling;
     Object3doView* child;
 };
@@ -64,19 +64,19 @@ union PieceFlags_459c70 {
 
 struct Piece_459c70 {
     Object3doView* object;
-    int rot_x;                         // +0x04
-    int rot_y;                         // +0x08
-    int rot_z;                         // +0x0c
-    short short_10;                    // +0x10
-    short short_12;                    // +0x12
-    short short_14;                    // +0x14
-    Vec3 offset;                       // +0x16
-    Vec3* points;                      // +0x22
-    short modified;                    // +0x26
-    PieceFlags_459c70 flags;           // +0x28
-    Piece_459c70* sibling;             // +0x2a
-    Piece_459c70* child;               // +0x2e
-    Piece_459c70* parent;              // +0x32
+    int rot_x;
+    int rot_y;
+    int rot_z;
+    short short_10;
+    short short_12;
+    short short_14;
+    Vec3 offset;
+    Vec3* points;
+    short modified;
+    PieceFlags_459c70 flags;
+    Piece_459c70* sibling;
+    Piece_459c70* child;
+    Piece_459c70* parent;
 };
 #pragma pack(pop)
 
@@ -86,43 +86,43 @@ struct Model_459200;
 #pragma pack(push, 1)
 struct Unit_459200 {
     char unknown_0[0x64];
-    Vector3s angles;                   // +0x64
-    int pos_x;                         // +0x6a
-    int pos_y;                         // +0x6e
-    int pos_z;                         // +0x72
+    Vector3s angles;
+    int pos_x;
+    int pos_y;
+    int pos_z;
     char unknown_76[0x86 - 0x76];
-    int carrier;                       // +0x86
-    Unit_459200* cargo;                // +0x8a
-    Unit_459200* cargoNext;            // +0x8e
-    UnitDef* def;                      // +0x92
+    int carrier;
+    Unit_459200* cargo;
+    Unit_459200* cargoNext;
+    UnitDef* def;
     char unknown_96[8];
-    Model_459200* state;               // +0x9e
+    Model_459200* state;
     char unknown_a2[4];
-    short unitDefIndex;                // +0xa6
-    unsigned short id;                 // +0xa8
+    short unitDefIndex;
+    unsigned short id;
     char unknown_aa[0xff - 0xaa];
-    unsigned char playerIndex;         // +0xff
+    unsigned char playerIndex;
     char unknown_100[4];
-    float buildLeft;                   // +0x104
+    float buildLeft;
     char unknown_108[6];
-    unsigned char activateFlags;       // +0x10e
+    unsigned char activateFlags;
     char cobStateFlags;
-    unsigned int flags;                // +0x110
-    unsigned char zBufferFlag;         // +0x114
+    unsigned int flags;
+    unsigned char zBufferFlag;
 };
 #pragma pack(pop)
 
 #pragma pack(push, 2)
 struct Model_459200 {
-    int count;                         // +0x00
-    int cacheDrawCount;                // +0x04
-    int animDirty;                     // +0x08
-    Unit_459200* owner;                // +0x0c
-    GafFrame* bitmap;                  // +0x10
-    GafFrame* shadow;                  // +0x14
-    Vector3s pos;                      // +0x18
-    Piece_459c70* root;                // +0x1e
-    Piece_459c70 pieces[1];            // +0x22
+    int count;
+    int cacheDrawCount;
+    int animDirty;
+    Unit_459200* owner;
+    GafFrame* bitmap;
+    GafFrame* shadow;
+    Vector3s pos;
+    Piece_459c70* root;
+    Piece_459c70 pieces[1];
 };
 #pragma pack(pop)
 
