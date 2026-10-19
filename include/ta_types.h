@@ -4491,23 +4491,7 @@ struct FeatureDef_00421eb0 {  // 0x98 bytes, 1 view
     Cell_00421eb0 footprint;  // +0x94
 };
 
-struct AnimEntry_00421f20 {  // 0x30 bytes, 1 view
-    short next;  // +0x0
-    short prev;  // +0x2
-    char unknown_4[44];
-};
-
 #include "../src/map/anim_manager_00421f20.h"
-
-struct FeatureUnit_00421f20 {  // 0x118 bytes, 1 view
-    char unknown_0[146];
-    int field_92;  // +0x92
-    char unknown_96[16];
-    unsigned short field_a6;  // +0xa6
-    char unknown_a8[104];
-    int flags_110;  // +0x110
-    int flags_114;  // +0x114
-};
 
 struct List_00421f20 {  // 0x24 bytes, 1 view
     char unknown_0[28];
