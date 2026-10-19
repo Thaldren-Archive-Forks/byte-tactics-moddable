@@ -792,17 +792,6 @@ int __stdcall DrawUnitBuilderProbe(void* surface)
     return 1;
 }
 
-// The status panel's scroll/refresh tick. When the space bar is held, `panel`
-// moves a third of the way toward 0 (opening "Options") or toward -31
-// (reopening "Panel"), so the panel slides instead of snapping. The rate limit
-// g_statusPanelNextTick (now + 15) keeps one move per frame. Everything drawn
-// below is positioned relative to bounds.bottom + `panel`, so the text scrolls
-// with it. The three lines are drawn at fixed offsets from bounds.left (0x19,
-// 0xbe, 0x17c), each sprintf'ed into the same 256-byte `buf` before it is drawn,
-// so the earlier text is gone by the time the next line is written. The speed
-// line is built in `num` and then appended to in place, with strlen, so the
-// " (%+d)" of a second, differing speed value lands at its end.
-
 // FUNCTION: 0x4689c0
 void __stdcall DrawStatusPanel(Surface* win)
 {

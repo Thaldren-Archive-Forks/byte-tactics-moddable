@@ -85,7 +85,7 @@ void __stdcall SaveTrackSettings(unsigned char* tracks)
     }
 }
 
-// Writes a value under the game's registry key (see SettingSetBlob); the
+// Writes a value under the game's registry key (see WriteRegistryBinary); the
 // sibling of ReadGameRegistryValue.
 // FUNCTION: 0x42f960
 void __stdcall WriteGameRegistryValue(void* key, void* buf, int value)
@@ -93,7 +93,7 @@ void __stdcall WriteGameRegistryValue(void* key, void* buf, int value)
     SettingSetBlob((void*)"Total Annihilation", key, buf, value);
 }
 
-// Reads a value from the game's registry key (see SettingGetBlob/0x4b6880).
+// Reads a value from the game's registry key (see ReadRegistryValue/0x4b6880).
 // FUNCTION: 0x42f980
 int __stdcall ReadGameRegistryValue(const char* key, void* buf, unsigned int* size)
 {
