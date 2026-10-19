@@ -172,6 +172,7 @@ public:
 #include "unit.h"
 
 #include "../game/game.h"
+#include "../quirks/quirks.h"
 #pragma pack(pop)
 
 // GLOBAL: 0x511de8
@@ -955,6 +956,8 @@ void __stdcall ApplyUnitDeath(UnitKilledPacket* cmd, int local)
         unit = 0;
     else
         unit = &g_game->units[cmd->unitId];
+    if (g_quirks.ignoreNullDeathRecord && unit == 0)
+        return;
     if ((unit->flags & 0x10000000) == 0)
         return;
 

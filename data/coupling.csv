@@ -992,12 +992,18 @@ game,wind_meteors,shared_write,Vec3::x,1
 game,wind_meteors,shared_write,Vec3::z,1
 harness,ai,shared_write,Game::difficulty,2
 harness,ai,shared_write,Game::playerIndex,1
+harness,ai,shared_write,g_quirks,1
 harness,economy,shared_write,Game::difficulty,4
 harness,economy,shared_write,Game::localPlayer,8
 harness,features,shared_write,Game::difficulty,2
 harness,features,shared_write,Game::playerIndex,1
 harness,game,call,ApplySlotsToGamePlayers,1
 harness,game,call,GameHoldrand,1
+harness,game,call,QuirksAllOff,1
+harness,game,call,QuirksFlipFirstSim,1
+harness,game,call,QuirksHash,2
+harness,game,call,QuirksNormalise,2
+harness,game,call,QuirksParse,2
 harness,game,shared_write,Game::difficulty,4
 harness,game,shared_write,Game::field_2a3c,5
 harness,game,shared_write,Game::localPlayer,13
@@ -1011,6 +1017,7 @@ harness,map,call,SetMissionType,1
 harness,map,shared_write,Game::difficulty,1
 harness,map,shared_write,Game::field_2a3c,1
 harness,map,shared_write,Game::playerIndex,1
+harness,map,shared_write,g_quirks,1
 harness,network,shared_write,Game::localPlayer,19
 harness,orders,shared_write,Game::difficulty,1
 harness,orders,shared_write,Game::localPlayer,2
@@ -1037,6 +1044,7 @@ harness,units,call,GetGroundHeight,1
 harness,units,shared_write,Game::difficulty,2
 harness,units,shared_write,Game::localPlayer,2
 harness,units,shared_write,Game::playerIndex,3
+harness,units,shared_write,g_quirks,1
 harness,weapons,shared_write,Game::localPlayer,3
 los_radar,ai,indirect,HasReadyUnitInRange,1
 los_radar,ai,indirect,IsPointVisible,2
@@ -3752,7 +3760,7 @@ units,map,shared_write,Unit::cargo,2
 units,map,shared_write,Unit::cargoNext,6
 units,map,shared_write,Unit::carrier,3
 units,map,shared_write,Unit::cell,4
-units,map,shared_write,Unit::def,3
+units,map,shared_write,Unit::def,4
 units,map,shared_write,Unit::flags,3
 units,map,shared_write,Unit::footprint,6
 units,map,shared_write,Unit::motion,2
@@ -3766,7 +3774,7 @@ units,map,shared_write,UnitDef::maxwaterdepth,3
 units,map,shared_write,UnitDef::maxwaterslope,1
 units,map,shared_write,UnitDef::minwaterdepth,3
 units,map,shared_write,UnitDef::mobile,2
-units,map,shared_write,UnitDef::yardmap,3
+units,map,shared_write,UnitDef::yardmap,4
 units,map,shared_write,Unit_00440af0::lastTick,1
 units,map,shared_write,Vec3::x,8
 units,map,shared_write,Vec3::y,2

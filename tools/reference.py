@@ -16,6 +16,12 @@ Every scenario is played with new game allocations zeroed (the game's own -memse
 tools/playtest.py --testmode). `--check --poison` fills them with 0xCD instead (-memset=0xcdcdcdcd); a
 table that reads uninitialised bytes may then differ from the stored digests, and the report lists those.
 
+`--check --exe <exe> --quirks <spec>` plays every scenario with `quirks <spec>` added and prints, per
+scenario, equal, differs (the first differing tick and phase) or failed. A scenario that differs is
+played again with every flag off and compared with that run's phases. A difference is not a failure:
+the exit status is 1 only when a scenario failed, or its all-off rerun failed or differed from the
+stored trace. It builds no reference and is not the gate.
+
 `--traces` checks out origin/reference in build/reference/branch, runs that
 branch's own `tools/reference.py HEAD --traces` there (it links the matching
 build with the original compiler and plays the scenarios), and copies the
@@ -154,9 +160,9 @@ def difference(want: tuple[dict[str, str], list[tuple[int, str]]], header: dict[
     return diff
 
 
-def keep_run(run: Path, scenario: str) -> Path:
+def keep_run(run: Path, scenario: str, suffix: str = "") -> Path:
     """Copy the run's trace.txt (and dump.txt, if any) to build/scratch/check-<scenario>-<time>/."""
-    kept = ROOT / "build/scratch" / f"check-{scenario}-{time.strftime('%Y%m%d-%H%M%S')}"
+    kept = ROOT / "build/scratch" / f"check-{scenario}{suffix}-{time.strftime('%Y%m%d-%H%M%S')}"
     kept.mkdir(parents=True, exist_ok=True)
     for name in ("trace.txt", "dump.txt"):
         if (run / name).is_file():
@@ -179,11 +185,11 @@ def should_retry(message: str) -> bool:
 
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
                   want: tuple[dict[str, str], list[tuple[int, str]]] | None = None, poison: bool = False,
-                  ) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
+                  keep_always: bool = False) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
     """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken.
 
     With `want` (the stored header and digests), a run that differs is kept: the last element is the
-    directory holding its trace.txt, otherwise None.
+    directory holding its trace.txt, otherwise None. With `keep_always` the run is kept whatever it did.
 
     A run whose exe crashes (a nonzero exit) is tried once more, since an exe fault at startup
     was seen in 1 of 300 runs, and so is one that stopped on the DirectX initialisation dialog before
@@ -209,8 +215,8 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
             if key not in header:
                 raise tracediff.Error(f"{scenario}: the trace has no {key} line")
         digests = tracedigest.digests(rows)
-        if want is not None and difference(want, header, digests):
-            kept = keep_run(run, scenario.stem)
+        if keep_always or (want is not None and difference(want, header, digests)):
+            kept = keep_run(run, scenario.stem, "-alloff" if keep_always else "")
     finally:
         shutil.rmtree(run.parent, ignore_errors=True)
     return header, digests, elapsed, kept
@@ -223,8 +229,12 @@ def last_lines(error: Exception, count: int = 1) -> str:
 
 
 def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int,
-             expected: dict[str, tuple] | None = None, poison: bool = False) -> dict[str, tuple]:
+             expected: dict[str, tuple] | None = None, poison: bool = False,
+             failed: dict[str, str] | None = None, keep_always: bool = False) -> dict[str, tuple]:
     """Every scenario's play_scenario result, `parallel` at a time and longest first; exits 1 if one fails to run.
+
+    With `failed` (a dict), a scenario that fails to run is recorded there as name -> message and play_all
+    returns without exiting. With `keep_always`, every run's trace.txt is kept (see play_scenario).
 
     Each run has its own session directory, Wine prefix, game directory, X display and audio sink
     (tools/playtest.py names them by its pid), so runs share nothing but the template prefix,
@@ -236,9 +246,12 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
 
     def one(name: str) -> None:
         try:
-            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name), poison)
+            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name), poison, keep_always)
         except (tracediff.Error, OSError) as e:
-            failures.append(f"{name}: failed to run, playtest.py ended with:\n    {last_lines(e, 5)}")
+            if failed is not None:
+                failed[name] = last_lines(e, 5)
+            else:
+                failures.append(f"{name}: failed to run, playtest.py ended with:\n    {last_lines(e, 5)}")
 
     def longest_first(name: str) -> int:
         try:
@@ -264,6 +277,19 @@ def with_steps_per_frame(scenarios: dict[str, Path], steps: int, directory: Path
     return copies
 
 
+def with_quirks(scenarios: dict[str, Path], spec: str, directory: Path) -> dict[str, Path]:
+    """Copies of the scenarios in `directory`, each with a `quirks <spec>` line before its first order line (else at the end)."""
+    directory.mkdir(parents=True, exist_ok=True)
+    copies = {}
+    for name, path in scenarios.items():
+        lines = path.read_text().splitlines()
+        at = next((i for i, line in enumerate(lines) if line.split()[:1] == ["order"]), len(lines))
+        lines.insert(at, f"quirks {spec}")
+        copies[name] = directory / path.name
+        copies[name].write_text("\n".join(lines) + "\n")
+    return copies
+
+
 def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) -> str | None:
     """A description of the first tick at which the digests differ, or None."""
     for a, b in zip(stored, got):
@@ -276,7 +302,7 @@ def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) 
 
 
 def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = False, poison: bool = False,
-                 steps_per_frame: int | None = None) -> None:
+                 steps_per_frame: int | None = None, quirks: str | None = None) -> None:
     scenarios = scenario_files()
     stored = {p.stem: p for p in sorted(TRACES.glob("*.txt"))} if TRACES.is_dir() else {}
     if quick:
@@ -300,12 +326,25 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     scratch = ROOT / "build/scratch" / f"steps-per-frame-{os.getpid()}"
     if steps_per_frame is not None:
         played = with_steps_per_frame(scenarios, steps_per_frame, scratch)
+    if quirks is not None:
+        played = with_quirks(played, quirks, scratch / "quirks")
+    base = played
+    off_results: dict[str, tuple] = {}
+    off_failed: dict[str, str] = {}
+    failed: dict[str, str] = {}
     t0 = time.time()
     try:
-        results = play_all(exe, played, game_dir, parallel, expected, poison)
+        results = play_all(exe, played, game_dir, parallel, expected, poison, failed if quirks is not None else None)
+        if quirks is not None:
+            differing = [n for n in scenarios if n in results and n not in failed and difference(expected[n], *results[n][:2])]
+            if differing:
+                off_results = play_all(exe, {n: base[n] for n in differing}, game_dir, parallel, expected, False, off_failed, True)
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
     wall = time.time() - t0
+    if quirks is not None:
+        report_quirks(scenarios, expected, results, failed, quirks, wall, off_results, off_failed)
+        return
     bad: list[str] = []
     for name in scenarios:
         header, digests, elapsed, kept = results[name]
@@ -338,6 +377,69 @@ def tracediff_command(ref_exe: Path, exe: Path, scenario: Path, poison: bool, ga
     if game_dir:
         cmd += ["--game-dir", game_dir]
     return cmd
+
+
+def shown(path: Path) -> Path:
+    """The path relative to the repository when it is inside it."""
+    try:
+        return path.relative_to(ROOT)
+    except ValueError:
+        return path
+
+
+def quirk_divergence(kept: Path, off_kept: Path) -> str | None:
+    """The first tick and phase at which two kept runs' trace.txt differ, with the phase's function, or None."""
+    _, rows = tracediff.parse_trace(kept / "trace.txt")
+    _, off_rows = tracediff.parse_trace(off_kept / "trace.txt")
+    found = tracediff.first_divergence(off_rows, rows)
+    if found is None:
+        return None
+    return f"tick {found[0]}, phase {found[1]} ({tracediff.describe_phase(found[1])})"
+
+
+def report_quirks(scenarios: dict[str, Path], expected: dict[str, tuple], results: dict[str, tuple],
+                  failed: dict[str, str], spec: str, wall: float,
+                  off_results: dict[str, tuple], off_failed: dict[str, str]) -> None:
+    """Print one line per scenario (equal, differs at a tick and phase, or failed) and a total; exits 1 only if one failed.
+
+    A scenario that differs from the stored trace is played again with every flag off (`off_results`,
+    `off_failed`), whose phases the quirks run is compared with. Both runs' directories are kept. A
+    difference is not a failure, but a rerun that fails or that differs from the stored trace is.
+    """
+    equal = differ = bad = 0
+    for name in scenarios:
+        lines = failed.get(name)
+        if lines is not None:
+            bad += 1
+            print(f"FAIL {name}: {lines}")
+            continue
+        header, digests, elapsed, kept = results[name]
+        diff = difference(expected[name], header, digests)
+        if not diff:
+            equal += 1
+            print(f"equal   {name} ({len(digests)} ticks, {clock(elapsed)})")
+            continue
+        if name in off_failed:
+            bad += 1
+            print(f"FAIL {name}: the all-off rerun failed: {off_failed[name]}")
+            continue
+        off_header, off_digests, _, off_kept = off_results[name]
+        off_diff = difference(expected[name], off_header, off_digests)
+        if off_diff:
+            bad += 1
+            print(f"FAIL {name}: all-off run differs from the stored trace, {off_diff} [kept: {shown(off_kept)}]")
+            continue
+        differ += 1
+        divergence = None
+        try:
+            divergence = quirk_divergence(kept, off_kept)
+        except (tracediff.Error, OSError, ValueError) as e:
+            divergence = f"{diff} (no phase: {last_lines(e)})"
+        print(f"differs {name} ({len(digests)} ticks, {clock(elapsed)}) {divergence or diff}"
+              f" [kept: {shown(kept)}, all-off: {shown(off_kept)}]")
+    print(f"quirks {spec}: {equal} equal, {differ} differ, {bad} failed of {len(scenarios)} scenarios, total {clock(wall)}")
+    if bad:
+        sys.exit(1)
 
 
 def resolve_quiet(ref: str) -> str | None:
@@ -405,6 +507,8 @@ def main() -> None:
                     help="--check: play only the fixed quick subset (not the gate)")
     ap.add_argument("--poison", action="store_true",
                     help="--check: play the scenarios with new game allocations filled with 0xCD; list the bytes whose starting value reaches hashed state; a difference is expected for real uninitialised reads")
+    ap.add_argument("--quirks", metavar="SPEC",
+                    help="--check: play every scenario with `quirks SPEC` added and report which equal the stored traces and which differ, with the first tick and phase (a differing scenario is rerun with all flags off; a difference is not a failure; no reference build); not the gate")
     ap.add_argument("--exe", metavar="PATH", help="--check: the exe to check (build/modern/TotalA.exe)")
     ap.add_argument("--steps-per-frame", type=int, metavar="N",
                     help="--check: play every scenario with steps_per_frame N (1 to 8) and compare with the stored traces")
@@ -424,6 +528,12 @@ def main() -> None:
         ap.error("--steps-per-frame needs --check")
     if args.steps_per_frame is not None and not 1 <= args.steps_per_frame <= 8:
         ap.error("--steps-per-frame takes 1 to 8")
+    if args.quirks is not None and not args.check:
+        ap.error("--quirks needs --check")
+    if args.quirks is not None and not args.quirks.strip():
+        ap.error("--quirks takes a spec, such as recommended or '3.1c +flag'")
+    if args.quirks is not None and args.poison:
+        ap.error("--quirks cannot be combined with --poison")
     if args.exe and not args.check:
         ap.error("--exe needs --check")
     if args.traces:
@@ -433,7 +543,8 @@ def main() -> None:
         ap.error("--check needs --exe: the gate is the modern build, --exe build/modern/TotalA.exe")
     if not Path(args.exe).is_file():
         ap.error(f"{args.exe} is not a file")
-    check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison, args.steps_per_frame)
+    check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison, args.steps_per_frame,
+                 args.quirks)
 
 
 if __name__ == "__main__":

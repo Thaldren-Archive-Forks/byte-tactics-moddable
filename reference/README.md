@@ -52,6 +52,8 @@ Defaults are the ones in `LoadSettings`, never the registry.
 | `fpu_control_word` | `0x9001F` | Expected `_control87` value, ignoring the infinity-control bit; the run exits 2 if it differs |
 | `ticks` | required | Game ticks to play (30 per second of game time) |
 | `steps_per_frame` | 1 | Game ticks run between two drawn frames, 1 to 8; the traces must not depend on it |
+| `quirks` | `3.1c` | Quirk flags for the run, a spec: a preset (`3.1c`, all off; `recommended`, all on) then `+flag` or `-flag` words, as in `recommended -flag` |
+| `quirks_tamper` | none | Test only: flips a quirk flag at this tick, so the freeze check exits 2 (see Quirk flags) |
 | `map` | required | Map name, the rest of the line (names have spaces) |
 | `difficulty` | 1 | AI difficulty 0 to 2, one value for all computer players |
 | `commander_death` | 1 | 1: the game ends when a commander dies |
@@ -70,6 +72,20 @@ Defaults are the ones in `LoadSettings`, never the registry.
 `player<N>.*` keys take N from 0 to 9. A slot exists when any key names it,
 slots no key names are open, and at least 2 slots must exist. The game's player
 count is the highest named slot plus one.
+
+## Quirk flags
+
+The flags are listed in `src/quirks/quirks.def`. A normal run takes a spec with the `-quirks=<spec>`
+switch, in the same syntax as the `quirks` key: a preset, then `+flag` or `-flag` words. With
+no spec every flag is off, which is 3.1c. In test mode the scenario's `quirks` key sets the flags.
+
+In test mode the flags are frozen: the exe checks them before every tick, and if they changed it exits
+2 with `testmode: quirk flags changed at tick <n>`. `reference/tests/quirks-tamper.txt` (a
+`quirks_tamper` line) trips it on purpose, and is expected to exit with that message:
+
+```sh
+uv run tools/playtest.py --exe build/modern/TotalA.exe --testmode reference/tests/quirks-tamper.txt --game-dir ~/.ta
+```
 
 ## Scripted orders
 
@@ -121,6 +137,9 @@ view_seed <n>
 fpu_control_word 0x<hex>
 <tick> <phase> <16 hex digits>
 ```
+
+When any quirk flag is on, a `quirks <8 hex digits hash> <spec>` line follows `fpu_control_word`.
+With every flag off the line is absent, so the traces of 3.1c do not change.
 
 The phases run in this order each tick: `net` (only on ticks that handle
 network packets), `units`, `projectiles`, `explosions`, `players`, `features`,
@@ -347,6 +366,18 @@ tick 1 are reported as they are.
 
 `--check --steps-per-frame <n>` (1 to 8) plays every scenario with that `steps_per_frame` and compares with
 the stored traces; it is a check on presentation code, not the gate.
+
+`--check --exe <exe> --quirks <spec>` plays every scenario with a `quirks <spec>` line added to a
+temporary copy (before the first `order` line), and prints one line per scenario: `equal` (the digests
+equal the stored ones; the header's `quirks` line is not compared), `differs` with the first differing
+tick and phase with the function the phase runs, or `FAIL` for a crash, a hang, a dialog or a nonzero
+exit. The stored digests have no phases, so each differing scenario is played again with every flag off
+(the gate proves that equals the reference) and the two `trace.txt` files are compared; both run
+directories are kept (`build/scratch/check-<scenario>-<time>/` and `check-<scenario>-alloff-<time>/`) and the line ends with their paths. If that rerun fails, or
+differs from the stored trace (the exe does not pass the gate, which is not the flag's effect), the scenario is `FAIL`.
+The total counts equal, differ and failed. A difference is not a failure: the exit status is 1 only when a
+scenario failed (or a trace has no scenario). It builds no reference, and it is not the gate. It
+works with `--quick`, `--steps-per-frame` and `--parallel`, and not with `--poison`.
 
 The full `--check` is what a pull request's gate needs.
 
