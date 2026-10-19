@@ -22,6 +22,13 @@ are read from the last phase's lines.
 `--traces` compares existing trace files without running, and reports the first
 divergence only. `--dumps` diffs the phase of two existing dump files.
 
+`--reference a|b` says which side's dump came from the reference build, whose leaf names predate the
+renames on moddable. Its names are translated to the modern ones before diffing, using the tables of
+src/harness/trace_schema.h in this tree and on `--reference-ref` (default origin/reference), matched
+by table and offset. A leaf with the same offset and size in both is renamed. Leaves that were split
+or merged are compared once, as the bytes they cover, under the modern names joined by "+". Without
+`--reference` the names are compared as they are.
+
 `--poison-b` runs B with `playtest.py --poison` (new allocations filled with 0xCD), A as usual.
 
 `--ignore-view-seed` accepts traces whose headers differ only in view_seed (any
@@ -38,6 +45,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 from traceschema import TRACE_FORMAT
 
@@ -54,6 +62,55 @@ PHASE_FUNCTIONS = {
     "meteors": ("UpdateMeteors", 0x437DE0),
 }
 DUMP_PHASE = {"world": "meteors"}
+SCHEMA_PATH = "src/harness/trace_schema.h"
+DEFAULT_REFERENCE_REF = "origin/reference"
+FIELD_TABLE = re.compile(r"static const TraceField (k\w+Fields)\[\] = \{\n(.*?)\n\};", re.S)
+FIELD_ROW = re.compile(r'\{ "([^"]*)", 0x([0-9a-f]+), (\d+), (TF_\w+),')
+ORDER_TABLES = ("Order", "OrderPosY")
+FX_TABLES = ("ApproachRadius", "RingApproach", "PointMarker", "PathOrder", "PathOrderPosY", "PathOrderHeading",
+             "PathOrderPiece", "PathOrderFollow", "AirManeuverOrder", "AirManeuverOrderHeading")
+TIMER_TABLES = ("AssaultTimer", "EscortTimer", "SpatialTimer", "SquadTimer")
+CHANNEL_TABLES = ("ScriptChannel", "ScriptChannelDelay", "ScriptChannelWait", "ScriptChannelPiece")
+GOAL_TABLES = ("PatrolGoal", "AiSearchGoal", "PackedGoal", "LiteGoalState")
+CONDITION_TABLES = ("MissionCondition", "ConditionNumUnits", "ConditionNumLeft")
+PATH_TABLES = [
+    (r"units\[\d+\]\.(?:list|list2)\[\d+\]", ORDER_TABLES),
+    (r"units\[\d+\]\.motion\.goal", GOAL_TABLES),
+    (r"units\[\d+\]\.motion", ("UnitMotion",)),
+    (r"units\[\d+\]\.script\.channels\[\d+\]", CHANNEL_TABLES),
+    (r"units\[\d+\]\.script\.pieces\[\d+\]", ("ScriptPiece",)),
+    (r"units\[\d+\]\.script\.transforms\[\d+\]", ("PieceTransform",)),
+    (r"units\[\d+\]\.script", ("ScriptState",)),
+    (r"units\[\d+\]", ("Unit",)),
+    (r"orderFx\[\d+\]", FX_TABLES),
+    (r"projectiles\[\d+\]", ("Projectile",)),
+    (r"explodedPieces\[\d+\]\.rec", ("PieceRec",)),
+    (r"explodedPieces\[\d+\]", ("ExplodedPiece",)),
+    (r"debris\[\d+\]", ("Debris",)),
+    (r"pieces\[\d+\]\.faces\[\d+\]", ("Face",)),
+    (r"pieces\[\d+\]", ("Piece",)),
+    (r"players\[\d+\]\.ai", ("PlayerAI",)),
+    (r"players\[\d+\]\.squadManager\.timers\[\d+\]", TIMER_TABLES),
+    (r"players\[\d+\]\.squadManager", ("SquadManager",)),
+    (r"players\[\d+\]\.squads\[\d+\]", ("Squad",)),
+    (r"players\[\d+\]\.econ", ("UnitResources",)),
+    (r"players\[\d+\]", ("Player",)),
+    (r"features\[\d+\]", ("SpotObject", "SpotAnim")),
+    (r"spatial\[\d+\]|spatial\.overflow", ("Rec",)),
+    (r"eyes\[\d+\]", ("Eye",)),
+    (r"pathfinder\.pool\[\d+\]", ("Node",)),
+    (r"pathfinder", ("Pathfinder", "PathfinderSearch")),
+    (r"moveClasses\[\d+\]", ("MoveClass",)),
+    (r"conditions\.(?:victory|defeat)\[\d+\]", CONDITION_TABLES),
+    (r"conditions", ("MissionConditions",)),
+    (r"mission", ("MissionData", "MissionStartRest")),
+    (r"weapons\[\d+\]", ("WeaponDefData",)),
+    (r"defs\[\d+\]", ("UnitDefData",)),
+    (r"wind", ("Wind",)),
+    (r"game", ("GameScalar",)),
+]
+COMPILED_PATH_TABLES = [(re.compile(f"({stem})\\.(.*)", re.S), [f"k{t}Fields" for t in tables])
+                        for stem, tables in PATH_TABLES]
 COMPARED_HEADERS = ("scenario", "game_seed", "crt_seed", "view_seed")
 
 
@@ -110,15 +167,167 @@ def parse_dump(path: Path) -> dict[tuple[int, str], dict[str, str]]:
     return out
 
 
-def diff_dumps(a: Path, b: Path, tick: int, phase: str) -> list[tuple[str, str, str]]:
-    """The (path, a value, b value) of each field of that phase that differs; "-" if absent."""
+def diff_dumps(a: Path, b: Path, tick: int, phase: str, reference: str | None = None,
+               maps: dict[str, TableMap] | None = None) -> list[tuple[str, str, str]]:
+    """The (path, a value, b value) of each field of that phase that differs; "-" if absent.
+
+    With reference "a" or "b" (and the maps from build_maps), that side's names become the modern ones."""
     phase = DUMP_PHASE.get(phase, phase)
     fa = parse_dump(a).get((tick, phase), {})
     fb = parse_dump(b).get((tick, phase), {})
+    if reference:
+        if maps is None:
+            raise Error("--reference needs the schema maps")
+        fa = translate_phase(fa, maps, reference == "a")
+        fb = translate_phase(fb, maps, reference == "b")
     if not fa and not fb:
         raise Error(f"no tick {tick} phase {phase} in either dump")
     return [(k, fa.get(k, "-"), fb.get(k, "-")) for k in [*fa, *(k for k in fb if k not in fa)]
             if fa.get(k) != fb.get(k)]
+
+
+class Leaf(NamedTuple):
+    name: str
+    offset: int
+    size: int
+
+    @property
+    def key(self) -> str:
+        return self.name or f"+{self.offset:#x}"
+
+    @property
+    def end(self) -> int:
+        return self.offset + self.size
+
+
+class Group(NamedTuple):
+    key: str
+    reference: tuple[Leaf, ...]
+    modern: tuple[Leaf, ...]
+
+
+class TableMap(NamedTuple):
+    renames: dict[str, str]
+    reference_groups: dict[str, Group]
+    modern_groups: dict[str, Group]
+
+
+def parse_leaf_tables(text: str) -> dict[str, list[Leaf]]:
+    """The leaves of each kXxxFields table of a trace_schema.h."""
+    return {m[1]: [Leaf(r[1], int(r[2], 16), int(r[3])) for r in FIELD_ROW.finditer(m[2])]
+            for m in FIELD_TABLE.finditer(text)}
+
+
+def overlapping_groups(reference: list[Leaf], modern: list[Leaf]) -> list[Group]:
+    """The runs of leaves that cover the same bytes in the two tables but have no leaf in common."""
+    both = {(leaf.offset, leaf.size) for leaf in reference} & {(leaf.offset, leaf.size) for leaf in modern}
+    loose = sorted([(leaf, True) for leaf in reference if (leaf.offset, leaf.size) not in both] +
+                   [(leaf, False) for leaf in modern if (leaf.offset, leaf.size) not in both],
+                   key=lambda t: (t[0].offset, t[0].end))
+    runs: list[list[tuple[Leaf, bool]]] = []
+    end = -1
+    for item in loose:
+        if runs and item[0].offset < end:
+            runs[-1].append(item)
+            end = max(end, item[0].end)
+        else:
+            runs.append([item])
+            end = item[0].end
+    groups = []
+    for run in runs:
+        ref = tuple(leaf for leaf, is_ref in run if is_ref)
+        mod = tuple(leaf for leaf, is_ref in run if not is_ref)
+        if ref and mod:
+            groups.append(Group("/".join(leaf.key for leaf in mod), ref, mod))
+    return groups
+
+
+def table_map(reference: list[Leaf], modern: list[Leaf]) -> TableMap:
+    by_place = {(leaf.offset, leaf.size): leaf for leaf in modern}
+    renames = {leaf.key: by_place[leaf.offset, leaf.size].key for leaf in reference
+               if (leaf.offset, leaf.size) in by_place}
+    groups = overlapping_groups(reference, modern)
+    return TableMap(renames,
+                    {leaf.key: g for g in groups for leaf in g.reference},
+                    {leaf.key: g for g in groups for leaf in g.modern})
+
+
+def build_maps(reference_text: str, modern_text: str) -> dict[str, TableMap]:
+    """A TableMap for each table the two trace_schema.h share, matched by table and offset."""
+    ref, mod = parse_leaf_tables(reference_text), parse_leaf_tables(modern_text)
+    return {name: table_map(ref[name], mod[name]) for name in ref if name in mod}
+
+
+def value_bytes(value: str) -> str | None:
+    """The memory-order hex of a dumped scalar or byte run, None for a pointer."""
+    if value.startswith("hex:"):
+        return value[4:]
+    if re.fullmatch(r"0x(?:[0-9a-f]{2})+", value):
+        digits = value[2:]
+        return "".join(digits[i:i + 2] for i in range(len(digits) - 2, -2, -2))
+    return None
+
+
+def group_value(leaves: tuple[Leaf, ...], values: dict[str, str]) -> str:
+    present = [values[leaf.key] for leaf in leaves if leaf.key in values]
+    as_bytes = [value_bytes(v) for v in present]
+    if all(b is not None for b in as_bytes):
+        return "hex:" + "".join(as_bytes)
+    return ",".join(present)
+
+
+def locate_leaf(path: str, maps: dict[str, TableMap], from_reference: bool) -> tuple[str, str | Group] | None:
+    """(stem, new leaf name or Group) for a dumped path whose leaf the maps know."""
+    for pattern, tables in COMPILED_PATH_TABLES:
+        m = pattern.fullmatch(path)
+        if not m:
+            continue
+        for table in tables:
+            tm = maps.get(table)
+            if tm is None:
+                continue
+            groups = tm.reference_groups if from_reference else tm.modern_groups
+            if m[2] in groups:
+                return m[1], groups[m[2]]
+            if from_reference and m[2] in tm.renames:
+                return m[1], tm.renames[m[2]]
+        return None
+    return None
+
+
+def translate_phase(fields: dict[str, str], maps: dict[str, TableMap], from_reference: bool) -> dict[str, str]:
+    """One phase's path -> value, with the reference's names changed to the modern ones.
+
+    The leaves of a Group become one path, valued with their bytes; the modern side gets the same."""
+    out: dict[str, str] = {}
+    grouped: dict[str, tuple[Group, dict[str, str]]] = {}
+    for path, value in fields.items():
+        found = locate_leaf(path, maps, from_reference)
+        if found is None:
+            out[path] = value
+        elif isinstance(found[1], Group):
+            stem, group = found
+            key = f"{stem}.{group.key}"
+            if key not in grouped:
+                grouped[key] = (group, {})
+                out[key] = ""
+            grouped[key][1][path[len(stem) + 1:]] = value
+        else:
+            out[f"{found[0]}.{found[1]}"] = value
+    for key, (group, values) in grouped.items():
+        out[key] = group_value(group.reference if from_reference else group.modern, values)
+    return out
+
+
+def read_reference_schema(ref: str) -> str:
+    r = subprocess.run(["git", "-C", str(ROOT), "show", f"{ref}:{SCHEMA_PATH}"], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise Error(f"cannot read {SCHEMA_PATH} on {ref} (try git fetch origin reference): {r.stderr.strip()}")
+    return r.stdout
+
+
+def load_maps(ref: str) -> dict[str, TableMap]:
+    return build_maps(read_reference_schema(ref), (ROOT / SCHEMA_PATH).read_text())
 
 
 def describe_phase(phase: str) -> str:
@@ -190,7 +399,8 @@ def compare(args: argparse.Namespace) -> int:
     tick, phase = div
     print_divergence(tick, phase)
     runs = [play(e, s, args.game_dir, tick, None, p) for e, s, p in zip(exes, scenarios, poison)]
-    print_diff(diff_dumps(need(runs[0], "dump.txt"), need(runs[1], "dump.txt"), tick, phase))
+    maps = load_maps(args.reference_ref) if args.reference else None
+    print_diff(diff_dumps(need(runs[0], "dump.txt"), need(runs[1], "dump.txt"), tick, phase, args.reference, maps))
     return 1
 
 
@@ -204,6 +414,10 @@ def main() -> int:
     ap.add_argument("--game-dir", help="the game's install (default: Steam's)")
     ap.add_argument("--poison-b", action="store_true",
                     help="run B with new game allocations filled with 0xCD (as reference.py --check --poison does)")
+    ap.add_argument("--reference", choices=("a", "b"),
+                    help="the side whose dump came from the reference build: its leaf names are translated to the modern ones")
+    ap.add_argument("--reference-ref", default=DEFAULT_REFERENCE_REF, metavar="REF",
+                    help=f"the git ref whose {SCHEMA_PATH} names the reference's leaves (default {DEFAULT_REFERENCE_REF})")
     ap.add_argument("--traces", nargs=2, metavar=("A", "B"), help="compare two trace.txt files, without running")
     ap.add_argument("--dumps", nargs=2, metavar=("A", "B"), help="diff two dump.txt files, with --at")
     ap.add_argument("--at", nargs=2, metavar=("TICK", "PHASE"), help="--dumps: the tick and phase to diff")
@@ -215,6 +429,8 @@ def main() -> int:
         ap.error("two exes and --scenario are required")
     if args.exe and len(args.scenario) > 2:
         ap.error("--scenario takes at most two files")
+    if args.reference and args.traces:
+        ap.error("--reference applies to --dumps and to running two exes")
     for s in args.scenario or []:
         if args.exe and not Path(s).is_file():
             ap.error(f"{s} is not a file")
@@ -231,7 +447,9 @@ def main() -> int:
             print_divergence(*div)
             return 1
         if args.dumps:
-            diffs = diff_dumps(Path(args.dumps[0]), Path(args.dumps[1]), int(args.at[0]), args.at[1])
+            maps = load_maps(args.reference_ref) if args.reference else None
+            diffs = diff_dumps(Path(args.dumps[0]), Path(args.dumps[1]), int(args.at[0]), args.at[1],
+                               args.reference, maps)
             print(f"tick {args.at[0]}, phase {args.at[1]}")
             print(f"  phase function: {describe_phase(args.at[1])}")
             print_diff(diffs)
