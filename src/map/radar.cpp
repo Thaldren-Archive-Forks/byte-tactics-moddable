@@ -67,31 +67,7 @@ union Flags14281_00466dc0 {
 
 #include "../network/player_info.h"
 
-struct MapSize_00466dc0 {
-    unsigned int width;                  // +0x80
-    unsigned int height;                 // +0x84
-
-    int Contains(unsigned int tx, unsigned int ty)
-    {
-        return tx < width && ty < height;
-    }
-};
-
-struct ByteMap_00466dc0 {
-    unsigned char* data;                 // +0x0
-    MapSize_00466dc0 size;               // +0x4
-
-    int Index(int x, int y) { return size.width * y + x; }
-    unsigned char Get(int x, int y) { return data[Index(x, y)]; }
-};
-
-struct PlayerView {
-    char unknown_0[0x27];
-    PlayerInfo* info;               // +0x27
-    char unknown_2b[0x7c - 0x2b];
-    ByteMap_00466dc0 explored;           // +0x7c
-    char unknown_88[0x14b - 0x88];
-};
+#include "../network/player.h"
 
 #include "../weapons/weapon_def.h"
 
@@ -345,7 +321,7 @@ void UpdateRadarMapped()
     if (g_game->timer.word.flags.mapChanged) {
         g_game->timer.word.flags.mapChanged = 0;
         unsigned char fog = g_game->textColor;
-        PlayerView* t = (PlayerView*)&g_game->players_1b63_14b[g_game->playerIndex];
+        Player* t = &g_game->players_1b63_14b[g_game->playerIndex];
         unsigned int mask = 1 << g_game->playerIndex;
         unsigned char* dst = *(unsigned char**)((char*)g_game->mappedSurface + 0xc);
         unsigned char* src = *(unsigned char**)((char*)g_game->pictureSurface + 0xc);
@@ -362,7 +338,7 @@ void UpdateRadarMapped()
                 // the unsigned short cast stays.
                 if (!(unsigned short)(g_game->visibilityMask[index] & mask)) {
                     *dst = fog;
-                } else if (t->explored.data[index]) {
+                } else if (t->explored[index]) {
                     *dst = *src;
                 } else {
                     *dst = ((Fx_00466c20 *)g_game->unknown_c)->colorMap[*src];
@@ -385,37 +361,38 @@ void UpdateRadarMapped()
 // The radar helpers use the ByteMap Index/Get methods (width materialised,
 // `mov ecx, [edx+0x80]; imul ecx, edi`) and the slot loop reads `slot->weapon`
 // at each use instead of a `shot` local.
-static PlayerView* Player_Get(unsigned char p)
+static Player* Player_Get(unsigned char p)
 {
-    return (PlayerView*)&g_game->players_1b63_14b[0] + p;
+    return &g_game->players_1b63_14b[0] + p;
 }
 
 // True when (px, py) is inside the current player's visible area. The two
 // halves match the uint8 terrain bitmap and the packed 16-bit bitfield variant.
-static inline int OnRadarByte_00466dc0(PlayerView* pi, int px, int py)
+static inline int OnRadarByte_00466dc0(Player* pi, int px, int py)
 {
     int tx = px >> 5;
     int ty = py >> 5;
-    if (pi->explored.size.Contains(tx, ty) && pi->explored.Get(tx, ty))
+    if ((unsigned int)tx < (unsigned int)pi->exploredWidth && (unsigned int)ty < (unsigned int)pi->exploredHeight &&
+        pi->explored[(unsigned int)pi->exploredWidth * ty + tx])
         return 1;
     return 0;
 }
 
-static inline int OnRadarShort_00466dc0(PlayerView* pi, int px, int py)
+static inline int OnRadarShort_00466dc0(Player* pi, int px, int py)
 {
     int tx = px >> 5;
     int ty = py >> 5;
-    if (!pi->explored.size.Contains(tx, ty)) {
+    if (!((unsigned int)tx < (unsigned int)pi->exploredWidth && (unsigned int)ty < (unsigned int)pi->exploredHeight)) {
         return 0;
     }
-    ByteMap_00466dc0* b = &pi->explored;
-    return (g_game->visibilityMask[b->Index(tx, ty)] &
+    Player* b = pi;
+    return (g_game->visibilityMask[(unsigned int)b->exploredWidth * ty + tx] &
             (1 << g_game->playerIndex)) != 0;
 }
 
 static inline int OnRadar_00466dc0(int px, int py)
 {
-    PlayerView* pi = Player_Get(g_game->playerIndex);
+    Player* pi = Player_Get(g_game->playerIndex);
     if (((*(Flags14281_00466dc0*)&g_game->mapFlags_14281).all & 2) == 2)
         return OnRadarByte_00466dc0(pi, px, py);
     return OnRadarShort_00466dc0(pi, px, py);
