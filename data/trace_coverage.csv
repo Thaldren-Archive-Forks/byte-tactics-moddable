@@ -83,7 +83,7 @@ game-region,poolCount,0x14351,sim,yes,none,,loop bound of VisitUnits,"Not hashed
 game-region,units,0x14357,sim,yes,none,,kUnitTable,Whole 0x118 B record per live unit (unitDefIndex != 0). Evidence: harness.cpp:899-914
 game-region,unitsEnd,0x1435b,sim,no,argue-out,,,"End pointer of the unit array, equal to units + poolCount*0x118; an address, not state. Evidence: units_485010.cpp:537"
 game-region,types,0x14377,sim,no,argue-out,,,Table of 3DO model pointers (constant after LoadUnitTypes). Content is geometry; its effect reaches traced pos and projectile start through piece queries in the same phase. Evidence: units_485010.cpp:768-775
-game-region,count_1438f,0x1438f,sim,no,argue-out,,,"Number of unit types and wire bit width; net only, constant after LoadUnitTypes. Evidence: state_classes.csv note"
+game-region,unitDefCount,0x1438f,sim,no,argue-out,,,"Number of unit types and wire bit width; net only, constant after LoadUnitTypes. Evidence: state_classes.csv note"
 game-region,unitDefCountBits,0x14393,sim,no,argue-out,,,"Number of unit types and wire bit width; net only, constant after LoadUnitTypes. Evidence: state_classes.csv note"
 game-region,defs,0x1439b,mixed,yes,none,,"once at tick 1: kUnitDefDataTable with the yardmap, build list and category masks, defs[i] of the world row","UnitDef array (0x249 B x type count, about 0.1 to 0.2 MB). Constant after load, so hash once at tick 1, sim fields only (skip soundcategory +0x20e and field_18e, and heap pointers). Without it a wrong def is seen only when used. Evidence: state_classes.csv defs note; trace_schema.h resolves TT_UNITDEF by index only"
 game-region,unknown_1439f,0x1439f,sim,no,argue-out,,,Untouched 8 bytes (no access found). Evidence: state_classes.csv note
