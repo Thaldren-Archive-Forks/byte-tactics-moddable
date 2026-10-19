@@ -238,19 +238,6 @@ struct UnitType_00488b10 {              // 0x249 bytes
     char unknown_220[0x249 - 0x220];
 };
 
-struct MissionUnit {               // 0x24 bytes
-    char* name;                       // +0x0
-    char* ident;                      // +0x4
-    char* initialMission;             // +0x8
-    Vec3_00487bf0 pos;                // +0xc
-    short angle;                      // +0x18
-    short health;                     // +0x1a
-    int creationCountdown;            // +0x1c
-    short buildPriority;              // +0x20
-    unsigned char player;             // +0x22
-    unsigned char flags;              // +0x23
-};
-
 #include "../map/mission.h"
 #include "../game/mission_conditions.h"
 
@@ -327,8 +314,8 @@ void __cdecl CreateMissionUnits()
             sprintf(buf, "Player number %d invalid for unit %s", e->player, e->name);
             FatalError(buf);
         }
-        g_seams.map->SnapWorldPosToFootprint((UnitDef*)item, (Vec3*)&e->pos);
-        Unit* u = g_seams.units->CreateUnit((unsigned char)(e->player - 1), item->id, *(Vec3*)&e->pos, 1, 1, 0);
+        g_seams.map->SnapWorldPosToFootprint((UnitDef*)item, (Vec3*)&e->x);
+        Unit* u = g_seams.units->CreateUnit((unsigned char)(e->player - 1), item->id, *(Vec3*)&e->x, 1, 1, 0);
         if (u) {
             // The mask is 0xffffff80, not 0x80: keeps the byte zero-extension.
             u->flags = (u->flags & ~0x8000) | ((e->flags & 0xffffff80) << 8);

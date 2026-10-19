@@ -94,36 +94,11 @@ void __stdcall FatalError(char* text);
 int RIReport(int, int, int, int, int, int, int, int, int, int);
 void CopyDwordIfNonNull(int*, int*);
 
-struct MissionUnit {
-    char* name;                        // +0x0
-    char* ident;                       // +0x4
-    char* initialMission;              // +0x8
-    int x;                             // +0xc
-    int y;                             // +0x10
-    int z;                             // +0x14
-    short angle;                       // +0x18
-    short health;                      // +0x1a
-    int creationCountdown;             // +0x1c
-    short buildPriority;               // +0x20
-    unsigned char player;              // +0x22
-    unsigned char initialGroup : 4;    // +0x23
-    unsigned char missionCritical : 1;
-    unsigned char aiIgnore : 1;
-    unsigned char aiPriorityTarget : 1;
-    unsigned char immunity : 1;
-};
-
 struct MissionRule {
     int type;                          // +0x0
     int id;                            // +0x4
     short x;                           // +0x8
     short z;                           // +0xa
-};
-
-struct MissionFeature {
-    char name[0x80];                   // +0x0
-    int x;                             // +0x80
-    int z;                             // +0x84
 };
 
 void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
@@ -1208,8 +1183,8 @@ void Mission::LoadMissionData(char* name, TdfFile* parser)
         if (!s->GetFieldString(f->name, "Featurename", 0x80, DAT_005119b8))
             f->name[0] = 0;
         f->x = s->GetFieldInt("XPos", -1);
-        f->z = s->GetFieldInt("ZPos", -1);
-        if (f->x < 0 || f->z < 0)
+        f->y = s->GetFieldInt("ZPos", -1);
+        if (f->x < 0 || f->y < 0)
             f->name[0] = 0;
     }
 }

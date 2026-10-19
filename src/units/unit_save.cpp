@@ -100,13 +100,6 @@ struct Mission;
 
 #include "../game/game.h"
 
-class MissionUnit {
-public:
-    char* name;                        // +0x0
-    char* ident;                       // +0x4
-    char unknown_8[0x24 - 8];
-};
-
 #include "../map/mission.h"
 
 struct Struct_00487af0 {

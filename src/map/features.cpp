@@ -356,12 +356,6 @@ struct Obj {
     unsigned short entry;              // +0x2c
 };
 
-struct MissionFeature {
-    char name[0x80];
-    int x;                             // +0x80
-    int y;                             // +0x84
-};
-
 struct FeatureName {
     char name[0x80];
 };
