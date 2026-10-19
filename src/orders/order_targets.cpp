@@ -20,21 +20,12 @@
 #include <algorithm>
 #include <math.h>
 
-struct Point_0044eec0 {
-    short x;
-    short y;
-};
-
 // The vtables the area classes store by hand; the base class's is 0x4fd2f8.
 extern void* g_approachRadiusVtable[];
 extern void* g_ringApproachVtable[];
 extern void* g_pointMarkerVtable[];
 
 extern void __cdecl operator delete(void* p);
-
-struct Elem_0044ce90 {
-    int unknown_0;
-};
 
 #include "order_fx.h"
 
@@ -84,133 +75,17 @@ void EnableEndMissionButtons();
 void ShowEndMissionScreen();
 void OpenCdCheckDialog();
 
-// A view of the order base whose six virtual slots are named after the base's: ContainsUnit
-// (slot 4) is the function defined below, so its stand-in has the slot suffix.
-class Class_0044cf00
-{
-public:
-    virtual void Destroy();
-    virtual void SerializeSave();
-    virtual void GetType();
-    virtual void IsFxStyle();
-    virtual void ContainsUnitSlot();
-    virtual void ContainsCell(int param_1, int param_2);
-
-    void ContainsUnit(int param_1);
-};
-
-struct Point_0044cf60 {
-    short x;
-    short y;
-};
-
-struct Map_0044cf60 {
-    char unknown_0[0x7e];
-    Point_0044cf60 origin;             // +0x7e
-};
-
-#pragma pack(push, 2)
-struct Source_0044cf60 {
-    char unknown_0[0xe];
-    Map_0044cf60* map;                 // +0xe
-};
-#pragma pack(pop)
-
-struct Vec3_0044d010 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Header_0044d010 {
-    int magic;                         // +0x0
-    Vec3_0044d010 v;                   // +0x4
-};
-
-typedef std::vector<Point_0044eec0> Vec_0044d0e0;
+typedef std::vector<Point16> Vec_0044d0e0;
 
 #include "approach_areas.h"
 
-struct Point_0044d2c0 {
-    short x;
-    short y;
-};
-
-struct Inner_0044d2c0 {
-    char unknown_0[0x7e];
-    Point_0044d2c0 pos;                // +0x7e
-};
-
-#pragma pack(push, 1)
-struct Owner_0044d2c0 {
-    char unknown_0[0xe];
-    Inner_0044d2c0* inner;             // +0xe
-};
-#pragma pack(pop)
-
-struct Point_0044d3b0 {
-    short x;
-    short y;
-};
-
-struct Map_0044d3b0 {
-    char unknown_0[0x7e];
-    Point_0044d3b0 origin;             // +0x7e
-};
-
-#pragma pack(push, 2)
-struct Source_0044d3b0 {
-    char unknown_0[0xe];
-    Map_0044d3b0* map;                 // +0xe
-};
-#pragma pack(pop)
-
-struct Data_0044d470 {
-    int a;
-    int b;
-    int c;
-    int d;
-    int e;
-};
-
-struct Header_0044d470 {
-    int magic;                         // +0x0
-    Data_0044d470 data;                // +0x4
-};
-
-typedef std::vector<Point_0044eec0> Vec_0044d560;
-
-struct Point_0044d720 {
-    short x;
-    short y;
-};
-
-#pragma pack(push, 2)
-struct Inner_0044d720 {
-    char unknown_0[0x6a];
-    Vec3 pos;
-    char unknown_76[0x7e - 0x76];
-    Point_0044d720 cell;               // +0x7e
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-struct Owner_0044d720 {
-    char unknown_0[0xe];
-    Inner_0044d720* inner;             // +0xe
-};
-#pragma pack(pop)
+typedef std::vector<Point16> Vec_0044d560;
 
 unsigned short __stdcall GetHeadingBetween(void* from, void* to);
 
 // Fixed-point trig helpers written in assembly.
 int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
-
-struct Sub_0044e190 {
-    char unknown_0[0xdc];
-    int range;                         // +0xdc
-};
 
 #pragma pack(push, 1)
 #include "../units/unit_def.h"
@@ -219,44 +94,10 @@ struct Sub_0044e190 {
 #pragma pack(push, 1)
 // The second part's full view of the unit, with part 1's x and y at +0x76.
 #include "../units/unit.h"
+#include "../weapons/weapon_def.h"
 #pragma pack(pop)
 
-struct View_0044d8a0 {
-    char unknown_0[0x7e];
-    short x;                           // +0x7e
-    short y;                           // +0x80
-};
-
-#pragma pack(push, 2)
-struct Owner_0044d8a0 {
-    char unknown_0[0xe];
-    View_0044d8a0* view;               // +0xe
-};
-#pragma pack(pop)
-
-struct Rect_0044d930 {
-    int a;
-    int b;
-    int c;
-    int d;
-};
-
-struct Header_0044d930 {
-    int magic;                         // +0x0
-    Rect_0044d930 r;                   // +0x4
-};
-
-typedef std::vector<Point_0044eec0> Vec_0044da00;
-
-struct Pos16_44dc60 {
-    short x;
-    short z;
-};
-
-struct MapInfo_44dc60 {
-    char unknown_0[0x7e];
-    Pos16_44dc60 pos;   // +0x7e
-};
+typedef std::vector<Point16> Vec_0044da00;
 
 #pragma pack(push, 2)
 
@@ -277,12 +118,6 @@ public:
 // (docs/c2-regalloc.md). The field names each view needs coexist in unions.
 class BitReader;
 struct Order;
-struct Owner_0044e080;
-struct Source_0044e250;
-struct Source_0044e2d0;
-struct Vec3_0044e2d0;
-struct Source_0044e330;
-struct Vec3_0044e330;
 #include "path_order_attach.h"
 
 class __declspec(novtable) PathOrder : public OrderFx {
@@ -305,10 +140,7 @@ public:
     short altitude;                    // +0xc
     short heading;                     // +0xe
     short piece;                       // +0x10
-    union {
-        Unit* unit;                    // +0x12
-        Owner_0044e080* owner;         // +0x12, the bit-stream loader's view
-    };
+    Unit* unit;
     PathOrderAttach ref;               // +0x16
     union {
         Vec3 pos;
@@ -321,11 +153,11 @@ public:
     int followOffset;                  // +0x32
 
     PathOrder(int owner, HapiBank* file, char* name);
-    PathOrder(Owner_0044e080* owner_, BitReader* reader);
+    PathOrder(Unit* owner_, BitReader* reader);
     PathOrder(Order* order, Unit* unit);
-    PathOrder(Source_0044e250* source, int unit, short value);
-    PathOrder(Source_0044e2d0* source, const Vec3_0044e2d0& p);
-    PathOrder(Source_0044e330* source, int unit, const Vec3_0044e330& p);
+    PathOrder(Order* source, int unit, short value);
+    PathOrder(Order* source, const Vec3& p);
+    PathOrder(Order* source, int unit, const Vec3& p);
     void SetAltitude(int param_1);
     void SetHeading(short v);
     void SetApproachRadius(short v);
@@ -338,29 +170,14 @@ public:
     int KeepAfterComplete();
     int FillWorldPos(Vec3* out);
     int GetDesiredHeading(unsigned short* out);
+    int IsComplete(Unit* arg);
 };
 
 #pragma pack(pop)
 
 // The second part's own views and externs: the path targets, the
 // Pathfinder, the bit reader and the game the loaders read.
-struct Vec3_0044de80 {
-    int x;
-    int y;
-    int z;
-};
-
 class PathOrderAttach;
-
-#pragma pack(push, 2)
-struct Owner_004895c0 {
-    char unknown_0[0x92];
-    UnitDef* def;                      // +0x92
-    char unknown_96[0xa2 - 0x96];
-    PathOrderAttach* head;             // +0xa2
-    short flag;                        // +0xa6
-};
-#pragma pack(pop)
 
 #include "path_order_attach.h"
 
@@ -373,7 +190,7 @@ extern void* g_pathOrderVtable[];
 extern void* g_airManeuverOrderVtable[];
 
 #pragma pack(push, 2)
-struct Rec_0044de80 {
+struct PathOrderRecord {
     int unknown_0;                     // +0x0
     int unknown_4;                     // +0x4
     short id1;                         // +0x8
@@ -387,7 +204,7 @@ struct Rec_0044de80 {
     short f3;                          // +0x20
     short f4;                          // +0x22
     short f5;                          // +0x24
-    Vec3_0044de80 pos;                 // +0x26
+    Vec3 pos;
     int i4;                            // +0x32
 };
 
@@ -413,7 +230,6 @@ public:
     }
 };
 
-struct Owner_0044e080;
 class Pathfinder;
 
 #pragma pack(push, 1)
@@ -429,96 +245,7 @@ extern Game* g_game;
 #pragma pack(push, 2)
 #include "order.h"
 
-struct Source_0044e250 {
-    char unknown_0[0xe];
-    Unit* unit;                        // +0xe
-};
-
-struct Source_0044e2d0 {
-    char unknown_0[0xe];
-    int unit;                          // +0xe
-};
-
-struct Vec3_0044e2d0 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Source_0044e330 {
-    char unknown_0[0xe];
-    int unit;                          // +0xe
-};
-
-struct Vec3_0044e330 {
-    int x;
-    int y;
-    int z;
-};
-
 #pragma pack(pop)
-
-#pragma pack(push, 1)
-struct Vec3_0044e5b0 {
-    int x, y, z;
-};
-
-struct Object_0044e5b0 {
-    char unknown_0[0x66];
-    unsigned short heading;            // +0x66
-    char unknown_68[2];
-    Vec3_0044e5b0 pos;                 // +0x6a
-};
-
-class Class_0044e5b0 {
-public:
-    virtual void v0();
-    virtual void v1();
-    virtual void v2();
-    virtual void v3();
-    virtual void v4();
-    virtual void v5();
-    virtual void v6();
-    virtual void v7();
-    virtual void v8(Vec3_0044e5b0* out);   // vtable +0x20
-    char unknown_4[4];                 // +0x4
-    unsigned short flags;              // +0x8
-    short approachRadius;              // +0xa
-    char unknown_c[0x1a - 0xc];        // +0xc
-    Object_0044e5b0* target;           // +0x1a
-
-    int IsComplete(Object_0044e5b0* arg);
-};
-#pragma pack(pop)
-
-struct Pos_0044e6c0 {
-    int x;                             // +0x0
-    int y;                             // +0x4
-    int z;                             // +0x8
-};
-
-#pragma pack(push, 2)
-// The 0x2a-byte save record. The reader takes the id as a dword but only its
-// low word is used (0x487080 masks with 0xffff); the high word is the flag.
-struct Header_0044e740 {
-    char unknown_0[8];                 // not read or written by name
-    union {
-        int id;                        // +0x08
-        struct {
-            unsigned short unit_id;    // +0x08
-            unsigned short flag;       // +0x0a
-        };
-    };
-    Vec3 target;
-    Vec3 other;
-    short value_24;                    // +0x24
-    unsigned short heading;            // +0x26
-    unsigned short value_28;           // +0x28
-};
-
-#pragma pack(pop)
-
-struct Owner_0044e9c0;
 
 #pragma pack(push, 2)
 
@@ -534,38 +261,33 @@ void CmdMem(int);
 
 // The same vector as 0x44ee90 (_Ucopy) and 0x44eec0 (_Ufill): 0x44d0e0,
 // 0x44d560 and 0x44da00 call 0x44ee90 and then this with ecx set to it.
-typedef std::vector<Point_0044eec0> Vec_0044ee60;
+typedef std::vector<Point16> Vec_0044ee60;
 typedef void (Vec_0044ee60::*DestroyFn_0044ee60)(Vec_0044ee60::iterator, Vec_0044ee60::iterator);
 
 // _Destroy is protected: a derived class takes its address so it is emitted out of line.
-struct Access_0044ee60 : Vec_0044ee60 {
+struct PointVectorDestroyAccess : Vec_0044ee60 {
     static DestroyFn_0044ee60 fn;
 };
 
-typedef std::vector<Point_0044eec0> Vec_0044ee70;
+typedef std::vector<Point16> Vec_0044ee70;
 typedef Vec_0044ee70::size_type (Vec_0044ee70::*SizeFn_0044ee70)() const;
 
-typedef std::vector<Point_0044eec0> Vec_0044ee90;
+typedef std::vector<Point16> Vec_0044ee90;
 typedef Vec_0044ee90::iterator (Vec_0044ee90::*UcopyFn_0044ee90)(
     Vec_0044ee90::const_iterator, Vec_0044ee90::const_iterator, Vec_0044ee90::iterator);
 
 // _Ucopy is protected: a derived class takes its address so it is emitted out of line.
-struct Access_0044ee90 : Vec_0044ee90 {
+struct PointVectorUcopyAccess : Vec_0044ee90 {
     static UcopyFn_0044ee90 fn;
 };
 
-typedef std::vector<Point_0044eec0> Vec_0044eec0;
+typedef std::vector<Point16> Vec_0044eec0;
 typedef void (Vec_0044eec0::*UfillFn_0044eec0)(
-    Vec_0044eec0::iterator, Vec_0044eec0::size_type, const Point_0044eec0&);
+    Vec_0044eec0::iterator, Vec_0044eec0::size_type, const Point16&);
 
 // _Ufill is protected: a derived class takes its address so it is emitted out of line.
-struct Access_0044eec0 : Vec_0044eec0 {
+struct PointVectorUfillAccess : Vec_0044eec0 {
     static UfillFn_0044eec0 fn;
-};
-
-struct Point_0044eef0 {
-    short x;
-    short y;
 };
 
 #include "order_target_types.h"
@@ -747,7 +469,7 @@ int __stdcall SerializeSave(int, int, int)
 // FUNCTION: 0x44ce90
 void OrderFx::FillGoalCells(void* cells)
 {
-    ((std::vector<Elem_0044ce90*>*)cells)->clear();
+    ((std::vector<void*>*)cells)->clear();
 }
 
 // FUNCTION: 0x44cec0
@@ -777,12 +499,12 @@ int OrderFx::KeepAfterComplete()
 }
 
 // FUNCTION: 0x44cf00
-void Class_0044cf00::ContainsUnit(int param_1)
+int OrderFx::ContainsUnit(Unit* unit)
 {
-    short esi = *(short*)(param_1 + 0x78);
-    short eax = *(short*)(param_1 + 0x76);
+    short esi = unit->cell.y;
+    short eax = unit->cell.x;
 
-    ContainsCell(eax, esi);
+    return ContainsCell(eax, esi);
 }
 
 // FUNCTION: 0x44cf20
@@ -817,8 +539,8 @@ ApproachRadius::ApproachRadius(Order* source, int x, int y, int r)
     : OrderFx((int)source)
 {
     SetVtable(g_approachRadiusVtable);
-    Point_0044cf60 org = ((Source_0044cf60*)source)->map->origin;
-    Point_0044eec0 p;
+    Point16 org = source->unit->footprint;
+    Point16 p;
     p.x = (x - (org.x << 19) + 0x80000) >> 20;
     p.y = (y - (org.y << 19) + 0x80000) >> 20;
     pos = *(Point16*)&p;
@@ -857,7 +579,7 @@ ApproachRadius::ApproachRadius(int owner, HapiBank* file, char* name)
     if (!bad) {
         file->OpenNamedBox(name);
         file->SeekBox(0);
-        Header_0044d010 hdr;
+        ApproachRadiusRecord hdr;
         if (file->ReadBox(&hdr, 16) == 16) {
             v.x = hdr.v.x;
             v.y = hdr.v.y;
@@ -872,7 +594,7 @@ ApproachRadius::ApproachRadius(int owner, HapiBank* file, char* name)
 // FUNCTION: 0x44d090
 int ApproachRadius::Serialize(int unused, HapiBank* file, char* name)
 {
-    Header_0044d010 hdr;
+    ApproachRadiusRecord hdr;
     hdr.v.x = v.x;
     hdr.v.y = v.y;
     hdr.v.z = v.z;
@@ -894,7 +616,7 @@ void ApproachRadius::AppendGoalCell(void* cells)
 {
     Vec_0044d0e0* list = (Vec_0044d0e0*)cells;
     list->clear();
-    list->push_back(*(Point_0044eec0*)&pos);
+    list->push_back(*(Point16*)&pos);
 }
 
 // Point version of 0x44d310: whether (px, py) lies within the circle around
@@ -911,7 +633,7 @@ int ApproachRadius::ContainsCell(int px, int py)
 // which use the same centre at +0x8): writes the centre, offset by a point
 // of the owner, as 16.16 world coordinates.
 
-static inline void ToWorld(int* out, Point16 a, Point_0044d2c0 b)
+static inline void ToWorld(int* out, Point16 a, Point16 b)
 {
     out[0] = (a.x * 2 + b.x) << 19;
     out[2] = (a.y * 2 + b.y) << 19;
@@ -920,7 +642,7 @@ static inline void ToWorld(int* out, Point16 a, Point_0044d2c0 b)
 // FUNCTION: 0x44d2c0
 int ApproachRadius::FillWorldPos(int* out)
 {
-    ToWorld(out, pos, ((Owner_0044d2c0*)source)->inner->pos);
+    ToWorld(out, pos, ((Order*)source)->unit->footprint);
     return 1;
 }
 
@@ -959,8 +681,8 @@ RingApproach::RingApproach(Order* source, int x, int y, int r1, int r2)
     : OrderFx((int)source)
 {
     SetVtable(g_ringApproachVtable);
-    Point_0044d3b0 org = ((Source_0044d3b0*)source)->map->origin;
-    Point_0044eec0 p;
+    Point16 org = source->unit->footprint;
+    Point16 p;
     p.x = (x - (org.x << 19) + 0x80000) >> 20;
     p.y = (y - (org.y << 19) + 0x80000) >> 20;
     pos = *(Point16*)&p;
@@ -1002,13 +724,13 @@ RingApproach::RingApproach(int owner, HapiBank* file, char* name)
     if (!bad) {
         file->OpenNamedBox(name);
         file->SeekBox(0);
-        Header_0044d470 hdr;
+        RingApproachRecord hdr;
         if (file->ReadBox(&hdr, 24) == 24) {
-            data.a = hdr.data.a;
-            data.b = hdr.data.b;
-            data.c = hdr.data.c;
-            data.d = hdr.data.d;
-            data.e = hdr.data.e;
+            data.a = hdr.pos;
+            data.b = hdr.inner;
+            data.c = hdr.outer;
+            data.d = hdr.innerSq;
+            data.e = hdr.outerSq;
         }
     }
 }
@@ -1019,12 +741,12 @@ RingApproach::RingApproach(int owner, HapiBank* file, char* name)
 // FUNCTION: 0x44d500
 int RingApproach::Serialize(int unused, HapiBank* file, char* name)
 {
-    Header_0044d470 hdr;
-    hdr.data.a = data.a;
-    hdr.data.b = data.b;
-    hdr.data.c = data.c;
-    hdr.data.d = data.d;
-    hdr.data.e = data.e;
+    RingApproachRecord hdr;
+    hdr.pos = data.a;
+    hdr.inner = data.b;
+    hdr.outer = data.c;
+    hdr.innerSq = data.d;
+    hdr.outerSq = data.e;
     file->OpenNamedBox(name);
     file->SeekBox(0);
     file->WriteBox(&hdr, 24);
@@ -1038,7 +760,7 @@ void RingApproach::AppendGoalCell(void* cells)
 {
     Vec_0044d560* list = (Vec_0044d560*)cells;
     list->clear();
-    Point_0044eec0 p = *(Point_0044eec0*)&pos;
+    Point16 p = *(Point16*)&pos;
     p.y = p.y + (outer + inner) / 32;
     list->push_back(p);
 }
@@ -1048,7 +770,7 @@ void RingApproach::AppendGoalCell(void* cells)
 // back towards the owner by the mean of the two radii at +0xc and +0x10.
 // The mean needs its own inline helper to load +0xc first.
 
-static inline void ToWorld(Vec3* out, Point16 a, Point_0044d720 b)
+static inline void ToWorld(Vec3* out, Point16 a, Point16 b)
 {
     out->x = (a.x * 2 + b.x) << 19;
     out->z = (a.y * 2 + b.y) << 19;
@@ -1076,8 +798,8 @@ static inline int MeanRadius(RingApproach* c)
 // FUNCTION: 0x44d720
 int RingApproach::FillWorldPos(Vec3* out)
 {
-    Inner_0044d720* inner = ((Owner_0044d720*)source)->inner;
-    ToWorld(out, pos, inner->cell);
+    Unit* inner = ((Order*)source)->unit;
+    ToWorld(out, pos, inner->footprint);
     short angle = GetHeadingBetween(&inner->pos, out);
     Vec3 d = Direction(angle, MeanRadius(this) << 16);
     out->x -= d.x;
@@ -1134,8 +856,8 @@ PointMarker::PointMarker(Order* owner, Point16 pos, Point16 size)
     : OrderFx((int)owner)
 {
     SetVtable(g_pointMarkerVtable);
-    x1 = pos.x - ((Owner_0044d8a0*)owner)->view->x;
-    y1 = pos.y - ((Owner_0044d8a0*)owner)->view->y;
+    x1 = pos.x - owner->unit->footprint.x;
+    y1 = pos.y - owner->unit->footprint.y;
     x2 = size.x + pos.x;
     y2 = size.y + pos.y;
 }
@@ -1166,12 +888,12 @@ PointMarker::PointMarker(int owner, HapiBank* file, char* name)
     SetVtable(g_pointMarkerVtable);
     file->OpenNamedBox(name);
     file->SeekBox(0);
-    Header_0044d930 hdr;
+    PointMarkerRecord hdr;
     if (file->ReadBox(&hdr, 20) == 20) {
-        r.a = hdr.r.a;
-        r.b = hdr.r.b;
-        r.c = hdr.r.c;
-        r.d = hdr.r.d;
+        x1 = hdr.x1;
+        x2 = hdr.x2;
+        y1 = hdr.y1;
+        y2 = hdr.y2;
     }
 }
 
@@ -1181,11 +903,11 @@ PointMarker::PointMarker(int owner, HapiBank* file, char* name)
 // FUNCTION: 0x44d9a0
 int PointMarker::Serialize(int unused, HapiBank* file, char* name)
 {
-    Header_0044d930 hdr;
-    hdr.r.a = r.a;
-    hdr.r.b = r.b;
-    hdr.r.c = r.c;
-    hdr.r.d = r.d;
+    PointMarkerRecord hdr;
+    hdr.x1 = x1;
+    hdr.x2 = x2;
+    hdr.y1 = y1;
+    hdr.y2 = y2;
     file->OpenNamedBox(name);
     file->SeekBox(0);
     file->WriteBox(&hdr, 20);
@@ -1202,11 +924,9 @@ int PointMarker::FillWorldPos(int* out)
 {
     short avg = (short)MidX_44dc60(this);
     short z = (short)y2;
-    // The named view's mapPtr (+4) is the base class's owner field.
-    MapInfo_44dc60* info = *(MapInfo_44dc60**)((char*)source + 0xe);
-    Pos16_44dc60 pos = info->pos;
+    Point16 pos = ((Order*)source)->unit->footprint;
     out[0] = (pos.x + avg * 2) << 0x13;
-    out[2] = (pos.z + z * 2) << 0x13;
+    out[2] = (pos.y + z * 2) << 0x13;
     return 1;
 }
 
@@ -1301,7 +1021,7 @@ PathOrder::PathOrder(int owner, HapiBank* file, char* name)
     : OrderFx(owner), ref(0, 0)
 {
     SetVtable(g_pathOrderVtable);
-    Rec_0044de80 rec;
+    PathOrderRecord rec;
     ((PathOrderAttach*)&rec.ref_vt)->PathOrderAttach::PathOrderAttach(0, 0);
     file->OpenNamedBox(name);
     file->SeekBox(0);
@@ -1340,26 +1060,6 @@ void* PathOrder::Destroy(unsigned char flag)
     return this;
 }
 
-#pragma pack(push, 2)
-struct Rec_0044dfb0 {
-    int unknown_0;                  // +0x0
-    int unknown_4;                  // +0x4
-    short id1;                      // +0x8
-    void* ref_vt;                   // +0xa (PathOrderAttach)
-    void* ref_owner;                // +0xe
-    void* ref_next;                 // +0x12
-    int ref_value;                  // +0x16
-    short id2;                      // +0x1a
-    short f1;                       // +0x1c
-    short f2;                       // +0x1e
-    short f3;                       // +0x20
-    short f4;                       // +0x22
-    short f5;                       // +0x24
-    Vec3 pos;
-    int i4;                         // +0x32
-};
-#pragma pack(pop)
-
 // Virtual save method (vtable 0x4fd3b8, slot 1) for the class built by
 // 0x44e330 / 0x44e250. Builds a 0x36-byte record on the stack, writing the
 // referenced unit's id, the embedded link's owner id, five flag shorts and
@@ -1374,7 +1074,7 @@ struct Rec_0044dfb0 {
 int PathOrder::SerializeToSave(int unused, HapiBank* file, char* name)
 {
     // The first 8 bytes of rec stay unassigned, as in the original.
-    Rec_0044dfb0 rec;
+    PathOrderRecord rec;
     PathOrderAttach* ref = (PathOrderAttach*)&rec.ref_vt;
     ref->PathOrderAttach::PathOrderAttach(0, 0);
     if (unit == 0)
@@ -1399,9 +1099,9 @@ int PathOrder::SerializeToSave(int unused, HapiBank* file, char* name)
     return 1;
 }
 
-// FUNCTION: 0x44e080 ??0PathOrder@@QAE@PAUOwner_0044e080@@PAVBitReader@@@Z
-PathOrder::PathOrder(Owner_0044e080* owner_, BitReader* reader)
-    : OrderFx(0), owner(owner_), ref(0, 0)
+// FUNCTION: 0x44e080 ??0PathOrder@@QAE@PAUUnit@@PAVBitReader@@@Z
+PathOrder::PathOrder(Unit* owner_, BitReader* reader)
+    : OrderFx(0), unit(owner_), ref(0, 0)
 {
     SetVtable(g_pathOrderVtable);
     flags = reader->ReadBits(8);
@@ -1445,7 +1145,7 @@ PathOrder::PathOrder(Order* order, Unit* unit)
     piece = -1;
     if ((unsigned char)(ref.owner->def->flags1 >> 11) & 1) {
         field_8 = 7;
-        int t = ((Sub_0044e190 *)this->unit->weapon)->range;
+        int t = this->unit->weapons[0].weapon->range;
         if (t != 0)
             followOffset = t << 16;
         else
@@ -1457,8 +1157,8 @@ PathOrder::PathOrder(Order* order, Unit* unit)
 
 // A second constructor for the class built by 0x44e330 (same vtable
 // g_pathOrderVtable): it takes its position from the source's unit instead.
-// FUNCTION: 0x44e250 ??0PathOrder@@QAE@PAUSource_0044e250@@HF@Z
-PathOrder::PathOrder(Source_0044e250* source, int unit, short value)
+// FUNCTION: 0x44e250 ??0PathOrder@@QAE@PAUOrder@@HF@Z
+PathOrder::PathOrder(Order* source, int unit, short value)
     : OrderFx((int)source), piece(value), ref(0, 0)
 {
     SetVtable(g_pathOrderVtable);
@@ -1472,29 +1172,29 @@ PathOrder::PathOrder(Source_0044e250* source, int unit, short value)
 
 // Another constructor of the class built by 0x44e330 and 0x44e250 (vtable
 // g_pathOrderVtable), with a type of 0x20 and the position passed in.
-// FUNCTION: 0x44e2d0 ??0PathOrder@@QAE@PAUSource_0044e2d0@@ABUVec3_0044e2d0@@@Z
-PathOrder::PathOrder(Source_0044e2d0* source, const Vec3_0044e2d0& p)
-    : OrderFx((int)source), ref(0, 0), pos(*(const Vec3*)&p)
+// FUNCTION: 0x44e2d0 ??0PathOrder@@QAE@PAUOrder@@ABUVec3@@@Z
+PathOrder::PathOrder(Order* source, const Vec3& p)
+    : OrderFx((int)source), ref(0, 0), pos(p)
 {
     SetVtable(g_pathOrderVtable);
     approachRadius = 0;
     altitude = 0;
     piece = -1;
     field_8 = 0x20;
-    unit = (Unit*)source->unit;
+    unit = source->unit;
 }
 
-// FUNCTION: 0x44e330 ??0PathOrder@@QAE@PAUSource_0044e330@@HABUVec3_0044e330@@@Z
-PathOrder::PathOrder(Source_0044e330* source, int unit, const Vec3_0044e330& p)
+// FUNCTION: 0x44e330 ??0PathOrder@@QAE@PAUOrder@@HABUVec3@@@Z
+PathOrder::PathOrder(Order* source, int unit, const Vec3& p)
     : OrderFx((int)source), ref(0, 0)
 {
     SetVtable(g_pathOrderVtable);
     ref.SetUnit((Unit*)unit);
-    pos = *(const Vec3*)&p;
+    pos = p;
     approachRadius = 0;
     altitude = 0;
     piece = -1;
-    this->unit = (Unit*)source->unit;
+    this->unit = source->unit;
     field_8 = 0xa3;
 }
 
@@ -1583,11 +1283,11 @@ int PathOrder::GetDesiredHeading(unsigned short* out)
 // itself through vtable slot +0x20, measures the horizontal (x/z) distance to
 // `arg`, converts it from 16.16 to pixels, then tests range/flags.
 // FUNCTION: 0x44e5b0
-int Class_0044e5b0::IsComplete(Object_0044e5b0* arg)
+int PathOrder::IsComplete(Unit* arg)
 {
-    Vec3_0044e5b0 pos;
-    v8(&pos);
-    float dist = (float)_hypot((double)(arg->pos.x - pos.x), (double)(arg->pos.z - pos.z)) * 1.52587890625e-05f;
+    Vec3 at;
+    FillWorldPos(&at);
+    float dist = (float)_hypot((double)(arg->pos.x - at.x), (double)(arg->pos.z - at.z)) * 1.52587890625e-05f;
     unsigned short flags = this->flags;
     if (flags & 0x10) {
         return (double)approachRadius > dist;
@@ -1595,11 +1295,11 @@ int Class_0044e5b0::IsComplete(Object_0044e5b0* arg)
     else {
         if (dist > 0.5f)
             return 0;
-        if ((flags & 1) && target == 0)
+        if ((flags & 1) && ref.owner == 0)
             return 0;
-        if ((flags & 4) && arg->heading != target->heading)
+        if ((flags & 4) && (unsigned short)arg->heading != (unsigned short)ref.owner->heading)
             return 0;
-        if ((flags & 8) && abs(arg->pos.y - pos.y) > 0x10000)
+        if ((flags & 8) && abs(arg->pos.y - at.y) > 0x10000)
             return 0;
         return 1;
     }
@@ -1682,7 +1382,7 @@ AirManeuverOrder::AirManeuverOrder(int owner, HapiBank* file, char* name)
     SetVtable(g_airManeuverOrderVtable);
     file->OpenNamedBox(name);
     file->SeekBox(0);
-    Header_0044e740 hdr;
+    AirManeuverOrderRecord hdr;
     if (file->ReadBox(&hdr, 0x2a) == 0x2a) {
         self = g_seams.units->LoadUnit(hdr.id, file);
         flags = hdr.flag;
@@ -1703,7 +1403,7 @@ AirManeuverOrder::AirManeuverOrder(int owner, HapiBank* file, char* name)
 // FUNCTION: 0x44e880
 int AirManeuverOrder::SerializeToSave(Order* order, HapiBank* file, char* name)
 {
-    Header_0044e740 hdr;
+    AirManeuverOrderRecord hdr;
     // if/else, not a ternary: puts the store of 0 on the fallthrough path.
     if (!self) {
         hdr.unit_id = 0;
@@ -1739,11 +1439,11 @@ void AirManeuverOrder::SerializeToBits(BitWriter* stream)
     }
 }
 
-// FUNCTION: 0x44e9c0 ??0AirManeuverOrder@@QAE@PAUOwner_0044e9c0@@PAVBitReader@@@Z
-AirManeuverOrder::AirManeuverOrder(Owner_0044e9c0* owner, BitReader* reader)
+// FUNCTION: 0x44e9c0 ??0AirManeuverOrder@@QAE@PAUUnit@@PAVBitReader@@@Z
+AirManeuverOrder::AirManeuverOrder(Unit* owner, BitReader* reader)
 {
     source = 0;
-    self = (Unit*)owner;
+    self = owner;
     SetVtable(g_airManeuverOrderVtable);
     flags = reader->ReadBits(1);
     target.x = reader->ReadBits(0x20);
@@ -1851,34 +1551,34 @@ void AirManeuverOrder::SetHeading(short v)
 
 // std::vector<Point_0044eec0>::_Destroy(first, last) from MSVC 5's <vector>:
 // empty, since the element type is trivial.
-// FUNCTION: 0x44ee60 ?_Destroy@?$vector@UPoint_0044eec0@@V?$allocator@UPoint_0044eec0@@@std@@@std@@IAEXPAUPoint_0044eec0@@0@Z
-DestroyFn_0044ee60 Access_0044ee60::fn = &Access_0044ee60::_Destroy;
+// FUNCTION: 0x44ee60 ?_Destroy@?$vector@UPoint16@@V?$allocator@UPoint16@@@std@@@std@@IAEXPAUPoint16@@0@Z
+DestroyFn_0044ee60 PointVectorDestroyAccess::fn = &PointVectorDestroyAccess::_Destroy;
 
 // std::vector<Point_0044eec0>::size() for the 4-byte point (two shorts); its
 // callers are the vector insert paths in 0x44d0e0 and 0x44d560.
-// FUNCTION: 0x44ee70 ?size@?$vector@UPoint_0044eec0@@V?$allocator@UPoint_0044eec0@@@std@@@std@@QBEIXZ
+// FUNCTION: 0x44ee70 ?size@?$vector@UPoint16@@V?$allocator@UPoint16@@@std@@@std@@QBEIXZ
 SizeFn_0044ee70 g_size_0044ee70 = &Vec_0044ee70::size;
 
 // std::vector<Point_0044eec0>::_Ucopy(first, last, dest) from MSVC 5's
 // <vector>: copy-constructs [first, last) into raw storage at dest and
 // returns the end of the copies. Its callers (around 0x44d190) set ecx to the
 // vector whose _Ufill is 0x44eec0.
-// FUNCTION: 0x44ee90 ?_Ucopy@?$vector@UPoint_0044eec0@@V?$allocator@UPoint_0044eec0@@@std@@@std@@IAEPAUPoint_0044eec0@@PBU3@0PAU3@@Z
-UcopyFn_0044ee90 Access_0044ee90::fn = &Access_0044ee90::_Ucopy;
+// FUNCTION: 0x44ee90 ?_Ucopy@?$vector@UPoint16@@V?$allocator@UPoint16@@@std@@@std@@IAEPAUPoint16@@PBU3@0PAU3@@Z
+UcopyFn_0044ee90 PointVectorUcopyAccess::fn = &PointVectorUcopyAccess::_Ucopy;
 
 // std::vector<Point_0044eec0>::_Ufill(first, n, value) from MSVC 5's <vector>:
 // copy-constructs n copies of value into raw storage. Its callers (around
 // 0x44d190) set ecx to the vector; its _Ucopy is 0x44ee90 and its copy is
 // 0x44eef0 (4-byte elements, two shorts).
-// FUNCTION: 0x44eec0 ?_Ufill@?$vector@UPoint_0044eec0@@V?$allocator@UPoint_0044eec0@@@std@@@std@@IAEXPAUPoint_0044eec0@@IABU3@@Z
-UfillFn_0044eec0 Access_0044eec0::fn = &Access_0044eec0::_Ufill;
+// FUNCTION: 0x44eec0 ?_Ufill@?$vector@UPoint16@@V?$allocator@UPoint16@@@std@@@std@@IAEXPAUPoint16@@IABU3@@Z
+UfillFn_0044eec0 PointVectorUfillAccess::fn = &PointVectorUfillAccess::_Ufill;
 
 // std::copy for 4-byte elements (two shorts), compiled with __stdcall as the
 // default convention. Its one caller (0x44da00) is an inlined
 // vector::erase(begin(), end()) whose _Destroy is 0x44ee60. Not a member of
 // the PathGoal family next to it: it takes no `this`.
 // FUNCTION: 0x44eef0
-Point_0044eef0* __stdcall CopyDwordRangeUnchecked(Point_0044eef0* first, Point_0044eef0* last, Point_0044eef0* dest)
+Point16* __stdcall CopyDwordRangeUnchecked(Point16* first, Point16* last, Point16* dest)
 {
     for (; first != last; ++dest, ++first)
         *dest = *first;
