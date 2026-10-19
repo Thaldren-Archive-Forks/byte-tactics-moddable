@@ -501,8 +501,9 @@ void __stdcall DrawBattleFrame(int param_1, int param_2)
       res.metal = res.maxMetal;
     if (res.energy > res.maxEnergy)
       res.energy = res.maxEnergy;
-    if (pl->nDisplayTimer < g_game->gameTick) {
-      pl->nDisplayTimer += 0x1e;
+    static unsigned int s_incomesShownAt = ~0u;
+    if (pl->nDisplayTimer != s_incomesShownAt) {
+      s_incomesShownAt = pl->nDisplayTimer;
       res.metalIncome = GetEnergyIncome((int)pl);
       res.metalUse = GetEnergyUsage((int)pl);
       res.energyIncome = GetMetalIncome((int)pl);
