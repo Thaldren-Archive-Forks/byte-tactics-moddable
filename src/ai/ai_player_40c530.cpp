@@ -17,9 +17,6 @@
 #include <d3d.h>
 #include <memory.h>
 #include <math.h>
-// ta_types.h is included for its symbol ids: the vector instantiations below
-// follow the ids the unit's headers gave them.
-
 // Unused here: the symbol ids these declarations take keep the allocation
 // (docs/c2-regalloc.md), standing in for the placeholder class ta_types.h
 // no longer declares. They sit before the header so the vector it
