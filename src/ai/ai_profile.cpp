@@ -9,12 +9,7 @@
 #include "../../interfaces/seams.h"
 
 #pragma pack(push, 1)
-struct Game {
-    char unknown_0[0x1439b];
-    void* unitDefs;                    // +0x1439b
-    char unknown_1439f[0x24e4a];
-    Mission* mapInfo;                  // +0x391e9
-};
+#include "../game/game.h"
 #pragma pack(pop)
 extern Game* g_game;
 
@@ -140,7 +135,7 @@ int AIProfileParser::ReadInt()
     if (token != 0x101) {
         if (errorReported == 0) {
             sprintf(buffer, "parse error reading AI profile %s\n%s\nlast string =",
-                    (char*)g_seams.map->GetNameSlot(g_game->mapInfo, 7),
+                    (char*)g_seams.map->GetNameSlot(g_game->net, 7),
                     "expecting int", this);
         }
         errorReported = 1;
@@ -164,7 +159,7 @@ void AIProfileParser::ReportParseError(char* text)
     char buffer[256];
     if (!errorReported) {
         sprintf(buffer, "parse error reading AI profile %s\n%s\nlast string =",
-                (char*)g_seams.map->GetNameSlot(g_game->mapInfo, 7), text, this);
+                (char*)g_seams.map->GetNameSlot(g_game->net, 7), text, this);
     }
     errorReported = 1;
 }
@@ -172,11 +167,11 @@ void AIProfileParser::ReportParseError(char* text)
 // FUNCTION: 0x428fc0
 void ProtectUnitDefsReadOnly()
 {
-    ProtectBlockReadOnly(g_game->unitDefs);
+    ProtectBlockReadOnly((*(void **)&g_game->defs));
 }
 
 // FUNCTION: 0x428fe0
 void ProtectUnitDefsReadWrite()
 {
-    ProtectBlockReadWrite(g_game->unitDefs);
+    ProtectBlockReadWrite((*(void **)&g_game->defs));
 }
