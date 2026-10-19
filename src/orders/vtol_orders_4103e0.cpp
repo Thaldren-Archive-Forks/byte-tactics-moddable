@@ -46,7 +46,7 @@ void RegisterDataArchives();
 void CreateGameObject();
 void InitMissionStatus();
 
-class Class_0044e2d0 { public: char data[0x36]; Class_0044e2d0(Order*, const Vec3&); };
+#include "path_fx.h"
 #include "../game/game.h"
 #pragma pack(pop)
 extern Game* g_game;
@@ -89,7 +89,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         ((Class_0044e730*)move)->SetApproachRadius(128);
         order->flags|=0xe0;
-        order->SetAttachedFx((OrderFx*)move);
+        order->SetAttachedFx(move);
         return 2;
     }
     unsigned int state=0; state=order->state;
@@ -109,7 +109,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
                     ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     ((Class_0044e6c0*)move)->SetAltitude(unit->def->altitude/2);
-                    order->SetAttachedFx((OrderFx*)move);
+                    order->SetAttachedFx(move);
                     order->flags|=0xe0;
                 }
             }
@@ -135,7 +135,7 @@ int __stdcall VtolSeekAttackOrder(Unit* unit, Order* order, int flags)
         Vec3 pos=AddVec3(order->pos,Offset((short)order->angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16));
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         ((Class_0044e730*)move)->SetApproachRadius(128);
-        order->SetAttachedFx((OrderFx*)move);
+        order->SetAttachedFx(move);
         order->SetDeadlineTicks(RandomInt(30)+30);
         order->flags|=0xe0;
         return 2;

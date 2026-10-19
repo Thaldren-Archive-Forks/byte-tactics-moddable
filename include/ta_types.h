@@ -6567,50 +6567,7 @@ public:
     Class_0044ce20(int);
 };
 
-class Class_0044e2d0 : public Class_0044ce20 {  // 0x36 bytes, 23 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    int field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    char unknown_32[4];
-    Class_0044e2d0(Class_0044e2d0&);
-    Class_0044e2d0(Order*, Vec3&);
-};
-
-class Class_0044e190 : public Class_0044ce20 {  // 0x36 bytes, 3 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Unit* field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    int field_32;  // +0x32
-    Class_0044e190(Class_0044e190&);
-    Class_0044e190(Order*, Unit*);
-};
-
-class Class_0044e250 : public Class_0044ce20 {  // 0x36 bytes, 3 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Unit* field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    char unknown_32[4];
-    Class_0044e250(Class_0044e250&);
-    Class_0044e250(Order*, int, short);
-};
+#include "../src/orders/path_fx.h"
 
 class Class_0044e740 : public Class_0044ce20 {  // 0x2c bytes, 8 views
 public:
@@ -6628,21 +6585,6 @@ public:
     void FUN_0044ec10(int);
 };
 
-class Class_0044e330 : public Class_0044ce20 {  // 0x36 bytes, 2 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    int field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    char unknown_32[4];
-    Class_0044e330(Class_0044e330&);
-    Class_0044e330(Order*, int, Vec3&);
-};
-
 class Class_0044d010 : public Class_0044ce20 {  // 0x14 bytes, 3 views
 public:
     Vec3 v;  // +0x8
@@ -6655,21 +6597,6 @@ public:
     Rect r;  // +0x8
     Class_0044d930(int, HapiBank*, char*);
     int FUN_0044d9a0(int, HapiBank*, char*);
-};
-
-class Class_0044de80 : public Class_0044ce20 {  // 0x36 bytes, 2 views
-public:
-    short field_8;  // +0x8
-    short field_a;  // +0xa
-    short field_c;  // +0xc
-    short field_e;  // +0xe
-    short field_10;  // +0x10
-    Unit* field_12;  // +0x12
-    PathOrderAttach ref;  // +0x16
-    Vec3 pos;  // +0x26
-    int field_32;  // +0x32
-    Class_0044de80(Class_0044de80&);
-    Class_0044de80(int, HapiBank*, char*);
 };
 
 #include "../src/orders/order_fx.h"

@@ -19,14 +19,7 @@ struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index
 #include "../units/unit.h"
 #include "order.h"
 
-class Class_0044e2d0 {
-public:
-    char data[0x36];
-    Class_0044e2d0(Order*, const Vec3&);
-    void SetAltitude(int);
-    void SetApproachRadius(int);
-};
-
+#include "path_fx.h"
 #include "../../interfaces/seams.h"
 #include "../game/game.h"
 #pragma pack(pop)
@@ -64,7 +57,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
             order->flags|=0xe0;
-            order->SetAttachedFx((OrderFx*)move);
+            order->SetAttachedFx(move);
             return 2;
         }
         // Copied through a pointer: assigning order->pos directly changes codegen.
@@ -81,7 +74,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
                     ((UnitMotion*)unit->motion)->SetFlightMode(unit,2);
                     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,unit->pos);
                     move->SetAltitude(unit->def->altitude/2);
-                    order->SetAttachedFx((OrderFx*)move);
+                    order->SetAttachedFx(move);
                     order->flags|=0xe0;
                 }
                 order->angle=RandomInt(0x10000);
@@ -162,7 +155,7 @@ int __stdcall VtolFollowOrder(Unit* unit, Order* order, int flags)
             else pos=order->target->pos+Offset(angle,0x1400000);
             Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
             move->SetApproachRadius(128);
-            order->SetAttachedFx((OrderFx*)move);
+            order->SetAttachedFx(move);
             order->SetDeadlineTicks(30);
             order->flags|=0xf8;
             return 2;

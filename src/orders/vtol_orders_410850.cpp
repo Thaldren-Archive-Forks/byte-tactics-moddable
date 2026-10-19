@@ -29,12 +29,7 @@ struct Owner { char pad0[0x108]; unsigned char allied[0x3e]; unsigned char index
 #include "../units/unit.h"
 #include "order.h"
 
-class Class_0044e2d0 {
-public:
-    char data[0x36];
-    Class_0044e2d0(Order*, const Vec3&);
-    void SetApproachRadius(int);
-};
+#include "path_fx.h"
 struct Game { char pad0[0x1422b]; int width, height; char pad14233[0x142b7-0x14233]; int overflowBucket; };
 #pragma pack(pop)
 extern Game* g_game;
@@ -106,7 +101,7 @@ static inline int Patrol(Unit* unit, Order* order, int flags)
     Vec3 pos=order->pos+Offset((short)order->angle,(((WeaponDef*)unit->weapons[0].weapon)->range+160)<<16);
     Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
     move->SetApproachRadius(128);
-    order->SetAttachedFx((OrderFx*)move);
+    order->SetAttachedFx(move);
     order->SetDeadlineTicks(30);
     order->flags|=0xf8;
     return 2;
@@ -125,7 +120,7 @@ int __stdcall VtolSeekGuardOrder(Unit* unit, Order* order, int flags)
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,pos);
         move->SetApproachRadius(128);
         order->flags|=0xe0;
-        order->SetAttachedFx((OrderFx*)move);
+        order->SetAttachedFx(move);
         return 2;
     }
     switch(order->state) {
