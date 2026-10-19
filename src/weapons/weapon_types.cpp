@@ -11,23 +11,7 @@
 // 3.14159265358979 / 180 is exactly the exe's 0.017453292519943278.
 #define PI 3.14159265358979
 
-class StringRef {
-  public:
-    char* ptr;
-    StringRef(const StringRef& other);
-    StringRef(const char* text);
-    StringRef(const char* text, int len);
-    ~StringRef() { ReleaseRef(); }
-    StringRef& operator=(const StringRef& other);
-    void ReleaseRef();
-    StringRef* Assign(const StringRef* other);
-    StringRef* Append(const StringRef& other);
-    StringRef* MakeLower();
-    StringRef* MakeUpper();
-    StringRef* AssignText(const char* text);
-    char* GetUnique();
-    StringRef SubString(int start, int end) const;
-};
+#include "../util/string_ref.h"
 
 static inline bool operator==(const StringRef& a, const StringRef& b) {
     return strcmp(a.ptr, b.ptr) == 0;
@@ -41,13 +25,7 @@ static inline bool Less(const char* a, const char* b) {
     return _strcmpi(a, b) < 0;
 }
 
-// One entry of a weapon's damage table: a unit name and its damage.
-struct Entry_00432cf0 {
-    StringRef name; // +0x0
-    int value;           // +0x4
-
-    Entry_00432cf0(const StringRef& n, int v) : name(n), value(v) {}
-};
+#include "../map/los_tables.h"
 
 inline Entry_00432cf0* Table_00499cd0::LowerBound(const char* key) {
     Entry_00432cf0* first = v.begin();

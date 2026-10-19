@@ -30,43 +30,12 @@
 #include <vector>
 #include "los_tables.h"
 
-// The reference-counted string handle: a pointer to the characters with the
-// reference count in the int just before them. The views in this file are the
-// copy constructor 0x4c91a0, the assignment 0x4c93b0, ReleaseRef 0x4c9390 and
-// the scalar deleting destructors 0x432c00 and 0x432c20.
-class StringRef {
-public:
-    char* ptr;                         // +0x0
-
-    StringRef();
-    StringRef(const StringRef& other);
-    StringRef(const char* text);
-    StringRef(const char* text, int len);
-    StringRef& operator=(const StringRef& other);
-    void ReleaseRef();
-    StringRef* Assign(StringRef* param_1);
-    StringRef* Append(const StringRef& other);
-    StringRef* MakeLower();
-    StringRef* MakeUpper();
-    StringRef* AssignText(const char* text);
-    char* GetUnique();
-    int IsEmpty() const;
-    StringRef SubString(int start, int end) const;
-    void* FUN_00432c00(unsigned char param_1);
-    void* FUN_00432c20(unsigned char param_1);
-};
+#include "../util/string_ref.h"
 
 struct Elem_00432be0 {
     char* data;                        // +0x0
 
     ~Elem_00432be0() { ((StringRef*)this)->ReleaseRef(); }
-};
-
-struct Entry_00432cf0 {
-    StringRef name;         // +0x0
-    int value;                 // +0x4
-
-    void* AssignPair(Entry_00432cf0* param);
 };
 
 // An 8-byte element: the string handle and the int after it, the same pair as
@@ -244,7 +213,7 @@ void* Entry_00432cf0::AssignPair(Entry_00432cf0* param)
 // The original calls this from 0x432d20 above rather than inlining it.
 #pragma auto_inline(off)
 // FUNCTION: 0x4c93b0
-StringRef* StringRef::Assign(StringRef* param_1)
+StringRef* StringRef::Assign(const StringRef* param_1)
 {
     *(int*)(param_1->ptr - 4) += 1;
     *(int*)(ptr - 4) -= 1;

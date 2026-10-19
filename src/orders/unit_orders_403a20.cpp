@@ -3,7 +3,6 @@
 // Stays in its own file: in unit_orders.cpp the first state's cell lookup loads g_game before the index, and the nano box corners need a member operator+ view of Vec3.
 #include <windows.h>
 #include <math.h>
-struct PointS16 { short x, y; };
 #include "../util/vec3.h"
 
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
@@ -34,21 +33,21 @@ short __stdcall GetHeadingBetween(Vec3*, Vec3*);
 void __stdcall StartBuildingScript(Unit*, Order*, short);
 int __stdcall WaitIfNotInBuildStance(Unit*, Order*, int);
 void __stdcall EmitNanoParticles(Vec3*, Vec3*, int);
-static inline PointS16 WorldToCell(Vec3 v, PointS16 origin)
-{
-    PointS16 c;
-    c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
-    c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
-    return c;
-}
-static inline Point16 WorldToCell16(Vec3 v, PointS16 origin)
+static inline Point16 WorldToCell(Vec3 v, Point16 origin)
 {
     Point16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
-static inline void CellToWorld(PointS16 origin, PointS16 c, Vec3* v)
+static inline Point16 WorldToCell16(Vec3 v, Point16 origin)
+{
+    Point16 c;
+    c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
+    c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
+    return c;
+}
+static inline void CellToWorld(Point16 origin, Point16 c, Vec3* v)
 {
     v->x = (origin.x + c.x * 2) << 19;
     v->z = (origin.y + c.y * 2) << 19;
@@ -72,8 +71,8 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
     switch (state) {
     case 0: {
         UnitDef* def = &Definitions()[order->type];
-        PointS16 cell = WorldToCell(order->pos, *(PointS16*)&def->footprintx);
-        CellToWorld(*(PointS16*)&def->footprintx, cell, &order->pos);
+        Point16 cell = WorldToCell(order->pos, *(Point16*)&def->footprintx);
+        CellToWorld(*(Point16*)&def->footprintx, cell, &order->pos);
         order->retries = 0;
         order->AttachBuildFootprintMarker((*(Point16*)&cell), (*(Point16*)&def->footprintx));
         order->flags = 0xe0;
@@ -93,7 +92,7 @@ int __stdcall MobileBuildOrder(Unit* unit, Order* order, int flags)
                 return 8;
             }
         }
-        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, WorldToCell16(order->pos, *(PointS16*)&Definitions()[order->type].footprintx), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(def, 0, WorldToCell16(order->pos, *(Point16*)&Definitions()[order->type].footprintx), 1)) {
             if (!order->retries)
                 QueueUnitSpeech(unit, 7, "Waiting for target area to clear");
             else if (order->retries > 10) {

@@ -19,33 +19,7 @@
 // Included only for its symbol count: the std::string members below match at one window of it.
 #include <float.h>
 
-// The reference-counted string handle: a pointer to the characters with the
-// reference count in the int just before them. 0x4c9180 builds the empty one,
-// 0x4c91a0 copies, 0x4c91b0 builds from text, 0x4c9390 releases and 0x4c93b0
-// assigns.
-class StringRef {
-public:
-    char* ptr;                         // count in the dword before ptr
-
-    StringRef();
-    StringRef(const StringRef& other);
-    StringRef(const char* text);
-    StringRef(const char* text, int len);
-    ~StringRef() { ReleaseRef(); }
-    StringRef& operator=(const StringRef& other)
-    {
-        Assign(&other);
-        return *this;
-    }
-    void ReleaseRef();
-    StringRef* Assign(const StringRef* other);
-    StringRef* Append(const StringRef& other);
-    StringRef* MakeLower();
-    StringRef* MakeUpper();
-    StringRef* AssignText(const char* text);
-    char* GetUnique();
-    StringRef SubString(int start, int end) const;
-};
+#include "string_ref.h"
 
 // One entry of a section or of the translations: a key and a value. The
 // compiler's destructor of the pair (0x4c5190) releases both handles.

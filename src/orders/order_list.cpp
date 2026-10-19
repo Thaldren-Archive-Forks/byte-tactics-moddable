@@ -104,15 +104,10 @@ struct Vec3Init_0043a1f0 : Vec3 {
     Vec3Init_0043a1f0(int a, int b, int c) { x = a; y = b; z = c; }
 };
 
-struct PointS16 {
-    short x, y;
-    PointS16() {}
-    PointS16(int a, int b) : x(a), y(b) {}
-};
-
 // A 4-byte point of two shorts, and the temporary the constructor builds it
 // through (the derived type is what makes the compiler keep the temporary).
-struct PointInit_0043a1f0 : PointS16 {
+struct PointInit_0043a1f0 : Point16 {
+    PointInit_0043a1f0() {}
     PointInit_0043a1f0(short a, short b) { x = a; y = b; }
 };
 
@@ -206,8 +201,8 @@ public:
     void* unit;                      // +0xe
     PathOrderAttach link;            // +0x12
     Vec3 pos;
-    PointS16 start;
-    PointS16 cached;
+    Point16 start;
+    Point16 cached;
     int id;                          // +0x36
     int amount;                      // +0x3a
     int progress;                    // +0x3e
@@ -1524,7 +1519,7 @@ static inline Vec3 Offset(short angle, int distance)
     return v;
 }
 
-static inline void ClampToCell(Vec3& pos, PointS16 cell, PointS16 draft)
+static inline void ClampToCell(Vec3& pos, PointInit_0043a1f0 cell, PointInit_0043a1f0 draft)
 {
     int cx = (draft.x + cell.x * 2) << 19;
     int cz = (draft.y + cell.y * 2) << 19;
@@ -1862,9 +1857,9 @@ void UnitMotion::UpdatePosition(Unit* u)
         return;
 
     lastMoveTick = g_game->ticks;
-    PointS16 draft = *(PointS16*)&u->footprint;
+    PointInit_0043a1f0 draft = *(PointInit_0043a1f0*)&u->footprint;
     // Field by field, with draft.x * 0x80000 (a << 19 evaluates draft.x first).
-    PointS16 cell;
+    PointInit_0043a1f0 cell;
     cell.x = (pos.x - draft.x * 0x80000 + 0x80000) >> 20;
     cell.y = (pos.z - draft.y * 0x80000 + 0x80000) >> 20;
     if (cell.x == u->cell.x && cell.y == u->cell.y && m == u->mode) {
@@ -1880,7 +1875,7 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     if (flag) {
         // ClampToCell stays an inline helper taking both Points by value.
-        ClampToCell(pos, *(PointS16*)&u->cell, *(PointS16*)&u->footprint);
+        ClampToCell(pos, *(PointInit_0043a1f0*)&u->cell, *(PointInit_0043a1f0*)&u->footprint);
 
         if (speed > (((UnitType_0043cd20*)u->def)->maxvelocity / 2)) {
             int half = ((UnitType_0043cd20*)u->def)->maxvelocity / 2;
@@ -1901,7 +1896,7 @@ void UnitMotion::UpdatePosition(Unit* u)
 
     g_seams.map->RemoveUnitFromMap(u);
     u->pos = pos;
-    *(PointS16*)&u->cell = cell;
+    *(Point16*)&u->cell = cell;
     // The (short) cast gives the and/and/or store of the 2-bit field.
     u->mode = (short)m;
     g_seams.map->AddUnitToMap(u);

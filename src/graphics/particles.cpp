@@ -144,16 +144,7 @@ public:
     void insert(char* where, int count, const TeleportParticle& val);
 };
 
-struct Vec3_004739b0 {
-    int x, y, z;
-    Vec3_004739b0& operator+=(const Vec3_004739b0& o)
-    {
-        x += o.x;
-        y += o.y;
-        z += o.z;
-        return *this;
-    }
-};
+#include "../util/vec3.h"
 
 // The integer halves of the 16.16 position.
 struct Pos_004739b0 {
@@ -169,11 +160,11 @@ struct Pos_004739b0 {
 struct NanoParticle {
 public:
     union {
-        Vec3_004739b0 pos;             // +0x0
+        Vec3 pos;
         Pos_004739b0 posw;
     };
     char unknown_c[0xc];
-    Vec3_004739b0 vel;                 // +0x18
+    Vec3 vel;
     char unknown_24[4];
     int flags;                         // +0x28, low 4 bits: frame; the colour
     int endTime;                       // +0x2c, the tick it expires
@@ -216,44 +207,14 @@ struct Seg_00473b50 {
         (g).end.z -= (g).start.z;            \
     }
 
-struct Vec3_004742c0 {
-    int x;
-    int y;
-    int z;
-
-    Vec3_004742c0 operator-(const Vec3_004742c0& o) const
-    {
-        Vec3_004742c0 r;
-        r.x = x - o.x;
-        r.y = y - o.y;
-        r.z = z - o.z;
-        return r;
-    }
-
-    // s is 16.16 fixed point. MSVC 5 only orders the two __allmul arguments
-    // the way the original does (and keeps the cdq that sign extends the
-    // quotient) when the three components go through one inlined method.
-    void Scale(int s)
-    {
-        // One named 64-bit product: MSVC 5 then orders the two __allmul
-        // operands as the original does.
-        __int64 p;
-        p = (__int64)x * s;
-        x = (int)(p >> 16);
-        p = (__int64)y * s;
-        y = (int)(p >> 16);
-        p = (__int64)z * s;
-        z = (int)(p >> 16);
-    }
-
-    Vec3_004742c0& operator+=(const Vec3_004742c0& o)
-    {
-        x += o.x;
-        y += o.y;
-        z += o.z;
-        return *this;
-    }
-};
+static inline Vec3 operator-(const Vec3& a, const Vec3& o)
+{
+    Vec3 r;
+    r.x = a.x - o.x;
+    r.y = a.y - o.y;
+    r.z = a.z - o.z;
+    return r;
+}
 
 // One exhaust puff (the element of ThrustParticles' vector), 0x3c bytes.
 class ThrustParticle {
@@ -261,9 +222,9 @@ public:
     unsigned short* bitmask;           // +0x00, the animation
     union {
         struct {
-            Vec3_004742c0 pos0;        // +0x04
-            Vec3_004742c0 pos1;        // +0x10
-            Vec3_004742c0 pos2;        // +0x1c
+            Vec3 pos0;
+            Vec3 pos1;
+            Vec3 pos2;
         };
         struct {
             char unknown_4[0x6 - 0x4];
@@ -426,9 +387,9 @@ public:
     int time;                                           // +0x8, the next emit tick
     Vec_004743a0 items;                                 // +0xc (_First +0x10)
     int period;                                         // +0x1c
-    Vec3_004742c0 pos0;                                 // +0x20
-    Vec3_004742c0 pos1;                                 // +0x2c
-    Vec3_004742c0 pos2;                                 // +0x38
+    Vec3 pos0;
+    Vec3 pos1;
+    Vec3 pos2;
 
     ThrustParticles() {}
     virtual void Update();                              // slot 1, 0x473010
@@ -437,7 +398,7 @@ public:
     virtual void Emit();                                // slot 4, 0x4743a0
     virtual int IsEmitDue();                            // slot 5, 0x4730c0
     virtual void Init(Shape_00472ab0* p, Shape_00472ab0* q, int a, int b);
-    void Init(Vec3_004742c0* p, Vec3_004742c0* q, int a, int b);
+    void Init(Vec3* p, Vec3* q, int a, int b);
 };
 
 // Vtable 0x4fd5f8, ??_G 0x4717e0; 0x48 bytes.
@@ -528,8 +489,6 @@ struct Lists_004720d0 {
     std::vector<ParticleSystem*> lists[1];              // 0x10 each
 };
 
-#include "../util/vec3.h"
-
 // The 24-byte struct slot 6 (0x473b50) copies both to the object, at +0x1c
 // and +0x34; here both halves are initialised from the position argument.
 struct Pos_00472200 {
@@ -582,30 +541,6 @@ struct Lists_00472530 {
 };
 
 // The smoke and TimedSubParticles systems' point types.
-struct Vec3_00472630 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00472720 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00472810 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00474cd0 {
-    int x;
-    int y;
-    int z;
-};
-
 // The smoke puff's position views and the record.
 #include "smoke_particle.h"
 
@@ -627,7 +562,7 @@ struct Position_00475150 {             // 16.16 fixed point; only high words rea
 struct TimedSubParticle {
     void* data;                        // +0x00, the animation
     union {
-        Vec3_00475150 pos;             // +0x04
+        Vec3 pos;
         Position_00475150 posw;
     };
     int limit;                         // +0x10, the rounds it lives
@@ -649,7 +584,7 @@ public:
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
     int altAnimation;                                   // +0x28, the other animation
-    Vec3_00474d50 pos;                                  // +0x2c
+    Vec3 pos;
 
     SmokeParticles();
     virtual void Update();                              // slot 1, 0x475340
@@ -657,7 +592,7 @@ public:
     virtual int IsFinished();                           // slot 3, 0x474f80
     virtual void Emit();                                // slot 4, 0x474df0
     virtual int IsEmitDue();                            // slot 5, 0x475440
-    virtual void Init(Vec3_00474d50* pos, int limit, int a, int b, int c,
+    virtual void Init(Vec3* pos, int limit, int a, int b, int c,
                               int alt);                 // slot 6, 0x474d50
 };
 
@@ -1841,7 +1776,7 @@ int ThrustParticle::IsExpired(int value)
 // difference in a third one and scales that by the 16.16 reciprocal of the id
 // ((1 << 32) / (id << 16) is 65536 / id), so the offset ends up divided by it.
 // FUNCTION: 0x4742c0
-void ThrustParticles::Init(Vec3_004742c0* p, Vec3_004742c0* q, int a, int b)
+void ThrustParticles::Init(Vec3* p, Vec3* q, int a, int b)
 {
     this->SetLifetime(b);
     period = a;
@@ -1869,7 +1804,7 @@ void ThrustParticles::Emit()
     if (extra > 0) {
         items.reserve(extra + items.size());
     }
-    Vec3_004742c0* p = &pos0;
+    Vec3* p = &pos0;
     Vec_004743a0* v = &items;
     for (int i = 1; i != 0; i--) {
         ThrustParticle rec;
@@ -2038,7 +1973,7 @@ int SmokeParticle::IsExpired(int unused)
 // Slot 6. Sibling of 0x475150 (same base call, position copy and virtual
 // call).
 // FUNCTION: 0x474d50
-void SmokeParticles::Init(Vec3_00474d50* p, int limit, int a, int b, int c,
+void SmokeParticles::Init(Vec3* p, int limit, int a, int b, int c,
                                   int alt)
 {
     SetLifetime(c);
@@ -2069,7 +2004,7 @@ void SmokeParticles::Emit()
     if (periods > 0) {
         records.reserve(periods + records.size());
     }
-    Vec3_00474d50* p = &pos;
+    Vec3* p = &pos;
     std::vector<SmokeParticle>* v = &records;
     for (int i = 1; i != 0; i--) {
         SmokeParticle rec;
@@ -2144,7 +2079,7 @@ int TimedSubParticle::IsExpired(int unused)
 
 // Slot 6.
 // FUNCTION: 0x475150
-void TimedSubParticles::Init(Vec3_00475150* p, int a, int b, int c)
+void TimedSubParticles::Init(Vec3* p, int a, int b, int c)
 {
     SetLifetime(c);
     pos = *p;
@@ -2169,7 +2104,7 @@ void TimedSubParticles::Emit()
     // The two pointers have to be locals: the original hoists both addresses
     // into callee saved registers before the loop, and reads the record's
     // position and the vector's _Last through them.
-    Vec3_00475150* p = &pos;
+    Vec3* p = &pos;
     std::vector<TimedSubParticle>* v = &records;
     // One-trip countdown loop stays: the original keeps it as a counter.
     int i = 1;

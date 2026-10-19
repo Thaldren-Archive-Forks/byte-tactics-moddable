@@ -44,25 +44,7 @@ extern int g_defaultCommandHandler;
 extern int g_defaultCommandMask;
 extern char DAT_005119b8[];
 
-// The reference-counted string handle: a pointer to the characters with the
-// reference count in the int just before them.
-class StringRef {
-public:
-    char* data;                        // +0x0, count in the dword before
-
-    StringRef(const StringRef& other);
-    StringRef(const char* text);
-    StringRef(const char* text, int len);
-    ~StringRef() { ReleaseRef(); }
-    void ReleaseRef();
-    StringRef* Assign(const StringRef* other);
-    StringRef* Append(const StringRef& other);
-    StringRef* MakeLower();
-    StringRef* MakeUpper();
-    StringRef* AssignText(const char* text);
-    char* GetUnique();
-    StringRef SubString(int start, int end) const;
-};
+#include "string_ref.h"
 
 static inline bool operator==(const StringRef& a, const StringRef& b)
 {

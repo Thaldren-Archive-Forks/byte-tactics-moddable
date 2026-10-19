@@ -12,7 +12,6 @@
 #include <math.h>
 #include <vector>
 
-struct PointS16 { short x, y; };
 #include "../util/vec3.h"
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)
 {

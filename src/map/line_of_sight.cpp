@@ -26,16 +26,6 @@
 
 #include "sight_query.h"
 
-struct ScreenPos {
-    short x;
-    short y;
-};
-
-struct PointS16 {
-    short x;
-    short y;
-};
-
 #include "../graphics/rect.h"
 
 // A map cell (13 bytes): the feature at +0x8, its footprint offsets at +0xa,
@@ -123,32 +113,7 @@ struct FrameTable {
     void* entries;                     // +0x28
 };
 
-// One of the "eyeball" records of the array at g_game + 0x1427b. The two
-// pointer fields point into the record itself: +4 at its screen position, +0xc
-// at the byte flag, so the copy has to re-point them at the destination.
-struct Eye {
-    void* player;                      // +0x00
-    ScreenPos* screen;
-    short x;                           // +0x08
-    unsigned char flagA;               // +0x0a
-    char flagB;                        // +0x0b
-    char* flagPtr;                     // +0x0c, &flagB
-    Vec3 pos;                          // +0x10
-    unsigned int expires;              // +0x1c
-    ScreenPos screenPos;
-    Eye& operator=(const Eye& s) {
-        player = s.player;
-        screen = &screenPos;
-        x = s.x;
-        flagPtr = &flagB;
-        pos = s.pos;
-        flagA = s.flagA;
-        expires = s.expires;
-        screenPos = s.screenPos;
-        flagB = s.flagB;
-        return *this;
-    }
-};
+#include "eye.h"
 
 union Flags_14281 {
     unsigned short raw;                // +0x0
@@ -206,7 +171,7 @@ void __stdcall CollectVisibleUnitIds();
 
 union Slot {
     int n;
-    PointS16 p;
+    Point16 p;
 };
 
 class Mission;
@@ -258,7 +223,7 @@ void __stdcall UpdateLineOfSight(SightQuery* params);
 void __stdcall AddLineOfSight(SightQuery* params);
 void __stdcall RemoveLineOfSight(SightQuery* params);
 void __stdcall RevealAroundUnit(SightQuery* params);
-void __stdcall UpdateCellHeightRange(PointS16 pos, PointS16 size);
+void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size);
 void UpdateRadarMapped();
 void DrawRadarUnits();
 void BuildFogTiles();
@@ -280,12 +245,12 @@ struct Expired {
     int operator()(const Eye& e) const { return e.expires < (unsigned int)g_game->ticks; }
 };
 
-static inline int SumX(PointS16 a, PointS16 b) { return a.x + b.x; }
-static inline int SumY(PointS16 a, PointS16 b) { return a.y + b.y; }
+static inline int SumX(Point16 a, Point16 b) { return a.x + b.x; }
+static inline int SumY(Point16 a, Point16 b) { return a.y + b.y; }
 
-static inline PointS16 MakePoint(int x, int y)
+static inline Point16 MakePoint(int x, int y)
 {
-    PointS16 p;
+    Point16 p;
     p.x = x;
     p.y = y;
     return p;
@@ -726,7 +691,7 @@ void BuildDerivedLayers(void)
 }
 
 // FUNCTION: 0x483210
-void __stdcall UpdateCellHeightRange(PointS16 pos, PointS16 size)
+void __stdcall UpdateCellHeightRange(Point16 pos, Point16 size)
 {
     int width = g_game->width;
     int height = g_game->height;

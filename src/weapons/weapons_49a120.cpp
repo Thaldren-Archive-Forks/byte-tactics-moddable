@@ -2,12 +2,6 @@
 #include <math.h>
 #include <string.h>
 
-struct Vec3_0049a120 {
-    int x;                             // +0x0 (16.16)
-    int y;                             // +0x4
-    int z;                             // +0x8
-};
-
 // A 16.16 fixed-point value and its whole part.
 union Fixed_0049a120 {
     int raw;
@@ -36,15 +30,15 @@ struct CellPos_0049a120 {
 // Not units/unit_def.h: the header takes 0x49a120 out of its symbol-id window.
 struct UnitDef_0049a120 {
     char unknown_0[0x15e];
-    Vec3_0049a120 boxMin;              // +0x15e
-    Vec3_0049a120 boxMax;              // +0x16a
+    Vec3 boxMin;
+    Vec3 boxMax;
 };
 
 struct Holder_0049a120;
 
 struct Unit_0049a120 {
     char unknown_0[0x6a];
-    Vec3_0049a120 pos;                 // +0x6a
+    Vec3 pos;
     char unknown_76[0x92 - 0x76];
     UnitDef_0049a120* def;             // +0x92
     Holder_0049a120* player;           // +0x96
@@ -55,9 +49,9 @@ struct Unit_0049a120 {
 
 struct Weapon_0049a120 {
     WeaponDef* def;                    // +0x0
-    Vec3_0049a120 pos;                 // +0x4
+    Vec3 pos;
     char unknown_10[0x28 - 0x10];
-    Vec3_0049a120 aim;                 // +0x28
+    Vec3 aim;
     char unknown_34[0x52 - 0x34];
     Unit_0049a120* attacker;           // +0x52
     char unknown_56[0x66 - 0x56];
@@ -92,7 +86,7 @@ struct Cell {
 
 struct Spot_0049a120 {
     char unknown_0[8];
-    Vec3_0049a120 pos;                 // +0x8
+    Vec3 pos;
     char unknown_14[0x30 - 0x14];
 };
 
@@ -104,7 +98,7 @@ struct FeatureDef_0049a120 {
 // receiver at 0x49af90 in the weapons file holds the other.
 struct ProjectileDetonatePacket {
     unsigned char type;                // +0x0
-    Vec3_0049a120 aim;                 // +0x1
+    Vec3 aim;
     unsigned char weaponIndex;         // +0xd
 };
 
@@ -172,10 +166,10 @@ struct Hits_0049a120 {
 
 int __stdcall ApplyWeaponDamage(Weapon_0049a120* weapon, Unit_0049a120* target, float scale);
 void __stdcall DetonateProjectile(Weapon_0049a120* weapon, Unit_0049a120* unit);
-int __stdcall VectorLength(Vec3_0049a120* v);
+int __stdcall VectorLength(Vec3* v);
 int __stdcall BroadcastPacket(int id, void* data, int size);
 
-static inline int Length(Vec3_0049a120* v)
+static inline int Length(Vec3* v)
 {
     double x = v->x;
     double y = v->y;
@@ -190,9 +184,9 @@ static inline Unit_0049a120* UnitFromId(unsigned short id)
     return &g_game->units[id];
 }
 
-static inline Vec3_0049a120 Sub(const Vec3_0049a120& a, const Vec3_0049a120& b)
+static inline Vec3 Sub(const Vec3& a, const Vec3& b)
 {
-    Vec3_0049a120 r;
+    Vec3 r;
     r.x = a.x - b.x;
     r.y = a.y - b.y;
     r.z = a.z - b.z;
@@ -209,7 +203,7 @@ static inline Vec3_0049a120 Sub(const Vec3_0049a120& a, const Vec3_0049a120& b)
 // classified gap by tools/sources.py, so the game build would leave the
 // other functions out.
 // FUNCTION: 0x49a120
-void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
+void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
 {
     Hits_0049a120 hits;
     memset(&hits, 0, 8);
@@ -244,7 +238,7 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
                 if (!hits.AddUnit(unit))
                     continue;
                 UnitDef_0049a120* def = unit->def;
-                Vec3_0049a120 d;
+                Vec3 d;
                 {
                     // The upper-bound sum is written in the test and again in the
                     // block local `hi`, used once: the two sums become one temporary.
@@ -336,14 +330,14 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
             Spot_0049a120* spot = &g_game->spots[cell->spot];
             int distance;
             if ((cell->flags & 1) && spot) {
-                Vec3_0049a120 v = Sub(*pos, spot->pos);
+                Vec3 v = Sub(*pos, spot->pos);
                 Fixed_0049a120 dist;
                 dist.raw = VectorLength(&v);
                 distance = dist.part.whole;
             } else {
                 Vec3 centre = g_seams.features->GetFootprintCentre((Point16*)&at, (Feature*)&g_game->features[feature]);
-                Vec3_0049a120 p = *(Vec3_0049a120*)&centre;
-                Vec3_0049a120 v = Sub(*pos, p);
+                Vec3 p = *(Vec3*)&centre;
+                Vec3 v = Sub(*pos, p);
                 Fixed_0049a120 dist;
                 dist.raw = (int)sqrt((double)v.x * v.x + (double)v.y * v.y + (double)v.z * v.z);
                 distance = dist.part.whole;
@@ -363,7 +357,7 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3_0049a120* pos)
         for (int j = 0; j < g_game->projectileCount; j++, other++) {
             if ((other->flags & 2) || other == weapon)
                 continue;
-            Vec3_0049a120* p = &other->pos;
+            Vec3* p = &other->pos;
             int dx = weapon->pos.x - p->x;
             int dy = weapon->pos.y - p->y;
             int dz = weapon->pos.z - p->z;

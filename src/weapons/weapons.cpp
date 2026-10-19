@@ -600,12 +600,6 @@ void __stdcall ApplyAreaDamageAt(void* owner, Vec3_0049a0c0* pos)
 // declarations stay here for the symbol ids the functions after it match at.
 #include <math.h>
 
-struct Vec3_0049a120 {
-    int x;                             // +0x0 (16.16)
-    int y;                             // +0x4
-    int z;                             // +0x8
-};
-
 // A 16.16 fixed-point value and its whole part.
 union Fixed_0049a120 {
     int raw;
@@ -636,7 +630,7 @@ struct Holder_0049a120;
 
 struct Unit_0049a120 {
     char unknown_0[0x6a];
-    Vec3_0049a120 pos;                 // +0x6a
+    Vec3 pos;
     char unknown_76[0x92 - 0x76];
     UnitDef* def;                      // +0x92
     Holder_0049a120* player;           // +0x96
@@ -647,9 +641,9 @@ struct Unit_0049a120 {
 
 struct Weapon_0049a120 {
     WeaponDef* def;                    // +0x0
-    Vec3_0049a120 pos;                 // +0x4
+    Vec3 pos;
     char unknown_10[0x28 - 0x10];
-    Vec3_0049a120 aim;                 // +0x28
+    Vec3 aim;
     char unknown_34[0x52 - 0x34];
     Unit_0049a120* attacker;           // +0x52
     char unknown_56[0x66 - 0x56];
@@ -685,7 +679,7 @@ struct Cell {
 
 struct Spot_0049a120 {
     char unknown_0[8];
-    Vec3_0049a120 pos;                 // +0x8
+    Vec3 pos;
     char unknown_14[0x30 - 0x14];
 };
 
@@ -740,12 +734,12 @@ struct Hits_0049a120 {
 
 int __stdcall ApplyWeaponDamage(Weapon_0049a120* weapon, Unit_0049a120* target, float scale);
 void __stdcall DetonateProjectile(Weapon_0049a120* weapon, Unit_0049a120* unit);
-int __stdcall VectorLength(Vec3_0049a120* v);
-Vec3_0049a120 __stdcall GetFootprintCentre(CellPos_0049a120* cell, FeatureDef_0049a120* def);
+int __stdcall VectorLength(Vec3* v);
+Vec3 __stdcall GetFootprintCentre(CellPos_0049a120* cell, FeatureDef_0049a120* def);
 void __stdcall DamageFeature(Cell* cell, int x, int z, WeaponDef* def);
 int __stdcall BroadcastPacket(int id, void* data, int size);
 
-static inline int Length(Vec3_0049a120* v)
+static inline int Length(Vec3* v)
 {
     double x = v->x;
     double y = v->y;
@@ -760,9 +754,9 @@ static inline Unit_0049a120* UnitFromId(unsigned short id)
     return (Unit_0049a120*)&g_game->units[id];
 }
 
-static inline Vec3_0049a120 Sub(const Vec3_0049a120& a, const Vec3_0049a120& b)
+static inline Vec3 Sub(const Vec3& a, const Vec3& b)
 {
-    Vec3_0049a120 r;
+    Vec3 r;
     r.x = a.x - b.x;
     r.y = a.y - b.y;
     r.z = a.z - b.z;

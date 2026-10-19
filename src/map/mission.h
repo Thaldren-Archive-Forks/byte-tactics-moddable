@@ -4,7 +4,7 @@
 #include "../util/tdf.h"
 
 struct MissionRule;
-struct Vec3_00437320;
+struct Vec3;
 
 struct MissionUnit {
     char* name;
@@ -106,7 +106,7 @@ public:
     void LoadMissionData(char* name, TdfFile* parser);
     void FreeMissionData();
     int CountStartPositions();
-    int GetStartPosition(Vec3_00437320* out, int id);
+    int GetStartPosition(Vec3* out, int id);
     int ComputeMapChecksum();
 };
 

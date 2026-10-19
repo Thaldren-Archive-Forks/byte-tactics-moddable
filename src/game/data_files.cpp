@@ -648,20 +648,7 @@ void FreeTextureGafs()
 
 #include "../units/unit_def.h"
 
-// The reference-counted string handle: a pointer to the characters with the
-// reference count in the int just before them.
-class StringRef {
-public:
-    char* p;                           // refcount lives in the dword before p
-
-    StringRef(const StringRef& other);
-    StringRef(const char* text);
-    ~StringRef() { ReleaseRef(); }
-    void ReleaseRef();
-    StringRef* Assign(const StringRef* other);
-    StringRef* AssignText(const char* text);
-    StringRef* MakeLower();
-};
+#include "../util/string_ref.h"
 
 int __stdcall ComputeChecksum(unsigned char* data, int len);
 void __stdcall ListDirectory(const char* pattern, int flags, std::vector<StringRef>* out);

@@ -10586,10 +10586,7 @@ struct Frame_00481d50 {  // 0x14 bytes, 1 view
     unsigned char* data;  // +0x10
 };
 
-struct Eye {             // 0x20 bytes, 1 view
-    char unknown_0[28];
-    unsigned int field_1c;  // +0x1c
-};
+#include "../src/map/eye.h"
 
 struct Expired {  // 0x1 bytes, 1 view
     char unknown_0[1];

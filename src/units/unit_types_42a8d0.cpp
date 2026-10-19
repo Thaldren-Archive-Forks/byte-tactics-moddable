@@ -32,11 +32,7 @@ namespace ta {
 #include <ta_types.h>
 }
 
-class StringRef {
-public:
-    char* data;
-    void ReleaseRef();
-};
+#include "../util/string_ref.h"
 
 // One file name of ListDirectory's list (a reference-counted string handle).
 struct Elem_00432be0 {

@@ -67,38 +67,10 @@ public:
 // The owner of the per-index lists (see 0x471d90).
 #include "particle_lists.h"
 
-struct Vec3_00472630 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00472720 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00472810 {
-    int x;
-    int y;
-    int z;
-};
-
-struct Vec3_00474cd0 {
-    int x;
-    int y;
-    int z;
-};
+#include "../util/vec3.h"
 
 // The smoke puff's position views and the record.
 #include "smoke_particle.h"
-
-struct Vec3_00475150 {
-    int x;
-    int y;
-    int z;
-};
 
 struct Vec3_00473560 {
     int x;
@@ -118,48 +90,6 @@ struct Vec3i_00474130 {
     int y;
     int z;
     Vec3i_00474130& operator+=(const Vec3i_00474130& o)
-    {
-        x += o.x;
-        y += o.y;
-        z += o.z;
-        return *this;
-    }
-};
-
-struct Vec3_004742c0 {
-    int x;
-    int y;
-    int z;
-
-    Vec3_004742c0 operator-(const Vec3_004742c0& o) const
-    {
-        Vec3_004742c0 r;
-        r.x = x - o.x;
-        r.y = y - o.y;
-        r.z = z - o.z;
-        return r;
-    }
-
-    // s is 16.16 fixed point. MSVC 5 only orders the two __allmul arguments
-    // the way the original does (and keeps the cdq that sign extends the
-    // quotient) when the three components go through one inlined method.
-    void Scale(int s)
-    {
-        // One named 64-bit product: MSVC 5 then orders the two __allmul
-        // operands as the original does.
-        __int64 p;
-        p = (__int64)x * s;
-        x = (int)(p >> 16);
-        p = (__int64)y * s;
-        y = (int)(p >> 16);
-        p = (__int64)z * s;
-        z = (int)(p >> 16);
-    }
-};
-
-struct Vec3_004739b0 {
-    int x, y, z;
-    Vec3_004739b0& operator+=(const Vec3_004739b0& o)
     {
         x += o.x;
         y += o.y;
@@ -233,7 +163,7 @@ struct Pos_004745e0 {
 struct TimedSubParticle {
     void* data;                        // +0x00, the animation
     union {
-        Vec3_00475150 pos;             // +0x04
+        Vec3 pos;
         Position_00475150 posw;
     };
     int limit;                         // +0x10, the rounds it lives
@@ -255,7 +185,7 @@ public:
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
     int altAnimation;                                   // +0x28, the other animation
-    Vec3_00474d50 pos;                                  // +0x2c
+    Vec3 pos;
 
     SmokeParticles();
     virtual void Update();                              // slot 1, 0x475340
@@ -263,7 +193,7 @@ public:
     virtual int IsFinished();                           // slot 3, 0x474f80
     virtual void Emit();                                // slot 4, 0x474df0
     virtual int IsEmitDue();                            // slot 5, 0x475440
-    virtual void Init(Vec3_00474d50* pos, int limit, int a, int b, int c,
+    virtual void Init(Vec3* pos, int limit, int a, int b, int c,
                               int alt);                 // slot 6, 0x474d50
 };
 
@@ -275,7 +205,7 @@ public:
     int emitPeriod;                                     // +0x1c, the emit period
     int holdPeriod;                                     // +0x20
     int maxFrame;                                       // +0x24, the frame count - 1
-    Vec3_00475150 pos;                                  // +0x28
+    Vec3 pos;
 
     TimedSubParticles();
     virtual void Update();                              // slot 1, 0x475600
@@ -285,7 +215,7 @@ public:
     // In particles_4750f0.cpp: it is defined returning bool, and Update tests
     // its result as an int.
     virtual int IsEmitDue();                            // slot 5, 0x4750f0
-    virtual void Init(Vec3_00475150* pos, int a, int b, int c); // slot 6, 0x475150
+    virtual void Init(Vec3* pos, int a, int b, int c);
 };
 
 // One teleport spark (the element of TeleportParticles' vector), 0x34 bytes.
@@ -319,11 +249,11 @@ public:
 struct NanoParticle {
 public:
     union {
-        Vec3_004739b0 pos;             // +0x0
+        Vec3 pos;
         Pos_004739b0 posw;
     };
     char unknown_c[0xc];
-    Vec3_004739b0 vel;                 // +0x18
+    Vec3 vel;
     char unknown_24[4];
     int flags;                         // +0x28, low 4 bits: frame; the colour
     int endTime;                       // +0x2c, the tick it expires
@@ -400,9 +330,9 @@ public:
     int time;                                           // +0x8
     std::vector<ThrustParticle> items;                  // +0xc (_First +0x10)
     int period;                                         // +0x1c
-    Vec3_004742c0 pos0;                                 // +0x20
-    Vec3_004742c0 pos1;                                 // +0x2c
-    Vec3_004742c0 pos2;                                 // +0x38
+    Vec3 pos0;
+    Vec3 pos1;
+    Vec3 pos2;
 
     ThrustParticles() {}
     virtual void Update();                              // slot 1, 0x473010
@@ -411,7 +341,7 @@ public:
     virtual void Emit();                                // slot 4, 0x4743a0
     virtual int IsEmitDue();                            // slot 5, 0x4730c0
     virtual void Init(Shape_00472ab0* p, Shape_00472ab0* q, int a, int b);
-    void Init(Vec3_004742c0* p, Vec3_004742c0* q, int a, int b);
+    void Init(Vec3* p, Vec3* q, int a, int b);
 };
 
 // The pool allocator of the vector members below, to call their out-of-line
@@ -481,40 +411,40 @@ struct Access_00476710 : Vec_004739b0 {
 };
 
 // FUNCTION: 0x472630
-void __stdcall EmitSmoke(Vec3_00472630* pos, int emitPeriod, int lifetime, short index)
+void __stdcall EmitSmoke(Vec3* pos, int emitPeriod, int lifetime, short index)
 {
     ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)pos, 0, emitPeriod, 0, lifetime, 0);
+        e->Init((Vec3*)pos, 0, emitPeriod, 0, lifetime, 0);
         owner->Add(index, e);
     }
 }
 
 // FUNCTION: 0x472720
-void __stdcall EmitTimedBlackSmoke(Vec3_00472720* pos, int emitPeriod, int lifetime, short index)
+void __stdcall EmitTimedBlackSmoke(Vec3* pos, int emitPeriod, int lifetime, short index)
 {
     ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)pos, 0, emitPeriod, 0, lifetime, 1);
+        e->Init((Vec3*)pos, 0, emitPeriod, 0, lifetime, 1);
         owner->Add(index, e);
     }
 }
 
 // FUNCTION: 0x472810
-void __stdcall EmitWhiteSmoke(Vec3_00472810* pos, short index)
+void __stdcall EmitWhiteSmoke(Vec3* pos, short index)
 {
     ParticleLists* owner = (ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)pos, 0, 1, 0, 0, 0);
+        e->Init((Vec3*)pos, 0, 1, 0, 0, 0);
         owner->Add(index, e);
     }
 }
 
 // FUNCTION: 0x4728f0
-void __stdcall EmitBlackSmoke(Vec3_00474cd0* p, short index)
+void __stdcall EmitBlackSmoke(Vec3* p, short index)
 {
     // The list owner is read through a reference before the allocation, so
     // g_game and its +0x38d77 field are loaded ahead of the pool call and stay
@@ -522,24 +452,24 @@ void __stdcall EmitBlackSmoke(Vec3_00474cd0* p, short index)
     ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)p, 0, 1, 0, 0, 1);
+        e->Init((Vec3*)p, 0, 1, 0, 0, 1);
         l.Add(index, e);
     }
 }
 
 // FUNCTION: 0x4729d0
-void __stdcall EmitWeaponSmoke(Vec3_00474cd0* p, short index)
+void __stdcall EmitWeaponSmoke(Vec3* p, short index)
 {
     ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     SmokeParticles* e = new SmokeParticles;
     if (e) {
-        e->Init((Vec3_00474d50*)p, 3, 1, 0x1e, 0, 0);
+        e->Init((Vec3*)p, 3, 1, 0x1e, 0, 0);
         l.Add(index, e);
     }
 }
 
 // FUNCTION: 0x472c50
-void __stdcall EmitTimedSubParticles(Vec3_00475150* p, short index)
+void __stdcall EmitTimedSubParticles(Vec3* p, short index)
 {
     ParticleLists& l = *(ParticleLists *)g_game->lists_38d77;
     TimedSubParticles* e = new TimedSubParticles;
