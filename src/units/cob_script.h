@@ -1,9 +1,3 @@
-// CobScript: the interpreter of a unit's COB script, an abstract base class of
-// 0x540 bytes (vtable 0x4fdb00, 21 slots) reached through Unit+0x9a. Slots
-// 0-6 are pure and filled by the one derived class, UnitScript; slot 20 is the
-// virtual destructor. The one declaration of the class, for cob.cpp, which
-// defines the methods, and every file that starts or queries a script. The
-// script table, the piece records and the callback stay private to cob.cpp.
 #ifndef COB_SCRIPT_H
 #define COB_SCRIPT_H
 

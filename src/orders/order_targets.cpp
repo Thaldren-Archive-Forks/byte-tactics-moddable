@@ -276,19 +276,7 @@ struct Sub_0044e190 {
 };
 
 #pragma pack(push, 1)
-struct UnitDef {
-    char unknown_0[0x21c];
-    short altitude;                    // +0x21c
-    char unknown_21e[0x241 - 0x21e];
-    union {
-        unsigned int flags;            // +0x241
-        struct {
-            unsigned int unused : 22;
-            // Must be a 1-bit bitfield, not folded into a mask test.
-            unsigned int flag22 : 1;   // bit 22 of the flags
-        };
-    };
-};
+#include "../units/unit_def.h"
 #pragma pack(pop)
 
 #pragma pack(push, 1)
@@ -1743,7 +1731,7 @@ PathOrder::PathOrder(Order* order, Unit* unit)
     this->unit = order->unit;
     pos = this->unit->pos;
     piece = -1;
-    if ((unsigned char)(ref.owner->def->flags >> 11) & 1) {
+    if ((unsigned char)(ref.owner->def->flags1 >> 11) & 1) {
         field_8 = 7;
         int t = ((Sub_0044e190 *)this->unit->weapon)->range;
         if (t != 0)
@@ -1843,7 +1831,7 @@ int PathOrder::FillWorldPos(Vec3* out)
     } else {
         if ((f & 8) == 0) {
             UnitDef* def = unit->def;
-            if (def->flag22)
+            if (def->b22)
                 pos.y = (def->altitude + g_game->seaLevel) << 16;
             else
                 pos.y = (def->altitude + *(unsigned char*)(unit->spatialBucket + 1)) << 16;

@@ -29,13 +29,7 @@ class Class_0044e6c0 { public: void SetAltitude(int); };
 
 #include "path_order_attach.h"
 #pragma pack(push, 1)
-struct UnitDef {
-    char pad0[0x14a]; PointS16 origin;
-    char pad14e[8]; int canBuild; char pad15a[4]; Vec3 min, max;
-    char pad176[0x1fe-0x176]; unsigned short buildRate;
-    char pad200[0x212-0x200]; unsigned short buildRange;
-    char pad214[8]; short altitude; char pad21e[0x241-0x21e]; unsigned int flags,flags2;
-};
+#include "../units/unit_def.h"
 #include "../units/unit.h"
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 int __stdcall IsUnitCommander(Unit*);
@@ -98,8 +92,8 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
         case 0:
         // Two nested ifs, not one &&: part of what places the bounds adds.
         if (unit->motion) {
-            if (unit->def->flags&0x800) {
-                if (!unit->def->canBuild) return 7;
+            if (unit->def->flags1&0x800) {
+                if (!unit->def->ids) return 7;
                 order->AnnounceStatusIfFlagged("Building");
                 g_seams.weapons->ClaimWeapons((Unit*)unit, 0, 3);
                 if (unit->carrier) g_seams.units->AttachUnitToPiece(unit,0,-1,2);
@@ -147,8 +141,8 @@ int __stdcall VtolHelpBuildOrder(Unit* unit,Order* order,int flags)
             Vec3 start;
             g_seams.units->GetNanoPiecePosition(unit,&start);
             Vec3 bounds[2];
-            bounds[0]=PosPlus(order->target->pos,order->target->def->min);
-            bounds[1]=PosPlus(order->target->pos,order->target->def->max);
+            bounds[0]=PosPlus(order->target->pos,*(Vec3*)&order->target->def->modelMinX);
+            bounds[1]=PosPlus(order->target->pos,*(Vec3*)&order->target->def->modelMaxX);
             EmitNanoParticles(&start,bounds,6);
         }
         if (order->target->buildLeft!=0.0f) {

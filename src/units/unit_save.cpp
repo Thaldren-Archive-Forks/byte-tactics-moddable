@@ -110,12 +110,7 @@ struct Struct_00487af0 {
 
 #include "../util/hapi_bank.h"
 
-// Kept local, not the CobScript header: the header changes LoadUnit's code.
-class CobScript {
-public:
-    void LoadScriptState(HapiBank*);
-    int SaveScriptState(void* file);
-};
+#include "cob_script.h"
 
 #include "../orders/unit_motion.h"
 

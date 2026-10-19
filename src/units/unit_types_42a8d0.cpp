@@ -27,6 +27,7 @@
 #include <time.h>
 #include <float.h>
 #include "../util/tdf.h"
+#include "unit_def.h"
 namespace ta {
 #include <ta_types.h>
 }
@@ -102,41 +103,6 @@ void RegisterEmptyAtexitB(void);
 bool __cdecl ReadGdperf(unsigned long, void*);
 
 #pragma pack(push, 1)
-// One unit type, 0x249 bytes.
-class UnitDef {
-public:
-    char name[0x20];                   // +0x000
-    char unitname[0x20];               // +0x020
-    char description[0x40];            // +0x040
-    char objectname[0x20];             // +0x080
-    char side[0x1e];                   // +0x0a0
-    char aiWeight[0x40];               // +0x0be
-    char aiLimit[0x40];                // +0x0fe
-    unsigned int checksum;             // +0x13e
-    int scriptChecksum;                // +0x142
-    int weapons;                       // +0x146
-    char unknown_14a[0x10];
-    int maxThisUnit;                   // +0x15a
-    char unknown_15e[0x28];
-    float buildcostenergy;             // +0x186
-    float buildcostmetal;              // +0x18a
-    char unknown_18e[0x90];
-    unsigned short id;                 // +0x21e
-    char unknown_220[0x21];
-    unsigned int flags1;               // +0x241
-    union {
-        unsigned int flags2;           // +0x245
-        struct {
-            unsigned int low : 15;
-            unsigned int norestrict : 1;
-            unsigned int wacky : 1;
-            unsigned int high : 15;
-        };
-    };
-
-    UnitDef& operator=(const UnitDef& src);
-};
-
 struct Game {
     char unknown_0;
     char version;                      // +0x1
@@ -246,15 +212,15 @@ int LoadUnitInfo()
             int len = HAPI_FileLength(f);
             char* buf = (char*)GameAllocIgnoreTag(path, len);
             HAPI_readfromfile(f, buf, len);
-            u->checksum = ComputeChecksum(buf, len);
+            u->fbiChecksum = ComputeChecksum(buf, len);
             OvrFile ovr;
             char ovrpath[256];
             BuildDataPath(ovrpath, "units", files[i - 1], "OVR");
             if (ovr.OpenBank(ovrpath, "TA Unit Override", 0)) {
                 if (ovr.OpenAccount("Compatability")) {
                     char num[16];
-                    sprintf(num, "%u", u->checksum);
-                    u->checksum = ovr.GetIntegerItem(num, u->checksum);
+                    sprintf(num, "%u", u->fbiChecksum);
+                    u->fbiChecksum = ovr.GetIntegerItem(num, u->fbiChecksum);
                 }
             }
             TdfFile parser;
@@ -273,15 +239,15 @@ int LoadUnitInfo()
             parser.GetString(u->aiLimit, "ai_limit", 0x40, DAT_005119b8);
             if (parser.GetString(u->objectname, "objectname", 0x20, DAT_005119b8) == 0)
                 strcpy(u->objectname, u->unitname);
-            u->buildcostenergy = (float)parser.GetInt("buildcostenergy", 0);
-            u->buildcostmetal = (float)parser.GetInt("buildcostmetal", 0);
+            u->energyCost = (float)parser.GetInt("buildcostenergy", 0);
+            u->metalCost = (float)parser.GetInt("buildcostmetal", 0);
             u->norestrict = parser.GetInt("norestrict", 0);
             u->wacky = parser.GetInt("wacky", 0);
-            u->weapons ^= FindWeapon(parser.GetValue("weapon1"));
-            u->weapons ^= FindWeapon(parser.GetValue("weapon2"));
-            u->weapons ^= FindWeapon(parser.GetValue("weapon3"));
-            u->weapons ^= FindWeapon(parser.GetValue("explodeas"));
-            u->weapons ^= FindWeapon(parser.GetValue("selfdestructas"));
+            u->weaponHashXor ^= FindWeapon(parser.GetValue("weapon1"));
+            u->weaponHashXor ^= FindWeapon(parser.GetValue("weapon2"));
+            u->weaponHashXor ^= FindWeapon(parser.GetValue("weapon3"));
+            u->weaponHashXor ^= FindWeapon(parser.GetValue("explodeas"));
+            u->weaponHashXor ^= FindWeapon(parser.GetValue("selfdestructas"));
             double version = parser.GetDouble("Version", 0.0);
             int major = (int)floor(version);
             int minor = (int)floor((version - major) * 10.0);

@@ -149,43 +149,7 @@ struct Weapon_00409730 {
     char index;                        // +0x10a
 };
 
-struct Flags241_00409730 {
-    unsigned int bits_0 : 6;
-    unsigned int flag_6 : 1;           // bit 6
-    unsigned int bits_7 : 4;
-    unsigned int flag_11 : 1;          // bit 11
-    unsigned int bits_12 : 12;
-    unsigned int flag_24 : 1;          // bit 24
-    unsigned int bits_25 : 7;
-};
-
-// Keeps its own view: with unit_def.h's symbol ids ComputeBaseWeights (0x409730) no longer matches.
-struct UnitDef {
-    int HasField1ce() { return extractsMetal != 0.0f; }
-    char unknown_0[0x186];
-    float energyCost;                  // +0x186
-    float metalCost;                   // +0x18a
-    char unknown_18e[0x1c0 - 0x18e];
-    short minwaterdepth;               // +0x1c0
-    float energymake;                  // +0x1c2
-    char unknown_1c6[0x1ce - 0x1c6];
-    float extractsMetal;               // +0x1ce
-    float windgenerator;               // +0x1d2
-    char unknown_1d6[0x1ee - 0x1d6];
-    Weapon_00409730* weapons[3];       // +0x1ee
-    char unknown_1fa[0x204 - 0x1fa];
-    short radardistance;               // +0x204
-    short sonardistance;               // +0x206
-    char unknown_208[0x22d - 0x208];
-    char makesMetal;                   // +0x22d
-    char unknown_22e[0x241 - 0x22e];
-    Flags241_00409730 flags_241;       // +0x241
-    unsigned int bits_245_0 : 4;
-    unsigned int flag_245_4 : 1;       // bit 4
-    unsigned int bits_245_5 : 3;
-    unsigned int flag_245_8 : 1;       // bit 8
-    unsigned int bits_245_9 : 23;
-};
+#include "../units/unit_def.h"
 
 #include "../game/game.h"
 
@@ -200,12 +164,12 @@ extern Game* g_game;
 // exe, both inlined into the loop below.
 #define MIN(a, b) (((a) > (b)) ? (b) : (a))
 
-int __stdcall RateWeapons(UnitDef* p)
+int __stdcall RateWeapons_409730(UnitDef* p)
 {
     int result = 1;
-    if (p->flag_245_4)
+    if (p->c04)
         result = 0xb;
-    Weapon_00409730** pp = p->weapons;
+    Weapon_00409730** pp = (Weapon_00409730**)p->weapons;
     for (int i = 3; i != 0; i--) {
         Weapon_00409730* s = *pp;
         if (s->index != 0)
@@ -217,7 +181,7 @@ int __stdcall RateWeapons(UnitDef* p)
     return MIN(result, 100);
 }
 
-int __stdcall RateUnitType(UnitDef* p)
+int __stdcall RateUnitType_409730(UnitDef* p)
 {
     int result = 1;
     if (p->extractsMetal != 0.0f)
@@ -231,7 +195,7 @@ int __stdcall RateUnitType(UnitDef* p)
 #else
     result = (int)((int)(result - p->metalCost * -0.01f) - p->energyCost * -0.002f);
 #endif
-    result += (signed char)RateWeapons(p);
+    result += (signed char)RateWeapons_409730(p);
     if (MIN(result, 100) < -100)
         return -100;
     return MIN(result, 100);
@@ -250,14 +214,14 @@ void PlayerAI::ComputeBaseWeights()
     }
     for (int i = 1; i < g_game->count_1438f; i++) {
         UnitDef* def = &g_game->defs[(unsigned short)i];
-        vec_8d[i] = RateUnitType(def);
+        vec_8d[i] = RateUnitType_409730(def);
 
         int a = 1;
         Elem_0040cfb0* e = &vec_65[i];
         int n = (short)counts[i];
-        if (def->flag_245_4)
+        if (def->c04)
             a = 21;
-        if (def->flags_241.flag_6 && n < 3)
+        if (def->canbuild && n < 3)
             a += 30;
         if (g_seams.economy->GetEnergyUse(def) < 0.0f)
             a += 50;
@@ -266,8 +230,8 @@ void PlayerAI::ComputeBaseWeights()
             a += 50;
         if (def->makesMetal)
             a += 25;
-        Flags241_00409730 flags = def->flags_241;
-        if (flags.flag_11)
+        unsigned int flags = def->flags1;
+        if ((flags >> 11) & 1)
             a += 40;
         if (def->sonardistance)
             a += 15;
@@ -283,9 +247,9 @@ void PlayerAI::ComputeBaseWeights()
         if (owner->unitCount > (unsigned short)(g_game->unitsPerPlayer / 2)) {
             x += (char)vec_8d[i] / 2;
         }
-        if (def->flag_245_8)
+        if (def->c08)
             x = 0;
-        if (flags.flag_24)
+        if ((flags >> 24) & 1)
             x = 0;
         if (def->windgenerator != 0.0f && g_game->windSpeedMax < g_game->windSpeedDenominator / 2)
             x = 0;

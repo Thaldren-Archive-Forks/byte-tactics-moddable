@@ -1,12 +1,3 @@
-// UnitDef: one unit type (Thaldren's UnitDef, 0x249 bytes), the elements of
-// the table at g_game+0x1439b, holding a unit's FBI data: names, costs, the
-// movement and sensor numbers, the weapons and the category masks. The one
-// declaration of the class for the files that call it; units/unit_types.cpp,
-// which defines the methods and loads the FBI files, keeps its own view,
-// since its loader spellings (workertime, maxdamage, cruisealt, waterline,
-// bmcode), its by-value Vec3 extents and its bit-by-bit operator= over the
-// flag words do not fit this one. The types behind the pointers stay private
-// to their own files.
 #ifndef UNIT_DEF_H
 #define UNIT_DEF_H
 
@@ -58,8 +49,20 @@ public:
     int modelMaxZ;                     // +0x172
     int modelSizeX;                    // +0x176
     int modelSizeY;                    // +0x17a
-    int modelSizeZ;                    // +0x17e
-    int radius;                        // +0x182
+    union {
+        int modelSizeZ;
+        struct {
+            short unknown_17e;
+            short height180;
+        };
+    };
+    union {
+        int radius;
+        struct {
+            short unknown_182;
+            short radius184;
+        };
+    };
     float energyCost;                  // +0x186
     float metalCost;                   // +0x18a
     void* data;                        // +0x18e
@@ -122,11 +125,76 @@ public:
     char defaultmissiontype;           // +0x230
     unsigned int* weaponCategories[3]; // +0x231
     unsigned int* categories;          // +0x23d
-    unsigned int flags1;               // +0x241
-    unsigned int flags2;               // +0x245
+    union {
+        unsigned int flags1;
+        unsigned char flags1Byte;
+        struct {
+            unsigned int b00 : 2;
+            unsigned int b02 : 2;
+            unsigned int initCloaked : 1;
+            unsigned int downloadable : 1;
+            unsigned int canbuild : 1;
+            unsigned int b07 : 1;
+            unsigned int b08 : 1;
+            unsigned int b09 : 1;
+            unsigned int b10 : 1;
+            unsigned int flying : 1;
+            unsigned int b12 : 1;
+            unsigned int b13 : 1;
+            unsigned int b14 : 1;
+            unsigned int b15 : 1;
+            unsigned int b16 : 1;
+            unsigned int b17 : 1;
+            unsigned int b18 : 1;
+            unsigned int b19 : 1;
+            unsigned int b20 : 1;
+            unsigned int b21 : 1;
+            unsigned int b22 : 1;
+            unsigned int b23 : 1;
+            unsigned int b24 : 1;
+            unsigned int b25 : 1;
+            unsigned int b26 : 1;
+            unsigned int b27 : 1;
+            unsigned int b28 : 1;
+            unsigned int b29 : 1;
+            unsigned int b30 : 1;
+            unsigned int gui : 1;
+        };
+    };
+    union {
+        unsigned int flags2;
+        unsigned char flags2Byte;
+        struct {
+            unsigned int c00 : 1;
+            unsigned int c01 : 1;
+            unsigned int c02 : 1;
+            unsigned int c03 : 1;
+            unsigned int c04 : 1;
+            unsigned int c05 : 1;
+            unsigned int c06 : 1;
+            unsigned int c07 : 1;
+            unsigned int c08 : 1;
+            unsigned int c09 : 1;
+            unsigned int c10 : 1;
+            unsigned int c11 : 1;
+            unsigned int capture : 1;
+            unsigned int c13 : 1;
+            unsigned int c14 : 1;
+            unsigned int norestrict : 1;
+            unsigned int wacky : 1;
+            unsigned int c17 : 1;
+            unsigned int c18 : 1;
+            unsigned int c19 : 1;
+            unsigned int selfdestructcountdown : 3;
+        };
+    };
 
     UnitDef& operator=(const UnitDef& src);
     void AddToCategories(char* category);
+    int HasField1ce() { return extractsMetal != 0.0f; }
+    float EnergyCost() { return (float)(energyCost * 30); }
+    float MetalCost() { return (float)(metalCost * 30); }
+    unsigned int MaxHealth() { return maxHealth; }
 };
 
 #pragma pack(pop)
