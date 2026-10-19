@@ -30,7 +30,7 @@ extern "C" void HOST_CALL host_fatal(void* owner, const char* title, const char*
 
 extern "C" void HOST_CALL host_exit(int code)
 {
-    ExitProcess(code);
+    TerminateProcess(GetCurrentProcess(), (UINT)code);
 }
 
 extern "C" void HOST_CALL host_log(const char* text)
