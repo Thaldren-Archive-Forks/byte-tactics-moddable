@@ -1013,28 +1013,7 @@ int __stdcall CountDirectoryEntries(const char* path, int flag)
     return count;
 }
 
-// The caller's std::vector<StringRef>, written by hand so that insert
-// (0x4be6c0, which has its own file) stays an out-of-line call under its real
-// name. The handle is a pointer to the characters with the reference count in
-// the int just before them.
-class StringRef {
-public:
-    char* data;                        // +0x0
-
-    StringRef();
-    StringRef(const StringRef& other);
-    StringRef(const char* text);
-    StringRef(const char* text, int len);
-    ~StringRef() { ReleaseRef(); }
-    void ReleaseRef();
-    StringRef* Assign(const StringRef* other);
-    StringRef* Append(const StringRef& other);
-    StringRef* MakeLower();
-    StringRef* MakeUpper();
-    StringRef* AssignText(const char* text);
-    int IsEmpty() const;
-    StringRef SubString(int start, int end) const;
-};
+#include "string_ref.h"
 
 namespace std {
 template<class T> class allocator;

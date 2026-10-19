@@ -109,32 +109,7 @@ struct Vec3_00437320 {
     int z;                             // +0x8
 };
 
-// The reference-counted string handle: 0x4c91a0 is its copy constructor and
-// 0x4c9390 its release, and 0x4c91b0 builds one from a C string. In the game
-// the constructors share one class and one name, which data/symbols.csv
-// cannot hold twice, so this file spells them all StringRef.
-class StringRef {
-public:
-    char* data;                        // +0x0, count in the dword before
-
-    StringRef();
-    StringRef(const StringRef& other);
-    StringRef(const char* text);
-    StringRef(const char* text, int len);
-    ~StringRef() { ReleaseRef(); }
-    StringRef& operator=(const StringRef& other)
-    {
-        Assign(&other);
-        return *this;
-    }
-    void ReleaseRef();
-    StringRef* Assign(const StringRef* other);
-    StringRef* Append(const StringRef& other);
-    StringRef* MakeLower();
-    StringRef* MakeUpper();
-    StringRef* AssignText(const char* text);
-    StringRef SubString(int start, int end) const;
-};
+#include "../util/string_ref.h"
 
 struct Header_004373a0 {
     int magic;                         // +0x00
