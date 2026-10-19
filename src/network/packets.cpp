@@ -60,50 +60,7 @@ public:
     void RemovePacket(NetPacketPendingEntry* packet);
 };
 
-// The ring of queued packets (0x462370 is its push, 0x4623b0 its pop).
-class PacketRing {
-public:
-    int count;                         // +0x0
-    int readIdx;                       // +0x4
-    int writeIdx;                      // +0x8
-    NetPacketPendingEntry* buf[0x400];  // +0xc
-
-    PacketRing();
-    int PushPacket(NetPacketPendingEntry* value);
-    // Read side of the ring, out of line (0x4623b0).
-    NetPacketPendingEntry* PopPacket();
-    NetPacketPendingEntry* Peek()
-    {
-        if (count > 0)
-            return buf[readIdx];
-        return 0;
-    }
-    NetPacketPendingEntry* Pop()
-    {
-        if (count > 0) {
-            count--;
-            NetPacketPendingEntry* value = buf[readIdx];
-            readIdx++;
-            if (readIdx >= 0x400)
-                readIdx = 0;
-            return value;
-        }
-        return 0;
-    }
-    int Push(NetPacketPendingEntry* value)
-    {
-        if (count < 0x400) {
-            writeIdx = writeIdx + 1;
-            if (writeIdx >= 0x400) {
-                writeIdx = 0;
-            }
-            buf[writeIdx] = value;
-            count = count + 1;
-            return 1;
-        }
-        return 0;
-    }
-};
+#include "packet_ring.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep
 // the allocation (docs/c2-regalloc.md).

@@ -12,14 +12,9 @@
 // 0x461420 walk "entries at +0x10": that is each channel's own +0x08 (the
 // items/count pair), not a second array.
 
-class PacketRing {
-public:
-    int count;
-    int readIdx;
-    int writeIdx;
+#include "packet_ring.h"
 
-    PacketRing() { count = 0; readIdx = 0; writeIdx = -1; }
-};
+inline PacketRing::PacketRing() { count = 0; readIdx = 0; writeIdx = -1; }
 
 #include "packet_receiver.h"
 
@@ -54,7 +49,6 @@ struct PacketChannel {
     int firstPacket;                   // +0x30
     int lastPacket;                    // +0x34
     PacketRing queue;                  // +0x38
-    char unknown_44[0x1044 - 0x44];
 
     // Only declared: with bodies in this file /Ob2 inlines 0x4628a0.
     void SetMinRetainMs(unsigned int ms);

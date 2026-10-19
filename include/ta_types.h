@@ -18,6 +18,7 @@
 #include "../src/weapons/damage_table.h"
 #include "../src/graphics/nano_particle_vector.h"
 #include "../src/units/squad.h"
+#include "../src/network/packet_ring.h"
 
 #pragma pack(push, 1)
 
@@ -7883,15 +7884,6 @@ public:
     int writeIdx;  // +0x8
     int buf[1024];  // +0xc
     int PushPacket(int);
-};
-
-class PacketRing {      // 0x100c bytes, 3 views
-public:
-    int count;  // +0x0
-    int index;  // +0x4
-    int unused;  // +0x8
-    int buffer[1024];  // +0xc
-    int PopPacket(void);
 };
 
 class Class_00462470 {  // 0x1044 bytes, 9 views
