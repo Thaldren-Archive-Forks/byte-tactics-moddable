@@ -3,6 +3,7 @@
 
 class SquadManager;
 struct Group;
+struct Unit;
 
 class SquadTimer {
 public:
@@ -56,6 +57,7 @@ class BuildTimer : public SquadTimer {
 public:
     BuildTimer(SquadManager* p, Group* q);
     virtual void OnTimer();
+    void TryIssueIdleFactoryBuildOrder(Unit* unit);
 };
 
 class SpatialTimer : public SquadTimer {
