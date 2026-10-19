@@ -841,8 +841,6 @@ void __cdecl CycleCurrentPlayerAllyGroup()
 
 #include "../gui/mouse_event.h"
 
-// ClickFrame is the click handler's stack block: two scratch strings, the mouse
-// event and the gadget name.
 #pragma pack(push, 1)
 struct ClickFrame {
     char sA[0xc];

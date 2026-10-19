@@ -134,14 +134,14 @@ struct FrameTable {
 // at the byte flag, so the copy has to re-point them at the destination.
 struct Eye {
     void* player;                      // +0x00
-    ScreenPos* screen;                       // +0x04, &screenPos
+    ScreenPos* screen;
     short x;                           // +0x08
     unsigned char flagA;               // +0x0a
     char flagB;                        // +0x0b
     char* flagPtr;                     // +0x0c, &flagB
     Vec3 pos;                          // +0x10
     unsigned int expires;              // +0x1c
-    ScreenPos screenPos;                     // +0x20
+    ScreenPos screenPos;
     Eye& operator=(const Eye& s) {
         player = s.player;
         screen = &screenPos;
