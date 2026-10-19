@@ -11,7 +11,7 @@
 struct Player;
 struct Unit;
 struct Vec3;
-struct Obj_00406f50;
+struct Projectile;
 class SquadTimer;
 
 class SquadManager {
@@ -25,7 +25,7 @@ public:
     Unit* cursor;                      // +0x39
 
     SquadManager(Player* p);
-    void MarkOwnerNetDirtyFromDamageSplit(Obj_00406f50* obj, int a, int b);
+    void MarkOwnerNetDirtyFromDamageSplit(Projectile* projectile, int a, int b);
     void AssignSquads();
     void RetargetWeapons(int force);
     void TickIfActive();

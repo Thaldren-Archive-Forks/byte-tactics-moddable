@@ -324,7 +324,7 @@ static void __fastcall ReleaseWeaponsNative(Unit* self, int unusedEdx, unsigned 
 
 static void __fastcall MarkOwnerNetDirtyFromDamageSplitNative(SquadManager* self, int unusedEdx, Projectile* projectile, int enemyDamage, int friendlyDamage)
 {
-    self->MarkOwnerNetDirtyFromDamageSplit((Obj_00406f50*)projectile, enemyDamage, friendlyDamage);
+    self->MarkOwnerNetDirtyFromDamageSplit(projectile, enemyDamage, friendlyDamage);
 }
 
 static void __fastcall SquadManagerTickIfActiveNative(SquadManager* self, int unusedEdx)

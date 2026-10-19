@@ -48,7 +48,7 @@ BASE_SIZES: dict[str, int] = {
 
 POINTER_TARGETS: dict[str, str] = {
     "Unit": "UNIT", "Player": "PLAYER", "UnitDef": "UNITDEF", "WeaponDef": "WEAPONDEF",
-    "Def_0049d270": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Obj_00406f50": "PROJECTILE",
+    "WeaponDefRecord": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Obj_00406f50": "PROJECTILE",
     "Feature": "FEATURE", "Object3do": "PIECE", "Object3D": "PIECE",
     "Rec": "REC", "Node": "NODE", "MovementClass": "MOVECLASS",
     "OrderRef": "ORDER", "OrderFxRef": "ORDERFX", "LinkRef": "LINK",
@@ -824,7 +824,7 @@ TYPE_ORDER: list[tuple[str, str]] = [
     ("Unit", "Unit"),
     ("Obj_00406f50", "Projectile"),
     ("Player", "Player"),
-    ("Debris_00420f30", "Debris"),
+    ("Debris", "Debris"),
     ("Object3do", "Piece"),
     ("ExplodedPiece", "ExplodedPiece"),
     ("PieceRec", "PieceRec"),

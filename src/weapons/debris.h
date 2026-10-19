@@ -1,5 +1,5 @@
-#ifndef DEBRIS_00420F30_H
-#define DEBRIS_00420F30_H
+#ifndef DEBRIS_H
+#define DEBRIS_H
 
 #ifndef TA_TYPES_H
 #include "../graphics/handle.h"
@@ -7,7 +7,7 @@
 #endif
 
 #pragma pack(push, 1)
-struct Debris_00420f30 {
+struct Debris {
     int field_0;
     Handle ref1;
     Handle ref2;
@@ -24,7 +24,7 @@ struct Debris_00420f30 {
 #pragma pack(pop)
 
 #if defined(__clang__) || !defined(_MSC_VER) || _MSC_VER >= 1600
-static_assert(sizeof(Debris_00420f30) == 84, "Debris_00420f30");
+static_assert(sizeof(Debris) == 84, "Debris");
 #endif
 
 #endif

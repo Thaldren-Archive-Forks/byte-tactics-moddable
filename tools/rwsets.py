@@ -567,7 +567,7 @@ class Walker:
             if base is not None:
                 if callee.get("isArrow"):
                     self.visit(base, "R")
-                elif const_method:
+                elif const_method or base_is_const(base):
                     self.visit(base, "R")
                 else:
                     self.lvalue_arg(base, False)
@@ -599,6 +599,11 @@ class Walker:
             self.lvalue(node, "R" if const else "MW")
         else:
             self.visit(node, "R")
+
+
+def base_is_const(node: dict) -> bool:
+    qual = node.get("type", {}).get("qualType", "")
+    return qual.startswith("const ") and not qual.endswith("*")
 
 
 def strip_parens(node: dict) -> dict:

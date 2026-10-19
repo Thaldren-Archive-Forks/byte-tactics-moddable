@@ -47,9 +47,7 @@ public:
     void FreeSideDataAndFogSightCounts();
 };
 
-struct WeaponDef {
-    char data[0x115];
-};
+#include "../weapons/weapon_def.h"
 
 #include "../units/cob_script.h"
 
