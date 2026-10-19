@@ -915,7 +915,23 @@ struct Game {
             int textScroll;
             int textLines;
             int mousespeed;
-            unsigned short uiOptionFlags;
+            union {
+                unsigned short uiOptionFlags;
+                struct {
+                    unsigned short b0 : 1;
+                    unsigned short b1 : 1;
+                    unsigned short b2 : 1;
+                    unsigned short b3 : 1;
+                    unsigned short b4 : 1;
+                    unsigned short b5 : 1;
+                    unsigned short b6 : 1;
+                    unsigned short b7 : 1;
+                    unsigned short b8 : 1;
+                    unsigned short b9 : 1;
+                    unsigned short flag10 : 1;
+                    unsigned short rest_37f2f : 5;
+                } uiOptionBits;
+            };
             unsigned int lobbyTimeoutSecs;
             int netSendDropPct;
         };
@@ -944,7 +960,21 @@ struct Game {
         };
         struct {
             char unknown_37ee6_a[32];
-            unsigned short visualFlags;
+            union {
+                unsigned short visualFlags;
+                struct {
+                    unsigned short damagebars : 1;
+                    unsigned short antiAlias : 1;
+                    unsigned short shadows : 1;
+                    unsigned short vehicleShadows : 1;
+                    unsigned short featureShadows : 1;
+                    unsigned short shading : 1;
+                    unsigned short ditheredFog : 1;
+                    unsigned short unused7 : 1;
+                    unsigned short switchAlt : 1;
+                    unsigned short rest : 7;
+                } visualBits;
+            };
             char unknown_37f08[12];
             Flags37f14_0045cf60 flags_37f14_37f14;
             char unknown_37f16_a[3];
