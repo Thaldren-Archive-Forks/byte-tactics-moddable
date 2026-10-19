@@ -86,7 +86,7 @@ struct List_00420960;
 class Mission;
 class MissionConditions;
 struct Net_4517b0;
-struct Obj_00406f50;
+struct Projectile;
 class PathMap;
 struct PlayerInfo;
 struct SideData;
@@ -379,7 +379,7 @@ struct Game {
             CursorState_0041cc60 cursor;
             WeaponDefRecord weapons[256];
             int projectileCount;
-            Obj_00406f50* projectiles;
+            Projectile* projectiles;
             void* field_141fb;
             void* field_141ff;
             void* field_14203;
@@ -435,7 +435,7 @@ struct Game {
             short blinkTimer;
             unsigned short flags_142f1;
             int value_142f3;
-            Obj_00406f50* tracked;
+            Projectile* tracked;
             int xs[4];
             int ys[4];
             unsigned char valid[4];

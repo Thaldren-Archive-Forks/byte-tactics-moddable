@@ -487,8 +487,8 @@ int __stdcall ApplyWeaponDamage(Projectile* weapon, Unit* target,
 // FUNCTION: 0x499e50
 void __stdcall UntrackProjectile(Projectile* projectile)
 {
-    if (projectile == (void *)g_game->tracked) {
-        g_game->trackedPos = ((Projectile *)g_game->tracked)->position;
+    if (projectile == g_game->tracked) {
+        g_game->trackedPos = g_game->tracked->position;
         g_game->value_1434b = projectile->type->holdTime;
         (*(void **)&g_game->tracked) = 0;
     }
@@ -511,16 +511,16 @@ void __stdcall DetonateProjectile(Projectile* projectile, Unit* unit)
     if (value != 0)
         hostile = value[5] < g_game->seaLevel;
     if (!type->flags.b.noExplode) {
-        if (projectile == (void *)g_game->tracked) {
-            g_game->trackedPos = ((Projectile *)g_game->tracked)->position;
+        if (projectile == g_game->tracked) {
+            g_game->trackedPos = g_game->tracked->position;
             g_game->value_1434b = projectile->type->holdTime;
             (*(void **)&g_game->tracked) = 0;
         }
         projectile->flags = projectile->flags | 2;
     }
     if (((Net *)g_game->net)->noSeaLevelTrigger && hostile && !unit) {
-        if (projectile == (void *)g_game->tracked) {
-            g_game->trackedPos = ((Projectile *)g_game->tracked)->position;
+        if (projectile == g_game->tracked) {
+            g_game->trackedPos = g_game->tracked->position;
             g_game->value_1434b = projectile->type->holdTime;
             (*(void **)&g_game->tracked) = 0;
         }
