@@ -38,13 +38,6 @@ struct Elem_00432be0 {
     ~Elem_00432be0() { ((StringRef*)this)->ReleaseRef(); }
 };
 
-struct Entry_00432cf0 {
-    StringRef name;         // +0x0
-    int value;                 // +0x4
-
-    void* AssignPair(Entry_00432cf0* param);
-};
-
 // An 8-byte element: the string handle and the int after it, the same pair as
 // Entry_00432cf0.
 struct Elem_432cb0 {

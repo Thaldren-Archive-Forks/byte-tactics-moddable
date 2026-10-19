@@ -25,13 +25,7 @@ static inline bool Less(const char* a, const char* b) {
     return _strcmpi(a, b) < 0;
 }
 
-// One entry of a weapon's damage table: a unit name and its damage.
-struct Entry_00432cf0 {
-    StringRef name; // +0x0
-    int value;           // +0x4
-
-    Entry_00432cf0(const StringRef& n, int v) : name(n), value(v) {}
-};
+#include "../map/los_tables.h"
 
 inline Entry_00432cf0* Table_00499cd0::LowerBound(const char* key) {
     Entry_00432cf0* first = v.begin();
