@@ -55,10 +55,12 @@ bool g_dirty = true;
 Row* g_rows;
 unsigned g_rowCount;
 unsigned g_scanned;
-unsigned g_mainThread;
-unsigned g_depth;
-unsigned g_curSite;
-const char* g_curTag;
+__declspec(thread) unsigned g_depth;
+__declspec(thread) unsigned g_curSite;
+__declspec(thread) const char* g_curTag;
+CRITICAL_SECTION g_scanLock;
+unsigned g_imageLo;
+unsigned g_imageHi;
 unsigned long long g_scanTotal;
 unsigned long long g_scanMax;
 unsigned g_words;
@@ -85,8 +87,9 @@ unsigned Slot(unsigned addr)
 
 void __cdecl OnEnter(void* site, const char* tag)
 {
-    if (host_thread_id() != g_mainThread)
-        return;
+    unsigned t = (unsigned)tag;
+    if (t < g_imageLo || t >= g_imageHi)
+        tag = 0;
     if (g_depth++ == 0) {
         g_curSite = (unsigned)site;
         g_curTag = tag;
@@ -97,8 +100,6 @@ void __cdecl OnEnter(void* site, const char* tag)
 
 void __cdecl OnLeave()
 {
-    if (host_thread_id() != g_mainThread)
-        return;
     if (g_depth > 0)
         g_depth--;
 }
@@ -111,6 +112,7 @@ bool Inside(unsigned addr)
 void __cdecl OnAdded(void* p, unsigned size)
 {
     unsigned addr = (unsigned)p;
+    EnterCriticalSection(&g_scanLock);
     unsigned i = Slot(addr);
     while (g_registry[i].addr != 0 && g_registry[i].addr != addr)
         i = (i + 1) & (kRegistrySize - 1);
@@ -119,23 +121,27 @@ void __cdecl OnAdded(void* p, unsigned size)
             Die("blockscan: allocation registry is full, raise kRegistryBits in src/harness/block_scan.cpp\n");
         g_registryCount++;
     }
-    bool main = host_thread_id() == g_mainThread && g_depth > 0;
+    bool live = g_depth > 0;
     g_registry[i].addr = addr;
     g_registry[i].size = size;
-    g_registry[i].site = main ? g_curSite : 0;
-    g_registry[i].tag = main ? g_curTag : 0;
+    g_registry[i].site = live ? g_curSite : 0;
+    g_registry[i].tag = live ? g_curTag : 0;
     if (!Inside(addr))
         g_dirty = true;
+    LeaveCriticalSection(&g_scanLock);
 }
 
 void __cdecl OnRemoved(void* p)
 {
     unsigned addr = (unsigned)p;
+    EnterCriticalSection(&g_scanLock);
     unsigned i = Slot(addr);
     while (g_registry[i].addr != 0 && g_registry[i].addr != addr)
         i = (i + 1) & (kRegistrySize - 1);
-    if (g_registry[i].addr == 0)
+    if (g_registry[i].addr == 0) {
+        LeaveCriticalSection(&g_scanLock);
         return;
+    }
     if (!Inside(addr))
         g_dirty = true;
     unsigned hole = i;
@@ -153,6 +159,7 @@ void __cdecl OnRemoved(void* p)
     }
     g_registry[hole].addr = 0;
     g_registryCount--;
+    LeaveCriticalSection(&g_scanLock);
 }
 
 const AllocHooks g_hooks = { OnEnter, OnLeave, OnAdded, OnRemoved };
@@ -320,6 +327,9 @@ struct WalkCtx {
 void __cdecl Visit(void* payload, unsigned size, void* ctx)
 {
     unsigned tick = ((WalkCtx*)ctx)->tick;
+    EnterCriticalSection(&g_scanLock);
+    if (g_dirty)
+        BuildSpans();
     const Entry* holder = Find((unsigned)payload);
     Row key;
     memset(&key, 0, sizeof key);
@@ -342,6 +352,7 @@ void __cdecl Visit(void* payload, unsigned size, void* ctx)
         key.targetTag = t.tag;
         Note(key, v - t.addr, tick);
     }
+    LeaveCriticalSection(&g_scanLock);
 }
 
 void CleanTag(const char* tag, char* out)
@@ -395,7 +406,12 @@ void BlockScanEnable()
     g_registry = (Entry*)AllocZeroed(sizeof(Entry) * kRegistrySize);
     g_spans = (Span*)AllocZeroed(sizeof(Span) * kRegistrySize);
     g_rows = (Row*)AllocZeroed(sizeof(Row) * kRowSize);
-    g_mainThread = host_thread_id();
+    InitializeCriticalSection(&g_scanLock);
+    const char* base = (const char*)GetModuleHandle(0);
+    const IMAGE_DOS_HEADER* dos = (const IMAGE_DOS_HEADER*)base;
+    const IMAGE_NT_HEADERS* nt = (const IMAGE_NT_HEADERS*)(base + dos->e_lfanew);
+    g_imageLo = (unsigned)base;
+    g_imageHi = (unsigned)base + nt->OptionalHeader.SizeOfImage;
     g_allocHooks = &g_hooks;
 }
 
@@ -406,8 +422,6 @@ void BlockScanTick(unsigned tick)
     unsigned long long t0 = host_time_counter();
     CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
     EnterCriticalSection(cs);
-    if (g_dirty)
-        BuildSpans();
     WalkCtx ctx;
     ctx.tick = tick;
     SimBlockForEach(Visit, &ctx);
