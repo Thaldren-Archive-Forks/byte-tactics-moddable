@@ -319,7 +319,7 @@ features,weapons,shared_write,Cell::flags,1
 features,weapons,shared_write,Cell::offsetX,1
 features,weapons,shared_write,Cell::offsetY,1
 features,weapons,shared_write,Cell::spot,1
-features,weapons,shared_write,Fixed::whole,3
+features,weapons,shared_write,Fixed::whole,4
 features,weapons,shared_write,Game::featureCount,1
 features,weapons,shared_write,Game::features,2
 features,weapons,shared_write,Point16::x,1
@@ -1959,7 +1959,7 @@ orders,weapons,indirect,WeaponCanReachUnit,5
 orders,weapons,shared_write,Angles16::bank,1
 orders,weapons,shared_write,Angles16::heading,10
 orders,weapons,shared_write,Angles16::pitch,6
-orders,weapons,shared_write,Fixed::value,3
+orders,weapons,shared_write,Fixed::value,4
 orders,weapons,shared_write,Order::ticks,2
 orders,weapons,shared_write,Point16::x,1
 orders,weapons,shared_write,Point16::y,1
@@ -2247,7 +2247,7 @@ platform,units,shared_write,UnitDef::scriptChecksum,1
 platform,units,shared_write,Vec3::x,9
 platform,units,shared_write,Vec3::y,11
 platform,units,shared_write,Vec3::z,9
-platform,weapons,shared_write,Fixed::value,3
+platform,weapons,shared_write,Fixed::value,4
 platform,weapons,shared_write,Fixed_0049aa80::value,1
 platform,weapons,shared_write,Fixed_0049abb0::value,1
 platform,weapons,shared_write,Game::src1,2
@@ -3204,8 +3204,8 @@ presentation,units,shared_write,g_game,47
 presentation,weapons,shared_write,Angles16::bank,1
 presentation,weapons,shared_write,Angles16::heading,10
 presentation,weapons,shared_write,Angles16::pitch,6
-presentation,weapons,shared_write,Fixed::value,3
-presentation,weapons,shared_write,Fixed::whole,3
+presentation,weapons,shared_write,Fixed::value,4
+presentation,weapons,shared_write,Fixed::whole,4
 presentation,weapons,shared_write,GafFrame::pixelsOrLayers,1
 presentation,weapons,shared_write,GafFrame::transparency,1
 presentation,weapons,shared_write,GafFrame::xOffset,1
@@ -4198,7 +4198,7 @@ units,weapons,indirect,WeaponAimCobCb::OnAimCobReturn,2
 units,weapons,shared_write,Angles16::bank,1
 units,weapons,shared_write,Angles16::heading,10
 units,weapons,shared_write,Angles16::pitch,6
-units,weapons,shared_write,Fixed::value,3
+units,weapons,shared_write,Fixed::value,4
 units,weapons,shared_write,Game::units,4
 units,weapons,shared_write,Point16::x,1
 units,weapons,shared_write,Point16::y,1

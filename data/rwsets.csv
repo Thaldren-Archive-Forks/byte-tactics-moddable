@@ -31453,7 +31453,7 @@ address,function,file,kind,target
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,<anon>::burnBlow
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,Angles16::heading
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,Angles16::pitch
-0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,Fixed_0049b520::whole
+0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,Fixed::whole
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,Projectile::type
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,Vec3::x
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,Vec3::y
@@ -31461,7 +31461,7 @@ address,function,file,kind,target
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_read,WeaponDef::turnRate
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_write,Angles16::heading
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_write,Angles16::pitch
-0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_write,Fixed_0049b520::value
+0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,field_write,Fixed::value
 0x49b520,TurnUnitTowardsPoint,src/weapons/weapons.cpp,function,
 0x49b680,ComputeVelocityFromAngles,src/weapons/weapons.cpp,call,FUN_004b70ef
 0x49b680,ComputeVelocityFromAngles,src/weapons/weapons.cpp,call,FUN_004b7123
