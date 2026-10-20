@@ -125,7 +125,7 @@ public:
                                                 unsigned long* size);
 };
 
-}  // namespace
+}
 
 #pragma pack(push, 1)
 struct host_net {
@@ -361,7 +361,7 @@ int HAPINET_initmultiplay(host_net* net, host_guid* sp, host_guid* application)
     return hr == 0 ? 1 : 0;
 }
 
-}  // namespace
+}
 
 // FUNCTION: 0x4c9530
 extern "C" const char* HOST_CALL host_net_error_string(int error)
