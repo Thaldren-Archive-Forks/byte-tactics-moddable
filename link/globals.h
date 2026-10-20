@@ -219,8 +219,8 @@ extern char g_dotDot[4];                                                        
 extern char g_packageDataName[16];                                                                              // 0x50a56c, 16 bytes; 1 of 1 files
 extern char g_dirWildcard[4];                                                                                   // 0x50a57c, 4 bytes; 1 of 1 files
 extern char g_hapiFileArrayName[16];                                                                            // 0x50a5c0, 16 bytes; 1 of 1 files
-extern int g_emptyStringRefs;                                                                                   // 0x50a778, 4 bytes; 1 of 1 files
-extern void* g_emptyString;                                                                                     // 0x50a77c, 4 bytes; 1 of 1 files
+struct EmptyStringRep { int refs; void* chars; };
+extern EmptyStringRep g_emptyStringRep;
 extern int g_guaranteePackets;                                                                                  // 0x50a780, 4 bytes; 1 of 1 files
 extern int g_cdNextTrackTimer;                                                                                  // 0x50b540, 4 bytes; 1 of 1 files
 extern int g_cdFadeTimer;                                                                                       // 0x50b544, 4 bytes; 1 of 1 files
@@ -736,6 +736,7 @@ extern long g_squashThreadLockTicket;                                           
 //   0x5086d8 g_unitMessages: defined in src/units/unit_messages.cpp
 //   0x5086dc g_speechTypes: defined in src/units/unit_messages.cpp
 //   0x5086fc g_speechCategories: defined in src/units/unit_messages.cpp
+//   0x50a77c g_emptyString: part of another global: g_emptyStringRep+0x4
 //   0x50b6e0 DAT_0050b6e0: defined in src/data/unused.cpp
 //   0x5122c4 g_mapCacheBegin: part of another global: src/map/map_list.cpp:0x5122c0+0x4
 //   0x5122c8 g_mapCacheEnd: part of another global: src/map/map_list.cpp:0x5122c0+0x8
