@@ -182,9 +182,9 @@ struct Timer_4b63f0 {
 
 struct TimerTable_4b63f0 {
     Timer_4b63f0 slots[10];
-    void (__cdecl *closeHandler)(int);   // +0xa0
-    int closeHandlerArg;                 // +0xa4
-    int count;                           // +0xa8
+    void (__cdecl *closeHandler)(int);
+    int closeHandlerArg;
+    int count;
 };
 
 typedef void (__stdcall *TimerCb_4b63f0)(int);
