@@ -91,7 +91,7 @@ also gives the warnings below). Kinds, one row per place:
                    timeSetEvent, SetTimer, CreateTimerQueueTimer, QueueUserAPC, the
                    DirectPlay and DirectSound enumerations (EnumSessions, EnumPlayers,
                    EnumConnections, EnumAddress, EnumAddressTypes, DirectPlayEnumerate*,
-                   DirectSoundEnumerate*) and the game's HAPINET_enum* wrappers of them.
+                   DirectSoundEnumerate*) and the host's host_net_enum* wrappers of them.
                    A callback that DirectPlay runs on the calling thread is listed too,
                    since which thread runs it is the library's choice. One row per
                    (global, reading function) while there are few; see THREAD_ROW_LIMIT.
@@ -144,7 +144,7 @@ THREAD_CALLS = {"CreateThread", "_beginthread", "_beginthreadex", "StartThread",
                 "EnumAddress", "EnumAddressTypes", "DirectPlayEnumerate", "DirectPlayEnumerateA",
                 "DirectPlayEnumerateW", "DirectSoundEnumerate", "DirectSoundEnumerateA",
                 "DirectSoundEnumerateW"}
-THREAD_CALL_PREFIX = "HAPINET_enum"
+THREAD_CALL_PREFIX = "host_net_enum"
 ALLOCATORS = {"malloc": None, "realloc": None, "operator new": None, "operator new[]": None,
               "GameAlloc": None, "GameRealloc": None, "PoolAlloc": None,
               "GlobalAlloc": (0, 0x40), "GlobalAllocFixed": None, "LocalAlloc": (0, 0x40),

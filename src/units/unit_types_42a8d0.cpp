@@ -9,7 +9,6 @@
 #include "../state/block.h"
 #include <ddraw.h>
 #include <dsound.h>
-#include <dplay.h>
 #include <stdio.h>
 #include <vector>
 #include <list>

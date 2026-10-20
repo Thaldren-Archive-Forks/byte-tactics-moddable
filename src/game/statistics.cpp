@@ -1,6 +1,7 @@
 // Decompiled by space-bunny-free, Haiku, nemotron-3.5-lightning-free. Names are provisional.
 #include <string.h>
 #include <windows.h>
+#include "../../interfaces/host.h"
 
 // A DirectPlay service provider GUID, 16 bytes: the IPX, modem and serial
 // providers, none of which can host a remote console.
@@ -62,7 +63,6 @@ int AllocScoreTables();
 void __stdcall ReportGameEventCallback(int event);
 int __stdcall ShowGameMessage(char* text, int mode);
 void __stdcall RISetCallbacks(int report, int notify);
-void __stdcall HAPINET_uninitmultiplay(void* p);
 void __cdecl GameFreeThunk(void* p);
 
 // Builds the player tables: three arrays of ten, then for each slot its player
@@ -265,7 +265,7 @@ void ShutdownScoreTables()
     g_hapinetOnlineReport = 0;
     RISetCallbacks(0, 0);
     if (g_reporterDll != 0) {
-        HAPINET_uninitmultiplay(g_game->session_14_1);
+        host_net_uninit((host_net*)g_game->session_14_1);
         if (g_riTerminate != 0)
             g_riTerminate();
         FreeLibrary(g_reporterDll);

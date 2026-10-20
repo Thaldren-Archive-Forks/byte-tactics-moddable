@@ -220,7 +220,7 @@ extern char g_dirWildcard[4];                                                   
 extern char g_hapiFileArrayName[16];                                                                            // 0x50a5c0, 16 bytes; 1 of 1 files
 struct EmptyStringRep { int refs; void* chars; };
 extern EmptyStringRep g_emptyStringRep;
-extern int g_guaranteePackets;                                                                                  // 0x50a780, 4 bytes; 1 of 1 files
+extern unsigned char DAT_0050a780[4];                                                                           // 0x50a780, 4 bytes; nothing refers to it
 extern int g_cdNextTrackTimer;                                                                                  // 0x50b540, 4 bytes; 1 of 1 files
 extern int g_cdFadeTimer;                                                                                       // 0x50b544, 4 bytes; 1 of 1 files
 extern void* g_squashErrorNames[7];                                                                             // 0x50b9e0, 28 bytes; 1 of 1 files
@@ -434,7 +434,7 @@ extern int g_edgeHighIndex;                                                     
 extern int g_edgeLowIndex;                                                                                      // 0x51ff00, 4 bytes; 1 of 1 files
 extern int g_reporterNotify;                                                                                    // 0x51ff04, 4 bytes; 1 of 1 files
 extern int g_reporterReport;                                                                                    // 0x51ff08, 4 bytes; 1 of 1 files
-extern int g_enumSessionsResult;                                                                                // 0x51ff0c, 4 bytes; 1 of 1 files
+extern unsigned char DAT_0051ff0c[4];                                                                           // 0x51ff0c, 4 bytes; nothing refers to it
 extern int g_cdFadeVolume;                                                                                      // 0x51ff10, 4 bytes; 1 of 1 files
 extern Sound* g_cdPlayer;                                                                                       // 0x51ff14, 4 bytes; 2 of 2 files
 extern void* g_cdPlayerWindow;                                                                                  // 0x51ff18, 4 bytes; 1 of 1 files

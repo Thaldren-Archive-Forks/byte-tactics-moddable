@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../../interfaces/host.h"
 #include <memory.h>
 
 #pragma pack(push, 1)
@@ -175,7 +176,6 @@ int __stdcall AddNetPlayer(int);
 // Second parameter must be an int.
 int __stdcall RejectPlayer(int, int);
 void __stdcall BuildGameInfo(char*, int*, int*, int*, int*);
-void __stdcall HAPINET_updategameinfo(void*, char*, char*, int, int, int, int);
 void __stdcall HandlePing(void*);
 void __stdcall AddMessage(void*, int, int, unsigned char);
 int __stdcall SendPacketToPlayer(int, int, void*, int);
@@ -436,7 +436,7 @@ int HandleNetPackets()
                     BuildGameInfo(name, &d, &c, &b, &a);
                     if (LocalPlayer()->info->started)
                         g_game->settings.flags_475 |= 0x20;
-                    HAPINET_updategameinfo(g_game->session, name, DAT_005119b8, d, c, b, a);
+                    host_net_update_game_info((host_net*)g_game->session, name, DAT_005119b8, d, c, b, a);
                 }
                 break;
             }

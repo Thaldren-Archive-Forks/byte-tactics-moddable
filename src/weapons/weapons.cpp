@@ -156,9 +156,7 @@ struct Unit_0049c880;
 // 0x49a890 and 0x49aa80 matching, and make up the ids of the bit-field views
 // that weapon_def.h no longer declares (docs/c2-regalloc.md).
 void DrawDashedCircle(void*, int, int, int, int, int, int);
-int HAPINET_createnewgame(void*, char*, int, int, int, int, int);
 int __stdcall SquashPack(Chunk*, int*, char*, int, int, int);
-int HAPINET_enumconnections(void*, void*, unsigned long, void*, unsigned long, void*);
 int PickRandomReclaimableResourcesInRadius(int, int, int, int, int, int);
 int CreateUnit(int, int, int, int, int, int);
 
@@ -2285,7 +2283,6 @@ void AddOrder(int, int, void*, void*, void*, int, int);
 void IssueOrCancelOrder(unsigned char, int, void*, int, int*, int, int);
 int SendScriptCall(void*, short, char, int, int, int, int);
 void AddTextGadget(void*, char*, char*, int, short, int, int);
-int HAPINET_updategameinfo(void*, char*, char*, int, int, int, int);
 int IsFootprintVisible(void*, int, int, int, int, short);
 void DrawProgressBar(void*, int, int, void*, void*, int);
 void IssueOrderToSelection(void*, unsigned char, int, int*, int, int);
