@@ -1,0 +1,13 @@
+# The Arm commander runs the COB set YARD_OPEN at tick 100; the flag makes SetYardOpen skip a unit with no yardmap.
+game_seed 201
+crt_seed 1201
+view_seed 2201
+map The Pass
+start_positions fixed
+ticks 300
+player0.controller human
+player0.side Arm
+player1.controller ai
+player1.side Core
+quirks 3.1c +units.skip-empty-yardmap
+quirks_reach 100 units.skip-empty-yardmap
