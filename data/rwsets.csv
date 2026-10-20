@@ -30695,9 +30695,7 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_escape,*unsigned char
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_read,*LoadFlags_00497f40
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_read,*PlayerRec_00497f40
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_read,*char
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_read,*short
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_write,*char
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_write,*short
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,deref_write,*unsigned char
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_escape,Game::loadingFlags
@@ -30766,22 +30764,19 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,fn_ref,HandleBattleQuitPrompt
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,fn_ref,LoadThreadMain
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,function,
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_escape,DAT_0051e6cc
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_escape,g_loadingBarFlashAlpha
+0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_escape,g_loadingBarPrevPercent
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_escape,g_packetManager
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_escape,g_scorePanelKillFlash
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_escape,g_scorePanelLossFlash
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_maybe_written,DAT_0051e821
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_maybe_written,DAT_0051e822
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_maybe_written,DAT_0051e823
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_maybe_written,DAT_0051e824
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_maybe_written,DAT_0051e825
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_maybe_written,g_loadingBarFlashAlpha
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_maybe_written,g_loadingBarPrevPercent
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_read,g_game
+0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_read,g_loadingBarFlashAlpha
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_read,g_loadingBarFlashDecayTick
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_read,g_seams
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_read,g_usePacketManager
+0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_write,g_loadingBarFlashAlpha
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,global_write,g_loadingBarFlashDecayTick
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,indirect_call,indirect via char *(*)(Mission *) __attribute__((fastcall)) [MapSeam::GetMissionName]
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,indirect_call,indirect via int (*)(Mission *) __attribute__((fastcall)) [MapSeam::GetGameType]
@@ -36211,9 +36206,10 @@ address,function,file,kind,target
 0x4b4f50,ApplyPalette,src/graphics/display.cpp,field_read,DirectDrawState::primary
 0x4b4f50,ApplyPalette,src/graphics/display.cpp,function,
 0x4b4f50,ApplyPalette,src/graphics/display.cpp,global_read,g_display
+0x4b4fd0,SetCloseHandler,src/graphics/display.cpp,field_write,TimerTable_4b63f0::closeHandler
+0x4b4fd0,SetCloseHandler,src/graphics/display.cpp,field_write,TimerTable_4b63f0::closeHandlerArg
 0x4b4fd0,SetCloseHandler,src/graphics/display.cpp,function,
-0x4b4fd0,SetCloseHandler,src/graphics/display.cpp,global_write,g_closeHandler
-0x4b4fd0,SetCloseHandler,src/graphics/display.cpp,global_write,g_closeHandlerArg
+0x4b4fd0,SetCloseHandler,src/graphics/display.cpp,global_write,g_timerSlots
 0x4b4ff0,ReleaseDirectDraw,src/graphics/display.cpp,call,Release
 0x4b4ff0,ReleaseDirectDraw,src/graphics/display.cpp,field_read,DirectDrawState::back
 0x4b4ff0,ReleaseDirectDraw,src/graphics/display.cpp,field_read,DirectDrawState::clipper
@@ -36484,6 +36480,8 @@ address,function,file,kind,target
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_read,App_4b5980::tickScale
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_read,DirectDrawState::palette
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_read,DirectDrawState::primary
+0x4b5cc0,WindowProc,src/graphics/display.cpp,field_read,TimerTable_4b63f0::closeHandler
+0x4b5cc0,WindowProc,src/graphics/display.cpp,field_read,TimerTable_4b63f0::closeHandlerArg
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_write,App_4b5980::active
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_write,Event_4b5cc0::buttons
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_write,Event_4b5cc0::flag
@@ -36492,10 +36490,9 @@ address,function,file,kind,target
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_write,Event_4b5cc0::x
 0x4b5cc0,WindowProc,src/graphics/display.cpp,field_write,Event_4b5cc0::y
 0x4b5cc0,WindowProc,src/graphics/display.cpp,function,
-0x4b5cc0,WindowProc,src/graphics/display.cpp,global_read,g_closeHandler
-0x4b5cc0,WindowProc,src/graphics/display.cpp,global_read,g_closeHandlerArg
 0x4b5cc0,WindowProc,src/graphics/display.cpp,global_read,g_display
-0x4b5cc0,WindowProc,src/graphics/display.cpp,indirect_call,indirect via void (*)(int) __attribute__((cdecl)) [g_closeHandler]
+0x4b5cc0,WindowProc,src/graphics/display.cpp,global_read,g_timerSlots
+0x4b5cc0,WindowProc,src/graphics/display.cpp,indirect_call,indirect via void (*)(int) __attribute__((cdecl)) [TimerTable_4b63f0::closeHandler]
 0x4b5cc0,WindowProc,src/graphics/display.cpp,indirect_call,"indirect via void (*)(int, int, int) __attribute__((cdecl)) [App_4b5980::callback]"
 0x4b6110,ShutdownEnvironment,src/graphics/display.cpp,call,DeleteDC
 0x4b6110,ShutdownEnvironment,src/graphics/display.cpp,call,DeleteObject
@@ -36547,11 +36544,11 @@ address,function,file,kind,target
 0x4b62d0,InitTimers,src/graphics/display.cpp,call,host_time_ms
 0x4b62d0,InitTimers,src/graphics/display.cpp,field_read,App_4b5980::tickScale
 0x4b62d0,InitTimers,src/graphics/display.cpp,field_write,App_4b5980::tickScale
+0x4b62d0,InitTimers,src/graphics/display.cpp,field_write,TimerTable_4b63f0::count
 0x4b62d0,InitTimers,src/graphics/display.cpp,field_write,Timer_4b63f0::interval
 0x4b62d0,InitTimers,src/graphics/display.cpp,function,
 0x4b62d0,InitTimers,src/graphics/display.cpp,global_read,g_display
 0x4b62d0,InitTimers,src/graphics/display.cpp,global_write,g_lastTimerTick
-0x4b62d0,InitTimers,src/graphics/display.cpp,global_write,g_timerCount
 0x4b62d0,InitTimers,src/graphics/display.cpp,global_write,g_timerSlots
 0x4b6330,GetTickRate,src/graphics/display.cpp,field_read,App_4b5980::tickScale
 0x4b6330,GetTickRate,src/graphics/display.cpp,function,
@@ -36561,45 +36558,52 @@ address,function,file,kind,target
 0x4b6340,GetTicks,src/graphics/display.cpp,function,
 0x4b6340,GetTicks,src/graphics/display.cpp,global_read,g_display
 0x4b6370,UpdateTimers,src/graphics/display.cpp,call,host_time_ms
-0x4b6370,UpdateTimers,src/graphics/display.cpp,deref_read,*int
-0x4b6370,UpdateTimers,src/graphics/display.cpp,deref_write,*int
+0x4b6370,UpdateTimers,src/graphics/display.cpp,field_escape,TimerTable_4b63f0::slots
 0x4b6370,UpdateTimers,src/graphics/display.cpp,field_read,App_4b5980::tickScale
+0x4b6370,UpdateTimers,src/graphics/display.cpp,field_read,Timer_4b63f0::callback
+0x4b6370,UpdateTimers,src/graphics/display.cpp,field_read,Timer_4b63f0::countdown
+0x4b6370,UpdateTimers,src/graphics/display.cpp,field_read,Timer_4b63f0::id
+0x4b6370,UpdateTimers,src/graphics/display.cpp,field_read,Timer_4b63f0::interval
+0x4b6370,UpdateTimers,src/graphics/display.cpp,field_write,Timer_4b63f0::countdown
 0x4b6370,UpdateTimers,src/graphics/display.cpp,function,
-0x4b6370,UpdateTimers,src/graphics/display.cpp,global_escape,g_timerCount
-0x4b6370,UpdateTimers,src/graphics/display.cpp,global_escape,g_timerSlot0Interval
+0x4b6370,UpdateTimers,src/graphics/display.cpp,global_escape,g_timerSlots
 0x4b6370,UpdateTimers,src/graphics/display.cpp,global_read,g_display
 0x4b6370,UpdateTimers,src/graphics/display.cpp,global_read,g_lastTimerTick
 0x4b6370,UpdateTimers,src/graphics/display.cpp,global_write,g_lastTimerTick
 0x4b6370,UpdateTimers,src/graphics/display.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [fn]
 0x4b63f0,AddTimer,src/graphics/display.cpp,call,host_time_ms
-0x4b63f0,AddTimer,src/graphics/display.cpp,deref_read,*int
-0x4b63f0,AddTimer,src/graphics/display.cpp,deref_write,*int
+0x4b63f0,AddTimer,src/graphics/display.cpp,field_escape,TimerTable_4b63f0::slots
 0x4b63f0,AddTimer,src/graphics/display.cpp,field_read,App_4b5980::tickScale
+0x4b63f0,AddTimer,src/graphics/display.cpp,field_read,TimerTable_4b63f0::count
+0x4b63f0,AddTimer,src/graphics/display.cpp,field_read,Timer_4b63f0::callback
+0x4b63f0,AddTimer,src/graphics/display.cpp,field_read,Timer_4b63f0::countdown
+0x4b63f0,AddTimer,src/graphics/display.cpp,field_read,Timer_4b63f0::id
+0x4b63f0,AddTimer,src/graphics/display.cpp,field_read,Timer_4b63f0::interval
+0x4b63f0,AddTimer,src/graphics/display.cpp,field_write,TimerTable_4b63f0::count
 0x4b63f0,AddTimer,src/graphics/display.cpp,field_write,Timer_4b63f0::callback
 0x4b63f0,AddTimer,src/graphics/display.cpp,field_write,Timer_4b63f0::countdown
 0x4b63f0,AddTimer,src/graphics/display.cpp,field_write,Timer_4b63f0::id
 0x4b63f0,AddTimer,src/graphics/display.cpp,field_write,Timer_4b63f0::interval
 0x4b63f0,AddTimer,src/graphics/display.cpp,function,
-0x4b63f0,AddTimer,src/graphics/display.cpp,global_escape,g_timerCount
-0x4b63f0,AddTimer,src/graphics/display.cpp,global_escape,g_timerSlot0Interval
+0x4b63f0,AddTimer,src/graphics/display.cpp,global_escape,g_timerSlots
 0x4b63f0,AddTimer,src/graphics/display.cpp,global_read,g_display
 0x4b63f0,AddTimer,src/graphics/display.cpp,global_read,g_lastTimerTick
-0x4b63f0,AddTimer,src/graphics/display.cpp,global_read,g_timerCount
+0x4b63f0,AddTimer,src/graphics/display.cpp,global_read,g_timerSlots
 0x4b63f0,AddTimer,src/graphics/display.cpp,global_write,g_lastTimerTick
-0x4b63f0,AddTimer,src/graphics/display.cpp,global_write,g_timerCount
 0x4b63f0,AddTimer,src/graphics/display.cpp,global_write,g_timerSlots
 0x4b63f0,AddTimer,src/graphics/display.cpp,indirect_call,indirect via void (*)(int) __attribute__((stdcall)) [fn]
+0x4b64d0,RemoveTimer,src/graphics/display.cpp,field_read,TimerTable_4b63f0::count
 0x4b64d0,RemoveTimer,src/graphics/display.cpp,field_write,Timer_4b63f0::interval
 0x4b64d0,RemoveTimer,src/graphics/display.cpp,function,
-0x4b64d0,RemoveTimer,src/graphics/display.cpp,global_read,g_timerCount
+0x4b64d0,RemoveTimer,src/graphics/display.cpp,global_read,g_timerSlots
 0x4b64d0,RemoveTimer,src/graphics/display.cpp,global_write,g_timerSlots
 0x4b6510,ResetTimers,src/graphics/display.cpp,call,host_time_ms
 0x4b6510,ResetTimers,src/graphics/display.cpp,field_read,App_4b5980::tickScale
+0x4b6510,ResetTimers,src/graphics/display.cpp,field_write,TimerTable_4b63f0::count
 0x4b6510,ResetTimers,src/graphics/display.cpp,field_write,Timer_4b63f0::interval
 0x4b6510,ResetTimers,src/graphics/display.cpp,function,
 0x4b6510,ResetTimers,src/graphics/display.cpp,global_read,g_display
 0x4b6510,ResetTimers,src/graphics/display.cpp,global_write,g_lastTimerTick
-0x4b6510,ResetTimers,src/graphics/display.cpp,global_write,g_timerCount
 0x4b6510,ResetTimers,src/graphics/display.cpp,global_write,g_timerSlots
 0x4b6560,GetMilliseconds,src/graphics/display.cpp,call,host_time_ms
 0x4b6560,GetMilliseconds,src/graphics/display.cpp,function,

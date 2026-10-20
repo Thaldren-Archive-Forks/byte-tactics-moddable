@@ -58,8 +58,6 @@ GetServiceProviderIndex,0x441bc0,src/frontend/multi.cpp,end-of,g_dpspGuidTcpip,0
 BuildCompoundAddress,0x441c30,src/frontend/multi.cpp,end-of,g_dpspGuidModem,0,g_dpspGuidSerial,,none
 BuildCompoundAddress,0x441c30,src/frontend/multi.cpp,end-of,g_dpspGuidSerial,0,g_dpspGuidTcpip,,none
 BuildCompoundAddress,0x441c30,src/frontend/multi.cpp,end-of,g_dpspGuidTcpip,0,g_dpspGuidIpx,,none
-BuildCompoundAddress,0x441c30,src/frontend/multi.cpp,past-end,g_serialPortNumber,16,g_serialPortNumber,DAT_00512780+0x0,none
-OpenModemDialog,0x443100,src/frontend/multi.cpp,past-end,g_dpspGuidModem,12,g_dpspGuidModem,g_dpspGuidModem+0xc,none
 FillProviderList,0x444580,src/frontend/multi_444580.cpp,past-end,g_linkInfo,-4,g_linkInfo,DAT_0051278c+0x38,none
 ListSaveGameFiles,0x44b4e0,src/frontend/multi.cpp,end-of,g_lstExtension,0,g_savegameNamesName,,none
 ListSaveGameFiles,0x44b4e0,src/frontend/multi.cpp,end-of,g_savegameDescsName,0,g_gamesGadgetName,,none
@@ -68,12 +66,9 @@ JoinNetGame,0x4517b0,src/network/net_game.cpp,end-of,g_onlineLobbyPlayerName,0,g
 HandleNetPackets,0x453d40,src/network/net_game_453d40.cpp,end-of,g_playerDisconnectedText,0,g_integrityBreachText,,none
 InitLobbiedConnection,0x457710,src/network/net_game.cpp,end-of,g_cmdlineHostGameName,0,DAT_00512c98,,none
 OnlineProcessButtonCommand,0x45b250,src/network/online_45b250.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,none
-OnlineProcessButtonCommand,0x45b250,src/network/online_45b250.cpp,past-end,g_onlineDllPath,260,g_onlineDllPath,DAT_00512ed4+0x0,none
 OnlineGetLinkInfo,0x45b490,src/network/online_45b490.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,none
-OnlineGetLinkInfo,0x45b490,src/network/online_45b490.cpp,past-end,g_onlineDllPath,260,g_onlineDllPath,DAT_00512ed4+0x0,none
 Onl_LoadConfigFile,0x45b670,src/network/online_45b670.cpp,end-of,g_onlineDllPath,0,DAT_00512c80,,none
 Onl_LoadConfigFile,0x45b670,src/network/online_45b670.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,none
-Onl_LoadConfigFile,0x45b670,src/network/online_45b670.cpp,past-end,g_onlineDllPath,260,g_onlineDllPath,DAT_00512ed4+0x0,none
 SetHostGameName,0x45b820,src/frontend/options.cpp,end-of,g_cmdlineHostGameName,0,g_cmdlineHostMode,,none
 LoadSavedSettings,0x45cc50,src/frontend/options.cpp,end-of,g_optionsBackupTrackTypes,0,g_optionsBackupEdgeScroll,,none
 HandleMusicOptionsClick,0x45d280,src/frontend/options.cpp,end-of,g_cdPlayGadgetName,0,g_cdNextGadgetName,,none
@@ -112,7 +107,6 @@ EmitWhiteSmoke,0x472810,src/graphics/particles_472630.cpp,end-of,g_particlePool,
 EmitBlackSmoke,0x4728f0,src/graphics/particles_472630.cpp,end-of,g_particlePool,0,g_fxEventPoolBlocked,,none
 EmitWeaponSmoke,0x4729d0,src/graphics/particles_472630.cpp,end-of,g_particlePool,0,g_fxEventPoolBlocked,,none
 EmitTimedSubParticles,0x472c50,src/graphics/particles_472630.cpp,end-of,g_particlePool,0,g_fxEventPoolBlocked,,none
-DrawHelpPage,0x476ef0,src/frontend/campaign_menu.cpp,past-end,g_briefingTextColors,1,g_briefingTextColors,g_briefingTextColors+0x1,none
 OpenNewGameMenu,0x478240,src/frontend/campaign_menu.cpp,end-of,g_missionNameList,0,g_campaignNameList,,none
 HandleSkirmishCheatText,0x47b9f0,src/frontend/skirmish_menu.cpp,end-of,g_cheatEightPlayers,0,g_cheatThreePlayers,,none
 HandleSkirmishCheatText,0x47b9f0,src/frontend/skirmish_menu.cpp,end-of,g_cheatFivePlayers,0,g_cheatSixPlayers,,none
@@ -157,16 +151,6 @@ HandleTalkDialogEvent,0x493bf0,src/ingame/dialogs_493340.cpp,end-of,g_livePlayer
 HandleTalkDialogEvent,0x493bf0,src/ingame/dialogs_493340.cpp,end-of,g_sendToGadgetName,0,g_chatTargetSeparators,,none
 HandleTalkDialogEvent,0x493bf0,src/ingame/dialogs_493340.cpp,end-of,g_sendTypeGadgetName,0,g_sendToGadgetName,,none
 UpdateCdCategoryByActivity,0x494e70,src/ingame/dialogs_493340.cpp,past-end,g_cdActivitySampleRing,-4,g_cdActivitySampleRing,g_savegameRadarFrame+0x14,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e821,0,g_scorePanelLossFlash,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e822,0,DAT_0051e821,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e822,0,g_scorePanelLossFlash,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e823,0,DAT_0051e822,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e823,0,g_scorePanelLossFlash,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e824,0,DAT_0051e823,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e824,0,g_scorePanelLossFlash,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e825,0,DAT_0051e824,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e825,0,g_loadingBarPrevPercent,,none
-LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,DAT_0051e825,0,g_scorePanelLossFlash,,none
 LoadingScreenFrame,0x497f40,src/game/game_load.cpp,end-of,g_loadingBarPrevPercent,0,g_scorePanelLossFlash,,none
 GameMain,0x49e830,src/game/main.cpp,end-of,DAT_005097f4,0,g_languageValueName,,none
 GameMain,0x49e830,src/game/main.cpp,end-of,g_audioCdShellKey,0,g_cdShellValueName,,none
@@ -175,8 +159,7 @@ GameMain,0x49e830,src/game/main.cpp,end-of,g_languageValueName,0,g_translationFi
 GameMain,0x49e830,src/game/main.cpp,end-of,g_preferredLanguage,0,g_cmdlineDisplaySeed,,none
 GameMain,0x49e830,src/game/main.cpp,end-of,g_translationFile,0,g_audioCdShellKey,,none
 ParseCommandLine,0x49ee30,src/game/main_49eda0.cpp,end-of,g_preferredLanguage,0,g_cmdlineDisplaySeed,,none
-UpdateTimers,0x4b6370,src/graphics/display.cpp,end-of,g_timerSlot0Interval,0,g_display,,none
-AddTimer,0x4b63f0,src/graphics/display.cpp,end-of,g_timerSlot0Interval,0,g_display,,none
+AddTimer,0x4b63f0,src/graphics/display.cpp,end-of,g_timerSlots,0,g_display,,
 HAPI_BuildArchiveDirectory,0x4bd3b0,src/util/hpi.cpp,end-of,g_dirWildcard,0,g_packageDataName,,none
 HAPI_BuildArchiveDirectory,0x4bd3b0,src/util/hpi.cpp,end-of,g_packageDataName,0,g_dotDot,,none
 LoadTranslations,0x4c54f0,src/util/tdf_4c54f0.cpp,end-of,g_language,0,g_translations,,none

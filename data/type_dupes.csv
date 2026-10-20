@@ -479,7 +479,7 @@ Sub6_004aeac0,no,2,include/ta_types.h:13058|src/gui/gui_file.cpp:975,differs,inc
 Sub_0046d040,no,2,include/ta_types.h:8377|src/network/unit_sync.cpp:482,differs,include/ta_types.h
 Sub_004e0570,no,2,include/ta_types.h:17432|src/debug/debug_lib.cpp:5595,same-layout,include/ta_types.h
 Sub_403010,no,2,include/ta_types.h:2371|src/orders/unit_orders.cpp:85,same-layout,include/ta_types.h
-Surface,no,3,include/ta_types.h:7142|src/game/game_load.cpp:729|src/graphics/surface.h:11,differs,src/graphics/surface.h
+Surface,no,3,include/ta_types.h:7142|src/game/game_load.cpp:727|src/graphics/surface.h:11,differs,src/graphics/surface.h
 SurfaceDesc_0047bf70,no,2,include/ta_types.h:9893|src/graphics/movies.cpp:117,differs,include/ta_types.h
 Surface_4589c0,no,2,src/graphics/model_render.cpp:74|src/graphics/model_render_4589c0.cpp:17,differs,src/graphics/model_render.cpp
 Surfaces_0047bdf0,no,2,include/ta_types.h:9825|src/graphics/movies.cpp:77,differs,include/ta_types.h
