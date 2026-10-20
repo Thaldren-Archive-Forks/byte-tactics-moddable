@@ -13,20 +13,37 @@ host_event g_queue[kQueueSize];
 unsigned int g_head;
 unsigned int g_count;
 
+bool Droppable(unsigned int type, int level)
+{
+    if (level == 0) {
+        return type == HOST_EVENT_MOUSE_MOVE;
+    }
+    if (type == HOST_EVENT_CLOSE || type == HOST_EVENT_DESTROY) {
+        return false;
+    }
+    if (level == 1 && type == HOST_EVENT_KEY_UP || type == HOST_EVENT_SYS_KEY_UP) {
+        return false;
+    }
+    return true;
+}
+
 void Push(const host_event& ev)
 {
     if (g_count == kQueueSize) {
-        for (unsigned int i = 0; i < g_count; i++) {
-            if (g_queue[(g_head + i) % kQueueSize].type == HOST_EVENT_MOUSE_MOVE) {
-                for (unsigned int j = i; j + 1 < g_count; j++) {
-                    g_queue[(g_head + j) % kQueueSize] = g_queue[(g_head + j + 1) % kQueueSize];
+        for (int level = 0; level < 3; level++) {
+            bool dropped = false;
+            for (unsigned int i = 0; i < g_count && !dropped; i++) {
+                if (Droppable(g_queue[(g_head + i) % kQueueSize].type, level)) {
+                    for (unsigned int j = i; j + 1 < g_count; j++) {
+                        g_queue[(g_head + j) % kQueueSize] = g_queue[(g_head + j + 1) % kQueueSize];
+                    }
+                    g_count--;
+                    dropped = true;
                 }
-                g_count--;
+            }
+            if (dropped) {
                 break;
             }
-        }
-        if (g_count == kQueueSize) {
-            return;
         }
     }
     g_queue[(g_head + g_count) % kQueueSize] = ev;

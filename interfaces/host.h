@@ -160,9 +160,9 @@ struct host_event {
     unsigned int a;
     // The second detail of the type.
     unsigned int b;
-    // The mouse's x in the window, for mouse events.
+    // The mouse's x in the window for mouse events, or on the screen for HOST_EVENT_WHEEL.
     int x;
-    // The mouse's y in the window, for mouse events.
+    // The mouse's y in the window for mouse events, or on the screen for HOST_EVENT_WHEEL.
     int y;
     // The HOST_BUTTON_ bits held, for mouse events.
     unsigned int buttons;
@@ -170,13 +170,14 @@ struct host_event {
     unsigned int time_ms;
 };
 
-// Opens the game window with the given title and client size, covering the screen when fullscreen is set, and returns its native handle or NULL.
+// Opens the game window with the given title and client size and returns its native handle or NULL; fullscreen is unused for now.
+// TODO(#175): cover the screen when fullscreen is set.
 void* HOST_CALL host_window_open(const char* title, int width, int height, int fullscreen);
 // Destroys the game window, which queues HOST_EVENT_DESTROY.
 void HOST_CALL host_window_close(void);
 // Returns 1 when the game window has the keyboard focus.
 int HOST_CALL host_window_has_focus(void);
-// Queues an event of the given type for the game window, to arrive after the platform messages already waiting.
+// Queues an event of the given type for the game window, to arrive after the platform messages already waiting, with a and b as 0 (for types such as HOST_EVENT_CLOSE).
 void HOST_CALL host_window_post(unsigned int type);
 // Handles the calling thread's waiting platform messages, first waiting for one when wait is set, and returns 0 when the quit request was among them.
 int HOST_CALL host_pump_events(int wait);
@@ -184,7 +185,7 @@ int HOST_CALL host_pump_events(int wait);
 void HOST_CALL host_post_quit(void);
 // Takes the oldest queued game window event into *event and returns 1, or returns 0 when none is queued.
 int HOST_CALL host_event_next(struct host_event* event);
-// Returns a key's state: bit 15 set while the virtual key vk is held.
+// Returns a key's state: bit 15 set while the virtual key vk is held, and bit 0 set when it was pressed since the last call.
 int HOST_CALL host_key_state(int vk);
 // Stores the mouse cursor's position on the screen.
 void HOST_CALL host_cursor_get(int* x, int* y);
