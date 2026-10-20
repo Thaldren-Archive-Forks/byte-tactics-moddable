@@ -200,6 +200,8 @@ typedef int (*Handler)(int);
 void Fill(int* out);
 void FillU(unsigned* out);
 void Look(const int* in);
+void Put(char* out);
+void Peek(const char* in);
 """
 
 PLAIN_DECLS = """extern int g_count;
@@ -253,6 +255,8 @@ void Views() { g_scalar = 5; g_viewed[1] = g_scalar; }
 void Interior() { g_inner = 7; Look(&g_inner); }
 int Method() { g_counter.Bump(); return g_counter.Get() + g_counter.n; }
 int Indirect(int x) { return g_handlers[x](x); }
+void PickWrite(int f) { Put(f ? g_sep : g_buf); }
+void PickPeek(int f) { Peek(f ? g_sep : g_buf); }
 int Static() { g_st = 1; return g_st; }
 const char* Pick(int f) { return f ? g_sep : g_buf; }
 void Mixed() { Counter local; local.Bump(); Sim(); }
@@ -324,6 +328,11 @@ class SimGlobalsTest(unittest.TestCase):
 
     def test_arrays_chosen_by_a_conditional_stay_reads(self):
         self.assertEqual(self.same("Pick"), {("global_read", "g_sep"), ("global_read", "g_buf")})
+
+    def test_arrays_chosen_by_a_conditional_take_the_mode_of_the_context(self):
+        self.assertEqual(self.sim["PickWrite"], {("global_maybe_written", "g_sep"), ("global_maybe_written", "g_buf"),
+                                                 ("call", "Put")})
+        self.assertEqual(self.sim["PickPeek"], {("global_read", "g_sep"), ("global_read", "g_buf"), ("call", "Peek")})
 
     def test_sim_calls_and_the_pointer_add_no_rows(self):
         rows = self.sim["Mixed"]

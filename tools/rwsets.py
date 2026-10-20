@@ -608,7 +608,7 @@ class Walker:
         elif kind == "ConditionalOperator" and self.array_branches(inner):
             self.visit(inner[0], "R")
             for branch in inner[1:]:
-                self.visit(branch["inner"][0], "R")
+                self.visit(branch["inner"][0], mode)
         elif kind == "CXXBindTemporaryExpr":
             self.destructor(node["type"], False)
             for child in inner:
@@ -760,6 +760,8 @@ class Walker:
         elif arg.get("valueCategory") == "lvalue" and inner["kind"] in LVALUE_KINDS and \
                 type_text(arg_type).endswith("&"):
             self.lvalue_arg(inner, pointee_const(arg_type))
+        elif inner["kind"] == "ConditionalOperator" and is_pointer(arg_type) and self.array_branches(inner["inner"]):
+            self.visit(arg, "R" if pointee_const(arg_type) else "MW")
         else:
             self.visit(arg, "R")
 
