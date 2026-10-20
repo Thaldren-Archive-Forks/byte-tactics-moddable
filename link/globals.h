@@ -147,7 +147,7 @@ extern char g_radarPictureName[16];                                             
 extern char g_radarMappedName[16];                                                                              // 0x507508, 16 bytes; 1 of 1 files
 extern char g_radarFinalName[12];                                                                               // 0x507518, 12 bytes; 1 of 1 files
 extern int g_campaignSimplifiedLayout;                                                                          // 0x507b6c, 4 bytes; 1 of 1 files
-extern unsigned char g_briefingTextColors[1];                                                                   // 0x507b70, 1 bytes; 1 of 1 files
+extern unsigned char g_briefingTextColors[24];                                                                   // 0x507b70, 24 bytes; 1 of 1 files
 extern char* g_forcesDestroyedTexts[3];                                                                         // 0x507b88, 12 bytes; 1 of 1 files
 extern char g_alliesChatTarget[8];                                                                              // 0x508384, 8 bytes; 1 of 1 files
 extern const char g_skirmishCheatSoundName[16];                                                                 // 0x508460, 16 bytes; 1 of 1 files
@@ -323,7 +323,6 @@ extern unsigned char DAT_00512758[8];                                           
 extern int DAT_00512760;                                                                                        // 0x512760, 4 bytes; 1 of 1 files
 extern int g_unitRestrictPicLoadIndex;                                                                          // 0x512768, 4 bytes; 1 of 1 files
 extern int DAT_0051276c;                                                                                        // 0x51276c, 4 bytes; 1 of 1 files
-extern unsigned char DAT_00512780[8];                                                                           // 0x512780, 8 bytes; nothing refers to it
 extern unsigned int g_reporterNames;                                                                            // 0x512788, 4 bytes; 1 of 1 files
 extern unsigned char DAT_0051278c[60];                                                                          // 0x51278c, 60 bytes; nothing refers to it
 extern unsigned char g_linkInfo[432];                                                                           // 0x5127c8, 432 bytes; LinkInfo[] by value in 2 of 2 files
@@ -357,7 +356,7 @@ extern char* g_loungeChatter;                                                   
 extern int g_loungeRefreshTime;                                                                                 // 0x512c78, 4 bytes; 1 of 1 files
 extern unsigned int g_timeoutTimerStart;                                                                        // 0x512c7c, 4 bytes; 1 of 1 files
 extern unsigned char DAT_00512c80[336];                                                                         // 0x512c80, 336 bytes; int in 3 of 4 files (conflicting: shape), but used past its end
-extern char g_onlineDllPath[260];                                                                               // 0x512dd0, 260 bytes; 3 of 3 files
+extern char g_onlineDllPath[261];                                                                               // 0x512dd0, 261 bytes; 3 of 3 files
 extern unsigned char DAT_00512ed4[20];                                                                          // 0x512ed4, 20 bytes; nothing refers to it
 extern int g_onlineConfigLoaded;                                                                                // 0x512ee8, 4 bytes; 2 of 2 files
 extern void* g_onlineDll;                                                                                       // 0x512eec, 4 bytes; 4 of 4 files
@@ -430,8 +429,7 @@ extern int g_cdActivitySampleRing[30];                                          
 extern char g_chatDraftText[136];                                                                               // 0x51e788, 136 bytes; 1 of 1 files
 extern unsigned char g_scorePanelLossFlash[10];                                                                 // 0x51e810, 10 bytes; 2 of 2 files
 extern unsigned char DAT_0051e81a[6];                                                                           // 0x51e81a, 6 bytes; nothing refers to it
-extern "C" unsigned char g_loadingBarPrevPercent[5];                                                            // 0x51e820, 1 bytes; extern "C" (no type) in declared extern "C" in 1 of 1 files, but used past its end
-extern "C" unsigned char DAT_0051e825[3];                                                                       // 0x51e825, 1 bytes; extern "C" (no type) in declared extern "C" in 1 of 1 files, but used past its end
+extern "C" unsigned char g_loadingBarPrevPercent[8];                                                            // 0x51e820, 1 bytes; extern "C" (no type) in declared extern "C" in 1 of 1 files, but used past its end
 extern unsigned char g_cdListsDiscEntries[2720];                                                                // 0x51e828, 2720 bytes; CdLists_490f80 by value in 1 of 1 files
 extern unsigned char g_scorePanelKillFlash[10];                                                                 // 0x51f2c8, 10 bytes; 2 of 2 files
 extern unsigned char DAT_0051f2d2[6];                                                                           // 0x51f2d2, 6 bytes; nothing refers to it

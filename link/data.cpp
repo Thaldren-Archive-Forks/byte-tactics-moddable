@@ -146,7 +146,7 @@ char g_radarPictureName[16] = "RADAR PICTURE";  // 0x5074f8 .data
 char g_radarMappedName[16] = "RADAR MAPPED";  // 0x507508 .data
 char g_radarFinalName[12] = "RADAR FINAL";  // 0x507518 .data (holds 1 value(s) that look like addresses in the exe: they need symbols before this can be relinked)
 int g_campaignSimplifiedLayout = 1;  // 0x507b6c .data
-unsigned char g_briefingTextColors[1] = {53};  // 0x507b70 .data
+unsigned char g_briefingTextColors[24] = {53, 51, 64, 208, 117, 86, 82, 212, 117, 86, 82, 212, 117, 86, 82, 212, 117, 86, 82, 212, 0, 0, 0, 0};  // 0x507b70 .data
 char* g_forcesDestroyedTexts[3] = {(char*)"forces have been obliterated", (char*)"vermin have been exterminated", (char*)"forces have gone to a better place"};  // 0x507b88 .data
 char g_alliesChatTarget[8] = "Allies";  // 0x508384 .data
 const char g_skirmishCheatSoundName[16] = "SkirmishCheat";  // 0x508460 .data
@@ -411,7 +411,6 @@ unsigned char DAT_00512758[8];  // 0x512758 .bss
 int DAT_00512760;  // 0x512760 .bss
 int g_unitRestrictPicLoadIndex;  // 0x512768 .bss
 int DAT_0051276c;  // 0x51276c .bss
-unsigned char DAT_00512780[8];  // 0x512780 .bss
 unsigned int g_reporterNames;  // 0x512788 .bss
 unsigned char DAT_0051278c[60];  // 0x51278c .bss
 unsigned char g_linkInfo[432];  // 0x5127c8 .bss
@@ -445,7 +444,7 @@ char* g_loungeChatter;  // 0x512c74 .bss
 int g_loungeRefreshTime;  // 0x512c78 .bss
 unsigned int g_timeoutTimerStart;  // 0x512c7c .bss
 unsigned char DAT_00512c80[336];  // 0x512c80 .bss (the type runs past the next known address, 0x512c80+0x4)
-char g_onlineDllPath[260];  // 0x512dd0 .bss
+char g_onlineDllPath[261];  // 0x512dd0 .bss
 unsigned char DAT_00512ed4[20];  // 0x512ed4 .bss
 int g_onlineConfigLoaded;  // 0x512ee8 .bss
 void* g_onlineDll;  // 0x512eec .bss
@@ -518,8 +517,7 @@ int g_cdActivitySampleRing[30];  // 0x51e710 .bss
 char g_chatDraftText[136];  // 0x51e788 .bss
 unsigned char g_scorePanelLossFlash[10];  // 0x51e810 .bss (the type runs past the next known address, 0x51e810+0x8)
 unsigned char DAT_0051e81a[6];  // 0x51e81a .bss
-unsigned char g_loadingBarPrevPercent[5];  // 0x51e820 .bss
-unsigned char DAT_0051e825[3];  // 0x51e825 .bss
+unsigned char g_loadingBarPrevPercent[8];  // 0x51e820 .bss
 unsigned char g_cdListsDiscEntries[2720];  // 0x51e828 .bss
 unsigned char g_scorePanelKillFlash[10];  // 0x51f2c8 .bss (the type runs past the next known address, 0x51f2c8+0x8)
 unsigned char DAT_0051f2d2[6];  // 0x51f2d2 .bss

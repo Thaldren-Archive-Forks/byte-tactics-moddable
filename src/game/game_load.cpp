@@ -193,12 +193,10 @@ extern Game* g_game;
 
 extern unsigned char g_scorePanelKillFlash[10];
 extern unsigned char g_scorePanelLossFlash[10];
-extern "C" int g_loadingBarFlashAlpha;
-extern "C" int DAT_0051e6cc;
+extern "C" unsigned char g_loadingBarFlashAlpha[8];
 extern "C" int g_loadingBarFlashDecayTick;
 extern int g_usePacketManager;
-extern "C" unsigned char g_loadingBarPrevPercent, DAT_0051e821, DAT_0051e822;
-extern "C" unsigned char DAT_0051e823, DAT_0051e824, DAT_0051e825;
+extern "C" unsigned char g_loadingBarPrevPercent[8];
 extern int g_nonCampaignGame;
 
 #include "../map/mission.h"
@@ -804,8 +802,8 @@ void LoadingScreenFrame(void)
         // Four memsets (10, 10, 6, 6 bytes); the stage bytes get one 8-byte memset.
         memset(g_scorePanelKillFlash, 0, 10);
         memset(g_scorePanelLossFlash, 0, 10);
-        memset(&g_loadingBarFlashAlpha, 0, 6);
-        memset(&g_loadingBarPrevPercent, 0, 6);
+        memset(g_loadingBarFlashAlpha, 0, 6);
+        memset(g_loadingBarPrevPercent, 0, 6);
         (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.started = 1;
         OnlineUnload();
     }
@@ -873,8 +871,8 @@ void LoadingScreenFrame(void)
         if (g_loadingBarFlashDecayTick < (int)stamp) {
             g_loadingBarFlashDecayTick = GetTicks();
             for (i = 0; i < 6; i++) {
-                if (((char*)&g_loadingBarFlashAlpha)[i] != 0) {
-                    ((char*)&g_loadingBarFlashAlpha)[i] -= 2;
+                if (g_loadingBarFlashAlpha[i] != 0) {
+                    g_loadingBarFlashAlpha[i] -= 2;
                 }
             }
         }
@@ -902,14 +900,14 @@ void LoadingScreenFrame(void)
             void* lightbar = GetGafFrame(light, 0);
             *((short*)lightbar + 3) = 0;
             *((short*)lightbar + 2) = 0;
-            DrawLoadingBar(&gadget, lightbar, 0, &g_loadingBarPrevPercent, (unsigned char*)&g_loadingBarFlashAlpha, 0, "Textures", 0x87, rect);
-            DrawLoadingBar(&gadget, lightbar, 1, &DAT_0051e821, (unsigned char*)&g_loadingBarFlashAlpha, 1, "Terrain", 0xb1, rect);
-            DrawLoadingBar(&gadget, lightbar, 2, &DAT_0051e822, (unsigned char*)&g_loadingBarFlashAlpha, 2, "Units", 0xda, rect);
-            DrawLoadingBar(&gadget, lightbar, 3, &DAT_0051e823, (unsigned char*)&g_loadingBarFlashAlpha, 3, "Animation", 0x106, rect);
-            DrawLoadingBar(&gadget, lightbar, 4, &DAT_0051e824, (unsigned char*)&DAT_0051e6cc, 0, "3D Data", 0x130, rect);
+            DrawLoadingBar(&gadget, lightbar, 0, &g_loadingBarPrevPercent[0], g_loadingBarFlashAlpha, 0, "Textures", 0x87, rect);
+            DrawLoadingBar(&gadget, lightbar, 1, &g_loadingBarPrevPercent[1], g_loadingBarFlashAlpha, 1, "Terrain", 0xb1, rect);
+            DrawLoadingBar(&gadget, lightbar, 2, &g_loadingBarPrevPercent[2], g_loadingBarFlashAlpha, 2, "Units", 0xda, rect);
+            DrawLoadingBar(&gadget, lightbar, 3, &g_loadingBarPrevPercent[3], g_loadingBarFlashAlpha, 3, "Animation", 0x106, rect);
+            DrawLoadingBar(&gadget, lightbar, 4, &g_loadingBarPrevPercent[4], g_loadingBarFlashAlpha + 4, 0, "3D Data", 0x130, rect);
             DrawFrame(&gadget, lightbar, rect[0] + *((short*)lightbar + 2),
                          rect[1] + *((short*)lightbar + 3));
-            DrawLoadingBar(&gadget, lightbar, 5, &DAT_0051e825, (unsigned char*)&DAT_0051e6cc, 1, "Explosions", 0x15b, rect);
+            DrawLoadingBar(&gadget, lightbar, 5, &g_loadingBarPrevPercent[5], g_loadingBarFlashAlpha + 4, 1, "Explosions", 0x15b, rect);
         }
         if (g_seams.map->GetGameType(g_game->net) == 3) {
             DrawSyncStatus(&gadget);
