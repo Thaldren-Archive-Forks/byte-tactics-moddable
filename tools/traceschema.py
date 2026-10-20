@@ -1269,6 +1269,7 @@ def generate():
         moved[name] = "offsetof(SimGlobals, %s) + 0x%x" % (container, offset)
     used = [symbol for group in (METEOR_GLOBALS, SCALAR_GLOBALS, PATH_GLOBALS) for _, symbol, _, _ in group
             if symbol in moved]
+    used += [sim.interior_of[symbol][0] for symbol in used if symbol in sim.interior_of]
     if used:
         lines.append("#include <stddef.h>")
         lines.append('#include "../state/sim_globals.h"')

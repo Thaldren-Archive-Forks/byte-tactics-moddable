@@ -146,6 +146,12 @@ class MovedGlobalsTest(unittest.TestCase):
         self.assertLess(text.index('#undef g_meteorActive'), text.index("kMeteorGlobals[]"))
         self.assertLess(text.index("kPathGlobalsCount"), text.index('#pragma pop_macro("g_meteorActive")'))
 
+    def test_container_of_an_interior_global_is_not_expanded_in_offsetof(self):
+        text = self.generate("field,name,container,offset\ng_economyPacketTick,g_economyPacketTick,g_packetManager,0x8\n")
+        self.assertIn('#pragma push_macro("g_packetManager")', text)
+        self.assertLess(text.index("#undef g_packetManager"), text.index("kPathGlobals[]"))
+        self.assertLess(text.index("kPathGlobalsCount"), text.index('#pragma pop_macro("g_packetManager")'))
+
     def test_order_sizes_and_kinds_do_not_change(self):
         plain = self.generate("field,name,container,offset\n")
         moved = self.generate("field,name,container,offset\ng_meteorWeapon,g_meteorWeapon,,\n")
