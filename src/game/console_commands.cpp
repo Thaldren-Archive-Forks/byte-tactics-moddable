@@ -342,10 +342,9 @@ Unit* __stdcall FindNextSelectedUnit(int, int);
 // FUNCTION: 0x416240
 void __stdcall CmdMemDump(char* args)
 {
-    HANDLE file = CreateFileA("memdump.txt", GENERIC_WRITE, 0, 0, CREATE_ALWAYS,
-                              FILE_ATTRIBUTE_NORMAL, 0);
+    void* file = host_file_create("memdump.txt", 0);
     if (file != 0) {
-        CloseHandle(file);
+        host_file_close(file);
     }
 }
 
@@ -1513,10 +1512,10 @@ void __stdcall CmdPrintWeights(CommandArgs* args)
             Player* p = &g_game->players[i];
             if (p->active != 0 && (p->type == 1 || p->type == 2 || p->type == 3)
                 && p->index != 10) {
-                FILE* f = fopen(args->GetArg(2, DAT_005119b8), "w+b");
+                void* f = host_file_create(args->GetArg(2, DAT_005119b8), 0);
                 if (f != 0) {
-                    g_seams.ai->DumpPlayerAI(args->GetIntArg(1, 0), f);
-                    fclose(f);
+                    g_seams.ai->DumpPlayerAI(args->GetIntArg(1, 0), (_iobuf*)f);
+                    host_file_close(f);
                 }
             }
         }

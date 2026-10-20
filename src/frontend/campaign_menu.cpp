@@ -221,7 +221,6 @@ Layer* __stdcall LoadGuiLayer(Gui* menu, const char* name, int flags);
 void __stdcall SelectGadgetByName(Gui* menu, const char* name);
 void __stdcall RemapPaletteToClosestIndices(Gui* menu, void* param_2, void* param_3);
 void __stdcall PlaySoundByName(const char* name, int value);
-char __stdcall FindGameCdDrive(int side);
 void RegisterDataArchives();
 void InitMissionStatus();
 void SaveSettings();
@@ -698,27 +697,17 @@ void __stdcall HandleSingleMenuClick(Gui* gadget)
     if (gadget->hotGadgetIndex == -1)
         return;
     if (IsCurrentGadgetNamed(gadget, "NewCamp")) {
-        if (FindGameCdDrive(0)) {
-            RegisterDataArchives();
-            PlaySoundByName("BigButton", 0);
-            g_game->field_2bc0 = 10;
-            SetCursorMode(0x14);
-        } else {
-            OpenMessageBox((char*)&g_game->gui, Translate("Please insert the Campaign CD (Disc 2) and try again"), 200, 1, 1);
-            ClearSelectedGadget((char*)&g_game->gui);
-        }
+        RegisterDataArchives();
+        PlaySoundByName("BigButton", 0);
+        g_game->field_2bc0 = 10;
+        SetCursorMode(0x14);
         return;
     }
     if (IsCurrentGadgetNamed(gadget, "Skirmish")) {
-        if (FindGameCdDrive(1)) {
-            RegisterDataArchives();
-            PlaySoundByName("skirmish", 0);
-            g_game->field_2bc0 = 11;
-            SetCursorMode(0x14);
-        } else {
-            OpenMessageBox((char*)&g_game->gui, Translate("Please insert the Multiplayer CD (Disc 1) and try again"), 200, 1, 1);
-            ClearSelectedGadget((char*)&g_game->gui);
-        }
+        RegisterDataArchives();
+        PlaySoundByName("skirmish", 0);
+        g_game->field_2bc0 = 11;
+        SetCursorMode(0x14);
         return;
     }
     if (IsCurrentGadgetNamed(gadget, "LoadGame")) {
@@ -742,15 +731,10 @@ void __stdcall HandleSingleMenuClick(Gui* gadget)
         return;
     }
     if (IsCurrentGadgetNamed(gadget, "AnyMsn")) {
-        if (FindGameCdDrive(0)) {
-            RegisterDataArchives();
-            PlaySoundByName("bigButton", 0);
-            g_game->field_2bc0 = 14;
-            SetCursorMode(0x14);
-        } else {
-            OpenMessageBox((char*)&g_game->gui, Translate("Please insert the Campaign CD (Disc 2) and try again"), 200, 1, 1);
-            ClearSelectedGadget((char*)&g_game->gui);
-        }
+        RegisterDataArchives();
+        PlaySoundByName("bigButton", 0);
+        g_game->field_2bc0 = 14;
+        SetCursorMode(0x14);
         return;
     }
     ClearSelectedGadget(gadget);
@@ -880,13 +864,6 @@ void __stdcall HandleNewGameClick(Gui* menu)
         (g_anyMissionMode == 0 && (IsCurrentGadgetNamed(menu, "Campaign") || IsCurrentGadgetNamed(menu, "Start")))) {
         index = 0;
         PlaySoundByName("bigButton", 0);
-        if (!FindGameCdDrive(0)) {
-            OpenMessageBox((char*)&g_game->gui,
-                         Translate("Please insert the Campaign CD (Disc 2) and try again"),
-                         200, 1, 1);
-            ClearSelectedGadget(&g_game->gui);
-            return;
-        }
         RegisterDataArchives();
         InitMissionStatus();
         {
@@ -1289,18 +1266,11 @@ void __stdcall HandleMissionBriefingClick(Gui* menu)
     }
     if (IsCurrentGadgetNamed(menu, "Start")) {
         PlaySoundByName("BigButton", 0);
-        if (FindGameCdDrive(0)) {
-            RegisterDataArchives();
-            SetCursorMode(0x14);
-            ((Sound *)g_game->field_10)->StopStream();
-            BlankScreen();
-            g_game->field_2bc0 = 2;
-            return;
-        }
-        OpenMessageBox((char*)&g_game->gui,
-                     Translate("Please insert the Campaign CD (Disc 2) and try again"),
-                     200, 1, 1);
-        ClearSelectedGadget(&g_game->gui);
+        RegisterDataArchives();
+        SetCursorMode(0x14);
+        ((Sound *)g_game->field_10)->StopStream();
+        BlankScreen();
+        g_game->field_2bc0 = 2;
         return;
     }
     if (IsCurrentGadgetNamed(menu, "SHUTUP")) {

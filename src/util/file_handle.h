@@ -5,13 +5,11 @@
 #ifndef FILE_HANDLE_H
 #define FILE_HANDLE_H
 
-struct _iobuf;
-typedef struct _iobuf FILE;
 struct OPENHAPIFILE;
 struct Info;
 
 struct FileHandle {
-    FILE* fp;                          // +0x0, the loose file or the archive's
+    void* fp;
     OPENHAPIFILE* shared;              // +0x4, the open archive (0 for a loose file)
     Info* info;                        // +0x8, the entry's offset, size and compression
     unsigned int pos;                  // +0xc, read position

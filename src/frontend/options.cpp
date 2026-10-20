@@ -710,7 +710,6 @@ char* __cdecl _itoa(int value, char* buf, int radix);
 char* __stdcall WordWrapText(Menu_004604a0* menu, char* text, int width, int index);
 int __stdcall SetCursorMode(int value);
 void ApplyDifficultyButtons();
-char __stdcall FindGameCdDrive(int disc);
 void __stdcall RegisterDataArchives();
 void __stdcall OpenMessageBox(char* dest, char* text, int param_3, int param_4, int param_5);
 int __stdcall IsGadgetNamed(int param1, int param2, char* name);
@@ -2507,23 +2506,9 @@ void __stdcall HandleRestartDialogClick(Gui* gui)
         int mode = g_game->net->GetGameType();
         switch (mode) {
         case 1:
-            if (!FindGameCdDrive(0)) {
-                OpenMessageBox((char*)&g_game->gui,
-                             Translate((char*)"Please insert the Campaign CD (Disc 2) and try again"),
-                             200, 1, 1);
-                ClearSelectedGadget((char*)&g_game->gui);
-                return;
-            }
             ok = true;
             break;
         case 2:
-            if (!FindGameCdDrive(1)) {
-                OpenMessageBox((char*)&g_game->gui,
-                             Translate((char*)"Please insert the Multiplayer CD (Disc 1) and try again"),
-                             200, 1, 1);
-                ClearSelectedGadget((char*)&g_game->gui);
-                return;
-            }
             ok = true;
             break;
         }

@@ -22,6 +22,7 @@
 #include <windows.h>
 #include <ddraw.h>
 #include <math.h>
+#include "../../interfaces/host.h"
 
 struct Gadget;
 struct Layer;
@@ -947,7 +948,6 @@ void __stdcall GetGadgetRectByIndex(Gadget* entries, int widget, RECT* rect);
 void __stdcall DrawTextClipped(int a, char* text, int x, int y, int w, int h);
 int AreAllPlayersReady();
 void __stdcall CreateUnitSync(int param_1);
-char __stdcall FindGameCdDrive(int side);
 int __stdcall HandleNetPackets();
 void* __stdcall LoadPcx(char* path, int param_2);
 void __stdcall FrameFromSurface(void* dst, void* src);
@@ -4252,13 +4252,13 @@ void FreeSaveListBuffers()
 // FUNCTION: 0x44b140
 void __stdcall LoadUnitRestrictListFile(char* name)
 {
-    FILE* f = fopen(name, "rb");
+    void* f = host_file_open_read(name);
     int count;
-    fread(&count, 4, 1, f);
+    host_file_read(f, &count, 4);
     for (int i = 0; i < count; i++) {
         int a, b;
-        fread(&a, 4, 1, f);
-        fread(&b, 4, 1, f);
+        host_file_read(f, &a, 4);
+        host_file_read(f, &b, 4);
         int n = g_game->unitDefCount;
         for (int idx = 1; idx < n; idx++) {
             if (((UnitType_00446f50 *)g_game->defs)[idx].fbiChecksum == a) {
@@ -4272,31 +4272,31 @@ void __stdcall LoadUnitRestrictListFile(char* name)
             }
         }
     }
-    fclose(f);
+    host_file_close(f);
 }
 
 // FUNCTION: 0x44b230
 void __stdcall SaveUnitRestrictListFile(char* filename)
 {
-    FILE* f = fopen(filename, "wb+");
+    void* f = host_file_create(filename, 0);
 
     int count = g_game->unitDefCount - 1;
-    fwrite(&count, 4, 1, f);
+    host_file_write(f, &count, 4);
     count++;
 
     for (int i = 1; i < count; i++) {
         for (int j = 0; j < g_game->unitDefCount; j++) {
             if (*(int*)((char*)g_unitRestrictEntries + 0x52 + j * 0x62) == i) {
                 int v = ((UnitType_00446f50 *)g_game->defs)[i].fbiChecksum;
-                fwrite(&v, 4, 1, f);
+                host_file_write(f, &v, 4);
                 v = *(int*)((char*)g_unitRestrictEntries + 0x5a + j * 0x62);
-                fwrite(&v, 4, 1, f);
+                host_file_write(f, &v, 4);
                 break;
             }
         }
     }
 
-    fclose(f);
+    host_file_close(f);
 }
 
 // FUNCTION: 0x44b330

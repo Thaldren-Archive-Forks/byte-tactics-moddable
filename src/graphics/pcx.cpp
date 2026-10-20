@@ -671,7 +671,7 @@ public:
     int width;                  // +0x0
     int height;                 // +0x4
     int dataOffset;             // +0x8
-    FILE* file;                 // +0xc
+    void* file;
 
     BmpWriter* Init();
     void Close();
@@ -691,7 +691,7 @@ BmpWriter* BmpWriter::Init()
 void BmpWriter::Close()
 {
     if (file != NULL) {
-        fclose(file);
+        host_file_close(file);
     }
 }
 
@@ -745,7 +745,7 @@ bool BmpWriter::Open(const char* name, int w, int h)
 
     width = w;
     height = h;
-    file = fopen(name, "wb");
+    file = host_file_create(name, 0);
     if (file == NULL) {
         return false;
     }
@@ -755,7 +755,7 @@ bool BmpWriter::Open(const char* name, int w, int h)
     fh.bfReserved1 = 0;
     fh.bfReserved2 = 0;
     fh.bfOffBits = 0x436;
-    if (fwrite(&fh, sizeof(fh), 1, file) != 1) {
+    if (host_file_write(file, &fh, sizeof(fh)) != sizeof(fh)) {
         return false;
     }
     BmpInfo info;
@@ -779,10 +779,10 @@ bool BmpWriter::Open(const char* name, int w, int h)
         dp += 4;
         sp += 4;
     }
-    if (fwrite(&info, sizeof(info), 1, file) != 1) {
+    if (host_file_write(file, &info, sizeof(info)) != sizeof(info)) {
         return false;
     }
-    dataOffset = ftell(file);
+    dataOffset = host_file_seek(file, 0, HOST_SEEK_CUR);
     return true;
 }
 
@@ -794,11 +794,11 @@ bool BmpWriter::WriteRows(Bitmap_004caec0* image, int x, int rows, int unused_4,
                                   int y, int unused_6, int srcY)
 {
     int stride = (image->width + 3) & ~3;
-    if (fseek(file, (height - rows - y) * stride + dataOffset, SEEK_SET) != 0) {
+    if (host_file_seek(file, (height - rows - y) * stride + dataOffset, HOST_SEEK_SET) == -1) {
         return false;
     }
     for (int i = rows - 1; i >= 0; i--) {
-        if (fwrite(image->data + image->pitch * (i + srcY), stride, 1, file) != 1) {
+        if (host_file_write(file, image->data + image->pitch * (i + srcY), stride) != stride) {
             return false;
         }
     }
@@ -817,18 +817,18 @@ int __stdcall SaveBmp(char* name, Bitmap_004caec0* image)
     bool ok;
     bmp.file = 0;
     if (!bmp.Open(name, image->width, image->height)) {
-        if (bmp.file) fclose(bmp.file);
+        if (bmp.file) host_file_close(bmp.file);
         return 0;
     }
     {
         int stride = (image->width + 3) & ~3;
         int n = image->height;
-        if (fseek(bmp.file, (bmp.height - n) * stride + bmp.dataOffset, SEEK_SET) != 0) {
+        if (host_file_seek(bmp.file, (bmp.height - n) * stride + bmp.dataOffset, HOST_SEEK_SET) == -1) {
             ok = false;
             goto done;
         }
         for (int i = n - 1; i >= 0; i--) {
-            if (fwrite(image->data + i * image->pitch, stride, 1, bmp.file) != 1) {
+            if (host_file_write(bmp.file, image->data + i * image->pitch, stride) != stride) {
                 ok = false;
                 goto done;
             }
@@ -837,10 +837,10 @@ int __stdcall SaveBmp(char* name, Bitmap_004caec0* image)
     }
 done:
     if (!ok) {
-        if (bmp.file) fclose(bmp.file);
+        if (bmp.file) host_file_close(bmp.file);
         return 0;
     }
-    if (bmp.file) fclose(bmp.file);
+    if (bmp.file) host_file_close(bmp.file);
     return 1;
 }
 

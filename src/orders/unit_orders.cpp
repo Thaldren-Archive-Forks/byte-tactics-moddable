@@ -168,7 +168,6 @@ void CenterCameraOnRadarClick();
 void CenterCameraOnStartPosition();
 void RegisterDataArchives();
 int FUN_0041d8a0();
-int GetCdPathMismatch();
 void CreateGameObject();
 void InitMissionStatus();
 void SetUpEndMissionScreen();

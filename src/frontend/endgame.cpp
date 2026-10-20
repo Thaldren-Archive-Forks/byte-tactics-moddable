@@ -205,7 +205,6 @@ void __stdcall SetCursorMode(int n);
 void Force640x480Surfaces();
 void ApplyDifficultyButtons();
 void StartGlamourSound();
-char __stdcall FindGameCdDrive(int side);
 const char* __stdcall Translate(const char* text);
 void __stdcall OpenMessageBox(Gui* menu, const char* text, int wrapWidth, int centre, int autoHeight);
 void __stdcall PlaySoundByName(const char* name, int broadcast);
@@ -627,12 +626,6 @@ void __stdcall HandleEndMissionClick(Gui* gadget)
         return;
     }
     if (IsCurrentGadgetNamed(gadget, "Start") || IsCurrentGadgetNamed(gadget, "Missions")) {
-        if (!FindGameCdDrive(0)) {
-            OpenMessageBox(&g_game->gui,
-                         Translate("Please insert the Campaign CD (Disc 2) and try again"),
-                         200, 1, 1);
-            ClearSelectedGadget(&g_game->gui);
-        }
         RegisterDataArchives();
         PlaySoundByName("BigButton", 0);
         g_game->field_2bc0 = 10;
@@ -829,13 +822,8 @@ void __stdcall HandleCdCheckClick(Gui* gadget)
     if (gadget->hotGadgetIndex != -1) {
         if (IsCurrentGadgetNamed(gadget, "OK")) {
             PlaySoundByName("Options", 0);
-            if (FindGameCdDrive(0)) {
-                g_game->field_39057 = 5;
-                return;
-            }
-            OpenMessageBox(&g_game->gui,
-                         Translate("Please insert the Campaign CD (Disc 2) and try again"),
-                         200, 1, 1);
+            g_game->field_39057 = 5;
+            return;
         }
         ClearSelectedGadget(gadget);
     }
@@ -956,14 +944,7 @@ void __stdcall RunEndGameState()
         }
         break;
     case 4:
-        if(g_seams.map->GetGameType(g_game->net)==1 && !FindGameCdDrive(0)) {
-            Layer* l=LoadGuiLayer(&g_game->gui,"CDCHECK.GUI",0x101);
-            l->handler=(void (__stdcall*)(void*))HandleCdCheckClick;
-            SetCursorOverlayEnabled(1);
-            SetKeyboardInput(&g_game->gui,1);
-            RenderLayer(&g_game->gui,0x40);
-            g_game->field_39057=8;
-        } else g_game->field_39057=5;
+        g_game->field_39057=5;
         break;
     case 5: {
         SetUpEndMissionScreen();

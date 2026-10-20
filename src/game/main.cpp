@@ -46,24 +46,11 @@ void NopAbortHook(void);
 // FUNCTION: 0x49e700
 void OutOfMemoryHandler()
 {
-    char path[1000];
-    DWORD written;
-    HANDLE file;
-    char* slash;
-
-    GetModuleFileNameA(NULL, path, 1000);
-    slash = strrchr(path, '\\');
-    if (slash)
-        slash[1] = 0;
-    else
-        strcpy(path, "C:\\");
-    strcat(path, "ErrorLog.txt");
-    file = CreateFileA(path, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    void* file = host_file_open_append("ErrorLog.txt");
     if (file) {
-        SetFilePointer(file, 0, NULL, FILE_END);
-        WriteFile(file, "Out of memory!\r\nYour hard disk may be full\r\n",
-                  strlen("Out of memory!\r\nYour hard disk may be full\r\n"), &written, NULL);
-        CloseHandle(file);
+        host_file_write(file, "Out of memory!\r\nYour hard disk may be full\r\n",
+                        strlen("Out of memory!\r\nYour hard disk may be full\r\n"));
+        host_file_close(file);
     }
     ReportViaException("Out of memory handler");
     host_message(NULL, "Total Annihilation", "Out of memory!\r\nYour hard disk may be full\r\n",

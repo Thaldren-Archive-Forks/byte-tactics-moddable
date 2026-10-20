@@ -97,7 +97,6 @@ extern Game* g_game;
 void __stdcall PlaySoundByName(char* str, int flag);
 #include "../../interfaces/seams.h"
 
-extern int GetCdPathMismatch();
 
 
 
@@ -1186,15 +1185,6 @@ int FUN_00490200()
 int MissionConditions::CheckDefeat(RandStream stream)
 {
     if (active) {
-        if (GetCdPathMismatch()) {
-            if (g_cdMismatchDefeatTick == 0) {
-                g_cdMismatchDefeatTick = (int)((__int64)GameRand(stream) * 0x2328 / 0x8000) + 0x2328;
-            }
-            if (g_cdMismatchDefeatTick <= ((unsigned int)g_game->ticks)) {
-                g_cdMismatchDefeatTick = 0;
-                return 1;
-            }
-        }
         // The two mode cases share one body, but writing them out separately
         // is what makes MSVC lower the switch to the dec/je chain.
         switch (g_seams.map->GetGameType(g_game->net)) {

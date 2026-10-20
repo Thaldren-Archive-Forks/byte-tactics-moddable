@@ -152,7 +152,6 @@ void OrLabelAttribs();
 void __stdcall BlankScreen();
 void __stdcall RegisterDataArchives();
 void __stdcall SetFrontendState(int code, int line, char* file);
-char __stdcall FindGameCdDrive(int flag);
 void __stdcall SetCloseHandler(void (__cdecl *callback)(int), int param);
 void __cdecl LeaveNetGameCallback(int param);
 void __cdecl GameFreeThunk(void* p);
@@ -344,22 +343,8 @@ void __stdcall LoadGameScreenHandler(Gui* gadget)
         FreeSummaryBank(save);
         switch (type) {
         case 1:
-            if (!FindGameCdDrive(0)) {
-                OpenMessageBox(g_game->message_519,
-                    Translate("Please insert the Campaign CD (Disc 2) and try again"),
-                    200, 1, 1);
-                ClearSelectedGadget((Gui*)g_game->message_519);
-                return;
-            }
             break;
         case 2:
-            if (!FindGameCdDrive(1)) {
-                OpenMessageBox(g_game->message_519,
-                    Translate("Please insert the Multiplayer CD (Disc 1) and try again"),
-                    200, 1, 1);
-                ClearSelectedGadget((Gui*)g_game->message_519);
-                return;
-            }
             break;
         default:
             goto invalid;
