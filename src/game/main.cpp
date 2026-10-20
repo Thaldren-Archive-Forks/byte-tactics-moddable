@@ -113,7 +113,7 @@ void __stdcall DrawFrame(void* surface, void* header, int x, int y);
 
 extern Game* g_game;
 
-void DispatchHostEvents();
+int DispatchHostEvents();
 
 extern unsigned char g_atexitRegistered;
 extern char* g_appName;
@@ -298,7 +298,8 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     for (;;) {
         if (!host_pump_events(0))
             break;
-        DispatchHostEvents();
+        if (!DispatchHostEvents())
+            break;
         if (g_displayContext.active == lzero && *(int*)((Sound*)g_game->field_10) != 0) {
             SaveCdLists();
             g_cdTrackCategory = ((Sound*)g_game->field_10)->GetTrackCategory();
@@ -317,7 +318,8 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         if (g_displayContext.active == 0 && (g_game->flags_2a44 & 1) == 0) {
             if (!host_pump_events(1))
                 break;
-            DispatchHostEvents();
+            if (!DispatchHostEvents())
+                break;
             continue;
         }
         MainFrameTick();

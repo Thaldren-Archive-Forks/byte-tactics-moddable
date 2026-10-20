@@ -733,7 +733,7 @@ int __stdcall InitEnvironment(App_4b5980* d)
     return 1;
 }
 
-void __stdcall HandleHostEvent(host_event* ev)
+int __stdcall HandleHostEvent(host_event* ev)
 {
     Event_4b5cc0 e;
     switch (ev->type) {
@@ -741,29 +741,29 @@ void __stdcall HandleHostEvent(host_event* ev)
         if (g_display->flags.bits.bit1)
             SetFullScreen(0);
         host_post_quit();
-        return;
+        return 0;
     case HOST_EVENT_FOCUS:
         if (ev->a == 0)
             g_display->active = 0;
         else
             g_display->active = 1;
-        return;
+        return 1;
     case HOST_EVENT_CLOSE:
         if (g_timerSlots.closeHandler != 0) {
             g_timerSlots.closeHandler(g_timerSlots.closeHandlerArg);
-            return;
+            return 1;
         }
         host_window_close();
-        return;
+        return 1;
     case HOST_EVENT_KEY_DOWN:
         HandleVirtualKey(ev->a, 0);
-        return;
+        return 1;
     case HOST_EVENT_CHAR:
         PushKeyCode(ev->a);
-        return;
+        return 1;
     case HOST_EVENT_SYS_KEY_DOWN:
         HandleVirtualKey(ev->a, 1);
-        return;
+        return 1;
     case HOST_EVENT_MOUSE_MOVE:
         e.x = ev->x;
         e.y = ev->y;
@@ -772,7 +772,7 @@ void __stdcall HandleHostEvent(host_event* ev)
         e.flag = 0;
         e.message = ev->type;
         SetCurrentMouseEvent((int*)&e);
-        return;
+        return 1;
     case HOST_EVENT_LBUTTON_DOWN:
     case HOST_EVENT_LBUTTON_UP:
     case HOST_EVENT_RBUTTON_DOWN:
@@ -795,7 +795,7 @@ void __stdcall HandleHostEvent(host_event* ev)
     case HOST_EVENT_MEDIA_NOTIFY:
         if (g_display->callback != 0)
             g_display->callback(ev->type, ev->a, ev->b);
-        return;
+        return 1;
     case HOST_EVENT_PALETTE_QUERY:
         if (g_display->hpalette) {
             HDC dc = GetDC(g_display->hwnd);
@@ -806,33 +806,38 @@ void __stdcall HandleHostEvent(host_event* ev)
         else if (g_display->draw.primary && g_display->draw.palette) {
             g_display->draw.primary->SetPalette(g_display->draw.palette);
         }
-        return;
+        return 1;
     case HOST_EVENT_PALETTE_CHANGED:
         if (ev->a != 0)
-            return;
+            return 1;
         if (g_display->hpalette) {
             HDC dc = GetDC(g_display->hwnd);
             SelectPalette(dc, g_display->hpalette, FALSE);
             RealizePalette(dc);
             ReleaseDC(g_display->hwnd, dc);
-            return;
+            return 1;
         }
         if (g_display->draw.primary && g_display->draw.palette)
             g_display->draw.primary->SetPalette(g_display->draw.palette);
-        return;
+        return 1;
     default:
-        return;
+        return 1;
     }
     e.message = ev->type;
     PushMouseEvent(&e);
+    return 1;
 }
 
 // FUNCTION: 0x4b5cc0
-void DispatchHostEvents()
+int DispatchHostEvents()
 {
     host_event ev;
-    while (host_event_next(&ev))
-        HandleHostEvent(&ev);
+    int alive = 1;
+    while (host_event_next(&ev)) {
+        if (!HandleHostEvent(&ev))
+            alive = 0;
+    }
+    return alive;
 }
 
 // Shuts a display object down: stops the input thread, frees the item list and

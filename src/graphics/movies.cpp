@@ -5,7 +5,7 @@
 #include <ddraw.h>
 #include "../../interfaces/host.h"
 
-void __stdcall HandleHostEvent(host_event* ev);
+int __stdcall HandleHostEvent(host_event* ev);
 
 // The open Smacker movie (smackw32.dll's SMK struct).
 struct Smk_0047c3a0 {

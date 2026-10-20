@@ -7,7 +7,7 @@
 #include <windows.h>
 #include "../../interfaces/host.h"
 
-void DispatchHostEvents();
+int DispatchHostEvents();
 #include <stdio.h>
 #include <string.h>
 
