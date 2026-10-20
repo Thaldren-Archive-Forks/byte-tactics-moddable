@@ -178,5 +178,97 @@ class MatcherTest(unittest.TestCase):
         self.assertIn("eight: no blockptrs.txt", problems[0])
 
 
+def wild(holder, target="*", offsets="*", cls="not-a-pointer", note="an id"):
+    return row(holder, target, offsets, cls, note)
+
+
+class WildcardTest(unittest.TestCase):
+    WORDS = [resolved("G", 0, "T1", "a", 5, 1, 2), resolved("G", 4, "T2", "b", 7, 3, 9),
+             resolved("G", 8, "T1", "a", 2), resolved("H", 0x10, "T1"), resolved("H", 0x14, "T2"),
+             resolved("K", 0, "T1")]
+
+    def cells(self, rows):
+        return [(r["holder"], r["target"], r["offsets"], r["scenarios"], r["ticks"], r["target_offsets"])
+                for r in rows]
+
+    def test_wildcard_target(self):
+        old = [wild("H", "*", "0x10")]
+        out = bp.merge_wild(self.WORDS, old)
+        h = [r for r in out if r["holder"] == "H"]
+        self.assertEqual(self.cells(h)[0], ("H", "*", "0x10", "1", "1", "0x0"))
+        self.assertEqual(self.cells(h)[1][:3], ("H", "T2", "0x14"))
+
+    def test_wildcard_offsets(self):
+        out = bp.merge_wild(self.WORDS, [wild("G", "T1", "*")])
+        self.assertEqual(self.cells(out)[:2], [("G", "T1", "*", "1", "5", "0x0-0x2"),
+                                               ("G", "T2", "0x4", "1", "7", "0x3-0x9")])
+
+    def test_both_and_removed_pairs(self):
+        out = bp.merge_wild(self.WORDS, [wild("G")])
+        self.assertEqual(self.cells(out)[0], ("G", "*", "*", "2", "12", "0x0-0x9"))
+        self.assertEqual([(r["holder"], r["target"]) for r in out],
+                         [("G", "*"), ("H", "T1"), ("H", "T2"), ("K", "T1")])
+
+    def test_empty_pair_row_dropped(self):
+        out = bp.merge_wild(self.WORDS, [wild("G", "T1", "*"), wild("G", "T2", "*")])
+        self.assertEqual([(r["holder"], r["target"]) for r in out],
+                         [("G", "T1"), ("G", "T2"), ("H", "T1"), ("H", "T2"), ("K", "T1")])
+
+    def test_offsets_tokens_limit_coverage(self):
+        out = bp.merge_wild(self.WORDS, [wild("G", "*", "0x0+0x4*k")])
+        self.assertEqual(len(out), 4)
+        out = bp.merge_wild(self.WORDS, [wild("G", "*", "0x0")])
+        self.assertEqual(self.cells(out)[:2], [("G", "*", "0x0", "1", "5", "0x1-0x2"),
+                                               ("G", "T1", "0x8", "1", "2", "0x0")])
+        self.assertEqual(self.cells(out)[2][:2], ("G", "T2"))
+
+    def test_nothing_covered_is_kept_with_zeros(self):
+        out = bp.merge_wild(self.WORDS, [wild("Z", "*", "*")])
+        self.assertEqual(self.cells(out)[-1], ("Z", "*", "*", "0", "0", "-"))
+        self.assertEqual(bp.check_rows(bp.render(out[-1:])), [])
+
+    def test_regeneration_keeps_hand_data(self):
+        old = [wild("G", "*", "0x0 0x4", "outside", "grid, ids")]
+        out = bp.merge_kept(bp.merge_wild(self.WORDS, old), old)
+        w = out[0]
+        self.assertEqual((w["holder"], w["offsets"], w["target"], w["class"], w["note"]),
+                         ("G", "0x0 0x4", "*", "outside", "grid, ids"))
+        self.assertEqual(bp.merge_wild(self.WORDS, out), out)
+
+    def test_check_accepts(self):
+        text = bp.render([wild("A"), wild("B", "*", "0x4+0x8*k 0x1"), wild("B", "T", "*", "outside", ""),
+                          row("B", "U"), wild("C", "*", "*", "outside", "")])
+        self.assertEqual(bp.check_rows(text), [])
+
+    def test_check_rejects(self):
+        text = bp.render([wild("A", cls="not-a-pointer", note=""), wild("B", "T", "* 0x4"), row("C*", "T"),
+                          row("D", "T*"), row("E", "T", "0x4 *x"), wild("F", "T", "*", "bogus")])
+        problems = "\n".join(bp.check_rows(text))
+        self.assertIn("A -> *): a not-a-pointer row needs a note", problems)
+        self.assertIn("offsets '* 0x4'", problems)
+        self.assertIn("(C* -> T): `*` is only", problems)
+        self.assertIn("(D -> T*): `*` is only", problems)
+        self.assertIn("offsets '0x4 *x'", problems)
+        self.assertIn("class 'bogus'", problems)
+
+    def test_check_dash_only_on_wildcard(self):
+        plain = dict(row("A", "T"), target_offsets="-")
+        self.assertIn("target_offsets", "\n".join(bp.check_rows(bp.render([plain]))))
+
+    def test_check_order_wildcard_first(self):
+        self.assertEqual(bp.check_rows(bp.render([wild("A"), row("A", "T")])), [])
+        self.assertIn("sorted", "\n".join(bp.check_rows(bp.render([row("A", "T"), wild("A")]))))
+
+    def test_uncovered_by_wildcards(self):
+        rows = [wild("G"), wild("H", "T1", "*"), wild("K", "*", "0x4")]
+        scanned = [resolved("G", 0x99, "anything"), resolved("H", 7, "T1"), resolved("H", 7, "T2"),
+                   resolved("K", 0x4, "T9"), resolved("K", 0x8, "T9")]
+        missing = bp.uncovered(scanned, rows)
+        self.assertEqual([(m.holder, m.offset, m.target) for m in missing], [("H", 7, "T2"), ("K", 8, "T9")])
+        lines = bp.describe_uncovered(missing, rows)
+        self.assertIn("pair not listed", lines[0])
+        self.assertIn("offset not listed", lines[1])
+
+
 if __name__ == "__main__":
     unittest.main()

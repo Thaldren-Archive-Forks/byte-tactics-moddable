@@ -23,7 +23,7 @@ is named `SimGlobals.<field>`, the field of src/state/sim_globals.h that holds t
 record layout clang prints for a probe that includes the header), and the offset is then inside that
 field; with no layout the holder is `SimGlobals` and the offset is the struct's.
 
-Rows, one per (holder, target), sorted by holder, then target:
+Rows, one per (holder, target), sorted by holder, then target (a `*` target first):
 
   holder, target  the sites named above
   offsets         where in the holder the pointers sit. The offsets of one pair that form an
@@ -40,6 +40,18 @@ Rows, one per (holder, target), sorted by holder, then target:
 
 `class` and `note` are kept by regeneration, by (holder, target). `reference.py --check` plays the
 scan on and fails on a pair or an offset this file does not cover.
+
+Wildcard rows. An integer that looks like a heap address comes per field, not per pair: it hits many
+targets, which change with the heap layout, and a grid with no pointers at all (map plot cells) makes
+tens of thousands of offsets. A hand-written row may have `*` as its target (any target) and/or as its
+offsets (any offset of the holder; alone, not mixed with other entries). No other column takes `*`
+(the note is free text). A wildcard row covers the scanned words of its holder whose offset it lists
+and whose target it names or `*`. Regeneration keeps its holder, offsets, target, class and note as
+written and takes every word it covers out of the pair rows (a pair row left with no words is
+dropped); a word two wildcard rows cover goes to the first in file order. Its scenarios, ticks and
+target_offsets are computed from the words it covers, as for a pair row; with none they are `0`, `0`
+and `-` (a wildcard row alone may have `-` there) and the row stays. Wildcard rows follow the class
+and note rules, and sort with the rest: holder, then target with `*` first.
 """
 
 import argparse
@@ -66,6 +78,7 @@ SCAN_COLUMNS = ["holder", "holder_tag", "offset", "target", "target_tag", "ticks
 MIN_RUN = 3
 SIM_GLOBALS = "SimGlobals"
 SIM_GLOBALS_HEADER = "src/state/sim_globals.h"
+WILD = "*"
 HEX = r"0x[0-9a-f]+"
 OFFSET_TOKEN = re.compile(r"^(%s)(?:\+(%s)\*k)?$" % (HEX, HEX))
 TARGET_OFFSETS = re.compile(r"^%s(?:-%s)?$" % (HEX, HEX))
@@ -322,6 +335,18 @@ def target_offsets_text(low: int, high: int) -> str:
     return "0x%x" % low if low == high else "0x%x-0x%x" % (low, high)
 
 
+def stats(members: list[Resolved]) -> dict:
+    """The scenarios, ticks and target_offsets columns of the words of one row."""
+    per_scenario: dict[str, int] = {}
+    for r in members:
+        per_scenario[r.scenario] = max(per_scenario.get(r.scenario, 0), r.ticks)
+    if not members:
+        return {"scenarios": "0", "ticks": "0", "target_offsets": "-"}
+    return {"scenarios": str(len(per_scenario)), "ticks": str(sum(per_scenario.values())),
+            "target_offsets": target_offsets_text(min(r.target_min for r in members),
+                                                  max(r.target_max for r in members))}
+
+
 def merge(rows: list[Resolved]) -> list[dict]:
     """One row per (holder, target) with no class or note, sorted by holder then target."""
     groups: dict[tuple[str, str], list[Resolved]] = {}
@@ -329,22 +354,42 @@ def merge(rows: list[Resolved]) -> list[dict]:
         groups.setdefault((r.holder, r.target), []).append(r)
     out = []
     for (holder, target), members in groups.items():
-        ticks = 0
-        per_scenario: dict[str, int] = {}
-        for r in members:
-            per_scenario[r.scenario] = max(per_scenario.get(r.scenario, 0), r.ticks)
-        ticks = sum(per_scenario.values())
         out.append({"holder": holder, "offsets": offsets_text({r.offset for r in members}), "target": target,
-                    "scenarios": str(len(per_scenario)), "ticks": str(ticks),
-                    "target_offsets": target_offsets_text(min(r.target_min for r in members),
-                                                          max(r.target_max for r in members)),
-                    "class": "", "note": ""})
+                    **stats(members), "class": "", "note": ""})
     return sorted(out, key=row_order)
 
 
 def row_order(row: dict) -> tuple:
-    """The sort key of a row: holder, then target."""
-    return row["holder"], row["target"]
+    """The sort key of a row: holder, then target with `*` first."""
+    return row["holder"], row["target"] != WILD, row["target"]
+
+
+def is_wild(row: dict) -> bool:
+    """Whether the row is a wildcard row: `*` as its target or as its offsets."""
+    return row["target"] == WILD or row["offsets"].strip() == WILD
+
+
+def wild_covers(row: dict, word: Resolved) -> bool:
+    """Whether the wildcard row covers the scanned word."""
+    return (row["holder"] == word.holder and row["target"] in (WILD, word.target)
+            and offset_covered(word.offset, row["offsets"].split()))
+
+
+def merge_wild(words: list[Resolved], old: list[dict]) -> list[dict]:
+    """The rows of the words: the old file's wildcard rows (statistics recomputed) and pair rows for the rest."""
+    wild = sorted((dict(r) for r in old if is_wild(r)), key=row_order)
+    taken: list[list[Resolved]] = [[] for _ in wild]
+    rest = []
+    for word in words:
+        for members, row in zip(taken, wild):
+            if wild_covers(row, word):
+                members.append(word)
+                break
+        else:
+            rest.append(word)
+    for members, row in zip(taken, wild):
+        row.update(stats(members))
+    return sorted(wild + merge(rest), key=row_order)
 
 
 def render(rows: list[dict]) -> str:
@@ -365,7 +410,7 @@ def read_rows(path: Path = OUT) -> list[dict]:
 
 def merge_kept(rows: list[dict], old: list[dict]) -> list[dict]:
     """The rows with the class and note the old file had for the same (holder, target)."""
-    kept = {(r["holder"], r["target"]): r for r in old}
+    kept = {(r["holder"], r["target"]): r for r in old if not is_wild(r)}
     for row in rows:
         before = kept.get((row["holder"], row["target"]))
         if before:
@@ -398,13 +443,19 @@ def check_rows(text: str) -> list[str]:
         where = "line %d (%s -> %s)" % (number, row["holder"], row["target"])
         if not row["holder"] or not row["target"]:
             problems.append("line %d: holder and target must be set" % number)
+        if WILD in row["holder"] or (WILD in row["target"] and row["target"] != WILD):
+            problems.append("%s: `*` is only a whole target or the offsets" % where)
+        wild = is_wild(row)
         offsets = row["offsets"].split()
-        if not offsets or not all(OFFSET_TOKEN.match(o) for o in offsets):
-            problems.append("%s: offsets %r are not `0x10`, `0x10+0x24*k` entries" % (where, row["offsets"]))
+        if offsets == [WILD]:
+            pass
+        elif not offsets or not all(OFFSET_TOKEN.match(o) for o in offsets):
+            problems.append("%s: offsets %r are not `*` or `0x10`, `0x10+0x24*k` entries" % (where, row["offsets"]))
         if not row["scenarios"].isdigit() or not row["ticks"].isdigit():
             problems.append("%s: scenarios and ticks must be numbers" % where)
-        if not TARGET_OFFSETS.match(row["target_offsets"]):
-            problems.append("%s: target_offsets %r is not `0x0` or `0xa-0x40`" % (where, row["target_offsets"]))
+        if not TARGET_OFFSETS.match(row["target_offsets"]) and not (wild and row["target_offsets"] == "-"):
+            problems.append("%s: target_offsets %r is not `0x0` or `0xa-0x40`%s"
+                            % (where, row["target_offsets"], " (or `-` on a wildcard row)" if wild else ""))
         if row["class"] not in CLASSES:
             problems.append("%s: class %r is not one of %s" % (where, row["class"], ", ".join(CLASSES)))
         if row["class"] == "not-a-pointer" and not row["note"].strip():
@@ -417,8 +468,10 @@ def check_rows(text: str) -> list[str]:
 
 
 def offset_covered(offset: int, tokens: list[str]) -> bool:
-    """Whether the offset is one of the entries of an offsets column."""
+    """Whether the offset is one of the entries of an offsets column (`*` is every offset)."""
     for token in tokens:
+        if token == WILD:
+            return True
         m = OFFSET_TOKEN.match(token)
         if not m:
             continue
@@ -444,6 +497,8 @@ def uncovered(scanned: list[Resolved], rows: list[dict]) -> list[Resolved]:
         tokens = listed.get((s.holder, s.target))
         if tokens is not None and offset_covered(s.offset, tokens):
             continue
+        if any(wild_covers(r, s) for r in rows if r["target"] == WILD):
+            continue
         key = (s.scenario, s.holder, s.offset, s.target)
         if key not in seen:
             seen.add(key)
@@ -454,9 +509,11 @@ def uncovered(scanned: list[Resolved], rows: list[dict]) -> list[Resolved]:
 def describe_uncovered(missing: list[Resolved], rows: list[dict]) -> list[str]:
     """One line per word the file does not cover, with the reason."""
     pairs = {(r["holder"], r["target"]) for r in rows}
+    wild_holders = {r["holder"] for r in rows if r["target"] == WILD}
     lines = []
     for s in missing:
-        why = "offset not listed" if (s.holder, s.target) in pairs else "pair not listed"
+        listed = (s.holder, s.target) in pairs or s.holder in wild_holders
+        why = "offset not listed" if listed else "pair not listed"
         lines.append("%s: %s offset 0x%x -> %s (%s)" % (s.scenario, s.holder, s.offset, s.target, why))
     return lines
 
@@ -549,7 +606,7 @@ def main() -> None:
     members = load_members(args.build_dir or default_build_dir()) \
         if any(r.holder == SIM_GLOBALS for s in scans for r in s.rows) else []
     code = parse_map(map_path.read_text(errors="replace"))
-    merged = merge_kept(merge(resolve(scans, code, members)), old)
+    merged = merge_kept(merge_wild(resolve(scans, code, members), old), old)
     now = {(r["holder"], r["target"]) for r in merged}
     lost = [r for r in old if (r["class"] or r["note"]) and (r["holder"], r["target"]) not in now]
     args.out.write_text(render(merged))

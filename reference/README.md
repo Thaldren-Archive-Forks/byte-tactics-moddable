@@ -417,6 +417,15 @@ is printed (scenario, holder, offset, target) and `--check` exits 1. `--quick` d
 `uv run tools/blockpointers.py --from <dir>` regenerates the data file from them, keeping the hand-set `class` and
 `note` columns; without `--from` it plays the suite itself. `tools/blockpointers.py --check` (CI) checks the file.
 
+Integers that look like heap addresses come per field, not per pair (they hit many targets, which change with the
+heap layout), and a grid with no pointers at all can make tens of thousands of offsets. For those a hand-written
+row may have `*` as its `target` (any target) and/or as its `offsets` (any offset of the holder; the usual
+`0x10` and `start+stride*k` entries limit it instead). No other column takes `*`. A wildcard row covers the
+scanned words of its holder that its offsets and target match, so `--check` accepts them; regeneration keeps
+its holder, offsets, target, `class` and `note`, recomputes `scenarios`, `ticks` and `target_offsets` from the
+words it covers (`0`, `0` and `-` when it covers none) and takes those words out of the pair rows. Wildcard rows
+need a class, and a `not-a-pointer` one a note, like any row; they sort by holder, then target with `*` first.
+
 ## Zero fill and poison mode
 
 Game memory comes from `GameAlloc` (and `operator new`, which calls it), which is plain
