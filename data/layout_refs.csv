@@ -159,7 +159,7 @@ GameMain,0x49e830,src/game/main.cpp,end-of,g_languageValueName,0,g_translationFi
 GameMain,0x49e830,src/game/main.cpp,end-of,g_preferredLanguage,0,g_cmdlineDisplaySeed,,none
 GameMain,0x49e830,src/game/main.cpp,end-of,g_translationFile,0,g_audioCdShellKey,,none
 ParseCommandLine,0x49ee30,src/game/main_49eda0.cpp,end-of,g_preferredLanguage,0,g_cmdlineDisplaySeed,,none
-AddTimer,0x4b63f0,src/graphics/display.cpp,end-of,g_timerSlots,0,g_display,,
+AddTimer,0x4b63f0,src/graphics/display.cpp,end-of,g_timerSlots,0,g_display,,none
 HAPI_BuildArchiveDirectory,0x4bd3b0,src/util/hpi.cpp,end-of,g_dirWildcard,0,g_packageDataName,,none
 HAPI_BuildArchiveDirectory,0x4bd3b0,src/util/hpi.cpp,end-of,g_packageDataName,0,g_dotDot,,none
 LoadTranslations,0x4c54f0,src/util/tdf_4c54f0.cpp,end-of,g_language,0,g_translations,,none
