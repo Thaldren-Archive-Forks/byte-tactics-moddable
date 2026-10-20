@@ -193,10 +193,10 @@ int __stdcall PopKey(void);
 void __stdcall SetCursorOverlayEnabled(int param);
 void __stdcall SetMissionType(int param);
 void __stdcall PlayMovie(char* param);
+char* __stdcall StripExtension(char* name);
 int __stdcall LoadPictureCached(const char* name, int param_2, int param_3, int param_4);
 void __stdcall MarkLayerChanged(void* menu);
 void RegisterDataArchives();
-char __stdcall FindGameCdDrive(int param_1);
 void __stdcall BuildDataPath(char* out, const char* dir, const char* name, const char* ext);
 void __cdecl GameFreeThunk(void* p);
 void __stdcall PlaySoundByName(char* name, int param_2);
@@ -230,7 +230,6 @@ int __stdcall IsGadgetNamed(int param1, int param2, char* name);
 void __stdcall SetTranslatedTextByName(char* sub, const char* name, const char* text, int param_4);
 void __stdcall SelectGadgetByName(char* sub, const char* name);
 void StopAllSounds();
-void __stdcall BuildCdFilePath(char* dest, const char* a, const char* b, const char* c);
 int __stdcall HAPI_FileLengthByName(char* path);
 void* __cdecl operator new(unsigned int size);
 void __cdecl operator delete(void* p);
@@ -585,13 +584,6 @@ void __stdcall HandleMainMenuClick(Gadget_00425d80* gadget)
             ClearSelectedGadget(&g_game->gui);
             return;
         }
-        if (!FindGameCdDrive(0) && !FindGameCdDrive(1)) {
-            OpenMessageBox(&g_game->gui,
-                         Translate("Please insert a Total Annihilation CD and try again"),
-                         200, 1, 1);
-            ClearSelectedGadget(&g_game->gui);
-            return;
-        }
         SetCursorMode(0x14);
         if ((short)host_key_state(0x10) < 0) {
             g_game->introMovieLoop = 1;
@@ -627,13 +619,6 @@ void __stdcall HandleMainMenuClick(Gadget_00425d80* gadget)
         if (!display->fullscreen) {
             OpenMessageBox(&g_game->gui,
                          "Debug:  You must be in full-screen mode to play a movie.",
-                         200, 1, 1);
-            ClearSelectedGadget(&g_game->gui);
-            return;
-        }
-        if (!FindGameCdDrive(0) && !FindGameCdDrive(1)) {
-            OpenMessageBox(&g_game->gui,
-                         Translate("Please insert a Total Annihilation CD and try again"),
                          200, 1, 1);
             ClearSelectedGadget(&g_game->gui);
             return;
@@ -789,7 +774,9 @@ void __stdcall PlayMovie(char* param_1)
     char path[256];
 
     StopAllSounds();
-    BuildCdFilePath(path, "Data", param_1, "zrb");
+    sprintf(path, ".\\\\%s\\%s", "Data", param_1);
+    StripExtension(path);
+    strcat(path, ".zrb");
     if (HAPI_FileLengthByName(path) != 0) {
         SetOffscreenSurface(g_game->screen);
         FillSurface(0, 0);

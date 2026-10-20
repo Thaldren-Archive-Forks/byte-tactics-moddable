@@ -30,6 +30,7 @@ struct AiSeam {
     void (__stdcall* ReactToAttack)(Unit* attacker, Unit* unit, int amount);
     // Marks a squad manager's owner for a network update after a damage split (thiscall in 3.1c: this in ecx, edx unused). Hooks: none.
     void (__fastcall* MarkOwnerNetDirtyFromDamageSplit)(SquadManager* self, int unusedEdx, Projectile* projectile, int enemyDamage, int friendlyDamage);
+    // TODO(#9): retype file to the host's file handle (void*) once a major bump can carry an adapter.
     // Writes a report on the AI of a player to a file. Hooks: none.
     void (__stdcall* DumpPlayerAI)(int player, _iobuf* file);
     // Resets the unit tables of the computer players and loads the default AI script again. Hooks: none.

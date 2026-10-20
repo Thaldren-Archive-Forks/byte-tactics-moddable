@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <ddraw.h>
 #include "../../interfaces/host.h"
+#include "../util/file_printf.h"
 
 int __stdcall HandleHostEvent(host_event* ev);
 
@@ -409,25 +410,25 @@ void MoviePlayer::WriteSmackStats()
 {
     SmkStats_0047c530 stats;
     SmackSummary(smack, &stats);
-    FILE* file = fopen("stats.txt", "w");
+    void* file = host_file_create("stats.txt", HOST_FILE_TEXT);
     if (file) {
-        fprintf(file, "Frames Per Sec\t%d\n", 1000 * stats.frames / stats.totalTime);
-        fprintf(file, "Total Playback Time\t%d\n", 1000 * stats.totalTime / stats.totalTime);
-        fprintf(file, "Time to Open File\t%d\n", stats.openTime);
-        fprintf(file, "Total Frames Played\t%d\n", stats.frames);
-        fprintf(file, "SkippedFrames\t%d\n", stats.framesSkipped);
-        fprintf(file, "TotalBlitTime\t%d\n", stats.timeBlit);
-        fprintf(file, "TotalReadTime\t%d\n", stats.readTime);
-        fprintf(file, "TotalDecompTime\t%d\n", stats.decompTime);
-        fprintf(file, "TotalReadSpeed\t%d bytes/sec\n", stats.readSpeed);
-        fprintf(file, "SlowestFrameTime\t%d\n", stats.slowestFrameTime);
-        fprintf(file, "Slowest2FrameTime\t%d\n", stats.slowest2FrameTime);
-        fprintf(file, "AverageFrameSize\t%d\n", stats.averageFrameSize);
-        fprintf(file, "Highest1SecRate\t%d\n", stats.highest1SecRate);
-        fprintf(file, "HighestMemAmount\t%d\n", stats.highestMemAmount);
-        fprintf(file, "TotalExtraMemory\t%d\n", stats.totalExtraMemory);
-        fprintf(file, "HighestExtraUsed\t%d\n", stats.highestExtraUsed);
-        fclose(file);
+        FilePrintf(file, "Frames Per Sec\t%d\n", 1000 * stats.frames / stats.totalTime);
+        FilePrintf(file, "Total Playback Time\t%d\n", 1000 * stats.totalTime / stats.totalTime);
+        FilePrintf(file, "Time to Open File\t%d\n", stats.openTime);
+        FilePrintf(file, "Total Frames Played\t%d\n", stats.frames);
+        FilePrintf(file, "SkippedFrames\t%d\n", stats.framesSkipped);
+        FilePrintf(file, "TotalBlitTime\t%d\n", stats.timeBlit);
+        FilePrintf(file, "TotalReadTime\t%d\n", stats.readTime);
+        FilePrintf(file, "TotalDecompTime\t%d\n", stats.decompTime);
+        FilePrintf(file, "TotalReadSpeed\t%d bytes/sec\n", stats.readSpeed);
+        FilePrintf(file, "SlowestFrameTime\t%d\n", stats.slowestFrameTime);
+        FilePrintf(file, "Slowest2FrameTime\t%d\n", stats.slowest2FrameTime);
+        FilePrintf(file, "AverageFrameSize\t%d\n", stats.averageFrameSize);
+        FilePrintf(file, "Highest1SecRate\t%d\n", stats.highest1SecRate);
+        FilePrintf(file, "HighestMemAmount\t%d\n", stats.highestMemAmount);
+        FilePrintf(file, "TotalExtraMemory\t%d\n", stats.totalExtraMemory);
+        FilePrintf(file, "HighestExtraUsed\t%d\n", stats.highestExtraUsed);
+        host_file_close(file);
     }
 }
 

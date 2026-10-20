@@ -140,6 +140,7 @@ struct Flags245 {
 };
 
 struct Player;
+struct _iobuf;
 struct Group;
 struct Economy;
 class SquadTimer;
@@ -191,7 +192,6 @@ struct Target_00406f50 {
 //
 // Unused here: the symbol ids these declarations take keep the allocation
 // (docs/c2-regalloc.md); they stand where the removed class views stood.
-char FindGameCdDrive(int);
 int FUN_00490200();
 int AreAllPlayersReady(void);
 int CountActiveAIPlayers(void);
@@ -205,7 +205,6 @@ char IsGonzo();
 int FindFreeSlot(void);
 int FindOpenSlot(void);
 int GetBuildSiteHeight(void);
-int GetCdPathMismatch(void);
 int GetCdPosition(void);
 int GetCobChecksum(int);
 int GetCpuFamily(void);
@@ -319,6 +318,7 @@ typedef void (__stdcall* Command_00406f00)(CommandArgs* args);
 void __stdcall RegisterCommand(const char* name, Command_00406f00 fn, int flags);
 #include "../../interfaces/seams.h"
 #include "../quirks/quirks.h"
+#include "../util/file_printf.h"
 int __stdcall RandomInt(int);
 void __stdcall QueueUnitSpeechIfNotVisible(Unit*, int, int);
 void __stdcall SetUnitSquad(Unit* unit, int squad);
@@ -1687,7 +1687,7 @@ int __stdcall GetBuilderCount(int param_1)
 }
 
 // FUNCTION: 0x40c250
-void __stdcall DumpPlayerAI(int player, FILE* file)
+void __stdcall DumpPlayerAI(int player, _iobuf* file)
 {
     PlayerAI* ai=g_playerAI[player];
     char buffer[256];
@@ -1696,27 +1696,27 @@ void __stdcall DumpPlayerAI(int player, FILE* file)
     int minutes=remaining/1800;
     int seconds=(remaining-minutes*1800)/30;
     sprintf(buffer,"%02d:%02d:%02d",hours,minutes,seconds);
-    fprintf(file,"gametime: '%s'\r\n",buffer);
-    fprintf(file,"player:   '%s' num: %d\r\n",g_game->players[player].name,player);
+    FilePrintf(file,"gametime: '%s'\r\n",buffer);
+    FilePrintf(file,"player:   '%s' num: %d\r\n",g_game->players[player].name,player);
     switch(g_game->players[player].type) {
     case 1: strcpy(buffer,"HUMAN"); break;
     case 2: strcpy(buffer,"AI"); break;
     default: strcpy(buffer,"INVALID"); break;
     }
-    fprintf(file,"controller: %s\r\n",buffer);
-    fprintf(file,"terrain:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->net,1));
-    fprintf(file,"profile:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->net,7));
+    FilePrintf(file,"controller: %s\r\n",buffer);
+    FilePrintf(file,"terrain:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->net,1));
+    FilePrintf(file,"profile:    '%s'\r\n",g_seams.map->GetNameSlot(g_game->net,7));
     const char* difficulties[]={"EASY","MEDIUM","HARD"};
-    fprintf(file,"difficulty: '%s'\r\n",difficulties[g_game->difficulty]);
-    fprintf(file,"================================================\r\n");
-    fprintf(file,"<limit> - <base:baseML:baseEL> : <end result - before economy-based tweaks> - <unit name>\r\n");
+    FilePrintf(file,"difficulty: '%s'\r\n",difficulties[g_game->difficulty]);
+    FilePrintf(file,"================================================\r\n");
+    FilePrintf(file,"<limit> - <base:baseML:baseEL> : <end result - before economy-based tweaks> - <unit name>\r\n");
     for (unsigned short i=1;i<g_game->unitDefCount;++i) {
         UnitDef* type=&g_game->defs[i];
-        if (ai->values[i].unknown_0<0) fprintf(file,"n/a ");
-        else fprintf(file,"%4d",ai->values[i].unknown_0);
+        if (ai->values[i].unknown_0<0) FilePrintf(file,"n/a ");
+        else FilePrintf(file,"%4d",ai->values[i].unknown_0);
         sprintf(buffer," - %3d : %3d : %3d = %3d - '%s\t\t:%s'\r\n",ai->vec_65[i].a,ai->vec_65[i].b,ai->vec_65[i].c,ai->vec_ad[i].value,type->unitname,type->name);
         // Original passes the formatted unit text as a format string, so percent signs are interpreted again.
-        fprintf(file,buffer);
+        FilePrintf(file,buffer);
     }
 }
 

@@ -50,6 +50,8 @@ struct AccountList {                 // 0x0c bytes
 };
 
 #include "file_handle.h"
+#include "file_printf.h"
+#include "../../interfaces/host.h"
 
 FileHandle* __stdcall HAPI_OpenFileRead(char* name);
 int __stdcall HAPI_CloseFile(FileHandle* file);
@@ -287,7 +289,7 @@ int HapiBank::SaveBank(char* filename, char* name, int compress, int audit)
     int noff;
     int err;
     StringPool pool;
-    FILE* file;
+    void* file;
     int i;
     if (bank == 0 || bank->count == 0) { return 0; }
     if (audit) {
@@ -296,7 +298,7 @@ int HapiBank::SaveBank(char* filename, char* name, int compress, int audit)
         strcat(path, ".cpa");
         WriteAuditFile(path);
     }
-    file = fopen(filename, "w+b");
+    file = host_file_create(filename, 0);
     if (file == 0) { return 0; }
     pool.data = 0;
     pool.len = 0;
@@ -309,10 +311,10 @@ int HapiBank::SaveBank(char* filename, char* name, int compress, int audit)
     strcpy(pool.data + oldlen, name);
     header.nameOffset = oldlen;
     header.headerSize = sizeof(header);
-    fwrite(&header, sizeof(header), 1, file);
+    host_file_write(file, &header, sizeof(header));
     for (i = 0; i < bank->count; i++) { SaveAccount(i, file, &pool, compress); }
-    fseek(file, 0, 2);
-    header.poolOffset = ftell(file);
+    host_file_seek(file, 0, HOST_SEEK_END);
+    header.poolOffset = host_file_seek(file, 0, HOST_SEEK_CUR);
     int dsize = pool.len;
     pool.csize = SquashMaxPackedSize(dsize, 2);
     int handle = SetOutOfMemoryHandler(0);
@@ -321,31 +323,31 @@ int HapiBank::SaveBank(char* filename, char* name, int compress, int audit)
     if (cbuf != 0) { err = SquashPack(cbuf, &pool.csize, pool.data, dsize, 1, 0); }
     else { err = noff; }   // noff is never assigned
     if (cbuf != 0 && err == 0 && pool.csize < dsize) {
-        fwrite(cbuf, pool.csize, 1, file);
+        host_file_write(file, cbuf, pool.csize);
         header.compressed = true;
     } else {
-        fwrite(pool.data, pool.len, 1, file);
+        host_file_write(file, pool.data, pool.len);
     }
-    fseek(file, 0, 0);
-    fwrite(&header, sizeof(header), 1, file);
-    fclose(file);
+    host_file_seek(file, 0, HOST_SEEK_SET);
+    host_file_write(file, &header, sizeof(header));
+    host_file_close(file);
     if (cbuf != 0) { GameFreeThunk(cbuf); }
     if (pool.data != 0) { GameFreeThunk(pool.data); }
     return 1;
 }
 
 // FUNCTION: 0x4b3c60
-void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
+void HapiBank::SaveAccount(int index, void* file, StringPool* buf, int compress)
 {
     BankAccount* slot = &bank->accounts[index];
     if (slot->itemCount <= 0 && slot->boxCount <= 0) {
         return;
     }
 
-    int off = ftell(file);
+    int off = host_file_seek(file, 0, HOST_SEEK_CUR);
     AccountHeader h;
     memset(&h, 0, sizeof(h));
-    fwrite(&h, sizeof(h), 1, file);
+    host_file_write(file, &h, sizeof(h));
 
     {
         char* name = slot->name;
@@ -367,7 +369,7 @@ void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
             int rec[2];
             rec[0] = oldlen;
             rec[1] = slot->items[i].value;
-            fwrite(rec, 8, 1, file);
+            host_file_write(file, rec, 8);
             h.nInts++;
         }
     }
@@ -382,7 +384,7 @@ void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
             int rec[3];
             rec[0] = oldlen;
             *(double*)&rec[1] = slot->items[i].real;
-            fwrite(rec, 0xc, 1, file);
+            host_file_write(file, rec, 0xc);
             h.nDoubles++;
         }
     }
@@ -403,7 +405,7 @@ void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
             buf->data = (char*)GameReallocIgnoreTag(buf->data, buf->len);
             strcpy(buf->data + oldlen2, second);
             rec[1] = oldlen2;
-            fwrite(rec, 8, 1, file);
+            host_file_write(file, rec, 8);
             h.nStrings++;
         }
     }
@@ -414,7 +416,7 @@ void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
         }
     }
 
-    int dataOffset = ftell(file) + h.nBlobs * 0x10;
+    int dataOffset = host_file_seek(file, 0, HOST_SEEK_CUR) + h.nBlobs * 0x10;
     for (i = 0; i < slot->boxCount; i++) {
         if (slot->boxes[i].size > 0) {
             int rec[4];
@@ -434,17 +436,17 @@ void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
             int len = slot->boxes[i].size;
             rec[3] = len;
             dataOffset += len;
-            fwrite(rec, 0x10, 1, file);
+            host_file_write(file, rec, 0x10);
         }
     }
 
     for (i = 0; i < slot->boxCount; i++) {
         if (slot->boxes[i].size > 0) {
-            fwrite(slot->boxes[i].data, slot->boxes[i].size, 1, file);
+            host_file_write(file, slot->boxes[i].data, slot->boxes[i].size);
         }
     }
 
-    h.size = ftell(file) - off;
+    h.size = host_file_seek(file, 0, HOST_SEEK_CUR) - off;
 
     if (compress != 0) {
         int handle = SetOutOfMemoryHandler(0);
@@ -455,18 +457,18 @@ void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
         if (off < 0) len = h.size - 0x20;
         char* raw = (char*)GameAllocShared(len);
         if (raw != 0) {
-            fseek(file, off + 0x20, 0);
-            fread(raw, len, 1, file);
+            host_file_seek(file, off + 0x20, HOST_SEEK_SET);
+            host_file_read(file, raw, len);
             int csize = SquashMaxPackedSize(len, 1);
             char* cbuf = (char*)GameAllocShared(csize);
             if (cbuf != 0) {
                 int err = SquashPack(cbuf, &csize, raw, len, 1, 0);
                 if (err == 0 && csize < len) {
-                    fseek(file, off + 0x20, 0);
-                    fwrite(cbuf, csize, 1, file);
+                    host_file_seek(file, off + 0x20, HOST_SEEK_SET);
+                    host_file_write(file, cbuf, csize);
                     h.size = csize + 0x20;
                     h.compressed = 1;
-                    _chsize(file->_file, ftell(file));
+                    host_file_truncate(file, host_file_seek(file, 0, HOST_SEEK_CUR));
                 }
                 GameFreeThunk(cbuf);
             }
@@ -475,9 +477,9 @@ void HapiBank::SaveAccount(int index, FILE* file, StringPool* buf, int compress)
         SetOutOfMemoryHandler(handle);
     }
 
-    fseek(file, off, 0);
-    fwrite(&h, sizeof(h), 1, file);
-    fseek(file, 0, 2);
+    host_file_seek(file, off, HOST_SEEK_SET);
+    host_file_write(file, &h, sizeof(h));
+    host_file_seek(file, 0, HOST_SEEK_END);
 }
 
 // Reads one 0x20-byte section header out of a HapiBank archive (called in a loop
@@ -833,53 +835,53 @@ int HapiBank::WriteBox(void* src, int len)
 // FUNCTION: 0x4b4d70
 void HapiBank::WriteAuditFile(char* filename)
 {
-    FILE* file = fopen(filename, "w");
+    void* file = host_file_create(filename, HOST_FILE_TEXT);
     int i;
 
     if (file == 0) {
         return;
     }
 
-    fprintf(file, "HapiBank Audit File\n\n");
-    fprintf(file, "Number of accounts: %i\n\n", bank->count);
+    FilePrintf(file, "HapiBank Audit File\n\n");
+    FilePrintf(file, "Number of accounts: %i\n\n", bank->count);
 
     for (i = 0; i < bank->count; i++) {
         BankAccount* account = (BankAccount*)((char*)bank->accounts + i * 0x18);
         int j;
 
-        fprintf(file, "Account:  \"%s\"\n{\n", account->name);
+        FilePrintf(file, "Account:  \"%s\"\n{\n", account->name);
         for (j = 0; j < account->itemCount; j++) {
             BankItem* item = (BankItem*)((char*)account->items + j * 0x10);
 
             switch (item->type) {
             case 1:
-                fprintf(file, "   Item \"%s\" Integer:  %i (0x%08x)\n", item->name, item->value, item->value);
+                FilePrintf(file, "   Item \"%s\" Integer:  %i (0x%08x)\n", item->name, item->value, item->value);
                 break;
             case 2:
-                fprintf(file, "   Item \"%s\" Double:  %f\n", item->name, item->real);
+                FilePrintf(file, "   Item \"%s\" Double:  %f\n", item->name, item->real);
                 break;
             case 3:
-                fprintf(file, "   Item \"%s\" String:  \"%s\"\n", item->name, item->string);
+                FilePrintf(file, "   Item \"%s\" String:  \"%s\"\n", item->name, item->string);
                 break;
             default:
-                fprintf(file, "   Item \"%s\" Uninitialized or Unknown\n", item->name);
+                FilePrintf(file, "   Item \"%s\" Uninitialized or Unknown\n", item->name);
                 break;
             }
         }
 
-        fprintf(file, "\n");
+        FilePrintf(file, "\n");
         for (j = 0; j < account->boxCount; j++) {
             SafeDepositBox* box = (SafeDepositBox*)((char*)account->boxes + j * 0x14);
 
             if (box->named != 0) {
-                fprintf(file, "   Safe-Deposit Box \"%s\" contains %i bytes\n", box->name, box->size);
+                FilePrintf(file, "   Safe-Deposit Box \"%s\" contains %i bytes\n", box->name, box->size);
             } else {
-                fprintf(file, "   Safe-Deposit Box #%i contains %i bytes\n", box->number, box->size);
+                FilePrintf(file, "   Safe-Deposit Box #%i contains %i bytes\n", box->number, box->size);
             }
         }
-        fprintf(file, "}\n\n");
+        FilePrintf(file, "}\n\n");
     }
 
-    fprintf(file, "----------EOF----------\n");
-    fclose(file);
+    FilePrintf(file, "----------EOF----------\n");
+    host_file_close(file);
 }

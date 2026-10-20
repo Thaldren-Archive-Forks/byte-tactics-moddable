@@ -45,6 +45,7 @@ ai,platform,call,CommandArgs::GetFloatArg,1
 ai,platform,call,CommandArgs::GetIntArg,1
 ai,platform,call,CommandArgs::InitArgs,2
 ai,platform,call,ExecuteCommandText,2
+ai,platform,call,FilePrintf,1
 ai,platform,call,GameFreeThunk,1
 ai,platform,call,MakeHeap,1
 ai,platform,call,MakeVec3,1
@@ -517,12 +518,10 @@ game,platform,call,CommandArgs::GetIntArg,25
 game,platform,call,CommandArgs::InitArgs,1
 game,platform,call,CommandArgs::Tokenize,1
 game,platform,call,CountDirectoryEntries,1
-game,platform,call,DispatchHostEvents,1
 game,platform,call,EmptyPostArchiveMountHook,1
 game,platform,call,ExecuteCommand,1
 game,platform,call,ExecuteCommandText,2
 game,platform,call,FatalError,6
-game,platform,call,FindGameCdDrive,3
 game,platform,call,FreeAnimFiles,1
 game,platform,call,FreeGameFonts,1
 game,platform,call,FreeTextureGafs,1
@@ -597,8 +596,11 @@ game,platform,call,TdfRecord::GetFieldString,1
 game,platform,call,ToggleFullScreen,2
 game,platform,call,Translate,7
 game,platform,call,UpdateTimers,1
+game,platform,call,host_file_close,3
+game,platform,call,host_file_create,2
+game,platform,call,host_file_open_append,1
+game,platform,call,host_file_write,1
 game,platform,call,host_message,2
-game,platform,call,host_pump_events,1
 game,platform,call,host_setting_get,1
 game,platform,call,host_setting_set,1
 game,platform,call,host_sleep_ms,3
@@ -632,7 +634,7 @@ game,players,shared_write,Game::localPlayer,8
 game,players,shared_write,Game::mapFlags,1
 game,players,shared_write,Game::playerIndex,2
 game,players,shared_write,Game::seaLevel,1
-game,players,shared_write,Game::ticks,5
+game,players,shared_write,Game::ticks,4
 game,players,shared_write,Game::unknown_c,1
 game,players,shared_write,Player::allied,8
 game,players,shared_write,Player::displayTimer,3
@@ -739,7 +741,7 @@ game,presentation,call,LoadAlphaTable,1
 game,presentation,call,LoadGaf,1
 game,presentation,call,LoadGafFile,1
 game,presentation,call,LoadGafIntoSlot,1
-game,presentation,call,LoadGuiLayer,4
+game,presentation,call,LoadGuiLayer,3
 game,presentation,call,LoadLightBar,1
 game,presentation,call,LoadLightTable,1
 game,presentation,call,LoadPictureCached,4
@@ -769,7 +771,7 @@ game,presentation,call,ReadCameraPosition,1
 game,presentation,call,RefreshBattleRoomRows,1
 game,presentation,call,RefreshSelectionOrders,1
 game,presentation,call,RemapPaletteToClosestIndices,1
-game,presentation,call,RenderLayer,3
+game,presentation,call,RenderLayer,2
 game,presentation,call,ResetCameraState,1
 game,presentation,call,ResetFrontendState,1
 game,presentation,call,ResetSpeech,1
@@ -803,7 +805,7 @@ game,presentation,call,SetGadgetText,1
 game,presentation,call,SetGrayedOutByName,1
 game,presentation,call,SetGuiPath,1
 game,presentation,call,SetHostGameName,1
-game,presentation,call,SetKeyboardInput,3
+game,presentation,call,SetKeyboardInput,2
 game,presentation,call,SetLightVector,1
 game,presentation,call,SetNamedSliderValue,1
 game,presentation,call,SetNoDirectSound,1
@@ -1536,7 +1538,6 @@ network,pathfinding,shared_write,Player::index,1
 network,pathfinding,shared_write,Player::type,1
 network,platform,call,AllocNotifyNop,1
 network,platform,call,ComputeUnitScriptChecksum,2
-network,platform,call,DispatchHostEvents,1
 network,platform,call,FatalError,2
 network,platform,call,GameAllocIgnoreTag,8
 network,platform,call,GameFreeThunk,7
@@ -1552,7 +1553,6 @@ network,platform,call,SkipTextLines,2
 network,platform,call,ToggleFullScreen,2
 network,platform,call,Translate,10
 network,platform,call,_Destroy,2
-network,platform,call,host_pump_events,1
 network,platform,call,host_sleep_ms,3
 network,platform,call,host_time_ms,2
 network,platform,call,operator delete,26
@@ -2219,7 +2219,7 @@ platform,presentation,call,ShutdownMouse,1
 platform,presentation,call,StringRef::AssignText,1
 platform,presentation,call,StringRef::MakeLower,1
 platform,presentation,call,StringRef::ReleaseRef,3
-platform,presentation,call,StripExtension,3
+platform,presentation,call,StripExtension,2
 platform,presentation,call,UnlockScreen,1
 platform,presentation,indirect,CmdBPS,1
 platform,presentation,indirect,CmdSFX,1
@@ -2354,7 +2354,6 @@ players,features,shared_write,Point16::y,11
 players,features,shared_write,Vec3::x,7
 players,features,shared_write,Vec3::y,5
 players,features,shared_write,Vec3::z,7
-players,game,call,GameRand,1
 players,game,call,SimAlloc,1
 players,game,shared_write,Game::endGameCountdown,1
 players,game,shared_write,Game::endGameFlags,2
@@ -2512,7 +2511,6 @@ players,platform,call,CommandArgs::InitArgs,1
 players,platform,call,ExecuteCommandText,1
 players,platform,call,GameAllocIgnoreTag,1
 players,platform,call,GameFreeThunk,2
-players,platform,call,GetCdPathMismatch,1
 players,platform,call,HAPI_LoadFile,1
 players,platform,call,HapiBank::GetBoxSize,1
 players,platform,call,HapiBank::GetDoubleItem,1
@@ -3003,7 +3001,6 @@ presentation,pathfinding,shared_write,Point16::y,7
 presentation,pathfinding,shared_write,g_game,4
 presentation,platform,call,AddTimer,3
 presentation,platform,call,AllocNotifyNop,1
-presentation,platform,call,BuildCdFilePath,1
 presentation,platform,call,BuildDataPath,23
 presentation,platform,call,CMemoryCache::AllocHandle,3
 presentation,platform,call,ChangeDirectory,1
@@ -3012,10 +3009,8 @@ presentation,platform,call,CheckDirectXVersion,1
 presentation,platform,call,CheckGpfVersion,1
 presentation,platform,call,CountDirectoryEntries,7
 presentation,platform,call,CrossProduct,1
-presentation,platform,call,DispatchHostEvents,1
 presentation,platform,call,FatalError,15
-presentation,platform,call,FindGameCdDrive,9
-presentation,platform,call,FindNextCdDrive,1
+presentation,platform,call,FilePrintf,1
 presentation,platform,call,GameAllocIgnoreTag,52
 presentation,platform,call,GameAllocShared,1
 presentation,platform,call,GameFreeThunk,83
@@ -3028,7 +3023,6 @@ presentation,platform,call,GetMilliseconds,4
 presentation,platform,call,GetStartDirectory,2
 presentation,platform,call,GetTickRate,2
 presentation,platform,call,GetTicks,23
-presentation,platform,call,GetVolumeSerial,1
 presentation,platform,call,Grow,1
 presentation,platform,call,HAPI_CloseFile,10
 presentation,platform,call,HAPI_CreateFile,1
@@ -3044,7 +3038,6 @@ presentation,platform,call,HAPI_SeekFile,9
 presentation,platform,call,HAPI_TellFile,1
 presentation,platform,call,HAPI_WriteFile,19
 presentation,platform,call,HAPI_readfromfile,12
-presentation,platform,call,HandleHostEvent,1
 presentation,platform,call,HapiBank::GetIntegerItem,1
 presentation,platform,call,HapiBank::OpenAccount,2
 presentation,platform,call,HapiBank::ReadBox,1
@@ -3085,28 +3078,29 @@ presentation,platform,call,TdfRecord::CopyRecordName,2
 presentation,platform,call,TdfRecord::GetFieldInt,10
 presentation,platform,call,TdfRecord::GetFieldString,13
 presentation,platform,call,TdfRecord::GetSubRecordCount,1
-presentation,platform,call,Translate,59
+presentation,platform,call,Translate,53
 presentation,platform,call,Vec3::Scale,1
 presentation,platform,call,VectorFromToInt,1
 presentation,platform,call,WorldToCell,2
 presentation,platform,call,WriteBufferToFile,3
 presentation,platform,call,host_atomic_exchange,10
-presentation,platform,call,host_cursor_get,5
-presentation,platform,call,host_cursor_set,1
+presentation,platform,call,host_dir_close,1
+presentation,platform,call,host_dir_first,1
+presentation,platform,call,host_dir_next,1
 presentation,platform,call,host_event_create,2
-presentation,platform,call,host_event_next,1
 presentation,platform,call,host_event_reset,2
 presentation,platform,call,host_event_set,5
 presentation,platform,call,host_event_wait,5
-presentation,platform,call,host_key_state,2
+presentation,platform,call,host_file_close,5
+presentation,platform,call,host_file_create,3
+presentation,platform,call,host_file_open_read,1
+presentation,platform,call,host_file_read,1
+presentation,platform,call,host_file_seek,3
+presentation,platform,call,host_file_write,4
 presentation,platform,call,host_message,1
-presentation,platform,call,host_post_quit,1
-presentation,platform,call,host_pump_events,2
 presentation,platform,call,host_sleep_ms,4
-presentation,platform,call,host_thread_set_priority,1
 presentation,platform,call,host_thread_start,2
 presentation,platform,call,host_time_ms,5
-presentation,platform,call,host_window_has_focus,1
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
 presentation,platform,call,operator-,5
@@ -3977,7 +3971,6 @@ units,platform,call,GameAllocIgnoreTag,4
 units,platform,call,GameFreeThunk,10
 units,platform,call,GameReallocTagged,1
 units,platform,call,GameStrdup,1
-units,platform,call,GetCdPathMismatch,1
 units,platform,call,GetCobChecksum,1
 units,platform,call,GetLocalizedString,2
 units,platform,call,GetTickRate,2

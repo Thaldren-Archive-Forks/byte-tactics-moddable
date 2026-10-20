@@ -19,8 +19,6 @@
 // in (docs/c2-regalloc.md).
 #include <io.h>
 
-extern char __stdcall FindNextCdDrive(char drive);
-extern int __stdcall GetVolumeSerial(char drive);
 
 extern HWND g_cdPlayerWindow;
 
