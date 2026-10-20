@@ -29,6 +29,7 @@ public:
 
     CMemoryCache* ClearPointers();
     int InitCache(unsigned int size);
+    int InitSimCache(unsigned int size);
     void FreeCache();
     void FreeBuffer();
     int AllocHandle(void** handle, int size);
