@@ -5,6 +5,9 @@
 // stubs.
 
 #include <windows.h>
+#include "../../interfaces/host.h"
+
+void DispatchHostEvents();
 #include <stdio.h>
 #include <string.h>
 
@@ -581,12 +584,8 @@ int __stdcall HAPINET_getgames(Net_4c97b0* net, void* sessions, int unused)
     do {
         result = net->dp->EnumSessions(&desc, net->enumTimeout, HAPINET_getgamescallback, net, 0x81);
         g_enumSessionsResult = result;
-        MSG msg;
-        if (PeekMessageA(&msg, 0, 0, 0, 0)) {
-            GetMessageA(&msg, 0, 0, 0);
-            TranslateMessage(&msg);
-            DispatchMessageA(&msg);
-        }
+        host_pump_events(0);
+        DispatchHostEvents();
         if (PeekKey()) {
             if (PopKey() == 0x1b)
                 break;

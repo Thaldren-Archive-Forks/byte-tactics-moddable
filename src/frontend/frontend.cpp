@@ -5,6 +5,7 @@
 // movie player, the warp-level loader, the picture cache and the debug key
 // handler, in address order.
 #include <string>
+#include "../../interfaces/host.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -592,7 +593,7 @@ void __stdcall HandleMainMenuClick(Gadget_00425d80* gadget)
             return;
         }
         SetCursorMode(0x14);
-        if (GetKeyState(0x10) < 0) {
+        if ((short)host_key_state(0x10) < 0) {
             g_game->introMovieLoop = 1;
         } else {
             g_game->introMovieLoop = 0;
