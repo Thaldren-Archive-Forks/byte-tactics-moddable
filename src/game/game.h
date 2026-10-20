@@ -47,7 +47,7 @@
 #include "../units/name_004864b0.h"
 #include "../util/point.h"
 #include "../weapons/debris.h"
-#include "../weapons/weapon_def_record.h"
+#include "../weapons/weapon_def.h"
 #include "clock_flags_0042f9a0.h"
 #include "flags_00496ce0.h"
 #include "load_flags_00497f40.h"
@@ -387,7 +387,7 @@ struct Game {
             unsigned char bit6_2cc6 : 1;
             unsigned char rest_2cc6 : 1;
             CursorState_0041cc60 cursor;
-            WeaponDefRecord weapons[256];
+            WeaponDef weapons[256];
             int projectileCount;
             Projectile* projectiles;
             void* field_141fb;

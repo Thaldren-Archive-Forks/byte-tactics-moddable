@@ -927,7 +927,6 @@ struct Debris;
 struct DebugDir_004ddfa0;
 struct DefFlags_0049d270;
 struct Def_004899b0;
-struct WeaponDefRecord;
 struct Desc;
 struct Desc_004437c0;
 struct Desc_004b8ec0;
@@ -4336,8 +4335,6 @@ struct Frame_00424050 {  // 0x8 bytes, 1 view
     unsigned short originX;  // +0x4
     unsigned short originY;  // +0x6
 };
-
-#include "../src/weapons/weapon_def_record.h"
 
 struct Packet_004244b0 {  // 0x6 bytes, 1 view
     unsigned char type;  // +0x0

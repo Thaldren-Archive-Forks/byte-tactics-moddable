@@ -48,7 +48,7 @@ BASE_SIZES: dict[str, int] = {
 
 POINTER_TARGETS: dict[str, str] = {
     "Unit": "UNIT", "Player": "PLAYER", "UnitDef": "UNITDEF", "WeaponDef": "WEAPONDEF",
-    "WeaponDefRecord": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Projectile": "PROJECTILE",
+    "UnitMotion": "WEAPONDEF", "Projectile": "PROJECTILE",
     "Feature": "FEATURE", "Object3do": "PIECE", "Object3D": "PIECE",
     "Rec": "REC", "Node": "NODE", "MovementClass": "MOVECLASS",
     "OrderRef": "ORDER", "OrderFxRef": "ORDERFX", "LinkRef": "LINK",

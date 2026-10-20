@@ -567,7 +567,7 @@ void __stdcall LoadUnitFbi(char* fbi_file, UnitDef* unitdef) {
             unitdef->maxwaterslope = move->maxWaterSlope;
             unitdef->maxslopevelocity = (int)(((__int64)unitdef->maxvelocity << 16) /
                                              ((unitdef->maxslope + 1) * 0x10000));
-            char* defaultWeapon = (char*)g_game + 0x2cf3;
+            char* defaultWeapon = (char*)g_game->weapons;
             parser.current->GetFieldString(weapon, "weapon1", 128, DAT_005119b8);
             char* weapon1 = (char*)g_seams.weapons->FindWeaponByName(weapon);
             unitdef->weapons[0] = (WeaponDef*)(weapon1 ? weapon1 : defaultWeapon);

@@ -1703,7 +1703,7 @@ void __stdcall FireBallisticProjectile(void*, void*, void*, void*, void*);
 void __stdcall ApplyWeaponFirePacket(int arg1, WeaponFirePacket* ev)
 {
     unsigned char defIndex = ev->weaponDefIndex;
-    WeaponDef* def = &(*(WeaponDef (*)[256])&g_game->weapons)[defIndex];
+    WeaponDef* def = &g_game->weapons[defIndex];
     if (def->flags.b.meteor) {
         Vec3* pos = &ev->aimOrVel;
         void* arg = (void*)((char*)ev + 1);
@@ -2353,7 +2353,7 @@ char* __stdcall FindWeaponByName(char* name)
     if (name == 0 || strlen(name) == 0)
         return 0;
     for (int i = 0; i < 0x100; i++) {
-        char* entry = (*(WeaponDef (*)[256])&g_game->weapons)[i].name;
+        char* entry = g_game->weapons[i].name;
         if (_strcmpi(entry, name) == 0)
             return entry;
     }
