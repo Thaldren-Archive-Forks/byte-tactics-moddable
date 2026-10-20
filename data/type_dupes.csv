@@ -26,7 +26,6 @@ ArchiveEntry,no,2,include/ta_types.h:14432|src/util/archive_entry.h:12,differs,s
 Arena_004da9f0,no,2,include/ta_types.h:16905|src/debug/debug_lib_4db7d0.cpp:98,differs,include/ta_types.h
 Arg_004c6210,no,2,include/ta_types.h:15035|src/graphics/surface.cpp:197,differs,include/ta_types.h
 Args_00451640,no,2,include/ta_types.h:6822|src/network/net_game.cpp:903,identical,include/ta_types.h
-Base_00490a10,no,2,include/ta_types.h:3037|src/orders/order_targets.cpp:300,differs,include/ta_types.h
 Base_004d8ae0,no,2,include/ta_types.h:16639|src/debug/debug_lib.cpp:598,same-layout,include/ta_types.h
 BitReader,no,3,include/ta_types.h:3372|src/network/bit_reader.h:7|src/orders/order_targets.cpp:215,same-layout,src/network/bit_reader.h
 BitWriter,no,3,include/ta_types.h:3356|src/network/bit_writer.h:7|src/orders/order_targets.cpp:104,differs,src/network/bit_writer.h

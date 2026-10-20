@@ -7,7 +7,7 @@ struct Vec3;
 struct Point16;
 
 struct Unit;
-class Base_00490a10;
+class OrderFx;
 class BitWriter;
 class BitReader;
 class AiSearchGoal;
@@ -15,7 +15,7 @@ class AiSearchGoal;
 #pragma pack(push, 1)
 class PathGoal {
 public:
-    Base_00490a10* target;
+    OrderFx* target;
     Unit* owner;
 
     PathGoal(Unit* p);

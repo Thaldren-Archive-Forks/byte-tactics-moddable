@@ -14565,9 +14565,9 @@ address,function,file,kind,target
 0x44ce90,OrderFx::FillGoalCells,src/orders/order_targets.cpp,call,clear
 0x44ce90,OrderFx::FillGoalCells,src/orders/order_targets.cpp,function,
 0x44cec0,OrderFx::ApproxDist,src/orders/order_targets.cpp,function,
-0x44ced0,OrderFx::AddFlags,src/orders/order_targets.cpp,deref_read,*int
-0x44ced0,OrderFx::AddFlags,src/orders/order_targets.cpp,deref_write,*int
+0x44ced0,OrderFx::AddFlags,src/orders/order_targets.cpp,field_read,Order::subFlags
 0x44ced0,OrderFx::AddFlags,src/orders/order_targets.cpp,field_read,OrderFx::source
+0x44ced0,OrderFx::AddFlags,src/orders/order_targets.cpp,field_write,Order::subFlags
 0x44ced0,OrderFx::AddFlags,src/orders/order_targets.cpp,function,
 0x44cef0,OrderFx::KeepAfterComplete,src/orders/order_targets.cpp,function,
 0x44cf00,OrderFx::ContainsUnit,src/orders/order_targets.cpp,field_read,Point16::x
@@ -14855,6 +14855,7 @@ address,function,file,kind,target
 0x44df70,PathOrder::GetType,src/orders/order_targets.cpp,function,
 0x44df80,PathOrder::Destroy,src/orders/order_targets.cpp,call,OrderFx::SetVtable
 0x44df80,PathOrder::Destroy,src/orders/order_targets.cpp,call,operator delete
+0x44df80,PathOrder::Destroy,src/orders/order_targets.cpp,field_escape,PathOrder::ref
 0x44df80,PathOrder::Destroy,src/orders/order_targets.cpp,field_read,Seams::units
 0x44df80,PathOrder::Destroy,src/orders/order_targets.cpp,field_read,UnitsSeam::UnitRefUnlink
 0x44df80,PathOrder::Destroy,src/orders/order_targets.cpp,function,
@@ -15190,6 +15191,7 @@ address,function,file,kind,target
 0x44f010,AiSearchGoal::AiSearchGoal,src/orders/order_targets.cpp,field_write,AiSearchGoal::repathClaimTick
 0x44f010,AiSearchGoal::AiSearchGoal,src/orders/order_targets.cpp,function,
 0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,call,OrderFx::AddFlags
+0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,call,OrderFx::ContainsUnit
 0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,call,copy
 0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,field_maybe_written,AiSearchGoal::points
 0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,field_read,PathGoal::owner
@@ -15199,7 +15201,6 @@ address,function,file,kind,target
 0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,field_write,AiSearchGoal::flag_1
 0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,field_write,AiSearchGoal::flag_3
 0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,function,
-0x44f080,AiSearchGoal::SetWaypoints,src/orders/order_targets.cpp,indirect_call,virtual Base_00490a10::ContainsUnit
 0x44f100,AiSearchGoal::TruncateWaypointsFrom,src/orders/order_targets.cpp,call,copy
 0x44f100,AiSearchGoal::TruncateWaypointsFrom,src/orders/order_targets.cpp,field_escape,AiSearchGoal::points
 0x44f100,AiSearchGoal::TruncateWaypointsFrom,src/orders/order_targets.cpp,field_maybe_written,AiSearchGoal::points
@@ -15217,6 +15218,8 @@ address,function,file,kind,target
 0x44f150,AiSearchGoal::FillWaypointWorldPos,src/orders/order_targets.cpp,function,
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,call,Motion
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,call,OrderFx::AddFlags
+0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,call,OrderFx::ContainsUnit
+0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,call,OrderFx::KeepAfterComplete
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,call,copy
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,field_escape,AiSearchGoal::points
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,field_maybe_written,AiSearchGoal::points
@@ -15234,8 +15237,6 @@ address,function,file,kind,target
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,field_write,AiSearchGoal::flag_3
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,function,
 0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,indirect_call,virtual AiSearchGoal::SetPathOrder
-0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,indirect_call,virtual Base_00490a10::ContainsUnit
-0x44f1a0,AiSearchGoal::TickTowardGoal,src/orders/order_targets.cpp,indirect_call,virtual Base_00490a10::KeepAfterComplete
 0x44f260,AiSearchGoal::TryClaimRepath,src/orders/order_targets.cpp,field_read,AiSearchGoal::flags
 0x44f260,AiSearchGoal::TryClaimRepath,src/orders/order_targets.cpp,field_read,AiSearchGoal::repathClaimTick
 0x44f260,AiSearchGoal::TryClaimRepath,src/orders/order_targets.cpp,field_read,Game::ticks
@@ -15245,6 +15246,7 @@ address,function,file,kind,target
 0x44f290,AiSearchGoal::HasReadyWaypoints,src/orders/order_targets.cpp,field_read,AiSearchGoal::flags
 0x44f290,AiSearchGoal::HasReadyWaypoints,src/orders/order_targets.cpp,function,
 0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,call,OrderFx::AddFlags
+0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,call,OrderFx::ContainsCell
 0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,call,bx_hypot
 0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,field_read,AiSearchGoal::active
 0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,field_read,AiSearchGoal::count
@@ -15275,8 +15277,7 @@ address,function,file,kind,target
 0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,global_read,g_game
 0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,global_read,g_seams
 0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,indirect_call,"indirect via void (*)(Pathfinder *, AiSearchGoal *) __attribute__((stdcall)) [PathfindingSeam::AbortIfGoalMatch]"
-0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,indirect_call,virtual Base_00490a10::ContainsCell
-0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,indirect_call,virtual Base_00490a10::FillWorldPos
+0x44f2a0,AiSearchGoal::SetPathOrder,src/orders/order_targets.cpp,indirect_call,virtual OrderFx::FillWorldPos
 0x44f450,AiSearchGoal::~AiSearchGoal,src/orders/order_targets.cpp,field_read,Game::pathfinder
 0x44f450,AiSearchGoal::~AiSearchGoal,src/orders/order_targets.cpp,field_read,PathfindingSeam::AbortIfGoalMatch
 0x44f450,AiSearchGoal::~AiSearchGoal,src/orders/order_targets.cpp,field_read,Seams::pathfinding

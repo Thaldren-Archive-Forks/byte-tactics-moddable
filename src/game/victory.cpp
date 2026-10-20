@@ -1443,9 +1443,9 @@ void PackedPosGoal::DeserializeNetUnitState(BitReader* reader)
     }
     int kind = reader->ReadBits(2);
     if (kind == 1)
-        target = (Base_00490a10*)new (kSim) Class_0044e080((Struct_004907e0*)owner, reader);
+        target = new (kSim) Class_0044e080((Struct_004907e0*)owner, reader);
     else if (kind == 2)
-        target = (Base_00490a10*)new (kSim) AirManeuverOrder(owner, reader);
+        target = new (kSim) AirManeuverOrder(owner, reader);
     int state = reader->ReadBits(2);
     ((UnitMotion*)owner->motion)->SetFlightMode(owner, state);
 }

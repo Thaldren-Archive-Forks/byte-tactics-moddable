@@ -294,25 +294,6 @@ struct PointVectorUfillAccess : Vec_0044eec0 {
 
 #include "../game/goal_owner.h"
 
-// The object at +0x4 (see victory_490940.cpp); vtable 0x4fd2f8. Slot 8 is the
-// "give me your position as a Vec3" call (an implementation is 0x44dc60); slot
-// 8 of the base holds _purecall, slot 11 the stub KeepAfterComplete, which returns 0.
-class Base_00490a10 {
-public:
-    virtual ~Base_00490a10();                           // slot 0
-    virtual void SerializeSave();                       // slot 1
-    virtual void GetType();                             // slot 2
-    virtual void IsFxStyle();                           // slot 3
-    virtual int ContainsUnit(Unit* owner);
-    virtual int ContainsCell(int x, int y);             // slot 5
-    virtual void FillGoalCells();                       // slot 6
-    virtual void ApproxDist();                          // slot 7
-    virtual int FillWorldPos(Vec3* out);
-    virtual int TryGetDesiredHeading();                 // slot 9
-    virtual void WriteBits();                           // slot 10
-    virtual int KeepAfterComplete();                    // slot 11
-};
-
 #include "../ai/ai_search_goal.h"
 #include "order_goals.h"
 
@@ -486,8 +467,7 @@ void OrderFx::AddFlags(int param_1)
 {
     int val = source;
     if (val != 0) {
-        int* target = (int*)(val + 0x4e);
-        *target |= param_1;
+        ((Order*)val)->subFlags |= param_1;
     }
 }
 #pragma auto_inline(on)
@@ -1052,7 +1032,7 @@ int PathOrder::GetType()
 // FUNCTION: 0x44df80
 void* PathOrder::Destroy(unsigned char flag)
 {
-    g_seams.units->UnitRefUnlink(((UnitRef*)((char*)this + 0x16)));
+    g_seams.units->UnitRefUnlink(((UnitRef*)&ref));
     SetVtable(g_orderFxVtable);
     if (flag & 1) {
         operator delete(this);
@@ -1627,9 +1607,9 @@ int PathGoal::HasReadyWaypoints()
 void PathGoal::SetPathOrder(void* param)
 {
     if (target != 0) {
-        ((OrderFx*)target)->AddFlags(0x80);
+        target->AddFlags(0x80);
     }
-    target = (Base_00490a10*)param;
+    target = (OrderFx*)param;
 }
 
 // Slot 2: does nothing.
@@ -1794,9 +1774,9 @@ void AiSearchGoal::SetPathOrder(void* param)
 {
     g_seams.pathfinding->AbortIfGoalMatch(g_game->pathfinder, this);
     if (target)
-        ((OrderFx*)target)->AddFlags(0x80);
+        target->AddFlags(0x80);
     active = 0;
-    target = (Base_00490a10*)param;
+    target = (OrderFx*)param;
     if (param == 0) {
         flag_1 = 0;
     } else {
