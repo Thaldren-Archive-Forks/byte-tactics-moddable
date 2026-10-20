@@ -1557,8 +1557,6 @@ struct Obj_00462d30;
 struct Obj_00479bf0;
 struct Obj_0047e5c0;
 struct Obj_00499ab0;
-struct Obj_0049b3e0;
-struct Obj_0049c980;
 struct Obj_004a1950;
 struct Obj_004a7f70;
 struct Obj_004ad4f0;
@@ -1619,7 +1617,6 @@ struct Object_0044eb40;
 struct Object_00477510;
 struct Object_0048a440;
 struct Object_00499c10;
-struct Object_0049c920;
 struct Object_0049f930;
 struct Object_004aafe0;
 struct Object_004abd20;
@@ -1939,7 +1936,6 @@ struct Sprite_0049be60;
 struct Sprite_004b94c0;
 struct SrcPiece_00487080;
 struct Src_00440ca0;
-struct Src_0049c980;
 struct Src_004ab400;
 struct Src_004ab5d0;
 struct Src_004b8310;
@@ -2121,7 +2117,6 @@ struct WeaponDef;
 struct WeaponType;
 struct Weapon_0049abb0;
 struct Weapon_0049b000;
-struct Weapon_0049b720;
 struct Weapon_2;
 struct Weapon_3;
 struct Widget_00464f80;
@@ -12028,17 +12023,6 @@ union Fix_0049b3e0 {  // 0x4 bytes, 1 view
     union { int whole; short half[2]; };  // +0x0
 };
 
-struct Obj_0049b3e0 {  // 0x114 bytes, 1 view
-    char unknown_0[272];
-    unsigned int flags;  // +0x110
-};
-
-struct Weapon_0049b720 {  // 0x1c bytes, 1 view
-    char unknown_0[16];
-    UnitMotion* type;      // +0x10
-    char unknown_14[8];
-};
-
 struct Angles_0049be60 {  // 0x6 bytes, 1 view
     short x;  // +0x0
     short y;  // +0x2
@@ -12048,24 +12032,6 @@ struct Angles_0049be60 {  // 0x6 bytes, 1 view
 struct Sprite_0049be60 {  // 0x34 bytes, 1 view
     char unknown_0[48];
     void* child;  // +0x30
-};
-
-struct Object_0049c920 {  // 0x4a bytes, 1 view
-    Unit* unit;  // +0x0
-    char unknown_4[66];
-    unsigned int time;  // +0x46
-};
-
-struct Obj_0049c980 {  // 0x3e bytes, 1 view
-    char unknown_0[58];
-    int value;  // +0x3a
-};
-
-struct Src_0049c980 {  // 0x74 bytes, 1 view
-    char unknown_0[104];
-    int f_68;  // +0x68
-    int f_6c;  // +0x6c
-    int f_70;  // +0x70
 };
 
 struct Gun_0049c9c0 {  // 0x4 bytes, 1 view
