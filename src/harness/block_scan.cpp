@@ -15,7 +15,7 @@ namespace {
 
 const unsigned kRegistryBits = 19;
 const unsigned kRegistrySize = 1u << kRegistryBits;
-const unsigned kRowBits = 16;
+const unsigned kRowBits = 21;
 const unsigned kRowSize = 1u << kRowBits;
 
 struct Entry {
@@ -45,14 +45,14 @@ struct Row {
     unsigned globals;
 };
 
-Entry g_registry[kRegistrySize];
+Entry* g_registry;
 unsigned g_registryCount;
-Span g_spans[kRegistrySize];
+Span* g_spans;
 unsigned g_spanCount;
 unsigned g_spanMin;
 unsigned g_spanMax;
 bool g_dirty = true;
-Row g_rows[kRowSize];
+Row* g_rows;
 unsigned g_rowCount;
 unsigned g_scanned;
 unsigned g_mainThread;
@@ -68,6 +68,14 @@ void Die(const char* text)
 {
     host_log(text);
     host_exit(2);
+}
+
+void* AllocZeroed(unsigned bytes)
+{
+    void* p = VirtualAlloc(0, bytes, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (p == 0)
+        Die("blockscan: cannot allocate the scan tables\n");
+    return p;
 }
 
 unsigned Slot(unsigned addr)
@@ -216,14 +224,70 @@ unsigned HashRow(const Row& r)
     return (h ^ (h >> 15)) >> (32 - kRowBits);
 }
 
+struct HolderCount {
+    unsigned holder;
+    const char* tag;
+    unsigned rows;
+};
+
+void CleanTag(const char* tag, char* out);
+
+void ReportTopHolders()
+{
+    const unsigned kSlots = 4096;
+    const unsigned kTop = 10;
+    HolderCount* counts = (HolderCount*)calloc(kSlots, sizeof(HolderCount));
+    if (counts == 0)
+        return;
+    for (unsigned i = 0; i < kRowSize; i++) {
+        const Row& r = g_rows[i];
+        if (!r.used)
+            continue;
+        unsigned h = ((r.holder * 2654435761u) ^ (unsigned)r.holderTag) * 2246822519u;
+        unsigned j = (h ^ (h >> 15)) & (kSlots - 1);
+        for (unsigned probes = 0; probes < kSlots; probes++) {
+            HolderCount& c = counts[j];
+            if (c.rows == 0) {
+                c.holder = r.holder;
+                c.tag = r.holderTag;
+                c.rows = 1;
+                break;
+            }
+            if (c.holder == r.holder && c.tag == r.holderTag) {
+                c.rows++;
+                break;
+            }
+            j = (j + 1) & (kSlots - 1);
+        }
+    }
+    host_log("blockscan: holders with the most rows:\n");
+    for (unsigned k = 0; k < kTop; k++) {
+        unsigned best = 0;
+        for (unsigned j = 1; j < kSlots; j++)
+            if (counts[j].rows > counts[best].rows)
+                best = j;
+        if (counts[best].rows == 0)
+            break;
+        char tag[96];
+        char msg[200];
+        CleanTag(counts[best].tag, tag);
+        sprintf(msg, "blockscan:   0x%08x %s: %u rows\n", counts[best].holder, tag, counts[best].rows);
+        host_log(msg);
+        counts[best].rows = 0;
+    }
+    free(counts);
+}
+
 void Note(const Row& key, unsigned targetOffset, unsigned tick)
 {
     unsigned i = HashRow(key);
     for (;;) {
         Row& r = g_rows[i];
         if (!r.used) {
-            if (g_rowCount >= kRowSize - kRowSize / 4)
+            if (g_rowCount >= kRowSize - kRowSize / 4) {
+                ReportTopHolders();
                 Die("blockscan: row table is full, raise kRowBits in src/harness/block_scan.cpp\n");
+            }
             r = key;
             r.used = 1;
             r.ticks = 1;
@@ -328,6 +392,9 @@ int __cdecl CompareOut(const void* a, const void* b)
 
 void BlockScanEnable()
 {
+    g_registry = (Entry*)AllocZeroed(sizeof(Entry) * kRegistrySize);
+    g_spans = (Span*)AllocZeroed(sizeof(Span) * kRegistrySize);
+    g_rows = (Row*)AllocZeroed(sizeof(Row) * kRowSize);
     g_mainThread = host_thread_id();
     g_allocHooks = &g_hooks;
 }
@@ -402,8 +469,8 @@ void BlockScanWrite(const char* commit)
                 out[i].targetTag, out[i].ticks, out[i].targetMin, out[i].targetMax);
     fclose(f);
     free(out);
-    char msg[200];
-    sprintf(msg, "blockscan: %u ticks, %u rows, scan counter total %I64u max %I64u, %u words, %u hits, %u live allocations\n",
-            g_scanned, n, g_scanTotal, g_scanMax, g_words, g_hits, g_registryCount);
+    char msg[256];
+    sprintf(msg, "blockscan: %u ticks, %u rows, %u table rows, scan counter total %I64u max %I64u, %u words, %u hits, %u live allocations\n",
+            g_scanned, n, g_rowCount, g_scanTotal, g_scanMax, g_words, g_hits, g_registryCount);
     host_log(msg);
 }
