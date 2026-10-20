@@ -1273,6 +1273,8 @@ def generate():
         lines.append("#include <stddef.h>")
         lines.append('#include "../state/sim_globals.h"')
         lines.append("#define TRACE_SIM_BASE ((const unsigned char*)&Sim())")
+        lines.append("#pragma clang diagnostic push")
+        lines.append('#pragma clang diagnostic ignored "-Winvalid-offsetof"')
         for symbol in dict.fromkeys(used):
             lines.append('#pragma push_macro("%s")' % symbol)
             lines.append("#undef %s" % symbol)
@@ -1302,6 +1304,7 @@ def generate():
     for symbol in reversed(list(dict.fromkeys(used))):
         lines.append('#pragma pop_macro("%s")' % symbol)
     if used:
+        lines.append("#pragma clang diagnostic pop")
         lines.append("")
     lines.append("#endif")
     return "\n".join(lines) + "\n", schema.errors

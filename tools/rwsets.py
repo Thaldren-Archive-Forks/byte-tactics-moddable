@@ -578,6 +578,10 @@ class Walker:
                 self.destructor(pointee(inner[0]["type"]), not node.get("isArray"))
             for child in inner:
                 self.visit(child, "R")
+        elif kind == "ConditionalOperator" and self.array_branches(inner):
+            self.visit(inner[0], "R")
+            for branch in inner[1:]:
+                self.visit(branch["inner"][0], "R")
         elif kind == "CXXBindTemporaryExpr":
             self.destructor(node["type"], False)
             for child in inner:
@@ -585,6 +589,22 @@ class Walker:
         else:
             for child in inner:
                 self.visit(child, "R")
+
+    @staticmethod
+    def array_branches(inner: list) -> bool:
+        """True when both branches of a conditional decay arrays of one element type.
+
+        A sim global used to be an `extern` of the same unbounded type as its partner, so the pair was
+        one lvalue and its reads were reads; a field has a bound, which would make them escapes.
+        """
+        if len(inner) != 3:
+            return False
+        elements = set()
+        for branch in inner[1:]:
+            if branch["kind"] != "ImplicitCastExpr" or branch.get("castKind") != "ArrayToPointerDecay":
+                return False
+            elements.add(re.sub(r"\s*\[\d*\]$", "", branch["inner"][0].get("type", {}).get("qualType", "")))
+        return len(elements) == 1 and any(sim_global(branch["inner"][0]) for branch in inner[1:])
 
     def cast(self, node: dict, mode: str) -> None:
         kind = node.get("castKind")

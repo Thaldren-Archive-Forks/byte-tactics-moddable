@@ -210,6 +210,8 @@ extern unsigned g_scalar;
 extern int g_inner;
 extern Handler g_handlers[4];
 static int g_st;
+extern char g_sep[];
+extern char g_buf[];
 """
 
 SIM_DECLS = """struct SimGlobals {
@@ -221,7 +223,9 @@ SIM_DECLS = """struct SimGlobals {
     char g_container[16];
     Handler g_handlers[4];
     int g_st_a;
+    char g_buf[8];
 };
+extern char g_sep[];
 SimGlobals& Sim();
 static SimGlobals* g_simGlobals;
 SimGlobals& Sim() { return *g_simGlobals; }
@@ -230,6 +234,7 @@ SimGlobals& Sim() { return *g_simGlobals; }
 #define g_counter (Sim().g_counter)
 #define g_handlers (Sim().g_handlers)
 #define g_st (Sim().g_st_a)
+#define g_buf (Sim().g_buf)
 typedef unsigned SimView_g_viewed[4];
 #define g_viewed (*reinterpret_cast<SimView_g_viewed*>(&Sim().g_viewed))
 #define g_scalar (*reinterpret_cast<unsigned*>(&Sim().g_scalar))
@@ -249,6 +254,7 @@ void Interior() { g_inner = 7; Look(&g_inner); }
 int Method() { g_counter.Bump(); return g_counter.Get() + g_counter.n; }
 int Indirect(int x) { return g_handlers[x](x); }
 int Static() { g_st = 1; return g_st; }
+const char* Pick(int f) { return f ? g_sep : g_buf; }
 void Mixed() { Counter local; local.Bump(); Sim(); }
 """
 
@@ -315,6 +321,9 @@ class SimGlobalsTest(unittest.TestCase):
     def test_static_is_named_by_its_row(self):
         self.assertEqual(self.same("Static"), {("global_write", "g_st@src/a.cpp"),
                                                ("global_read", "g_st@src/a.cpp")})
+
+    def test_arrays_chosen_by_a_conditional_stay_reads(self):
+        self.assertEqual(self.same("Pick"), {("global_read", "g_sep"), ("global_read", "g_buf")})
 
     def test_sim_calls_and_the_pointer_add_no_rows(self):
         rows = self.sim["Mixed"]
