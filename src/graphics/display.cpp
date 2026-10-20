@@ -173,8 +173,6 @@ struct Event_4b5cc0 {
     int flag;       // +0x14
 };
 
-// One entry of the timer table at g_timerSlots: ten slots, then g_timerCount
-// counts them.
 struct Timer_4b63f0 {
     void* callback;                    // +0
     int id;                            // +4, the handle the callback removes
@@ -182,14 +180,17 @@ struct Timer_4b63f0 {
     int countdown;                     // +0xc
 };
 
+struct TimerTable_4b63f0 {
+    Timer_4b63f0 slots[10];
+    void (__cdecl *closeHandler)(int);
+    int closeHandlerArg;
+    int count;
+};
+
 typedef void (__stdcall *TimerCb_4b63f0)(int);
 
 extern App_4b5980* g_display;
-extern void (__cdecl *g_closeHandler)(int);
-extern int g_closeHandlerArg;
-extern Timer_4b63f0 g_timerSlots[10];
-extern int g_timerSlot0Interval;       // the interval field of the first slot
-extern int g_timerCount;
+extern TimerTable_4b63f0 g_timerSlots;
 extern unsigned int g_lastTimerTick;   // last tick count, in game ticks
 extern LONG g_gfxBlitLockHeld;
 extern LONG g_gfxBlitLockOwner;
@@ -247,8 +248,8 @@ int ApplyPalette()
 // FUNCTION: 0x4b4fd0
 void __stdcall SetCloseHandler(void (__cdecl *callback)(int), int param)
 {
-    g_closeHandler = callback;
-    g_closeHandlerArg = param;
+    g_timerSlots.closeHandler = callback;
+    g_timerSlots.closeHandlerArg = param;
 }
 
 // Releases the display's DirectDraw objects (palette, surfaces, then the
@@ -748,8 +749,8 @@ void __stdcall HandleHostEvent(host_event* ev)
             g_display->active = 1;
         return;
     case HOST_EVENT_CLOSE:
-        if (g_closeHandler != 0) {
-            g_closeHandler(g_closeHandlerArg);
+        if (g_timerSlots.closeHandler != 0) {
+            g_timerSlots.closeHandler(g_timerSlots.closeHandlerArg);
             return;
         }
         host_window_close();
@@ -908,9 +909,9 @@ int __stdcall EmptyPostArchiveMountHook(int)
 void __stdcall InitTimers(int tickRate)
 {
     g_display->tickScale = tickRate;
-    g_timerCount = 0;
+    g_timerSlots.count = 0;
     for (int i = 0; i < 10; i++) {
-        g_timerSlots[i].interval = -1;
+        g_timerSlots.slots[i].interval = -1;
     }
     g_lastTimerTick = (host_time_ms() * g_display->tickScale) / 1000;
 }
@@ -936,18 +937,16 @@ void UpdateTimers()
     int diff = (int)q1 - g_lastTimerTick;
     g_lastTimerTick = (host_time_ms() * g_display->tickScale) / 1000;
 
-    int* p = &g_timerSlot0Interval;
-    do {
-        if (p[0] >= 0) {
-            if ((p[1] -= diff) <= 0) {
-                int arg = p[-1];
-                TimerCb_4b63f0 fn = (TimerCb_4b63f0)p[-2];
+    for (Timer_4b63f0* s = g_timerSlots.slots; s < g_timerSlots.slots + 10; s++) {
+        if (s->interval >= 0) {
+            if ((s->countdown -= diff) <= 0) {
+                int arg = s->id;
+                TimerCb_4b63f0 fn = (TimerCb_4b63f0)s->callback;
                 fn(arg);
-                p[1] = p[0];
+                s->countdown = s->interval;
             }
         }
-        p += 4;
-    } while ((int)p < (int)&g_timerCount);
+    }
 }
 
 // FUNCTION: 0x4b63f0
@@ -957,29 +956,23 @@ int __stdcall AddTimer(int interval, int id, TimerCb_4b63f0 callback)
     int diff = (int)now - g_lastTimerTick;
     g_lastTimerTick = (host_time_ms() * g_display->tickScale) / 1000;
 
-    int* p = &g_timerSlot0Interval;
-    do {
-        if (*p >= 0) {
-            if ((p[1] -= diff) <= 0) {
-                TimerCb_4b63f0 fn = (TimerCb_4b63f0)p[-2];
-                fn(p[-1]);
-                p[1] = *p;             // reload the whole interval
+    for (Timer_4b63f0* s = g_timerSlots.slots; s < g_timerSlots.slots + 10; s++) {
+        if (s->interval >= 0) {
+            if ((s->countdown -= diff) <= 0) {
+                TimerCb_4b63f0 fn = (TimerCb_4b63f0)s->callback;
+                fn(s->id);
+                s->countdown = s->interval;
             }
         }
-        p += 4;
-    } while ((int)p < (int)&g_timerCount);
+    }
 
-    int i = 0;
-    int* q = &g_timerSlot0Interval;
-    // The bound is the end of the ten slots. Written relative to the first one
-    // so the entry test folds away, the way the original's code has none.
-    for (; (int)q < (int)&g_timerSlot0Interval + 160; q += 4, i++) {
-        if (*q < 0) {
-            g_timerSlots[i].callback = callback;
-            g_timerSlots[i].id = id;
-            g_timerSlots[i].interval = interval;
-            g_timerSlots[i].countdown = interval;
-            g_timerCount++;
+    for (int i = 0; i < 10; i++) {
+        if (g_timerSlots.slots[i].interval < 0) {
+            g_timerSlots.slots[i].callback = callback;
+            g_timerSlots.slots[i].id = id;
+            g_timerSlots.slots[i].interval = interval;
+            g_timerSlots.slots[i].countdown = interval;
+            g_timerSlots.count++;
             return i;
         }
     }
@@ -991,11 +984,11 @@ int __stdcall AddTimer(int interval, int id, TimerCb_4b63f0 callback)
 // FUNCTION: 0x4b64d0
 int __stdcall RemoveTimer(int i)
 {
-    if (i >= g_timerCount)
+    if (i >= g_timerSlots.count)
         return 0;
     if (i < 0)
         return 0;
-    g_timerSlots[i].interval = -1;
+    g_timerSlots.slots[i].interval = -1;
     return 1;
 }
 
@@ -1004,9 +997,9 @@ int __stdcall RemoveTimer(int i)
 // FUNCTION: 0x4b6510
 void ResetTimers()
 {
-    g_timerCount = 0;
+    g_timerSlots.count = 0;
     for (int i = 0; i < 10; i++) {
-        g_timerSlots[i].interval = -1;
+        g_timerSlots.slots[i].interval = -1;
     }
     g_lastTimerTick = host_time_ms() * g_display->tickScale / 1000;
 }
