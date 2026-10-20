@@ -1,4 +1,5 @@
 QUIRK(ignoreNullDeathRecord, "units.ignore-null-death-record", sim, "units.ignore-null-death-record")
 QUIRK(patrolNullEnemySkip, "ai.patrol-null-enemy-skip", sim, "ai.patrol-null-enemy-skip")
 QUIRK(skipEmptyYardmap, "units.skip-empty-yardmap", sim, "units.skip-empty-yardmap")
+QUIRK(hoverBobWallClock, "units.hover-bob-wall-clock", sim, "")
 QUIRK(boundLanguageCopy, "util.bound-language-copy", view, "")

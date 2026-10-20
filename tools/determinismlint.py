@@ -40,7 +40,6 @@ GAME_LOGIC_DIRS = ("src/units/", "src/weapons/", "src/ai/", "src/orders/", "src/
 
 ARRAY_BOUND = "compares the ends of a walk over one array, which is ordered by position"
 VIEW_ONLY = "draws a presentation effect; reached from game logic through a call that does not feed state (revisit in #22)"
-BOB_CLOCK = "hover bob phase from the wall clock in the default path; test mode uses the tick (#76)"
 NET_TIME = "3.1c network timing and timeouts, not hashed state (revisit in #21)"
 UI_TIME = "3.1c widget animation and repeat timing, not hashed state (revisit in #22)"
 LOAD_TIME = "3.1c load-time or console-command clock read, not hashed state (revisit in #19)"
@@ -81,7 +80,6 @@ ALLOWLIST: dict[tuple[int, str], str] = {
     (0x4876c0, "pointer"): ARRAY_BOUND,
     (0x488810, "pointer"): ARRAY_BOUND,
     (0x488960, "pointer"): ARRAY_BOUND,
-    (0x48a490, "GetTicks"): BOB_CLOCK,
     (0x48ad30, "pointer"): ARRAY_BOUND,
     (0x48d790, "pointer"): ARRAY_BOUND,
     (0x4917d0, "GetTicks"): LOAD_TIME,
