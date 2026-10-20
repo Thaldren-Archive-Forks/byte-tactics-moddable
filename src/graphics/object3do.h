@@ -10,9 +10,18 @@ struct Object3do {
     int vertexCount;
     int faceCount;
     int firstFace;
-    int f10;
-    int f14;
-    unsigned short* color;
+    union {
+        int f10;
+        int box_x;
+    };
+    union {
+        int f14;
+        int box_y;
+    };
+    union {
+        unsigned short* color;
+        int box_z;
+    };
     char* name;
     int active;
     void* vertices;

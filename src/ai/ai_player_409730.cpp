@@ -70,15 +70,15 @@ int __stdcall RateUnitType_409730(UnitDef* p)
 // FUNCTION: 0x409730
 void PlayerAI::ComputeBaseWeights()
 {
-    vec_8d.resize(g_game->count_1438f, 0);
+    vec_8d.resize(g_game->unitDefCount, 0);
     {
         Elem_0040cfb0 e;
         e.a = 0;
         e.b = 0;
         e.c = 0;
-        vec_65.resize(g_game->count_1438f, e);
+        vec_65.resize(g_game->unitDefCount, e);
     }
-    for (int i = 1; i < g_game->count_1438f; i++) {
+    for (int i = 1; i < g_game->unitDefCount; i++) {
         UnitDef* def = &g_game->defs[(unsigned short)i];
         vec_8d[i] = RateUnitType_409730(def);
 

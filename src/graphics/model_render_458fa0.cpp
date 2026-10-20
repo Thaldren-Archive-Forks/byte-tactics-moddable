@@ -38,7 +38,7 @@ void CMemoryCache::DrawPieceEdges(GafFrame* view, Model_459200* model, int color
             unsigned char flags = piece->flags.word;
             do {} while (0);  // emits no code; the match needs it (header note 2)
             if (flags & 1) {
-                Object3doView* info = piece->object;
+                Object3do* info = piece->object;
                 Vertex_0045a610* v = (Vertex_0045a610*)piece->points;
                 for (int j = 0; j < info->vertexCount; j++, v++) {
                     int bright = ((Map_00458fa0*)model->owner->def)->brightFaces ? 125 : 50;
@@ -54,10 +54,10 @@ void CMemoryCache::DrawPieceEdges(GafFrame* view, Model_459200* model, int color
                 // f is assigned in both arms, not set before the if.
                 Face_459c70* f;
                 if (info->firstFace != -1) {
-                    f = info->faces + 1;
+                    f = (Face_459c70*)info->faces + 1;
                     faceno = 1;
                 } else {
-                    f = info->faces;
+                    f = (Face_459c70*)info->faces;
                     faceno = 0;
                 }
                 for (; faceno < info->faceCount; faceno++, f++) {

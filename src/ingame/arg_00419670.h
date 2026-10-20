@@ -5,7 +5,8 @@
 struct Arg_00419670 {
     int x;
     int y;
-    int unknown_8[4];
+    unsigned int keyFlags;
+    int unknown_c[3];
 };
 #pragma pack(pop)
 

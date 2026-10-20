@@ -1079,7 +1079,7 @@ PlayerAI::PlayerAI(unsigned char p)
     lastTick = 0;
     searchRadius = 0;
     InitPlacementGrid();
-    int n = g_game->count_1438f;
+    int n = g_game->unitDefCount;
     weights.resize(n, 0);
     counts.resize(n, 0);
     // Fill values stay in block scopes so they share the dead parameter slot.
@@ -1112,7 +1112,7 @@ PlayerAI::PlayerAI(unsigned char p)
 // FUNCTION: 0x409470
 void PlayerAI::InitUnitTables()
 {
-    int n = g_game->count_1438f;
+    int n = g_game->unitDefCount;
     for (int i = 0; i < n; ++i) {
         UnitDef* def = &g_game->defs[i];
         weights[i] = 0;
@@ -1191,7 +1191,7 @@ int __stdcall RateUnitType(UnitDef* p)
 void __stdcall ScaleUnitWeights(int player, unsigned int* mask, float scale, int lock)
 {
     PlayerAI* p = g_playerAI[player];
-    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
         if (mask[i >> 5] & (1 << (i & 0x1f))) {
             // Own local: the address is then encoded as [offset + base].
             int off = i * 4;
@@ -1208,7 +1208,7 @@ void __stdcall ScaleUnitWeights(int player, unsigned int* mask, float scale, int
 void __stdcall SetUnitLimits(int player, unsigned int* mask, int value, int lock)
 {
     PlayerAI* p = g_playerAI[player];
-    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
         if ((mask[i >> 5] & (1 << (i & 0x1f))) && p->locked[i].unknown_0 == 0) {
             p->values[i].unknown_0 = value;
             if (lock)
@@ -1223,7 +1223,7 @@ void __stdcall SetUnitLimits(int player, unsigned int* mask, int value, int lock
 // FUNCTION: 0x409f20
 int __stdcall IsUnderLimit(int player, unsigned short index, int value)
 {
-    if (index >= 1 && index < g_game->count_1438f) {
+    if (index >= 1 && index < g_game->unitDefCount) {
         int* values = (int*)&g_playerAI[player]->values[0];
         if (values[index] == -1)
             return 1;
@@ -1238,7 +1238,7 @@ void __stdcall ParseDownloadableAiWeightScripts(int player)
 {
     PlayerAI* p = g_playerAI[player];
     EnableAICommands();
-    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
         UnitDef* def = &g_game->defs[i];
         if (((Flags241*)&def->flags1)->downloadable) {
             if (p->vec_bd[i].unknown_0 != 1) {
@@ -1258,7 +1258,7 @@ void __stdcall ReparseAiWeightScriptsIfLimitNotSticky(int player)
 {
     PlayerAI* p = g_playerAI[player];
     EnableAICommands();
-    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
         UnitDef* def = &g_game->defs[i];
         if (((Flags241*)&def->flags1)->downloadable) {
             if (p->locked[i].unknown_0 != 1) {
@@ -1710,7 +1710,7 @@ void __stdcall DumpPlayerAI(int player, FILE* file)
     fprintf(file,"difficulty: '%s'\r\n",difficulties[g_game->difficulty]);
     fprintf(file,"================================================\r\n");
     fprintf(file,"<limit> - <base:baseML:baseEL> : <end result - before economy-based tweaks> - <unit name>\r\n");
-    for (unsigned short i=1;i<g_game->count_1438f;++i) {
+    for (unsigned short i=1;i<g_game->unitDefCount;++i) {
         UnitDef* type=&g_game->defs[i];
         if (ai->values[i].unknown_0<0) fprintf(file,"n/a ");
         else fprintf(file,"%4d",ai->values[i].unknown_0);

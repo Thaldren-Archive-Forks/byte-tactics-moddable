@@ -175,7 +175,7 @@ int LoadUnitInfo()
     FileList files;
     ListDirectory(path, 0, &files);
     int count = files.size() + 1;
-    g_game->count_1438f = count;
+    g_game->unitDefCount = count;
     int size = count * sizeof(UnitDef);
     g_game->defs = (UnitDef*)SimAllocTagged("UNITINFO", size);
     memset(g_game->defs, 0, size);
@@ -231,9 +231,9 @@ int LoadUnitInfo()
             double version = parser.GetDouble("Version", 0.0);
             int major = (int)floor(version);
             int minor = (int)floor((version - major) * 10.0);
-            if (major < (signed char)g_game->version)
+            if (major < g_game->version)
                 u->flags1 |= 0x800000;
-            else if (major == (signed char)g_game->version && minor <= (signed char)g_game->versionMinor)
+            else if (major == g_game->version && minor <= g_game->versionMinor)
                 u->flags1 |= 0x800000;
             else
                 u->flags1 &= ~0x800000;
@@ -275,7 +275,7 @@ int LoadUnitInfo()
             size -= sizeof(UnitDef);
         }
     }
-    g_game->count_1438f = count;
+    g_game->unitDefCount = count;
     if (oldcount != count && !bad)
         ShowErrorBox(Translate("Incompatible units found.  They will be ignored.  Please download the latest version of the game."), DAT_005119b8);
     ProtectBlockReadOnly(g_game->defs);

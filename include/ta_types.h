@@ -14767,12 +14767,6 @@ public:
     void StripComments(char*);
 };
 
-struct TdfField {       // 0x8 bytes, 17 views
-    Class_004c9390 a;  // +0x0
-    Class_004c9390 b;  // +0x4
-    ~TdfField(void);
-};
-
 class Class_004c42a0 {  // 0x25 bytes, 7 views
 public:
     int* name;  // +0x0

@@ -20,23 +20,7 @@
 #include <float.h>
 
 #include "string_ref.h"
-
-// One entry of a section or of the translations: a key and a value. The
-// compiler's destructor of the pair (0x4c5190) releases both handles.
-// FUNCTION: 0x4c5190 ??1TdfField@@QAE@XZ
-struct TdfField {
-    StringRef key;                  // +0x0
-    StringRef value;                // +0x4
-
-    TdfField(const StringRef& a, const StringRef& b);
-    TdfField(const TdfField& other);
-    TdfField& operator=(const TdfField& other)
-    {
-        AssignPair((int*)&other);
-        return *this;
-    }
-    void* AssignPair(int* param_1);
-};
+#include "tdf.h"
 
 #ifdef __clang__
 __attribute__((optnone)) void __stdcall EmitTdfFieldDestructor(TdfField* field)
@@ -78,8 +62,6 @@ static inline TdfField MakePair(const StringRef& a, const StringRef& b)
 {
     return TdfField(a, b);
 }
-
-#include "tdf.h"
 
 typedef char TdfRecordListSize[sizeof(std::vector<TdfRecord*>) == sizeof(TdfRecordList) ? 1 : -1];
 typedef char TdfFieldListSize[sizeof(std::vector<TdfField>) == sizeof(TdfFieldList) ? 1 : -1];
@@ -664,19 +646,17 @@ void __stdcall ReleasePair(char* param_1)
 // constructor (0x4c35c0) matching (docs/c2-regalloc.md).
 struct HapiBank;
 
+// FUNCTION: 0x4c5190 ??1TdfField@@QAE@XZ
+TdfField::~TdfField()
+{
+}
+
 // FUNCTION: 0x4c5470
 void* TdfField::AssignPair(int* param_1)
 {
     ((StringRef*)this)->Assign((StringRef*)param_1);
     ((StringRef*)&value)->Assign((StringRef*)(param_1 + 1));
     return this;
-}
-
-// Copy constructor of a pair of reference-counted string handles.
-// FUNCTION: 0x4c54a0 ??0TdfField@@QAE@ABU0@@Z
-TdfField::TdfField(const TdfField& other)
-    : key(other.key), value(other.value)
-{
 }
 
 // FUNCTION: 0x4c54d0 ??0TdfField@@QAE@ABVStringRef@@0@Z

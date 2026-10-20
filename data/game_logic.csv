@@ -1408,7 +1408,7 @@ address,function,file
 0x4c51b0,??_GTdfField@@QAEPAXI@Z,src/util/tdf_4c51b0.cpp
 0x4c51e0,UTdfField::?$vector::insert,src/util/tdf.cpp
 0x4c5470,TdfField::AssignPair,src/util/tdf.cpp
-0x4c54a0,TdfField::TdfField,src/util/tdf.cpp
+0x4c54a0,TdfField::TdfField,src/util/tdf.h
 0x4c54d0,TdfField::TdfField,src/util/tdf.cpp
 0x4c5740,Translate,src/util/tdf_4c54f0.cpp
 0x4c5840,FindTranslation,src/util/tdf_4c54f0.cpp

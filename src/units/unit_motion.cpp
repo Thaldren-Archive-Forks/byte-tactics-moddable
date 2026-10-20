@@ -44,112 +44,11 @@ struct Chunk_00437a30 {
 
 #include "../graphics/gaf_frame.h"
 
-struct Vertex_458810 { int x; int y; int z; };
-
-// The unit whose object state is drawn: its motion pointer, the draw flags and the
-// z-buffer flag.
-struct Unit_458810 {
-    void* motion;                 // +0x00
-    char unknown_4[0x1c];
-    int field_20;                 // +0x20
-    char unknown_24[0xff - 0x24];
-    unsigned char playerIndex;    // +0xff
-    char unknown_100[4];
-    float buildLeft;              // +0x104
-    char unknown_108[6];
-    unsigned char activateFlags;  // +0x10e
-    char cobStateFlags;
-    unsigned int flags;           // +0x110
-    unsigned char zBufferFlag;    // +0x114
-    char unknown_115[3];
-};
-
-struct PieceInfo_458810 { char unknown_0[4]; int vertexCount; };
-
-#pragma pack(push, 1)
-struct Piece_458810 {
-    PieceInfo_458810* info;       // +0x00
-    char unknown_4[0x1e];
-    Vertex_458810* vertices;      // +0x22
-    char unknown_26[2];
-    unsigned char flags;          // +0x28
-    char unknown_29[0xd];
-};
-
-struct List_458810 {
-    int pieceCount;               // +0x00
-    int frame;                    // +0x04
-    char unknown_8[4];
-    Unit_458810* owner;           // +0x0c
-    GafFrame* bitmap;               // +0x10
-    int shadow;                   // +0x14
-    char unknown_18[0x22 - 0x18];
-    Piece_458810 pieces[1];       // +0x22
-};
-#pragma pack(pop)
-
-struct Vec3_458810;
-
-class UnitTable {
-public:
-    int BuildObjectPicture(List_458810* list, int param_2, int param_3);
-};
-
-struct Vec3_458810 { int x; int y; int z; };
-
-struct State_0045a790 {
-    char unknown_0[0x14];
-    GafFrame* sprite;                  // +0x14 the picture built here
-    char unknown_18[0x22 - 0x18];
-};
+#include "../graphics/model_types.h"
+#include "../graphics/memory_cache.h"
 
 void __stdcall CutOutFrame(GafFrame* dst, GafFrame* src, int x, int y);
 int __stdcall CompressFrame(unsigned char* dest, GafFrame* img);
-
-// The cache under the name the picture code uses: the same object, so it
-// derives from UnitTable to reach BuildObjectPicture without a cast (the empty
-// base costs nothing).
-class CMemoryCache : public UnitTable {
-public:
-    int cap;                           // +0x0, the arena's length
-    int base;                          // +0x4, the arena
-    Chunk_00437a30* cur;               // +0x8, the next chunk to hand out
-    void* handle;                      // +0xc
-    GafFrame* image;                   // +0x10, the scratch image
-
-    CMemoryCache* ClearPointers();
-    int InitCache(unsigned int size);
-    void FreeCache();
-    void FreeBuffer();
-    int AllocHandle(void** p, int need);
-    int AllocBitmap(GafFrame** handle, int w, int h);
-    int AllocTwoPlaneBitmap(GafFrame** handle, int w, int h);
-    void FlushCache();
-    void ReleaseHandle(int id);
-    void DrawObjectState(List_458810* list, Vec3_458810* result);
-    void CopyPicture(GafFrame* source);
-    void BuildShadow(State_0045a790* obj, GafFrame* dest);
-    void DrawPiece(List_458810* list, Vec3_458810* param_2, void* param_3,
-        PieceInfo_458810* info, Vertex_458810* vertices, unsigned char kind, int visible);
-    void DrawObjectPicture(void* param_1, List_458810* list, Vec3_458810 coords, int visible);
-    void DrawObjectPieces(Vec3_458810* result, List_458810* list, Vec3_458810 v, int visible);
-    void MeasureShadow(int* w, int* h, int* x, int* y, void* obj);
-    void DrawShadowShape(GafFrame* img, void* obj);
-};
-
-void CMemoryCache::DrawObjectPieces(Vec3_458810* result, List_458810* list, Vec3_458810 v, int visible)
-{
-    if (list->bitmap != 0) {
-        DrawObjectPicture(result, list, v, visible);
-        return;
-    }
-    for (int i = list->pieceCount - 1; i >= 0; i--) {
-        if (list->pieces[i].flags & 1) {
-            DrawPiece(list, result, &v, list->pieces[i].info,
-                list->pieces[i].vertices, list->owner->playerIndex, visible);
-        }
-    }
-}
 
 #include "../../interfaces/seams.h"
 
@@ -393,13 +292,13 @@ int __stdcall GetHandleSize(int param_1)
 }
 
 // FUNCTION: 0x458810
-void CMemoryCache::DrawObjectState(List_458810* list, Vec3_458810* result)
+void CMemoryCache::DrawObjectState(Model_459200* list, void* result)
 {
     int rebuild = 0;
     int x = g_game->scrollX << 16;
     int z = g_game->scrollY << 16;
     int visible;
-    Unit_458810* owner = list->owner;
+    Unit_459200* owner = list->owner;
     if (owner->flags & 0x20000000) {
         int t = (unsigned char)~owner->activateFlags;
         if (t & 1)
@@ -409,7 +308,7 @@ void CMemoryCache::DrawObjectState(List_458810* list, Vec3_458810* result)
     } else {
         visible = *(int*)((char*)owner->motion + 0x20) == 0;
     }
-    if (list->frame == 0)
+    if (list->cacheDrawCount == 0)
         rebuild = 1;
     if (list->bitmap == 0)
         list->shadow = 0;
@@ -431,13 +330,13 @@ void CMemoryCache::DrawObjectState(List_458810* list, Vec3_458810* result)
         rebuild = 1;
     if (rebuild) {
         list->shadow = 0;
-        this->BuildObjectPicture(list, 0, 1);
+        ((UnitTable*)this)->BuildObjectPicture(list, 0, 1);
     }
-    Vec3_458810 coords;
+    Vec3 coords;
     coords.x = x;
     coords.z = z;
-    DrawObjectPieces(result, list, coords, visible);
-    list->frame++;
+    DrawObjectPieces((int)result, list, coords, visible);
+    list->cacheDrawCount++;
 }
 
 // Copies an image (size, three header fields, pixels and optional mask) into
@@ -461,7 +360,7 @@ void CMemoryCache::CopyPicture(GafFrame* source)
 // is blitted over it, and the run length compressed result becomes the state's
 // sprite (CompressFrame, then a one plane bitmap from the arena).
 // FUNCTION: 0x45a790
-void CMemoryCache::BuildShadow(State_0045a790* obj, GafFrame* dest)
+void CMemoryCache::BuildShadow(Model_459200* obj, GafFrame* dest)
 {
     int w, h, x, y;
     MeasureShadow(&w, &h, &x, &y, obj);
@@ -474,8 +373,9 @@ void CMemoryCache::BuildShadow(State_0045a790* obj, GafFrame* dest)
     DrawShadowShape(image, obj);
     CutOutFrame(dest, image, 5, 0);
     int size = CompressFrame(image->scratch, image);
-    AllocBitmap(&obj->sprite, size, 1);
-    GafFrame* bmp = obj->sprite;
+    GafFrame** slot = &obj->shadow;
+    AllocBitmap(slot, size, 1);
+    GafFrame* bmp = *slot;
     memcpy(bmp->pixelsOrLayers, image->scratch, size);
     bmp->width = image->width;
     bmp->height = image->height;

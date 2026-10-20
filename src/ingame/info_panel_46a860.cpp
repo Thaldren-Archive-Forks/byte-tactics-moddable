@@ -29,19 +29,6 @@ int __stdcall FillRectangle(void* surface, void* rect, int color);
 
 #include "../map/mission.h"
 
-#pragma pack(push, 1)
-struct SnapshotView {
-    int orderName;
-    unsigned short selected, health, build;
-    int weapons[3];
-    float values[4];
-    unsigned short targetType, targetHealth, feature;
-    int button;
-    int nTotalUnitsPanelSlide;        // +0x30
-    unsigned short* pLightbarFrame;   // +0x34, cached lightbar frame
-    int optionsLightbarDirty;         // +0x38
-};
-#pragma pack(pop)
 
 #include "../network/player_info.h"
 #include "../network/player.h"
@@ -198,7 +185,7 @@ struct SideDef_0046a860 {
 // FUNCTION: 0x46a860
 void __stdcall DrawUnitInfoPanel(void* surface) {
     int yOffset = g_game->field_37e23 - g_game->baseHeight;
-    SnapshotView snapshot;
+    Snapshot_0046a860 snapshot;
     memset(&snapshot, 0, sizeof(snapshot));
     char text[256];
 
@@ -263,8 +250,8 @@ void __stdcall DrawUnitInfoPanel(void* surface) {
     snapshot.button = g_game->selected;
     snapshot.selected = g_game->hoverUnitId;
     snapshot.feature = g_game->cellFeature;
-    snapshot.pLightbarFrame = (*(SnapshotView*)&g_game->selectionInfoCache).pLightbarFrame;
-    snapshot.nTotalUnitsPanelSlide = (*(SnapshotView*)&g_game->selectionInfoCache).nTotalUnitsPanelSlide;
+    snapshot.height = g_game->selectionInfoCache.height;
+    snapshot.width = g_game->selectionInfoCache.width;
 
     if (snapshot.selected != 0) {
         Unit_0046a860* unit = (Unit_0046a860 *)g_game->units + snapshot.selected;

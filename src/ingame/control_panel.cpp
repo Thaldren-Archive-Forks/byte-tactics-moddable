@@ -27,11 +27,6 @@ struct Pair_00419560 {
     int b;
 };
 
-struct ArgView {
-    char unknown_0[8];
-    unsigned int keyFlags;             // +0x8
-};
-
 struct Unit;
 struct Player;
 struct PlayerInfo;
@@ -302,7 +297,7 @@ int __stdcall MenuEntryNameContains(Gadget* entries, char* text, int index)
 // order for each of the local player's units with flag 0x10 whose def has
 // flag 0x40. Bit 2 of the argument's keyFlags is passed through.
 // FUNCTION: 0x419670
-void __stdcall IssueMobileBuildOrders(ArgView* arg)
+void __stdcall IssueMobileBuildOrders(Arg_00419670* arg)
 {
     unsigned int remove = (arg->keyFlags >> 2) & 1;
     unsigned short index = g_game->buildTypeIndex;

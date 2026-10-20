@@ -5,11 +5,15 @@
 #include <vector>
 
 #include "string_ref.h"
+#include "tdf.h"
 
-struct TdfField {
-    StringRef a;                    // +0x0
-    StringRef b;                    // +0x4
-};
+namespace std {
+inline void _Destroy(TdfField* p)
+{
+    ((StringRef*)&p->value)->ReleaseRef();
+    ((StringRef*)&p->key)->ReleaseRef();
+}
+}
 
 class TdfFieldVector : public std::vector<TdfField> {
 public:

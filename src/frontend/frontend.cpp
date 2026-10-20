@@ -36,13 +36,6 @@ public:
     void Close();
 };
 
-struct V4iView {
-    int a;
-    int b;
-    int c;
-    int d;
-};
-
 #pragma pack(push, 1)
 #include "../network/player_info.h"
 
@@ -178,7 +171,7 @@ extern char g_dpspGuidSerial[];
 extern char g_dpspGuidTcpip[];
 
 // GLOBAL: 0x4fdaf0
-extern V4iView DAT_004fdaf0;
+extern V4i DAT_004fdaf0;
 
 extern char g_directXWarningText[];
 extern Smoke_00425b80* g_menuSparks;
@@ -248,7 +241,7 @@ void __stdcall SetGameMode(int param);
 void __stdcall SetEndGameState(int param);
 int __stdcall SelectConnection(int param);
 int __stdcall CreateLocalPlayer(unsigned char playerIndex, int param2);
-int __stdcall JoinNetGame(V4iView v, int idx);
+int __stdcall JoinNetGame(V4i v, int idx);
 void __stdcall AddNetPlayer(int param);
 void __stdcall QuitApp(int param);
 void __stdcall HAPINET_guaranteepackets(int param);
@@ -1361,7 +1354,7 @@ void RunFrontendStateMachine(void)
                     SetSubState(0x11, 0x58f, g_frontendSourceFile);
                     return;
                 }
-                *(V4iView*)((char*)g_game + 0x2ba2) = DAT_004fdaf0;
+                g_game->field_2ba2 = DAT_004fdaf0;
             }
             OpenSelectGameDialog();
             ShowFrontendErrorText();
@@ -1379,7 +1372,7 @@ void RunFrontendStateMachine(void)
         case 19:
             g_game->players[(unsigned char)g_game->localPlayer].info->bit6 = 1;
         case 18:
-            if (JoinNetGame(*(V4iView*)((char*)g_game + 0x2ba2), (unsigned char)g_game->localPlayer) == 0) {
+            if (JoinNetGame(g_game->field_2ba2, (unsigned char)g_game->localPlayer) == 0) {
                 SetSubState(0, 0x5b3, g_frontendSourceFile);
                 return;
             }

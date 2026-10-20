@@ -6,7 +6,7 @@ struct Chunk_00437a30;
 struct Vec3;
 union Vec3_459200;
 struct Model_459200;
-struct Object3doView;
+struct Object3do;
 struct Pos_4589c0;
 
 class CMemoryCache {
@@ -40,7 +40,7 @@ public:
     void CopyPicture(GafFrame* source);
     void BuildShadow(Model_459200* model, GafFrame* dest);
     void DrawPiece(Model_459200* model, void* surface, Vec3* camera,
-        Object3doView* info, Vec3* vertices, unsigned char palette, int useColor);
+        Object3do* info, Vec3* vertices, unsigned char palette, int useColor);
     void DrawObjectPicture(int param_2, Model_459200* model, Vec3_459200 v, int useColor);
     void DrawObjectPieces(int param_1, Model_459200* list, Vec3 v, int param_6);
     void MergeIntoComposite(GafFrame* src, Model_459200* model);
