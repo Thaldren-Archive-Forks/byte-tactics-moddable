@@ -1,0 +1,13 @@
+# At tick 100 the AI's scout squad (one unit, rally point at the origin, every player allied to the AI for the call) finds no enemy; the flag makes the scout timer skip it.
+game_seed 201
+crt_seed 1201
+view_seed 2201
+map The Pass
+start_positions fixed
+ticks 300
+player0.controller human
+player0.side Arm
+player1.controller ai
+player1.side Core
+quirks 3.1c +ai.patrol-null-enemy-skip
+quirks_reach 100 ai.patrol-null-enemy-skip
