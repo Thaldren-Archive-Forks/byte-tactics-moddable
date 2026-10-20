@@ -332,5 +332,49 @@ class SimGlobalsTest(unittest.TestCase):
         self.assertFalse([r for fn in self.sim.values() for r in fn if "g_simGlobals" in r[1]])
 
 
+class SimMapTest(unittest.TestCase):
+    TEXT = (
+        "field,name,container,offset\n"
+        "g_dup,g_dup,,\n"
+        "g_dup,g_dup@src/a.cpp,,\n"
+        "g_bare,g_bare,,\n"
+        "g_bare,g_bare,,\n"
+        "g_only,g_only@src/b.cpp,,\n"
+        "g_in,g_in,g_dup,0x8\n"
+    )
+
+    def load(self, text):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sim_globals.csv"
+            path.write_text(text)
+            return rwsets.load_sim_map(path)
+
+    def test_static_row_is_used_only_in_its_own_file(self):
+        sim = self.load(self.TEXT)
+        sim.current_file = "src/a.cpp"
+        self.assertEqual(sim.name("g_dup"), "g_dup@src/a.cpp")
+        sim.current_file = "src/other.cpp"
+        self.assertEqual(sim.name("g_dup"), "g_dup")
+
+    def test_file_column_names_the_file_of_a_bare_static_row(self):
+        sim = self.load("field,name,container,offset,file\ng_t,T::g_t,,,\ng_t,g_t,,,src/m.cpp\n")
+        sim.current_file = "src/m.cpp"
+        self.assertEqual(sim.name("g_t"), "g_t")
+        sim.current_file = "src/u.cpp"
+        self.assertEqual(sim.name("g_t"), "T::g_t")
+
+    def test_lone_static_and_unlisted_fields(self):
+        sim = self.load(self.TEXT)
+        sim.current_file = "src/a.cpp"
+        self.assertEqual(sim.name("g_only"), "g_only@src/b.cpp")
+        self.assertEqual(sim.name("g_unlisted"), "g_unlisted")
+
+    def test_every_name_maps_to_its_field_and_interiors_hang_on_the_field(self):
+        sim = self.load(self.TEXT)
+        self.assertEqual(sim.names["g_dup@src/a.cpp"], "g_dup")
+        self.assertEqual(sim.names["g_dup"], "g_dup")
+        self.assertEqual(sim.interiors[("g_dup", 8)], "g_in")
+
+
 if __name__ == "__main__":
     unittest.main()

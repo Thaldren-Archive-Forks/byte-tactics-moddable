@@ -49,6 +49,7 @@ TYPE_OVERRIDES = {
     "g_playerAI": "PlayerAI*[10]",
     "g_quirks": "Quirks",
 }
+STATIC_FILES = {"g_movementClasses": "src/units/movement_class.cpp"}
 ELEMENT_SIZES = {"char": 1, "unsigned char": 1, "signed char": 1, "short": 2, "unsigned short": 2, "int": 4,
                  "unsigned int": 4, "float": 4}
 
@@ -247,15 +248,24 @@ def header_text(rows: list[Row]) -> str:
     return "\n".join(out)
 
 
+def static_file(row: Row) -> str:
+    """The file a file-static row belongs to when its name does not say (only a static with a global twin needs it)."""
+    if row.kind != "static" or not row.alias_of or "@" in row.name:
+        return ""
+    if row.leaf not in STATIC_FILES:
+        sys.exit(f"simglobals: the static {row.name} shares its field with a global; add its file to STATIC_FILES")
+    return STATIC_FILES[row.leaf]
+
+
 def csv_text(rows: list[Row]) -> str:
     buf = io.StringIO()
     w = csv.writer(buf, lineterminator="\n")
-    w.writerow(["field", "name", "container", "offset"])
+    w.writerow(["field", "name", "container", "offset", "file"])
     for row in sorted(rows, key=lambda r: (r.address is None, r.address or 0, r.name)):
         if row.interior:
-            w.writerow([row.leaf, row.name, row.container, f"0x{row.offset:x}"])
+            w.writerow([row.leaf, row.name, row.container, f"0x{row.offset:x}", ""])
         else:
-            w.writerow([row.field, row.name, "", ""])
+            w.writerow([row.field, row.name, "", "", static_file(row)])
     return buf.getvalue()
 
 

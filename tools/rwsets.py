@@ -143,21 +143,39 @@ class SimMap:
 
     def __init__(self):
         self.fields: dict[str, str] = {}
+        self.statics: dict[str, dict[str, str]] = {}
         self.names: dict[str, str] = {}
         self.interiors: dict[tuple[str, int], str] = {}
         self.interior_of: dict[str, tuple[str, int]] = {}
+        self.current_file = ""
+
+    def name(self, field: str) -> str:
+        """The row an access of the field in the file being analysed is attributed to."""
+        statics = self.statics.get(field)
+        if statics and self.current_file in statics:
+            return statics[self.current_file]
+        if field in self.fields:
+            return self.fields[field]
+        if statics:
+            return next(iter(statics.values()))
+        return field
 
 
 def load_sim_map(path: Path | None = None) -> SimMap:
     """Read the mapping table of the globals moved into SimGlobals.
 
-    src/state/sim_globals.csv, beside sim_globals.h, header `field,name,container,offset`,
+    src/state/sim_globals.csv, beside sim_globals.h, header `field,name,container,offset,file`,
     one row per moved global or static:
 
       field      the SimGlobals member (for an interior global, the name of its view macro)
       name       the row name in rwsets.py: `g_x`, or `g_x@src/file.cpp` for a static
       container  empty for a direct field; for an interior global, the field it sits in
       offset     for an interior global, its byte offset in the container (0x.. or decimal)
+      file       optional, for a file-static: the file it belongs to (default: the part of
+                 `name` after the `@`)
+
+    A field with a global row and a file-static row is the global in every file but the
+    static's own, where it is the static.
 
     Example: `g_packetChannels,g_packetChannels,g_packetManager,0x8`. A field that is not
     listed is its own name, so only statics need rows for the analysis; traceschema.py
@@ -171,13 +189,16 @@ def load_sim_map(path: Path | None = None) -> SimMap:
         rows = list(csv.DictReader(f))
     for row in rows:
         if not row["container"]:
-            sim.fields[row["field"]] = row["name"]
+            file = row.get("file") or (row["name"].split("@", 1)[1] if "@" in row["name"] else "")
+            if file:
+                sim.statics.setdefault(row["field"], {})[file] = row["name"]
+            else:
+                sim.fields[row["field"]] = row["name"]
             sim.names[row["name"]] = row["field"]
     for row in rows:
         if row["container"]:
-            container = sim.fields.get(row["container"], row["container"])
             offset = int(row["offset"], 0)
-            sim.interiors[(container, offset)] = row["name"]
+            sim.interiors[(row["container"], offset)] = row["name"]
             sim.interior_of[row["name"]] = (row["container"], offset)
     return sim
 
@@ -197,11 +218,16 @@ def is_sim_call(node: dict) -> bool:
 
 def sim_global(node: dict) -> str | None:
     """The global an lvalue stands for when it is a SimGlobals member or a view of one, else None."""
+    field = sim_field(node)
+    return None if field is None else SIM.name(field)
+
+
+def sim_field(node: dict) -> str | None:
+    """The SimGlobals field (or interior global) an lvalue stands for, else None."""
     node = strip(node)
     if node["kind"] == "MemberExpr" and not node.get("isArrow") and node.get("inner") and \
             is_sim_call(node["inner"][0]):
-        field = node.get("name") or ""
-        return SIM.fields.get(field, field)
+        return node.get("name") or ""
     if node["kind"] == "UnaryOperator" and node.get("opcode") == "*":
         return view_target(node["inner"][0])
     return None
@@ -228,12 +254,12 @@ def view_target(pointer: dict) -> str | None:
         return None
     operand = strip(pointer["inner"][0])
     if operand["kind"] == "UnaryOperator" and operand.get("opcode") == "&":
-        return sim_global(operand["inner"][0])
+        return sim_field(operand["inner"][0])
     if operand["kind"] == "BinaryOperator" and operand.get("opcode") == "+":
         base, offset = strip(operand["inner"][0]), strip(operand["inner"][1])
         target = address_operand(base)
         if target is not None and offset["kind"] == "IntegerLiteral":
-            container = sim_global(target)
+            container = sim_field(target)
             if container is not None:
                 return SIM.interiors.get((container, int(offset["value"], 0)))
     return None
@@ -469,6 +495,7 @@ class Analyzer:
         rel = self.relative(node["_file"])
         if rel is None:
             return
+        SIM.current_file = rel
         walker = (self.walker_class or Walker)(self, name)
         walker.prepare(node)
         for child in node.get("inner", ()):
