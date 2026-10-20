@@ -445,7 +445,6 @@ int g_loungeRefreshTime;  // 0x512c78 .bss
 unsigned int g_timeoutTimerStart;  // 0x512c7c .bss
 unsigned char DAT_00512c80[336];  // 0x512c80 .bss (the type runs past the next known address, 0x512c80+0x4)
 char g_onlineDllPath[261];  // 0x512dd0 .bss
-unsigned char DAT_00512ed4[20];  // 0x512ed4 .bss
 int g_onlineConfigLoaded;  // 0x512ee8 .bss
 void* g_onlineDll;  // 0x512eec .bss
 int g_helpDialogBaseGadgetCount;  // 0x512ef0 .bss
