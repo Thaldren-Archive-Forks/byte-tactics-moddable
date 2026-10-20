@@ -2527,19 +2527,6 @@ void __stdcall IssueOrderToSelection(void* mouse, int mode, int kind, int* pos, 
 void __stdcall IssueMobileBuildOrders(void* mouse);
 int UpdatePlacementGhostValidity(void);
 int __stdcall GetGroundHeight(int* pos);
-void __stdcall UpdateObjectState(void* unit);
-
-void HarnessPoseObject(void* unit)
-{
-    unsigned char* u = (unsigned char*)unit;
-    unsigned char* state = *(unsigned char**)(u + 0x9e);
-    if (state == NULL)
-        return;
-    memcpy(state + 0x18, u + 0x64, 6);
-    *(int*)(state + 8) = 1;
-    *(short*)(*(unsigned char**)(state + 0x1e) + 0x26) = 0;
-    UpdateObjectState(unit);
-}
 
 static unsigned char* PoolUnit(unsigned index)
 {
