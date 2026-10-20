@@ -65,6 +65,8 @@ unsigned long long g_scanTotal;
 unsigned long long g_scanMax;
 unsigned g_words;
 unsigned g_hits;
+unsigned g_every = 1;
+const unsigned kLastTicks = 64;
 
 void Die(const char* text)
 {
@@ -336,11 +338,15 @@ void __cdecl Visit(void* payload, unsigned size, void* ctx)
     key.globals = payload == (void*)g_simGlobals;
     key.holder = holder != 0 ? holder->site : 0;
     key.holderTag = holder != 0 ? holder->tag : 0;
-    const unsigned* words = (const unsigned*)payload;
-    for (unsigned off = 0; off + 4 <= size; off += 4) {
-        unsigned v = words[off / 4];
-        g_words++;
-        if (v < g_spanMin || v >= g_spanMax || Inside(v))
+    if (size >= 4)
+        g_words += size - 3;
+    const unsigned char* bytes = (const unsigned char*)payload;
+    const unsigned spanMin = g_spanMin;
+    const unsigned spanMax = g_spanMax;
+    for (unsigned off = 0; off + 4 <= size; off++) {
+        unsigned v;
+        memcpy(&v, bytes + off, 4);
+        if (v < spanMin || v >= spanMax || Inside(v))
             continue;
         const Span* s = FindSpan(v);
         if (s == 0)
@@ -401,8 +407,9 @@ int __cdecl CompareOut(const void* a, const void* b)
 
 }
 
-void BlockScanEnable()
+void BlockScanEnable(unsigned every)
 {
+    g_every = every != 0 ? every : 1;
     g_registry = (Entry*)AllocZeroed(sizeof(Entry) * kRegistrySize);
     g_spans = (Span*)AllocZeroed(sizeof(Span) * kRegistrySize);
     g_rows = (Row*)AllocZeroed(sizeof(Row) * kRowSize);
@@ -415,9 +422,11 @@ void BlockScanEnable()
     g_allocHooks = &g_hooks;
 }
 
-void BlockScanTick(unsigned tick)
+void BlockScanTick(unsigned tick, unsigned endTick)
 {
     if (g_allocHooks == 0)
+        return;
+    if (tick % g_every != 0 && tick + kLastTicks <= endTick)
         return;
     unsigned long long t0 = host_time_counter();
     CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
@@ -476,7 +485,7 @@ void BlockScanWrite(const char* commit)
     FILE* f = fopen("blockptrs.txt", "wb");
     if (f == 0)
         Die("blockscan: cannot write blockptrs.txt\n");
-    fprintf(f, "bt-blockptrs 1\ncommit\t%s\nticks\t%u\n", commit, g_scanned);
+    fprintf(f, "bt-blockptrs 2\ncommit\t%s\nevery\t%u\nticks\t%u\n", commit, g_every, g_scanned);
     fprintf(f, "holder\tholder_tag\toffset\ttarget\ttarget_tag\tticks\ttarget_offset_min\ttarget_offset_max\n");
     for (unsigned i = 0; i < n; i++)
         fprintf(f, "%s\t%s\t0x%x\t%s\t%s\t%u\t0x%x\t0x%x\n", out[i].holder, out[i].holderTag, out[i].offset, out[i].target,

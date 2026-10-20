@@ -573,10 +573,21 @@ static void ParseTestDump(char* cmdLine)
 static void ParseBlockScan(char* cmdLine)
 {
     for (char* p = cmdLine; *p != '\0'; p++) {
-        if ((p[0] == '-' || p[0] == '/') && _strnicmp(p + 1, "blockscan", 9) == 0
-            && (p[10] == '\0' || isspace((unsigned char)p[10])) && (p == cmdLine || isspace((unsigned char)p[-1]))) {
-            s_blockScan = 1;
-            memset(p, ' ', 10);
+        if ((p[0] == '-' || p[0] == '/') && _strnicmp(p + 1, "blockscan", 9) == 0 && (p == cmdLine || isspace((unsigned char)p[-1]))) {
+            char* q = p + 10;
+            unsigned every = 1;
+            if (*q == '=') {
+                char* digits = ++q;
+                every = 0;
+                while (isdigit((unsigned char)*q) && every < 100000000)
+                    every = every * 10 + (unsigned)(*q++ - '0');
+                if (q == digits || every == 0)
+                    continue;
+            }
+            if (*q != '\0' && !isspace((unsigned char)*q))
+                continue;
+            s_blockScan = (int)every;
+            memset(p, ' ', (size_t)(q - p));
             return;
         }
     }
@@ -634,7 +645,7 @@ void HarnessInit(char* cmdLine)
 {
     ParseBlockScan(cmdLine);
     if (s_blockScan)
-        BlockScanEnable();
+        BlockScanEnable((unsigned)s_blockScan);
     InstallNativeSeams();
     ParseQuirksSwitch(cmdLine);
     char* p = cmdLine;
@@ -739,7 +750,7 @@ void HarnessStartSkirmish()
 void HarnessAfterStep()
 {
     if (s_testMode && s_blockScan)
-        BlockScanTick((unsigned)g_game->ticks);
+        BlockScanTick((unsigned)g_game->ticks, s_ticks);
     if (!s_testMode || (unsigned)g_game->ticks < s_ticks)
         return;
     char msg[64];
