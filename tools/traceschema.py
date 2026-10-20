@@ -48,7 +48,7 @@ BASE_SIZES: dict[str, int] = {
 
 POINTER_TARGETS: dict[str, str] = {
     "Unit": "UNIT", "Player": "PLAYER", "UnitDef": "UNITDEF", "WeaponDef": "WEAPONDEF",
-    "WeaponDefRecord": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Obj_00406f50": "PROJECTILE",
+    "UnitMotion": "WEAPONDEF", "Projectile": "PROJECTILE",
     "Feature": "FEATURE", "Object3do": "PIECE", "Object3D": "PIECE",
     "Rec": "REC", "Node": "NODE", "MovementClass": "MOVECLASS",
     "OrderRef": "ORDER", "OrderFxRef": "ORDERFX", "LinkRef": "LINK",
@@ -821,7 +821,7 @@ SYNTHETIC_SIZES: dict[str, int] = {
 
 TYPE_ORDER: list[tuple[str, str]] = [
     ("Unit", "Unit"),
-    ("Obj_00406f50", "Projectile"),
+    ("Projectile", "Projectile"),
     ("Player", "Player"),
     ("Debris", "Debris"),
     ("Object3do", "Piece"),

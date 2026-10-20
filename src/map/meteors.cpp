@@ -79,11 +79,11 @@ void InitMeteors()
     g_meteorNextStrikeTime = g_meteorSpawnInterval;
     g_meteorWeapon = g_seams.weapons->FindWeaponByName(g_meteorWeaponName);
     if (g_meteorWeapon == 0) {
-        g_meteorWeapon = (WeaponDef*)((char*)g_game + 0x2cf3);
+        g_meteorWeapon = g_game->weapons;
         return;
     }
     if (!g_meteorWeapon->flags.b.meteor)
-        g_meteorWeapon = (WeaponDef*)((char*)g_game + 0x2cf3);
+        g_meteorWeapon = g_game->weapons;
 }
 
 // FUNCTION: 0x437d30

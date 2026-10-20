@@ -71,7 +71,7 @@ void LoadWeaponTypes()
 {
     int n = 0;
     for (int i = 0; i < 0x100; i++) {
-        WeaponDef* p = &(*(WeaponDef (*)[256])&g_game->weapons)[i];
+        WeaponDef* p = &g_game->weapons[i];
         p->index = n++;
         p->name[0] = 0;
     }
@@ -103,7 +103,7 @@ void LoadWeaponTypes()
 // FUNCTION: 0x42e440
 void __stdcall LoadWeaponType(TdfRecord* parser) {
     char* id = (char*)parser->GetRecordName();
-    WeaponDef* w = &(*(WeaponDef (*)[256])&g_game->weapons)[parser->GetFieldInt("ID", -1)];
+    WeaponDef* w = &g_game->weapons[parser->GetFieldInt("ID", -1)];
     strcpy(w->name, id);
     parser->GetFieldString(w->description, "name", 0x40, DAT_005119b8);
 
@@ -188,9 +188,9 @@ void __stdcall LoadWeaponType(TdfRecord* parser) {
         unsigned char i;
         unsigned char count = w->index;
         for (i = 0; i < count; i++) {
-            if (_strcmpi(model, (*(WeaponDef (*)[256])&g_game->weapons)[i].modelName) == 0) {
-                (*(WeaponDef (*)[256])&g_game->weapons)[count].modelName[0] = 0;
-                (*(WeaponDef (*)[256])&g_game->weapons)[count].model = (*(WeaponDef (*)[256])&g_game->weapons)[i].model;
+            if (_strcmpi(model, g_game->weapons[i].modelName) == 0) {
+                g_game->weapons[count].modelName[0] = 0;
+                g_game->weapons[count].model = g_game->weapons[i].model;
                 goto model_done;
             }
         }
@@ -201,8 +201,8 @@ void __stdcall LoadWeaponType(TdfRecord* parser) {
             FatalError(path);
         MirrorObject(h);
         BindModelTextures(h, model);
-        (*(WeaponDef (*)[256])&g_game->weapons)[count].model = h;
-        strcpy((*(WeaponDef (*)[256])&g_game->weapons)[count].modelName, model);
+        g_game->weapons[count].model = h;
+        strcpy(g_game->weapons[count].modelName, model);
     } else {
         w->model = 0;
     }
@@ -286,7 +286,7 @@ void FreeWeaponTypes()
 {
     int i = 0;
     while (i < 256) {
-        WeaponDef* o = &(*(WeaponDef (*)[256])&g_game->weapons)[i];
+        WeaponDef* o = &g_game->weapons[i];
         if (strlen(o->modelName) != 0) {
             GameFreeThunk(o->model);
             o->model = 0;
