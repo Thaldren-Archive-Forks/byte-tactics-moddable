@@ -7939,8 +7939,6 @@ address,function,file,kind,target
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,Force640x480Surfaces
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,GetDisplay
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,GetServiceProviderIndex
-0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,HAPINET_guaranteepackets
-0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,HAPINET_quitgame
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,HideSoftwareCursor
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,InitLobbiedConnection
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,InitPacketManager
@@ -7986,6 +7984,8 @@ address,function,file,kind,target
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,UpdateSubState
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,UseService
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,UseServiceCalls
+0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,host_net_guarantee_packets
+0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,host_net_quit_game
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,memcmp
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,call,operator=
 0x426e80,RunFrontendStateMachine,src/frontend/frontend.cpp,deref_read,*Bits_00426e80
@@ -12286,13 +12286,13 @@ address,function,file,kind,target
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,FindGadgetIndex
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,FlipScreen
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,GetPreferredLanguage
-0x441460,ConnectToGame,src/frontend/multi.cpp,call,HAPINET_getgames
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,OpenMessageBox
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,SetOffscreenSurface
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,Translate
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,UpdateGameSelection
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,_strcmpi
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,_strlwr
+0x441460,ConnectToGame,src/frontend/multi.cpp,call,host_net_get_games
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,memcmp
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,memcpy
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,memset
@@ -12301,7 +12301,6 @@ address,function,file,kind,target
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,strcpy
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,strlen
 0x441460,ConnectToGame,src/frontend/multi.cpp,call,strncpy
-0x441460,ConnectToGame,src/frontend/multi.cpp,deref_escape,*Net_00443100
 0x441460,ConnectToGame,src/frontend/multi.cpp,deref_read,*Net_00443100
 0x441460,ConnectToGame,src/frontend/multi.cpp,deref_read,*Settings_00441460
 0x441460,ConnectToGame,src/frontend/multi.cpp,deref_read,*char
@@ -12328,6 +12327,7 @@ address,function,file,kind,target
 0x441460,ConnectToGame,src/frontend/multi.cpp,field_read,Settings_00441460::playing
 0x441460,ConnectToGame,src/frontend/multi.cpp,field_read,Settings_00441460::version
 0x441460,ConnectToGame,src/frontend/multi.cpp,field_write,<anon>::s
+0x441460,ConnectToGame,src/frontend/multi.cpp,fn_ref,PollGetGames
 0x441460,ConnectToGame,src/frontend/multi.cpp,function,
 0x441460,ConnectToGame,src/frontend/multi.cpp,global_read,g_dpspGuidIpx
 0x441460,ConnectToGame,src/frontend/multi.cpp,global_read,g_dpspGuidModem
@@ -12347,13 +12347,12 @@ address,function,file,kind,target
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,GlobalFree
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,GlobalHandle
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,GlobalUnlock
-0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,HAPINET_createcompoundaddress
+0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,host_net_create_compound_address
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,lstrcpyA
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,lstrlenA
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,memcmp
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,memset
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,call,operator=
-0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,deref_read,*Net_00443100
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,deref_read,*_GUID
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,deref_write,*int
 0x441c30,BuildCompoundAddress,src/frontend/multi.cpp,field_escape,ConnInfo_443ff0::guid
@@ -12409,7 +12408,6 @@ address,function,file,kind,target
 0x442050,HandleTcpDialogClick,src/frontend/multi.cpp,global_write,g_cmdlineTcpJoinAddress
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,FindGadgetIndex
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,GetGadgetText
-0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,HAPINET_initlobbiedconnection
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,HandleTcpDialogClick
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,LoadGuiLayer
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,LoadPictureCached
@@ -12419,8 +12417,8 @@ address,function,file,kind,target
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,SetKeyboardInput
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,SetTranslatedTextByName
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,TrySetFocus
+0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,host_net_init_lobbied_connection
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,call,strncat
-0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,deref_read,*Net_00443100
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,deref_write,*char
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,field_maybe_written,Game::gui
 0x4421f0,OpenTcpDialog,src/frontend/multi.cpp,field_read,Game::dplayAddressDialogFlags_2aaf
@@ -12464,7 +12462,6 @@ address,function,file,kind,target
 0x4423c0,HandleSerialDialogClick,src/frontend/multi.cpp,global_read,g_game
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,ConfigureListBoxByName
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,FindGadgetChecked
-0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,HAPINET_initlobbiedconnection
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,LoadGuiLayer
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,LoadPictureCached
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,ReadGameRegistryValue
@@ -12473,6 +12470,7 @@ address,function,file,kind,target
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,SetListBoxScrollByName
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,SetSerialBaudFromGadget
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,SetSerialPortFromGadget
+0x442560,OpenSerialDialog,src/frontend/multi.cpp,call,host_net_init_lobbied_connection
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,field_maybe_written,Game::gui
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,field_read,Layer::entries
 0x442560,OpenSerialDialog,src/frontend/multi.cpp,field_write,Gadget::handler
@@ -12581,11 +12579,6 @@ address,function,file,kind,target
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,FindGadgetChecked
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,GameAllocIgnoreTag
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,GameFreeThunk
-0x443100,OpenModemDialog,src/frontend/multi.cpp,call,HAPINET_createdplayinterface
-0x443100,OpenModemDialog,src/frontend/multi.cpp,call,HAPINET_enumaddress
-0x443100,OpenModemDialog,src/frontend/multi.cpp,call,HAPINET_getplayeraddress
-0x443100,OpenModemDialog,src/frontend/multi.cpp,call,HAPINET_initlobbiedconnection
-0x443100,OpenModemDialog,src/frontend/multi.cpp,call,HAPINET_releasedplayinterface
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,LoadGuiLayer
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,LoadPictureCached
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,ReadGameRegistryValue
@@ -12596,10 +12589,14 @@ address,function,file,kind,target
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,SetKeyboardInput
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,SetListBoxScrollByName
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,ShowSelectedAccount
+0x443100,OpenModemDialog,src/frontend/multi.cpp,call,host_net_create_play_interface
+0x443100,OpenModemDialog,src/frontend/multi.cpp,call,host_net_enum_address
+0x443100,OpenModemDialog,src/frontend/multi.cpp,call,host_net_get_player_address
+0x443100,OpenModemDialog,src/frontend/multi.cpp,call,host_net_init_lobbied_connection
+0x443100,OpenModemDialog,src/frontend/multi.cpp,call,host_net_release_play_interface
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,memset
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,strcpy
 0x443100,OpenModemDialog,src/frontend/multi.cpp,call,strlen
-0x443100,OpenModemDialog,src/frontend/multi.cpp,deref_read,*Net_00443100
 0x443100,OpenModemDialog,src/frontend/multi.cpp,deref_write,*char
 0x443100,OpenModemDialog,src/frontend/multi.cpp,field_escape,Entry_004426e0::name
 0x443100,OpenModemDialog,src/frontend/multi.cpp,field_maybe_written,Entry_004426e0::name
@@ -12838,6 +12835,7 @@ address,function,file,kind,target
 0x4441a0,HandleSelectProviderClick,src/frontend/multi_4441a0.cpp,call,_strnicmp
 0x4441a0,HandleSelectProviderClick,src/frontend/multi_4441a0.cpp,call,atoi
 0x4441a0,HandleSelectProviderClick,src/frontend/multi_4441a0.cpp,call,exit
+0x4441a0,HandleSelectProviderClick,src/frontend/multi_4441a0.cpp,call,host_net_free
 0x4441a0,HandleSelectProviderClick,src/frontend/multi_4441a0.cpp,call,sprintf
 0x4441a0,HandleSelectProviderClick,src/frontend/multi_4441a0.cpp,field_escape,Gadget::name
 0x4441a0,HandleSelectProviderClick,src/frontend/multi_4441a0.cpp,field_maybe_written,LinkInfo::name
@@ -12877,8 +12875,6 @@ address,function,file,kind,target
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,ConfigureListBoxByName
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,FindGadgetIndex
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,GameAllocIgnoreTag
-0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,HAPINET_getconnections
-0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,HAPINET_uninitmultiplay
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,LoadGuiLayer
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,LoadPictureCached
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,Mission::RefreshMapList
@@ -12888,6 +12884,8 @@ address,function,file,kind,target
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,RenderLayer
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,SetKeyboardInput
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,SetPaletteColors
+0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,host_net_get_connections
+0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,host_net_uninit
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,memset
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,sprintf
 0x444580,FillProviderList,src/frontend/multi_444580.cpp,call,strcmp
@@ -15337,10 +15335,10 @@ address,function,file,kind,target
 0x44f940,NetCondenser::Accumulate,src/network/net_condenser.cpp,field_write,NetCondenser::sendSize
 0x44f940,NetCondenser::Accumulate,src/network/net_condenser.cpp,function,
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,CountPacket
-0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,HAPINET_receivepacket
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,LzssDisablePreset
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,LzssEnablePreset
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,LzssExpand
+0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,host_net_receive_packet
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,memcpy
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,call,sprintf
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,deref_read,*char
@@ -15357,11 +15355,11 @@ address,function,file,kind,target
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,field_write,NetCondenser::unpackedSize
 0x44f9c0,NetCondenser::ReceivePacket,src/network/net_condenser.cpp,function,
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,CountPacket
-0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,HAPINET_sendpacket
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,HarnessViewRand
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,LzssCompress
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,LzssDisablePreset
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,LzssEnablePreset
+0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,host_net_send_packet
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,call,memcpy
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,deref_read,*char
 0x44fc10,NetCondenser::SendPacket,src/network/net_condenser.cpp,deref_write,*char
@@ -15417,8 +15415,8 @@ address,function,file,kind,target
 0x450030,GetHostDpid,src/network/net_game.cpp,field_read,PlayerInfo::flags_97
 0x450030,GetHostDpid,src/network/net_game.cpp,function,
 0x450030,GetHostDpid,src/network/net_game.cpp,global_read,g_game
-0x450090,SetPlayerName,src/network/net_game.cpp,call,HAPINET_setplayername
 0x450090,SetPlayerName,src/network/net_game.cpp,call,PlayerDpid
+0x450090,SetPlayerName,src/network/net_game.cpp,call,host_net_set_player_name
 0x450090,SetPlayerName,src/network/net_game.cpp,call,strncpy
 0x450090,SetPlayerName,src/network/net_game.cpp,field_escape,Game::net_14
 0x450090,SetPlayerName,src/network/net_game.cpp,field_escape,Game::players
@@ -15430,7 +15428,7 @@ address,function,file,kind,target
 0x450090,SetPlayerName,src/network/net_game.cpp,field_write,DPNAME::lpszShortNameA
 0x450090,SetPlayerName,src/network/net_game.cpp,function,
 0x450090,SetPlayerName,src/network/net_game.cpp,global_read,g_game
-0x450140,GetPlayerName,src/network/net_game.cpp,call,HAPINET_getplayername
+0x450140,GetPlayerName,src/network/net_game.cpp,call,host_net_get_player_name
 0x450140,GetPlayerName,src/network/net_game.cpp,call,strcpy
 0x450140,GetPlayerName,src/network/net_game.cpp,field_escape,Game::net_14
 0x450140,GetPlayerName,src/network/net_game.cpp,field_read,DPNAME::lpszLongNameA
@@ -15505,12 +15503,12 @@ address,function,file,kind,target
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,BroadcastPacket
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,FindSlot_00450a10
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,GetTicks
-0x450a10,AddNetPlayer,src/network/net_game.cpp,call,HAPINET_getplayername
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,Mission::GetGameType
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,PacketManager::SendAllQueued
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,ReportGameEvent
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,SendLobbySyncRequests
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,SetupPlayerSlot
+0x450a10,AddNetPlayer,src/network/net_game.cpp,call,host_net_get_player_name
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,operator=
 0x450a10,AddNetPlayer,src/network/net_game.cpp,call,strcpy
 0x450a10,AddNetPlayer,src/network/net_game.cpp,deref_read,*PlayerInfo
@@ -15544,17 +15542,17 @@ address,function,file,kind,target
 0x450a10,AddNetPlayer,src/network/net_game.cpp,global_maybe_written,g_packetManager
 0x450a10,AddNetPlayer,src/network/net_game.cpp,global_read,g_game
 0x450a10,AddNetPlayer,src/network/net_game.cpp,global_read,g_usePacketManager
-0x450d80,InitNetConnection,src/network/net_game.cpp,call,HAPINET_initconnection
-0x450d80,InitNetConnection,src/network/net_game.cpp,call,HAPINET_initmultiplaydefaults
 0x450d80,InitNetConnection,src/network/net_game.cpp,call,InitPacketManager
+0x450d80,InitNetConnection,src/network/net_game.cpp,call,host_net_init_connection
+0x450d80,InitNetConnection,src/network/net_game.cpp,call,host_net_init_defaults
 0x450d80,InitNetConnection,src/network/net_game.cpp,field_escape,Game::net_14
 0x450d80,InitNetConnection,src/network/net_game.cpp,field_maybe_written,Game::connection
 0x450d80,InitNetConnection,src/network/net_game.cpp,field_write,Game::netMode
 0x450d80,InitNetConnection,src/network/net_game.cpp,function,
 0x450d80,InitNetConnection,src/network/net_game.cpp,global_read,g_game
-0x450dd0,CloseNetSession,src/network/net_game.cpp,call,HAPINET_uninitmultiplay
 0x450dd0,CloseNetSession,src/network/net_game.cpp,call,IsReporterDllLoaded
 0x450dd0,CloseNetSession,src/network/net_game.cpp,call,PacketManager::SendAllQueued
+0x450dd0,CloseNetSession,src/network/net_game.cpp,call,host_net_uninit
 0x450dd0,CloseNetSession,src/network/net_game.cpp,field_escape,Game::net_14
 0x450dd0,CloseNetSession,src/network/net_game.cpp,field_read,Game::flags_2a44
 0x450dd0,CloseNetSession,src/network/net_game.cpp,field_write,Game::flags_2a44
@@ -15562,13 +15560,13 @@ address,function,file,kind,target
 0x450dd0,CloseNetSession,src/network/net_game.cpp,global_maybe_written,g_packetManager
 0x450dd0,CloseNetSession,src/network/net_game.cpp,global_read,g_game
 0x450dd0,CloseNetSession,src/network/net_game.cpp,global_read,g_usePacketManager
-0x450e20,LeaveNetGame,src/network/net_game.cpp,call,HAPINET_quitgame
 0x450e20,LeaveNetGame,src/network/net_game.cpp,call,IsPlaying_00450e20
 0x450e20,LeaveNetGame,src/network/net_game.cpp,call,PacketManager::SendAllQueued
 0x450e20,LeaveNetGame,src/network/net_game.cpp,call,QuitApp
 0x450e20,LeaveNetGame,src/network/net_game.cpp,call,RemovePlayer
 0x450e20,LeaveNetGame,src/network/net_game.cpp,call,SetCloseHandler
 0x450e20,LeaveNetGame,src/network/net_game.cpp,call,ShutdownScoreTables
+0x450e20,LeaveNetGame,src/network/net_game.cpp,call,host_net_quit_game
 0x450e20,LeaveNetGame,src/network/net_game.cpp,field_escape,Game::net_14
 0x450e20,LeaveNetGame,src/network/net_game.cpp,field_maybe_written,Game::players
 0x450e20,LeaveNetGame,src/network/net_game.cpp,field_read,Game::endGameFlags
@@ -15624,7 +15622,7 @@ address,function,file,kind,target
 0x451090,BuildGameInfo,src/network/net_game.cpp,function,
 0x451090,BuildGameInfo,src/network/net_game.cpp,global_read,g_game
 0x451180,UpdateNetGameInfo,src/network/net_game.cpp,call,BuildGameInfo
-0x451180,UpdateNetGameInfo,src/network/net_game.cpp,call,HAPINET_updategameinfo
+0x451180,UpdateNetGameInfo,src/network/net_game.cpp,call,host_net_update_game_info
 0x451180,UpdateNetGameInfo,src/network/net_game.cpp,field_escape,Game::net_14
 0x451180,UpdateNetGameInfo,src/network/net_game.cpp,field_read,Game::localPlayer
 0x451180,UpdateNetGameInfo,src/network/net_game.cpp,field_read,Player::info
@@ -15635,10 +15633,10 @@ address,function,file,kind,target
 0x451180,UpdateNetGameInfo,src/network/net_game.cpp,global_read,g_game
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,FindPlayerInUse
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,GetTicks
-0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,HAPINET_addplayer
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,OpenMessageBox
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,Player::SetType
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,Translate
+0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,host_net_add_player
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,sprintf
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,strcpy
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,call,strlen
@@ -15676,7 +15674,7 @@ address,function,file,kind,target
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,function,
 0x451220,CreateLocalPlayer,src/network/net_game.cpp,global_read,g_game
 0x451540,CreateNetGame,src/network/net_game.cpp,call,BuildGameInfo
-0x451540,CreateNetGame,src/network/net_game.cpp,call,HAPINET_createnewgame
+0x451540,CreateNetGame,src/network/net_game.cpp,call,host_net_create_new_game
 0x451540,CreateNetGame,src/network/net_game.cpp,field_escape,Game::session
 0x451540,CreateNetGame,src/network/net_game.cpp,field_read,Game::localPlayer
 0x451540,CreateNetGame,src/network/net_game.cpp,field_read,Player::info
@@ -15692,17 +15690,20 @@ address,function,file,kind,target
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,GameAllocIgnoreTag
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,GameFreeThunk
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,GetDisplay
-0x451640,JoinLobbyGame,src/network/net_game.cpp,call,HAPINET_passwordrequired
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,IsOnlineConfigLoaded
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,SetCursorMode
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,ToggleFullScreen
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,Translate
-0x451640,JoinLobbyGame,src/network/net_game.cpp,call,WaitForSingleObject
-0x451640,JoinLobbyGame,src/network/net_game.cpp,call,_beginthreadex
+0x451640,JoinLobbyGame,src/network/net_game.cpp,call,host_event_create
+0x451640,JoinLobbyGame,src/network/net_game.cpp,call,host_event_destroy
+0x451640,JoinLobbyGame,src/network/net_game.cpp,call,host_event_wait
+0x451640,JoinLobbyGame,src/network/net_game.cpp,call,host_net_password_required
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,host_sleep_ms
+0x451640,JoinLobbyGame,src/network/net_game.cpp,call,host_thread_start
 0x451640,JoinLobbyGame,src/network/net_game.cpp,call,memset
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_escape,Game::net_14
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_escape,PlayerInfo::password
+0x451640,JoinLobbyGame,src/network/net_game.cpp,field_read,Args_00451640::event
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_read,Args_00451640::result
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_read,Obj_00451640::flag
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_read,Player::info
@@ -15711,14 +15712,15 @@ address,function,file,kind,target
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_write,Args_00451640::arg_4
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_write,Args_00451640::arg_8
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_write,Args_00451640::arg_c
+0x451640,JoinLobbyGame,src/network/net_game.cpp,field_write,Args_00451640::event
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_write,Args_00451640::name
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_write,Args_00451640::result
 0x451640,JoinLobbyGame,src/network/net_game.cpp,field_write,Game::netMode
-0x451640,JoinLobbyGame,src/network/net_game.cpp,fn_ref,JoinLobbyGameThread
+0x451640,JoinLobbyGame,src/network/net_game.cpp,fn_ref,JoinLobbyGameEntry
 0x451640,JoinLobbyGame,src/network/net_game.cpp,function,
 0x451640,JoinLobbyGame,src/network/net_game.cpp,global_read,DAT_00512c8c
 0x451640,JoinLobbyGame,src/network/net_game.cpp,global_read,g_game
-0x451770,JoinLobbyGameThread,src/network/net_game.cpp,call,HAPINET_createorjoinlobbygame
+0x451770,JoinLobbyGameThread,src/network/net_game.cpp,call,host_net_create_or_join_lobby_game
 0x451770,JoinLobbyGameThread,src/network/net_game.cpp,field_escape,Game::net_14
 0x451770,JoinLobbyGameThread,src/network/net_game.cpp,field_read,Args_00451640::arg_10
 0x451770,JoinLobbyGameThread,src/network/net_game.cpp,field_read,Args_00451640::arg_14
@@ -15734,8 +15736,6 @@ address,function,file,kind,target
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,FatalError
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,GetDisplay
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,GetUserNameA
-0x4517b0,JoinNetGame,src/network/net_game.cpp,call,HAPINET_enumplayers
-0x4517b0,JoinNetGame,src/network/net_game.cpp,call,HAPINET_joingame
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,IsOnlineConfigLoaded
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,JoinLobbyGame
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,PacketManager::SendAllQueued
@@ -15744,6 +15744,8 @@ address,function,file,kind,target
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,SendLobbySyncRequests
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,ToggleFullScreen
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,Translate
+0x4517b0,JoinNetGame,src/network/net_game.cpp,call,host_net_enum_players
+0x4517b0,JoinNetGame,src/network/net_game.cpp,call,host_net_join_game
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,host_sleep_ms
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,lstrcpynA
 0x4517b0,JoinNetGame,src/network/net_game.cpp,call,operator=
@@ -15812,8 +15814,8 @@ address,function,file,kind,target
 0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,call,FindIndex_00451bc0
 0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,call,FindPlayerIndex_00451bc0
 0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,call,FindSlotByDpid
-0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,call,HAPINET_sendpacket
 0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,call,PacketManager::QueuePacket
+0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,call,host_net_send_packet
 0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,deref_read,*unsigned char
 0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,field_escape,Game::net_14
 0x451bc0,SendPacketToPlayer,src/network/net_game.cpp,field_escape,Game::players
@@ -15828,9 +15830,9 @@ address,function,file,kind,target
 0x451df0,BroadcastPacket,src/network/net_game.cpp,call,CountMessage
 0x451df0,BroadcastPacket,src/network/net_game.cpp,call,CountPacket
 0x451df0,BroadcastPacket,src/network/net_game.cpp,call,FindPlayer_00451df0
-0x451df0,BroadcastPacket,src/network/net_game.cpp,call,HAPINET_sendpacket
 0x451df0,BroadcastPacket,src/network/net_game.cpp,call,PacketManager::QueueOnChannel
 0x451df0,BroadcastPacket,src/network/net_game.cpp,call,SendPacketToPlayer
+0x451df0,BroadcastPacket,src/network/net_game.cpp,call,host_net_send_packet
 0x451df0,BroadcastPacket,src/network/net_game.cpp,call,memset
 0x451df0,BroadcastPacket,src/network/net_game.cpp,deref_read,*unsigned char
 0x451df0,BroadcastPacket,src/network/net_game.cpp,field_escape,Game::net_14
@@ -15870,9 +15872,9 @@ address,function,file,kind,target
 0x451fd0,InitPacketTables,src/network/net_game.cpp,global_write,g_packetModes
 0x451fd0,InitPacketTables,src/network/net_game.cpp,global_write,g_packetSizes
 0x452370,ReleasePacketData,src/network/net_game.cpp,call,GameFreeThunk
-0x452370,ReleasePacketData,src/network/net_game.cpp,call,HAPINET_uninitmultiplay
 0x452370,ReleasePacketData,src/network/net_game.cpp,call,IsReporterDllLoaded
 0x452370,ReleasePacketData,src/network/net_game.cpp,call,PacketManager::SendAllQueued
+0x452370,ReleasePacketData,src/network/net_game.cpp,call,host_net_uninit
 0x452370,ReleasePacketData,src/network/net_game.cpp,field_escape,Game::session
 0x452370,ReleasePacketData,src/network/net_game.cpp,field_read,Class_00451fd0::buffer
 0x452370,ReleasePacketData,src/network/net_game.cpp,field_read,Game::flags_2a44
@@ -15993,7 +15995,6 @@ address,function,file,kind,target
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,FindPlayerCall_00452cc0
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,FindPlayer_00452cc0
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,FindSlot_00452cc0
-0x452cc0,RemovePlayer,src/network/net_game.cpp,call,HAPINET_removeplayer
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,IsPlaying_00452cc0
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,IsType1_00452cc0
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,IsType3_00452cc0
@@ -16001,6 +16002,7 @@ address,function,file,kind,target
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,Mission::GetGameType
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,Remove_00452cc0
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,ReportGameEvent
+0x452cc0,RemovePlayer,src/network/net_game.cpp,call,host_net_remove_player
 0x452cc0,RemovePlayer,src/network/net_game.cpp,call,memset
 0x452cc0,RemovePlayer,src/network/net_game.cpp,field_escape,Game::net_14
 0x452cc0,RemovePlayer,src/network/net_game.cpp,field_escape,Game::players
@@ -16072,8 +16074,8 @@ address,function,file,kind,target
 0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,call,CountMessage
 0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,call,CountPacket
 0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,call,GameReallocTagged
-0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,call,HAPINET_receivepacket
 0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,call,PacketReceiver::ReceiveFrame
+0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,call,host_net_receive_packet
 0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,deref_read,*unsigned char
 0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,field_escape,Game::net_14
 0x4534e0,ReceiveNetPacket,src/network/net_game.cpp,field_read,Game::netGameFlags
@@ -16211,7 +16213,6 @@ address,function,file,kind,target
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,GetPlayerId
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,GetTicks
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,GiveUnitToPlayer
-0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,HAPINET_updategameinfo
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,HandlePing
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,HandlePlayerEconomy
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,InGame
@@ -16248,6 +16249,7 @@ address,function,file,kind,target
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,UnitAt
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,UnitSync::ReceiveSyncPacket
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,_strcmpi
+0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,host_net_update_game_info
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,memcpy
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,sprintf
 0x453d40,HandleNetPackets,src/network/net_game_453d40.cpp,call,strncpy
@@ -16448,10 +16450,10 @@ address,function,file,kind,target
 0x456290,SendScriptCall,src/network/net_game.cpp,global_read,g_game
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,BroadcastPacket
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,GetTicks
-0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,HAPINET_guaranteepackets
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,PacketManager::SendAllQueued
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,RequestPlayerColor
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,SendLobbySyncRequests
+0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,host_net_guarantee_packets
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,host_time_ms
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,memcpy
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,call,operator=
@@ -16489,9 +16491,9 @@ address,function,file,kind,target
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,global_read,g_game
 0x456310,SendNetHeartbeat,src/network/net_game.cpp,global_read,g_usePacketManager
 0x4565a0,HandlePing,src/network/net_game.cpp,call,FindPlayerIndex
-0x4565a0,HandlePing,src/network/net_game.cpp,call,HAPINET_guaranteepackets
 0x4565a0,HandlePing,src/network/net_game.cpp,call,PacketManager::SendAllQueued
 0x4565a0,HandlePing,src/network/net_game.cpp,call,SendPacketToPlayer
+0x4565a0,HandlePing,src/network/net_game.cpp,call,host_net_guarantee_packets
 0x4565a0,HandlePing,src/network/net_game.cpp,call,host_time_ms
 0x4565a0,HandlePing,src/network/net_game.cpp,field_escape,Game::players
 0x4565a0,HandlePing,src/network/net_game.cpp,field_read,Game::from_id
@@ -16700,10 +16702,10 @@ address,function,file,kind,target
 0x457540,HandlePlayerEconomy,src/network/net_game.cpp,function,
 0x457540,HandlePlayerEconomy,src/network/net_game.cpp,global_read,g_game
 0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,GetUserNameA
-0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,HAPINET_initlobbiedconnection
-0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,HAPINET_initmultiplaydefaults
 0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,InitPacketManager
 0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,SetMissionType
+0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,host_net_init_defaults
+0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,host_net_init_lobbied_connection
 0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,localtime
 0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,sprintf
 0x457710,InitLobbiedConnection,src/network/net_game.cpp,call,strcpy
@@ -16729,11 +16731,11 @@ address,function,file,kind,target
 0x4578d0,SetPacketRate,src/network/net_game.cpp,call,PacketManager::SetDefaultSendPacing
 0x4578d0,SetPacketRate,src/network/net_game.cpp,function,
 0x4578d0,SetPacketRate,src/network/net_game.cpp,global_maybe_written,g_packetManager
-0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,call,HAPINET_quitgame
 0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,call,QuitApp
 0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,call,RemovePlayer
 0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,call,SetCloseHandler
 0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,call,ShutdownScoreTables
+0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,call,host_net_quit_game
 0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,field_escape,Game::net_14
 0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,field_read,<anon>::leaving
 0x4578f0,LeaveNetGameCallback,src/network/net_game.cpp,field_read,Game::localPlayer
@@ -18882,10 +18884,9 @@ address,function,file,kind,target
 0x460f40,PacketRing::PacketRing,src/network/packets.cpp,field_write,PacketRing::readIdx
 0x460f40,PacketRing::PacketRing,src/network/packets.cpp,field_write,PacketRing::writeIdx
 0x460f40,PacketRing::PacketRing,src/network/packets.cpp,function,
-0x461020,InitPacketManager,src/network/packets.cpp,call,GetCurrentThread
 0x461020,InitPacketManager,src/network/packets.cpp,call,PacketChannel::InitPools
 0x461020,InitPacketManager,src/network/packets.cpp,call,PacketManager::SetDefaultSendPacing
-0x461020,InitPacketManager,src/network/packets.cpp,call,SetThreadPriority
+0x461020,InitPacketManager,src/network/packets.cpp,call,host_thread_set_priority
 0x461020,InitPacketManager,src/network/packets.cpp,call,operator new
 0x461020,InitPacketManager,src/network/packets.cpp,field_escape,PacketManager::channels
 0x461020,InitPacketManager,src/network/packets.cpp,field_maybe_written,PacketManager::channels
@@ -18946,9 +18947,8 @@ address,function,file,kind,target
 0x461630,PacketManager::FindChannel,src/network/packets.cpp,field_read,Player::id
 0x461630,PacketManager::FindChannel,src/network/packets.cpp,function,
 0x461630,PacketManager::FindChannel,src/network/packets.cpp,global_read,g_game
-0x461750,PacketManager::InitChannels,src/network/packets.cpp,call,GetCurrentThread
 0x461750,PacketManager::InitChannels,src/network/packets.cpp,call,PacketChannel::InitPools
-0x461750,PacketManager::InitChannels,src/network/packets.cpp,call,SetThreadPriority
+0x461750,PacketManager::InitChannels,src/network/packets.cpp,call,host_thread_set_priority
 0x461750,PacketManager::InitChannels,src/network/packets.cpp,call,operator new
 0x461750,PacketManager::InitChannels,src/network/packets.cpp,field_escape,PacketManager::channels
 0x461750,PacketManager::InitChannels,src/network/packets.cpp,field_maybe_written,PacketManager::channels
@@ -19329,7 +19329,6 @@ address,function,file,kind,target
 0x462ed0,PacketReceiver::ResetReceiveBuffer,src/network/packets.cpp,function,
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,FrameQueue::QueueFrames
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,GetFrame
-0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,HAPINET_GetDPErrorString
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,NetCondenser::ReceivePacket
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,Next_00462f30
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,PacketReceiver::FindPlayerFrameInfo
@@ -19338,6 +19337,7 @@ address,function,file,kind,target
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,Prev_00462f30
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,ReportPacketGap
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,TakeFrame
+0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,host_net_error_string
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,memcpy
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,operator delete
 0x462f30,PacketReceiver::ReceiveFrame,src/network/packets.cpp,call,operator new
@@ -21161,8 +21161,8 @@ address,function,file,kind,target
 0x46bf30,LoadReporterDll,src/game/statistics.cpp,indirect_call,"indirect via void (*)(void (*)(int) __attribute__((stdcall)), int (*)(char *, int) __attribute__((stdcall))) __attribute__((stdcall)) [g_riSetCallbacks]"
 0x46c190,ShutdownScoreTables,src/game/statistics.cpp,call,FreeLibrary
 0x46c190,ShutdownScoreTables,src/game/statistics.cpp,call,GameFreeThunk
-0x46c190,ShutdownScoreTables,src/game/statistics.cpp,call,HAPINET_uninitmultiplay
 0x46c190,ShutdownScoreTables,src/game/statistics.cpp,call,RISetCallbacks
+0x46c190,ShutdownScoreTables,src/game/statistics.cpp,call,host_net_uninit
 0x46c190,ShutdownScoreTables,src/game/statistics.cpp,deref_read,*PlayerInfo_0046bce0
 0x46c190,ShutdownScoreTables,src/game/statistics.cpp,deref_read,*ScoreBoard_0046bce0
 0x46c190,ShutdownScoreTables,src/game/statistics.cpp,deref_read,*char
@@ -30599,7 +30599,6 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,GetScreenWidth
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,GetTextPixelWidth
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,GetTicks
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,HAPINET_guaranteepackets
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,HAPI_LoadFile
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,HandleNetPackets
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,LoadPictureCached
@@ -30630,6 +30629,7 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,UnlockScreen
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,_strcmpi
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,_strlwr
+0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,host_net_guarantee_packets
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,host_sleep_ms
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,host_thread_start
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,memset
@@ -39546,368 +39546,366 @@ address,function,file,kind,target
 0x4c9490,StringRef::SubString,src/graphics/surface.cpp,call,strlen
 0x4c9490,StringRef::SubString,src/graphics/surface.cpp,field_read,StringRef::data
 0x4c9490,StringRef::SubString,src/graphics/surface.cpp,function,
-0x4c9530,HAPINET_GetDPErrorString,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9530,HAPINET_GetDPErrorString,src/network/hapinet.cpp,function,
-0x4c9740,HapinetTrace,src/network/hapinet.cpp,function,
-0x4c9750,GetEnumSessionsErrorText,src/network/hapinet.cpp,call,HAPINET_GetDPErrorString
-0x4c9750,GetEnumSessionsErrorText,src/network/hapinet.cpp,call,Translate
-0x4c9750,GetEnumSessionsErrorText,src/network/hapinet.cpp,call,strstr
-0x4c9750,GetEnumSessionsErrorText,src/network/hapinet.cpp,function,
-0x4c9750,GetEnumSessionsErrorText,src/network/hapinet.cpp,global_read,g_enumSessionsResult
-0x4c9790,HAPINET_guaranteepackets,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9790,HAPINET_guaranteepackets,src/network/hapinet.cpp,function,
-0x4c9790,HAPINET_guaranteepackets,src/network/hapinet.cpp,global_read,g_guaranteePackets
-0x4c9790,HAPINET_guaranteepackets,src/network/hapinet.cpp,global_write,g_guaranteePackets
-0x4c97b0,HAPINET_sendpacket,src/network/hapinet.cpp,call,HapinetTrace
-0x4c97b0,HAPINET_sendpacket,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c97b0,HAPINET_sendpacket,src/network/hapinet.cpp,function,
-0x4c97b0,HAPINET_sendpacket,src/network/hapinet.cpp,global_read,g_guaranteePackets
-0x4c97b0,HAPINET_sendpacket,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Send
-0x4c9800,HAPINET_sendpacketguaranteed,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9800,HAPINET_sendpacketguaranteed,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9800,HAPINET_sendpacketguaranteed,src/network/hapinet.cpp,function,
-0x4c9800,HAPINET_sendpacketguaranteed,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Send
-0x4c9840,HAPINET_receivepacket,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9840,HAPINET_receivepacket,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::from
-0x4c9840,HAPINET_receivepacket,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::to
-0x4c9840,HAPINET_receivepacket,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9840,HAPINET_receivepacket,src/network/hapinet.cpp,function,
-0x4c9840,HAPINET_receivepacket,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Receive
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,call,strncpy
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::desc
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::name
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwSize
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser1
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser2
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser3
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser4
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::lpszSessionName
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,function,
-0x4c9890,HAPINET_updategameinfo,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::SetSessionDesc
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,call,GameAllocIgnoreTag
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,call,GameFreeThunk
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,call,memset
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,call,operator=
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,call,strncpy
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::desc
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_read,Net_4c97b0::application
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_read,Net_4c97b0::maxPlayers
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::guidInstance
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwMaxPlayers
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwSize
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser1
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser2
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser3
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser4
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::guidApplication
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::guidInstance
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::lpszPassword
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::lpszSessionName
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,function,
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::GetSessionDesc
-0x4c9920,HAPINET_createnewgame,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Slot24
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,call,operator=
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,call,strncat
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,deref_read,*SessionDesc_4c9890
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,deref_write,*char
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_escape,Net_4c97b0::dp
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,Connection_4c9a70::desc
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,Net_4c97b0::connection
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,Net_4c97b0::lobby
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwMaxPlayers
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser1
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser2
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser3
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser4
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::lpszPassword
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_write,Net_4c97b0::desc
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwMaxPlayers
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser1
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser2
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser3
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwUser4
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,function,
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,indirect_call,virtual Lobby_4c9a70::Connect
-0x4c9a70,HAPINET_createorjoinlobbygame,src/network/hapinet.cpp,indirect_call,virtual Lobby_4c9a70::SetConnectionSettings
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,call,GameFreeThunk
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_read,Net_4c97b0::connection
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_read,Net_4c97b0::created
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_read,Net_4c97b0::dp1
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_read,Net_4c97b0::lobby
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::connection
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::connection_size
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::created
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::dp
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::dp1
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::lobby
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,function,
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Close
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Release
-0x4c9b70,HAPINET_uninitmultiplay,src/network/hapinet.cpp,indirect_call,virtual Lobby_4c9a70::Release
-0x4c9c20,HAPINET_initmultiplaydefaults,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9c20,HAPINET_initmultiplaydefaults,src/network/hapinet.cpp,field_write,Net_4c97b0::enumTimeout
-0x4c9c20,HAPINET_initmultiplaydefaults,src/network/hapinet.cpp,field_write,Net_4c97b0::maxPlayers
-0x4c9c20,HAPINET_initmultiplaydefaults,src/network/hapinet.cpp,function,
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,call,operator=
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,call,strcpy
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,deref_escape,*GameRec_4c9c50
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_maybe_written,GameRec_4c9c50::name
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,Net_4c97b0::count
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,Net_4c97b0::games
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwMaxPlayers
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser1
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser2
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser3
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwUser4
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::guidInstance
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::lpszSessionName
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_write,GameRec_4c9c50::guidInstance
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_write,GameRec_4c9c50::maxPlayers
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_write,GameRec_4c9c50::user1
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_write,GameRec_4c9c50::user2
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_write,GameRec_4c9c50::user3
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_write,GameRec_4c9c50::user4
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,field_write,Net_4c97b0::count
-0x4c9c50,HAPINET_getgamescallback,src/network/hapinet.cpp,function,
-0x4c9d10,HAPINET_justone,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9d10,HAPINET_justone,src/network/hapinet.cpp,deref_write,*int
-0x4c9d10,HAPINET_justone,src/network/hapinet.cpp,function,
-0x4c9d30,HAPINET_setplayerdatabuffer,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9d30,HAPINET_setplayerdatabuffer,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9d30,HAPINET_setplayerdatabuffer,src/network/hapinet.cpp,function,
-0x4c9d30,HAPINET_setplayerdatabuffer,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::SetPlayerData
-0x4c9d80,HAPINET_getplayerdatabuffer,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9d80,HAPINET_getplayerdatabuffer,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9d80,HAPINET_getplayerdatabuffer,src/network/hapinet.cpp,function,
-0x4c9d80,HAPINET_getplayerdatabuffer,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::GetPlayerData
-0x4c9dd0,HAPINET_getcurrentplayers,src/network/hapinet.cpp,call,GameAllocIgnoreTag
-0x4c9dd0,HAPINET_getcurrentplayers,src/network/hapinet.cpp,call,GameFreeThunk
-0x4c9dd0,HAPINET_getcurrentplayers,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9dd0,HAPINET_getcurrentplayers,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9dd0,HAPINET_getcurrentplayers,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwCurrentPlayers
-0x4c9dd0,HAPINET_getcurrentplayers,src/network/hapinet.cpp,function,
-0x4c9dd0,HAPINET_getcurrentplayers,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::GetSessionDesc
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,call,DispatchHostEvents
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,call,PeekKey
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,call,PopKey
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,call,host_pump_events
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,call,memset
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,call,operator=
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_read,Net_4c97b0::application
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_read,Net_4c97b0::count
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_read,Net_4c97b0::enumTimeout
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::guidInstance
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_write,Net_4c97b0::count
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_write,Net_4c97b0::games
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwSize
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::guidApplication
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::guidInstance
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,fn_ref,HAPINET_getgamescallback
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,function,
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,global_write,g_enumSessionsResult
-0x4c9e50,HAPINET_getgames,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::EnumSessions
-0x4c9f90,HAPINET_quitgame,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9f90,HAPINET_quitgame,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9f90,HAPINET_quitgame,src/network/hapinet.cpp,function,
-0x4c9f90,HAPINET_quitgame,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Close
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,call,GameAllocIgnoreTag
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,call,GameFreeThunk
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,call,HapinetTrace
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,call,lstrcpynA
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,call,memset
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,call,operator=
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::desc
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::name
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_read,Net_4c97b0::application
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::guidInstance
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::lpszSessionName
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::dwSize
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::guidApplication
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,field_write,SessionDesc_4c9890::guidInstance
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,function,
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::GetSessionDesc
-0x4c9fd0,HAPINET_joingame,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Slot24
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,GameAllocIgnoreTag
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,SkipTextLines
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,memcmp
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,memcpy
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,operator=
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,sprintf
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,call,strcpy
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,deref_read,*GUID_004c9920
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,deref_write,*GUID_004c9920
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_read,Conn_4ca100::data
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_read,DPName_4ca100::lpszShortNameA
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_read,Net_4c97b0::conns
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_read,Net_4c97b0::guids
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_read,Net_4c97b0::names
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_read,Net_4c97b0::providerCount
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_write,Conn_4ca100::data
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_write,Conn_4ca100::size
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,field_write,Net_4c97b0::providerCount
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,function,
-0x4ca100,HAPINET_enumconnections,src/network/hapinet.cpp,global_read,g_skippedProviders
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,call,HAPINET_initmultiplay
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,deref_read,*GUID_004c9920
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,field_write,Net_4c97b0::conns
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,field_write,Net_4c97b0::guids
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,field_write,Net_4c97b0::names
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,field_write,Net_4c97b0::providerCount
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,fn_ref,HAPINET_enumconnections
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,function,
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,global_read,DAT_004fdaf0
-0x4ca250,HAPINET_getconnections,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::EnumConnections
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,call,SkipTextLines
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,call,operator=
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,call,sprintf
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,call,strcpy
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,deref_read,*GUID_004c9920
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,deref_write,*GUID_004c9920
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,field_read,Net_4c97b0::guids
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,field_read,Net_4c97b0::names
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,field_read,Net_4c97b0::providerCount
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,field_write,Net_4c97b0::providerCount
-0x4ca330,HAPINET_enumproviders,src/network/hapinet.cpp,function,
-0x4ca400,HAPINET_getproviders,src/network/hapinet.cpp,call,DirectPlayEnumerateA
-0x4ca400,HAPINET_getproviders,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca400,HAPINET_getproviders,src/network/hapinet.cpp,field_write,Net_4c97b0::guids
-0x4ca400,HAPINET_getproviders,src/network/hapinet.cpp,field_write,Net_4c97b0::names
-0x4ca400,HAPINET_getproviders,src/network/hapinet.cpp,field_write,Net_4c97b0::providerCount
-0x4ca400,HAPINET_getproviders,src/network/hapinet.cpp,fn_ref,HAPINET_enumproviders
-0x4ca400,HAPINET_getproviders,src/network/hapinet.cpp,function,
-0x4ca450,HAPINET_passwordrequired,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca450,HAPINET_passwordrequired,src/network/hapinet.cpp,field_read,Connection_4c9a70::desc
-0x4ca450,HAPINET_passwordrequired,src/network/hapinet.cpp,field_read,Net_4c97b0::connection
-0x4ca450,HAPINET_passwordrequired,src/network/hapinet.cpp,field_read,SessionDesc_4c9890::dwFlags
-0x4ca450,HAPINET_passwordrequired,src/network/hapinet.cpp,function,
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,call,DirectPlayLobbyCreateA
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,call,GameAllocIgnoreTag
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_escape,Net_4c97b0::lobby
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::created
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_read,Net_4c97b0::connection
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_read,Net_4c97b0::created
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_read,Net_4c97b0::lobby
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_write,Net_4c97b0::connection
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_write,Net_4c97b0::connection_size
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_write,Net_4c97b0::created
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,field_write,Net_4c97b0::lobby
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,function,
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,global_maybe_written,IID_IDirectPlayLobby2A
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,global_write,g_guaranteePackets
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,indirect_call,virtual Lobby_4c9a70::GetConnectionSettings
-0x4ca490,HAPINET_initlobbiedconnection,src/network/hapinet.cpp,indirect_call,virtual Lobby_4c9a70::QueryInterface
-0x4ca590,HAPINET_initconnection,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca590,HAPINET_initconnection,src/network/hapinet.cpp,deref_read,*int
-0x4ca590,HAPINET_initconnection,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4ca590,HAPINET_initconnection,src/network/hapinet.cpp,function,
-0x4ca590,HAPINET_initconnection,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Slot38
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,call,DirectPlayCreate
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,call,GetDisplay
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,call,operator=
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,deref_read,*GUID_004c9920
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,deref_read,*int
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_escape,Net_4c97b0::dp
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_escape,Net_4c97b0::sp
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::dp1
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_read,Net_4c97b0::dp1
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::application
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::connection
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::connection_size
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::created
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::dp
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::dp1
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::hwnd
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::lobby
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,field_write,Net_4c97b0::sp
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,function,
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,global_maybe_written,IID_IDirectPlay3A
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,global_write,g_guaranteePackets
-0x4ca5d0,HAPINET_initmultiplay,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::QueryInterface
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,call,memset
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,call,strncpy
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::longName
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_maybe_written,Net_4c97b0::shortName
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_maybe_written,PlayerData_004ca6a0::name
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_write,DPName_4ca100::dwFlags
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_write,DPName_4ca100::dwSize
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_write,DPName_4ca100::lpszLongNameA
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_write,DPName_4ca100::lpszShortNameA
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_write,PlayerData_004ca6a0::versionMajor
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,field_write,PlayerData_004ca6a0::versionMinor
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,function,
-0x4ca6a0,HAPINET_addplayer,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::CreatePlayer
-0x4ca780,HAPINET_removeplayer,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca780,HAPINET_removeplayer,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4ca780,HAPINET_removeplayer,src/network/hapinet.cpp,function,
-0x4ca780,HAPINET_removeplayer,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::DestroyPlayer
-0x4ca7c0,HAPINET_getplayername,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca7c0,HAPINET_getplayername,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4ca7c0,HAPINET_getplayername,src/network/hapinet.cpp,function,
-0x4ca7c0,HAPINET_getplayername,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::GetPlayerName
-0x4ca800,HAPINET_setplayername,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca800,HAPINET_setplayername,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4ca800,HAPINET_setplayername,src/network/hapinet.cpp,function,
-0x4ca800,HAPINET_setplayername,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::SetPlayerName
-0x4ca840,HAPINET_enumplayers,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca840,HAPINET_enumplayers,src/network/hapinet.cpp,field_read,Net_4c97b0::dp
-0x4ca840,HAPINET_enumplayers,src/network/hapinet.cpp,function,
-0x4ca840,HAPINET_enumplayers,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::EnumPlayers
-0x4ca880,HAPINET_createcompoundaddress,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca880,HAPINET_createcompoundaddress,src/network/hapinet.cpp,field_read,Net_4c97b0::lobby
-0x4ca880,HAPINET_createcompoundaddress,src/network/hapinet.cpp,function,
-0x4ca880,HAPINET_createcompoundaddress,src/network/hapinet.cpp,indirect_call,virtual Lobby_4c9a70::CreateCompoundAddress
-0x4ca8c0,HAPINET_enumaddress,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca8c0,HAPINET_enumaddress,src/network/hapinet.cpp,field_read,Net_4c97b0::lobby
-0x4ca8c0,HAPINET_enumaddress,src/network/hapinet.cpp,function,
-0x4ca8c0,HAPINET_enumaddress,src/network/hapinet.cpp,indirect_call,virtual Lobby_4c9a70::EnumAddress
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,call,DirectPlayCreate
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,call,memset
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,field_escape,Net_004ca900::dp3
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,field_maybe_written,Net_004ca900::dp
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,field_read,Net_004ca900::dp
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,function,
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,global_maybe_written,IID_IDirectPlay3A
-0x4ca900,HAPINET_createdplayinterface,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::QueryInterface
-0x4ca940,HAPINET_releasedplayinterface,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca940,HAPINET_releasedplayinterface,src/network/hapinet.cpp,field_read,Net_004ca900::dp
-0x4ca940,HAPINET_releasedplayinterface,src/network/hapinet.cpp,field_read,Net_004ca900::dp3
-0x4ca940,HAPINET_releasedplayinterface,src/network/hapinet.cpp,field_write,Net_004ca900::dp
-0x4ca940,HAPINET_releasedplayinterface,src/network/hapinet.cpp,field_write,Net_004ca900::dp3
-0x4ca940,HAPINET_releasedplayinterface,src/network/hapinet.cpp,function,
-0x4ca940,HAPINET_releasedplayinterface,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::Release
-0x4ca990,HAPINET_getplayeraddress,src/network/hapinet.cpp,call,HapinetTrace
-0x4ca990,HAPINET_getplayeraddress,src/network/hapinet.cpp,field_read,Net_004ca900::dp3
-0x4ca990,HAPINET_getplayeraddress,src/network/hapinet.cpp,function,
-0x4ca990,HAPINET_getplayeraddress,src/network/hapinet.cpp,indirect_call,virtual DirectPlay_4c97b0::GetPlayerAddress
-0x4ca9d0,GetCreatedLobbyInterface,src/network/hapinet.cpp,field_read,Net_4c97b0::created
-0x4ca9d0,GetCreatedLobbyInterface,src/network/hapinet.cpp,function,
-0x4ca9e0,GetSessionGuidInstance,src/network/hapinet.cpp,function,
-0x4ca9f0,QueryOnlineFlags,src/network/hapinet.cpp,function,
-0x4caa00,RIReportGameChat,src/network/hapinet.cpp,function,
-0x4caa10,RIReport,src/network/hapinet.cpp,function,
-0x4caa20,RISetCallbacks,src/network/hapinet.cpp,function,
-0x4caa20,RISetCallbacks,src/network/hapinet.cpp,global_write,g_reporterNotify
-0x4caa20,RISetCallbacks,src/network/hapinet.cpp,global_write,g_reporterReport
+0x4c9530,host_net_error_string,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9530,host_net_error_string,src/host/win32/net.cpp,function,
+0x4c9740,HapinetTrace,src/host/win32/net.cpp,function,
+0x4c9750,GetEnumSessionsErrorText,src/network/online_report.cpp,call,Translate
+0x4c9750,GetEnumSessionsErrorText,src/network/online_report.cpp,call,host_net_enum_sessions_result
+0x4c9750,GetEnumSessionsErrorText,src/network/online_report.cpp,call,host_net_error_string
+0x4c9750,GetEnumSessionsErrorText,src/network/online_report.cpp,call,strstr
+0x4c9750,GetEnumSessionsErrorText,src/network/online_report.cpp,function,
+0x4c9790,host_net_guarantee_packets,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9790,host_net_guarantee_packets,src/host/win32/net.cpp,function,
+0x4c9790,host_net_guarantee_packets,src/host/win32/net.cpp,global_read,g_guaranteePackets
+0x4c9790,host_net_guarantee_packets,src/host/win32/net.cpp,global_write,g_guaranteePackets
+0x4c97b0,host_net_send_packet,src/host/win32/net.cpp,call,HapinetTrace
+0x4c97b0,host_net_send_packet,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c97b0,host_net_send_packet,src/host/win32/net.cpp,function,
+0x4c97b0,host_net_send_packet,src/host/win32/net.cpp,global_read,g_guaranteePackets
+0x4c97b0,host_net_send_packet,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Send
+0x4c9800,HAPINET_sendpacketguaranteed,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9800,HAPINET_sendpacketguaranteed,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9800,HAPINET_sendpacketguaranteed,src/host/win32/net.cpp,function,
+0x4c9800,HAPINET_sendpacketguaranteed,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Send
+0x4c9840,host_net_receive_packet,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9840,host_net_receive_packet,src/host/win32/net.cpp,field_maybe_written,host_net::from
+0x4c9840,host_net_receive_packet,src/host/win32/net.cpp,field_maybe_written,host_net::to
+0x4c9840,host_net_receive_packet,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9840,host_net_receive_packet,src/host/win32/net.cpp,function,
+0x4c9840,host_net_receive_packet,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Receive
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,call,strncpy
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_maybe_written,host_net::desc
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_maybe_written,host_net::name
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_write,SessionDesc::dwSize
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_write,SessionDesc::dwUser1
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_write,SessionDesc::dwUser2
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_write,SessionDesc::dwUser3
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_write,SessionDesc::dwUser4
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,field_write,SessionDesc::lpszSessionName
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,function,
+0x4c9890,host_net_update_game_info,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::SetSessionDesc
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,call,free
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,call,malloc
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,call,memset
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,call,operator=
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,call,strncpy
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_maybe_written,host_net::desc
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_read,SessionDesc::guidInstance
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_read,host_net::application
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_read,host_net::maxPlayers
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::dwMaxPlayers
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::dwSize
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser1
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser2
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser3
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser4
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::guidApplication
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::guidInstance
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::lpszPassword
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,field_write,SessionDesc::lpszSessionName
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,function,
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::GetSessionDesc
+0x4c9920,host_net_create_new_game,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Slot24
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,call,operator=
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,call,strncat
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,deref_read,*SessionDesc
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,deref_write,*char
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_escape,host_net::dp
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,Connection::desc
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,SessionDesc::dwMaxPlayers
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,SessionDesc::dwUser1
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,SessionDesc::dwUser2
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,SessionDesc::dwUser3
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,SessionDesc::dwUser4
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,SessionDesc::lpszPassword
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,host_net::connection
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_read,host_net::lobby
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_write,SessionDesc::dwMaxPlayers
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser1
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser2
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser3
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_write,SessionDesc::dwUser4
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,field_write,host_net::desc
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,function,
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,indirect_call,virtual Lobby::Connect
+0x4c9a70,host_net_create_or_join_lobby_game,src/host/win32/net.cpp,indirect_call,virtual Lobby::SetConnectionSettings
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,call,free
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_read,host_net::connection
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_read,host_net::created
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_read,host_net::dp1
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_read,host_net::lobby
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_write,host_net::connection
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_write,host_net::connection_size
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_write,host_net::created
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_write,host_net::dp
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_write,host_net::dp1
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,field_write,host_net::lobby
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,function,
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Close
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Release
+0x4c9b70,host_net_uninit,src/host/win32/net.cpp,indirect_call,virtual Lobby::Release
+0x4c9c20,host_net_init_defaults,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9c20,host_net_init_defaults,src/host/win32/net.cpp,field_write,host_net::enumTimeout
+0x4c9c20,host_net_init_defaults,src/host/win32/net.cpp,field_write,host_net::maxPlayers
+0x4c9c20,host_net_init_defaults,src/host/win32/net.cpp,function,
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,call,operator=
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,call,strcpy
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,deref_escape,*GameRec
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_maybe_written,GameRec::name
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,SessionDesc::dwMaxPlayers
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,SessionDesc::dwUser1
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,SessionDesc::dwUser2
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,SessionDesc::dwUser3
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,SessionDesc::dwUser4
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,SessionDesc::guidInstance
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,SessionDesc::lpszSessionName
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,host_net::count
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_read,host_net::games
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_write,GameRec::guidInstance
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_write,GameRec::maxPlayers
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_write,GameRec::user1
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_write,GameRec::user2
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_write,GameRec::user3
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_write,GameRec::user4
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,field_write,host_net::count
+0x4c9c50,HAPINET_getgamescallback,src/host/win32/net.cpp,function,
+0x4c9d10,HAPINET_justone,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9d10,HAPINET_justone,src/host/win32/net.cpp,deref_write,*int
+0x4c9d10,HAPINET_justone,src/host/win32/net.cpp,function,
+0x4c9d30,HAPINET_setplayerdatabuffer,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9d30,HAPINET_setplayerdatabuffer,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9d30,HAPINET_setplayerdatabuffer,src/host/win32/net.cpp,function,
+0x4c9d30,HAPINET_setplayerdatabuffer,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::SetPlayerData
+0x4c9d80,HAPINET_getplayerdatabuffer,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9d80,HAPINET_getplayerdatabuffer,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9d80,HAPINET_getplayerdatabuffer,src/host/win32/net.cpp,function,
+0x4c9d80,HAPINET_getplayerdatabuffer,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::GetPlayerData
+0x4c9dd0,HAPINET_getcurrentplayers,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9dd0,HAPINET_getcurrentplayers,src/host/win32/net.cpp,call,free
+0x4c9dd0,HAPINET_getcurrentplayers,src/host/win32/net.cpp,call,malloc
+0x4c9dd0,HAPINET_getcurrentplayers,src/host/win32/net.cpp,field_read,SessionDesc::dwCurrentPlayers
+0x4c9dd0,HAPINET_getcurrentplayers,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9dd0,HAPINET_getcurrentplayers,src/host/win32/net.cpp,function,
+0x4c9dd0,HAPINET_getcurrentplayers,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::GetSessionDesc
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,call,host_pump_events
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,call,memset
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,call,operator=
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_read,SessionDesc::guidInstance
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_read,host_net::application
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_read,host_net::count
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_read,host_net::enumTimeout
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_write,SessionDesc::dwSize
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_write,SessionDesc::guidApplication
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_write,SessionDesc::guidInstance
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_write,host_net::count
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,field_write,host_net::games
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,fn_ref,HAPINET_getgamescallback
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,function,
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,global_write,g_enumSessionsResult
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,indirect_call,indirect via int (*)() __attribute__((cdecl)) [poll]
+0x4c9e50,host_net_get_games,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::EnumSessions
+0x4c9f90,host_net_quit_game,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9f90,host_net_quit_game,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9f90,host_net_quit_game,src/host/win32/net.cpp,function,
+0x4c9f90,host_net_quit_game,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Close
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,call,HapinetTrace
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,call,free
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,call,lstrcpynA
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,call,malloc
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,call,memset
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,call,operator=
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,deref_read,*host_guid
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_maybe_written,host_net::desc
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_maybe_written,host_net::name
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_read,SessionDesc::guidInstance
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_read,SessionDesc::lpszSessionName
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_read,host_net::application
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_read,host_net::dp
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_write,SessionDesc::dwSize
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_write,SessionDesc::guidApplication
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,field_write,SessionDesc::guidInstance
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,function,
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::GetSessionDesc
+0x4c9fd0,host_net_join_game,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Slot24
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,SkipTextLines
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,malloc
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,memcmp
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,memcpy
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,operator=
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,sprintf
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,call,strcpy
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,deref_read,*host_guid
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,deref_write,*host_guid
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_read,Conn::data
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_read,DPName::lpszShortNameA
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_read,host_net::conns
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_read,host_net::guids
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_read,host_net::names
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_read,host_net::providerCount
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_write,Conn::data
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_write,Conn::size
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,field_write,host_net::providerCount
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,function,
+0x4ca100,HAPINET_enumconnections,src/host/win32/net.cpp,global_read,g_skippedProviders
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,call,HAPINET_initmultiplay
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,deref_read,*host_guid
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,field_read,host_net::dp
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,field_write,host_net::conns
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,field_write,host_net::guids
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,field_write,host_net::names
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,field_write,host_net::providerCount
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,fn_ref,HAPINET_enumconnections
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,function,
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,global_read,g_defaultSp
+0x4ca250,host_net_get_connections,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::EnumConnections
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,call,SkipTextLines
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,call,operator=
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,call,sprintf
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,call,strcpy
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,deref_read,*host_guid
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,deref_write,*host_guid
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,field_read,host_net::guids
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,field_read,host_net::names
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,field_read,host_net::providerCount
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,field_write,host_net::providerCount
+0x4ca330,HAPINET_enumproviders,src/host/win32/net.cpp,function,
+0x4ca400,HAPINET_getproviders,src/host/win32/net.cpp,call,DirectPlayEnumerateA
+0x4ca400,HAPINET_getproviders,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca400,HAPINET_getproviders,src/host/win32/net.cpp,field_write,host_net::guids
+0x4ca400,HAPINET_getproviders,src/host/win32/net.cpp,field_write,host_net::names
+0x4ca400,HAPINET_getproviders,src/host/win32/net.cpp,field_write,host_net::providerCount
+0x4ca400,HAPINET_getproviders,src/host/win32/net.cpp,fn_ref,HAPINET_enumproviders
+0x4ca400,HAPINET_getproviders,src/host/win32/net.cpp,function,
+0x4ca450,host_net_password_required,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca450,host_net_password_required,src/host/win32/net.cpp,field_read,Connection::desc
+0x4ca450,host_net_password_required,src/host/win32/net.cpp,field_read,SessionDesc::dwFlags
+0x4ca450,host_net_password_required,src/host/win32/net.cpp,field_read,host_net::connection
+0x4ca450,host_net_password_required,src/host/win32/net.cpp,function,
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,call,DirectPlayLobbyCreateA
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,call,malloc
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_escape,host_net::lobby
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_maybe_written,host_net::created
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_read,host_net::connection
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_read,host_net::created
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_read,host_net::lobby
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_write,host_net::connection
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_write,host_net::connection_size
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_write,host_net::created
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,field_write,host_net::lobby
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,function,
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,global_maybe_written,g_iidDirectPlayLobby2A
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,global_write,g_guaranteePackets
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,indirect_call,virtual Lobby::GetConnectionSettings
+0x4ca490,host_net_init_lobbied_connection,src/host/win32/net.cpp,indirect_call,virtual Lobby::QueryInterface
+0x4ca590,host_net_init_connection,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca590,host_net_init_connection,src/host/win32/net.cpp,deref_read,*int
+0x4ca590,host_net_init_connection,src/host/win32/net.cpp,field_read,host_net::dp
+0x4ca590,host_net_init_connection,src/host/win32/net.cpp,function,
+0x4ca590,host_net_init_connection,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Slot38
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,call,DirectPlayCreate
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,call,HostWindowHandle
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,call,operator=
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,deref_read,*host_guid
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_escape,host_net::dp
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_escape,host_net::sp
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_maybe_written,host_net::dp1
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_read,host_net::dp1
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::application
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::connection
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::connection_size
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::created
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::dp
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::dp1
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::hwnd
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::lobby
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,field_write,host_net::sp
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,function,
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,global_maybe_written,g_iidDirectPlay3A
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,global_write,g_guaranteePackets
+0x4ca5d0,HAPINET_initmultiplay,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::QueryInterface
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,call,memset
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,call,strncpy
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_maybe_written,PlayerData::name
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_maybe_written,host_net::longName
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_maybe_written,host_net::shortName
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_read,host_net::dp
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_write,DPName::dwFlags
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_write,DPName::dwSize
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_write,DPName::lpszLongNameA
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_write,DPName::lpszShortNameA
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_write,PlayerData::versionMajor
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,field_write,PlayerData::versionMinor
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,function,
+0x4ca6a0,host_net_add_player,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::CreatePlayer
+0x4ca780,host_net_remove_player,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca780,host_net_remove_player,src/host/win32/net.cpp,field_read,host_net::dp
+0x4ca780,host_net_remove_player,src/host/win32/net.cpp,function,
+0x4ca780,host_net_remove_player,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::DestroyPlayer
+0x4ca7c0,host_net_get_player_name,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca7c0,host_net_get_player_name,src/host/win32/net.cpp,field_read,host_net::dp
+0x4ca7c0,host_net_get_player_name,src/host/win32/net.cpp,function,
+0x4ca7c0,host_net_get_player_name,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::GetPlayerName
+0x4ca800,host_net_set_player_name,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca800,host_net_set_player_name,src/host/win32/net.cpp,field_read,host_net::dp
+0x4ca800,host_net_set_player_name,src/host/win32/net.cpp,function,
+0x4ca800,host_net_set_player_name,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::SetPlayerName
+0x4ca840,host_net_enum_players,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca840,host_net_enum_players,src/host/win32/net.cpp,field_read,host_net::dp
+0x4ca840,host_net_enum_players,src/host/win32/net.cpp,function,
+0x4ca840,host_net_enum_players,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::EnumPlayers
+0x4ca880,host_net_create_compound_address,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca880,host_net_create_compound_address,src/host/win32/net.cpp,field_read,host_net::lobby
+0x4ca880,host_net_create_compound_address,src/host/win32/net.cpp,function,
+0x4ca880,host_net_create_compound_address,src/host/win32/net.cpp,indirect_call,virtual Lobby::CreateCompoundAddress
+0x4ca8c0,host_net_enum_address,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca8c0,host_net_enum_address,src/host/win32/net.cpp,field_read,host_net::lobby
+0x4ca8c0,host_net_enum_address,src/host/win32/net.cpp,function,
+0x4ca8c0,host_net_enum_address,src/host/win32/net.cpp,indirect_call,virtual Lobby::EnumAddress
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,call,DirectPlayCreate
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,call,memset
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,field_escape,host_net_pair::dp3
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,field_maybe_written,host_net_pair::dp
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,field_read,host_net_pair::dp
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,function,
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,global_maybe_written,g_iidDirectPlay3A
+0x4ca900,host_net_create_play_interface,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::QueryInterface
+0x4ca940,host_net_release_play_interface,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca940,host_net_release_play_interface,src/host/win32/net.cpp,field_read,host_net_pair::dp
+0x4ca940,host_net_release_play_interface,src/host/win32/net.cpp,field_read,host_net_pair::dp3
+0x4ca940,host_net_release_play_interface,src/host/win32/net.cpp,field_write,host_net_pair::dp
+0x4ca940,host_net_release_play_interface,src/host/win32/net.cpp,field_write,host_net_pair::dp3
+0x4ca940,host_net_release_play_interface,src/host/win32/net.cpp,function,
+0x4ca940,host_net_release_play_interface,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::Release
+0x4ca990,host_net_get_player_address,src/host/win32/net.cpp,call,HapinetTrace
+0x4ca990,host_net_get_player_address,src/host/win32/net.cpp,field_read,host_net_pair::dp3
+0x4ca990,host_net_get_player_address,src/host/win32/net.cpp,function,
+0x4ca990,host_net_get_player_address,src/host/win32/net.cpp,indirect_call,virtual DirectPlay::GetPlayerAddress
+0x4ca9d0,GetCreatedLobbyInterface,src/network/online_report.cpp,deref_read,*int
+0x4ca9d0,GetCreatedLobbyInterface,src/network/online_report.cpp,function,
+0x4ca9e0,GetSessionGuidInstance,src/network/online_report.cpp,function,
+0x4ca9f0,QueryOnlineFlags,src/network/online_report.cpp,function,
+0x4caa00,RIReportGameChat,src/network/online_report.cpp,function,
+0x4caa10,RIReport,src/network/online_report.cpp,function,
+0x4caa20,RISetCallbacks,src/network/online_report.cpp,function,
+0x4caa20,RISetCallbacks,src/network/online_report.cpp,global_write,g_reporterNotify
+0x4caa20,RISetCallbacks,src/network/online_report.cpp,global_write,g_reporterReport
 0x4caa40,DecodePcx,src/graphics/pcx.cpp,call,FUN_row
 0x4caa40,DecodePcx,src/graphics/pcx.cpp,call,GameAllocIgnoreTag
 0x4caa40,DecodePcx,src/graphics/pcx.cpp,call,HAPI_FileLength
@@ -45897,6 +45895,8 @@ address,function,file,kind,target
 ,Hits_0049a120::AddUnit,src/weapons/weapons_49a120.cpp,field_write,Hits_0049a120::numUnits
 ,Hits_0049a120::AddUnit,src/weapons/weapons_49a120.cpp,field_write,Hits_0049a120::units
 ,Hits_0049a120::AddUnit,src/weapons/weapons_49a120.cpp,function,
+,HostWindowHandle,src/host/win32/window.cpp,function,
+,HostWindowHandle,src/host/win32/window.cpp,global_read,g_hwnd
 ,Id_004df1e0::Id_004df1e0,src/debug/debug_lib.cpp,field_read,Id_004df1e0::id
 ,Id_004df1e0::Id_004df1e0,src/debug/debug_lib.cpp,field_write,Id_004df1e0::id
 ,Id_004df1e0::Id_004df1e0,src/debug/debug_lib.cpp,field_write,Id_004df1e0::text
@@ -47077,6 +47077,10 @@ address,function,file,kind,target
 ,Iterator_004df590::operator!=,src/debug/debug_lib.cpp,function,
 ,Iterator_004df590::operator==,src/debug/debug_lib.cpp,field_read,Iterator_004df590::ptr
 ,Iterator_004df590::operator==,src/debug/debug_lib.cpp,function,
+,JoinLobbyGameEntry,src/network/net_game.cpp,call,JoinLobbyGameThread
+,JoinLobbyGameEntry,src/network/net_game.cpp,call,host_event_set
+,JoinLobbyGameEntry,src/network/net_game.cpp,field_read,Args_00451640::event
+,JoinLobbyGameEntry,src/network/net_game.cpp,function,
 ,Kfn_004db000::operator(),src/debug/debug_lib.cpp,field_read,Pair_004db000::offset
 ,Kfn_004db000::operator(),src/debug/debug_lib.cpp,function,
 ,Kfn_004e2250::operator(),src/debug/debug_lib.cpp,field_read,"std::pair< NameKey, Value_004e2250>::first"
@@ -48771,6 +48775,10 @@ address,function,file,kind,target
 ,PointInit_0043a1f0::PointInit_0043a1f0,src/orders/order_list.cpp,field_write,Point16::x
 ,PointInit_0043a1f0::PointInit_0043a1f0,src/orders/order_list.cpp,field_write,Point16::y
 ,PointInit_0043a1f0::PointInit_0043a1f0,src/orders/order_list.cpp,function,
+,PollGetGames,src/frontend/multi.cpp,call,DispatchHostEvents
+,PollGetGames,src/frontend/multi.cpp,call,PeekKey
+,PollGetGames,src/frontend/multi.cpp,call,PopKey
+,PollGetGames,src/frontend/multi.cpp,function,
 ,PoolAlloc,src/debug/debug_lib.cpp,call,GlobalAlloc
 ,PoolAlloc,src/debug/debug_lib.cpp,deref_read,*void
 ,PoolAlloc,src/debug/debug_lib.cpp,deref_write,*void
@@ -50065,6 +50073,8 @@ address,function,file,kind,target
 ,SkipComment,src/util/tdf.cpp,function,
 ,SkipSpace,src/util/tdf.cpp,deref_read,*char
 ,SkipSpace,src/util/tdf.cpp,function,
+,SkipTextLines,src/host/win32/net.cpp,deref_read,*char
+,SkipTextLines,src/host/win32/net.cpp,function,
 ,SliderValue,src/frontend/options.cpp,field_read,Gadget::knobPos
 ,SliderValue,src/frontend/options.cpp,field_read,Gadget::max
 ,SliderValue,src/frontend/options.cpp,field_read,Gadget::range
@@ -51964,6 +51974,10 @@ address,function,file,kind,target
 ,host_mutex_lock,src/host/win32/threads.cpp,function,
 ,host_mutex_unlock,src/host/win32/threads.cpp,call,LeaveCriticalSection
 ,host_mutex_unlock,src/host/win32/threads.cpp,function,
+,host_net_enum_sessions_result,src/host/win32/net.cpp,function,
+,host_net_enum_sessions_result,src/host/win32/net.cpp,global_read,g_enumSessionsResult
+,host_net_free,src/host/win32/net.cpp,call,free
+,host_net_free,src/host/win32/net.cpp,function,
 ,host_post_quit,src/host/win32/window.cpp,call,PostQuitMessage
 ,host_post_quit,src/host/win32/window.cpp,function,
 ,host_pump_events,src/host/win32/window.cpp,call,DispatchOne

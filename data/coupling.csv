@@ -447,7 +447,6 @@ game,network,call,FUN_004161f0,1
 game,network,call,FindHostSlot,2
 game,network,call,GetLocalDpid,2
 game,network,call,GetRejectReasonText,1
-game,network,call,HAPINET_guaranteepackets,1
 game,network,call,HandleNetPackets,6
 game,network,call,InitPacketTables,1
 game,network,call,IsOnlineConfigLoaded,1
@@ -604,6 +603,7 @@ game,platform,call,host_file_write,1
 game,platform,call,host_message,2
 game,platform,call,host_music_close,1
 game,platform,call,host_music_open,1
+game,platform,call,host_net_guarantee_packets,1
 game,platform,call,host_pump_events,1
 game,platform,call,host_setting_get,1
 game,platform,call,host_setting_set,1
@@ -1542,10 +1542,9 @@ network,pathfinding,shared_write,Player::index,1
 network,pathfinding,shared_write,Player::type,1
 network,platform,call,AllocNotifyNop,1
 network,platform,call,ComputeUnitScriptChecksum,2
-network,platform,call,DispatchHostEvents,1
 network,platform,call,FatalError,2
-network,platform,call,GameAllocIgnoreTag,8
-network,platform,call,GameFreeThunk,7
+network,platform,call,GameAllocIgnoreTag,3
+network,platform,call,GameFreeThunk,3
 network,platform,call,GameReallocTagged,1
 network,platform,call,GetTicks,15
 network,platform,call,LzssCompress,1
@@ -1554,12 +1553,36 @@ network,platform,call,LzssEnablePreset,2
 network,platform,call,LzssExpand,1
 network,platform,call,QuitApp,2
 network,platform,call,SetCloseHandler,2
-network,platform,call,SkipTextLines,2
 network,platform,call,ToggleFullScreen,2
 network,platform,call,Translate,10
 network,platform,call,_Destroy,2
-network,platform,call,host_pump_events,1
+network,platform,call,host_event_create,1
+network,platform,call,host_event_destroy,1
+network,platform,call,host_event_set,1
+network,platform,call,host_event_wait,1
+network,platform,call,host_net_add_player,1
+network,platform,call,host_net_create_new_game,1
+network,platform,call,host_net_create_or_join_lobby_game,1
+network,platform,call,host_net_enum_players,1
+network,platform,call,host_net_enum_sessions_result,1
+network,platform,call,host_net_error_string,2
+network,platform,call,host_net_get_player_name,2
+network,platform,call,host_net_guarantee_packets,2
+network,platform,call,host_net_init_connection,1
+network,platform,call,host_net_init_defaults,2
+network,platform,call,host_net_init_lobbied_connection,1
+network,platform,call,host_net_join_game,1
+network,platform,call,host_net_password_required,1
+network,platform,call,host_net_quit_game,2
+network,platform,call,host_net_receive_packet,2
+network,platform,call,host_net_remove_player,1
+network,platform,call,host_net_send_packet,3
+network,platform,call,host_net_set_player_name,1
+network,platform,call,host_net_uninit,2
+network,platform,call,host_net_update_game_info,2
 network,platform,call,host_sleep_ms,3
+network,platform,call,host_thread_set_priority,2
+network,platform,call,host_thread_start,1
 network,platform,call,host_time_ms,2
 network,platform,call,operator delete,26
 network,platform,call,operator new,18
@@ -1620,7 +1643,7 @@ network,presentation,call,ConfigureListBoxByName,1
 network,presentation,call,FindGadgetChecked,2
 network,presentation,call,FindGadgetChecked_B,1
 network,presentation,call,FindGadgetIndex,2
-network,presentation,call,GetDisplay,3
+network,presentation,call,GetDisplay,2
 network,presentation,call,GetFontLineHeight,1
 network,presentation,call,Init,1
 network,presentation,call,IsCurrentGadgetNamed,1
@@ -1629,11 +1652,9 @@ network,presentation,call,LoadGuiLayer,1
 network,presentation,call,MarkChanged,3
 network,presentation,call,MarkLayerChanged,1
 network,presentation,call,OpenMessageBox,1
-network,presentation,call,PeekKey,1
 network,presentation,call,PlaySoundAt,1
 network,presentation,call,PlaySoundByIndex,1
 network,presentation,call,PlaySoundByName,3
-network,presentation,call,PopKey,1
 network,presentation,call,RebuildAllyList,1
 network,presentation,call,RenderLayer,1
 network,presentation,call,SetKeyboardInput,1
@@ -2434,7 +2455,6 @@ players,network,call,CountActiveAIPlayers,1
 players,network,call,CountCombatPlayers,1
 players,network,call,FindHostSlot,2
 players,network,call,GetPlayerDpid,1
-players,network,call,HAPINET_uninitmultiplay,1
 players,network,call,Player::Clear,1
 players,network,call,RISetCallbacks,2
 players,network,call,ReportGameEvent,1
@@ -2534,6 +2554,7 @@ players,platform,call,SettingSetInt,1
 players,platform,call,TdfRecord::GetFieldInt,1
 players,platform,call,TdfRecord::GetFieldString,1
 players,platform,call,Translate,2
+players,platform,call,host_net_uninit,1
 players,platform,call,operator delete,3
 players,platform,call,operator new,5
 players,platform,shared_write,Point16::x,11
@@ -2887,17 +2908,6 @@ presentation,network,call,GetByteRates,1
 presentation,network,call,GetLocalDpid,3
 presentation,network,call,GetRejectReasonText,1
 presentation,network,call,GetSlotDpid,2
-presentation,network,call,HAPINET_createcompoundaddress,1
-presentation,network,call,HAPINET_createdplayinterface,1
-presentation,network,call,HAPINET_enumaddress,1
-presentation,network,call,HAPINET_getconnections,1
-presentation,network,call,HAPINET_getgames,1
-presentation,network,call,HAPINET_getplayeraddress,1
-presentation,network,call,HAPINET_guaranteepackets,1
-presentation,network,call,HAPINET_initlobbiedconnection,3
-presentation,network,call,HAPINET_quitgame,1
-presentation,network,call,HAPINET_releasedplayinterface,1
-presentation,network,call,HAPINET_uninitmultiplay,1
 presentation,network,call,InitLobbiedConnection,1
 presentation,network,call,InitNetConnection,3
 presentation,network,call,InitPacketManager,1
@@ -3008,7 +3018,7 @@ presentation,platform,call,CheckDirectXVersion,1
 presentation,platform,call,CheckGpfVersion,1
 presentation,platform,call,CountDirectoryEntries,7
 presentation,platform,call,CrossProduct,1
-presentation,platform,call,DispatchHostEvents,1
+presentation,platform,call,DispatchHostEvents,2
 presentation,platform,call,FatalError,15
 presentation,platform,call,FilePrintf,1
 presentation,platform,call,GameAllocIgnoreTag,52
@@ -3118,6 +3128,18 @@ presentation,platform,call,host_music_track_count,1
 presentation,platform,call,host_music_track_is_audio,2
 presentation,platform,call,host_music_track_length,1
 presentation,platform,call,host_music_track_start,1
+presentation,platform,call,host_net_create_compound_address,1
+presentation,platform,call,host_net_create_play_interface,1
+presentation,platform,call,host_net_enum_address,1
+presentation,platform,call,host_net_free,1
+presentation,platform,call,host_net_get_connections,1
+presentation,platform,call,host_net_get_games,1
+presentation,platform,call,host_net_get_player_address,1
+presentation,platform,call,host_net_guarantee_packets,1
+presentation,platform,call,host_net_init_lobbied_connection,3
+presentation,platform,call,host_net_quit_game,1
+presentation,platform,call,host_net_release_play_interface,1
+presentation,platform,call,host_net_uninit,1
 presentation,platform,call,host_post_quit,1
 presentation,platform,call,host_pump_events,2
 presentation,platform,call,host_sleep_ms,4

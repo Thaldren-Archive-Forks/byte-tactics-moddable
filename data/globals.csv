@@ -293,7 +293,7 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x50a5c0,g_hapiFileArrayName,.data,16,gap,string,char[],1,0,1,one type,1,,,,,4841504946494c452061727261790000
 0x50a778,g_emptyStringRep,.data,8,type,data,EmptyStringRep,1,0,1,one type,1,,INT_0050a778,,,0100000000000000
 0x50a77c,g_emptyString,.data,4,type,data,void*,1,0,1,one type,1,,PTR_0050a77c,,in g_emptyStringRep+0x4,00000000
-0x50a780,g_guaranteePackets,.data,4,type,data,int,1,0,1,one type,1,,INT_0050a780,,,01000000
+0x50a780,DAT_0050a780,.data,4,gap,unreferenced,unsigned char[4],0,0,0,,0,,,,,01000000
 0x50a788,g_skippedProviders,.data,16,type,data,const _GUID**,1,1,2,conflicting: array or pointer,2,0x10,PTR_DAT_0050a788,4,src/data/guids.cpp,c8cf4f00d8cf4f00e8cf4f00f8cf4f00
 0x50b540,g_cdNextTrackTimer,.data,4,type,data,int,1,0,1,one type,1,,INT_0050b540,,,ffffffff
 0x50b544,g_cdFadeTimer,.data,4,type,data,int,1,0,1,one type,1,,INT_0050b544,,,ffffffff
@@ -648,7 +648,7 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x51ff00,g_edgeLowIndex,.bss,4,type,data,int,1,0,1,one type,1,,INT_0051ff00,,,
 0x51ff04,g_reporterNotify,.bss,4,type,data,int,1,0,1,one type,1,,INT_0051ff04,,,
 0x51ff08,g_reporterReport,.bss,4,type,data,int,1,0,1,one type,1,,INT_0051ff08,,,
-0x51ff0c,g_enumSessionsResult,.bss,4,type,data,int,1,0,1,one type,1,,INT_0051ff0c,,,
+0x51ff0c,DAT_0051ff0c,.bss,4,gap,unreferenced,unsigned char[4],0,0,0,,0,,,,,
 0x51ff10,g_cdFadeVolume,.bss,4,type,data,int,1,0,1,one type,1,,INT_0051ff10,,,
 0x51ff14,g_cdPlayer,.bss,4,type,data,Sound*,2,0,1,one type,2,,DAT_0051ff14,,,
 0x51ff18,g_cdPlayerWindow,.bss,4,type,data,void*,1,0,1,one type,1,,DAT_0051ff18,,,

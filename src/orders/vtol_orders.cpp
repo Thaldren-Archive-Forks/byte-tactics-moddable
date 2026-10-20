@@ -21,7 +21,6 @@
 #include <windows.h>
 #include <ddraw.h>
 #include <dsound.h>
-#include <dplay.h>
 #include <stdio.h>
 struct Unit;
 void __stdcall CopyDwordIfNonNull(Unit**, Unit* const*);

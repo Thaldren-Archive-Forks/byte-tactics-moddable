@@ -308,7 +308,6 @@ void __stdcall SetRestoreSurface(int);
 void __stdcall SetOffscreenSurface(void*);
 void* __stdcall AllocSurface(char*, int, int);
 void __stdcall DrawSurface(void*, void*, int, int);
-void __stdcall HAPINET_guaranteepackets(int);
 int __cdecl GetScreenWidth();
 int __cdecl GetScreenHeight();
 int __cdecl GetTextKeyColor();
@@ -856,7 +855,7 @@ void LoadingScreenFrame(void)
         if (AssignStartPositions() != 0) {
             (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.b2 = 0;
             (*(volatile union LoadFlags_00497f40*)&g_game->loadingFlags).bits.b3 = 1;
-            HAPINET_guaranteepackets(0);
+            host_net_guarantee_packets(0);
         }
     }
     if (g_usePacketManager != 0) {

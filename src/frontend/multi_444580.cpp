@@ -2,6 +2,7 @@
 // Stays out of multi.cpp: a gap region (docs/split-modules.md).
 #include <stdio.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 
 #pragma pack(push, 1)
 struct Entry_00444580 {                 // a gadget of the menu, 0x15b bytes
@@ -72,8 +73,6 @@ Gadget_00444580* __stdcall LoadGuiLayer(void* menu, char* name, int size);
 void __stdcall HandleSelectProviderClick(void* menu);
 void __stdcall LoadPictureCached(const char* name, int a, int b, int c);
 void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
-void __stdcall HAPINET_uninitmultiplay(void* net);
-void __stdcall HAPINET_getconnections(void* net, void* guids, void* conns, void* descriptions, void* application);
 int __stdcall FindGadgetIndex(void* entries, const char* name, int flag);
 unsigned int __stdcall OnlineGetLinkInfo(LinkInfo* links);
 void __stdcall SetTranslatedText(void* menu, int index, int source, int value);
@@ -121,8 +120,8 @@ void FillProviderList()
     if (g_game->conns != 0)
         memset(g_game->conns, 0, 0x50);
     g_game->mapInfo->RefreshMapList(1);
-    HAPINET_uninitmultiplay(g_game->net);
-    HAPINET_getconnections(g_game->net, g_game->guids, g_game->conns, g_game->descriptions, DAT_004fcfb8);
+    host_net_uninit((host_net*)g_game->net);
+    host_net_get_connections((host_net*)g_game->net, g_game->guids, g_game->conns, g_game->descriptions, (const host_guid*)DAT_004fcfb8);
     Entry_00444580* entries = menu->entries;
     // The names tmpl, y, k and n, at function scope, set the stack slot order.
     int tmpl = FindGadgetIndex(entries, "SERVICEX", 1);
