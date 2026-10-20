@@ -187,7 +187,7 @@ void __stdcall CaptureBackgroundAndDrawCursor(Obj_004c2380* obj)
         if (LockPrimary(&s)) {
             RECT r;
             POINT pt;
-            GetCursorPos(&pt);
+            host_cursor_get((int*)&pt.x, (int*)&pt.y);
             obj->rect.x = pt.x;
             obj->rect.y = pt.y;
             obj->x = pt.x - obj->sprite->xOffset;
@@ -224,7 +224,7 @@ void __stdcall RedrawMouseCursor(Obj_004c2380* app)
         return;
     if (LockPrimary(&info) == 0)
         return;
-    GetCursorPos(&pt);
+    host_cursor_get((int*)&pt.x, (int*)&pt.y);
     int x = pt.x;
     int y = pt.y;
     app->rect.x = x;
@@ -276,7 +276,7 @@ void __fastcall ShowSoftwareCursor(void)
     if (o->mode != 1) {
         if (--o->count <= 0) {
             POINT pt;
-            GetCursorPos(&pt);
+            host_cursor_get((int*)&pt.x, (int*)&pt.y);
             o->rect.x = pt.x;
             o->rect.y = pt.y;
             if (o->sprite != 0) {
@@ -303,7 +303,7 @@ void __fastcall ShowSoftwareCursor(void)
 void __cdecl MouseThreadProc(int param)
 {
     Obj_004c2380* o = (Obj_004c2380*)param;
-    SetThreadPriority(GetCurrentThread(), 2);
+    host_thread_set_priority(2);
     while (o->pending == 0) {
         int start = host_time_ms() + 0x21;
         LONG held = LockMouse();

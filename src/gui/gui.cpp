@@ -16,6 +16,9 @@
 // <windows.h> and <math.h> are only for their symbol ids: DrawButton,
 // RenderLayer and the list steps match only at this symbol count.
 #include <windows.h>
+#include "../../interfaces/host.h"
+
+int DispatchHostEvents();
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -189,14 +192,11 @@ void __stdcall SetGadgetName(Dialog* obj, char* name, char* text)
 // FUNCTION: 0x49f9c0
 void __stdcall RunWhileScreenNamed(Dialog* menu, char* name)
 {
-    MSG msg;
     while (1) {
         if (!menu->holder || _strnicmp(menu->holder->entries->name, name, 16) != 0)
             break;
-        if (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
-            TranslateMessage(&msg);
-            DispatchMessageA(&msg);
-        }
+        host_pump_events(0);
+        DispatchHostEvents();
         UpdateMenu(menu);
         BlitLayers(menu->holder, 0, 0);
         ShowSoftwareCursor();

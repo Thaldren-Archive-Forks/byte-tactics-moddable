@@ -6,6 +6,8 @@
 #include "../../interfaces/host.h"
 #include "../util/file_printf.h"
 
+int __stdcall HandleHostEvent(host_event* ev);
+
 // The open Smacker movie (smackw32.dll's SMK struct).
 struct Smk_0047c3a0 {
     unsigned int version;               // +0x0
@@ -438,23 +440,24 @@ void MoviePlayer::WriteSmackStats()
 // FUNCTION: 0x47c6c0
 void MoviePlayer::Play()
 {
-    MSG msg;
+    host_event ev;
     while (!stopped) {
-        if (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
-            // 0x104 and 0x102 are the movie's own stop codes, not the Win95
-            // WM_MOUSEMOVE (0x200) and WM_LBUTTONDOWN (0x201).
-            if (msg.message == 0x104 && msg.wParam == 0x73) {
-                stopped = 1;
-                g_game->introMovieLoop = 0;
-                PostQuitMessage(0);
-                return;
-            }
-            if (msg.message == 0x102) {
-                stopped = 1;
-                g_game->introMovieLoop = 0;
-            }
-            TranslateMessage(&msg);
-            DispatchMessageA(&msg);
+        if (!host_pump_events(0))
+            host_post_quit();
+        if (host_event_next(&ev)) {
+            do {
+                if (ev.type == HOST_EVENT_SYS_KEY_DOWN && ev.a == 0x73) {
+                    stopped = 1;
+                    g_game->introMovieLoop = 0;
+                    host_post_quit();
+                    return;
+                }
+                if (ev.type == HOST_EVENT_CHAR) {
+                    stopped = 1;
+                    g_game->introMovieLoop = 0;
+                }
+                HandleHostEvent(&ev);
+            } while (host_event_next(&ev));
         } else if (!SmackWait(smack)) {
             PlayFrame(hwnd);
         }
