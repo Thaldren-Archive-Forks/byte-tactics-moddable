@@ -6,13 +6,11 @@
 // shared.
 
 #include <windows.h>
-#include <mmsystem.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../../interfaces/host.h"
 // <stdio.h> must stay: the header state decides StartStream's multiply register.
 #include <stdio.h>
-#include <dsound.h>
 #include <float.h>
 // Nothing here uses <io.h>: its symbols put InitDirectSound,
 // CreateSampleFromMemory and StartStream in the symbol-id windows they match
@@ -47,30 +45,8 @@ void __cdecl GameFreeThunk(void* p);
 
 extern int g_playBufferLooping;
 
-extern const GUID IID_IDirectSound3DBuffer;
-
 struct Pos_004cf570 {
     int x, y, z;
-};
-
-struct IDirectSound3DBuffer : public IUnknown {
-    virtual HRESULT __stdcall GetAllParameters(void* p) = 0;
-    virtual HRESULT __stdcall GetConeAngles(LPDWORD a, LPDWORD b) = 0;
-    virtual HRESULT __stdcall GetConeOrientation(void* p) = 0;
-    virtual HRESULT __stdcall GetConeOutsideVolume(LPLONG p) = 0;
-    virtual HRESULT __stdcall GetMaxDistance(float* p) = 0;
-    virtual HRESULT __stdcall GetMinDistance(float* p) = 0;
-    virtual HRESULT __stdcall GetMode(LPDWORD p) = 0;
-    virtual HRESULT __stdcall GetPosition(void* p) = 0;
-    virtual HRESULT __stdcall GetVelocity(void* p) = 0;
-    virtual HRESULT __stdcall SetAllParameters(void* p, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetConeAngles(DWORD a, DWORD b, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetConeOrientation(float x, float y, float z, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetConeOutsideVolume(LONG v, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetMaxDistance(float d, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetMinDistance(float d, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetMode(DWORD mode, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetPosition(float x, float y, float z, DWORD apply) = 0;
 };
 
 int __stdcall HAPI_CloseFile(FileHandle* file);
@@ -216,16 +192,13 @@ void Sound::ReleaseDirectSound()
         streamTimer = -1;
     }
     if (stream != 0) {
-        stream->Stop();
-        stream->Release();
+        host_sound_buffer_stop(stream);
+        host_sound_buffer_free(stream);
         stream = 0;
         HAPI_CloseFile(streamFile);
     }
     CloseCdAudio();
-    if (primary != 0)
-        primary->Release();
-    if (directSound != 0)
-        directSound->Release();
+    host_sound_close();
     primary = 0;
     directSound = 0;
 }
@@ -233,56 +206,28 @@ void Sound::ReleaseDirectSound()
 // FUNCTION: 0x4cef90
 int Sound::InitDirectSound(int rate, int bits, int channels, HWND handle)
 {
-    WAVEFORMATEX wfx;
-    DSBUFFERDESC desc;
-    HRESULT hr;
-
+    int err;
+    directSound = host_sound_open(handle, rate, bits, channels, &err);
     if (directSound == 0) {
-        hr = DirectSoundCreate(0, &directSound, 0);
-        if (hr != 0)
-            goto error;
-        hr = directSound->SetCooperativeLevel(handle, 2);
-        if (hr != 0)
-            goto error;
-        desc.dwSize = sizeof(desc);
-        desc.dwFlags = 1;
-        desc.dwBufferBytes = 0;
-        desc.dwReserved = 0;
-        desc.lpwfxFormat = 0;
-        hr = directSound->CreateSoundBuffer(&desc, &primary, 0);
-        if (hr != 0)
-            goto error;
+        if (err == HOST_SOUND_NO_DRIVER)
+            noDriver = 1;
+        ReleaseDirectSound();
+        return 0;
     }
-    wfx.wFormatTag = 1;
-    wfx.nChannels = (WORD)channels;
-    wfx.nSamplesPerSec = rate;
-    wfx.nBlockAlign = (WORD)(bits / 8 * channels);
-    wfx.nAvgBytesPerSec = rate * wfx.nBlockAlign;
-    wfx.wBitsPerSample = (WORD)bits;
-    wfx.cbSize = 0x12;
-    hr = primary->SetFormat(&wfx);
-    if (hr != 0)
-        goto error;
     sampleChannels = channels;
     sampleRate = rate;
     sampleBits = bits;
     return 1;
-error:
-    if (hr == (HRESULT)0x88780078)
-        noDriver = 1;
-    ReleaseDirectSound();
-    return 0;
 }
 
 // Releases every sound buffer (and buffer set) that has stopped playing.
 // FUNCTION: 0x4cf0b0
 void Sound::ReapFinishedBuffers()
 {
-    DWORD status;
     int i;
     for (i = 0; i < 8; i++) {
         if (sets[i] != 0) {
-            if (sets[i][0]->GetStatus(&status) != 0 || status == 0) {
+            if (host_sound_buffer_status(sets[i][0]) <= 0) {
                 ReleaseSampleSet(sets[i]);
                 sets[i] = 0;
             }
@@ -290,7 +235,7 @@ void Sound::ReapFinishedBuffers()
     }
     for (i = 0; i < 0x20; i++) {
         if (buffers[i] != 0) {
-            if (buffers[i]->GetStatus(&status) != 0 || status == 0) {
+            if (host_sound_buffer_status(buffers[i]) <= 0) {
                 buffers[i] = 0;
                 count--;
             }
@@ -303,11 +248,11 @@ void Sound::ReapFinishedBuffers()
 // FUNCTION: 0x4cf150
 void Sound::StopAllBuffers()
 {
-    IDirectSoundBuffer** slot = buffers;
+    void** slot = buffers;
     for (int i = 0x20; i != 0; i--) {
-        IDirectSoundBuffer* obj = *slot;
+        void* obj = *slot;
         if (obj != 0) {
-            obj->Stop();
+            host_sound_buffer_stop(obj);
             *slot = 0;
             count--;
         }
@@ -330,7 +275,7 @@ void Sound::StopOldestBuffer()
         if (buffers[j] != 0 && (flags[j] & 1) == 0 && priority[j] < priority[i])
             i = j;
     }
-    buffers[i]->Stop();
+    host_sound_buffer_stop(buffers[i]);
     buffers[i] = 0;
     count--;
 }
@@ -352,42 +297,27 @@ int Sound::GetMaxBuffers()
 // (only slot 0 is used) allocated with the tagged allocator. Releases the
 // buffer and returns 0 on any failure.
 // FUNCTION: 0x4cf230
-IDirectSoundBuffer** Sound::CreateSampleFromMemory(void* src, DWORD bytes,
+void** Sound::CreateSampleFromMemory(void* src, unsigned long bytes,
                                                   int sampleRate, int bits, int channels)
 {
-    WAVEFORMATEX wfx;
-    DSBUFFERDESC desc;
-    IDirectSoundBuffer* buf = 0;
+    void* buf = 0;
 
-    desc.dwReserved = 0;
-    desc.lpwfxFormat = &wfx;
-    desc.dwSize = 0x14;
-    desc.dwFlags = 0x92;
-    desc.dwBufferBytes = bytes;
-    wfx.wFormatTag = 1;
-    wfx.nChannels = (WORD)channels;
-    wfx.nSamplesPerSec = sampleRate;
-    wfx.nBlockAlign = (WORD)(bits / 8 * channels);
-    wfx.nAvgBytesPerSec = sampleRate * wfx.nBlockAlign;
-    wfx.wBitsPerSample = (WORD)bits;
-    wfx.cbSize = 0x12;
-
-    if (directSound->CreateSoundBuffer(&desc, &buf, 0) != 0)
+    buf = host_sound_buffer_create(bytes, sampleRate, bits, channels, HOST_SOUND_3D);
+    if (buf == 0)
         goto error;
 
     {
-        // The Lock outputs must be their own locals, not &channels/&bytes.
         void* ptr;
-        DWORD size;
-        if (buf->Lock(0, bytes, &ptr, &size, 0, 0, 0) != 0)
+        unsigned int size;
+        if (host_sound_buffer_lock(buf, 0, bytes, &ptr, &size) == 0)
             goto error;
         memcpy(ptr, src, size);
-        if (buf->Unlock(ptr, size, 0, 0) != 0)
+        if (host_sound_buffer_unlock(buf, ptr, size) == 0)
             goto error;
     }
 
     {
-        IDirectSoundBuffer** set = (IDirectSoundBuffer**)GameAllocIgnoreTag("Digital Audio Sample", 0x10);
+        void** set = (void**)GameAllocIgnoreTag("Digital Audio Sample", 0x10);
         for (int i = 0; i < 4; i++)
             set[i] = 0;
         set[0] = buf;
@@ -396,7 +326,7 @@ IDirectSoundBuffer** Sound::CreateSampleFromMemory(void* src, DWORD bytes,
 
 error:
     if (buf != 0)
-        buf->Release();
+        host_sound_buffer_free(buf);
     return 0;
 }
 
@@ -406,49 +336,32 @@ error:
 // is then wrapped in a 4-slot set (only slot 0 is used) allocated with the
 // tagged allocator. Releases the buffer and returns 0 on any failure.
 // FUNCTION: 0x4cf370
-IDirectSoundBuffer** Sound::CreateSampleFromFile(FileHandle* file, DWORD bytes,
+void** Sound::CreateSampleFromFile(FileHandle* file, unsigned long bytes,
                                                   int sampleRate, int bits, int channels)
 {
-    WAVEFORMATEX wfx;
-    DSBUFFERDESC desc;
-    IDirectSoundBuffer* buf = 0;
-
-    desc.dwReserved = 0;
-    desc.lpwfxFormat = &wfx;
-    desc.dwSize = 0x14;
-    desc.dwFlags = 0x92;
-    desc.dwBufferBytes = bytes;
-    wfx.wFormatTag = 1;
-    wfx.nChannels = (WORD)channels;
-    wfx.nSamplesPerSec = sampleRate;
-    wfx.nBlockAlign = (WORD)(bits / 8 * channels);
-    wfx.nAvgBytesPerSec = sampleRate * wfx.nBlockAlign;
-    wfx.wBitsPerSample = (WORD)bits;
-    wfx.cbSize = 0x12;
+    void* buf = 0;
 
     unsigned int oldcw = _controlfp(0, 0);
     _controlfp(0x18, 0x18);
-    HRESULT hr = directSound->CreateSoundBuffer(&desc, &buf, 0);
+    buf = host_sound_buffer_create(bytes, sampleRate, bits, channels, HOST_SOUND_3D);
     _controlfp(oldcw, 0x18);
-    if (hr != 0)
+    if (buf == 0)
         goto error;
 
     {
         void* ptr;
-        DWORD size;
-        hr = buf->Lock(0, bytes, &ptr, &size, 0, 0, 0);
-        if (hr != 0)
+        unsigned int size;
+        if (host_sound_buffer_lock(buf, 0, bytes, &ptr, &size) == 0)
             goto error;
         unsigned copied = (unsigned)HAPI_readfromfile(file, ptr, size);
-        hr = buf->Unlock(ptr, size, 0, 0);
-        if (hr != 0)
+        if (host_sound_buffer_unlock(buf, ptr, size) == 0)
             goto error;
         if (copied < size)
             goto error;
     }
 
     {
-        IDirectSoundBuffer** set = (IDirectSoundBuffer**)GameAllocIgnoreTag("Digital Audio Sample", 0x10);
+        void** set = (void**)GameAllocIgnoreTag("Digital Audio Sample", 0x10);
         for (int i = 0; i < 4; i++)
             set[i] = 0;
         set[0] = buf;
@@ -457,19 +370,19 @@ IDirectSoundBuffer** Sound::CreateSampleFromFile(FileHandle* file, DWORD bytes,
 
 error:
     if (buf != 0)
-        buf->Release();
+        host_sound_buffer_free(buf);
     return 0;
 }
 
 // FUNCTION: 0x4cf4d0
-void Sound::ReleaseSampleSet(IDirectSoundBuffer** set)
+void Sound::ReleaseSampleSet(void** set)
 {
     if (set == 0)
         return;
     for (int i = 0; i < 4; i++) {
         if (set[i] != 0) {
-            set[i]->Stop();
-            set[i]->Release();
+            host_sound_buffer_stop(set[i]);
+            host_sound_buffer_free(set[i]);
             for (int j = 0; j < 0x20; j++) {
                 if (buffers[j] == set[i]) {
                     buffers[j] = 0;
@@ -486,7 +399,7 @@ void Sound::ReleaseSampleSet(IDirectSoundBuffer** set)
 // Calls PlaySampleSet on the same object with the global flag at 0x51ff48 set
 // for the duration of the call.
 // FUNCTION: 0x4cf540
-void Sound::PlayLooping(IDirectSoundBuffer** set, LONG volume)
+void Sound::PlayLooping(void** set, LONG volume)
 {
     g_playBufferLooping = 1;
     PlaySampleSet(set, volume, 0);
@@ -498,13 +411,10 @@ void Sound::PlayLooping(IDirectSoundBuffer** set, LONG volume)
 // set[0], or else the buffer furthest through its playback is restarted. The
 // buffer is then given its 3D settings, volume and play flags and filed in the
 // channel table (count +0x30, sequence +0x34, buffers +0x38, priorities +0xb8,
-// looping flags +0x138, IDirectSound +0x24). IDirectSound3DBuffer is declared
-// by hand because the toolchain's <dsound.h> is DirectX 3; IID_IDirectSound3DBuffer is its
-// IID.
 // FUNCTION: 0x4cf570
-int Sound::PlaySampleSet(IDirectSoundBuffer** set, LONG volume, Pos_004cf570* pos)
+int Sound::PlaySampleSet(void** set, LONG volume, Pos_004cf570* pos)
 {
-    IDirectSoundBuffer* unit = 0;
+    void* unit = 0;
     int slot = 0;
     if (g_playBufferLooping != 0) {
         for (int i = 0; i < 0x20; i++) {
@@ -515,21 +425,21 @@ int Sound::PlaySampleSet(IDirectSoundBuffer** set, LONG volume, Pos_004cf570* po
     while (count >= maxBuffers)
         StopOldestBuffer();
     // best = 0 stays before the null test; bestidx must be the last variable set to 0.
-    DWORD best = 0;
+    unsigned int best = 0;
     if (set == 0)
         return 0;
     int bestidx = 0;
     for (int i = 0; i < 4; i++) {
         if (set[i] != 0) {
-            DWORD status;
-            if (set[i]->GetStatus(&status) != 0)
+            int status = host_sound_buffer_status(set[i]);
+            if (status < 0)
                 return 0;
             if (status == 0) {
                 unit = set[i];
                 break;
             }
-            DWORD play, write;
-            set[i]->GetCurrentPosition(&play, &write);
+            unsigned int play, write;
+            host_sound_buffer_position(set[i], &play, &write);
             if (play > best) {
                 best = play;
                 bestidx = i;
@@ -540,31 +450,26 @@ int Sound::PlaySampleSet(IDirectSoundBuffer** set, LONG volume, Pos_004cf570* po
     }
     if (unit == 0) {
         if (slot > 0) {
-            if (directSound->DuplicateSoundBuffer(set[0], &unit) != 0)
+            unit = host_sound_buffer_duplicate(set[0]);
+            if (unit == 0)
                 return 0;
             set[slot] = unit;
         } else {
             unit = set[bestidx];
-            unit->SetCurrentPosition(0);
+            host_sound_buffer_set_position(unit, 0);
         }
     }
-    IDirectSound3DBuffer* chan;
-    if (unit->QueryInterface(IID_IDirectSound3DBuffer, (void**)&chan) == 0) {
-        if (use3D == 0 || pos == 0) {
-            chan->SetMode(2, 0);
-        } else {
-            chan->SetPosition((float)pos->x, (float)pos->y, (float)pos->z, 0);
-            chan->SetMinDistance(minDistance, 0);
-            chan->SetMaxDistance(maxDistance, 0);
-            chan->SetMode(0, 0);
-        }
-        chan->Release();
+    if (use3D == 0 || pos == 0) {
+        host_sound_buffer_place(unit, 0, 0, 0);
+    } else {
+        float xyz[3] = {(float)pos->x, (float)pos->y, (float)pos->z};
+        host_sound_buffer_place(unit, xyz, minDistance, maxDistance);
     }
-    if (unit->SetCurrentPosition(0) != 0)
+    if (host_sound_buffer_set_position(unit, 0) == 0)
         return 0;
-    if (unit->SetVolume(volume) != 0)
+    if (host_sound_buffer_set_volume(unit, volume) == 0)
         return 0;
-    if (unit->Play(0, 0, g_playBufferLooping != 0) != 0)
+    if (host_sound_buffer_play(unit, g_playBufferLooping != 0) == 0)
         return 0;
     for (int j = 0; j < 0x20; j++) {
         if (buffers[j] == 0) {
@@ -582,7 +487,7 @@ int Sound::PlaySampleSet(IDirectSoundBuffer** set, LONG volume, Pos_004cf570* po
 // buffer set in the first free slot and starts it; frees the set again if
 // starting fails. Returns 1 on success.
 // FUNCTION: 0x4cf800
-int Sound::PlayMemorySample(void* src, DWORD bytes, int sampleRate, int bits, int channels, LONG volume, Pos_004cf570* pos)
+int Sound::PlayMemorySample(void* src, unsigned long bytes, int sampleRate, int bits, int channels, LONG volume, Pos_004cf570* pos)
 {
     ReapFinishedBuffers();
     for (int i = 0; i < 8; i++) {
@@ -605,7 +510,7 @@ int Sound::PlayMemorySample(void* src, DWORD bytes, int sampleRate, int bits, in
 // buffer set in the first free slot and starts it; frees the set again if
 // starting fails. Returns 1 on success.
 // FUNCTION: 0x4cf8a0
-int Sound::PlayFileSample(FileHandle* file, DWORD bytes, int sampleRate, int bits, int channels, LONG volume, Pos_004cf570* pos)
+int Sound::PlayFileSample(FileHandle* file, unsigned long bytes, int sampleRate, int bits, int channels, LONG volume, Pos_004cf570* pos)
 {
     ReapFinishedBuffers();
     for (int i = 0; i < 8; i++) {
@@ -632,8 +537,6 @@ int Sound::PlayFileSample(FileHandle* file, DWORD bytes, int sampleRate, int bit
 void Sound::StartStream(FileHandle* file, int sampleRate, int bits,
                                   int channels, LONG volume)
 {
-    WAVEFORMATEX wfx;
-    DSBUFFERDESC desc;
     // Signed: unsigned would change the shift.
     int n;
 
@@ -642,8 +545,8 @@ void Sound::StartStream(FileHandle* file, int sampleRate, int bits,
         streamTimer = -1;
     }
     if (stream != 0) {
-        stream->Stop();
-        stream->Release();
+        host_sound_buffer_stop(stream);
+        host_sound_buffer_free(stream);
         stream = 0;
         HAPI_CloseFile(streamFile);
     }
@@ -652,53 +555,38 @@ void Sound::StartStream(FileHandle* file, int sampleRate, int bits,
         streamTimer = -1;
     }
 
-    desc.dwSize = 0x14;
-    desc.dwFlags = 0x82;
     n = channels * sampleRate * (bits / 8) * 2;
     streamSize = n / 2;
-    desc.dwReserved = 0;
-    // dwBufferBytes stays early in this group of stores, or the scheduler sinks it.
-    desc.dwBufferBytes = n;
-    desc.lpwfxFormat = &wfx;
-    wfx.wFormatTag = 1;
-    wfx.nChannels = (WORD)channels;
-    wfx.nSamplesPerSec = sampleRate;
-    wfx.nBlockAlign = (WORD)(bits / 8 * channels);
-    wfx.nAvgBytesPerSec = wfx.nBlockAlign * sampleRate;
-    wfx.wBitsPerSample = (WORD)bits;
-    wfx.cbSize = 0x12;
-
-    if (directSound->CreateSoundBuffer(&desc, &stream, 0) != 0) {
-        stream = 0;
+    stream = host_sound_buffer_create(n, sampleRate, bits, channels, 0);
+    if (stream == 0)
         return;
-    }
 
     streamBits = bits;
     streamPos = 0;
     streamOffset = -1;
     streamFile = file;
     FillStreamHalf();
-    if (stream->SetVolume(volume) != 0) {
+    if (host_sound_buffer_set_volume(stream, volume) == 0) {
         if (streamTimer != -1) {
             RemoveTimer(streamTimer);
             streamTimer = -1;
         }
         if (stream != 0) {
-            stream->Stop();
-            stream->Release();
+            host_sound_buffer_stop(stream);
+            host_sound_buffer_free(stream);
             stream = 0;
             HAPI_CloseFile(streamFile);
         }
         return;
     }
-    if (stream->Play(0, 0, 1) != 0) {
+    if (host_sound_buffer_play(stream, 1) == 0) {
         if (streamTimer != -1) {
             RemoveTimer(streamTimer);
             streamTimer = -1;
         }
         if (stream != 0) {
-            stream->Stop();
-            stream->Release();
+            host_sound_buffer_stop(stream);
+            host_sound_buffer_free(stream);
             stream = 0;
             HAPI_CloseFile(streamFile);
         }
@@ -715,8 +603,8 @@ void Sound::StopStream()
         streamTimer = -1;
     }
     if (stream != 0) {
-        stream->Stop();
-        stream->Release();
+        host_sound_buffer_stop(stream);
+        host_sound_buffer_free(stream);
         stream = 0;
         HAPI_CloseFile(streamFile);
     }
@@ -738,9 +626,9 @@ int Sound::IsStreamActive(void)
 // FUNCTION: 0x4cfbc0
 void Sound::UpdateStream()
 {
-    unsigned long play;
-    unsigned long write;
-    stream->GetCurrentPosition(&play, &write);
+    unsigned int play;
+    unsigned int write;
+    host_sound_buffer_position(stream, &play, &write);
     if (streamOffset >= 0) {
         if (streamPos == 0 && streamOffset < streamSize && play >= streamSize) {
             if (streamTimer != -1) {
@@ -748,8 +636,8 @@ void Sound::UpdateStream()
                 streamTimer = -1;
             }
             if (stream != 0) {
-                stream->Stop();
-                stream->Release();
+                host_sound_buffer_stop(stream);
+                host_sound_buffer_free(stream);
                 stream = 0;
                 HAPI_CloseFile(streamFile);
             }
@@ -761,8 +649,8 @@ void Sound::UpdateStream()
                 streamTimer = -1;
             }
             if (stream != 0) {
-                stream->Stop();
-                stream->Release();
+                host_sound_buffer_stop(stream);
+                host_sound_buffer_free(stream);
                 stream = 0;
                 HAPI_CloseFile(streamFile);
             }
@@ -793,16 +681,16 @@ void Sound::UpdateStream()
 // FUNCTION: 0x4cfca0
 void Sound::FillStreamHalf()
 {
-    unsigned long flags;
+    unsigned int flags;
     char* buffer;
-    if (stream->Lock(streamPos, streamSize, &buffer, &flags, 0, 0, 0) != 0) {
+    if (host_sound_buffer_lock(stream, streamPos, streamSize, (void**)&buffer, &flags) == 0) {
         if (streamTimer != -1) {
             RemoveTimer(streamTimer);
             streamTimer = -1;
         }
         if (stream != 0) {
-            stream->Stop();
-            stream->Release();
+            host_sound_buffer_stop(stream);
+            host_sound_buffer_free(stream);
             stream = 0;
             HAPI_CloseFile(streamFile);
         }
@@ -837,7 +725,7 @@ void Sound::FillStreamHalf()
             }
         }
     }
-    stream->Unlock(buffer, streamSize, 0, 0);
+    host_sound_buffer_unlock(stream, buffer, streamSize);
     if (streamPos == 0) {
         streamPos = streamSize;
     } else {
@@ -922,9 +810,9 @@ int Sound::HasNoDriver()
 // sound.h cannot include <mmsystem.h>.
 static inline int GetWaveOutVolume(Sound* sound)
 {
-    DWORD volume;
+    unsigned int volume;
     for (int i = 0; i < sound->waveDevices; i++) {
-        if (waveOutGetVolume((HWAVEOUT)i, &volume) == 0)
+        if (host_mixer_get(HOST_MIXER_WAVE, i, &volume))
             return volume & 0xffff;
     }
     return -1;
@@ -932,8 +820,8 @@ static inline int GetWaveOutVolume(Sound* sound)
 
 static inline int GetAuxOutVolume(Sound* sound)
 {
-    DWORD volume;
-    if (sound->auxDevice >= 0 && auxGetVolume(sound->auxDevice, &volume) == 0)
+    unsigned int volume;
+    if (sound->auxDevice >= 0 && host_mixer_get(HOST_MIXER_CD, sound->auxDevice, &volume))
         return volume & 0xffff;
     return -1;
 }
@@ -945,20 +833,8 @@ static inline int GetAuxOutVolume(Sound* sound)
 // FUNCTION: 0x4cff30
 void Sound::InitMixerVolumes()
 {
-    AUXCAPSA caps;
-
-    waveDevices = waveOutGetNumDevs();
-    auxDevice = -1;
-
-    int aux_count = auxGetNumDevs();
-    for (int i = 0; i < aux_count; i++) {
-        // Result held in a named local: sets the callee-saved register order.
-        int result = auxGetDevCapsA(i, &caps, sizeof(caps));
-        if (result == 0 && caps.wTechnology == AUXCAPS_CDAUDIO) {
-            auxDevice = i;
-            break;
-        }
-    }
+    waveDevices = host_mixer_wave_count();
+    auxDevice = host_mixer_cd_device();
 
     waveVolume = GetWaveOutVolume(this);
     auxVolume = GetAuxOutVolume(this);
@@ -971,9 +847,9 @@ void Sound::InitMixerVolumes()
 // FUNCTION: 0x4cfff0
 int Sound::QueryWaveVolume()
 {
-    DWORD volume;
+    unsigned int volume;
     for (int i = 0; i < waveDevices; i++) {
-        if (waveOutGetVolume((HWAVEOUT)i, &volume) == 0)
+        if (host_mixer_get(HOST_MIXER_WAVE, i, &volume))
             return volume & 0xffff;
     }
     return -1;
@@ -986,8 +862,8 @@ int Sound::QueryWaveVolume()
 // FUNCTION: 0x4d0040
 int Sound::QueryAuxVolume()
 {
-    DWORD volume;
-    if (auxDevice >= 0 && auxGetVolume(auxDevice, &volume) == 0) {
+    unsigned int volume;
+    if (auxDevice >= 0 && host_mixer_get(HOST_MIXER_CD, auxDevice, &volume)) {
         return volume & 0xffff;
     }
     return -1;
@@ -1002,7 +878,7 @@ int Sound::SetWaveVolume(int volume)
     int v = ClampVolume(volume);
     int failed = 0;
     for (int i = 0; i < waveDevices; i++) {
-        if (waveOutSetVolume((HWAVEOUT)i, (v << 16) | v) != 0) {
+        if (!host_mixer_set(HOST_MIXER_WAVE, i, (v << 16) | v)) {
             failed = 1;
         }
     }
@@ -1021,7 +897,7 @@ int Sound::SetAuxVolume(int volume, int temporary)
     if (temporary == 0) {
         cdVolume = v;
     }
-    return auxSetVolume(auxDevice, (v << 16) | v) == 0;
+    return host_mixer_set(HOST_MIXER_CD, auxDevice, (v << 16) | v);
 }
 
 // FUNCTION: 0x4d0130
@@ -1030,13 +906,13 @@ void Sound::RestoreMixerVolumes()
     if (waveVolume >= 0) {
         int v = ClampVolume(waveVolume);
         for (int i = 0; i < waveDevices; i++) {
-            waveOutSetVolume((HWAVEOUT)i, (v << 16) | v);
+            host_mixer_set(HOST_MIXER_WAVE, i, (v << 16) | v);
         }
     }
     if (auxVolume >= 0 && step == 0) {
         int v = ClampVolume(auxVolume);
         cdVolume = v;
-        auxSetVolume(auxDevice, (v << 16) | v);
+        host_mixer_set(HOST_MIXER_CD, auxDevice, (v << 16) | v);
     }
 }
 

@@ -275,3 +275,8 @@ void* HostWindowHandle()
 {
     return g_hwnd;
 }
+
+HWND host_win32_window(void)
+{
+    return g_hwnd;
+}

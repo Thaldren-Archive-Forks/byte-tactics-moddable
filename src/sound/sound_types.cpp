@@ -26,7 +26,6 @@ struct Entry_0042f740 {
     Slot_0042f740 slots[0x18];         // +0x40
 };
 
-struct IDirectSoundBuffer;
 
 #pragma pack(push, 1)
 #include "../game/game.h"
@@ -45,7 +44,7 @@ int __stdcall ReadSoundEntry(Source_0042f450* source, char* key, int* out);
 void __stdcall LoadSoundByName(char* name, char* value);
 void LoadSoundCategories();
 void FreeSoundCategories();
-void __stdcall FreeSoundSet(IDirectSoundBuffer** set);
+void __stdcall FreeSoundSet(void** set);
 
 // FUNCTION: 0x42f450
 int __stdcall ReadSoundEntry(Source_0042f450* source, char* key, int* out)
@@ -168,7 +167,7 @@ void FreeSounds()
 {
     FreeSoundCategories();
     for (int i = 0; i < g_game->soundCount; i++)
-        FreeSoundSet((*(IDirectSoundBuffer ** (*)[1])&g_game->soundIds)[i]);
+        FreeSoundSet((*(void ** (*)[1])&g_game->soundIds)[i]);
     g_game->soundCount = 0;
 }
 
