@@ -1265,7 +1265,8 @@ g_lobbyMapping,0x512d88,global,view,view,"view: only presentation reads it, noth
 g_lobbyWatching,0x512d8c,global,view,view,"view: only presentation reads it, nothing writes it",,,r,,,1:OpenBattleRoom,"Frontend or screen UI state, only presentation code touches it."
 g_cmdlineTcpJoinAddress,0x512d90,global,view,view,"view: presentation writes it, no phase reads it",,,rw,,4:HandleSelectGameClick|HandleTcpDialogClick|OpenTcpDialog?,4:HandleSelectGameClick|HandleTcpDialogClick|OpenSelectGameDialog,"Frontend or screen UI state, only presentation code touches it."
 g_onlineDllPath,0x512dd0,global,platform,platform,platform: name matches dll,,,rw,,1:LoadOnline,1:LoadOnline,System handle or loader state for debug/profiling or graphics locking.
-DAT_00512ed4,0x512ed4,global,,platform,none: no access found,,,,,,,"Padding or unused gap after g_onlineDllPath, no access found."
+DAT_00512ed4,0x512ed4,global,,platform,none: no access found,,,,,,,"Last byte of g_onlineDllPath, no access found by its own name."
+DAT_00512ed5,0x512ed5,global,,platform,none: no access found,,,,,,,"Padding or unused gap after g_onlineDllPath, no access found."
 g_onlineConfigLoaded,0x512ee8,global,view,view,"view: only presentation reads it, nothing writes it",,,r,,1:Onl_LoadConfigFile,2:IsOnlineConfigLoaded|Onl_LoadConfigFile,"Flag for the online config, read by IsOnlineConfigLoaded in the UI."
 g_onlineDll,0x512eec,global,platform,platform,platform: name matches dll,,,rw,,2:LoadOnline|OnlineUnload,6:CheckVersion|GetLinkInfo|LoadOnline,System handle or loader state for debug/profiling or graphics locking.
 g_helpDialogBaseGadgetCount,0x512ef0,global,view,view,"view: presentation writes it, no phase reads it",,,rw,,2:HandleInGameOptionsClick|OpenHelpDialog,1:FillHelpPage,"Dialog or UI state wrongly caught by the platform name pattern (dialog/direct_x match), no device is involved."

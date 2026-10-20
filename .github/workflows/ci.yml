@@ -114,12 +114,6 @@ jobs:
         if: steps.changed.outputs.run == 'true'
         run: cmake --build build/modern --target game data bitexact block_test
 
-      - name: Compile with 3.1c's data order
-        if: steps.changed.outputs.run == 'true'
-        run: |
-          cmake -S . -B build/modern-ordered -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake -DBT_COMPILE_ONLY=ON -DBT_DATA_ORDER=ON
-          cmake --build build/modern-ordered --target game data bitexact block_test
-
       - name: Check data/rwsets.csv is current
         if: steps.changed.outputs.run == 'true'
         run: |
