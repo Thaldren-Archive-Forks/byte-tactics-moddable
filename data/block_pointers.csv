@@ -1,1 +1,466 @@
 holder,offsets,target,scenarios,ticks,target_offsets,class,note
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AddStateEntries: Point List,15,187449,0x0-0x308,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AllocAlphaTable: ALPHA TABLE,27,277800,0x4988-0x4bd0,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AllocDepthFrame: CompositeBuffer,3,38700,0xee0-0x20ee0,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AllocFrame: ExplosionFrame,2,8474,0x1c8-0x85b8,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AllocSurface: OFFSCREEN,27,277800,0x6630-0x46881,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AllocSurface: RADAR PICTURE,1,3600,0x1888,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AllocateUnitMemory: HOT RADAR UNITS,3,44898,0x98-0x5998,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,AllocateUnitMemory: HOT UNITS,2,57600,0x430-0x1330,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,CMemoryCache::InitCache: CMemoryCache CCH,5,36469,0xee0-0x3a3fe8,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,Close_004bcf80: HAPIFILE header,27,277800,0x170-0x65bc,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,CobScript::SetCob,6,104781,0x107-0x123,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,CobScript::SetCob #2,1,10739,0x17,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,0x4+0x30*k 0x574+0x30*k 0x904 0x964 0x9f4+0x300*k 0xb14 0xfc4 0x1024 0x1204,CreateObjectState: Object State,3,61631,0x0,moves-in,"FeatureAnim.state (0x4, stride 0x30): the feature object state"
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,GetCategoryMask,3,22200,0x23-0x33,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,HAPI_LoadFile,27,277800,0x20-0x127d68,outside,"FeatureAnim.src (0xc, stride 0x30): animation frames from the loaded GAF"
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,InitPacketTables: PACKET DATA,27,277800,0x1b98-0x1ded,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadFeatureType,1,3600,0xb7c8,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadGuiLayer,1,2700,0xd880,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadSoundCategories,16,172500,0x0-0x9,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadSoundCategories #2,11,105300,0x0-0xa,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadSoundCategories #3,16,172500,0x9-0xa,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadSoundCategories #4,11,105300,0x8,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadTntMap: TILE MAP,1,361,0x7952,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,LoadTntMap: TILE SET,9,61302,0xffdf-0x580fe0,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,NanoParticles::Emit,26,80154,0x1-0x190,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,SmokeParticles::Emit,4,503,0x0-0x4f,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,ThrustParticles::Emit,4,148,0x0-0xed,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,_Tree::_Insert,3,42000,0x3-0x13,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,vector::insert #2,1,2986,0x80-0x17f,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,vector::insert #6,2,10800,0x3,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,vector::insert #7,5,21000,0x3-0x13,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
+??0Pathfinder@@QAE@XZ,*,*,27,252417,0x0-0x5808e0,not-a-pointer,"Pathfinder search arrays: costs, cell indices and stamps"
+??0Pathfinder@@QAE@XZ: AISearch touched mapentries,*,*,16,5167,0x0-0x83ffe0,not-a-pointer,Pathfinder touched map entries: cell indices
+??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x38+0x20*k 0x118 0x11c,AddStateEntries: Point List,13,138527,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocDepthFrame: CompositeBuffer,2,5282,0x49fe0-0xaefe0,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocFrame: ExplosionFrame,1,900,0x316b-0x41a3,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface,1,300,0x1ec3,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,CMemoryCache::InitCache: CMemoryCache CCH,5,51547,0xfe0-0x3cc3e2,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,0x1c 0x38 0x3c 0x98 0x9c 0xbc,CobScript::SetCob,9,74499,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,0x18 0x1c+0x20*k 0x38 0x78 0x98 0x11c,CobScript::SetCob #2,12,56815,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,*,CreateObjectState: Object State,1,24137,0x0,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,HAPI_LoadFile,8,65620,0x0-0xc4fe2,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadSoundCategories: Sound Categories,2,12002,0x32f8-0x52f8,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap: TILE SET,4,49085,0x51fe0-0x582fe2,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x38+0x20*k 0x118 0x11c,NanoParticles::Emit,24,115313,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,*,PlayerAI::BuildFeatureCells,1,572,0x0,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x38 0x58+0x60*k 0x98 0x11c,SmokeParticles::Emit,5,4653,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,*,Sound::CreateSampleFromFile: Digital Audio Sample,1,96,0x0,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,0x38 0x3c 0x5c 0x9c,SpeechQueue::EnqueueSpeech: Speech Text,5,13,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x58+0x60*k 0x98 0x11c,ThrustParticles::Emit,4,559,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,0x14+0x20*k 0x18+0x20*k 0x3c+0x20*k 0xf8 0x118,vector::insert,27,277800,0x0-0xb0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,0x38 0x3c,vector::insert #7,3,3574,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0SquadManager@@QAE@PAUPlayer@@@Z,*,*,21,9930,0xb-0x9c0308,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #2,*,*,21,9510,0xb-0x8402d3,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #3,*,*,1,6000,0x31a-0x2802e4,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #4,*,*,21,13801,0x31a-0x610257,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #5,*,*,21,10650,0x17b-0x7e0308,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #6,*,*,21,13801,0x31a-0x610257,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #7,*,*,21,10650,0x17c-0x7e0308,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #8,*,*,22,22516,0x1b2-0x9902d3,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0SquadManager@@QAE@PAUPlayer@@@Z #9,*,*,22,41291,0xa-0x8d02cb,not-a-pointer,SquadManager timer state: tick counters and cell words
+??0UnitMotion@@QAE@PAUUnit@@@Z,*,*,26,154572,0x0-0xa42430,not-a-pointer,"UnitMotion (0x30): velocity, speed and turn words that only look like addresses"
+??0UnitMotion@@QAE@PAUUnit@@@Z #2,*,*,4,29015,0x0-0x3ce25d,not-a-pointer,"UnitMotion (0x30): velocity, speed and turn words that only look like addresses"
+AddBeCarriedOrder,*,*,3,16516,0x178-0x2fffe0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AddOrder,*,*,27,179961,0x0-0xa5ffe0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirStrikeOrder,*,*,1,85,0x43-0x2bd7e0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirStrikeOrder #2,*,*,1,182,0xb9-0xc71,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirStrikeOrder #3,*,*,1,39,0x17f-0x33ffee,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirStrikeOrder #4,*,*,1,189,0x2c-0x489,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToAirOrder,*,*,1,164,0x40-0x3bccf7,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToAirOrder #2,*,*,1,256,0x1d-0x3ce25d,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToGroundHoverOrder,*,*,1,3,0x730,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToGroundHoverOrder #2,*,*,1,3,0x502a1-0x23a7af,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToGroundHoverOrder #3,*,*,1,400,0x17920-0x2a0340,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToGroundOrder,*,*,1,360,0x820-0x1d2ae0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToGroundOrder #2,*,*,1,165,0x12-0x2e0695,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToGroundOrder #3,*,*,1,275,0x7b-0x169849,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AirToGroundOrder #4,*,*,1,361,0x281-0x245460,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+AllocWeaponArray: WEAPON ARRAY,*,*,5,36903,0x0-0x3cea12,not-a-pointer,"Weapon slot array: timers, ids and counters"
+AllocZeroedWithTickOffset,*,??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBDABV?$allocator@D@1@@Z,5,6,0x0-0xf0,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,??0Player@@QAE@XZ,27,277800,0x0-0xa4,moves-in,"Player.info (0x27 in Player, 0x1b8a + 0x14b*k in Game): per-player info"
+AllocZeroedWithTickOffset,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,3,12307,0xd-0x7b0,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AddAnimplayPointer,27,277800,0x0-0x7df,outside,Game 0x148eb: anim play pointer table
+AllocZeroedWithTickOffset,*,AddStateEntries: Point List,12,109658,0x0-0x1698,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocAlphaTable: ALPHA TABLE,27,19228,0x87-0xff88,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocDepthFrame: CompositeBuffer,22,39398,0xe-0xafaf3,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocDepthFrame: LensFrame,27,277800,0x0-0x6f0,outside,"Game.explosionLensFrame (0x1ab9b): lens frame, presentation"
+AllocZeroedWithTickOffset,*,AllocFrame: ExplosionFrame,22,32257,0x40-0x9a70,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocFrame: TED GENERATED PIC,27,277800,0x0-0xf0ac,outside,"Game.radarFrame (0x1426b): minimap frame, presentation"
+AllocZeroedWithTickOffset,*,AllocGrayTable: GRAY TABLE,1,1,0x40,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocLightTable: LIGHT TABLE,8,934,0x80-0x1f80,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocShadeTable: SHADE TABLE,7,1111,0x90-0x1f90,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocSurface,16,584,0x2f-0xafb2,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocSurface: OFFSCREEN,27,277800,0x0-0x4af30,outside,"Game.screen (0x37e1b): offscreen surface, presentation"
+AllocZeroedWithTickOffset,*,AllocSurface: RADAR FINAL,27,277800,0x0-0x3c60,outside,"Game.finalSurface (0x142db): minimap surface, presentation"
+AllocZeroedWithTickOffset,*,AllocSurface: RADAR MAPPED,27,277800,0x0-0x3a60,outside,"Game.mappedSurface (0x142df): minimap surface, presentation"
+AllocZeroedWithTickOffset,*,AllocSurface: RADAR PICTURE,27,277800,0x0-0x3cc4,outside,"Game.pictureSurface (0x142e3): minimap surface, presentation"
+AllocZeroedWithTickOffset,*,AllocSurface: SAVEMOUSE 1,5,320,0x1f0-0x5cd,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocSurface: SAVEMOUSE 2,2,2,0xdd-0x517,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocSurface: SAVEMOUSE 3,27,277800,0x128-0x657,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,AllocateUnitMemory: HOT RADAR UNITS,27,277800,0x0-0x5fc9,moves-in,Game.hotRadar (0x14363): hot radar unit list
+AllocZeroedWithTickOffset,*,AllocateUnitMemory: HOT UNITS,27,277800,0x0-0x1330,moves-in,Game.list_1435f (0x1435f): hot unit list
+AllocZeroedWithTickOffset,*,CMemoryCache::InitCache: CMemoryCache CCH,27,275130,0x48-0x3cefe8,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,ClearCommandTable,1,1,0x22c,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,Close_004bcf80: HAPIFILE header,27,277800,0x0-0xe978,outside,Game 0x37fd5 and 0x38207: pointers into the loaded HAPI file header
+AllocZeroedWithTickOffset,*,Close_004bcf80: OPENHAPIFILE structure,5,38,0xc-0x110,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,CobScript::SetCob,10,26857,0x0-0x551,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,CobScript::SetCob #2,5,9,0x0-0x10,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,CreateObjectState: Object State,2,2,0x27-0x54,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,0x38d77,CreateParticleLists,27,277800,0x0,outside,"Game.lists (0x38d77): particle lists, presentation"
+AllocZeroedWithTickOffset,*,GameMain,27,277800,0x0-0x178,outside,Game.field_10 (0x10): GameMain object
+AllocZeroedWithTickOffset,*,GetCategoryMask,4,26,0x0-0x3f,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,HAPI_AddArchive,2,2,0x30-0x39,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,HAPI_LoadFile,27,277800,0x0-0x13025d,outside,"Game resource pointers: GAFs, models and files loaded at start (gui, weapons, animations)"
+AllocZeroedWithTickOffset,*,InitExplosions: CalcedExplosion,27,277800,0x0,outside,Game.lists (0x1ab8f): precomputed explosion lists
+AllocZeroedWithTickOffset,*,InitExplosions: CalcedExplosion #2,27,277800,0x0-0x90,outside,Game.lists (0x1ab93): precomputed explosion lists
+AllocZeroedWithTickOffset,*,InitExplosions: CalcedExplosion #3,27,277800,0x0-0x10,outside,Game.lists (0x1ab97): precomputed explosion lists
+AllocZeroedWithTickOffset,*,InitGame: SkirmishInfo,27,277800,0x0-0x1e8,outside,Game.options (0x29a0): skirmish options
+AllocZeroedWithTickOffset,*,InitMouse: MOUSE EVENTS,1,1,0xa0,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,InitPacketTables: PACKET DATA,27,277800,0x0-0x1f98,outside,Game.recvPacketPtr (0x2a38) and packet slots
+AllocZeroedWithTickOffset,0x147af,LoadAnimGaf,27,277800,0x0,outside,Game.entries (0x147af): anim GAF entries
+AllocZeroedWithTickOffset,0x1438b,LoadBattleAssets: ASSEM PTS,27,277800,0x0,outside,"Game 0x1438b: assembled points, presentation"
+AllocZeroedWithTickOffset,*,LoadBattleAssets: TEMP PROJECTED PTS,27,277800,0x0-0x290,outside,"Game.projected (0x14387): model projection scratch, presentation"
+AllocZeroedWithTickOffset,*,LoadBattleAssets: TEMP XFORM PTS,27,277800,0x0-0x6c0,outside,"Game.xform (0x14383): model transform scratch, presentation"
+AllocZeroedWithTickOffset,*,LoadFeatureType,27,277800,0x0-0x1b364,outside,Game.features (0x1426f): feature type table
+AllocZeroedWithTickOffset,*,LoadGuiLayer,27,277800,0x0-0x10f3f,outside,Game.layer (0x531): gui layer
+AllocZeroedWithTickOffset,*,LoadSoundCategories,13,138414,0x0-0x3f,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,LoadSoundCategories #2,8,22793,0x0-0x3f,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,LoadSoundCategories #3,8,20468,0x0-0x3f,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,LoadSoundCategories #4,7,61251,0x0-0x3f,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,LoadSoundCategories: Sound Categories,27,277800,0x0-0xa3bd,outside,Game.entries (0x37e13): sound categories
+AllocZeroedWithTickOffset,*,LoadTextureGafs: TEXTURE PTRS,27,277800,0x0-0x10,outside,Game.blocks (0x148e3): texture GAF pointers
+AllocZeroedWithTickOffset,0x1421f,LoadTntMap,27,277800,0x0,outside,Game 0x1421f: map data
+AllocZeroedWithTickOffset,0x141ff,LoadTntMap: SORT INDICES,27,277800,0x0,outside,Game 0x141ff: map sort indices
+AllocZeroedWithTickOffset,0x14203,LoadTntMap: SORT LINE COUNT,27,277800,0x0,outside,Game 0x14203: map sort line counts
+AllocZeroedWithTickOffset,*,LoadTntMap: SORT UNIT LIST,27,277800,0x0-0x254a,outside,Game 0x141fb: map sort unit list
+AllocZeroedWithTickOffset,*,LoadTntMap: TILE MAP,27,277800,0x0-0x444f8,outside,Game.mapValues (0x1428b): map tile map
+AllocZeroedWithTickOffset,*,LoadTntMap: TILE SET,27,277800,0x0-0xa5ffe0,outside,Game.iconSet (0x14283): map tile set
+AllocZeroedWithTickOffset,*,LoadUnitTypes,2,2,0x0-0x4,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,0x1437b,LoadUnitTypes #2,27,277800,0x0,outside,Game.unitTable (0x1437b): unit type table
+AllocZeroedWithTickOffset,*,NanoParticles::Emit,9,29386,0x0-0x1df,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,PlayerAI::BuildFeatureCells,5,45,0x17-0x38a,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,RegisterOrderTypes,5,21,0x30-0x630,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,SmokeParticles::Emit,4,761,0x0-0x370,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,Sound::CreateSampleFromFile: Digital Audio Sample,27,277800,0x0-0xf,outside,Game.data (0x33a13): loaded sound samples
+AllocZeroedWithTickOffset,*,ThrustParticles::Emit,4,205,0x0-0xd0,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,_Tree::_Insert,5,604,0x0-0x15,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,allocator::deallocate,7,46,0x5-0x278,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert,4,11167,0x0-0x177,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #2,2,32,0x1d-0x1e7,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #3,4,7572,0x26-0x340,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #4,3,32,0x7b-0xef,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #5,9,127,0x7-0x450,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #6,8,963,0x0-0x720,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #7,5,25621,0x0-0x1e,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #8,4,45,0x98-0x6b7,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocZeroedWithTickOffset,*,vector::insert #9,2,4,0x38-0x138,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
+AllocateUnitMemory: UNIT MEMORY,*,*,27,277800,0x0-0xa60441,not-a-pointer,"Unit slots (0x118 each): ids, coordinates and counters that only look like addresses"
+AttachMove,*,*,1,218,0xca8-0x214184,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+BuildDerivedLayers,*,*,15,83948,0x0-0x52ffe0,not-a-pointer,"Derived map layer: byte grid, no pointers"
+BuildDerivedLayers #2,*,*,12,89100,0x2-0x5d0af0,not-a-pointer,"Derived map layer: byte grid, no pointers"
+CreatePathfinder,*,*,27,45565,0x0-0x9537e0,not-a-pointer,"Pathfinder search arrays: costs, cell indices and stamps"
+CreatePlayerAI,0x91 0xa1,??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBDABV?$allocator@D@1@@Z,27,277800,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,??0Player@@QAE@XZ,1,30,0x1c,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,2,150,0x250-0x690,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AddStateEntries: Point List,14,85323,0x0-0x500,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,AllocAlphaTable: ALPHA TABLE,5,510,0x2c4-0xbcb8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocDepthFrame: CompositeBuffer,24,18420,0x32-0xaf5d0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocDepthFrame: LensFrame,1,420,0x6b8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocFrame: ExplosionFrame,15,3450,0x92-0x9b98,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocFrame: TED GENERATED PIC,7,540,0x900-0xce60,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocLightTable: LIGHT TABLE,2,300,0x180-0xd94,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocShadeTable: SHADE TABLE,2,180,0x8f4-0x1550,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface,2,60,0x27a0-0x9455,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface: OFFSCREEN,10,2280,0x80-0x49e04,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface: RADAR FINAL,1,30,0x1798,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface: RADAR MAPPED,1,90,0x38-0x2d68,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface: SAVEMOUSE 1,1,30,0x1bc,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface: SAVEMOUSE 3,1,30,0x3ec,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocateUnitMemory: HOT RADAR UNITS,6,113521,0x298-0x4888,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocateUnitMemory: HOT UNITS,3,3750,0x528-0x1230,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,CMemoryCache::InitCache: CMemoryCache CCH,27,75242,0xf0-0x3c8960,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,ClearCommandTable,1,30,0x578,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,Close_004bcf80: HAPIFILE header,11,5822,0x20-0xe370,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,Close_004bcf80: OPENHAPIFILE structure,2,60,0xc4-0xd0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,CobScript::SetCob,6,42877,0x0-0x380,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,0x11 0x1d 0x21,CobScript::SetCob #2,5,45906,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,CreateObjectState: Object State,2,4904,0x0-0x1e8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,GetCategoryMask,1,30,0x1c,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,HAPI_LoadFile,27,195542,0x0-0x130cf1,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,InitExplosions: CalcedExplosion #2,1,150,0x74,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,InitGame: SkirmishInfo,1,30,0xe8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,InitPacketTables: PACKET DATA,3,90,0xfac-0x1a00,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadBattleAssets: TEMP PROJECTED PTS,1,30,0xd0-0xe0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadFeatureType,6,630,0x888-0x18748,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadGuiLayer,1,30,0xf068,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadMapList,1,60,0x30-0x4a0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadSoundCategories,6,930,0x0-0x3c,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadSoundCategories #2,7,1230,0x0-0x38,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadSoundCategories #3,4,480,0x0-0x38,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadSoundCategories #4,5,1800,0x0-0x3c,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadSoundCategories: Sound Categories,4,1200,0x598-0x8858,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTntMap: SORT UNIT LIST,1,30,0x740,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTntMap: TILE MAP,4,120,0xb08-0x2530e,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTntMap: TILE SET,26,71911,0xce5-0xa561b0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,NanoParticles::Emit,20,82382,0x0-0x1da,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,PlayerAI::BuildFeatureCells,25,241800,0x0-0x7a0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,SmokeParticles::Emit,5,5021,0x0-0x1f0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,0x21,SpeechQueue::EnqueueSpeech: Speech Text,3,4,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,ThrustParticles::Emit,4,476,0x0-0x95,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,_Tree::_Insert,1,60,0xc,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,allocator::deallocate,1,30,0x28,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,vector::insert,27,277027,0x0-0x114,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,0x81,vector::insert #2,27,277800,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,vector::insert #3,27,277800,0x0-0xd8,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,0xb1,vector::insert #4,27,277800,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,vector::insert #5,27,277800,0x0-0x389,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,vector::insert #6,1,30,0x68,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,vector::insert #7,1,2850,0x0-0x1,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBDABV?$allocator@D@1@@Z,3,95,0x0-0x100,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,??0Player@@QAE@XZ,4,7,0x0-0xb0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,??0SpeechQueue@@QAE@HH@Z,3,4,0x40,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,6,32837,0x10-0x7b0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AddAnimplayPointer,3,3,0xb0-0x5f8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AddStateEntries: Point List,27,277800,0x0-0x14f8,moves-in,Object State piece.points (0x44 + 0x36*k): the piece point list
+CreatePlayerObjectState: Object State,*,AllocAlphaTable: ALPHA TABLE,23,8540,0x88-0xff87,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocBlueTable: BLUE TABLE,4,5,0x40,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocDepthFrame: CompositeBuffer,27,90403,0x2c-0xaf8e0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocFrame: ExplosionFrame,26,67239,0x0-0x9bf0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocFrame: TED GENERATED PIC,23,45154,0x130-0xf791,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocGrayTable: GRAY TABLE,3,3,0x40-0xa4,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocLightTable: LIGHT TABLE,10,439,0x80-0x1f80,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocShadeTable: SHADE TABLE,7,28,0x8a-0x1f90,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface,18,13701,0x7-0xaf38,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface: OFFSCREEN,26,26858,0x30-0x4ae30,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface: RADAR FINAL,8,7757,0x20-0x3da8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface: RADAR MAPPED,8,20647,0x6e0-0x3568,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface: RADAR PICTURE,7,6943,0x8-0x3cb8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface: SAVEMOUSE 1,3,9,0xf0-0x5f0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface: SAVEMOUSE 2,2,5,0x18-0x618,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocSurface: SAVEMOUSE 3,4,19,0xa0-0x5a0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocateUnitMemory: HOT RADAR UNITS,15,4917,0x8-0x6198,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,AllocateUnitMemory: HOT UNITS,5,13449,0x16-0x1380,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,CMemoryCache::InitCache: CMemoryCache CCH,27,277775,0x8-0x3cefe0,outside,"Object State bitmap (0x10) and shadow (0x14): render cache, presentation"
+CreatePlayerObjectState: Object State,*,ClearCommandTable,2,2,0x138-0x538,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,Close_004bcf80: HAPIFILE header,27,47642,0x0-0xe960,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,Close_004bcf80: OPENHAPIFILE structure,9,1577,0x0-0x110,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,CobScript::SetCob,11,42295,0x0-0x498,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,CobScript::SetCob #2,3,12,0x0-0x13,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,CreateObjectState: Object State,2,5,0x0-0x2f8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,CreateParticleLists,1,3,0x9-0x28,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,GameMain,3,350,0x78-0x278,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,GetCategoryMask,4,28,0x0-0x3a,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,HAPI_LoadFile,27,277800,0x0-0x12ffe0,outside,Object State piece.object (0x22 + 0x36*k): the loaded 3DO piece
+CreatePlayerObjectState: Object State,*,InitExplosions: CalcedExplosion #3,2,2,0x30-0x50,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,InitGame: SkirmishInfo,2,4,0xe8-0x1e8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,InitMouse: MOUSE EVENTS,2,3,0xa0-0x1a0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,InitPacketTables: PACKET DATA,22,233,0x98-0x1f98,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadAnimGaf,2,2,0x100-0x200,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadBattleAssets: ASSEM PTS,2,2,0x60-0x80,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadBattleAssets: TEMP PROJECTED PTS,4,56,0xd0-0x290,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadBattleAssets: TEMP XFORM PTS,2,2,0x4c0-0x770,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadFeatureType,19,32537,0x478-0x1b188,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadGuiLayer,19,23122,0x20-0x10f08,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadMapList,3,3,0x240-0x43f,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadSoundCategories,19,10229,0x0-0x3f,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadSoundCategories #2,13,6417,0x0-0x3f,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadSoundCategories #3,14,9642,0x0-0x3f,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadSoundCategories #4,13,63,0x0-0x3f,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadSoundCategories: Sound Categories,22,38476,0x1f8-0xa4f8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadTntMap #2,1,11040,0x1f8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadTntMap: SORT INDICES,3,12,0x30-0xe0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadTntMap: SORT LINE COUNT,1,1,0x3f-0x40,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadTntMap: SORT UNIT LIST,5,109,0x48-0x2448,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadTntMap: TILE MAP,20,36054,0x5f8-0x444f8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadTntMap: TILE SET,27,200354,0x0-0xa5ffe0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,LoadUnitTypes,2,2,0x0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,NanoParticles::Emit,11,14574,0x0-0x1df,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,PlayerAI::BuildFeatureCells,4,27,0x48-0x790,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,RegisterOrderTypes,4,10,0xd-0x630,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,SmokeParticles::Emit,3,1031,0x0-0x725,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,Sound::CreateSampleFromFile: Digital Audio Sample,3,5,0x0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,ThrustParticles::Emit,3,51,0x0-0xe1,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,_Tree::_Insert,11,73,0x0-0x14,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,allocator::deallocate,4,3615,0x0-0x2f0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert,5,12,0x0-0xe0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #2,1,1,0x98,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #3,3,18,0x4-0x2d7,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #4,3,18,0x10-0xf0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #5,10,275,0x0-0x450,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #6,8,63,0x0-0x720,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #7,7,20,0x0-0x20,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #8,4,42,0x8-0x7a8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreatePlayerObjectState: Object State,*,vector::insert #9,2,2,0x38-0x138,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
+CreateUnit,*,*,27,31440,0x0-0xa5ffe7,not-a-pointer,"UnitMotion (0x30): velocity, speed and turn words that only look like addresses"
+EnqueueOrderType,*,*,22,38716,0x22-0x83ffe1,not-a-pointer,Order queue words that only look like addresses
+EnsurePatrolReturnOrder,*,*,4,45743,0xc-0x3c02a9,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+InitPlayerSlot,*,*,24,223912,0x0-0x680ff1,not-a-pointer,"Explored map bytes, no pointers"
+InitPlayerSlot #2,*,*,27,23696,0x5-0x9002cb,not-a-pointer,Player slot bytes and counters
+InitUnitScript,*,AddStateEntries: Point List,6,45361,0x0-0x872,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocAlphaTable: ALPHA TABLE,2,618,0x4988-0x4c21,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocDepthFrame: CompositeBuffer,4,62396,0xb03d-0x8ffe2,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocFrame: ExplosionFrame,4,48223,0xc07-0x6936,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocFrame: TED GENERATED PIC,2,35005,0x3d30,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocSurface: OFFSCREEN,25,52002,0x6630-0x46630,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocSurface: RADAR FINAL,1,5380,0x3d90,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocSurface: RADAR MAPPED,1,15258,0x10fc,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocSurface: RADAR PICTURE,1,9749,0x1b70,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocSurface: SAVEMOUSE 1,2,146,0x3f0,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,AllocateUnitMemory: HOT UNITS,2,10576,0x430-0x60b,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,CMemoryCache::InitCache: CMemoryCache CCH,17,163355,0x24d-0x3c01ea,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,Close_004bcf80: HAPIFILE header,11,76523,0x16f-0x65f0,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,CobScript::SetCob,27,277800,0x0-0x2b0,moves-in,UnitScript.pieces (0x14): piece table
+InitUnitScript,0x10,CobScript::SetCob #2,27,277800,0x0,moves-in,UnitScript.statics (0x10): static variables
+InitUnitScript,*,HAPI_LoadFile,27,277800,0x0-0x120220,outside,UnitScript.table (0x8): the unit type COB script code
+InitUnitScript,*,InitPacketTables: PACKET DATA,3,1984,0x1b98-0x1dd8,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadBattleAssets: TEMP XFORM PTS,1,7715,0x695,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadFeatureType,1,3000,0xa888-0xdd4a,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadGuiLayer,2,33533,0xb7a6-0xe1e0,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadSoundCategories,2,616,0x0-0x3f,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadSoundCategories #2,5,476,0x0-0x3f,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadSoundCategories #3,1,2,0x0,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadSoundCategories: Sound Categories,1,47,0x52f8-0x5595,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadTntMap: TILE MAP,3,6825,0x44f7-0x244f8,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,LoadTntMap: TILE SET,14,101722,0x1fe2-0x96a0a2,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,NanoParticles::Emit,6,4305,0x0-0x1df,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,SmokeParticles::Emit,1,927,0x0-0x710,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,Sound::CreateSampleFromFile: Digital Audio Sample,1,1,0xf,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,ThrustParticles::Emit,2,9,0x30-0x80,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+InitUnitScript,*,vector::insert #5,1,72,0x318,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
+IssueAttackOrder,*,*,3,51,0x534-0x33bde,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+IssueAttackOrder #2,*,*,2,50,0x532-0x33bde,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+IssueAttackOrder #3,*,*,2,3378,0x29-0x3ad99f,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+IssueRepairOrder,*,*,3,6930,0xa-0x1dcd7c,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+IssueRepairOrder #2,*,*,1,174,0x1c5,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+IssueRepairOrder #3,*,*,1,1,0xc18,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+IssueRepairOrder #4,*,*,3,8749,0xa2-0x364c15,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+IssueRepairOrder #5,*,*,3,9209,0x178-0x360b49,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+LoadTntMap: MAPPED MEMORY,*,*,1,5400,0x0-0x8,not-a-pointer,"Mapped cell grid: integers, no pointers"
+LoadTntMap: PLOT MEMORY,*,*,27,277800,0x0-0x6e1ce0,not-a-pointer,"Plot cell grid: bytes, no pointers"
+LoadUnitInfo: UNITINFO,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,1,12274,0x175-0x2c8,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AddStateEntries: Point List,14,183260,0x0-0x688,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AllocDepthFrame: CompositeBuffer,6,63900,0x2ffe0-0x8ffe0,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AllocFrame: ExplosionFrame,11,54900,0xa0-0x6f28,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AllocSurface,5,76500,0xff4-0xa220,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AllocSurface: OFFSCREEN,27,277800,0x11b30-0x36885,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AllocSurface: RADAR PICTURE,1,5400,0x2644,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AllocateUnitMemory: HOT RADAR UNITS,4,63900,0x3526-0x5280,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,AllocateUnitMemory: HOT UNITS,2,57600,0x430-0x574,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,CMemoryCache::InitCache: CMemoryCache CCH,27,277800,0x3d45-0x3cb0e0,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,CobScript::SetCob,5,65564,0x2c-0x16c,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,CreateObjectState: Object State,1,4021,0x26,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,0x47a+0x249*k 0x47e+0x249*k 0x482+0x249*k 0x486+0x249*k,GetCategoryMask,27,277800,0x0,outside,"UnitType.weaponCategories (0x231 0x235 0x239) and categories (0x23d), stride 0x249"
+LoadUnitInfo: UNITINFO,*,HAPI_LoadFile,27,277800,0x0-0xeffe0,outside,"UnitType.data (0x18e, stride 0x249): the unit type file data"
+LoadUnitInfo: UNITINFO,*,InitPacketTables: PACKET DATA,27,277800,0x1ba3,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadFeatureType,5,36000,0x6640-0x163c0,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadGuiLayer,1,9000,0x3bc8-0x3be0,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadSoundCategories,11,105300,0x14,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadSoundCategories #2,7,69300,0x14,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadSoundCategories #3,11,105300,0x15,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadSoundCategories #4,16,172500,0x14-0x15,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadTntMap: TILE MAP,2,13200,0x337f8,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,LoadTntMap: TILE SET,26,265200,0xffe0-0x9978aa,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,NanoParticles::Emit,25,76305,0x0-0x1dc,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,SmokeParticles::Emit,4,591,0x0-0x5b,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,ThrustParticles::Emit,4,311,0x0-0xed,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,TimedSubParticles::Emit,1,385,0x198-0x218,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,_Tree::_Insert,1,2700,0x10,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,vector::insert #6,4,12000,0x60,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,vector::insert #7,3,21600,0x0-0x12,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitInfo: UNITINFO,*,vector::insert #8,1,6,0xc,not-a-pointer,"UnitType words (numbers, flags) that only look like addresses"
+LoadUnitTypes #3,*,*,22,228300,0x9-0x520be1,not-a-pointer,"Unit type id lists or yardmap bytes, no pointers"
+LoadUnitTypes: MODEL PTRS,*,AddStateEntries: Point List,1,7972,0x179,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,AllocDepthFrame: CompositeBuffer,3,63600,0xcca-0x80cb3,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,AllocFrame: TED GENERATED PIC,1,2700,0x49e8,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,CMemoryCache::InitCache: CMemoryCache CCH,4,34800,0xd0b-0x3b0dc8,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,ClearCommandTable,1,7200,0x102,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,HAPI_LoadFile,27,277800,0x0-0x80c73,outside,Model pointer per unit type: the loaded 3DO model
+LoadUnitTypes: MODEL PTRS,*,LoadGuiLayer,1,6000,0x8c25,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,LoadSoundCategories #2,2,12600,0xa-0x20,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,LoadSoundCategories #3,1,5400,0x1e,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,LoadSoundCategories #4,1,12600,0x38,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,LoadTntMap: TILE SET,4,70800,0xb7ed-0x26c7ed,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,NanoParticles::Emit,1,157,0x159-0x179,not-a-pointer,Model pointer table words that only look like addresses
+LoadUnitTypes: MODEL PTRS,*,vector::insert #5,1,7200,0x19d,not-a-pointer,Model pointer table words that only look like addresses
+LoadWeaponType,*,AllocDepthFrame: CompositeBuffer,3,63000,0x201,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,*,CMemoryCache::InitCache: CMemoryCache CCH,3,13500,0x201-0x380201,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,*,CobScript::SetCob #2,1,8116,0x0,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,0x9 0xd,GetCategoryMask,17,183600,0x0,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd); loaded with the weapon types"
+LoadWeaponType,*,HAPI_LoadFile,14,132000,0x0-0xd4fe2,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd); loaded with the weapon types"
+LoadWeaponType,*,LoadSoundCategories: Sound Categories,3,63000,0x5519,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,*,LoadTntMap: SORT INDICES,1,9000,0x0,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,*,LoadTntMap: TILE SET,5,21900,0x70201-0x380201,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,0x9 0xd,SmokeParticles::Emit,3,157,0x0,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd); loaded with the weapon types"
+LoadWeaponType,0x9 0xd,Sound::CreateSampleFromFile: Digital Audio Sample,26,275100,0x0,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd); loaded with the weapon types"
+LoadWeaponType,*,ThrustParticles::Emit,1,9,0x0,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,0x9 0xd,_Tree::_Insert,18,193200,0x0,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd); loaded with the weapon types"
+LoadWeaponType,*,allocator::deallocate,1,600,0x0,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,*,vector::_Destroy,1,9000,0x0,not-a-pointer,Weapon damage table words that only look like addresses
+LoadWeaponType,0x5+0x4*k,vector::insert #6,27,277800,0x0-0x4a8,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd); loaded with the weapon types"
+LoadWeaponType,0x9 0xd,vector::insert #7,15,126900,0x0,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd); loaded with the weapon types"
+Mission::LoadMissionData: MISSIONRULE DATA,*,*,13,67500,0x11f8-0x840850,not-a-pointer,"MissionRule table: numbers and strings, no pointers"
+OpenHeap::SiftDown,*,*,27,90806,0x0-0x69ffe0,not-a-pointer,Pathfinder open heap: cost and cell index entries
+OpenHeap::SiftDown #2,*,*,9,16469,0x23-0x8c02f0,not-a-pointer,Pathfinder open heap: cost and cell index entries
+Order::AttachApproachRadiusGoal,*,*,2,6761,0x7ce-0x1a0031,not-a-pointer,"Order goal words (ticks, coordinates) that only look like addresses"
+Order::AttachBuildFootprintMarker,*,*,12,30572,0x22-0x50ffe1,not-a-pointer,"Order goal words (ticks, coordinates) that only look like addresses"
+Order::AttachRingApproachGoal,*,*,1,360,0x1c9-0x70031,not-a-pointer,"Order goal words (ticks, coordinates) that only look like addresses"
+RepairPatrolOrder,*,*,3,631,0x530-0x39f7af,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+RepairPatrolOrder #2,*,*,2,2525,0x57-0x38964b,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+RepairPatrolOrder #3,*,*,1,468,0x7bba-0xe0f38,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+RepairPatrolOrder #4,*,*,2,2956,0x530-0x305247,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+SetMissionType,*,*,8,31200,0x21c8-0x3ffe0,not-a-pointer,Mission table words that only look like addresses
+SimGlobals.g_cdMismatchDefeatTick,*,*,25,1381,0x0-0x9bffe0,not-a-pointer,"g_cdMismatchDefeatTick: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_debrisMemCache,0x4 0x8,CMemoryCache::InitCache: CMemoryCache CCH,27,277800,0x0-0x1170e,moves-in,Debris cache buffer (base 0x4) and cursor (0x8): exploded piece data
+SimGlobals.g_economyPacketTick,*,*,1,248,0x558,not-a-pointer,"g_economyPacketTick: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_explodedPieces,*,AddStateEntries: Point List,1,1,0x5a,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
+SimGlobals.g_explodedPieces,0x0+0x4*k 0x15c+0x4*k,CMemoryCache::InitCache: CMemoryCache CCH,4,8242,0x8-0x1163c,moves-in,Exploded piece handles (stride 0x4) into the debris cache buffer
+SimGlobals.g_explodedPieces,*,HAPI_LoadFile,2,496,0x1f4-0x326f2,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
+SimGlobals.g_explodedPieces,*,NanoParticles::Emit,1,11,0x1a8,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
+SimGlobals.g_explodedPieces,*,ThrustParticles::Emit,1,20,0x2-0x92,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
+SimGlobals.g_lastPlaceHeight,*,*,2,138,0xdf8-0xbffe0,not-a-pointer,"g_lastPlaceHeight: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_losTables,*,AddStateEntries: Point List,1,26671,0x0,not-a-pointer,LOS table vector words that only look like addresses
+SimGlobals.g_losTables,*,GetCategoryMask,1,27000,0x0,not-a-pointer,LOS table vector words that only look like addresses
+SimGlobals.g_losTables,*,HAPI_LoadFile,1,7200,0x301f8,not-a-pointer,LOS table vector words that only look like addresses
+SimGlobals.g_losTables,*,LoadSoundCategories: Sound Categories,1,2700,0x12f8-0xa2fa,not-a-pointer,LOS table vector words that only look like addresses
+SimGlobals.g_losTables,0x8 0xc,NanoParticles::Emit,3,25009,0x0,outside,"LOS table vector (first 0x4, last 0x8, end 0xc): loaded at game start"
+SimGlobals.g_losTables,*,SmokeParticles::Emit,1,78,0x0,not-a-pointer,LOS table vector words that only look like addresses
+SimGlobals.g_losTables,*,ThrustParticles::Emit,1,39,0x0,not-a-pointer,LOS table vector words that only look like addresses
+SimGlobals.g_losTables,0x8 0xc,_Tree::_Insert,8,49800,0x0,outside,"LOS table vector (first 0x4, last 0x8, end 0xc): loaded at game start"
+SimGlobals.g_losTables,0x4,vector::_Destroy,27,277800,0x0,outside,"LOS table vector (first 0x4, last 0x8, end 0xc): loaded at game start"
+SimGlobals.g_losTables,0x8 0xc,vector::insert #7,7,88800,0x0,outside,"LOS table vector (first 0x4, last 0x8, end 0xc): loaded at game start"
+SimGlobals.g_meteorActive,*,*,2,3900,0x530-0xca8,not-a-pointer,"g_meteorActive: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_meteorOrigin,*,*,2,2366,0x9-0x63a5,not-a-pointer,"g_meteorOrigin: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_meteorStrikeEndTime,*,*,2,3900,0x593-0x610,not-a-pointer,"g_meteorStrikeEndTime: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_meteorTarget,*,*,2,3286,0x3b-0x46754,not-a-pointer,"g_meteorTarget: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_missionOrderTableVec,0x4,RegisterOrderTypes,27,277800,0x0,outside,Mission order table vector first (0x4)
+SimGlobals.g_movementClasses,*,AddStateEntries: Point List,1,4081,0x237,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,AllocDepthFrame: CompositeBuffer,7,824,0x90250-0xa0258,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,AllocFrame: ExplosionFrame,1,450,0x484f,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,AllocSurface: SAVEMOUSE 1,14,111900,0x47b-0x53c,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,CMemoryCache::InitCache: CMemoryCache CCH,9,1005,0x90287-0x3a02ac,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,Close_004bcf80: HAPIFILE header,2,18000,0x170,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,HAPI_LoadFile,26,223979,0x194-0xb0254,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,LoadFeatureType,2,211,0x80bd-0x9938,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,*,LoadTntMap: TILE SET,11,39420,0xf007-0x670257,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_movementClasses,0x0+0x20*k,LoadUnitTypes,27,277800,0x0,outside,"MovementClass.name (0x0, stride 0x20): name string loaded with the unit types"
+SimGlobals.g_movementClasses,*,vector::insert #5,2,14400,0x228-0x28f,not-a-pointer,"MovementClass words (sizes, depths, slopes) that only look like addresses"
+SimGlobals.g_packetSizes,*,*,22,228300,0x530-0x50ffe0,not-a-pointer,"g_packetSizes: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_playerBudgetCap,*,*,27,1582,0x19-0x81ffe1,not-a-pointer,"g_playerBudgetCap: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_playerTickLoad,*,*,26,1861,0x11-0x97ffe0,not-a-pointer,"g_playerTickLoad: integers (ticks, counts, seed) that only look like addresses"
+SimGlobals.g_randomSeed,*,*,23,1354,0x2-0x916caa,not-a-pointer,"g_randomSeed: integers (ticks, counts, seed) that only look like addresses"
+VtolHelpBuildOrder,*,*,2,6569,0x18-0x1700b3,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolLandIfCanOrder,*,*,1,71,0xcfe-0x324245,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolLandIfCanOrder #2,*,*,1,111,0xe50-0x31ffe0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolMobileBuildOrder,*,*,1,38,0x1a8-0x240,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolMobileBuildOrder #2,*,*,4,13757,0x78-0x3a7760,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolMobileBuildOrder #3,*,*,1,1917,0x170-0x1ffe0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolMoveOrder,*,*,2,1972,0x110-0x39ffe0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolPatrolOrder,*,*,3,7869,0x2-0x3a47e0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolReclaimOrder,*,*,2,542,0x78-0x3c3bf1,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolRepairPatrolOrder,*,*,2,19084,0xb8-0x3bffe0,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolRepairPatrolOrder #2,*,*,2,186,0x248-0xca8,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolRepairPatrolOrder #3,*,*,2,542,0x22e-0x3c3bf1,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolRepairUnitOrder,*,*,1,339,0xa-0x144199,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
+VtolStandbyOrder,*,*,2,206,0x46-0x255489,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
