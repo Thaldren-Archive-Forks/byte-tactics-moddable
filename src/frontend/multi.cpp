@@ -712,6 +712,7 @@ struct Record_0044c0d0 {
 #include "../orders/order_fx.h"
 
 #include "../network/packet_manager.h"
+#include "../state/sim_globals.h"
 
 class Class_004a1080;
 struct Dialog;
@@ -748,7 +749,6 @@ extern int* g_unitRestrictOldCounts;
 extern int g_unitRestrictNextPicTick;
 extern unsigned int g_lastPlayerCount;
 extern char* g_savegameDir;            // savegame directory
-extern char DAT_005119b8[];
 extern char g_star[];                  // "*"
 extern char g_lstExtension[];          // "LST"
 extern char g_gamesGadgetName[];       // "GAMES"
@@ -768,7 +768,6 @@ extern int g_lobbyFixedLoc;
 extern int g_lobbyMapping;
 extern int g_lobbyWatching;
 extern int g_usePacketManager;
-extern PacketManager g_packetManager;
 // GLOBAL: 0x5129b4
 extern Record_00446f50* g_unitRestrictEntries;
 extern char g_onlineLobbyPlayerName;

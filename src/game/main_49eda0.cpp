@@ -6,6 +6,7 @@
 #include <malloc.h>
 #include "../quirks/quirks.h"
 #include "../../interfaces/host.h"
+#include "../state/sim_globals.h"
 
 #pragma pack(push, 1)
 struct Game_0049ee30 {

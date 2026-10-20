@@ -18,6 +18,7 @@
 
 #include "../util/tdf.h"
 #include "../../interfaces/seams.h"
+#include "../state/sim_globals.h"
 
 
 class MeteorParams {
@@ -30,42 +31,13 @@ public:
     void LoadMeteorDefaults();
 };
 
-// Not std::vector: its destructor would add a dead element-destroy store.
-template <class T, class A = std::allocator<T> >
-class Vector_00438480 {
-public:
-    explicit Vector_00438480(const A& al = A())
-        : allocator(al), first(0), last(0), end(0) {}
-    ~Vector_00438480()
-    {
-        allocator.deallocate(first, end - first);
-        first = 0, last = 0, end = 0;
-    }
-
-    A allocator;
-    T* first;
-    T* last;
-    T* end;
-};
-
 extern char g_extTdf[];
-extern char DAT_005119b8[];
-extern char g_meteorWeaponName[];
-extern int g_meteorSpawnMagnitude;     // strike radius
-extern int g_meteorSpawnInterval;      // ticks between meteors
-extern int g_meteorShowerDuration;
+typedef char SimView_g_meteorWeaponName[];
+#undef g_meteorWeaponName
+#define g_meteorWeaponName (*reinterpret_cast<SimView_g_meteorWeaponName*>(&Sim().g_meteorWeaponName))
 // Declared before g_meteorScheduleGap on purpose: in the sum the operand with the
 // larger symbol id goes first, and the original computes it in edx.
-extern int g_meteorStrikeEndTime;      // time the strike ends
-extern int g_meteorScheduleGap;
-extern int g_meteorActive;             // shower active
-extern int g_meteorNextStrikeTime;     // next strike time
-extern int g_meteorsEnabled;           // enabled
-extern int g_meteorNextHitTime;        // next meteor time
-extern WeaponDef* g_meteorWeapon;        // the meteor weapon definition
 extern Game* g_game;
-extern Point16 g_meteorOrigin;         // origin
-extern Point16 g_meteorTarget;         // target
 
 int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
@@ -251,11 +223,3 @@ void MeteorParams::LoadMeteorDefaults()
         FatalError("Hey, hoser!  The default meteor shower data was bogus!");
     }
 }
-
-// The global at 0x512340, its initialiser (0x438450) and the destructor the
-// compiler registers for it with atexit (0x438480). It is laid out like
-// std::vector (an empty allocator, then first/last/end), but it is not one.
-// This destructor only frees the storage.
-// FUNCTION: 0x438450 _$E4
-// FUNCTION: 0x438480 _$E2
-Vector_00438480<int> g_missionOrderTableVec;

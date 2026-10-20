@@ -106,6 +106,7 @@ struct Display_0047c3a0 {
 
 #pragma pack(push, 1)
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 extern Game* g_game;                    // 0x511de8
@@ -182,9 +183,7 @@ public:
     int GetBlitMode(SmackerSurface* unused);
 };
 
-extern int g_lastPlaceMetalSum;
 
-extern int g_lastPlaceHeight;
 
 // The constructor: opens the .smk file, hands the Smack library the game's
 // DirectSound object, then paints a black frame into the surface the player

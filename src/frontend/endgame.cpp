@@ -8,6 +8,7 @@
 // type below.
 #include <windows.h>
 #include <string.h>
+#include <new>
 #include <new.h>
 #include <stdlib.h>
 #include "../../interfaces/host.h"
@@ -168,12 +169,12 @@ struct Options {
 #include "../network/player.h"
 
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 // GLOBAL: 0x511de8
 extern Game* g_game;
 extern int g_endGameGlamourSoundStarted;
-extern CMemoryCache g_debrisMemCache;
 extern void __cdecl FreeMemoryCache();
 
 void __cdecl AllocNotifyNop(int);
@@ -250,17 +251,13 @@ void __stdcall StartPaletteFade(unsigned char* target, unsigned char* current, i
 void __stdcall SendPlayerEconomy(Player* player, int a, int b);
 int __stdcall IsScreenNamed(Gui* menu, const char* name);
 
-// Creates the global game object at a random offset (0..6993 bytes) inside a
-// zeroed allocation, using placement new.
 // FUNCTION: 0x41d920
 void CreateGameObject()
 {
-    unsigned int offset = host_time_ms() % 1000 * 7;
-    unsigned int size = offset + sizeof(Game);
-    char* mem = (char*)operator new(size);
-    memset(mem, 0, size);
+    char* mem = (char*)SimAlloc(sizeof(Game));
+    memset(mem, 0, sizeof(Game));
     AllocNotifyNop((int)mem);
-    g_game = new (mem + offset) Game;
+    g_game = new (mem) Game;
 }
 
 // FUNCTION: 0x41d9f0

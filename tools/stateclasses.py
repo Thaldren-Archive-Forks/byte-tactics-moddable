@@ -200,7 +200,7 @@ OUT = ROOT / "data/state_classes.csv"
 COLUMNS = ["name", "address", "kind", "proposed", "class", "rule", "phases_write", "phases_read",
            "presentation", "load_write", "writers", "readers", "note"]
 KINDS = ["game-region", "global", "heap", "static"]
-CLASSES = ("sim", "view", "platform", "mixed")
+CLASSES = ("sim", "view", "platform", "mixed", "const")
 KEPT = ("class", "note")
 
 PHASE_LABELS = {"HandleNetPackets": "0", "UpdateAllUnits": "1", "UpdateProjectiles": "2",
@@ -730,15 +730,17 @@ class Evidence:
     files: set
     writers: list
     readers: list
+    strong_load: bool = False
 
 
 def evidence(access: Access, walks: Walks) -> Evidence:
     """Fold an item's readers and writers into the facts the rules use."""
     phases_write, phases_read = set(), set()
-    load_write = pres_write = pres_read = other_write = other_read = False
+    load_write = pres_write = pres_read = other_write = other_read = strong_load = False
     for function, strong in access.writes.items():
         phases_write |= walks.phases.get(function, set())
         load_write |= function in walks.load
+        strong_load |= strong and function in walks.load
         pres_write |= strong and function in walks.presentation
         pres_read |= not strong and function in walks.presentation
         other_write |= function not in walks.sim and function not in walks.presentation
@@ -751,7 +753,7 @@ def evidence(access: Access, walks: Walks) -> Evidence:
         files |= walks.files.get(function, set())
     return Evidence(phases_write, phases_read, load_write, pres_write, pres_read, other_write, other_read,
                     any(access.writes.values()), bool(access.writes), files,
-                    sorted(access.writes, key=walks.rank), sorted(access.reads, key=walks.rank))
+                    sorted(access.writes, key=walks.rank), sorted(access.reads, key=walks.rank), strong_load)
 
 
 def snake_case(name: str) -> str:
@@ -826,7 +828,8 @@ def make_row(kind: str, name: str, address: str, ev: Evidence, platform: str | N
             "presentation": ("r" if ev.pres_read else "") + ("w" if ev.pres_write else ""),
             "load_write": "yes" if ev.load_write else "",
             "writers": format_functions(ev.writers, writer_weak),
-            "readers": format_functions(ev.readers), "note": ""}
+            "readers": format_functions(ev.readers), "note": "",
+            "strong_write": ev.strong_write, "strong_load": ev.strong_load}
 
 
 class Items:
@@ -1016,6 +1019,28 @@ def build(scans: list[dict], regions: list[dict]) -> tuple[list[dict], list[str]
     return rows, [g["name"] for g in globals_rows if g["name"] not in touched]
 
 
+def const_violations(rows: list[dict]) -> list[str]:
+    """One line for each row of class const that a strong writer breaks, or a weak writer without a note.
+
+    Rows from a scan carry strong_write and strong_load; a row without them is read from its writers column.
+    """
+    out = []
+    for r in rows:
+        if r["class"] != "const":
+            continue
+        strong = r.get("strong_write")
+        if strong is None:
+            strong = any(w and not w.endswith("?") for w in r["writers"].partition(":")[2].split("|"))
+        strong_load = r.get("strong_load", False)
+        if strong:
+            out.append("const row has a strong writer: %s %s: %s" % (r["kind"], r["name"], r["writers"]))
+        elif strong_load:
+            out.append("const row is written by load code: %s %s" % (r["kind"], r["name"]))
+        elif r["writers"] and not r["note"]:
+            out.append("const row has weak writers and no note: %s %s: %s" % (r["kind"], r["name"], r["writers"]))
+    return out
+
+
 def differences(have: list[dict], want: list[dict]) -> list[str]:
     """Unified diff lines of the rows with class and note left out."""
     def lines(rows):
@@ -1054,6 +1079,11 @@ def main() -> None:
         return
     if args.check:
         diff = differences(old, rows)
+        bad = const_violations(merge_kept([dict(r) for r in rows], old))
+        if bad:
+            print("\n".join(bad))
+            print("stateclasses: %d const rows break the const rule (docs/state.md)" % len(bad))
+            sys.exit(1)
         if diff:
             print("\n".join(diff[:40]))
             if len(diff) > 40:

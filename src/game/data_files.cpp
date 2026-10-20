@@ -14,10 +14,10 @@ struct AnimEntry {
 
 #pragma pack(push, 1)
 #include "game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 extern Game* g_game;
-extern char DAT_005119b8[];
 
 void* __cdecl GameAllocIgnoreTag(const char* name, int size);
 void* __cdecl GameReallocTagged(void* block, const char* name, unsigned int size);

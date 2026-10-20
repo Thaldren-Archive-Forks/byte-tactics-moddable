@@ -8,6 +8,7 @@
 class TdfRecord;
 
 #include "../util/tdf.h"
+#include "../state/sim_globals.h"
 
 
 struct FindData_0041d4c0 {

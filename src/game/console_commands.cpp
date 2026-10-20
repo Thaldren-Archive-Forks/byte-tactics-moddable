@@ -179,6 +179,7 @@ struct Point_00417f60 {
 };
 
 #include "../graphics/rect.h"
+#include "../state/sim_globals.h"
 
 // The command records the three tables hold.
 struct ConsoleCommand {
@@ -278,7 +279,6 @@ void __stdcall CmdSFX(CommandArgs* args);
 
 // GLOBAL: 0x511de8
 extern Game* g_game;
-extern char DAT_005119b8[];
 extern char g_commandLineBuf[];
 extern int g_messageBytesReceived;
 extern int g_messageBytesSent;

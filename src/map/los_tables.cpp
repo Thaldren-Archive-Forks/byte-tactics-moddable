@@ -100,6 +100,7 @@ struct Elem_004336c0 {
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void CopyDwordIfNonNull(int*, int*);
 #include "../orders/approach_areas.h"
+#include "../state/sim_globals.h"
 int FUN_00490200();
 int GetBuildRating(int, unsigned short);
 
@@ -374,7 +375,6 @@ AssignFn_004336c0 g_assign_004336c0 = &Outer_004336c0::operator=;
 
 // FUNCTION: 0x4336c0 ??1?$vector@UElem_004336c0@@V?$allocator@UElem_004336c0@@@std@@@std@@QAE@XZ
 
-extern char DAT_005119b8[];
 
 // FUNCTION: 0x4336f0
 void LosLine::LoadLosLine(TdfFile* obj, short line, short mode)

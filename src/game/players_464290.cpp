@@ -68,6 +68,7 @@ struct Gadget {
 };
 
 #include "game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -136,7 +137,6 @@ void __stdcall SetupPlayerSlot(int player, char type)
     }
 }
 
-extern char DAT_005119b8[];
 
 // FUNCTION: 0x4644d0
 void ResetPlayerSlots()
@@ -578,7 +578,6 @@ void ShowContinueWatchingDialog()
     }
 }
 
-extern int g_economyPacketTick;
 
 unsigned char __stdcall FindHostSlot();
 int __stdcall RandomInt(int range);

@@ -524,6 +524,7 @@ Item_00485940** __stdcall Partition(Item_00485940** first, Item_00485940** last,
 }
 
 #include "../util/string_ref.h"
+#include "../state/sim_globals.h"
 
 // No explicit destructor: the implicit one destroys name through
 // StringRef's destructor (an explicit name.ReleaseRef() would release it
@@ -615,7 +616,6 @@ unsigned short __stdcall FindUnitTypeId(const char* name)
     return 0;
 }
 
-extern int g_mapLoadFlag;
 
 // FUNCTION: 0x488be0
 void InitUnitCategories()

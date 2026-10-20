@@ -213,6 +213,7 @@ void ParseDownloadableAiWeightScripts(int);
 int ScanDirectory(char*, char*, char*, int, int, int);
 
 #include "../map/mission.h"
+#include "../state/sim_globals.h"
 
 void* __cdecl GameAllocIgnoreTag(const char* name, unsigned int size);
 void __cdecl GameFreeThunk(void* p);
@@ -289,8 +290,6 @@ inline int Lod_00481930(SightQuery* params)
     int v = LodRaw_00481930(params);
     return v < 0 ? 0 : v;
 }
-// FUNCTION: 0x4814c0 _$E4
-LosTables g_losTables;
 
 // FUNCTION: 0x4814f0
 void FreeLosTables()

@@ -5934,7 +5934,7 @@ address,function,file,kind,target
 0x41d8c0,AllocZeroedWithTickOffset,src/game/cd_check.cpp,call,operator new
 0x41d8c0,AllocZeroedWithTickOffset,src/game/cd_check.cpp,function,
 0x41d920,CreateGameObject,src/frontend/endgame.cpp,call,AllocNotifyNop
-0x41d920,CreateGameObject,src/frontend/endgame.cpp,call,host_time_ms
+0x41d920,CreateGameObject,src/frontend/endgame.cpp,call,SimAlloc
 0x41d920,CreateGameObject,src/frontend/endgame.cpp,call,memset
 0x41d920,CreateGameObject,src/frontend/endgame.cpp,call,operator new
 0x41d920,CreateGameObject,src/frontend/endgame.cpp,function,
@@ -18878,7 +18878,6 @@ address,function,file,kind,target
 0x460cc0,OpenInGameOptions,src/frontend/options.cpp,fn_ref,HandleInGameOptionsClick
 0x460cc0,OpenInGameOptions,src/frontend/options.cpp,function,
 0x460cc0,OpenInGameOptions,src/frontend/options.cpp,global_read,g_game
-0x460e20,PacketManager::PacketManager,src/network/packets_460e20.cpp,function,
 0x460f40,PacketRing::PacketRing,src/network/packets.cpp,field_write,PacketRing::count
 0x460f40,PacketRing::PacketRing,src/network/packets.cpp,field_write,PacketRing::readIdx
 0x460f40,PacketRing::PacketRing,src/network/packets.cpp,field_write,PacketRing::writeIdx
@@ -44152,6 +44151,8 @@ address,function,file,kind,target
 ,DestroyR1_0046ca60,src/network/unit_sync_46ca60.cpp,function,
 ,DestroyR2_0046ca60,src/network/unit_sync_46ca60.cpp,call,destroy
 ,DestroyR2_0046ca60,src/network/unit_sync_46ca60.cpp,function,
+,DestroySimGlobals,src/state/sim_globals.cpp,call,~SimGlobals
+,DestroySimGlobals,src/state/sim_globals.cpp,function,
 ,Diff,src/orders/vtol_orders.cpp,field_read,Vec3::x
 ,Diff,src/orders/vtol_orders.cpp,field_read,Vec3::y
 ,Diff,src/orders/vtol_orders.cpp,field_read,Vec3::z
@@ -48366,8 +48367,10 @@ address,function,file,kind,target
 ,PacketChannel::~PacketChannel,src/network/packets_460f60.cpp,field_read,PacketChannel::buffers
 ,PacketChannel::~PacketChannel,src/network/packets_460f60.cpp,field_read,PacketChannel::packets
 ,PacketChannel::~PacketChannel,src/network/packets_460f60.cpp,function,
+,PacketManager::PacketManager,src/network/packets_460e20.cpp,function,
 ,PacketManager::~PacketManager,src/network/packets_460e20.cpp,function,
 ,PacketManager::~PacketManager,src/network/packets_460f60.cpp,function,
+,PacketManager::~PacketManager,src/state/sim_globals.cpp,function,
 ,PacketReceiver::PacketReceiver,src/network/packet_receiver.h,function,
 ,PacketReceiver::PacketReceiver,src/network/packets_460e20.cpp,function,
 ,PacketReceiver::~PacketReceiver,src/network/packets_460e20.cpp,call,operator delete
@@ -50060,21 +50063,48 @@ address,function,file,kind,target
 ,ShowSelectBox,src/ingame/info_panel_468cf0.cpp,field_read,Game::orderMode
 ,ShowSelectBox,src/ingame/info_panel_468cf0.cpp,function,
 ,ShowSelectBox,src/ingame/info_panel_468cf0.cpp,global_read,g_game
+,Sim,src/state/sim_globals.h,call,SimCreate
+,Sim,src/state/sim_globals.h,deref_read,*SimGlobals
+,Sim,src/state/sim_globals.h,function,
 ,SimAlloc,src/state/block.cpp,call,AllocLocked
 ,SimAlloc,src/state/block.cpp,call,Guard::~Guard
 ,SimAlloc,src/state/block.cpp,function,
 ,SimAllocTagged,src/state/block.h,call,SimAlloc
 ,SimAllocTagged,src/state/block.h,function,
+,SimBlockAttach,src/state/block.cpp,deref_read,*void
+,SimBlockAttach,src/state/block.cpp,deref_write,*void
 ,SimBlockAttach,src/state/block.cpp,function,
+,SimBlockAttach,src/state/block.cpp,global_read,g_base
+,SimBlockAttach,src/state/block.cpp,global_read,g_tracked
+,SimBlockAttach,src/state/block.cpp,global_read,g_trackedCount
+,SimBlockAttach,src/state/block.cpp,global_read,kSimBlockBytes
 ,SimBlockAttach,src/state/block.cpp,global_write,g_base
 ,SimBlockBase,src/state/block.cpp,function,
 ,SimBlockBase,src/state/block.cpp,global_read,g_base
 ,SimBlockInit,src/state/block.cpp,call,Guard::~Guard
 ,SimBlockInit,src/state/block.cpp,function,
 ,SimBlockReset,src/state/block.cpp,call,VirtualFree
+,SimBlockReset,src/state/block.cpp,deref_write,*void
 ,SimBlockReset,src/state/block.cpp,function,
 ,SimBlockReset,src/state/block.cpp,global_read,g_base
+,SimBlockReset,src/state/block.cpp,global_read,g_tracked
+,SimBlockReset,src/state/block.cpp,global_read,g_trackedCount
 ,SimBlockReset,src/state/block.cpp,global_write,g_base
+,SimBlockTrack,src/state/block.cpp,call,Fatal
+,SimBlockTrack,src/state/block.cpp,function,
+,SimBlockTrack,src/state/block.cpp,global_read,g_tracked
+,SimBlockTrack,src/state/block.cpp,global_read,g_trackedCount
+,SimBlockTrack,src/state/block.cpp,global_write,g_tracked
+,SimBlockTrack,src/state/block.cpp,global_write,g_trackedCount
+,SimCreate,src/state/sim_globals.cpp,call,SimAlloc
+,SimCreate,src/state/sim_globals.cpp,call,SimBlockTrack
+,SimCreate,src/state/sim_globals.cpp,call,atexit
+,SimCreate,src/state/sim_globals.cpp,call,operator new
+,SimCreate,src/state/sim_globals.cpp,deref_read,*SimGlobals
+,SimCreate,src/state/sim_globals.cpp,fn_ref,DestroySimGlobals
+,SimCreate,src/state/sim_globals.cpp,function,
+,SimCreate,src/state/sim_globals.cpp,global_read,registered@SimCreate
+,SimCreate,src/state/sim_globals.cpp,global_write,registered@SimCreate
 ,SimFree,src/state/block.cpp,call,FreeLocked
 ,SimFree,src/state/block.cpp,call,Guard::~Guard
 ,SimFree,src/state/block.cpp,function,
@@ -51259,6 +51289,7 @@ address,function,file,kind,target
 ,VisitGlobalList,src/harness/harness.cpp,field_read,TraceGlobal::address
 ,VisitGlobalList,src/harness/harness.cpp,field_read,TraceGlobal::kind
 ,VisitGlobalList,src/harness/harness.cpp,field_read,TraceGlobal::name
+,VisitGlobalList,src/harness/harness.cpp,field_read,TraceGlobal::relative
 ,VisitGlobalList,src/harness/harness.cpp,field_read,TraceGlobal::size
 ,VisitGlobalList,src/harness/harness.cpp,field_read,TraceGlobal::target
 ,VisitGlobalList,src/harness/harness.cpp,field_write,TraceField::kind
