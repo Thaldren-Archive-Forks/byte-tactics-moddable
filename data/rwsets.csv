@@ -49038,8 +49038,8 @@ address,function,file,kind,target
 ,Pos_4589c0::Pos_4589c0,src/graphics/model_render_4589c0.cpp,function,
 ,PoseUnitModel,src/units/unit_scripts.cpp,call,UpdateObjectState
 ,PoseUnitModel,src/units/unit_scripts.cpp,call,memcpy
-,PoseUnitModel,src/units/unit_scripts.cpp,deref_read,*Piece_459c70
 ,PoseUnitModel,src/units/unit_scripts.cpp,field_maybe_written,SpotState::pos
+,PoseUnitModel,src/units/unit_scripts.cpp,field_read,SpotState::root
 ,PoseUnitModel,src/units/unit_scripts.cpp,field_read,Unit::angles
 ,PoseUnitModel,src/units/unit_scripts.cpp,field_read,Unit::state
 ,PoseUnitModel,src/units/unit_scripts.cpp,field_write,Piece_459c70::modified
