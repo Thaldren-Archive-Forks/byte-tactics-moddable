@@ -304,6 +304,21 @@ extern "C" int HOST_CALL host_frame_text(int which, void* font, int x, int y, co
     return 1;
 }
 
+extern "C" int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsigned char* palette)
+{
+    host_frame frame;
+
+    if (host_frame_lock(HOST_FRAME_BACK, &frame) != HOST_FRAME_OK) {
+        return 0;
+    }
+    for (int row = 0; row < frame.height; row++) {
+        memcpy(pixels + row * pitch, frame.pixels + row * frame.pitch, frame.width);
+    }
+    host_frame_unlock(HOST_FRAME_BACK);
+    memset(palette, 0, 256 * 4);
+    return host_palette_get(palette);
+}
+
 extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)
 {
     if (!g_ddraw || !g_primary) {
