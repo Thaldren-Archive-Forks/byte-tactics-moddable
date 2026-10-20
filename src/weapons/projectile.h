@@ -24,7 +24,10 @@ struct Projectile {
     int spawnTick;
     int time;
     int nextSmokeTick;
-    int targetUnit;
+    union {
+        int targetUnit;
+        Unit* targetUnitPtr;
+    };
     Unit* attacker;
     union {
         int field_56;

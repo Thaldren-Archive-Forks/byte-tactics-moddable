@@ -4474,8 +4474,6 @@ Vec3_00474580::operator+=,src/graphics/particles_472630.cpp,presentation,present
 Vec3_00474760::Length,src/graphics/particles.cpp,presentation,presentation,
 Vec3_00474760::Scale,src/graphics/particles.cpp,presentation,presentation,
 Vec3_00474760::operator+=,src/graphics/particles.cpp,presentation,presentation,
-Vec3_0049b3e0::Length,src/weapons/weapons.cpp,weapons,file:src/weapons/,
-Vec3_0049b3e0::operator-,src/weapons/weapons.cpp,weapons,file:src/weapons/,
 Vec3i_00474130::operator+=,src/graphics/particles_472630.cpp,presentation,presentation,
 Vec::Vec,src/ai/vec.h,ai,file:src/ai/,
 VecElems_0046ca60::_Destroy,src/network/unit_sync_46ca60.cpp,network,file:src/network/,
