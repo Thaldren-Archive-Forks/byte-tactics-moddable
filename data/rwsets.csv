@@ -42186,13 +42186,13 @@ address,function,file,kind,target
 0x4de700,WalkStack,src/debug/debug_lib.cpp,deref_read,*int
 0x4de700,WalkStack,src/debug/debug_lib.cpp,deref_write,*int
 0x4de700,WalkStack,src/debug/debug_lib.cpp,field_read,Frame_004de700::addrFrame
-0x4de700,WalkStack,src/debug/debug_lib.cpp,field_read,Frame_004de700::addrStack
+0x4de700,WalkStack,src/debug/debug_lib.cpp,field_read,Frame_004de700::addrPc
 0x4de700,WalkStack,src/debug/debug_lib.cpp,field_write,Frame_004de700::addrFrame
+0x4de700,WalkStack,src/debug/debug_lib.cpp,field_write,Frame_004de700::addrPc
 0x4de700,WalkStack,src/debug/debug_lib.cpp,field_write,Frame_004de700::addrStack
 0x4de700,WalkStack,src/debug/debug_lib.cpp,field_write,Frame_004de700::flags0
 0x4de700,WalkStack,src/debug/debug_lib.cpp,field_write,Frame_004de700::flags1
 0x4de700,WalkStack,src/debug/debug_lib.cpp,field_write,Frame_004de700::flags2
-0x4de700,WalkStack,src/debug/debug_lib.cpp,field_write,Frame_004de700::handler
 0x4de700,WalkStack,src/debug/debug_lib.cpp,function,
 0x4de700,WalkStack,src/debug/debug_lib.cpp,global_read,g_pfnStackWalk
 0x4de700,WalkStack,src/debug/debug_lib.cpp,global_read,g_pfnSymFunctionTableAccess
