@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#include "alloc_hooks.h"
+
 // The size of the block every sim allocation comes from, in bytes.
 const unsigned int kSimBlockBytes = 32u << 20;
 
@@ -10,7 +12,11 @@ const unsigned int kSimBlockBytes = 32u << 20;
 void* __cdecl SimAlloc(unsigned int size);
 
 // Allocates like SimAlloc; the tag names the site for the analysis tools and the block ignores it.
-inline void* __cdecl SimAllocTagged(const char*, unsigned int size) { return SimAlloc(size); }
+__declspec(noinline) inline void* __cdecl SimAllocTagged(const char* tag, unsigned int size)
+{
+    AllocSite site(_ReturnAddress(), tag);
+    return SimAlloc(size);
+}
 
 // Resizes a sim block like realloc, zeroing the bytes beyond the old size.
 void* __cdecl SimRealloc(void* p, unsigned int size);
@@ -41,6 +47,9 @@ void __cdecl SimBlockReset();
 
 // Tracks a pointer into the block: SimBlockReset nulls *slot and SimBlockAttach moves it into the new block.
 void __cdecl SimBlockTrack(void** slot);
+
+// Calls fn for each live allocation of the block with its payload and requested size, holding the allocator lock.
+void __cdecl SimBlockForEach(void(__cdecl* fn)(void* payload, unsigned int size, void* ctx), void* ctx);
 
 // The tag that selects the sim block in a placement new.
 struct SimHeap {};

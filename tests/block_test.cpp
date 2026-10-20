@@ -37,6 +37,43 @@ static bool AllZero(const void* p, unsigned int n)
     return true;
 }
 
+struct Seen {
+    void* payload[16];
+    unsigned int size[16];
+    int count;
+};
+
+static void __cdecl Collect(void* payload, unsigned int size, void* ctx)
+{
+    Seen* seen = (Seen*)ctx;
+    if (seen->count < 16) {
+        seen->payload[seen->count] = payload;
+        seen->size[seen->count] = size;
+    }
+    seen->count++;
+}
+
+static int HookAdds;
+static int HookRemoves;
+static void* HookLast;
+static void* HookSite;
+
+static void __cdecl HookEnter(void* site, const char*)
+{
+    if (HookSite == 0)
+        HookSite = site;
+}
+static void __cdecl HookLeave() {}
+static void __cdecl HookAdded(void* p, unsigned int)
+{
+    HookAdds++;
+    HookLast = p;
+}
+static void __cdecl HookRemoved(void*)
+{
+    HookRemoves++;
+}
+
 static const int kSlots = 24;
 
 static unsigned int g_offsets[512];
@@ -262,6 +299,47 @@ int main()
     Check(x != 0, "SimAlloc(0) returns a block");
     Check(SimRealloc(x, 0) == 0, "SimRealloc(p, 0) frees");
     Check(((unsigned int)SimAlloc(3) & 7) == 0, "payloads are 8-aligned");
+
+    SimBlockReset();
+    SimBlockInit();
+    Seen seen;
+    memset(&seen, 0, sizeof(seen));
+    SimBlockForEach(Collect, &seen);
+    Check(seen.count == 0, "SimBlockForEach sees nothing in a fresh block");
+    void* pa = SimAlloc(10);
+    void* pb = SimAlloc(100);
+    void* pc = SimAlloc(0);
+    void* pd = SimAlloc(33);
+    SimFree(pb);
+    void* pe = SimAlloc(8);
+    memset(&seen, 0, sizeof(seen));
+    SimBlockForEach(Collect, &seen);
+    Check(seen.count == 4, "SimBlockForEach visits each live allocation once");
+    bool found[4] = { false, false, false, false };
+    void* want[4] = { pa, pc, pd, pe };
+    unsigned int wantSize[4] = { 10, 0, 33, 8 };
+    for (int i = 0; i < seen.count && i < 16; i++)
+        for (int k = 0; k < 4; k++)
+            if (seen.payload[i] == want[k] && seen.size[i] == wantSize[k])
+                found[k] = true;
+    Check(found[0] && found[1] && found[2] && found[3], "SimBlockForEach reports payloads and requested sizes");
+    SimFree(pe);
+    SimFree(pd);
+    SimFree(pc);
+    SimFree(pa);
+    memset(&seen, 0, sizeof(seen));
+    SimBlockForEach(Collect, &seen);
+    Check(seen.count == 0, "SimBlockForEach skips freed allocations");
+
+    static const AllocHooks hooks = { HookEnter, HookLeave, HookAdded, HookRemoved };
+    g_allocHooks = &hooks;
+    void* h = SimAlloc(16);
+    Check(HookAdds == 1 && HookLast == h && HookSite != 0, "the allocation hook sees SimAlloc");
+    h = SimRealloc(h, 64);
+    Check(HookAdds == 2 && HookRemoves == 1 && HookLast == h, "SimRealloc removes the old block and adds the new");
+    SimFree(h);
+    Check(HookRemoves == 2, "SimFree calls the removal hook");
+    g_allocHooks = 0;
 
     printf(g_failures ? "FAILED\n" : "block_test: all passed\n");
     return g_failures != 0;
