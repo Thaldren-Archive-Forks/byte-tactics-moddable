@@ -1024,10 +1024,13 @@ harness,game,call,QuirksFlipFirstSim,1
 harness,game,call,QuirksHash,2
 harness,game,call,QuirksNormalise,2
 harness,game,call,QuirksParse,2
+harness,game,call,SimBlockForEach,1
+harness,game,call,SimOwns,1
 harness,game,shared_write,Game::difficulty,4
 harness,game,shared_write,Game::localPlayer,13
 harness,game,shared_write,Game::numPlayers,5
 harness,game,shared_write,Game::playerIndex,8
+harness,game,shared_write,g_allocHooks,5
 harness,game,shared_write,g_quirks,1
 harness,los_radar,shared_write,Game::localPlayer,3
 harness,los_radar,shared_write,Game::numPlayers,1
@@ -1045,10 +1048,13 @@ harness,orders,shared_write,Game::difficulty,1
 harness,orders,shared_write,Game::localPlayer,2
 harness,orders,shared_write,Game::playerIndex,1
 harness,pathfinding,shared_write,Game::numPlayers,1
+harness,platform,call,GetAllocLock,1
 harness,platform,call,GetMemSetValue,1
 harness,platform,call,IsMemSet,1
-harness,platform,call,host_exit,2
-harness,platform,call,host_log,3
+harness,platform,call,host_exit,3
+harness,platform,call,host_log,6
+harness,platform,call,host_time_counter,1
+harness,platform,shared_write,g_allocHooks,3
 harness,platform,shared_write,g_quirks,1
 harness,players,call,HarnessConditionClass,1
 harness,players,call,ResetPlayerSlots,1
@@ -1480,6 +1486,7 @@ network,features,shared_write,PlayerInfo::flags_97,1
 network,game,call,GameRand,1
 network,game,call,SetCursorMode,1
 network,game,call,SetGameSpeed,1
+network,game,call,SimAllocTagged,1
 network,game,shared_write,Game::endGameFlags,2
 network,game,shared_write,Game::flags_2a44,2
 network,game,shared_write,Game::netGameFlags,1
@@ -1585,7 +1592,7 @@ network,platform,call,host_thread_set_priority,2
 network,platform,call,host_thread_start,1
 network,platform,call,host_time_ms,2
 network,platform,call,operator delete,26
-network,platform,call,operator new,18
+network,platform,call,operator new,17
 network,platform,call,operator==,5
 network,players,call,FillScoreTables,2
 network,players,call,GiveUnitToPlayer,1
@@ -2089,6 +2096,7 @@ platform,features,shared_write,Point16::y,11
 platform,features,shared_write,Vec3::x,7
 platform,features,shared_write,Vec3::y,5
 platform,features,shared_write,Vec3::z,7
+platform,game,call,AllocSite::~AllocSite,12
 platform,game,call,ChdirToExeDirectory,1
 platform,game,call,GetPreferredLanguage,1
 platform,game,call,SimAlloc,2
@@ -2256,9 +2264,9 @@ platform,presentation,indirect,CmdShowRanges,1
 platform,presentation,indirect,OnCdFadeTimer,1
 platform,presentation,indirect,OnNextTrackTimer,1
 platform,presentation,indirect,OnStreamTimer,1
-platform,presentation,shared_write,CMemoryCache::cur,1
-platform,presentation,shared_write,Chunk_00437a30::owner,2
-platform,presentation,shared_write,Chunk_00437a30::size,2
+platform,presentation,shared_write,CMemoryCache::cur,2
+platform,presentation,shared_write,Chunk_00437a30::owner,3
+platform,presentation,shared_write,Chunk_00437a30::size,3
 platform,presentation,shared_write,Fixed::value,7
 platform,presentation,shared_write,Point16::x,6
 platform,presentation,shared_write,Point16::y,6
@@ -2775,7 +2783,7 @@ presentation,game,call,ShowSaveGameScreen,2
 presentation,game,call,ShutdownIngameAndQuit,1
 presentation,game,call,ShutdownIngameSystems,1
 presentation,game,call,SimAlloc,1
-presentation,game,call,SimAllocTagged,1
+presentation,game,call,SimAllocTagged,3
 presentation,game,call,StepGafSequence,1
 presentation,game,call,UpdateBattleRoom,1
 presentation,game,call,WriteGameRegistryValue,4
@@ -3021,9 +3029,9 @@ presentation,platform,call,CrossProduct,1
 presentation,platform,call,DispatchHostEvents,2
 presentation,platform,call,FatalError,15
 presentation,platform,call,FilePrintf,1
-presentation,platform,call,GameAllocIgnoreTag,52
+presentation,platform,call,GameAllocIgnoreTag,51
 presentation,platform,call,GameAllocShared,1
-presentation,platform,call,GameFreeThunk,83
+presentation,platform,call,GameFreeThunk,84
 presentation,platform,call,GameReallocIgnoreTag,1
 presentation,platform,call,GameReallocTagged,1
 presentation,platform,call,GetCurrentDriveLetter,2
@@ -3774,6 +3782,7 @@ units,features,shared_write,Vec3::x,7
 units,features,shared_write,Vec3::y,5
 units,features,shared_write,Vec3::z,7
 units,game,call,SimAllocTagged,6
+units,game,call,SimRealloc,1
 units,game,shared_write,Angles16::heading,1
 units,game,shared_write,Game::defs,2
 units,game,shared_write,Game::unitDefCount,2
@@ -4022,9 +4031,8 @@ units,platform,call,Copy_backward,1
 units,platform,call,FUN_0041d8a0,2
 units,platform,call,FatalError,1
 units,platform,call,FreeCobScript,2
-units,platform,call,GameAllocIgnoreTag,4
+units,platform,call,GameAllocIgnoreTag,3
 units,platform,call,GameFreeThunk,10
-units,platform,call,GameReallocTagged,1
 units,platform,call,GameStrdup,1
 units,platform,call,GetCobChecksum,1
 units,platform,call,GetLocalizedString,2
@@ -4450,7 +4458,7 @@ weapons,presentation,call,AddCdActivitySample,1
 weapons,presentation,call,AllocFrame,1
 weapons,presentation,call,BuildLensFrame,1
 weapons,presentation,call,CMemoryCache::FreeCache,1
-weapons,presentation,call,CMemoryCache::InitCache,1
+weapons,presentation,call,CMemoryCache::InitSimCache,1
 weapons,presentation,call,EmitSmoke,1
 weapons,presentation,call,EmitWeaponSmoke,3
 weapons,presentation,call,EmitWhiteSmoke,2
