@@ -409,8 +409,7 @@ unsigned char DAT_00512758[8];  // 0x512758 .bss
 int DAT_00512760;  // 0x512760 .bss
 int g_unitRestrictPicLoadIndex;  // 0x512768 .bss
 int DAT_0051276c;  // 0x51276c .bss
-unsigned int g_reporterNames;  // 0x512788 .bss
-unsigned char DAT_0051278c[60];  // 0x51278c .bss
+unsigned int g_reporterNames[16];  // 0x512788 .bss
 unsigned char g_linkInfo[432];  // 0x5127c8 .bss
 int g_unitRestrictPicCursor;  // 0x512978 .bss
 int g_unitRestrictRecordCursor;  // 0x51297c .bss

@@ -322,8 +322,7 @@ extern unsigned char DAT_00512758[8];                                           
 extern int DAT_00512760;                                                                                        // 0x512760, 4 bytes; 1 of 1 files
 extern int g_unitRestrictPicLoadIndex;                                                                          // 0x512768, 4 bytes; 1 of 1 files
 extern int DAT_0051276c;                                                                                        // 0x51276c, 4 bytes; 1 of 1 files
-extern unsigned int g_reporterNames;                                                                            // 0x512788, 4 bytes; 1 of 1 files
-extern unsigned char DAT_0051278c[60];                                                                          // 0x51278c, 60 bytes; nothing refers to it
+extern unsigned int g_reporterNames[16];                                                                        // 0x512788, 64 bytes; 1 of 1 files
 extern unsigned char g_linkInfo[432];                                                                           // 0x5127c8, 432 bytes; LinkInfo[] by value in 2 of 2 files
 extern int g_unitRestrictPicCursor;                                                                             // 0x512978, 4 bytes; 1 of 1 files
 extern int g_unitRestrictRecordCursor;                                                                          // 0x51297c, 4 bytes; 1 of 1 files
