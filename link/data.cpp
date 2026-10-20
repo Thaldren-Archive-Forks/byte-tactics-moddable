@@ -571,8 +571,8 @@ unsigned char DAT_0051ff4c[12];  // 0x51ff4c .bss
 int g_delayedSampleVolume;  // 0x51ff58 .bss
 unsigned char DAT_0051ff5c[4];  // 0x51ff5c .bss
 char g_delayedSampleName[112];  // 0x51ff60 .bss
-char g_lzssPresetWindow[176];  // 0x51ffd0 .bss
-unsigned char DAT_00520080[3944];  // 0x520080 .bss
+char g_lzssPresetWindow[4113];  // 0x51ffd0 .bss
+unsigned char DAT_00520fe1[7];  // 0x520fe1 .bss
 char g_lzssPresetTree[24584];  // 0x520fe8 .bss
 Struct_00526ff0* g_squashDictTree;  // 0x526ff0 .bss
 int g_lzssPresetReady;  // 0x526ff8 .bss

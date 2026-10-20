@@ -484,8 +484,8 @@ extern unsigned char DAT_0051ff4c[12];                                          
 extern int g_delayedSampleVolume;                                                                               // 0x51ff58, 4 bytes; 1 of 1 files
 extern unsigned char DAT_0051ff5c[4];                                                                           // 0x51ff5c, 4 bytes; nothing refers to it
 extern char g_delayedSampleName[112];                                                                           // 0x51ff60, 112 bytes; 1 of 1 files
-extern char g_lzssPresetWindow[176];                                                                            // 0x51ffd0, 176 bytes; 1 of 1 files
-extern unsigned char DAT_00520080[3944];                                                                        // 0x520080, 3944 bytes; nothing refers to it
+extern char g_lzssPresetWindow[4113];                                                                           // 0x51ffd0, 4113 bytes; 1 of 1 files
+extern unsigned char DAT_00520fe1[7];                                                                              // 0x520fe1, 7 bytes; nothing refers to it
 extern char g_lzssPresetTree[24584];                                                                            // 0x520fe8, 24584 bytes; 1 of 1 files
 extern Struct_00526ff0* g_squashDictTree;                                                                       // 0x526ff0, 4 bytes; 1 of 2 files (conflicting: struct names only)
 extern int g_lzssPresetReady;                                                                                   // 0x526ff8, 4 bytes; 1 of 1 files
