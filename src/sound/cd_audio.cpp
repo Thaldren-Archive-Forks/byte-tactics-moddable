@@ -6,13 +6,11 @@
 // view the gathered files shared.
 
 #include <windows.h>
-#include <mmsystem.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../../interfaces/host.h"
 // <stdio.h> must stay: the header state decides StartStream's multiply register.
 #include <stdio.h>
-#include <dsound.h>
 #include <float.h>
 // Nothing here uses <io.h>: its symbols put InitDirectSound,
 // CreateSampleFromMemory and StartStream in the symbol-id windows they match
@@ -32,13 +30,6 @@ extern int __stdcall RemoveTimer(int handle);
 extern int __stdcall AddTimer(int delay, int id, void (__stdcall* callback)(void*));
 extern void __stdcall OnCdFadeTimer(void* unused);
 
-struct App_004b6220 {
-    char unknown_0[0x40];
-    HWND hwnd;                         // +0x40
-};
-
-extern App_004b6220* GetDisplay();
-
 struct FileHandle;
 
 void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
@@ -47,30 +38,8 @@ void __cdecl GameFreeThunk(void* p);
 
 extern int g_playBufferLooping;
 
-extern const GUID IID_IDirectSound3DBuffer;
-
 struct Pos_004cf570 {
     int x, y, z;
-};
-
-struct IDirectSound3DBuffer : public IUnknown {
-    virtual HRESULT __stdcall GetAllParameters(void* p) = 0;
-    virtual HRESULT __stdcall GetConeAngles(LPDWORD a, LPDWORD b) = 0;
-    virtual HRESULT __stdcall GetConeOrientation(void* p) = 0;
-    virtual HRESULT __stdcall GetConeOutsideVolume(LPLONG p) = 0;
-    virtual HRESULT __stdcall GetMaxDistance(float* p) = 0;
-    virtual HRESULT __stdcall GetMinDistance(float* p) = 0;
-    virtual HRESULT __stdcall GetMode(LPDWORD p) = 0;
-    virtual HRESULT __stdcall GetPosition(void* p) = 0;
-    virtual HRESULT __stdcall GetVelocity(void* p) = 0;
-    virtual HRESULT __stdcall SetAllParameters(void* p, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetConeAngles(DWORD a, DWORD b, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetConeOrientation(float x, float y, float z, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetConeOutsideVolume(LONG v, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetMaxDistance(float d, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetMinDistance(float d, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetMode(DWORD mode, DWORD apply) = 0;
-    virtual HRESULT __stdcall SetPosition(float x, float y, float z, DWORD apply) = 0;
 };
 
 int __stdcall HAPI_CloseFile(FileHandle* file);
@@ -119,63 +88,22 @@ int Sound::SetCdCallback(void (*cb)())
     return 1;
 }
 
-#ifdef __clang__
-static void SeedTrackReplies(char* count, char* trackType)
-{
-    int files = 0;
-    struct host_dir_entry found;
-    void* h = host_dir_first("music\\*.mp3", &found);
-    if (h != NULL) {
-        do {
-            files++;
-        } while (host_dir_next(h, &found));
-        host_dir_close(h);
-    }
-    wsprintfA(count, "%d", files);
-    strcpy(trackType, "other");
-}
-#endif
-
 // FUNCTION: 0x4cda00
 int Sound::QueryDisc()
 {
-    int other;
-    int i;
-    char type[32];
-    char buf[32];
-
     currentTrack = 0;
     playState = 0;
-    // TODO(#176): read the audio disc's volume serial through the host, so ReopenCdAudio tells discs apart
-    // Both mciSendStringA results are assigned to an int local before being tested.
-#ifdef __clang__
-    SeedTrackReplies(buf, type);
-#endif
-    int hr = mciSendStringA("status cdaudio number of tracks", buf, 0x20, 0);
-    // The whole body, tail included, nests in this if; the failure is the
-    // trailing return 0 after it.
-    if (hr == 0) {
-        trackCount = atoi(buf);
-        mciSendStringA("set cdaudio time format tmsf", 0, 0, 0);
-        hr = mciSendStringA("status cdaudio type track 1", type, 0x20, 0);
-        if (hr != 0)
-            goto notAudio;
-        if (strcmp(type, "audio") != 0) {
-            // other is a dead store; the no-op loop keeps its stack slot and the frame size.
-            other = strcmp(type, "other");
-            for (i = 0; i < other; i++) {
-            }
-            goto notAudio;
-        } else {
+    int n = host_music_track_count();
+    if (n >= 0) {
+        trackCount = n;
+        discSerial = host_music_disc_serial();
+        if (host_music_track_is_audio(1) == 1) {
             dataTrack = 0;
-            goto done;
+        } else {
+            dataTrack = 1;
+            if (--trackCount < 0)
+                trackCount = 0;
         }
-notAudio:
-        dataTrack = 1;
-        if (--trackCount < 0)
-            trackCount = 0;
-done:
-        // The tail stays a single return statement.
         if (trackCount != 0)
             currentTrack = 1;
         return trackCount;
@@ -188,19 +116,17 @@ int HarnessViewRand();
 // FUNCTION: 0x4cdb40
 void Sound::PlayNextTrack()
 {
-    char buf[64];
     int playing;
     int r;
     int count;
     int i;
     int j;
     int zero = 0;
-    int res;
 
     if (trackCount == zero)
         return;
     if (trackCategory == 4) {
-        mciSendStringA("stop cdaudio", (LPSTR)zero, 0, (HWND)zero);
+        host_music_stop();
         if (trackCount != zero)
             currentTrack = 1;
         else
@@ -224,12 +150,10 @@ void Sound::PlayNextTrack()
                 if (playState == zero)
                     return;
                 playState = zero;
-                // Result kept in a local so the call is not folded into test eax,eax.
-                res = mciSendStringA("status cdaudio mode", buf, 0x40, (HWND)zero);
-                playing = res == none ? strcmp(buf, "playing") == none : none;
+                playing = host_music_playing() == 1;
                 if (playing == none)
                     return;
-                mciSendStringA("stop cdaudio", (LPSTR)none, 0, (HWND)none);
+                host_music_stop();
                 if (trackCount != none)
                     currentTrack = 1;
                 else
@@ -243,8 +167,7 @@ void Sound::PlayNextTrack()
             }
         case 1:
             {
-            res = mciSendStringA("status cdaudio mode", buf, 0x40, (HWND)zero);
-            playing = res == zero ? strcmp(buf, "playing") == zero : zero;
+            playing = host_music_playing() == 1;
             if (playing != zero)
                 goto done;
             if (currentTrack < one)
@@ -258,8 +181,7 @@ void Sound::PlayNextTrack()
             }
         case 2:
             {
-            res = mciSendStringA("status cdaudio mode", buf, 0x40, (HWND)zero);
-            playing = res == zero ? strcmp(buf, "playing") == zero : zero;
+            playing = host_music_playing() == 1;
             if (playing != zero)
                 goto done;
             this->PlayCdTrack(HarnessViewRand() % trackCount + 1, one);
@@ -267,8 +189,8 @@ void Sound::PlayNextTrack()
             }
         case 3:
             {
-            res = mciSendStringA("status cdaudio mode", buf, 0x40, (HWND)zero);
-            playing = res == zero ? strcmp(buf, "playing") == zero : zero;            if (playing == zero || currentTrack != lockedTrack) {
+            playing = host_music_playing() == 1;
+            if (playing == zero || currentTrack != lockedTrack) {
                 if (lockedTrack == zero)
                     lockedTrack = one;
                 this->PlayCdTrack(lockedTrack, one);
@@ -282,9 +204,8 @@ void Sound::PlayNextTrack()
         }
     }
     r = HarnessViewRand() & 0xf;
-    res = mciSendStringA("status cdaudio mode", buf, 0x40, (HWND)zero);
-    playing = res == zero ? strcmp(buf, "playing") == 0 : 0;
-    if (playing != 0 && arr_214[currentTrack] == trackCategory)
+    playing = host_music_playing() == 1;
+            if (playing != 0 && arr_214[currentTrack] == trackCategory)
         goto done;
     count = (r + 1) * trackCount;
     i = currentTrack;
@@ -306,7 +227,7 @@ void Sound::PlayNextTrack()
     if (count > 0)
         goto done;
 stop:
-    mciSendStringA("stop cdaudio", (LPSTR)zero, 0, (HWND)zero);
+    host_music_stop();
     playState = 0;
     currentTrack = (trackCount != 0);
     step = 0;
@@ -328,12 +249,10 @@ int Sound::GetPlayState()
 // FUNCTION: 0x4ce030
 void __cdecl HandleCdMessage(int msg, int wParam, int lParam)
 {
-    char buf[64];
-
     switch (msg) {
     case 0x219: {
         Sound* obj = g_cdPlayer;
-        mciSendStringA("stop cdaudio", 0, 0, 0);
+        host_music_stop();
         if (obj->trackCount)
             obj->currentTrack = 1;
         else
@@ -352,11 +271,7 @@ void __cdecl HandleCdMessage(int msg, int wParam, int lParam)
     }
     case 0x3b9:
         if (wParam == 1 && g_cdPlayer->playState == 1) {
-            int playing;
-            if (mciSendStringA("status cdaudio mode", buf, 0x40, 0) == 0)
-                playing = strcmp(buf, "playing") == 0;
-            else
-                playing = 0;
+            int playing = host_music_playing() == 1;
             if (!playing)
                 g_cdPlayer->PlayNextTrack();
         }
@@ -400,8 +315,6 @@ BOOL __stdcall FindCdPlayerWindow(HWND hwnd, LPARAM param)
 // FUNCTION: 0x4ce260
 int Sound::OpenCdAudio()
 {
-    // Results go through hr: comparing the calls directly changes the test emitted.
-    MCIERROR hr;
     if (open != 0)
         return 1;
     g_cdPlayerWindow = 0;
@@ -418,14 +331,8 @@ int Sound::OpenCdAudio()
     open = 0;
     trackCount = 0;
     dataTrack = 0;
-    hr = mciSendStringA("open cdaudio", 0, 0, 0);
-    if (hr != 0) {
-        EnumWindows((WNDENUMPROC)FindCdPlayerWindow, 0);
-        hr = mciSendStringA("open cdaudio", 0, 0, 0);
-        if (hr != 0)
-            return 0;
-    }
-    mciSendStringA("stop cdaudio", 0, 0, 0);
+    if (!host_music_open())
+        return 0;
     playState = 0;
     currentTrack = (trackCount != 0);
     step = 0;
@@ -433,15 +340,6 @@ int Sound::OpenCdAudio()
     RemoveTimer(g_cdFadeTimer);
     g_cdFadeTimer = -1;
     g_cdNextTrackTimer = -1;
-    hr = mciSendStringA("set cdaudio time format milliseconds", 0, 0, 0);
-    if (hr != 0) {
-        if (open != 0) {
-            mciSendStringA("stop cdaudio", 0, 0, 0);
-            mciSendStringA("close cdaudio", 0, 0, 0);
-            open = 0;
-        }
-        return 0;
-    }
     discSerial = 0;
     trackCount = QueryDisc();
     SetMediaNotifyCallback((void (__stdcall*)(int, int, int))HandleCdMessage);
@@ -468,8 +366,7 @@ void Sound::CopyTrackTypeTable(const void* src)
 void Sound::CloseCdAudio()
 {
     if (open != 0) {
-        mciSendStringA("stop cdaudio", 0, 0, 0);
-        mciSendStringA("close cdaudio", 0, 0, 0);
+        host_music_close();
         open = 0;
     }
 }
@@ -484,32 +381,16 @@ int Sound::GetTrackCount()
 // FUNCTION: 0x4ce460
 int Sound::IsFirstTrackData()
 {
-    int type;
-    char buf[32];
-    mciSendStringA("set cdaudio time format tmsf", 0, 0, 0);
-    if (mciSendStringA("status cdaudio type track 1", buf, 0x20, 0) != 0)
-        return 1;
-    if (strcmp(buf, "audio") == 0) {
-        return 0;
-    } else {
-        // Keep the type == 0 test even though both branches return 1.
-        type = strcmp(buf, "other");
-        if (type == 0) {
-            return 1;
-        }
-        return 1;
-    }
+    return host_music_track_is_audio(1) != 1;
 }
 
 // FUNCTION: 0x4ce530
 int __stdcall GetTrackLength(int track)
 {
-    char buf[32];
-    char cmd[64];
-    sprintf(cmd, "status cdaudio length track %i", track);
-    if (mciSendStringA(cmd, buf, 0x20, 0) == 0)
-        return atoi(buf);
-    return 0;
+    int length = host_music_track_length(track);
+    if (length < 0)
+        return 0;
+    return length;
 }
 
 // FUNCTION: 0x4ce580
@@ -630,19 +511,16 @@ int Sound::GetCurrentTrack()
 // FUNCTION: 0x4ce800
 int Sound::IsCdPlaying()
 {
-    char buf[64];
-    if (mciSendStringA("status cdaudio mode", buf, 64, 0) == 0)
-        return strcmp(buf, "playing") == 0;
-    return 0;
+    return host_music_playing() == 1;
 }
 
 // FUNCTION: 0x4ce880
 int GetCdPosition()
 {
-    char buf[32];
-    if (mciSendStringA("status cdaudio position", buf, 32, 0) == 0)
-        return atoi(buf);
-    return 0;
+    int position = host_music_position();
+    if (position < 0)
+        return 0;
+    return position;
 }
 
 // FUNCTION: 0x4ce8c0
@@ -663,9 +541,7 @@ int Sound::SelectTrack(int index)
 // FUNCTION: 0x4ce910
 int Sound::PauseCdAudio(int pause)
 {
-    char cmd[100];
-    char buf[200];
-    char ret[200];
+    int ok;
     int track;
 
     if (cdEnabled == 0)
@@ -673,54 +549,24 @@ int Sound::PauseCdAudio(int pause)
     if (playState == 0)
         return 1;
 
-    HWND hwnd = GetDisplay()->hwnd;
-
     if (pause == 0) {
-        sprintf(cmd, "status cdaudio current track");
-        mciSendStringA(cmd, ret, 200, hwnd);
-        track = atoi(ret);
-        sprintf(buf, "play cdaudio");
-        if (track < trackCount) {
-            strcat(buf, " from ");
-            sprintf(cmd, "status cdaudio position");
-            mciSendStringA(cmd, ret, 200, hwnd);
-            strcat(buf, ret);
-            sprintf(cmd, "status cdaudio position track %i", track + 1);
-            mciSendStringA(cmd, ret, 200, hwnd);
-            strcat(buf, " to ");
-            strcat(buf, ret);
-        }
-        strcat(buf, " notify");
+        track = host_music_current_track();
+        if (track < trackCount)
+            ok = host_music_play_range(host_music_position(), host_music_track_start(track + 1));
+        else
+            ok = host_music_play_range(-1, -1);
         playState = 1;
     } else {
-        sprintf(buf, "pause cdaudio");
+        ok = host_music_pause();
         playState = 2;
     }
-
-    // The result goes through the err local: comparing the call itself changes the epilogue.
-    MCIERROR err = mciSendStringA(buf, 0, 0, hwnd);
-    return err == 0;
+    return ok;
 }
 
-// Sends one MCI "play cdaudio" command for the CD player object at +0 of the
-// sound class: "status cdaudio mode" first, and if the drive is already
-// playing the same track (which is remembered in the field at +0x208) the
-// command is skipped and 1 is returned. A seek of 0 stops the CD through
-// PlayNextTrack and returns 1. Otherwise the position is offset by the field
-// at +0x280, the CD volume is set for the duration, the time format is
-// switched to tmsf, "play cdaudio from %i" is built (with " to %i" when the
-// position is inside the last track) plus " notify" for the main window, and
-// the time format is switched back to milliseconds. Returns whether the
-// mciSendStringA of the play command succeeded.
 // FUNCTION: 0x4ceb60
 int Sound::PlayCdTrack(int index, int flag)
 {
-    char to[20];
-    char status[64];
-    char cmd[200];
     int same;
-    MCIERROR err;
-    HWND hwnd;
 
     if (cdEnabled == 0)
         return 1;
@@ -729,36 +575,20 @@ int Sound::PlayCdTrack(int index, int flag)
         PlayNextTrack();
         return 1;
     }
-    // A conditional expression, not &&: keeps the strcmp's two separate exits.
-    same = mciSendStringA("status cdaudio mode", status, 0x40, 0) == 0
-            ? strcmp(status, "playing") == 0
-            : 0;
+    same = host_music_playing() == 1;
     if (same && index == currentTrack)
         return 1;
     currentTrack = index;
     index += dataTrack;
-    hwnd = GetDisplay()->hwnd;
     SetAuxVolume(cdVolume, 1);
-    if (mciSendStringA("set cdaudio time format tmsf", 0, 0, 0) != 0)
-        return 0;
-    sprintf(cmd, "play cdaudio from %i", index);
-    if (index < trackCount) {
-        sprintf(to, " to %i", index + 1);
-        strcat(cmd, to);
-    }
-    // " notify" is its own strcat, not an argument of mciSendStringA.
-    strcat(cmd, " notify");
-    // The result goes through the err local: comparing the call itself changes the epilogue.
-    err = mciSendStringA(cmd, 0, 0, hwnd);
-    mciSendStringA("set cdaudio time format milliseconds", 0, 0, 0);
-    return err == 0;
+    return host_music_play_tracks(index, index < trackCount ? index + 1 : 0);
 }
 
 // Stops CD audio playback; returns 1 when the MCI command succeeded.
 // FUNCTION: 0x4ced40
 int Sound::StopCdAudio()
 {
-    MCIERROR err = mciSendStringA("stop cdaudio", 0, 0, 0);
+    int ok = host_music_stop();
     if (trackCount)
         currentTrack = 1;
     else
@@ -768,7 +598,7 @@ int Sound::StopCdAudio()
     RemoveTimer(g_cdNextTrackTimer);
     RemoveTimer(g_cdFadeTimer);
     g_cdNextTrackTimer = g_cdFadeTimer = -1;
-    return err == 0 ? 1 : 0;
+    return ok ? 1 : 0;
 }
 
 // FUNCTION: 0x4cedc0
@@ -776,7 +606,7 @@ void Sound::EnableCdAudio(int on)
 {
     cdEnabled = on;
     if (on == 0) {
-        mciSendStringA("stop cdaudio", 0, 0, 0);
+        host_music_stop();
         if (trackCount)
             currentTrack = 1;
         else

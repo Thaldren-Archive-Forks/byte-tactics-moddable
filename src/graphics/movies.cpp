@@ -197,7 +197,7 @@ MoviePlayer::MoviePlayer(char* path, int a, int b, int c, int d, int e)
     frame = 0;
     if (a)
         SmackSoundEnable((HWND)b);
-    void* sound = ((Display_0047bdf0 *)g_game->field_10)->sound;
+    void* sound = host_sound_native();
     SmackSoundUseDirectSound(sound);
     smack = SmackOpen(path, 0xfe100, -1);
     if (!smack)
