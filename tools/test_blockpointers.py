@@ -8,12 +8,14 @@ import unittest
 import blockpointers as bp
 
 SCAN = "\n".join([
-    "bt-blockptrs 1",
+    "bt-blockptrs 2",
     "commit\tabc",
+    "every\t8",
     "ticks\t10",
     "holder\tholder_tag\toffset\ttarget\ttarget_tag\tticks\ttarget_offset_min\ttarget_offset_max",
     "0x00401010\t-\t0x4\t0x00401200\tNAMES\t10\t0x0\t0x0",
     "SimGlobals\t-\t0x14\t0x00401030\t-\t3\t0xa\t0x40",
+    "0x00401010\t-\t0x9e\t0x00401200\tNAMES\t10\t0x0\t0x0",
     "",
 ])
 
@@ -52,18 +54,25 @@ def row(holder, target, offsets="0x0", cls="outside", note=""):
 class ScanTest(unittest.TestCase):
     def test_parse(self):
         scan = bp.parse_scan(SCAN, "eight")
-        self.assertEqual((scan.commit, scan.ticks, len(scan.rows)), ("abc", 10, 2))
+        self.assertEqual((scan.commit, scan.ticks, scan.every, len(scan.rows)), ("abc", 10, 8, 3))
         r = scan.rows[1]
         self.assertEqual((r.holder, r.offset, r.target_min, r.target_max), ("SimGlobals", 0x14, 0xa, 0x40))
         self.assertEqual(scan.rows[0].target_tag, "NAMES")
+        self.assertEqual(scan.rows[2].offset, 0x9e)
 
     def test_parse_rejects(self):
         with self.assertRaises(ValueError):
             bp.parse_scan("bt-trace 3\n", "x")
         with self.assertRaises(ValueError):
-            bp.parse_scan("bt-blockptrs 1\nticks\t1\na\tb\n", "x")
+            bp.parse_scan("bt-blockptrs 2\nevery\t1\nticks\t1\na\tb\n", "x")
         with self.assertRaises(ValueError):
-            bp.parse_scan("bt-blockptrs 1\ncommit\t-\n", "x")
+            bp.parse_scan("bt-blockptrs 2\ncommit\t-\nevery\t1\n", "x")
+        with self.assertRaises(ValueError):
+            bp.parse_scan("bt-blockptrs 2\ncommit\t-\nticks\t1\n", "x")
+        with self.assertRaises(ValueError):
+            bp.parse_scan("bt-blockptrs 2\nevery\t0\nticks\t1\n", "x")
+        with self.assertRaises(ValueError):
+            bp.parse_scan("bt-blockptrs 1\ncommit\t-\nticks\t1\n", "x")
 
 
 class NamingTest(unittest.TestCase):
@@ -172,6 +181,13 @@ class MatcherTest(unittest.TestCase):
         lines = bp.describe_uncovered(missing, self.ROWS)
         self.assertIn("offset not listed", lines[0])
         self.assertIn("pair not listed", lines[1])
+
+    def test_odd_offsets(self):
+        rows = [row("H", "T", "0x9e+0x1f*k")]
+        scanned = [resolved("H", 0x9e, "T"), resolved("H", 0xbd, "T"), resolved("H", 0xdc, "T"),
+                   resolved("H", 0x9f, "T")]
+        self.assertEqual([m.offset for m in bp.uncovered(scanned, rows)], [0x9f])
+        self.assertEqual(bp.offsets_text({0x9e, 0xbd, 0xdc}), "0x9e+0x1f*k")
 
     def test_check_scans_missing_file(self):
         problems = bp.check_scans({"eight": None}, bp.ROOT / "none.map", bp.ROOT, [])

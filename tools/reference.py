@@ -53,6 +53,7 @@ QUICK = ("eight-full-moon", "eight-greenhaven", "duel-coast-to-coast", "duel-gre
 RUN_SECONDS_BASE = 120
 RUN_TICKS_PER_SECOND = 25
 RUN_ATTEMPTS = 2
+GATE_SCAN_EVERY = 8
 RETRY_DIALOG = "dialog-directx"
 
 
@@ -186,7 +187,8 @@ def should_retry(message: str) -> bool:
 
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
                   want: tuple[dict[str, str], list[tuple[int, str]]] | None = None, poison: bool = False,
-                  keep_always: bool = False, scans: dict[str, str | None] | None = None) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
+                  keep_always: bool = False, scans: dict[str, str | None] | None = None,
+                  scan_every: int = 1) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
     """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken.
 
     With `want` (the stored header and digests), a run that differs is kept: the last element is the
@@ -197,7 +199,7 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
     tick 1 (startup under load). A run that is still going at the timeout is a hang, and a run that
     stopped on any other error dialog (R6025 and the like) is a game fault: both fail at once.
 
-    With `scans` (a dict) the run has the block pointer scan on, and its blockptrs.txt text (None if the run
+    With `scans` (a dict) the run has the block pointer scan on (every `scan_every` ticks), and its blockptrs.txt text (None if the run
     wrote none) is stored there under the scenario's name before the run directory is removed.
     """
     ticks = scenario_ticks(scenario)
@@ -205,7 +207,7 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
     t0 = time.time()
     for attempt in range(RUN_ATTEMPTS):
         try:
-            run = tracediff.play(exe, scenario, game_dir, None, timeout, poison, scans is not None)
+            run = tracediff.play(exe, scenario, game_dir, None, timeout, poison, scan_every if scans is not None else 0)
             break
         except tracediff.Error as e:
             if attempt == RUN_ATTEMPTS - 1 or not should_retry(str(e)):
@@ -238,12 +240,12 @@ def last_lines(error: Exception, count: int = 1) -> str:
 def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int,
              expected: dict[str, tuple] | None = None, poison: bool = False,
              failed: dict[str, str] | None = None, keep_always: bool = False,
-             scans: dict[str, str | None] | None = None) -> dict[str, tuple]:
+             scans: dict[str, str | None] | None = None, scan_every: int = 1) -> dict[str, tuple]:
     """Every scenario's play_scenario result, `parallel` at a time and longest first; exits 1 if one fails to run.
 
     With `failed` (a dict), a scenario that fails to run is recorded there as name -> message and play_all
     returns without exiting. With `keep_always`, every run's trace.txt is kept (see play_scenario). With `scans`,
-    every run has the block pointer scan on and leaves its blockptrs.txt there.
+    every run has the block pointer scan on (every `scan_every` ticks) and leaves its blockptrs.txt there.
 
     Each run has its own session directory, Wine prefix, game directory, X display and audio sink
     (tools/playtest.py names them by its pid), so runs share nothing but the template prefix,
@@ -255,7 +257,7 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
 
     def one(name: str) -> None:
         try:
-            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name), poison, keep_always, scans)
+            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name), poison, keep_always, scans, scan_every)
         except (tracediff.Error, OSError) as e:
             if failed is not None:
                 failed[name] = last_lines(e, 5)
@@ -346,7 +348,7 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     t0 = time.time()
     try:
         results = play_all(exe, played, game_dir, parallel, expected, poison, failed if quirks is not None else None,
-                           scans=scans)
+                           scans=scans, scan_every=GATE_SCAN_EVERY)
         if quirks is not None:
             differing = [n for n in scenarios if n in results and n not in failed and difference(expected[n], *results[n][:2])]
             if differing:

@@ -18,8 +18,8 @@ reference/README.md) and passes when it exits with status 0 within
 `--testmode-timeout` seconds. The trace the exe writes (trace.txt, and dump.txt
 with `--testdump <tick>`) is copied to the run's directory. Every `--testmode` run passes the game's
 own `-memset=0` switch, which makes GameAlloc (and so operator new) zero new memory. `--poison` passes
-`-memset=0xcdcdcdcd` instead, which fills it with 0xCD. `--blockscan` adds `-blockscan` and copies
-blockptrs.txt too.
+`-memset=0xcdcdcdcd` instead, which fills it with 0xCD. `--blockscan` adds `-blockscan` (every tick) and copies
+blockptrs.txt too; `--blockscan-every N` adds `-blockscan=N`.
 
 Each run has its own:
 
@@ -468,7 +468,7 @@ class Instance:
         if self.run.testmode:
             args += [POISON_SWITCH if self.run.poison else ZERO_FILL_SWITCH]
         if self.run.testmode and self.run.blockscan:
-            args += ["-blockscan"]
+            args += ["-blockscan" if self.run.blockscan == 1 else f"-blockscan={self.run.blockscan}"]
         self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
                                      stdout=(self.run.out / f"wine{self.suffix}.log").open("w"),
                                      stderr=subprocess.STDOUT)
@@ -846,7 +846,7 @@ class GotoLabel(Exception):
 class Run:
     def __init__(self, number: int, name: str, scenario: Scenario, exes: list[Path], exe_tag: str, session: Path,
                  screens: dict[str, Screen], debug: str, window: bool = False, testmode: Path | None = None,
-                 testdump: int | None = None, poison: bool = False, blockscan: bool = False):
+                 testdump: int | None = None, poison: bool = False, blockscan: int = 0):
         self.number = number
         self.name = name
         self.scenario = scenario
@@ -860,7 +860,7 @@ class Run:
         self.testmode = testmode     # a reference/ scenario file to run the exe on
         self.testdump = testdump     # the tick to dump the state of, with testmode
         self.poison = poison
-        self.blockscan = blockscan
+        self.blockscan = blockscan   # scan the block pointers every this many ticks, 0 for never
         self.instances = [Instance(self, i + 1) for i in range(scenario.instances)]
         self.t0 = time.time()
         self.log = None
@@ -1337,6 +1337,8 @@ def main() -> None:
                     help="--testmode: fill new game allocations with 0xCD (the game's -memset switch)")
     ap.add_argument("--blockscan", action="store_true",
                     help="--testmode: run with -blockscan, which writes blockptrs.txt (the pointers out of the block)")
+    ap.add_argument("--blockscan-every", type=int, metavar="N", default=0,
+                    help="--testmode: --blockscan on every Nth tick and each tick of the last 64 (-blockscan=N)")
     ap.add_argument("--list", action="store_true", help="list the scenarios")
     ap.add_argument("--signature", nargs="+", metavar="NAME GEOMETRY IMAGE",
                     help="print a screens.txt line for an area of screenshots of one screen")
@@ -1367,8 +1369,11 @@ def main() -> None:
         ap.error("--exe and --scenario (or --testmode) are required")
     if args.testdump is not None and not args.testmode:
         ap.error("--testdump needs --testmode")
-    if args.blockscan and not args.testmode:
-        ap.error("--blockscan needs --testmode")
+    if (args.blockscan or args.blockscan_every) and not args.testmode:
+        ap.error("--blockscan and --blockscan-every need --testmode")
+    if args.blockscan_every < 0:
+        ap.error("--blockscan-every needs 1 or more")
+    scan_every = args.blockscan_every or int(args.blockscan)
     if args.poison and not args.testmode:
         ap.error("--poison needs --testmode")
     if args.testdump is not None and args.testdump < 0:
@@ -1420,7 +1425,7 @@ def main() -> None:
                                 args.debug, args.window,
                                 Path(args.testmode).resolve() if sc is testmode else None,
                                 args.testdump if sc is testmode else None,
-                                args.poison and sc is testmode, args.blockscan and sc is testmode))
+                                args.poison and sc is testmode, scan_every if sc is testmode else 0))
     parallel = args.parallel or min(3, len(runs))
     template = template_prefix()
     dplay = directplay_prefix() if any(sc.directplay for sc in scenarios) else None

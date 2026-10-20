@@ -401,21 +401,25 @@ The full `--check` is what a pull request's gate needs.
 ## Block pointers
 
 `-blockscan` (`--blockscan` for playtest.py, with `-testmode`) makes the game list the pointers out of the shared
-state block. At the end of each tick, after the last phase, it walks every live allocation of the block and
-the `SimGlobals` struct, reads each aligned 4-byte word, and keeps the ones that point into a live heap
-allocation outside the block. When the run ends it writes `blockptrs.txt` beside `trace.txt`: tab-separated,
-a header (`bt-blockptrs 1`, `commit`, `ticks`) and one row per distinct (holder site, holder tag, offset,
+state block. At the end of a scanned tick, after the last phase, it walks every live allocation of the block and
+the `SimGlobals` struct, reads a 4-byte word at every byte offset (the packed structs keep pointers at odd
+offsets, such as `Unit.state` at 0x9e), and keeps the ones that point into a live heap allocation outside the
+block. `-blockscan` scans every tick; `-blockscan=N` (playtest.py `--blockscan-every N`) scans the ticks
+divisible by N and every tick of the last 64. When the run ends it writes `blockptrs.txt` beside `trace.txt`:
+tab-separated, a header (`bt-blockptrs 2`, `commit`, `every`, `ticks`, the ticks scanned) and one row per distinct (holder site, holder tag, offset,
 target site, target tag) with the holder (`SimGlobals` or the allocation site, a return address in the exe),
 the offset in the holder, the target site, the ticks it was seen in and the smallest and largest offset it
 pointed at in the target. The scan does not change the traces.
 
-`reference.py --check` always runs with the scan on, resolves the sites with the linker map beside the exe
+`reference.py --check` always runs with the scan on, every 8th tick and every tick of the last 64 (`-blockscan=8`),
+resolves the sites with the linker map beside the exe
 (`build/modern/TotalA.map`) and compares every row with `data/block_pointers.csv`, after printing the trace
 results. A (holder, target) pair or an offset the file does not cover, or a scenario with no `blockptrs.txt`,
 is printed (scenario, holder, offset, target) and `--check` exits 1. `--quick` does not check the pointers.
 `--save-blockptrs <dir>` writes each scenario's file to `<dir>/<scenario>.txt`, and
 `uv run tools/blockpointers.py --from <dir>` regenerates the data file from them, keeping the hand-set `class` and
-`note` columns; without `--from` it plays the suite itself. `tools/blockpointers.py --check` (CI) checks the file.
+`note` columns; without `--from` it plays the suite itself with the scan on every tick, which is how the list
+should be made (a `--from` of sampled files warns). `tools/blockpointers.py --check` (CI) checks the file.
 
 Integers that look like heap addresses come per field, not per pair (they hit many targets, which change with the
 heap layout), and a grid with no pointers at all can make tens of thousands of offsets. For those a hand-written

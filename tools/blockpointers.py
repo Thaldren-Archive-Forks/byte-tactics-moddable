@@ -10,11 +10,13 @@
 This is the list for #285. The decompilation's types do not mark every pointer, so the game finds
 them: run with `-blockscan` (tools/playtest.py --blockscan), a test-mode run walks every live
 allocation of the block and the `SimGlobals` struct at the end of each tick and writes blockptrs.txt
-(reference/README.md, "Block pointers") with each aligned word that points into a live heap
-allocation outside the block. This tool plays the whole scenario suite (the scenarios of
-reference/scenarios/, as tools/reference.py does, quirks off), or takes the files of an earlier
-run (`--from DIR...`, files named `<scenario>.txt`, which `reference.py --check --save-blockptrs DIR`
-writes), resolves the allocation sites with the linker map and merges the results.
+(reference/README.md, "Block pointers") with each 4-byte word, read at every byte offset (the packed
+structs keep pointers at odd offsets), that points into a live heap allocation outside the block.
+This tool plays the whole scenario suite (the scenarios of reference/scenarios/, as tools/reference.py
+does, quirks off) with the scan on every tick, or takes the files of an earlier run (`--from DIR...`,
+files named `<scenario>.txt`, which `reference.py --check --save-blockptrs DIR` writes; the gate scans
+every 8th tick and every tick of the last 64, so the list is best made by playing the suite), resolves
+the allocation sites with the linker map and merges the results. It accepts version 2 files only.
 
 Names. A site is a return address in the exe. The map (build/modern/TotalA.map) gives the function
 that contains it, and the tag the caller passed adds `: <tag>`. A function with several sites of one
@@ -72,7 +74,7 @@ DEFAULT_EXE = ROOT / "build/modern/TotalA.exe"
 COLUMNS = ["holder", "offsets", "target", "scenarios", "ticks", "target_offsets", "class", "note"]
 KEPT = ("class", "note")
 CLASSES = ("outside", "moves-in", "not-a-pointer")
-SCAN_MAGIC = "bt-blockptrs 1"
+SCAN_MAGIC = "bt-blockptrs 2"
 SCAN_COLUMNS = ["holder", "holder_tag", "offset", "target", "target_tag", "ticks", "target_offset_min",
                 "target_offset_max"]
 MIN_RUN = 3
@@ -101,10 +103,11 @@ class ScanRow:
 
 @dataclass
 class Scan:
-    """A parsed blockptrs.txt: the commit and tick count of the run and its rows."""
+    """A parsed blockptrs.txt: the commit, sampling and scanned tick count of the run and its rows."""
     scenario: str
     commit: str
     ticks: int
+    every: int = 1
     rows: list[ScanRow] = field(default_factory=list)
 
 
@@ -119,7 +122,7 @@ def parse_scan(text: str, scenario: str) -> Scan:
         if not line.strip():
             continue
         cells = line.split("\t")
-        if cells[0] in ("commit", "ticks") and len(cells) == 2:
+        if cells[0] in ("commit", "every", "ticks") and len(cells) == 2:
             header[cells[0]] = cells[1]
             continue
         if cells == SCAN_COLUMNS:
@@ -133,7 +136,15 @@ def parse_scan(text: str, scenario: str) -> Scan:
             raise ValueError("%s:%d: a number does not parse: %r" % (scenario, number, line)) from None
     if "ticks" not in header:
         raise ValueError("%s: no ticks line" % scenario)
-    return Scan(scenario, header.get("commit", "-"), int(header["ticks"]), rows)
+    if "every" not in header:
+        raise ValueError("%s: no every line" % scenario)
+    try:
+        ticks, every = int(header["ticks"]), int(header["every"])
+    except ValueError:
+        raise ValueError("%s: ticks or every is not a number" % scenario) from None
+    if every < 1:
+        raise ValueError("%s: every is %d, expected 1 or more" % (scenario, every))
+    return Scan(scenario, header.get("commit", "-"), ticks, every, rows)
 
 
 def read_scans(paths: list[Path]) -> list[Scan]:
@@ -600,6 +611,10 @@ def main() -> None:
         scans = [parse_scan(t, n) for n, t in sorted(texts.items())]
     if not map_path.is_file():
         sys.exit("blockpointers: no linker map at %s (--map)" % map_path)
+    sampled = sorted({s.every for s in scans} - {1})
+    if sampled:
+        print("warning: some scans sample the ticks (every %s); the list is made from every tick"
+              % ", ".join(str(n) for n in sampled))
     commits = {s.commit for s in scans}
     if len(commits) > 1:
         print("warning: the scans come from different commits: " + ", ".join(sorted(commits)))
