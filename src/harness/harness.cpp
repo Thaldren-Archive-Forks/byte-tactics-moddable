@@ -870,10 +870,18 @@ enum {
     STRING_LIMIT = 255,
     PLAYER_SLOTS = 11,
     PLAYER_MANAGER = 0x74,
+    PLAYER_ALLIED = 0x108,
+    AI_CENTRE = 0x35,
+    AI_CENTRE_SIZE = 12,
     PLAYER_SQUADS = 0x78,
     PLAYER_ECON = 0xec,
     SQUAD_TIMERS = 10,
     MANAGER_TIMERS = 0x11,
+    MANAGER_SCOUT_TIMER = 8,
+    SCRIPT_SET_UNIT_VALUE_SLOT = 16,
+    SCRIPT_VALUE_YARD_OPEN = 18,
+    PACKET_UNIT_DEATH = 12,
+    PACKET_UNIT_DEATH_SIZE = 11,
     SQUAD_COUNT = 10,
     SQUAD_STRIDE = 0x20,
     SQUAD_ITEMS = 0x10,
@@ -2695,9 +2703,9 @@ void __stdcall ApplyUnitDeath(void* cmd, int local);
 static void ReachQuirkGuard()
 {
     if (s_quirkReach == 1) {
-        unsigned char cmd[11];
+        unsigned char cmd[PACKET_UNIT_DEATH_SIZE];
         memset(cmd, 0, sizeof cmd);
-        cmd[0] = 12;
+        cmd[0] = PACKET_UNIT_DEATH;
         ApplyUnitDeath(cmd, 0);
         return;
     }
@@ -2708,24 +2716,27 @@ static void ReachQuirkGuard()
             unsigned manager = ReadU32At((unsigned)PlayerAt(slot), PLAYER_MANAGER);
             unsigned char* ai = g_playerAI[slot];
             unsigned count = *(unsigned short*)GameAt(GAME_POOL_COUNT);
-            for (unsigned i = 0; manager != 0 && ai != 0 && i < count; i++) {
+            if (manager == 0 || ai == 0)
+                Fail("quirks_reach: the AI player has no manager\n");
+            for (unsigned i = 0; i < count; i++) {
                 unsigned char* u = PoolUnit(i);
                 if (*(unsigned short*)(u + UNIT_TYPE) == 0 || !UnitIsSlot(u, slot))
                     continue;
                 g_seams.ai->SetUnitSquad((Unit*)u, 8);
-                memset(ai + 0x35, 0, 12);
-                void* timer = (void*)ReadU32At(manager, MANAGER_TIMERS + 8 * 4);
+                memset(ai + AI_CENTRE, 0, AI_CENTRE_SIZE);
+                void* timer = (void*)ReadU32At(manager, MANAGER_TIMERS + MANAGER_SCOUT_TIMER * 4);
                 void (__thiscall* onTimer)(void*) = (void (__thiscall*)(void*))(*(void***)timer)[0];
-                unsigned char* allied = PlayerAt(slot) + 0x108;
-                unsigned char saved[11];
+                unsigned char* allied = PlayerAt(slot) + PLAYER_ALLIED;
+                unsigned char saved[PLAYER_SLOTS];
                 memcpy(saved, allied, sizeof saved);
                 memset(allied, 1, sizeof saved);
                 onTimer(timer);
                 memcpy(allied, saved, sizeof saved);
                 return;
             }
-            return;
+            Fail("quirks_reach: no AI player with a unit at the reach tick\n");
         }
+        Fail("quirks_reach: no AI player at the reach tick\n");
         return;
     }
     for (unsigned i = 0, count = *(unsigned short*)GameAt(GAME_POOL_COUNT); i < count; i++) {
@@ -2734,11 +2745,12 @@ static void ReachQuirkGuard()
             continue;
         void* script = (void*)ReadU32At((unsigned)u, UNIT_SCRIPT);
         if (script == NULL)
-            return;
-        void (__thiscall* setUnitValue)(void*, int, int) = (void (__thiscall*)(void*, int, int))(*(void***)script)[16];
-        setUnitValue(script, 18, 1);
+            Fail("quirks_reach: the unit has no script\n");
+        void (__thiscall* setUnitValue)(void*, int, int) = (void (__thiscall*)(void*, int, int))(*(void***)script)[SCRIPT_SET_UNIT_VALUE_SLOT];
+        setUnitValue(script, SCRIPT_VALUE_YARD_OPEN, 1);
         return;
     }
+    Fail("quirks_reach: no unit of player 0 at the reach tick\n");
 }
 
 void HarnessBeforeStep()
