@@ -51882,16 +51882,6 @@ address,function,file,kind,target
 ,host_frame_present,src/host/win32/display.cpp,function,
 ,host_frame_present,src/host/win32/display.cpp,global_read,g_back
 ,host_frame_present,src/host/win32/display.cpp,global_read,g_primary
-,host_frame_read,src/host/win32/display.cpp,call,host_frame_lock
-,host_frame_read,src/host/win32/display.cpp,call,host_frame_unlock
-,host_frame_read,src/host/win32/display.cpp,call,host_palette_get
-,host_frame_read,src/host/win32/display.cpp,call,memcpy
-,host_frame_read,src/host/win32/display.cpp,call,memset
-,host_frame_read,src/host/win32/display.cpp,field_read,host_frame::height
-,host_frame_read,src/host/win32/display.cpp,field_read,host_frame::pitch
-,host_frame_read,src/host/win32/display.cpp,field_read,host_frame::pixels
-,host_frame_read,src/host/win32/display.cpp,field_read,host_frame::width
-,host_frame_read,src/host/win32/display.cpp,function,
 ,host_frame_restore,src/host/win32/display.cpp,call,Restore
 ,host_frame_restore,src/host/win32/display.cpp,function,
 ,host_frame_restore,src/host/win32/display.cpp,global_read,g_back

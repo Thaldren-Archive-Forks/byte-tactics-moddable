@@ -276,8 +276,6 @@ int HOST_CALL host_frame_fill(int which, unsigned int colour);
 int HOST_CALL host_frame_pixel_format(struct host_pixel_format* format);
 // Draws length bytes of text at x and y of a frame in the 0xrrggbb colour, with the host's own font handle font (NULL for the default font), and returns 1, or returns 0 on failure.
 int HOST_CALL host_frame_text(int which, void* font, int x, int y, const char* text, int length, unsigned int rgb);
-// Copies the back frame to pixels (rows pitch bytes apart) and its 256 four-byte palette entries to palette, and returns 1, or returns 0 on failure.
-int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsigned char* palette);
 
 // Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen, and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_create(const unsigned char* entries);
