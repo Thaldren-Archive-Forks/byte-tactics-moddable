@@ -72,6 +72,7 @@ class CheckQuirksTest(unittest.TestCase):
         plain = {"game_seed": "1", "crt_seed": "1", "view_seed": "1"}
         stored = (plain, self.STORED)
         played, reruns = {}, []
+        self.rerun_texts = {}
 
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
@@ -89,6 +90,7 @@ class CheckQuirksTest(unittest.TestCase):
             def fake_play_all(exe, scenarios, game_dir, parallel, expected, poison, failed, keep_always=False):
                 if keep_always:
                     reruns.extend(scenarios)
+                    self.rerun_texts = {name: path.read_text() for name, path in scenarios.items()}
                     if off_failed:
                         failed["diff"] = off_failed
                         return {}
@@ -121,6 +123,7 @@ class CheckQuirksTest(unittest.TestCase):
                     reference.check_traces(Path("x.exe"), None, 1, quirks="recommended")
                 except SystemExit as e:
                     status = e.code
+        self.played_texts = played
         return status, out.getvalue(), played, reruns
 
     def test_header_quirks_line_alone_is_equal(self):
@@ -142,6 +145,12 @@ class CheckQuirksTest(unittest.TestCase):
         self.assertIsNone(status)
         self.assertEqual(reruns, ["diff"])
         self.assertIn("quirks recommended\norder", played["diff"])
+
+    def test_all_off_rerun_plays_scenarios_without_the_quirks_line(self):
+        self.run_check(diff_digests=self.DIFFERS)
+        self.assertTrue(any(line.startswith("quirks") for line in self.played_texts["diff"].splitlines()))
+        self.assertEqual(list(self.rerun_texts), ["diff"])
+        self.assertFalse(any(line.startswith("quirks") for line in self.rerun_texts["diff"].splitlines()))
 
     def test_failed_scenario_exits_1(self):
         status, out, _, _ = self.run_check(failed_names=("bad",))

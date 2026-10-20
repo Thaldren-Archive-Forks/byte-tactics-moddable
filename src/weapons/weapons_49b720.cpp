@@ -13,7 +13,6 @@
 #pragma pack(push, 1)
 
 #include "../util/vec3.h"
-typedef Vec3 Vec3_0049b720;
 
 #include "weapon_def.h"
 #include "projectile.h"
@@ -21,14 +20,6 @@ typedef Vec3 Vec3_0049b720;
 
 
 #include "../units/unit.h"
-
-union Word_0049b720 {
-    int i;
-    struct {
-        unsigned short lo;
-        short hi;
-    } s;
-};
 
 struct Net_0049b720 {
     char unknown_0[0xd48];
@@ -45,14 +36,14 @@ extern Game* g_game;
 
 void __stdcall CompactProjectiles();
 void __stdcall CheckProjectileCollision(WeaponDef* type, Projectile* p);
-Vec3_0049b720* __stdcall GetProjectileAimPoint(Projectile* p);
-int __stdcall TurnUnitTowardsPoint(Projectile* p, Vec3_0049b720* target);
+Vec3* __stdcall GetProjectileAimPoint(Projectile* p);
+int __stdcall TurnUnitTowardsPoint(Projectile* p, Vec3* target);
 void __stdcall DetonateProjectile(Projectile* p, void* unit);
-void __stdcall GetWeaponPiecePosition(Unit* unit, Vec3_0049b720* out, unsigned char weapon, int piece);
-int __stdcall PlaySoundAt(int sound, Vec3_0049b720* pos, int flag);
-void __stdcall EmitWhiteSmoke(Vec3_0049b720* pos, short kind);
+void __stdcall GetWeaponPiecePosition(Unit* unit, Vec3* out, unsigned char weapon, int piece);
+int __stdcall PlaySoundAt(int sound, Vec3* pos, int flag);
+void __stdcall EmitWhiteSmoke(Vec3* pos, short kind);
 #include "../../interfaces/seams.h"
-void __stdcall AddExplosionEffect(Vec3_0049b720* pos, void* src, int index, int flag);
+void __stdcall AddExplosionEffect(Vec3* pos, void* src, int index, int flag);
 int __stdcall RandomInt(int range);
 int __cdecl FUN_004b70ef(short angle, int scale);
 int __cdecl FUN_004b7123(short angle, int scale);
@@ -72,7 +63,7 @@ static Projectile* AllocProjectile()
 
 // Gravity goes through this pointer store, not `p->vel.y -= ...`: it makes
 // p->type get reloaded, so `type` is not propagated.
-static inline void Fall(Vec3_0049b720* v)
+static inline void Fall(Vec3* v)
 {
     v->y -= g_game->gravity;
 }
@@ -159,7 +150,7 @@ void UpdateProjectiles()
                         seek = 1;
                     }
                     if (seek) {
-                        Vec3_0049b720* target = GetProjectileAimPoint(p);
+                        Vec3* target = GetProjectileAimPoint(p);
                         if (TurnUnitTowardsPoint(p, target) == 0)
                             DetonateProjectile(p, 0);
                     }
@@ -202,7 +193,7 @@ void UpdateProjectiles()
             if (type->lifetime != 0) {
                 if (p->time > (unsigned int)g_game->ticks) {
                     p->position += p->direction;
-                    p->position += (*(Vec3_0049b720*)&g_game->wind);
+                    p->position += (*(Vec3*)&g_game->wind);
                     p->direction.y -= g_game->gravity;
                     CheckProjectileCollision(type, p);
                 } else if (type->flags.b.burnBlow) {
@@ -213,13 +204,13 @@ void UpdateProjectiles()
                 }
             } else {
                 p->position += p->direction;
-                p->position += (*(Vec3_0049b720*)&g_game->wind);
+                p->position += (*(Vec3*)&g_game->wind);
                 p->direction.y -= g_game->gravity;
                 CheckProjectileCollision(type, p);
             }
         } else if (type->flags.b.dropped) {
             p->position += p->direction;
-            p->position += (*(Vec3_0049b720*)&g_game->wind);
+            p->position += (*(Vec3*)&g_game->wind);
             p->direction.y -= g_game->gravity;
             CheckProjectileCollision(type, p);
         } else if (type->flags.b.meteor) {
