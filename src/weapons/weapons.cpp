@@ -180,8 +180,6 @@ struct Net {
 
 #pragma pack(push, 1)
 
-// 499a30's and 49b720's position view: Vec3 (see the top of the file).
-
 struct Unit;
 struct Spot_0049a120;
 struct FeatureDef_0049a120;
@@ -1047,8 +1045,6 @@ void __stdcall DetonateUnitWeapon(Unit* unit, int second)
     }
 }
 
-#pragma pack(push, 1)
-
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 static Fixed Length(const Vec3& v)
@@ -1087,12 +1083,6 @@ Vec3* __stdcall GetProjectileAimPoint(Projectile* p)
     return &p->target;
 }
 
-// 16.16 value in a 4 byte union: an 8 byte one (or short[4]) changes the frame.
-union Fixed_0049b520 {
-    int value;
-    struct { unsigned short fraction; short whole; };
-};
-
 // Aim a unit's two turret angles at a target point. The heading (+0x36) is
 // atan2(dx, dz); the pitch (+0x38) comes from the vertical difference against
 // the horizontal distance. Each angle is then moved towards the wanted one by
@@ -1100,39 +1090,39 @@ union Fixed_0049b520 {
 // than 27000 (about 148 degrees) away while the type's burnBlow flag (bit 23 of
 // +0x111) is set, the function gives up and returns 0. Otherwise it returns 1.
 // FUNCTION: 0x49b520
-int __stdcall TurnUnitTowardsPoint(Projectile* unit, Vec3* target)
+int __stdcall TurnUnitTowardsPoint(Projectile* p, Vec3* target)
 {
-    WeaponDef* type = unit->type;
+    WeaponDef* type = p->type;
     // Declared dx, dy, dz in this order: it decides the stack slot assignment.
-    int dx = unit->position.x - target->x;
-    Fixed_0049b520 dy;
-    dy.value = unit->position.y - target->y;
-    int dz = unit->position.z - target->z;
+    int dx = p->position.x - target->x;
+    Fixed dy;
+    dy.value = p->position.y - target->y;
+    int dz = p->position.z - target->z;
     short a1 = FUN_004b715a(dx, dz);
     int dist = (int)_hypot((double)dx, (double)dz);
     short a2 = FUN_004b715a(-dy.whole, (short)(dist >> 16));
 
-    short diff1 = a1 - (short)unit->angles.heading;
+    short diff1 = a1 - (short)p->angles.heading;
     short adiff1 = abs(diff1);
     if (adiff1 > 27000 && type->flags.b.burnBlow)
         return 0;
     if (adiff1 < type->turnRate)
-        unit->angles.heading = a1;
+        p->angles.heading = a1;
     else if (diff1 < 0)
-        unit->angles.heading = unit->angles.heading - type->turnRate;
+        p->angles.heading = p->angles.heading - type->turnRate;
     else
-        unit->angles.heading = unit->angles.heading + type->turnRate;
+        p->angles.heading = p->angles.heading + type->turnRate;
 
-    short diff2 = a2 - unit->angles.pitch;
+    short diff2 = a2 - p->angles.pitch;
     short adiff2 = abs(diff2);
     if (adiff2 > 27000 && type->flags.b.burnBlow)
         return 0;
     if (adiff2 < type->turnRate)
-        unit->angles.pitch = a2;
+        p->angles.pitch = a2;
     else if (diff2 < 0)
-        unit->angles.pitch = unit->angles.pitch - type->turnRate;
+        p->angles.pitch = p->angles.pitch - type->turnRate;
     else
-        unit->angles.pitch = unit->angles.pitch + type->turnRate;
+        p->angles.pitch = p->angles.pitch + type->turnRate;
     return 1;
 }
 

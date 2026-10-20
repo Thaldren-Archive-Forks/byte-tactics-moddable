@@ -1155,7 +1155,6 @@ struct Find_004bc8d0;
 union Fix_004736e0;
 union Fix_00473d50;
 union Fix_0047d2e0;
-union Fix_0049b3e0;
 union Fixed;
 struct FixedParts_00407ae0;
 struct FixedParts_004853b0;
@@ -12017,10 +12016,6 @@ struct ProjectileDetonatePacket {  // 0xe bytes, 1 view
     char kind;  // +0x0
     Vec3 pos;  // +0x1
     unsigned char typeId;  // +0xd
-};
-
-union Fix_0049b3e0 {  // 0x4 bytes, 1 view
-    union { int whole; short half[2]; };  // +0x0
 };
 
 struct Angles_0049be60 {  // 0x6 bytes, 1 view
