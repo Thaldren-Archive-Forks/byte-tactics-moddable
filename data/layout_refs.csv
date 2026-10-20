@@ -165,13 +165,12 @@ HAPI_BuildArchiveDirectory,0x4bd3b0,src/util/hpi.cpp,end-of,g_packageDataName,0,
 LoadTranslations,0x4c54f0,src/util/tdf_4c54f0.cpp,end-of,g_language,0,g_translations,,none
 InitSurfaceIndexFreeList,0x4c7080,src/graphics/surface.cpp,past-end,g_edgeListNext,-4,g_edgeListNext,g_edgeLowIndexB+0x4,none
 InitSurfaceIndexFreeList,0x4c7080,src/graphics/surface.cpp,past-end,g_edgeListPrev,-4,g_edgeListPrev,g_edgeSpanB+0x4,none
-StringRef::StringRef,0x4c9180,src/graphics/surface.cpp,end-of,g_emptyString,0,g_emptyStringRefs,,none
-StringRef::AssignText,0x4c93f0,src/graphics/surface.cpp,end-of,g_emptyString,0,g_emptyStringRefs,,none
-StringRef::SubString,0x4c9490,src/graphics/surface.cpp,end-of,g_emptyString,0,g_emptyStringRefs,,none
 OnStreamTimer,0x4d0680,src/sound/samples.cpp,end-of,g_delayedSampleName,0,g_delayedSampleVolume,,none
 Sound::StreamSampleDelayed,0x4d06c0,src/sound/samples.cpp,end-of,g_delayedSampleName,0,g_delayedSampleVolume,,none
+LzssCompress,0x4d0f60,src/util/sqsh.cpp,end-of,g_lzssPresetTree,0,g_lzssPresetWindow,,none
 LzssCompress,0x4d0f60,src/util/sqsh.cpp,end-of,g_squashThreadLockTicket,0,g_squashThreadLockEvent,,none
 LzssExpand,0x4d1480,src/util/sqsh.cpp,end-of,g_squashThreadLockTicket,0,g_squashThreadLockEvent,,none
+LzssSetPreset,0x4d1670,src/util/sqsh.cpp,end-of,g_lzssPresetTree,0,g_lzssPresetWindow,,none
 GetSourceFilePath,0x4de8a0,src/debug/debug_lib.cpp,end-of,g_crtSourceRoot,0,g_msdevDirRead,,none
 GetSourceFilePath,0x4de8a0,src/debug/debug_lib.cpp,end-of,g_mfcSourceRoot,0,g_crtSourceRoot,,none
 InitPerformanceEvents,0x4e1be0,src/debug/debug_lib.cpp,end-of,g_pentiumProEvents,0,g_pentiumEvents,,none

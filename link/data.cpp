@@ -302,8 +302,7 @@ char g_dotDot[4] = "..";  // 0x50a548 .data
 char g_packageDataName[16] = "Package Data";  // 0x50a56c .data
 char g_dirWildcard[4] = "\\*";  // 0x50a57c .data
 char g_hapiFileArrayName[16] = "HAPIFILE array";  // 0x50a5c0 .data
-int g_emptyStringRefs = 1;  // 0x50a778 .data
-void* g_emptyString = 0;  // 0x50a77c .data
+EmptyStringRep g_emptyStringRep = {1, 0};  // 0x50a778 .data
 int g_guaranteePackets = 1;  // 0x50a780 .data
 int g_cdNextTrackTimer = -1;  // 0x50b540 .data
 int g_cdFadeTimer = -1;  // 0x50b544 .data
@@ -393,7 +392,6 @@ int g_otaEnumFileCount;  // 0x5122e0 .bss
 unsigned char DAT_005122e4[4];  // 0x5122e4 .bss
 int g_meteorNextStrikeTime;  // 0x5122e8 .bss
 unsigned char DAT_005122ec[4];  // 0x5122ec .bss
-unsigned char DAT_005122f4[28];  // 0x5122f4 .bss
 int g_meteorSpawnMagnitude;  // 0x512310 .bss
 int g_meteorSpawnInterval;  // 0x512314 .bss
 int g_meteorActive;  // 0x512318 .bss
@@ -411,8 +409,7 @@ unsigned char DAT_00512758[8];  // 0x512758 .bss
 int DAT_00512760;  // 0x512760 .bss
 int g_unitRestrictPicLoadIndex;  // 0x512768 .bss
 int DAT_0051276c;  // 0x51276c .bss
-unsigned int g_reporterNames;  // 0x512788 .bss
-unsigned char DAT_0051278c[60];  // 0x51278c .bss
+unsigned int g_reporterNames[16];  // 0x512788 .bss
 unsigned char g_linkInfo[432];  // 0x5127c8 .bss
 int g_unitRestrictPicCursor;  // 0x512978 .bss
 int g_unitRestrictRecordCursor;  // 0x51297c .bss
@@ -574,8 +571,8 @@ unsigned char DAT_0051ff4c[12];  // 0x51ff4c .bss
 int g_delayedSampleVolume;  // 0x51ff58 .bss
 unsigned char DAT_0051ff5c[4];  // 0x51ff5c .bss
 char g_delayedSampleName[112];  // 0x51ff60 .bss
-char g_lzssPresetWindow[176];  // 0x51ffd0 .bss
-unsigned char DAT_00520080[3944];  // 0x520080 .bss
+char g_lzssPresetWindow[4113];  // 0x51ffd0 .bss
+unsigned char DAT_00520fe1[7];  // 0x520fe1 .bss
 char g_lzssPresetTree[24584];  // 0x520fe8 .bss
 Struct_00526ff0* g_squashDictTree;  // 0x526ff0 .bss
 int g_lzssPresetReady;  // 0x526ff8 .bss

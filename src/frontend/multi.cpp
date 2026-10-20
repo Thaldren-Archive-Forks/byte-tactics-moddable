@@ -785,7 +785,7 @@ extern Serial_00441c30 g_serialPortNumber;
 extern int g_serialBaudRate;
 extern int g_serialBaudRateTable[];
 extern unsigned int g_reporterCount;
-extern unsigned int g_reporterNames;
+extern unsigned int g_reporterNames[16];
 extern LinkInfo g_linkInfo[];
 extern char g_okGadgetName[];              // "OK"
 extern char g_multiSoundName[];            // "Multi"
@@ -1810,11 +1810,11 @@ int InitScoreReporting(void)
         return 0;
     int saved = (signed char)g_game->cursorMode;
     SetCursorMode(0x14);
-    int r = LoadReporterDll(&g_reporterCount, &g_reporterNames);
+    int r = LoadReporterDll(&g_reporterCount, g_reporterNames);
     if (r == 0) {
         if (g_reporterCount > 0) {
             SetCursorMode(0x13);
-            OpenReportDialog(&g_reporterCount, (char**)&g_reporterNames);
+            OpenReportDialog(&g_reporterCount, (char**)g_reporterNames);
             SetCursorMode(saved);
             return 1;
         }

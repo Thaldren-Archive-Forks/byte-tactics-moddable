@@ -291,8 +291,8 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x50a56c,g_packageDataName,.data,16,gap,string,char[],1,0,1,one type,1,,,,,5061636b616765204461746100000000
 0x50a57c,g_dirWildcard,.data,4,gap,string,char[],1,0,1,one type,1,,s____0050a57c,,,5c2a0000
 0x50a5c0,g_hapiFileArrayName,.data,16,gap,string,char[],1,0,1,one type,1,,,,,4841504946494c452061727261790000
-0x50a778,g_emptyStringRefs,.data,4,type,data,int,1,0,1,one type,1,,INT_0050a778,,,01000000
-0x50a77c,g_emptyString,.data,4,type,data,void*,1,0,1,one type,1,,PTR_0050a77c,,,00000000
+0x50a778,g_emptyStringRep,.data,8,type,data,EmptyStringRep,1,0,1,one type,1,,INT_0050a778,,,0100000000000000
+0x50a77c,g_emptyString,.data,4,type,data,void*,1,0,1,one type,1,,PTR_0050a77c,,in g_emptyStringRep+0x4,00000000
 0x50a780,g_guaranteePackets,.data,4,type,data,int,1,0,1,one type,1,,INT_0050a780,,,01000000
 0x50a788,g_skippedProviders,.data,16,type,data,const _GUID**,1,1,2,conflicting: array or pointer,2,0x10,PTR_DAT_0050a788,4,src/data/guids.cpp,c8cf4f00d8cf4f00e8cf4f00f8cf4f00
 0x50b540,g_cdNextTrackTimer,.data,4,type,data,int,1,0,1,one type,1,,INT_0050b540,,,ffffffff
@@ -387,8 +387,8 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x5122e4,DAT_005122e4,.bss,4,gap,unreferenced,unsigned char[4],0,0,0,,0,,,,,
 0x5122e8,g_meteorNextStrikeTime,.bss,4,type,data,int,2,0,1,one type,2,,DAT_005122e8,,,
 0x5122ec,DAT_005122ec,.bss,4,gap,unreferenced,unsigned char[4],0,0,0,,0,,,,,
-0x5122f0,g_meteorWeaponName,.bss,4,type,data,char*,1,1,2,conflicting: array or pointer,2,,s__005122f0,,,
-0x5122f4,DAT_005122f4,.bss,28,gap,unreferenced,unsigned char[28],0,0,0,,0,,,,,
+0x5122f0,g_meteorWeaponName,.bss,32,gap,data,char[],1,1,2,conflicting: array or pointer,2,0x1f,s__005122f0,,,
+0x5122f4,DAT_005122f4,.bss,28,gap,unreferenced,unsigned char[28],0,0,0,,0,,,,in g_meteorWeaponName+0x4,
 0x512310,g_meteorSpawnMagnitude,.bss,4,type,data,int,2,0,1,one type,2,,INT_00512310,,,
 0x512314,g_meteorSpawnInterval,.bss,4,type,data,int,2,0,1,one type,2,,INT_00512314,,,
 0x512318,g_meteorActive,.bss,4,type,data,int,2,0,1,one type,2,,INT_00512318,,,
@@ -415,8 +415,8 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x512770,g_serialPortNumber,.bss,20,gap,data,char[],1,1,2,conflicting: shape,2,0x10,DAT_00512770,,,
 0x512774,g_serialBaudRate,.bss,4,type,data,int,1,0,1,one type,1,,INT_00512774,,in g_serialPortNumber+0x4,
 0x512780,DAT_00512780,.bss,4,gap,unreferenced,unsigned char[4],0,0,0,,0,,_DAT_00512780,,in g_serialPortNumber+0x10,
-0x512788,g_reporterNames,.bss,4,type,data,unsigned int,1,0,1,one type,1,,UINT_00512788,,,
-0x51278c,DAT_0051278c,.bss,60,gap,unreferenced,unsigned char[60],0,0,0,,0,,,,,
+0x512788,g_reporterNames,.bss,64,gap,data,unsigned int[],1,0,1,one type,1,0x3c,UINT_00512788,,,
+0x51278c,DAT_0051278c,.bss,60,gap,unreferenced,unsigned char[60],0,0,0,,0,,,,in g_reporterNames+0x4,
 0x5127c8,g_linkInfo,.bss,432,gap,data,LinkInfo[],2,0,1,one type,2,0x4,,,,
 0x512978,g_unitRestrictPicCursor,.bss,4,type,data,int,1,0,1,one type,1,,INT_00512978,,,
 0x51297c,g_unitRestrictRecordCursor,.bss,4,type,data,int,1,0,1,one type,1,,INT_0051297c,,,
@@ -659,8 +659,9 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x51ff58,g_delayedSampleVolume,.bss,4,type,data,int,1,0,1,one type,1,,INT_0051ff58,,,
 0x51ff5c,DAT_0051ff5c,.bss,4,gap,unreferenced,unsigned char[4],0,0,0,,0,,,,,
 0x51ff60,g_delayedSampleName,.bss,112,gap,data,char[],1,0,1,one type,1,,s__0051ff60,,,
-0x51ffd0,g_lzssPresetWindow,.bss,176,gap,data,char[],1,0,1,one type,1,,s__0051ffd0,,,
-0x520080,DAT_00520080,.bss,3944,gap,unreferenced,unsigned char[3944],0,0,0,,0,,,,,
+0x51ffd0,g_lzssPresetWindow,.bss,4113,gap,data,char[],1,0,1,one type,1,0x1010,s__0051ffd0,,,
+0x520080,DAT_00520080,.bss,3937,gap,unreferenced,unsigned char[3937],0,0,0,,0,,,,in g_lzssPresetWindow+0xb0,
+0x520fe1,DAT_00520fe1,.bss,7,gap,unreferenced,unsigned char[7],0,0,0,,0,,,,,
 0x520fe8,g_lzssPresetTree,.bss,24584,gap,data,char[],1,0,1,one type,1,,s__00520fe8,,,
 0x526ff0,g_squashDictTree,.bss,4,type,data,Struct_00526ff0*,1,1,2,conflicting: struct names only,2,,DAT_00526ff0,,,
 0x526ff4,g_squashWindow,.bss,4,type,data,void*,1,1,2,conflicting: shape,2,,DAT_00526ff4,,,

@@ -2042,16 +2042,16 @@ Class_004c90b0* Class_004c90b0::Append(const Class_004c90b0& other)
     return this;
 }
 
-extern int g_emptyStringRefs;
-extern void* g_emptyString;
+struct EmptyStringRep { int refs; void* chars; };
+extern EmptyStringRep g_emptyStringRep;
 
 #include "../util/string_ref.h"
 
 // FUNCTION: 0x4c9180 ??0StringRef@@QAE@XZ
 StringRef::StringRef()
 {
-    g_emptyStringRefs++;
-    data = (char*)&g_emptyString;
+    g_emptyStringRep.refs++;
+    data = (char*)&g_emptyStringRep.chars;
 }
 
 // FUNCTION: 0x4c91a0 ??0StringRef@@QAE@ABV0@@Z
@@ -2066,8 +2066,8 @@ StringRef::StringRef(const char* text)
 {
     char* chars;
     if (text == 0 || *text == 0) {
-        g_emptyStringRefs++;
-        chars = (char*)&g_emptyString;
+        g_emptyStringRep.refs++;
+        chars = (char*)&g_emptyStringRep.chars;
     } else {
         int* block = (int*)malloc(strlen(text) + 1 + sizeof(int));
         *block = 1;
@@ -2083,8 +2083,8 @@ StringRef::StringRef(const char* text)
 StringRef::StringRef(const char* text, int len)
 {
     if (text == 0) {
-        g_emptyStringRefs++;
-        data = (char*)&g_emptyString;
+        g_emptyStringRep.refs++;
+        data = (char*)&g_emptyStringRep.chars;
     } else {
         int* block = (int*)malloc(len + 1 + sizeof(int));
         *block = 1;
@@ -2141,8 +2141,8 @@ StringRef* StringRef::AssignText(const char* text)
         free(old);
     char* chars;
     if (text == 0 || *text == 0) {
-        g_emptyStringRefs++;
-        chars = (char*)&g_emptyString;
+        g_emptyStringRep.refs++;
+        chars = (char*)&g_emptyStringRep.chars;
     } else {
         int* block = (int*)malloc(strlen(text) + 1 + sizeof(int));
         *block = 1;
