@@ -6783,8 +6783,6 @@ address,function,file,kind,target
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,call,BreakPieceIntoDebris
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,call,CMemoryCache::AllocHandle
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,call,FindFreeExplodedPieceSlot
-0x421620,StartExplodePiece,src/weapons/explosions.cpp,call,HarnessPoseObject
-0x421620,StartExplodePiece,src/weapons/explosions.cpp,call,HarnessTestMode
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,call,operator=
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,deref_read,*ExplodedPiece
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,deref_read,*PieceRec
@@ -6796,7 +6794,10 @@ address,function,file,kind,target
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,Object3D::vertexCount
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,PieceRec::desc
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,PieceRec::flags
+0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,Quirks::renderPoseReads
+0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,Seams::units
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,Unit::state
+0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,UnitsSeam::PoseUnitModel
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,Vec3::x
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,Vec3::y
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,field_read,Vec3::z
@@ -6811,6 +6812,9 @@ address,function,file,kind,target
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,global_escape,g_explodedPieces
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,global_maybe_written,g_debrisMemCache
 0x421620,StartExplodePiece,src/weapons/explosions.cpp,global_read,g_explodedPieces
+0x421620,StartExplodePiece,src/weapons/explosions.cpp,global_read,g_quirks
+0x421620,StartExplodePiece,src/weapons/explosions.cpp,global_read,g_seams
+0x421620,StartExplodePiece,src/weapons/explosions.cpp,indirect_call,indirect via void (*)(Unit *) __attribute__((stdcall)) [UnitsSeam::PoseUnitModel]
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,call,AllocExplodePieceObject
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,call,CrossProduct
 0x421700,BreakPieceIntoDebris,src/weapons/explosions.cpp,call,GetGafFrame
@@ -11940,10 +11944,11 @@ address,function,file,kind,target
 0x43e2e0,GetAimFromPosition,src/units/unit_scripts.cpp,function,
 0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,call,CobScript::QueryScript
 0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,call,GetPieceCenter
-0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,call,HarnessPoseObject
-0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,call,HarnessTestMode
+0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,call,PoseUnitModel
 0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,field_read,Obj_0043e3c0::table
+0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,field_read,Quirks::renderPoseReads
 0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,function,
+0x43e3c0,GetSweetSpot,src/units/unit_scripts.cpp,global_read,g_quirks
 0x43e400,GetNanoPiecePosition,src/units/unit_scripts.cpp,call,CobScript::QueryScript
 0x43e400,GetNanoPiecePosition,src/units/unit_scripts.cpp,call,GetPieceOffset
 0x43e400,GetNanoPiecePosition,src/units/unit_scripts.cpp,call,operator+
@@ -45948,12 +45953,6 @@ address,function,file,kind,target
 ,HarnessPhase,src/harness/harness.cpp,global_write,s_hashLo@src/harness/harness.cpp
 ,HarnessPhase,src/harness/harness.cpp,global_write,s_tracePhase@src/harness/harness.cpp
 ,HarnessPhase,src/harness/harness.cpp,global_write,s_traceTick@src/harness/harness.cpp
-,HarnessPoseObject,src/harness/harness.cpp,call,UpdateObjectState
-,HarnessPoseObject,src/harness/harness.cpp,call,memcpy
-,HarnessPoseObject,src/harness/harness.cpp,deref_read,*unsigned char
-,HarnessPoseObject,src/harness/harness.cpp,deref_write,*int
-,HarnessPoseObject,src/harness/harness.cpp,deref_write,*short
-,HarnessPoseObject,src/harness/harness.cpp,function,
 ,HarnessStartSkirmish,src/harness/harness.cpp,call,SetUpSkirmish
 ,HarnessStartSkirmish,src/harness/harness.cpp,function,
 ,HarnessStartSkirmish,src/harness/harness.cpp,global_read,s_started@src/harness/harness.cpp
@@ -46369,6 +46368,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::MovementClassGet
 ,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::MovementClassInBounds
 ,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::NotifyUnitRefs
+,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::PoseUnitModel
 ,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::QueryScript
 ,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::RefreshMovedUnits
 ,InstallNativeSeams,src/seams/native.cpp,field_write,UnitsSeam::RefreshUnitIfStale
@@ -46585,6 +46585,7 @@ address,function,file,kind,target
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,PickRandomReclaimableResourcesInRadius
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,PlaceFeature
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,PlaceMissionFeatures
+,InstallNativeSeams,src/seams/native.cpp,fn_ref,PoseUnitModel
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,QueryScriptNative
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ReactToAttack
 ,InstallNativeSeams,src/seams/native.cpp,fn_ref,ReattachFxToUnitNative
@@ -49038,6 +49039,15 @@ address,function,file,kind,target
 ,Pos_4589c0::Pos_4589c0,src/graphics/model_render_4589c0.cpp,field_write,Pos_4589c0::y
 ,Pos_4589c0::Pos_4589c0,src/graphics/model_render_4589c0.cpp,field_write,Pos_4589c0::z
 ,Pos_4589c0::Pos_4589c0,src/graphics/model_render_4589c0.cpp,function,
+,PoseUnitModel,src/units/unit_scripts.cpp,call,UpdateObjectState
+,PoseUnitModel,src/units/unit_scripts.cpp,call,memcpy
+,PoseUnitModel,src/units/unit_scripts.cpp,field_maybe_written,SpotState::pos
+,PoseUnitModel,src/units/unit_scripts.cpp,field_read,SpotState::root
+,PoseUnitModel,src/units/unit_scripts.cpp,field_read,Unit::angles
+,PoseUnitModel,src/units/unit_scripts.cpp,field_read,Unit::state
+,PoseUnitModel,src/units/unit_scripts.cpp,field_write,Piece_459c70::modified
+,PoseUnitModel,src/units/unit_scripts.cpp,field_write,SpotState::animDirty
+,PoseUnitModel,src/units/unit_scripts.cpp,function,
 ,Positive_0046a860,src/ingame/info_panel_46a860.cpp,function,
 ,PrepVtolClimb,src/orders/vtol_orders_410e70.cpp,call,Class_0044e6c0::SetAltitude
 ,PrepVtolClimb,src/orders/vtol_orders_410e70.cpp,call,Order::SetAttachedFx

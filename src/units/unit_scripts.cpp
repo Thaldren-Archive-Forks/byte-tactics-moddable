@@ -317,8 +317,28 @@ struct Obj_0043e3c0 {
 };
 #pragma pack(pop)
 
-int HarnessTestMode();
-void HarnessPoseObject(void* unit);
+#include "../graphics/spot_state.h"
+#include "../quirks/quirks.h"
+#include <stddef.h>
+
+static_assert(offsetof(Unit, state) == 0x9e, "state");
+static_assert(offsetof(SpotState, animDirty) == 0x8, "animDirty");
+static_assert(offsetof(SpotState, pos) == 0x18, "pos");
+static_assert(offsetof(SpotState, root) == 0x1e, "root");
+static_assert(offsetof(Piece_459c70, modified) == 0x26, "modified");
+
+void __stdcall UpdateObjectState(Unit* unit);
+
+void __stdcall PoseUnitModel(Unit* unit)
+{
+    SpotState* state = unit->state;
+    if (state == NULL)
+        return;
+    memcpy(&state->pos, &unit->angles, 6);
+    state->animDirty = 1;
+    state->root->modified = 0;
+    UpdateObjectState(unit);
+}
 
 // Looks up the "SweetSpot" entry in the object's name table at +0x9a and
 // passes the value found on to GetPieceCenter.
@@ -327,9 +347,8 @@ void __stdcall GetSweetSpot(Obj_0043e3c0* obj, int out)
 {
     int value = 0;
     obj->table->QueryScript("SweetSpot", &value, 0, 0, 0);
-    // TODO(#113): the render_pose_reads quirk flag replaces this test-mode branch
-    if (HarnessTestMode())
-        HarnessPoseObject(obj);
+    if (!g_quirks.renderPoseReads)
+        PoseUnitModel((Unit*)obj);
     GetPieceCenter((Obj_0043e0b0*)obj, (Vec3*)out, value);
 }
 

@@ -2,3 +2,4 @@ QUIRK(ignoreNullDeathRecord, "units.ignore-null-death-record", sim, "units.ignor
 QUIRK(patrolNullEnemySkip, "ai.patrol-null-enemy-skip", sim, "ai.patrol-null-enemy-skip")
 QUIRK(skipEmptyYardmap, "units.skip-empty-yardmap", sim, "units.skip-empty-yardmap")
 QUIRK(boundLanguageCopy, "util.bound-language-copy", view, "")
+QUIRK(renderPoseReads, "units.render-pose-reads", sim, "")

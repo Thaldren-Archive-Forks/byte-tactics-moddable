@@ -6,6 +6,7 @@
 struct Owner_459c70;
 struct Bitmap_00437b50;
 
+#pragma pack(push, 1)
 struct SpotState {
     int count;
     int cacheDrawCount;
@@ -21,5 +22,6 @@ struct SpotState {
     int pos_y;
     int pos_z;
 };
+#pragma pack(pop)
 
 #endif

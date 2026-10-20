@@ -21,7 +21,7 @@ class UnitTypeSet;
 // Major version of the units interface, changed when a slot is removed or its signature changes.
 #define UNITS_VERSION_MAJOR 1
 // Minor version of the units interface, changed when a slot is added.
-#define UNITS_VERSION_MINOR 5
+#define UNITS_VERSION_MINOR 6
 
 // Unit simulation.
 struct UnitsSeam {
@@ -133,6 +133,8 @@ struct UnitsSeam {
     int (__stdcall* StartScriptWithArgsByIndex)(CobScript* script, int index, Callback* callback, int update, int count, int a, int b, int c, int d);
     // Starts the script that tells a unit's script whether the unit is in the water, on the ground or in the air, when that changed (thiscall in 3.1c: this in ecx). Hooks: none.
     void (__fastcall* UpdateSfxOccupy)(UnitMotion* motion, int unusedEdx, Unit* unit);
+    // Poses a unit's model from its current angles and animation, so piece reads depend on game state only. Hooks: none.
+    void (__stdcall* PoseUnitModel)(Unit* unit);
 };
 
 #endif
