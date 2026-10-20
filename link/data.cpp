@@ -302,7 +302,7 @@ char g_packageDataName[16] = "Package Data";  // 0x50a56c .data
 char g_dirWildcard[4] = "\\*";  // 0x50a57c .data
 char g_hapiFileArrayName[16] = "HAPIFILE array";  // 0x50a5c0 .data
 EmptyStringRep g_emptyStringRep = {1, 0};  // 0x50a778 .data
-int g_guaranteePackets = 1;  // 0x50a780 .data
+unsigned char DAT_0050a780[4] = {1, 0, 0, 0};  // 0x50a780 .data
 int g_cdNextTrackTimer = -1;  // 0x50b540 .data
 int g_cdFadeTimer = -1;  // 0x50b544 .data
 void* g_squashErrorNames[7] = {(void*)"SQUASHERR_OK", (void*)"SQUASHERR_BADHEADER", (void*)"SQUASHERR_BADCHECKSUM", (void*)"SQUASHERR_BADUNPACKSIZE", (void*)"SQUASHERR_BADUNPACKTYPE", (void*)"SQUASHERR_BADPACKTYPESQUASHERR_BADPARAMS"};  // 0x50b9e0 .data
@@ -521,7 +521,7 @@ int g_edgeHighIndex;  // 0x51fefc .bss
 int g_edgeLowIndex;  // 0x51ff00 .bss
 int g_reporterNotify;  // 0x51ff04 .bss
 int g_reporterReport;  // 0x51ff08 .bss
-int g_enumSessionsResult;  // 0x51ff0c .bss
+unsigned char DAT_0051ff0c[4];  // 0x51ff0c .bss
 int g_cdFadeVolume;  // 0x51ff10 .bss
 Sound* g_cdPlayer;  // 0x51ff14 .bss
 void* g_cdPlayerWindow;  // 0x51ff18 .bss

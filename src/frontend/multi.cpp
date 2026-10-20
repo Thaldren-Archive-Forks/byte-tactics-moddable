@@ -314,7 +314,9 @@ void __stdcall OpenMessageBox(void* menu, const char* text, int a, int b, int c)
 char* __stdcall Translate(const char* text);
 void __stdcall SetOffscreenSurface(int a);
 void FlipScreen();
-int __stdcall HAPINET_getgames(char* net, void* desc, int a);
+int PeekKey();
+int PopKey();
+int DispatchHostEvents();
 void* __cdecl GameAllocIgnoreTag(const char* name, unsigned int size);
 int IsOnlineConfigLoaded();
 char* GetPreferredLanguage();
@@ -335,6 +337,16 @@ static inline void Apply_00441220(unsigned short* p, unsigned short r, int ge, G
 {
     unsigned short on = (unsigned short)(((entry->rowCount == 0) | (ge == 0)) & 1);
     *p = (unsigned short)((r | on) | (*p & 0xfffe));
+}
+
+static int HOST_CALL PollGetGames(void)
+{
+    DispatchHostEvents();
+    if (PeekKey()) {
+        if (PopKey() == 0x1b)
+            return 1;
+    }
+    return 0;
 }
 
 // FUNCTION: 0x441220
@@ -431,7 +443,7 @@ shown:
     FlipScreen();
     FlipScreen();
 
-    count = HAPINET_getgames((char*)&(*(Net_00443100*)((char*)g_game + 0x14)), g_game->desc, 0);
+    count = host_net_get_games((host_net*)((char*)g_game + 0x14), g_game->desc, PollGetGames);
     CloseTopScreen(&g_game->gui);
     if (count < 0)
         return 0;
@@ -838,18 +850,6 @@ void __stdcall WriteGameRegistryValue(void* key, void* buf, int value);
 void __stdcall SetCursorMode(int value);
 void __stdcall EnableReporter(int value);
 int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut);
-int __stdcall HAPINET_createcompoundaddress(void* net, void* elements, unsigned long count,
-                           void* address, unsigned long* size);
-int __stdcall HAPINET_initlobbiedconnection(void* net);
-int __stdcall HAPINET_createdplayinterface(GUID* sp, void* net);
-int __stdcall HAPINET_getplayeraddress(void* net, unsigned long player, void* data,
-                           unsigned long* size);
-int __stdcall HAPINET_enumaddress(void* net, void* callback, void* address, unsigned long size,
-                           void* context);
-int __stdcall HAPINET_releasedplayinterface(void* net);
-void __stdcall HAPINET_uninitmultiplay(void* net);
-void __stdcall HAPINET_getconnections(void* net, void* guids, void* conns,
-                           void* descriptions, void* param_5);
 void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 void __cdecl GameFreeThunk(void* p);
 void OrLabelAttribs();
@@ -1189,14 +1189,14 @@ int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
         count = 1;
     }
 
-    result = HAPINET_createcompoundaddress(&(*(Net_00443100*)((char*)g_game + 0x14)), elements, count, 0, &size);
+    result = host_net_create_compound_address((host_net*)((char*)g_game + 0x14), elements, count, 0, &size);
     if (result != 0x8877001e) goto cleanup;
     block = (HGLOBAL)GameAllocIgnoreTag("COMPOUND ADDR", size);
     if (block == 0) {
         result = 0x8007000e;
         goto cleanup;
     }
-    result = HAPINET_createcompoundaddress(&(*(Net_00443100*)((char*)g_game + 0x14)), elements, count, block, &size);
+    result = host_net_create_compound_address((host_net*)((char*)g_game + 0x14), elements, count, block, &size);
     if (result < 0) {
         // Label inside this body, reached by goto: the shared cleanup block is the true arm.
 cleanup:
@@ -1302,7 +1302,7 @@ void OpenTcpDialog()
     dialog->owner = g_game;
     dialog->cb1c = 0;
     LoadPictureCached(0, 0, 0, 0);
-    HAPINET_initlobbiedconnection(&(*(Net_00443100*)((char*)g_game + 0x14)));
+    host_net_init_lobbied_connection((host_net*)((char*)g_game + 0x14));
     FindGadgetIndex(dialog->entries, "ADDRESS", 3);
     char* address = GetGadgetText(&g_game->gui, "ADDRESS", 0);
     int direct = g_cmdlineTcpJoinAddress[0];
@@ -1408,7 +1408,7 @@ void OpenSerialDialog()
     gadget->owner = g_game;
     gadget->cb1c = 0;
     LoadPictureCached(0, 0, 0, 0);
-    HAPINET_initlobbiedconnection((char*)g_game + 0x14);
+    host_net_init_lobbied_connection((host_net*)((char*)g_game + 0x14));
     ConfigureListBoxByName(&g_game->gui, "PORTS", "COM1\0COM2\0COM3\0COM4", 4, 0);
     ConfigureListBoxByName(&g_game->gui, "SPEEDS", "115200\0" "57600\0" "38400\0" "19200\0" "14400\0" "9600", 6, 0);
 
@@ -1673,19 +1673,19 @@ void __stdcall OpenModemDialog()
     gadget->handler = HandleModemDialogClick;
     gadget->owner = g_game;
     LoadPictureCached(0, 0, 0, 0);
-    HAPINET_initlobbiedconnection(&(*(Net_00443100*)((char*)g_game + 0x14)));
-    r = HAPINET_createdplayinterface(&iid, (Net_00443100*)&net);
+    host_net_init_lobbied_connection((host_net*)((char*)g_game + 0x14));
+    r = host_net_create_play_interface((const host_guid*)&iid, (host_net_pair*)&net);
     if (r >= 0) {
-        r = HAPINET_getplayeraddress((Net_00443100*)&net, 0, 0, &size);
+        r = host_net_get_player_address((host_net_pair*)&net, 0, 0, &size);
         if (r == DPERR_BUFFERTOOSMALL_00443100) {
             addr = (char*)GameAllocIgnoreTag("MODEMADDR", size);
             if (addr != 0) {
-                r = HAPINET_getplayeraddress((Net_00443100*)&net, 0, addr, &size);
+                r = host_net_get_player_address((host_net_pair*)&net, 0, addr, &size);
                 if (r >= 0) {
                     g_modemInfo = (char*)GameAllocIgnoreTag("MODEMINFO", 0xc8);
                     memset(g_modemInfo, 0, 0xc8);
                     g_modemCount = 0;
-                    r = HAPINET_enumaddress(&(*(Net_00443100*)((char*)g_game + 0x14)), (void*)EnumModemAddressCallback, addr, size, 0);
+                    r = host_net_enum_address((host_net*)((char*)g_game + 0x14), (void*)EnumModemAddressCallback, addr, size, 0);
                     if (g_modemCount == 0) {
                         CloseTopScreen(&g_game->gui);
                         SetFrontendErrorText("Unable to find any modems");
@@ -1693,7 +1693,7 @@ void __stdcall OpenModemDialog()
                         SetFrontendSubState(0, 0x4e5, "c:\\cavedog\\wargame\\multi.cpp");
                         GameFreeThunk(g_modemInfo);
                         GameFreeThunk(addr);
-                        HAPINET_releasedplayinterface((Net_00443100*)&net);
+                        host_net_release_play_interface((host_net_pair*)&net);
                         return;
                     }
                     if (r >= 0) {
@@ -1731,7 +1731,7 @@ void __stdcall OpenModemDialog()
     }
     SetKeyboardInput(&g_game->gui, 1);
     RenderLayer(&g_game->gui, 0x40);
-    HAPINET_releasedplayinterface((Net_00443100*)&net);
+    host_net_release_play_interface((host_net_pair*)&net);
     GameFreeThunk(addr);
 }
 

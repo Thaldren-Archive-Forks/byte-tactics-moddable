@@ -8,6 +8,7 @@
 // a {buffer, size, capacity} triple at +0xb2f4 and a PacketReceiver member at
 // +0xb300 that is handed the owner.
 #include <string.h>
+#include "../../interfaces/host.h"
 #include "../state/block.h"
 #include <memory.h>
 #include <windows.h>
@@ -24,7 +25,6 @@ void __cdecl operator delete(void* ptr);
 void __cdecl PacketTrace(const char* fmt, ...);
 unsigned int GetTicks();
 void __stdcall CountMessage(unsigned char type, int len, int which);
-char* __stdcall HAPINET_GetDPErrorString(int error);
 void __stdcall ReportPacketGap(int a, int b, int c);
 
 class PacketBuffer;
@@ -252,7 +252,7 @@ int __stdcall InitPacketManager(int bufferCount, int packetCount)
                 p->InitPools(-1, g_packetManager.m_defaultSendPacingMs, 2, 100);
             }
         } while (0);
-        SetThreadPriority(GetCurrentThread(), -2);
+        host_thread_set_priority(-2);
     }
     return 1;
 }
@@ -409,8 +409,6 @@ int PacketManager::InitChannels(int arg1, int arg2)
     if (g_usePacketManager == 0) {
         return 0;
     }
-    // The do/while (0) must end before SetThreadPriority; the failure return
-    // stays inside it.
     do {
         if (member.buffer == 0) {
             if (member.spare != 0) {
@@ -437,7 +435,7 @@ int PacketManager::InitChannels(int arg1, int arg2)
             e++;
         } while (--n);
     } while (0);
-    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+    host_thread_set_priority(-2);
     return 1;
 }
 
@@ -1610,7 +1608,7 @@ int PacketReceiver::ReceiveFrame(void* net, unsigned char* data, int* size)
                 }
             } else {
             error:
-                PacketTrace("HAPINET_receivepacket failed (%s)\n", HAPINET_GetDPErrorString(rc));
+                PacketTrace("HAPINET_receivepacket failed (%s)\n", host_net_error_string(rc));
                 length = 0;
                 return rc;
             }

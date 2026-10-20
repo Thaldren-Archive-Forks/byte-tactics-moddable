@@ -244,8 +244,6 @@ int __stdcall CreateLocalPlayer(unsigned char playerIndex, int param2);
 int __stdcall JoinNetGame(V4i v, int idx);
 void __stdcall AddNetPlayer(int param);
 void __stdcall QuitApp(int param);
-void __stdcall HAPINET_guaranteepackets(int param);
-void __stdcall HAPINET_quitgame(int param);
 int __stdcall InitPacketManager(int param1, int param2);
 void __stdcall OpenMainMenu(void);
 void __stdcall SaveSettings(void);
@@ -1333,7 +1331,7 @@ void RunFrontendStateMachine(void)
         PopKey();
         switch ((unsigned char)(char)g_game->field_2bbf) {
         case 0:
-            HAPINET_guaranteepackets(1);
+            host_net_guarantee_packets(1);
             SetSubState(1, 0x587, g_frontendSourceFile);
             ResetPlayerSlots();
             if (memcmp((char*)g_game + 0x39201, g_dpspGuidModem, 0x10) == 0 ||
@@ -1447,7 +1445,7 @@ void RunFrontendStateMachine(void)
         }
         case 3:
             (*(Bits_00426e80*)&g_game->netGameFlags_2a44).b0 = 1;
-            HAPINET_quitgame((int)((char*)g_game + 0x14));
+            host_net_quit_game((host_net*)((char*)g_game + 0x14));
             InitPacketManager(2, 100);
             DeleteUnitSync();
             ReportGameEvent(8);

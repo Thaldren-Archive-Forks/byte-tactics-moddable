@@ -2701,10 +2701,6 @@ void __stdcall SetGadgetRows(Table_004a35a0* table, char* name,
 // the bottom of the array. Item heights are the unsigned short at offset +2 of
 // the object found through each item's field +0x28.
 
-#pragma pack(push, 1)
-// Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
-int HAPINET_createnewgame(int, int, int, int, int, int, int);
-#pragma pack(pop)
 
 struct Table_004a36a0 {
     char unknown_0[4];
@@ -4271,9 +4267,7 @@ int WalkStack(int, int, int, int, int, int, int);
 int SendScriptCallByName(int, int, int, int, int, int, int);
 int SendScriptCall(int, int, int, int, int, int, int);
 int IssueOrCancelOrder(int, int, int, int, int, int, int);
-int HAPINET_updategameinfo(int, int, int, int, int, int, int);
 int SquashPack(int, int, int, int, int, int);
-int HAPINET_enumconnections(int, int, int, int, int, int);
 int IsFootprintVisible(int, int, int, int, int, int);
 int DrawProgressBar(int, int, int, int, int, int);
 int PickRandomReclaimableResourcesInRadius(int, int, int, int, int, int);

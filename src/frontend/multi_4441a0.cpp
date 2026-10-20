@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../interfaces/host.h"
+
 #include "../gui/gadget.h"
 
 #pragma pack(push, 1)
@@ -69,7 +71,7 @@ void __stdcall HandleSelectProviderClick(Menu_004441a0* menu)
             GameFreeThunk(g_game->guids);
             for (i = 0; i < 10; i++) {
                 if (g_game->conns[i].data != 0) {
-                    GameFreeThunk(g_game->conns[i].data);
+                    host_net_free(g_game->conns[i].data);
                     g_game->conns[i].data = 0;
                 }
             }

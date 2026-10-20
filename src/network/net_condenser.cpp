@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../../interfaces/host.h"
 
 #pragma pack(push, 1)
 struct Net_0044f9c0 {
@@ -11,7 +12,6 @@ struct Net_0044f9c0 {
 };
 #pragma pack(pop)
 
-int __stdcall HAPINET_receivepacket(void* net, void* data, int* size);
 void __stdcall CountPacket(int size, int overhead, int sent);
 int __stdcall LzssExpand(char* out, char* in);
 void LzssDisablePreset();
@@ -33,7 +33,6 @@ extern Game* g_game;
 int __stdcall LzssCompress(char* out, char* in, int size);
 void LzssDisablePreset();
 void LzssEnablePreset();
-int __stdcall HAPINET_sendpacket(void* net, unsigned long from, unsigned long to, void* data, unsigned long size);
 void __stdcall CountPacket(int size, int overhead, int sent);
 int HarnessViewRand();
 
@@ -145,7 +144,7 @@ int NetCondenser::ReceivePacket(void* net, char* data, int* size)
     }
 
     CondensedHeader* received = (CondensedHeader*)data;
-    int result = HAPINET_receivepacket(net, data, size);
+    int result = host_net_receive_packet((host_net*)net, data, (unsigned long*)size);
     if (((Net_0044f9c0*)net)->from != 0) {
         if (result == 0) {
             CountPacket(*size, 0, 0);
@@ -239,7 +238,7 @@ int NetCondenser::SendPacket(void* session, int from)
     if (g_game->netSendDropPct != 0 && (int)((__int64)HarnessViewRand() * 101 / 32768) <= g_game->netSendDropPct)
         result = 0;
     else
-        result = HAPINET_sendpacket(session, from, to, packet, total);
+        result = host_net_send_packet((host_net*)session, from, to, packet, total);
     if (result == 0)
         CountPacket(sendSize + 3, total, 1);
     sendSize = 0;
