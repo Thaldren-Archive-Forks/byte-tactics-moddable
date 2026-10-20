@@ -128,6 +128,7 @@ Elem_00476490,no,2,include/ta_types.h:9652|src/graphics/particles_476490.cpp:12,
 Elem_004dd8c0,no,3,include/ta_types.h:16833|src/debug/debug_lib.cpp:2217|src/debug/debug_lib_4db7d0.cpp:61,same-layout,include/ta_types.h
 Elem_432cb0,no,2,include/ta_types.h:4896|src/map/los_tables.cpp:43,differs,include/ta_types.h
 Element_00475ef0,no,2,include/ta_types.h:9644|src/graphics/particles_475ef0.cpp:8,same-layout,include/ta_types.h
+EmptyStringRep,no,2,link/globals.h:222|src/graphics/surface.cpp:2045,identical,link/globals.h
 Entry_0042f740,no,2,include/ta_types.h:4732|src/sound/sound_types.cpp:24,same-layout,include/ta_types.h
 Entry_004426e0,no,2,include/ta_types.h:5876|src/frontend/multi.cpp:204,same-layout,include/ta_types.h
 Entry_0049d120,no,2,include/ta_types.h:12070|src/weapons/weapons.cpp:1501,differs,include/ta_types.h

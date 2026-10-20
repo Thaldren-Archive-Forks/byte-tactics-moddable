@@ -218,8 +218,8 @@ extern char g_dotDot[4];                                                        
 extern char g_packageDataName[16];                                                                              // 0x50a56c, 16 bytes; 1 of 1 files
 extern char g_dirWildcard[4];                                                                                   // 0x50a57c, 4 bytes; 1 of 1 files
 extern char g_hapiFileArrayName[16];                                                                            // 0x50a5c0, 16 bytes; 1 of 1 files
-extern int g_emptyStringRefs;                                                                                   // 0x50a778, 4 bytes; 1 of 1 files
-extern void* g_emptyString;                                                                                     // 0x50a77c, 4 bytes; 1 of 1 files
+struct EmptyStringRep { int refs; void* chars; };
+extern EmptyStringRep g_emptyStringRep;
 extern int g_guaranteePackets;                                                                                  // 0x50a780, 4 bytes; 1 of 1 files
 extern int g_cdNextTrackTimer;                                                                                  // 0x50b540, 4 bytes; 1 of 1 files
 extern int g_cdFadeTimer;                                                                                       // 0x50b544, 4 bytes; 1 of 1 files
@@ -296,8 +296,7 @@ extern unsigned char DAT_005122e4[4];                                           
 extern int DAT_00512760;                                                                                        // 0x512760, 4 bytes; 1 of 1 files
 extern int g_unitRestrictPicLoadIndex;                                                                          // 0x512768, 4 bytes; 1 of 1 files
 extern int DAT_0051276c;                                                                                        // 0x51276c, 4 bytes; 1 of 1 files
-extern unsigned int g_reporterNames;                                                                            // 0x512788, 4 bytes; 1 of 1 files
-extern unsigned char DAT_0051278c[60];                                                                          // 0x51278c, 60 bytes; nothing refers to it
+extern unsigned int g_reporterNames[16];                                                                        // 0x512788, 64 bytes; 1 of 1 files
 extern unsigned char g_linkInfo[432];                                                                           // 0x5127c8, 432 bytes; LinkInfo[] by value in 2 of 2 files
 extern int g_unitRestrictPicCursor;                                                                             // 0x512978, 4 bytes; 1 of 1 files
 extern int g_unitRestrictRecordCursor;                                                                          // 0x51297c, 4 bytes; 1 of 1 files
@@ -446,8 +445,8 @@ extern unsigned char DAT_0051ff4c[12];                                          
 extern int g_delayedSampleVolume;                                                                               // 0x51ff58, 4 bytes; 1 of 1 files
 extern unsigned char DAT_0051ff5c[4];                                                                           // 0x51ff5c, 4 bytes; nothing refers to it
 extern char g_delayedSampleName[112];                                                                           // 0x51ff60, 112 bytes; 1 of 1 files
-extern char g_lzssPresetWindow[176];                                                                            // 0x51ffd0, 176 bytes; 1 of 1 files
-extern unsigned char DAT_00520080[3944];                                                                        // 0x520080, 3944 bytes; nothing refers to it
+extern char g_lzssPresetWindow[4113];                                                                           // 0x51ffd0, 4113 bytes; 1 of 1 files
+extern unsigned char DAT_00520fe1[7];                                                                              // 0x520fe1, 7 bytes; nothing refers to it
 extern char g_lzssPresetTree[24584];                                                                            // 0x520fe8, 24584 bytes; 1 of 1 files
 extern Struct_00526ff0* g_squashDictTree;                                                                       // 0x526ff0, 4 bytes; 1 of 2 files (conflicting: struct names only)
 extern int g_lzssPresetReady;                                                                                   // 0x526ff8, 4 bytes; 1 of 1 files
@@ -690,6 +689,7 @@ extern long g_squashThreadLockTicket;                                           
 //   0x5086d8 g_unitMessages: defined in src/units/unit_messages.cpp
 //   0x5086dc g_speechTypes: defined in src/units/unit_messages.cpp
 //   0x5086fc g_speechCategories: defined in src/units/unit_messages.cpp
+//   0x50a77c g_emptyString: part of another global: g_emptyStringRep+0x4
 //   0x50b6e0 DAT_0050b6e0: defined in src/data/unused.cpp
 //   0x5122c4 g_mapCacheBegin: part of another global: src/map/map_list.cpp:0x5122c0+0x4
 //   0x5122c8 g_mapCacheEnd: part of another global: src/map/map_list.cpp:0x5122c0+0x8

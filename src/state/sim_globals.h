@@ -33,8 +33,7 @@ struct SimGlobals {
     unsigned char DAT_00511fb4[4];
     int g_meteorNextStrikeTime;
     unsigned char DAT_005122ec[4];
-    char* g_meteorWeaponName;
-    unsigned char DAT_005122f4[28];
+    char g_meteorWeaponName[32];
     int g_meteorSpawnMagnitude;
     int g_meteorSpawnInterval;
     int g_meteorActive;
@@ -88,8 +87,7 @@ static_assert(__builtin_offsetof(SimGlobals, DAT_00511a3c) - __builtin_offsetof(
 static_assert(__builtin_offsetof(SimGlobals, g_debrisMemCache) - __builtin_offsetof(SimGlobals, g_explodedPieces) == 400, "g_explodedPieces is followed by g_debrisMemCache");
 static_assert(__builtin_offsetof(SimGlobals, DAT_005122ec) - __builtin_offsetof(SimGlobals, g_meteorNextStrikeTime) == 4, "g_meteorNextStrikeTime is followed by DAT_005122ec");
 static_assert(__builtin_offsetof(SimGlobals, g_meteorWeaponName) - __builtin_offsetof(SimGlobals, DAT_005122ec) == 4, "DAT_005122ec is followed by g_meteorWeaponName");
-static_assert(__builtin_offsetof(SimGlobals, DAT_005122f4) - __builtin_offsetof(SimGlobals, g_meteorWeaponName) == 4, "g_meteorWeaponName is followed by DAT_005122f4");
-static_assert(__builtin_offsetof(SimGlobals, g_meteorSpawnMagnitude) - __builtin_offsetof(SimGlobals, DAT_005122f4) == 28, "DAT_005122f4 is followed by g_meteorSpawnMagnitude");
+static_assert(__builtin_offsetof(SimGlobals, g_meteorSpawnMagnitude) - __builtin_offsetof(SimGlobals, g_meteorWeaponName) == 32, "g_meteorWeaponName is followed by g_meteorSpawnMagnitude");
 static_assert(__builtin_offsetof(SimGlobals, g_meteorSpawnInterval) - __builtin_offsetof(SimGlobals, g_meteorSpawnMagnitude) == 4, "g_meteorSpawnMagnitude is followed by g_meteorSpawnInterval");
 static_assert(__builtin_offsetof(SimGlobals, g_meteorActive) - __builtin_offsetof(SimGlobals, g_meteorSpawnInterval) == 4, "g_meteorSpawnInterval is followed by g_meteorActive");
 static_assert(__builtin_offsetof(SimGlobals, g_meteorStrikeEndTime) - __builtin_offsetof(SimGlobals, g_meteorActive) == 4, "g_meteorActive is followed by g_meteorStrikeEndTime");
@@ -135,7 +133,6 @@ static_assert(sizeof(((SimGlobals*)0)->g_losTables) == 16, "g_losTables size");
 #define g_meteorNextStrikeTime (Sim().g_meteorNextStrikeTime)
 #define DAT_005122ec (Sim().DAT_005122ec)
 #define g_meteorWeaponName (Sim().g_meteorWeaponName)
-#define DAT_005122f4 (Sim().DAT_005122f4)
 #define g_meteorSpawnMagnitude (Sim().g_meteorSpawnMagnitude)
 #define g_meteorSpawnInterval (Sim().g_meteorSpawnInterval)
 #define g_meteorActive (Sim().g_meteorActive)
@@ -168,6 +165,8 @@ static_assert(sizeof(((SimGlobals*)0)->g_losTables) == 16, "g_losTables size");
 #define g_randomSeed (Sim().g_randomSeed)
 #define DAT_0051fc8c (Sim().DAT_0051fc8c)
 #define g_quirks (Sim().g_quirks)
+typedef unsigned char SimType_DAT_005122f4[28];
+#define DAT_005122f4 (*reinterpret_cast<SimType_DAT_005122f4*>(reinterpret_cast<char*>(&g_meteorWeaponName) + 0x4))
 typedef char* SimType_g_missionOrderTableBegin;
 #define g_missionOrderTableBegin (*reinterpret_cast<SimType_g_missionOrderTableBegin*>(reinterpret_cast<char*>(&g_missionOrderTableVec) + 0x4))
 typedef int SimType_g_missionOrderTableEnd;
