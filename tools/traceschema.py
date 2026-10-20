@@ -48,7 +48,7 @@ BASE_SIZES: dict[str, int] = {
 
 POINTER_TARGETS: dict[str, str] = {
     "Unit": "UNIT", "Player": "PLAYER", "UnitDef": "UNITDEF", "WeaponDef": "WEAPONDEF",
-    "WeaponDefRecord": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Obj_00406f50": "PROJECTILE",
+    "WeaponDefRecord": "WEAPONDEF", "UnitMotion": "WEAPONDEF", "Projectile": "PROJECTILE",
     "Feature": "FEATURE", "Object3do": "PIECE", "Object3D": "PIECE",
     "Rec": "REC", "Node": "NODE", "MovementClass": "MOVECLASS",
     "OrderRef": "ORDER", "OrderFxRef": "ORDERFX", "LinkRef": "LINK",
@@ -66,6 +66,8 @@ POINTERS: dict[str, dict[int, str]] = {
 }
 
 POINTER_NAMES: dict[tuple[str, int], str] = {}
+
+SCALAR_POINTERS: set[tuple[str, str]] = {("Projectile", "interceptedProjectile")}
 
 EXCLUSIONS: list[tuple[str, str, str]] = [
     ("Eye", "screen", "points at the record's own screenPos"),
@@ -821,7 +823,7 @@ SYNTHETIC_SIZES: dict[str, int] = {
 
 TYPE_ORDER: list[tuple[str, str]] = [
     ("Unit", "Unit"),
-    ("Obj_00406f50", "Projectile"),
+    ("Projectile", "Projectile"),
     ("Player", "Player"),
     ("Debris", "Debris"),
     ("Object3do", "Piece"),
@@ -1074,6 +1076,8 @@ class Schema:
         if d.get("union"):
             leaves.append({"name": name, "offset": pos, "size": d["size"],
                            "kind": "scalar" if d["size"] in (1, 2, 4, 8) else "bytes", "target": None})
+        elif d["ptr"] and (tname, name) in SCALAR_POINTERS:
+            leaves.append({"name": name, "offset": pos, "size": 4, "kind": "scalar", "target": None})
         elif d["ptr"]:
             target = POINTER_TARGETS.get(base, "HEAP")
             for i in range(count):

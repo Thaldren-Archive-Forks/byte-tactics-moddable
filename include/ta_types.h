@@ -1213,7 +1213,6 @@ struct Flags_00495e90_38a51;
 union Flags_00495e90_3923b;
 struct Flags_00496ce0;
 struct Flags_00499cd0;
-union Flags_0049b090;
 struct Flags_0049e010;
 struct Flags_0049e1a0;
 struct Flags_004ab400;
@@ -1547,7 +1546,6 @@ struct Obj18_004aff00;
 struct Obj1_49fd20;
 struct Obj2_49fd20;
 struct Obj_00401320;
-struct Obj_00406f50;
 struct Obj_0041b200;
 struct Obj_00423bf0;
 struct Obj_00426e80;
@@ -1822,7 +1820,6 @@ struct Pos_0048d630;
 struct Pos_004cf570;
 struct Pos_4589c0;
 class Prim_0046bae0;
-struct ProjFlags_0049b720;
 struct Quad;
 class Queue_00461f90;
 struct Queue_004c1ab0;
@@ -2129,7 +2126,6 @@ struct Weapon_0049b720;
 struct Weapon_2;
 struct Weapon_3;
 struct Widget_00464f80;
-union WordPair_0049b090;
 struct Word_004afd80;
 struct Word_004aff00;
 union Word_0051f522;
@@ -2689,39 +2685,7 @@ public:
 
 #include "../src/ai/squad_manager.h"
 
-struct Obj_00406f50 {  // 0x6b bytes, 26 views
-    UnitMotion* type;      // +0x0
-    Vec3 pos;  // +0x4
-    Vec3 start;  // +0x10
-    int field_1c;  // +0x1c
-    int field_20;  // +0x20
-    int field_24;  // +0x24
-    Vec3 pos_28;  // +0x28
-    short roll;  // +0x34
-    short angle;  // +0x36
-    short pitch0;  // +0x38
-    int field_3a;  // +0x3a
-    unsigned int range;  // +0x3e
-    int field_42;  // +0x42
-    int time;  // +0x46
-    unsigned int f4a;  // +0x4a
-    int field_4e;  // +0x4e
-    Unit* owner;  // +0x52
-    int field_56;  // +0x56
-    short cellX;  // +0x5a
-    short cellZ;  // +0x5c
-    short radius;  // +0x5e
-    short active;  // +0x60
-    unsigned short piece;  // +0x62
-    short field_64;  // +0x64
-    unsigned char owner_66;  // +0x66
-    short field_67;  // +0x67
-    unsigned short flag0 : 1;  // +0x69
-    unsigned short dead : 1;
-    unsigned short flagRest : 14;
-    void SetOwner(Unit*);
-    void Setup(Unit*);
-};
+#include "../src/weapons/projectile.h"
 
 class Class_004071f0 {  // 0x4 bytes, 3 views
 public:
@@ -12063,14 +12027,6 @@ struct ProjectileDetonatePacket {  // 0xe bytes, 1 view
     unsigned char typeId;  // +0xd
 };
 
-union Flags_0049b090 {  // 0x1 bytes, 1 view
-    union { unsigned char value; struct { unsigned char b0 : 1; unsigned char dead : 1; unsigned char rest : 6; } bits; };  // +0x0
-};
-
-union WordPair_0049b090 {  // 0x4 bytes, 1 view
-    union { int i; struct { char lo[2]; short hi; } s; };  // +0x0
-};
-
 union Fix_0049b3e0 {  // 0x4 bytes, 1 view
     union { int whole; short half[2]; };  // +0x0
 };
@@ -12078,14 +12034,6 @@ union Fix_0049b3e0 {  // 0x4 bytes, 1 view
 struct Obj_0049b3e0 {  // 0x114 bytes, 1 view
     char unknown_0[272];
     unsigned int flags;  // +0x110
-};
-
-struct ProjFlags_0049b720 {  // 0x2 bytes, 1 view
-    unsigned short b0 : 1;  // +0x0
-    unsigned short dead : 1;
-    unsigned short b2 : 2;
-    unsigned short state : 2;
-    unsigned short rest : 10;
 };
 
 struct Weapon_0049b720 {  // 0x1c bytes, 1 view

@@ -1905,8 +1905,6 @@ struct Pos_0043e490;
 struct Pos_00484b50;
 struct Pos_00485330;
 struct Pos_0048a9f0;
-struct ProjType_0049b090;
-struct Proj_0049c740;
 
 // FUNCTION: 0x4a2480
 void __stdcall DrawGafBar(Dialog_004a04f0* param_1, int index)
@@ -1944,7 +1942,6 @@ int AllocScoreTables();
 
 // Unused here: real declarations that keep the file's symbol count.
 void __cdecl ClearCameraFollowState();
-struct Projectile_0049b6e0;
 void CreateGameObject();
 void InitMissionStatus();
 void SetUpEndMissionScreen();
