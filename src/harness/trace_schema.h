@@ -189,7 +189,7 @@ static const TraceField kProjectileFields[] = {
     { "propellerSpin", 0x64, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "owner", 0x66, 1, TF_SCALAR, TT_NONE, 0x0 },
     { "compactIndex", 0x67, 2, TF_SCALAR, TT_NONE, 0x0 },
-    { "value", 0x69, 2, TF_SCALAR, TT_NONE, 0x0 },
+    { "flags", 0x69, 2, TF_SCALAR, TT_NONE, 0x0 },
 };
 
 static const TraceField kProjectilePlan[] = {

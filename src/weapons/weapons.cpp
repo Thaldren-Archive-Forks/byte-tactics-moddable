@@ -452,7 +452,7 @@ void __stdcall UntrackProjectile(Projectile* projectile)
         g_game->value_1434b = projectile->type->holdTime;
         (*(void **)&g_game->tracked) = 0;
     }
-    projectile->flags.value |= 2;
+    projectile->flags |= 2;
 }
 
 void __stdcall AccumulateScreenShake(int a, int b, int c);void __stdcall AddExplosionEffect(Vec3_0049b720* position, void* value, int a, int b);
@@ -476,7 +476,7 @@ void __stdcall DetonateProjectile(Projectile* projectile, Unit* unit)
             g_game->value_1434b = projectile->type->holdTime;
             (*(void **)&g_game->tracked) = 0;
         }
-        projectile->flags.value = projectile->flags.value | 2;
+        projectile->flags = projectile->flags | 2;
     }
     if (((Net *)g_game->net)->noSeaLevelTrigger && hostile && !unit) {
         if (projectile == g_game->tracked) {
@@ -484,7 +484,7 @@ void __stdcall DetonateProjectile(Projectile* projectile, Unit* unit)
             g_game->value_1434b = projectile->type->holdTime;
             (*(void **)&g_game->tracked) = 0;
         }
-        projectile->flags.value = projectile->flags.value | 2;
+        projectile->flags = projectile->flags | 2;
         return;
     }
     AccumulateScreenShake(type->shakeMagnitude, type->shakeMagnitude, type->shakeDuration);
@@ -956,7 +956,7 @@ void CompactProjectiles()
 
     for (i = 0; i < g_game->projectileCount; i++) {
         Projectile* p = &projectiles[i];
-        bool dead = p->flags.bits.dead;
+        bool dead = p->flagBits.dead;
         p->compactIndex = (short)i;
         if (dead) {
             if (!dest) {
@@ -1204,7 +1204,7 @@ Projectile* AllocProjectile()
     Projectile* p = 0;
     if (g_game->projectileCount < 300) {
         p = &g_game->projectiles[g_game->projectileCount++];
-        p->flags.value &= ~2;
+        p->flags &= ~2;
         p->targetUnit = 0;
     }
     return p;
@@ -1227,13 +1227,13 @@ void __stdcall InitProjectile(Projectile* proj, WeaponDef* shot, Vec3* pos,
     if (aim)
         proj->target = *aim;
     proj->spawnTick = field_5;
-    proj->flags.value &= ~1;
+    proj->flags &= ~1;
     proj->active = 0;
-    unsigned short f = proj->flags.value;
+    unsigned short f = proj->flags;
     proj->nextSmokeTick = g_game->ticks;
     proj->interceptedProjectile = 0;
     proj->targetUnit = 0;
-    proj->flags.value = f & ~0x30;
+    proj->flags = f & ~0x30;
     if (unit) {
         proj->owner = unit->playerIndex;
         proj->attacker = unit;
@@ -1261,7 +1261,7 @@ static inline void Untrack_0049c880(Projectile* proj)
         g_game->value_1434b = proj->type->holdTime;
         g_game->tracked = 0;
     }
-    proj->flags.value |= 2;
+    proj->flags |= 2;
 }
 
 // FUNCTION: 0x49c880
@@ -1352,7 +1352,7 @@ int __stdcall FireLineOfSightProjectile(Fire_0049c9c0* fire, Unit* unit,
     if (i < 0x12c) {
         proj = g_game->projectiles + i;
         g_game->projectileCount = i + 1;
-        proj->flags.value &= ~2;
+        proj->flags &= ~2;
         proj->targetUnit = 0;
     }
     if (!proj)
@@ -1370,8 +1370,8 @@ int __stdcall FireLineOfSightProjectile(Fire_0049c9c0* fire, Unit* unit,
     unsigned int dist = (int)_hypot(dx, dz);
     proj->range = (int)dist;
     short a2 = FUN_004b715a(-(int)dy.halves[1], (short)(dist >> 16));
-    proj->angle = a1;
-    proj->pitch0 = a2;
+    proj->angles.heading = a1;
+    proj->angles.pitch = a2;
 
     // The same helper as 0x49c980, inlined here.
     if (fire->shot->startSpeed) {
@@ -1428,15 +1428,15 @@ int __stdcall FireVLaunchProjectile(Shot_0049cc20* shot, Unit* unit, Vec3* pos,
     Projectile* proj = 0;
     if (g_game->projectileCount < 300) {
         proj = &g_game->projectiles[g_game->projectileCount++];
-        proj->flags.value &= ~2;
+        proj->flags &= ~2;
         proj->targetUnit = 0;
     }
     if (!proj)
         return 0;
 
     InitProjectile(proj, shot->def, pos, aim, g_game->ticks, unit);
-    proj->angle = 0;
-    proj->pitch0 = 0x4000;
+    proj->angles.heading = 0;
+    proj->angles.pitch = 0x4000;
     shot->aimCobDone = 0;
     if (shot->def->startSpeed) {
         proj->speed = shot->def->startSpeed;
@@ -1489,13 +1489,13 @@ int __stdcall FireBallisticProjectile(Shot_0049cde0* shot, Unit* unit, Vec3* pos
     Projectile* proj = 0;
     if (g_game->projectileCount < 300) {
         proj = &g_game->projectiles[g_game->projectileCount++];
-        proj->flags.value &= ~2;
+        proj->flags &= ~2;
         proj->targetUnit = 0;
     }
     if (proj) {
         InitProjectile(proj, shot->def, pos, 0, g_game->ticks, unit);
-        proj->angle = shot->heading;
-        proj->pitch0 = shot->pitch;
+        proj->angles.heading = shot->heading;
+        proj->angles.pitch = shot->pitch;
         // The whole product is its own statement: inside the assignment the
         // division and multiply sink after the call.
         int q = (shot->muzzleAimFromDeltaZ / shot->def->speed) * g_game->gravity;
@@ -1534,7 +1534,7 @@ struct Shot_0049d000 {
 
 static inline void Setup_0049d000(Projectile* proj, Unit* u)
 {
-    proj->angle = u->heading;
+    proj->angles.heading = u->heading;
     proj->speed = 0;
     proj->direction.y = 0;
 }
@@ -1547,14 +1547,14 @@ int __stdcall SpawnProjectileFromUnitMotion(Shot_0049d000* shot, Unit* unit, Vec
     Projectile* proj = 0;
     if (g_game->projectileCount < 300) {
         proj = &g_game->projectiles[g_game->projectileCount++];
-        proj->flags.value &= ~2;
+        proj->flags &= ~2;
         proj->targetUnit = 0;
     }
     if (proj) {
         InitProjectile(proj, shot->weapon, pos, 0, g_game->ticks, unit);
         Setup_0049d000(proj, unit);
-        proj->direction.x = -FUN_004b70ef(proj->angle, ((UnitType_0049d000*)unit->motion)->range);
-        proj->direction.z = -FUN_004b7123(proj->angle, ((UnitType_0049d000*)unit->motion)->range);
+        proj->direction.x = -FUN_004b70ef(proj->angles.heading, ((UnitType_0049d000*)unit->motion)->range);
+        proj->direction.z = -FUN_004b7123(proj->angles.heading, ((UnitType_0049d000*)unit->motion)->range);
         return 1;
     }
     return 0;
@@ -1710,7 +1710,7 @@ void __stdcall ApplyWeaponFirePacket(int arg1, WeaponFirePacket* ev)
         Projectile* proj = 0;
         if (g_game->projectileCount < 300) {
             proj = &g_game->projectiles[g_game->projectileCount++];
-            proj->flags.value &= 0xfffd;
+            proj->flags &= 0xfffd;
             proj->targetUnit = 0;
         }
         if (!proj)
@@ -1746,17 +1746,17 @@ void __stdcall ApplyWeaponFirePacket(int arg1, WeaponFirePacket* ev)
         Projectile* proj = 0;
         if (g_game->projectileCount < 300) {
             proj = &g_game->projectiles[g_game->projectileCount++];
-            proj->flags.value &= 0xfffd;
+            proj->flags &= 0xfffd;
             proj->targetUnit = 0;
         }
         if (!proj)
             return;
         InitProjectile(proj, entry->type, (void*)((char*)ev + 1), 0, g_game->ticks, unit);
-        proj->angle = unit->heading;
+        proj->angles.heading = unit->heading;
         proj->speed = 0;
         proj->direction.y = 0;
-        proj->direction.x = -FUN_004b70ef(proj->angle, ((Type_0049d270*)unit->motion)->param);
-        proj->direction.z = -FUN_004b7123(proj->angle, ((Type_0049d270*)unit->motion)->param);
+        proj->direction.x = -FUN_004b70ef(proj->angles.heading, ((Type_0049d270*)unit->motion)->param);
+        proj->direction.z = -FUN_004b7123(proj->angles.heading, ((Type_0049d270*)unit->motion)->param);
         return;
     }
 }
@@ -2092,16 +2092,16 @@ int __stdcall FireDroppedWeapon(Unit* unit, Aim_0049dd60* aim,
     Projectile* projectile = 0;
     if (g_game->projectileCount < 300) {
         projectile = &g_game->projectiles[g_game->projectileCount++];
-        projectile->flags.value &= ~2;
+        projectile->flags &= ~2;
         projectile->targetUnit = 0;
     }
     if (projectile != 0) {
         InitProjectile(projectile, aim->type, &p, 0, g_game->ticks, unit);
-        projectile->angle = unit->heading;
+        projectile->angles.heading = unit->heading;
         projectile->speed = 0;
         projectile->direction.y = 0;
-        projectile->direction.x = -FUN_004b70ef(projectile->angle, ((Owner_0049dd60*)unit->motion)->id);
-        projectile->direction.z = -FUN_004b7123(projectile->angle, ((Owner_0049dd60*)unit->motion)->id);
+        projectile->direction.x = -FUN_004b70ef(projectile->angles.heading, ((Owner_0049dd60*)unit->motion)->id);
+        projectile->direction.z = -FUN_004b7123(projectile->angles.heading, ((Owner_0049dd60*)unit->motion)->id);
         if (g_game->netGameFlags & 1) {
             WeaponFirePacket packet;
             packet.type = 0xd;
@@ -2140,7 +2140,7 @@ int __stdcall SpawnProjectile(WeaponDef* weapon, Vec3* a, Vec3* b, int flag)
     Projectile* proj = 0;
     if (g_game->projectileCount < 300) {
         proj = &g_game->projectiles[g_game->projectileCount++];
-        proj->flags.value &= ~2;
+        proj->flags &= ~2;
         proj->targetUnit = 0;
     }
     if (!proj)
@@ -2422,7 +2422,7 @@ void __stdcall CheckProjectileCollision(WeaponDef* type, Projectile* proj)
             g_game->value_1434b = proj->type->holdTime;
             g_game->tracked = 0;
         }
-        proj->flags.bits.dead = 1;
+        proj->flagBits.dead = 1;
         return;
     }
     if (proj->interceptedProjectile) {

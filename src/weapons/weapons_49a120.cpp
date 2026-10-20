@@ -317,7 +317,7 @@ void __stdcall ApplyAreaDamage(Projectile* weapon, Vec3* pos)
         // pointer is stepped after it.
         Projectile* other = g_game->projectiles;
         for (int j = 0; j < g_game->projectileCount; j++, other++) {
-            if ((other->flags.value & 2) || other == weapon)
+            if ((other->flags & 2) || other == weapon)
                 continue;
             Vec3* p = &other->position;
             int dx = weapon->position.x - p->x;

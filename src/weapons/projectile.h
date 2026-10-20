@@ -18,14 +18,7 @@ struct Projectile {
     Vec3 start;
     Vec3 direction;
     Vec3 target;
-    union {
-        Angles16 angles;
-        struct {
-            short roll;
-            short angle;
-            short pitch0;
-        };
-    };
+    Angles16 angles;
     int speed;
     unsigned int range;
     int spawnTick;
@@ -49,15 +42,15 @@ struct Projectile {
     unsigned char owner;
     short compactIndex;
     union {
-        unsigned short value;
+        unsigned short flags;
         struct {
             unsigned short b0 : 1;
             unsigned short dead : 1;
             unsigned short b2 : 2;
             unsigned short state : 2;
             unsigned short rest : 10;
-        } bits;
-    } flags;
+        } flagBits;
+    };
 };
 
 #pragma pack(pop)

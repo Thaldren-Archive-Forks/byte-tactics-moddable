@@ -64,7 +64,7 @@ static Projectile* AllocProjectile()
     Projectile* p = 0;
     if (g_game->projectileCount < 300) {
         p = &g_game->projectiles[g_game->projectileCount++];
-        p->flags.bits.dead = 0;
+        p->flagBits.dead = 0;
         p->targetUnit = 0;
     }
     return p;
@@ -84,7 +84,7 @@ static inline void Remove(Projectile* p)
         (*(unsigned short*)&g_game->value_1434b) = p->type->holdTime;
         g_game->tracked = 0;
     }
-    p->flags.bits.dead = 1;
+    p->flagBits.dead = 1;
 }
 
 // Stays in its own file: the b0 arm's register tie follows this file's symbol
@@ -125,8 +125,8 @@ void UpdateProjectiles()
                         q->time += RandomInt(type->lifeRand) - (type->lifeRand >> 1);
                     q->active = 0;
                     if (type->spread != 0) {
-                        short ang = RandomInt(type->spread) + (short)(p->angle - (type->spread >> 1));
-                        int t = FUN_004b7123(p->pitch0, type->speed);
+                        short ang = RandomInt(type->spread) + (short)(p->angles.heading - (type->spread >> 1));
+                        int t = FUN_004b7123(p->angles.pitch, type->speed);
                         p->direction.x = -FUN_004b70ef(ang, t);
                         p->direction.z = -FUN_004b7123(ang, t);
                     }
@@ -144,7 +144,7 @@ void UpdateProjectiles()
             if (p->time > (unsigned int)g_game->ticks) {
                 if (type->flags.b.waterWeapon && p->positionWords.yWhole >= g_game->seaLevel) {
                     Fall(&p->direction);
-                    p->pitch0 = 0;
+                    p->angles.pitch = 0;
                 } else {
                     int seek = 0;
                     if ((unsigned int)p->speed < type->speed) {
@@ -153,7 +153,7 @@ void UpdateProjectiles()
                             p->speed = type->speed;
                     }
                     if (type->flags.b.twoPhase) {
-                        if (p->flags.bits.state > 0)
+                        if (p->flagBits.state > 0)
                             seek = 1;
                     } else if (type->flags.b.guidance) {
                         seek = 1;
@@ -163,19 +163,19 @@ void UpdateProjectiles()
                         if (TurnUnitTowardsPoint(p, target) == 0)
                             DetonateProjectile(p, 0);
                     }
-                    p->direction.y = FUN_004b70ef(p->pitch0, p->speed);
-                    int t = FUN_004b7123(p->pitch0, p->speed);
-                    p->direction.x = -FUN_004b70ef(p->angle, t);
-                    p->direction.z = -FUN_004b7123(p->angle, t);
+                    p->direction.y = FUN_004b70ef(p->angles.pitch, p->speed);
+                    int t = FUN_004b7123(p->angles.pitch, p->speed);
+                    p->direction.x = -FUN_004b70ef(p->angles.heading, t);
+                    p->direction.z = -FUN_004b7123(p->angles.heading, t);
                 }
             } else if (type->flags.b.burnBlow) {
                 DetonateProjectile(p, 0);
             } else {
                 Fall(&p->direction);
                 if (type->flags.b.twoPhase) {
-                    if (p->flags.bits.state == 0) {
+                    if (p->flagBits.state == 0) {
                         p->time = (unsigned int)g_game->ticks + p->type->flightTime;
-                        p->flags.bits.state++;
+                        p->flagBits.state++;
                         if (!p->type->flags.b.tracks) {
                             p->interceptedProjectile = 0;
                             p->targetUnit = 0;
@@ -189,10 +189,10 @@ void UpdateProjectiles()
             if (p->time > (unsigned int)g_game->ticks) {
                 p->position += p->direction;
                 if (type->flags.b.beamWeapon) {
-                    if (p->flags.bits.b0)
+                    if (p->flagBits.b0)
                         p->start += p->direction;
                     else if ((unsigned int)g_game->ticks > p->spawnTick + type->duration)
-                        p->flags.bits.b0 = 1;
+                        p->flagBits.b0 = 1;
                 }
                 CheckProjectileCollision(type, p);
             } else {
@@ -224,12 +224,12 @@ void UpdateProjectiles()
             CheckProjectileCollision(type, p);
         } else if (type->flags.b.meteor) {
             p->position += p->direction;
-            p->roll += ((short*)&p->direction.x)[1] << 8;
-            p->pitch0 += ((short*)&p->direction.z)[1] << 8;
+            p->angles.bank += ((short*)&p->direction.x)[1] << 8;
+            p->angles.pitch += ((short*)&p->direction.z)[1] << 8;
             CheckProjectileCollision(type, p);
         }
 
-        if (!p->flags.bits.dead) {
+        if (!p->flagBits.dead) {
             if (type->flags.b.smokeTrail && p->time > (unsigned int)g_game->ticks && p->nextSmokeTick < (unsigned int)g_game->ticks) {
                 EmitWhiteSmoke(&p->position, 9);
                 p->nextSmokeTick += type->smokeRate;
