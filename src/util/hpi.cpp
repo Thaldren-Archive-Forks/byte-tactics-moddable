@@ -1,11 +1,4 @@
 // Decompiled by Opus, space-bunny-free, Claude Opus 5.5, Haiku, Sonnet 5.5, deepseek-v4.1-flash, GPT-6, GPT-6.1-sol, deepseek-v4.1, GPT-5.6-Terra, muse-spark-1.3-free, Sonnet, Space Bunny Free, mimo-v2.6-pro, DeepSeek V4.1 Flash, claude-sonnet-5-5 and opus. Names are provisional.
-// The HAPI file and archive APIs: the CD drive helpers, the archive
-// directory tree, the file handles, the directory search, the path
-// helpers, the package reader and writer, and the list of open archives.
-// The two gap functions, HAPI_WriteArchiveData, the vector insert and the
-// function the compiler would inline into its caller stay in their own
-// files (hpi_4bb4e0.cpp and hpi_4bc800.cpp, hpi_4bd830.cpp, hpi_4be6c0.cpp
-// and hpi_4be320.cpp).
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,58 +18,6 @@ void EnableAICommands(void);
 void RegisterAICommands(void);
 void FUN_00406f40(void);
 void ResetAIPlayers(void);
-
-// Returns the letter of the first CD-ROM drive after the given drive letter
-// (from 'A' when the letter is not a valid drive), or 0 when there is none.
-// FUNCTION: 0x4bb190
-char __stdcall FindNextCdDrive(char drive)
-{
-    char letter = toupper(drive);
-    if (letter >= 'A' && letter <= 'Z')
-        letter++;
-    else
-        letter = 'A';
-    for (; letter <= 'Z'; letter++) {
-        char root[4];
-        sprintf(root, "%c:\\", letter);
-        if (GetDriveTypeA(root) == DRIVE_CDROM)
-            return letter;
-    }
-    return 0;
-}
-
-// FUNCTION: 0x4bb200
-DWORD __stdcall GetVolumeNameAndSerial(char drive, LPSTR volumeName, DWORD volumeNameSize)
-{
-    char root[4];
-    DWORD serial;
-    DWORD flags;
-    DWORD maxComponentLength;
-    char fileSystemName[64];
-
-    serial = 0;
-    sprintf(root, "%c:\\", drive);
-    GetVolumeInformationA(root, volumeName, volumeNameSize, &serial,
-                          &maxComponentLength, &flags, fileSystemName, 64);
-    return serial;
-}
-
-// FUNCTION: 0x4bb260
-DWORD __stdcall GetVolumeSerial(char drive)
-{
-    char root[4];
-    char volumeName[64];
-    DWORD serial;
-    DWORD maxComponentLength;
-    DWORD flags;
-    char fileSystemName[64];
-
-    serial = 0;
-    sprintf(root, "%c:\\", drive);
-    GetVolumeInformationA(root, volumeName, 64, &serial, &maxComponentLength,
-                          &flags, fileSystemName, 64);
-    return serial;
-}
 
 // A file's entry data: the block's offset, its size and whether the data is
 // compressed.
@@ -853,15 +794,13 @@ int __stdcall MatchWildcard(const char* str, const char* pat)
 }
 
 
-// A directory search: the directory part, the pattern to match, the state and
-// the raw _findfirst handle.
 #pragma pack(push, 1)
 struct FindFiles {
     char dir[0x100];         // +0x000
     char pattern[0x100];     // +0x100
-    int state;               // +0x200, negative while a _findfirst handle is open
+    int state;
     char recursive;          // +0x204
-    union {                  // +0x205, the _findfirst handle or the current directory list
+    union {
         void* handle;
         ArchiveDirectory* list;
     };
@@ -938,13 +877,6 @@ fail:
 
 ArchiveDirectory* __stdcall HAPI_FindDirectory(ArchiveDirectory* list, char* path);
 
-// Advances the directory search 0x4bc4b0 opened and fills in one _finddata_t
-// per call, returning -1 when the search is exhausted. A negative state means
-// the handle is still a raw _findfirst search, so entries come straight out of
-// _findnext until it runs dry; after that the search walks the path groups the
-// game registered, matching each group's entries against the stored pattern.
-// Attribute 0x11 with a zero size marks a directory, 1 with the node's size a
-// file, and flag bit 2 hides an entry from the walk entirely.
 // FUNCTION: 0x4bc640
 int __stdcall HAPI_FindNext(FindFiles* f, struct _finddata_t* fd)
 {

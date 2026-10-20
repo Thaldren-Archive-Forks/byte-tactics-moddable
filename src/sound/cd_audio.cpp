@@ -19,8 +19,6 @@
 // in (docs/c2-regalloc.md).
 #include <io.h>
 
-extern char __stdcall FindNextCdDrive(char drive);
-extern int __stdcall GetVolumeSerial(char drive);
 
 extern HWND g_cdPlayerWindow;
 
@@ -125,13 +123,13 @@ int Sound::SetCdCallback(void (*cb)())
 static void SeedTrackReplies(char* count, char* trackType)
 {
     int files = 0;
-    WIN32_FIND_DATAA found;
-    HANDLE h = FindFirstFileA("music\\*.mp3", &found);
-    if (h != INVALID_HANDLE_VALUE) {
+    struct host_dir_entry found;
+    void* h = host_dir_first("music\\*.mp3", &found);
+    if (h != NULL) {
         do {
             files++;
-        } while (FindNextFileA(h, &found));
-        FindClose(h);
+        } while (host_dir_next(h, &found));
+        host_dir_close(h);
     }
     wsprintfA(count, "%d", files);
     strcpy(trackType, "other");
@@ -148,9 +146,6 @@ int Sound::QueryDisc()
 
     currentTrack = 0;
     playState = 0;
-    int drive = FindNextCdDrive(0);
-    if (drive != 0)
-        discSerial = GetVolumeSerial(drive);
     // Both mciSendStringA results are assigned to an int local before being tested.
 #ifdef __clang__
     SeedTrackReplies(buf, type);

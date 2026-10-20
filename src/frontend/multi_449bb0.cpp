@@ -173,7 +173,6 @@ extern char* g_battleRoomGadgetNames[];
 // After the externs: keeps the locals' symbol ids past 65536 (g_game stays below).
 #include "ta_protos.h"
 
-char __stdcall FindGameCdDrive(int side);
 int __stdcall LoadPictureCached(const char* name, int clear, int setPalette, int cacheOnly);
 void OrLabelAttribs();
 void __stdcall UpdateMaxUnitsText(Gui_00449bb0* gui, int index);
@@ -274,7 +273,7 @@ void OpenBattleRoom()
         g_game->maxUnits = g_game->unitLimit;
     info->width = g_game->width;
     info->height = g_game->height;
-    info->f9d_2 = FindGameCdDrive(1) != 0;
+    info->f9d_2 = 1;
 
     layer = LoadGuiLayer(&g_game->gui, "LOUNGE2.GUI", 0);
     layer->handler = HandleBattleRoomClick;

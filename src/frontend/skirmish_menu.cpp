@@ -851,7 +851,6 @@ struct ClickFrame {
 #pragma pack(pop)
 
 void __stdcall GetGadgetName(Gadget* entries, char* text, int id);
-char __stdcall FindGameCdDrive(int side);
 void RegisterDataArchives();
 void InitMissionStatus();
 void SaveSettings();
@@ -877,12 +876,6 @@ void __stdcall HandleSkirmishClick(Gui* menu)
 
     if (IsCurrentGadgetNamed(menu, "Start")) {
         PlaySoundByName("BigButton", 0);
-        if (!FindGameCdDrive(1)) {
-            OpenMessageBox(&g_game->gui,
-                         Translate("Please insert the Multiplayer CD (Disc 1) and try again"),
-                         0xc8, 1, 1);
-            ClearSelectedGadget(&g_game->gui);
-        }
         RegisterDataArchives();
 
         int n = 0;
