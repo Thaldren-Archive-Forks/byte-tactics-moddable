@@ -239,6 +239,7 @@ void __stdcall AttachUnitToPiece(Unit* unit, Unit* target, char piece, char mode
 void __stdcall GetNanoPiecePosition(Unit* unit, Vec3* out);
 Angles16 __stdcall GetPieceAngles(Unit* unit, int piece);
 int __stdcall AddBuildProgress(Unit* builder, Unit* unit, float amount);
+void __stdcall PoseUnitModel(Unit* unit);
 int __stdcall AddRepairProgress(Unit* builder, Unit* unit, float amount);
 void __stdcall ApplyUnfinishedBuildDecay(Unit* unit, int ticks);
 void __stdcall FinishConstruction(Unit* builder, Unit* unit);
@@ -927,6 +928,7 @@ void InstallNativeSeams()
     s_units.UnitRefUnlink = UnitRefUnlinkNative;
     s_units.StartScriptWithArgsByIndex = StartScriptWithArgsByIndexNative;
     s_units.UpdateSfxOccupy = UpdateSfxOccupyNative;
+    s_units.PoseUnitModel = PoseUnitModel;
     s_orders.ReattachFxToUnit = ReattachFxToUnitNative;
     s_orders.SerializeOrderToSave = SerializeOrderToSaveNative;
     s_orders.AddBeCarriedOrder = AddBeCarriedOrder;

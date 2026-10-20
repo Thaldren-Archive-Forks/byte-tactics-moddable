@@ -12,7 +12,7 @@ ai,game,call,SimAllocTagged,1
 ai,game,shared_write,Unit::flags,3
 ai,game,shared_write,Vec3::x,2
 ai,game,shared_write,Vec3::z,2
-ai,harness,shared_write,g_playerAI,1
+ai,harness,shared_write,g_playerAI,2
 ai,los_radar,indirect,GetMapCell,1
 ai,los_radar,indirect,IsUnitVisibleToPlayer,1
 ai,los_radar,shared_write,Point16::x,4
@@ -1050,19 +1050,20 @@ harness,players,shared_write,Game::playerIndex,2
 harness,presentation,call,InitMissionStatus,1
 harness,presentation,call,IssueMobileBuildOrders,1
 harness,presentation,call,IssueOrderToSelection,1
-harness,presentation,call,UpdateObjectState,1
 harness,presentation,call,UpdatePlacementGhostValidity,1
 harness,presentation,shared_write,Game::difficulty,9
 harness,presentation,shared_write,Game::localPlayer,68
 harness,presentation,shared_write,Game::numPlayers,4
 harness,presentation,shared_write,Game::playerIndex,28
 harness,seams,call,InstallNativeSeams,1
+harness,units,call,ApplyUnitDeath,1
 harness,units,call,GetGroundHeight,1
 harness,units,shared_write,Game::difficulty,2
 harness,units,shared_write,Game::localPlayer,2
 harness,units,shared_write,Game::playerIndex,3
-harness,units,shared_write,g_quirks,1
+harness,units,shared_write,g_quirks,2
 harness,weapons,shared_write,Game::localPlayer,3
+harness,weapons,shared_write,g_quirks,1
 los_radar,ai,indirect,HasReadyUnitInRange,1
 los_radar,ai,indirect,IsPointVisible,2
 los_radar,ai,shared_write,Cell::feature,1
@@ -1933,7 +1934,7 @@ orders,units,shared_write,PathOrderAttach::next,1
 orders,units,shared_write,PathOrderAttach::value,1
 orders,units,shared_write,Point16::x,7
 orders,units,shared_write,Point16::y,7
-orders,units,shared_write,Unit::angles,5
+orders,units,shared_write,Unit::angles,6
 orders,units,shared_write,Unit::buildLeft,10
 orders,units,shared_write,Unit::fireOrder,1
 orders,units,shared_write,Unit::flags,21
@@ -2643,7 +2644,7 @@ players,units,shared_write,PlayerInfo::color,1
 players,units,shared_write,PlayerInfo::side,3
 players,units,shared_write,Point16::x,7
 players,units,shared_write,Point16::y,7
-players,units,shared_write,Unit::angles,5
+players,units,shared_write,Unit::angles,6
 players,units,shared_write,Unit::buildLeft,10
 players,units,shared_write,Unit::flags,21
 players,units,shared_write,Unit::health,11
@@ -3180,6 +3181,7 @@ presentation,units,shared_write,Game::unitIndex,1
 presentation,units,shared_write,MissionType::index,1
 presentation,units,shared_write,ObjectState::unit,7
 presentation,units,shared_write,Order::flags_42,1
+presentation,units,shared_write,Piece_459c70::modified,1
 presentation,units,shared_write,Player::active,8
 presentation,units,shared_write,Player::id,4
 presentation,units,shared_write,Player::index,4
@@ -3190,13 +3192,13 @@ presentation,units,shared_write,PlayerInfo::side,3
 presentation,units,shared_write,Point16::x,7
 presentation,units,shared_write,Point16::y,7
 presentation,units,shared_write,StringRef::data,1
-presentation,units,shared_write,Unit::angles,5
+presentation,units,shared_write,Unit::angles,6
 presentation,units,shared_write,Unit::attacker,5
 presentation,units,shared_write,Unit::flags,21
 presentation,units,shared_write,Unit::lastAttackerSlot,5
 presentation,units,shared_write,Unit::pos,10
 presentation,units,shared_write,Unit::selected,2
-presentation,units,shared_write,Unit::state,4
+presentation,units,shared_write,Unit::state,5
 presentation,units,shared_write,Vec3::x,9
 presentation,units,shared_write,Vec3::y,11
 presentation,units,shared_write,Vec3::z,9
@@ -3332,6 +3334,8 @@ seams,game,shared_write,WeaponsSeam::UpdateProjectiles,1
 seams,game,shared_write,WindMeteorsSeam::UpdateMeteors,1
 seams,game,shared_write,WindMeteorsSeam::UpdateWind,1
 seams,game,shared_write,WindMeteorsSeam::UpdateWindOnStream,1
+seams,harness,shared_write,AiSeam::SetUnitSquad,1
+seams,harness,shared_write,Seams::ai,1
 seams,los_radar,shared_write,AiSeam::IsPointVisible,2
 seams,los_radar,shared_write,FeaturesSeam::PlaceFeature,1
 seams,los_radar,shared_write,LosRadarSeam::RecalculateLineOfSight,2
@@ -3596,7 +3600,7 @@ seams,weapons,shared_write,Seams::los_radar,5
 seams,weapons,shared_write,Seams::map,2
 seams,weapons,shared_write,Seams::orders,2
 seams,weapons,shared_write,Seams::targeting,1
-seams,weapons,shared_write,Seams::units,15
+seams,weapons,shared_write,Seams::units,16
 seams,weapons,shared_write,TargetingSeam::GetWeaponTargetPos,1
 seams,weapons,shared_write,TargetingSeam::GetWeaponTargetUnit,1
 seams,weapons,shared_write,UnitsSeam::FindScript,2
@@ -3605,6 +3609,7 @@ seams,weapons,shared_write,UnitsSeam::GetGroundHeight,1
 seams,weapons,shared_write,UnitsSeam::GetPieceOffset,1
 seams,weapons,shared_write,UnitsSeam::GetPiecePosition,1
 seams,weapons,shared_write,UnitsSeam::MarkRecentlyDamaged,1
+seams,weapons,shared_write,UnitsSeam::PoseUnitModel,1
 seams,weapons,shared_write,UnitsSeam::QueryScript,1
 seams,weapons,shared_write,UnitsSeam::StartScript,3
 seams,weapons,shared_write,UnitsSeam::StartScriptWithArgs,9
@@ -3723,8 +3728,7 @@ units,game,shared_write,UnitDef::modelMinX,1
 units,game,shared_write,UnitDef::unitname,2
 units,game,shared_write,Vec3::x,2
 units,game,shared_write,Vec3::z,2
-units,harness,call,HarnessPoseObject,1
-units,harness,call,HarnessTestMode,2
+units,harness,call,HarnessTestMode,1
 units,los_radar,indirect,AddEyeball,1
 units,los_radar,indirect,GetMapCell,1
 units,los_radar,indirect,IsUnitVisibleToPlayer,1
@@ -4088,7 +4092,7 @@ units,presentation,call,StripExtension,1
 units,presentation,call,UnitTable::Construct,1
 units,presentation,call,UnitTable::Destroy,1
 units,presentation,call,UnitTable::Initialize,1
-units,presentation,call,UpdateObjectState,1
+units,presentation,call,UpdateObjectState,2
 units,presentation,shared_write,Angles16::bank,1
 units,presentation,shared_write,Angles16::heading,1
 units,presentation,shared_write,Angles16::pitch,1
@@ -4097,6 +4101,7 @@ units,presentation,shared_write,Game::defs,18
 units,presentation,shared_write,Game::hotRadar,1
 units,presentation,shared_write,Game::unitDefCount,5
 units,presentation,shared_write,Game::units,29
+units,presentation,shared_write,Piece_459c70::modified,5
 units,presentation,shared_write,Player::commanderKills,1
 units,presentation,shared_write,Player::commanderLosses,1
 units,presentation,shared_write,Player::kills,2
@@ -4277,8 +4282,6 @@ weapons,game,shared_write,Unit::flags,3
 weapons,game,shared_write,Unit::health,1
 weapons,game,shared_write,Vec3::x,2
 weapons,game,shared_write,Vec3::z,2
-weapons,harness,call,HarnessPoseObject,1
-weapons,harness,call,HarnessTestMode,1
 weapons,harness,shared_write,g_explodedPieces,1
 weapons,los_radar,indirect,GetMapCell,2
 weapons,los_radar,indirect,GetMapCellAtPosition,3

@@ -326,9 +326,9 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     scratch = ROOT / "build/scratch" / f"steps-per-frame-{os.getpid()}"
     if steps_per_frame is not None:
         played = with_steps_per_frame(scenarios, steps_per_frame, scratch)
+    base = played
     if quirks is not None:
         played = with_quirks(played, quirks, scratch / "quirks")
-    base = played
     off_results: dict[str, tuple] = {}
     off_failed: dict[str, str] = {}
     failed: dict[str, str] = {}
