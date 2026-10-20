@@ -1421,14 +1421,19 @@ static void VisitGlobalList(const char* prefix, const TraceGlobal* list, unsigne
         f.kind = g->kind;
         f.target = g->target;
         f.mask = 0;
+        const unsigned char* address = (const unsigned char*)g->address;
+#ifdef TRACE_SIM_BASE
+        if (g->relative)
+            address = TRACE_SIM_BASE + (size_t)g->address;
+#endif
         if (g->kind == TF_POINTER)
-            HashPointer(*(const unsigned*)g->address, g->target);
+            HashPointer(*(const unsigned*)address, g->target);
         else
-            HashBuf((const unsigned char*)g->address, g->size);
+            HashBuf(address, g->size);
         if (s_dumpNow) {
             sprintf(path, "%s.%s", prefix, g->name);
             DumpPrefix(path);
-            DumpValue((const unsigned char*)g->address, &f);
+            DumpValue(address, &f);
         }
     }
 }

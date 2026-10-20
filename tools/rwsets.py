@@ -78,6 +78,14 @@ inside a destructor, for objects thrown or caught, and `delete` of a pointer to 
 incomplete or dependent type. A destructor called by name (`p->~Class()`) is a
 normal call.
 
+Globals that live in the shared state block (issue #284) are reached as members of
+`SimGlobals` through `Sim()`, mostly via `#define g_x (Sim().g_x)`. Such an access is
+recorded as the global it names: the same rows and target as a plain `g_x`. The
+mapping table is src/state/sim_globals.csv (see load_sim_map). A cast view of a field
+(`*reinterpret_cast<T*>(&E)`) takes the access mode of E, and an interior global
+(`*reinterpret_cast<T*>(reinterpret_cast<char*>(&E) + N)`) is recorded under its own
+name. Calls of `Sim()` and the static `g_simGlobals` pointer add no rows.
+
 A compound assignment (`x += 1`) and `++` and `--` are a read and a write.
 Locals and parameters are not recorded.
 
@@ -124,7 +132,111 @@ UNEVALUATED = {"UnaryExprOrTypeTraitExpr", "CXXTypeidExpr", "CXXNoexceptExpr"}
 JSON_START = re.compile(r'^\{\n  "id"', re.M)
 CHUNK = re.compile(r"^    \{\n.*?^    \},?\n", re.S | re.M)
 INCLUDED_FROM = re.compile(r'"includedFrom": \{\s*"file": "[^"]*"\s*\}')
+SIM_MAP_FILE = ROOT / "src/state/sim_globals.csv"
+SIM_POINTER = "g_simGlobals"
+CAST_KINDS = ("CXXReinterpretCastExpr", "CStyleCastExpr")
 QUALIFIERS = re.compile(r"\b(const|volatile|struct|class|union|enum|__restrict)\b")
+
+
+class SimMap:
+    """Which SimGlobals fields stand for which rows, and which globals sit inside others."""
+
+    def __init__(self):
+        self.fields: dict[str, str] = {}
+        self.names: dict[str, str] = {}
+        self.interiors: dict[tuple[str, int], str] = {}
+        self.interior_of: dict[str, tuple[str, int]] = {}
+
+
+def load_sim_map(path: Path | None = None) -> SimMap:
+    """Read the mapping table of the globals moved into SimGlobals.
+
+    src/state/sim_globals.csv, beside sim_globals.h, header `field,name,container,offset`,
+    one row per moved global or static:
+
+      field      the SimGlobals member (for an interior global, the name of its view macro)
+      name       the row name in rwsets.py: `g_x`, or `g_x@src/file.cpp` for a static
+      container  empty for a direct field; for an interior global, the field it sits in
+      offset     for an interior global, its byte offset in the container (0x.. or decimal)
+
+    Example: `g_packetChannels,g_packetChannels,g_packetManager,0x8`. A field that is not
+    listed is its own name, so only statics need rows for the analysis; traceschema.py
+    also reads the table to know which globals moved. A missing file is an empty table.
+    """
+    sim = SimMap()
+    path = SIM_MAP_FILE if path is None else path
+    if not path.exists():
+        return sim
+    with path.open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    for row in rows:
+        if not row["container"]:
+            sim.fields[row["field"]] = row["name"]
+            sim.names[row["name"]] = row["field"]
+    for row in rows:
+        if row["container"]:
+            container = sim.fields.get(row["container"], row["container"])
+            offset = int(row["offset"], 0)
+            sim.interiors[(container, offset)] = row["name"]
+            sim.interior_of[row["name"]] = (row["container"], offset)
+    return sim
+
+
+SIM = load_sim_map()
+
+
+def is_sim_call(node: dict) -> bool:
+    """Whether a node is a call of Sim(), which returns the SimGlobals."""
+    node = strip(node)
+    if node["kind"] != "CallExpr" or not node.get("inner"):
+        return False
+    callee = strip(node["inner"][0])
+    return callee["kind"] == "DeclRefExpr" and callee["referencedDecl"].get("name") == "Sim" and \
+        record_name(node["type"]) == "SimGlobals"
+
+
+def sim_global(node: dict) -> str | None:
+    """The global an lvalue stands for when it is a SimGlobals member or a view of one, else None."""
+    node = strip(node)
+    if node["kind"] == "MemberExpr" and not node.get("isArrow") and node.get("inner") and \
+            is_sim_call(node["inner"][0]):
+        field = node.get("name") or ""
+        return SIM.fields.get(field, field)
+    if node["kind"] == "UnaryOperator" and node.get("opcode") == "*":
+        return view_target(node["inner"][0])
+    return None
+
+
+def address_operand(node: dict) -> dict | None:
+    """E in `reinterpret_cast<T*>(&E)`, else None."""
+    node = strip(node)
+    if node["kind"] in CAST_KINDS and node.get("inner"):
+        node = strip(node["inner"][0])
+        if node["kind"] == "UnaryOperator" and node.get("opcode") == "&":
+            return node["inner"][0]
+    return None
+
+
+def view_target(pointer: dict) -> str | None:
+    """The global the pointer of a `*reinterpret_cast<T*>(...)` points at, else None.
+
+    The pointer is `&E` for a view of a whole global and `reinterpret_cast<char*>(&E) + N`
+    for an interior global, N being a byte offset in the global E.
+    """
+    pointer = strip(pointer)
+    if pointer["kind"] not in CAST_KINDS or not pointer.get("inner"):
+        return None
+    operand = strip(pointer["inner"][0])
+    if operand["kind"] == "UnaryOperator" and operand.get("opcode") == "&":
+        return sim_global(operand["inner"][0])
+    if operand["kind"] == "BinaryOperator" and operand.get("opcode") == "+":
+        base, offset = strip(operand["inner"][0]), strip(operand["inner"][1])
+        target = address_operand(base)
+        if target is not None and offset["kind"] == "IntegerLiteral":
+            container = sim_global(target)
+            if container is not None:
+                return SIM.interiors.get((container, int(offset["value"], 0)))
+    return None
 
 
 def configure(build_dir: Path) -> None:
@@ -407,6 +519,8 @@ class Walker:
 
     def access(self, category: str, target: str, mode: str) -> None:
         """Record an access of a global, field or dereference: R, W, RW, MW (maybe written) or ESC."""
+        if category == "global" and target.split("@")[0] == SIM_POINTER:
+            return
         for suffix in MODE_KINDS[mode]:
             self.record("%s_%s" % (category, suffix), target)
 
@@ -439,7 +553,11 @@ class Walker:
             elif op == "&":
                 self.address_of(inner[0], "ESC")
             elif op == "*":
-                self.deref(node, mode)
+                name = sim_global(node)
+                if name:
+                    self.access("global", name, mode)
+                else:
+                    self.deref(node, mode)
             else:
                 self.visit(inner[0], "R")
         elif kind in ("CallExpr", "CXXMemberCallExpr", "CXXOperatorCallExpr"):
@@ -513,6 +631,8 @@ class Walker:
                     self.access("global", self.unit.statics.get(ref["id"], ref["name"]), mode)
             elif ref["kind"] == "FunctionDecl" and mode == "ESC":
                 self.record("fn_ref", ref["name"])
+        elif kind == "MemberExpr" and sim_global(node):
+            self.access("global", sim_global(node), mode)
         elif kind == "MemberExpr":
             base = inner[0] if inner else None
             if base is not None:
@@ -539,7 +659,10 @@ class Walker:
     def path(self, node: dict, mode: str) -> None:
         """The object an element or field of which is accessed."""
         inner = strip_parens(node)
-        if inner["kind"] in LVALUE_KINDS:
+        name = sim_global(inner)
+        if name:
+            self.access("global", name, mode)
+        elif inner["kind"] in LVALUE_KINDS:
             self.lvalue(inner, mode, path=True)
         else:
             self.visit(inner, "R")
@@ -556,6 +679,8 @@ class Walker:
             if op["kind"] == "DeclRefExpr" and op["referencedDecl"]["name"] == "operator=" and args:
                 self.visit(args[0], "W")
                 args = args[1:]
+        elif is_sim_call(node):
+            pass
         elif callee["kind"] == "DeclRefExpr" and callee["referencedDecl"]["kind"] == "FunctionDecl":
             self.record("call", callee["referencedDecl"]["name"])
         elif callee["kind"] == "MemberExpr" and callee.get("referencedMemberDecl") and \
@@ -595,6 +720,8 @@ class Walker:
         node = strip_parens(node)
         if node["kind"] == "DeclRefExpr" and node["referencedDecl"]["kind"] == "FunctionDecl":
             self.visit(node, "ESC")
+        elif node["kind"] == "UnaryOperator" and sim_global(node):
+            self.access("global", sim_global(node), "R" if const else "MW")
         elif node["kind"] in LVALUE_KINDS:
             self.lvalue(node, "R" if const else "MW")
         else:
@@ -621,7 +748,13 @@ def callee_hint(callee: dict) -> str:
     node = callee
     while node["kind"] in ("ParenExpr", "ImplicitCastExpr", "ArraySubscriptExpr") or \
             (node["kind"] == "UnaryOperator" and node.get("opcode") == "*"):
+        name = sim_global(node)
+        if name:
+            return " [%s]" % name.split("@")[0]
         node = node["inner"][0]
+    name = sim_global(node)
+    if name:
+        return " [%s]" % name.split("@")[0]
     if node["kind"] == "MemberExpr" and node.get("inner"):
         return " [%s::%s]" % (record_name(node["inner"][0]["type"]), node.get("name", "?"))
     if node["kind"] == "DeclRefExpr":

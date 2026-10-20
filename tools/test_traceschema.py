@@ -118,5 +118,42 @@ class FollowedHeadersTest(unittest.TestCase):
         self.assertIn("game.h", names)
 
 
+class MovedGlobalsTest(unittest.TestCase):
+    def generate(self, text):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sim_globals.csv"
+            path.write_text(text)
+            sim = ts.load_sim_map(path)
+        with mock.patch.object(ts, "load_sim_map", lambda: sim):
+            return ts.generate()[0]
+
+    def test_empty_table_keeps_link_addresses(self):
+        text = self.generate("field,name,container,offset\n")
+        self.assertIn("{ \"active\", &g_meteorActive, 4, TF_SCALAR, TT_NONE },", text)
+        self.assertIn("extern int g_meteorActive;", text)
+        self.assertNotIn("sim_globals.h", text)
+
+    def test_moved_global_is_an_offset_in_the_block(self):
+        text = self.generate("field,name,container,offset\ng_meteorActive,g_meteorActive,,\n"
+                             "g_economyPacketTick,g_economyPacketTick,g_packetManager,0x8\n")
+        self.assertIn("{ \"active\", (const void*)(offsetof(SimGlobals, g_meteorActive)), 4, TF_SCALAR, TT_NONE, 1 },",
+                      text)
+        self.assertIn("(const void*)(offsetof(SimGlobals, g_packetManager) + 0x8), 4, TF_SCALAR, TT_NONE, 1 },", text)
+        self.assertNotIn("extern int g_meteorActive;", text)
+        self.assertIn("extern int g_cdPathMismatch;", text)
+        self.assertIn('#include "../state/sim_globals.h"', text)
+        self.assertIn('#pragma push_macro("g_meteorActive")', text)
+        self.assertLess(text.index('#undef g_meteorActive'), text.index("kMeteorGlobals[]"))
+        self.assertLess(text.index("kPathGlobalsCount"), text.index('#pragma pop_macro("g_meteorActive")'))
+
+    def test_order_sizes_and_kinds_do_not_change(self):
+        plain = self.generate("field,name,container,offset\n")
+        moved = self.generate("field,name,container,offset\ng_meteorWeapon,g_meteorWeapon,,\n")
+        names = lambda t: [l.split(",")[0] for l in t.splitlines() if l.startswith("    { \"")]
+        self.assertEqual(names(plain), names(moved))
+        self.assertIn('{ "weapon", (const void*)(offsetof(SimGlobals, g_meteorWeapon)), 4, TF_POINTER, TT_WEAPONDEF, 1 },',
+                      moved)
+
+
 if __name__ == "__main__":
     unittest.main()

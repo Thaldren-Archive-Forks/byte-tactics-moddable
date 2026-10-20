@@ -15,6 +15,8 @@ import re
 import sys
 from pathlib import Path
 
+from rwsets import load_sim_map
+
 ROOT = Path(__file__).resolve().parent.parent
 TRACE_FORMAT = 3
 TYPES = ROOT / "include/ta_types.h"
@@ -1196,6 +1198,7 @@ def generate():
         "    unsigned size;",
         "    unsigned char kind;",
         "    unsigned char target;",
+        "    unsigned char relative;",
         "};",
         "",
         "struct TraceTable {",
@@ -1258,10 +1261,25 @@ def generate():
     lines.append("static const unsigned kGameScalarFieldCount = %d;" % len(scalars))
     lines.append("")
 
+    sim = load_sim_map()
+    moved = {}
+    for name, field in sim.names.items():
+        moved[name] = "offsetof(SimGlobals, %s)" % field
+    for name, (container, offset) in sim.interior_of.items():
+        moved[name] = "offsetof(SimGlobals, %s) + 0x%x" % (container, offset)
+    used = [symbol for group in (METEOR_GLOBALS, SCALAR_GLOBALS, PATH_GLOBALS) for _, symbol, _, _ in group
+            if symbol in moved]
+    if used:
+        lines.append("#include <stddef.h>")
+        lines.append('#include "../state/sim_globals.h"')
+        lines.append("#define TRACE_SIM_BASE ((const unsigned char*)&Sim())")
+        for symbol in dict.fromkeys(used):
+            lines.append('#pragma push_macro("%s")' % symbol)
+            lines.append("#undef %s" % symbol)
     declared = set()
     for group in (METEOR_GLOBALS, SCALAR_GLOBALS, PATH_GLOBALS):
         for _, symbol, size, _ in group:
-            if symbol in declared:
+            if symbol in declared or symbol in moved:
                 continue
             declared.add(symbol)
             decl = METEOR_DECLS.get(symbol) or GLOBAL_DECLS.get(symbol) or "int %s" % symbol
@@ -1272,10 +1290,18 @@ def generate():
         lines.append("static const TraceGlobal %s[] = {" % cname)
         for name, symbol, size, target in group:
             kind = "TF_POINTER" if target else ("TF_BYTES" if size > 8 else "TF_SCALAR")
-            lines.append("    { %s, &%s, %d, %s, %s }," % (c_string(name), symbol, size, kind,
-                                                          "TT_" + target if target else "TT_NONE"))
+            tail = "TT_" + target if target else "TT_NONE"
+            if symbol in moved:
+                lines.append("    { %s, (const void*)(%s), %d, %s, %s, 1 }," % (
+                    c_string(name), moved[symbol], size, kind, tail))
+            else:
+                lines.append("    { %s, &%s, %d, %s, %s }," % (c_string(name), symbol, size, kind, tail))
         lines.append("};")
         lines.append("static const unsigned %sCount = %d;" % (cname, len(group)))
+        lines.append("")
+    for symbol in reversed(list(dict.fromkeys(used))):
+        lines.append('#pragma pop_macro("%s")' % symbol)
+    if used:
         lines.append("")
     lines.append("#endif")
     return "\n".join(lines) + "\n", schema.errors
