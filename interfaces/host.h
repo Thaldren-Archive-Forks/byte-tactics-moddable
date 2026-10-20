@@ -170,8 +170,8 @@ struct host_event {
     unsigned int time_ms;
 };
 
-// Opens the game window with the given title and client size and returns its native handle or NULL; fullscreen is unused for now.
 // TODO(#175): cover the screen when fullscreen is set.
+// Opens the game window with the given title and client size and returns its native handle or NULL; fullscreen is unused for now.
 void* HOST_CALL host_window_open(const char* title, int width, int height, int fullscreen);
 // Destroys the game window, which queues HOST_EVENT_DESTROY.
 void HOST_CALL host_window_close(void);
