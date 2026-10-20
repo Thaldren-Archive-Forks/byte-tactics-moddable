@@ -111,14 +111,9 @@ void __stdcall PushKeyCode(int v)
 }
 #pragma auto_inline(on)
 
-// IsKeyDown: maps a key code to a Windows virtual key code and reports
-// whether it is held down. GetAsyncKeyState is a short, so the helper keeps a
-// short result: that is what makes the compiler test the low word with
-// `neg ax` and only mask the low byte. The cases are listed in the order the
-// original emits their blocks; the jump table sorts the case values itself.
 static short key_state(int vk)
 {
-    return GetAsyncKeyState(vk) & 0xfffe;
+    return (short)(host_key_state(vk) & 0xfffe);
 }
 
 // FUNCTION: 0x4c1b80
@@ -238,14 +233,14 @@ void __stdcall SetCursorOverlayEnabled(int param)
 // FUNCTION: 0x4c22f0
 void __stdcall SetCursorPosition(int x, int y)
 {
-    SetCursorPos(x, y);
+    host_cursor_set(x, y);
 }
 
 // FUNCTION: 0x4c2310
 void __stdcall GetCursorPosition(int* x, int* y)
 {
     POINT pt;
-    GetCursorPos(&pt);
+    host_cursor_get((int*)&pt.x, (int*)&pt.y);
     *x = pt.x;
     *y = pt.y;
 }
