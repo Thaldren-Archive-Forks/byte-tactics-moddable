@@ -350,6 +350,32 @@ def pointee_const(t: dict) -> bool:
     return pointee.endswith("const") or ("*" not in pointee and re.search(r"\bconst\b", pointee) is not None)
 
 
+def fixed_parameters(qual_type: str) -> int | None:
+    """The number of declared parameters of a variadic function type, None for any other type."""
+    start = qual_type.find("(")
+    if start < 0:
+        return None
+    items = []
+    depth = 0
+    current = ""
+    for ch in qual_type[start:]:
+        if ch in "([<":
+            depth += 1
+            if depth == 1:
+                continue
+        elif ch in ")]>":
+            depth -= 1
+            if depth == 0:
+                break
+        elif ch == "," and depth == 1:
+            items.append(current.strip())
+            current = ""
+            continue
+        current += ch
+    items.append(current.strip())
+    return len(items) - 1 if items[-1] == "..." else None
+
+
 class Position:
     """Follows clang's delta-encoded source locations through a dump in order."""
 
@@ -746,10 +772,11 @@ class Walker:
         else:
             self.record("indirect_call", "indirect via %s%s" % (callee_type(callee), callee_hint(callee)))
             self.visit(inner[0], "R")
-        for arg in args:
-            self.argument(arg)
+        fixed = fixed_parameters(callee.get("type", {}).get("qualType", "")) if kind == "CallExpr" else None
+        for index, arg in enumerate(args):
+            self.argument(arg, fixed is not None and index >= fixed)
 
-    def argument(self, arg: dict) -> None:
+    def argument(self, arg: dict, variadic: bool = False) -> None:
         """A call argument: an lvalue passed by non-const reference or pointer may be written."""
         inner = strip(arg)
         arg_type = arg.get("type", {})
@@ -761,7 +788,7 @@ class Walker:
                 type_text(arg_type).endswith("&"):
             self.lvalue_arg(inner, pointee_const(arg_type))
         elif inner["kind"] == "ConditionalOperator" and is_pointer(arg_type) and self.array_branches(inner["inner"]):
-            self.visit(arg, "R" if pointee_const(arg_type) else "MW")
+            self.visit(arg, "R" if variadic or pointee_const(arg_type) else "MW")
         else:
             self.visit(arg, "R")
 

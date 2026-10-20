@@ -202,6 +202,7 @@ void FillU(unsigned* out);
 void Look(const int* in);
 void Put(char* out);
 void Peek(const char* in);
+int Fmt(char* out, const char* fmt, ...);
 """
 
 PLAIN_DECLS = """extern int g_count;
@@ -257,6 +258,7 @@ int Method() { g_counter.Bump(); return g_counter.Get() + g_counter.n; }
 int Indirect(int x) { return g_handlers[x](x); }
 void PickWrite(int f) { Put(f ? g_sep : g_buf); }
 void PickPeek(int f) { Peek(f ? g_sep : g_buf); }
+void PickFormat(char* o, int f) { Fmt(o, "%s", f ? g_sep : g_buf); }
 int Static() { g_st = 1; return g_st; }
 const char* Pick(int f) { return f ? g_sep : g_buf; }
 void Mixed() { Counter local; local.Bump(); Sim(); }
@@ -333,12 +335,24 @@ class SimGlobalsTest(unittest.TestCase):
         self.assertEqual(self.sim["PickWrite"], {("global_maybe_written", "g_sep"), ("global_maybe_written", "g_buf"),
                                                  ("call", "Put")})
         self.assertEqual(self.sim["PickPeek"], {("global_read", "g_sep"), ("global_read", "g_buf"), ("call", "Peek")})
+        self.assertEqual(self.sim["PickFormat"], {("global_read", "g_sep"), ("global_read", "g_buf"), ("call", "Fmt")})
 
     def test_sim_calls_and_the_pointer_add_no_rows(self):
         rows = self.sim["Mixed"]
         self.assertEqual(rows, self.plain["Mixed"])
         self.assertFalse([r for r in rows if "Sim" in r[1] or "g_simGlobals" in r[1]])
         self.assertFalse([r for fn in self.sim.values() for r in fn if "g_simGlobals" in r[1]])
+
+
+class FixedParametersTest(unittest.TestCase):
+    def test_variadic_types_count_the_declared_parameters(self):
+        self.assertEqual(rwsets.fixed_parameters("int (char *, const char *, ...)"), 2)
+        self.assertEqual(rwsets.fixed_parameters("int (void (*)(int, int), ...) __attribute__((cdecl))"), 1)
+        self.assertEqual(rwsets.fixed_parameters("int (...)"), 0)
+
+    def test_other_types_have_no_count(self):
+        self.assertIsNone(rwsets.fixed_parameters("int (char *, int)"))
+        self.assertIsNone(rwsets.fixed_parameters("int"))
 
 
 class SimMapTest(unittest.TestCase):
