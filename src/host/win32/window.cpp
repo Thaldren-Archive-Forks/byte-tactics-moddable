@@ -270,3 +270,8 @@ extern "C" void HOST_CALL host_cursor_set(int x, int y)
 {
     SetCursorPos(x, y);
 }
+
+HWND host_win32_window(void)
+{
+    return g_hwnd;
+}
