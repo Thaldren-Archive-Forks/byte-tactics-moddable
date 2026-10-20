@@ -140,6 +140,7 @@ struct Flags245 {
 };
 
 struct Player;
+struct _iobuf;
 struct Group;
 struct Economy;
 class SquadTimer;
@@ -1686,7 +1687,7 @@ int __stdcall GetBuilderCount(int param_1)
 }
 
 // FUNCTION: 0x40c250
-void __stdcall DumpPlayerAI(int player, void* file)
+void __stdcall DumpPlayerAI(int player, _iobuf* file)
 {
     PlayerAI* ai=g_playerAI[player];
     char buffer[256];

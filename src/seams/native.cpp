@@ -59,10 +59,11 @@ struct WeaponDef;
 struct Callback;
 
 struct Order;
+struct _iobuf;
 struct Los_0047d2e0;
 class MissionType;
 
-void __stdcall DumpPlayerAI(int player, void* file);
+void __stdcall DumpPlayerAI(int player, _iobuf* file);
 void __stdcall ResetAIPlayers(void);
 void __stdcall GetFactoriesInRadius(int player, const Vec* pos, int radius, std::vector<Unit*>* out);
 void __stdcall RegisterAICommands(void);

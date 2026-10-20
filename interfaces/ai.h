@@ -8,6 +8,7 @@ template<class T, class A> class vector;
 
 struct Unit;
 struct Player;
+struct _iobuf;
 struct Vec3;
 struct Projectile;
 class SquadManager;
@@ -15,7 +16,7 @@ class SquadManager;
 // Major version of the ai interface, changed when a slot is removed or its signature changes.
 #define AI_VERSION_MAJOR 1
 // Minor version of the ai interface, changed when a slot is added.
-#define AI_VERSION_MINOR 6
+#define AI_VERSION_MINOR 5
 
 // Computer player decisions.
 struct AiSeam {
@@ -29,8 +30,9 @@ struct AiSeam {
     void (__stdcall* ReactToAttack)(Unit* attacker, Unit* unit, int amount);
     // Marks a squad manager's owner for a network update after a damage split (thiscall in 3.1c: this in ecx, edx unused). Hooks: none.
     void (__fastcall* MarkOwnerNetDirtyFromDamageSplit)(SquadManager* self, int unusedEdx, Projectile* projectile, int enemyDamage, int friendlyDamage);
+    // TODO(#9): retype file to the host's file handle (void*) once a major bump can carry an adapter.
     // Writes a report on the AI of a player to a file. Hooks: none.
-    void (__stdcall* DumpPlayerAI)(int player, void* file);
+    void (__stdcall* DumpPlayerAI)(int player, _iobuf* file);
     // Resets the unit tables of the computer players and loads the default AI script again. Hooks: none.
     void (__stdcall* ResetAIPlayers)(void);
     // Appends to out the factories a player has within a radius of a position. Hooks: none.

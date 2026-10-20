@@ -4894,7 +4894,7 @@ address,function,file,kind,target
 0x418bb0,CmdPrintWeights,src/game/console_commands.cpp,global_maybe_written,DAT_005119b8
 0x418bb0,CmdPrintWeights,src/game/console_commands.cpp,global_read,g_game
 0x418bb0,CmdPrintWeights,src/game/console_commands.cpp,global_read,g_seams
-0x418bb0,CmdPrintWeights,src/game/console_commands.cpp,indirect_call,"indirect via void (*)(int, void *) __attribute__((stdcall)) [AiSeam::DumpPlayerAI]"
+0x418bb0,CmdPrintWeights,src/game/console_commands.cpp,indirect_call,"indirect via void (*)(int, _iobuf *) __attribute__((stdcall)) [AiSeam::DumpPlayerAI]"
 0x418c70,CmdSenderror,src/game/console_commands.cpp,call,CommandArgs::GetIntArg
 0x418c70,CmdSenderror,src/game/console_commands.cpp,field_read,CommandArgs::count
 0x418c70,CmdSenderror,src/game/console_commands.cpp,field_write,Game::netSendDropPct

@@ -1514,7 +1514,7 @@ void __stdcall CmdPrintWeights(CommandArgs* args)
                 && p->index != 10) {
                 void* f = host_file_create(args->GetArg(2, DAT_005119b8), 0);
                 if (f != 0) {
-                    g_seams.ai->DumpPlayerAI(args->GetIntArg(1, 0), f);
+                    g_seams.ai->DumpPlayerAI(args->GetIntArg(1, 0), (_iobuf*)f);
                     host_file_close(f);
                 }
             }
