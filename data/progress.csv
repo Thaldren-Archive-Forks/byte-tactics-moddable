@@ -68,7 +68,7 @@ address,size,file,symbol,status,similarity
 0x406ee0,29,src/ai/ai_player.cpp,?IsCountBelowAiLimit@@YGHEGH@Z,matched,100.0
 0x406f00,52,src/ai/ai_player.cpp,?RegisterAICommands@@YGXXZ,matched,100.0
 0x406f40,1,src/ai/ai_player.cpp,?FUN_00406f40@@YGXXZ,matched,100.0
-0x406f50,46,src/ai/ai_player.cpp,?MarkOwnerNetDirtyFromDamageSplit@SquadManager@@QAEXPAUObj_00406f50@@HH@Z,matched,100.0
+0x406f50,46,src/ai/ai_player.cpp,?MarkOwnerNetDirtyFromDamageSplit@SquadManager@@QAEXPAUProjectile@@HH@Z,matched,100.0
 0x406f80,613,src/ai/ai_player.cpp,?ReactToAttack@@YGXPAUUnit@@0H@Z,matched,100.0
 0x4071f0,340,src/ai/ai_player.cpp,?FindNearestEnemyUnit@SquadManager@@QAEPAUUnit@@HHH@Z,matched,100.0
 0x407350,40,src/ai/ai_player.cpp,??0SquadTimer@@QAE@PAVSquadManager@@PAUGroup@@@Z,matched,100.0
