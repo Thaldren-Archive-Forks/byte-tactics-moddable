@@ -1062,7 +1062,7 @@ harness,units,call,GetGroundHeight,1
 harness,units,shared_write,Game::difficulty,2
 harness,units,shared_write,Game::localPlayer,2
 harness,units,shared_write,Game::playerIndex,3
-harness,units,shared_write,g_quirks,1
+harness,units,shared_write,g_quirks,2
 harness,weapons,shared_write,Game::localPlayer,3
 los_radar,ai,indirect,HasReadyUnitInRange,1
 los_radar,ai,indirect,IsPointVisible,2
@@ -3727,7 +3727,7 @@ units,game,shared_write,UnitDef::unitname,2
 units,game,shared_write,Vec3::x,2
 units,game,shared_write,Vec3::z,2
 units,harness,call,HarnessPoseObject,1
-units,harness,call,HarnessTestMode,2
+units,harness,call,HarnessTestMode,1
 units,los_radar,indirect,AddEyeball,1
 units,los_radar,indirect,GetMapCell,1
 units,los_radar,indirect,IsUnitVisibleToPlayer,1
