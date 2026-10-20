@@ -58,10 +58,11 @@ several files (the copies kept in callers' files), as
 LINK's `/FORCE:MULTIPLE` does, so the link prints no duplicate-symbol warning.
 
 The link refuses unresolved names: there are no stubs. `tools/aliases.py` also
-lays the game's data out in 3.1c's order (each global in a section named for
-its address, with the original's bytes between them), because the decompiled
-code reaches past an array's end into the global that follows it, and leaves
-out the code no live function reaches.
+leaves out the code no live function reaches. With `-DBT_DATA_ORDER=ON` it lays
+the game's data out in 3.1c's order (each global in a section named for its
+address, with the original's bytes between them), for bisecting a difference
+that a global's size or place might cause; by default the linker places each
+global itself.
 
 The build also compiles `lib/bitexact` and routes the game logic's `rand`,
 `srand`, `sqrt`, `_hypot`, `acos`, the `%f` form of `sscanf` and the trig entry points of `src/util/math_4b70a0.cpp` to it
