@@ -392,7 +392,6 @@ int g_otaEnumFileCount;  // 0x5122e0 .bss
 unsigned char DAT_005122e4[4];  // 0x5122e4 .bss
 int g_meteorNextStrikeTime;  // 0x5122e8 .bss
 unsigned char DAT_005122ec[4];  // 0x5122ec .bss
-unsigned char DAT_005122f4[28];  // 0x5122f4 .bss
 int g_meteorSpawnMagnitude;  // 0x512310 .bss
 int g_meteorSpawnInterval;  // 0x512314 .bss
 int g_meteorActive;  // 0x512318 .bss

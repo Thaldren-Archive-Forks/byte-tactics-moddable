@@ -305,7 +305,6 @@ extern int g_otaEnumFileCount;                                                  
 extern unsigned char DAT_005122e4[4];                                                                           // 0x5122e4, 4 bytes; nothing refers to it
 extern int g_meteorNextStrikeTime;                                                                              // 0x5122e8, 4 bytes; 2 of 2 files
 extern unsigned char DAT_005122ec[4];                                                                           // 0x5122ec, 4 bytes; nothing refers to it
-extern unsigned char DAT_005122f4[28];                                                                          // 0x5122f4, 28 bytes; nothing refers to it
 extern int g_meteorSpawnMagnitude;                                                                              // 0x512310, 4 bytes; 2 of 2 files
 extern int g_meteorSpawnInterval;                                                                               // 0x512314, 4 bytes; 2 of 2 files
 extern int g_meteorActive;                                                                                      // 0x512318, 4 bytes; 2 of 2 files
