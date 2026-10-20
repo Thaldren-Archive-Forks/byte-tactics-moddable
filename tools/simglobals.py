@@ -47,6 +47,7 @@ TYPE_OVERRIDES = {
     "g_missionOrderTableVec": "Vector_00438480<int>",
     "g_missionOrderTableBegin": "char*",
     "g_playerAI": "PlayerAI*[10]",
+    "g_quirks": "Quirks",
 }
 ELEMENT_SIZES = {"char": 1, "unsigned char": 1, "signed char": 1, "short": 2, "unsigned short": 2, "int": 4,
                  "unsigned int": 4, "float": 4}
@@ -174,12 +175,12 @@ def load_rows() -> list[Row]:
     return rows
 
 
-def resolve_type(row: Row, quirks_type: str = "Quirks") -> str:
+def resolve_type(row: Row) -> str:
     """The canonical type of a field or interior view, with an unsized array sized."""
     if row.leaf in TYPE_OVERRIDES:
         return TYPE_OVERRIDES[row.leaf]
     if row.csv is None:
-        return quirks_type
+        sys.exit(f"simglobals: {row.name} has no row in data/globals.csv and no entry in TYPE_OVERRIDES")
     t = row.type
     if row.leaf == "g_missionOrderTableVec":
         t = "Vector_00438480<int>"
