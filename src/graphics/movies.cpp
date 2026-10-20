@@ -77,11 +77,11 @@ struct SmkStats_0047c530 {
 extern "C" __declspec(dllimport) void __stdcall SmackSummary(Smk_0047c3a0* smk, SmkStats_0047c530* stats);
 
 struct Surfaces_0047bdf0 {
-    void* ddraw;                     // +0x0
-    void* primary;                   // +0x4
-    void* back;                      // +0x8
-    void* clipper;                   // +0xc
-    void* palette;                   // +0x10
+    void* ddraw;
+    void* primary;
+    void* back;
+    void* clipper;
+    void* palette;
 };
 
 struct Display_0047bdf0 {
@@ -100,7 +100,7 @@ struct Display_0047c3a0 {
     char unknown_0[8];
     unsigned int width;                 // +0x8
     unsigned int height;                // +0xc
-    void* palette;                      // +0x10
+    void* palette;
 };
 
 #pragma pack(push, 1)

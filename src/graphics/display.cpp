@@ -57,11 +57,11 @@ struct FrameCounter_4b66a0 {
 
 // The display's DirectDraw objects at +0x84.
 struct DirectDrawState {
-    void *ddraw;                 // +0x84
-    void *primary;               // +0x88
-    void *back;                  // +0x8c
-    void *clipper;               // +0x90
-    void *palette;               // +0x94
+    void *ddraw;
+    void *primary;
+    void *back;
+    void *clipper;
+    void *palette;
     void *activeSurface;         // +0x98
     int haveBackBuffer;          // +0x9c
 };
@@ -361,8 +361,6 @@ void __stdcall InitDisplayDefaults(App_4b5980* p)
     p->scale = 1.0f;
 }
 
-// Display mode filter: records every 8-bit display mode
-// (width, height, refresh rate) in the caller's list.
 // FUNCTION: 0x4b5330
 void __stdcall EnumModesCallback(const host_display_mode* desc, void* context)
 {

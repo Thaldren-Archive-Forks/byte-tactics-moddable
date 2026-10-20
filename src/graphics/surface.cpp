@@ -35,8 +35,8 @@ union Flags_004c61b0 {
 // surface at +0xc.
 struct Screen {
     char unknown_0[0x8];
-    void* primary;                     // +0x8
-    void* surface;                     // +0xc
+    void* primary;
+    void* surface;
     char unknown_10[0x18 - 0x10];
 };
 
@@ -67,7 +67,7 @@ struct Display {
     int haveBackBuffer;                // +0x9c
     Rect vec;                          // +0xa0
     char unknown_b0[0xb4 - 0xb0];
-    void* lastBackBuffer;              // +0xb4
+    void* lastBackBuffer;
     char unknown_b8[0xbc - 0xb8];
     Surface* overrideSurface;          // +0xbc
     char unknown_c0[0xc4 - 0xc0];
@@ -150,8 +150,8 @@ struct Display {
 
 struct Arg_004c6210 {
     int ddraw;                         // +0x0
-    void* primary;                     // +0x4
-    void* back;                        // +0x8
+    void* primary;
+    void* back;
 };
 
 Display* GetDisplay(void);

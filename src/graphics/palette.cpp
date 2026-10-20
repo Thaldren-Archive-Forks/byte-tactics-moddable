@@ -16,7 +16,7 @@ struct DisplayContext {
     HDC dc;                            // +0x48
     HPALETTE hpalette;                 // +0x4c
     char unknown_50[0x94 - 0x50];
-    void* ddPalette;                   // +0x94
+    void* ddPalette;
     char unknown_98[0xc0 - 0x98];
     void* alphaTable;                  // +0xc0
     void* shadeTable;                  // +0xc4
