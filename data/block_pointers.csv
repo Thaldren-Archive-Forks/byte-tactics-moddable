@@ -79,7 +79,6 @@ AirToGroundOrder #3,*,*,1,275,0x7b-0x169849,not-a-pointer,"Order words (ids, tic
 AirToGroundOrder #4,*,*,1,361,0x281-0x245460,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
 AllocWeaponArray: WEAPON ARRAY,*,*,5,36903,0x0-0x3cea12,not-a-pointer,"Weapon slot array: timers, ids and counters"
 AllocZeroedWithTickOffset,*,??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBDABV?$allocator@D@1@@Z,5,6,0x0-0xf0,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
-AllocZeroedWithTickOffset,*,??0Player@@QAE@XZ,27,277800,0x0-0xa4,moves-in,"Player.info (0x27 in Player, 0x1b8a + 0x14b*k in Game): per-player info"
 AllocZeroedWithTickOffset,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,3,12307,0xd-0x7b0,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
 AllocZeroedWithTickOffset,*,AddAnimplayPointer,27,277800,0x0-0x7df,outside,Game 0x148eb: anim play pointer table
 AllocZeroedWithTickOffset,*,AddStateEntries: Point List,12,109658,0x0-0x1698,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
@@ -99,8 +98,6 @@ AllocZeroedWithTickOffset,*,AllocSurface: RADAR PICTURE,27,277800,0x0-0x3cc4,out
 AllocZeroedWithTickOffset,*,AllocSurface: SAVEMOUSE 1,5,320,0x1f0-0x5cd,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
 AllocZeroedWithTickOffset,*,AllocSurface: SAVEMOUSE 2,2,2,0xdd-0x517,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
 AllocZeroedWithTickOffset,*,AllocSurface: SAVEMOUSE 3,27,277800,0x128-0x657,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
-AllocZeroedWithTickOffset,*,AllocateUnitMemory: HOT RADAR UNITS,27,277800,0x0-0x5fc9,moves-in,Game.hotRadar (0x14363): hot radar unit list
-AllocZeroedWithTickOffset,*,AllocateUnitMemory: HOT UNITS,27,277800,0x0-0x1330,moves-in,Game.list_1435f (0x1435f): hot unit list
 AllocZeroedWithTickOffset,*,CMemoryCache::InitCache: CMemoryCache CCH,27,275130,0x48-0x3cefe8,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
 AllocZeroedWithTickOffset,*,ClearCommandTable,1,1,0x22c,not-a-pointer,"Game words (ids, counters, strings, colours) that only look like addresses"
 AllocZeroedWithTickOffset,*,Close_004bcf80: HAPIFILE header,27,277800,0x0-0xe978,outside,Game 0x37fd5 and 0x38207: pointers into the loaded HAPI file header
@@ -223,7 +220,6 @@ CreatePlayerObjectState: Object State,*,??0Player@@QAE@XZ,4,7,0x0-0xb0,not-a-poi
 CreatePlayerObjectState: Object State,*,??0SpeechQueue@@QAE@HH@Z,3,4,0x40,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
 CreatePlayerObjectState: Object State,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,6,32837,0x10-0x7b0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
 CreatePlayerObjectState: Object State,*,AddAnimplayPointer,3,3,0xb0-0x5f8,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
-CreatePlayerObjectState: Object State,*,AddStateEntries: Point List,27,277800,0x0-0x14f8,moves-in,Object State piece.points (0x44 + 0x36*k): the piece point list
 CreatePlayerObjectState: Object State,*,AllocAlphaTable: ALPHA TABLE,23,8540,0x88-0xff87,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
 CreatePlayerObjectState: Object State,*,AllocBlueTable: BLUE TABLE,4,5,0x40,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
 CreatePlayerObjectState: Object State,*,AllocDepthFrame: CompositeBuffer,27,90403,0x2c-0xaf8e0,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
@@ -311,8 +307,6 @@ InitUnitScript,*,AllocSurface: SAVEMOUSE 1,2,146,0x3f0,not-a-pointer,"UnitScript
 InitUnitScript,*,AllocateUnitMemory: HOT UNITS,2,10576,0x430-0x60b,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
 InitUnitScript,*,CMemoryCache::InitCache: CMemoryCache CCH,17,163355,0x24d-0x3c01ea,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
 InitUnitScript,*,Close_004bcf80: HAPIFILE header,11,76523,0x16f-0x65f0,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
-InitUnitScript,*,CobScript::SetCob,27,277800,0x0-0x2b0,moves-in,UnitScript.pieces (0x14): piece table
-InitUnitScript,0x10,CobScript::SetCob #2,27,277800,0x0,moves-in,UnitScript.statics (0x10): static variables
 InitUnitScript,*,HAPI_LoadFile,27,277800,0x0-0x120220,outside,UnitScript.table (0x8): the unit type COB script code
 InitUnitScript,*,InitPacketTables: PACKET DATA,3,1984,0x1b98-0x1dd8,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
 InitUnitScript,*,LoadBattleAssets: TEMP XFORM PTS,1,7715,0x695,not-a-pointer,"UnitScript words (counts, offsets, state) that only look like addresses"
@@ -412,10 +406,8 @@ RepairPatrolOrder #3,*,*,1,468,0x7bba-0xe0f38,not-a-pointer,"Order words (ids, t
 RepairPatrolOrder #4,*,*,2,2956,0x530-0x305247,not-a-pointer,"Order words (ids, ticks, coordinates) that only look like addresses"
 SetMissionType,*,*,8,31200,0x21c8-0x3ffe0,not-a-pointer,Mission table words that only look like addresses
 SimGlobals.g_cdMismatchDefeatTick,*,*,25,1381,0x0-0x9bffe0,not-a-pointer,"g_cdMismatchDefeatTick: integers (ticks, counts, seed) that only look like addresses"
-SimGlobals.g_debrisMemCache,0x4 0x8,CMemoryCache::InitCache: CMemoryCache CCH,27,277800,0x0-0x1170e,moves-in,Debris cache buffer (base 0x4) and cursor (0x8): exploded piece data
 SimGlobals.g_economyPacketTick,*,*,1,248,0x558,not-a-pointer,"g_economyPacketTick: integers (ticks, counts, seed) that only look like addresses"
 SimGlobals.g_explodedPieces,*,AddStateEntries: Point List,1,1,0x5a,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
-SimGlobals.g_explodedPieces,0x0+0x4*k 0x15c+0x4*k,CMemoryCache::InitCache: CMemoryCache CCH,4,8242,0x8-0x1163c,moves-in,Exploded piece handles (stride 0x4) into the debris cache buffer
 SimGlobals.g_explodedPieces,*,HAPI_LoadFile,2,496,0x1f4-0x326f2,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
 SimGlobals.g_explodedPieces,*,NanoParticles::Emit,1,11,0x1a8,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
 SimGlobals.g_explodedPieces,*,ThrustParticles::Emit,1,20,0x2-0x92,not-a-pointer,"Exploded piece words (positions, speeds) that only look like addresses"
