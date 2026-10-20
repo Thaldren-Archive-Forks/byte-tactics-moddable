@@ -298,7 +298,6 @@ Issue #15. 118 functions. `UpdateProjectiles`, `UpdateExplosions`, `UpdateUnitWe
 - network (3): `BroadcastPacket`, `GetLocalDpid`, `SendScriptCallByName`
 - ai (2): `SquadManager::MarkOwnerNetDirtyFromDamageSplit`, `ReactToAttack`
 - features (2): `DamageFeature`, `GetFootprintCentre`
-- harness (2): `HarnessPoseObject`, `HarnessTestMode`
 - 6 smaller targets: los_radar (2), orders (2), targeting (2), economy (1), game (1), map (1)
 
 **Sim writes.** 297 items in all, 141 after leaving out the shared value types (Vec3, Point, Fixed) and per-file copies of a struct (names ending in an address). The most used:
@@ -485,7 +484,7 @@ Each has no module issue yet. Entry points and couplings come from the same tool
 
 **game** (160 functions). Phase root `StepAllGafSequences`. Start-up, load, save and shutdown code, and the main loop: `MainLoopTick`, `RunGameSteps` (which calls every phase root), `UpdateFramePacing`, `BattleFrame`, `EndGameFrame`, `MainFrameTick`, `RunEndGameState` and `UpdateBattleRoom` (the last two pump `HandleNetPackets`) are set to game by `override`, because what drives the step is not presentation. 92 functions are called from outside, by platform (67 distinct functions) and presentation (24); the busiest are `SetCursorMode` (19), `SaveSettings` (9), `SavedGameSelectHandler` (7). It imports 444 functions, the most of any subsystem, 215 of them from presentation, then platform 88, network 32, units 24 and map 22.
 
-**harness** (58 functions). The test harness of #3 (`src/harness`). No phase root. 10 functions are called from outside; the busiest are `HarnessViewRand` (20), `HarnessTestMode` (4), `HarnessCrtSeed` (2). It imports 11 functions (presentation 5, map 3). The sim calls it too: weapons imports `HarnessPoseObject` and `HarnessTestMode`.
+**harness** (58 functions). The test harness of #3 (`src/harness`). No phase root. 10 functions are called from outside; the busiest are `HarnessViewRand` (20), `HarnessTestMode` (4), `HarnessCrtSeed` (2). It imports 11 functions (presentation 5, map 3).
 
 **presentation** (1514 functions). Rendering, UI and sound (`src/graphics`, `src/gui`, `src/frontend`, `src/ingame`, `src/sound`), except what a phase walk reaches, the main loop and frame handlers (game), and the timer, window and environment code of `src/graphics/display.cpp` (platform). No phase root, and none of its functions calls one (a test checks this). 310 functions are called from outside, mostly by game (215 distinct functions); the busiest are `QueueUnitSpeech` (27), `PlaySoundByName` (18), `GetDisplay` (17). It imports 247 functions: platform 85, network 65, game 24, map 24, players 14. The reverse direction is the one to remove: 53 imports from presentation in the nine module subsystems, the largest in los_radar (18), weapons (16) and features (9).
 
