@@ -331,8 +331,11 @@ int Sound::OpenCdAudio()
     open = 0;
     trackCount = 0;
     dataTrack = 0;
-    if (!host_music_open())
-        return 0;
+    if (!host_music_open()) {
+        EnumWindows((WNDENUMPROC)FindCdPlayerWindow, 0);
+        if (!host_music_open())
+            return 0;
+    }
     playState = 0;
     currentTrack = (trackCount != 0);
     step = 0;

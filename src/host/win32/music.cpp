@@ -52,16 +52,11 @@ extern "C" int HOST_CALL host_music_open(void)
 {
     MCIERROR hr = mciSendStringA("open cdaudio", 0, 0, 0);
     if (hr != 0) {
-        hr = mciSendStringA("open cdaudio", 0, 0, 0);
-        if (hr != 0) {
-            return 0;
-        }
+        return 0;
     }
     mciSendStringA("stop cdaudio", 0, 0, 0);
     hr = mciSendStringA("set cdaudio time format milliseconds", 0, 0, 0);
     if (hr != 0) {
-        mciSendStringA("stop cdaudio", 0, 0, 0);
-        mciSendStringA("close cdaudio", 0, 0, 0);
         return 0;
     }
     return 1;
