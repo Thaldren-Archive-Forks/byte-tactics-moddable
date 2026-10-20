@@ -14,7 +14,7 @@ The classes:
 - **view**: one player's view and the UI. Presentation owns it.
 - **platform**: devices, files, windows, network slots and other host state.
 - **mixed**: used both ways. Split it; the note says how.
-- **const**: read-only input to the sim: nothing writes it, it stays in the image, and `--check` fails if a strong writer appears. A weak writer (a `?` in `writers`, the address taken or the table passed to a function) is allowed when the `note` says what it does with the table; `--check` fails on weak writers with an empty note. It also fails when load code reaches a strong writer.
+- **const**: read-only input to the sim: nothing writes it, it stays in the image, and `--check` fails if a strong writer appears (in load code or not). A weak writer (a `?` in `writers`, the address taken or the table passed to a function) is allowed when the `note` says what it does with the table; `--check` fails on weak writers with an empty note.
 
 `proposed` comes from the rules below and is rewritten on every run. `class` is the hand review, starts empty, and is kept by regeneration, as is `note`.
 
