@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 2
+#define HOST_VERSION_MINOR 3
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -250,6 +250,91 @@ void* HOST_CALL host_dir_first(const char* pattern, struct host_dir_entry* entry
 int HOST_CALL host_dir_next(void* dir, struct host_dir_entry* entry);
 // Ends the listing and frees its handle.
 void HOST_CALL host_dir_close(void* dir);
+
+// Sound buffer flag: the buffer can be placed in space with host_sound_buffer_place.
+#define HOST_SOUND_3D 0x01
+
+// Sound buffer status bit: the buffer is playing.
+#define HOST_SOUND_PLAYING 0x01
+// Sound buffer status bit: the buffer plays in a loop.
+#define HOST_SOUND_LOOPING 0x04
+
+// Result of host_sound_open when the machine has no sound driver.
+#define HOST_SOUND_NO_DRIVER (-1)
+
+// Opens the sound device for window, when it is not open yet, and sets its output to rate samples a second of bits-bit samples on channels channels; returns its handle, or NULL with *error set to 0 or HOST_SOUND_NO_DRIVER.
+void* HOST_CALL host_sound_open(void* window, int rate, int bits, int channels, int* error);
+// Closes the sound device; every buffer must be freed first.
+void HOST_CALL host_sound_close(void);
+// Returns the host's own sound device object for a video decoder that plays its sound through it, or NULL when the device is not open.
+void* HOST_CALL host_sound_native(void);
+// Creates a buffer of bytes bytes of PCM sound at rate samples a second, bits bits a sample and channels channels, with HOST_SOUND_ flags, and returns its handle or NULL.
+void* HOST_CALL host_sound_buffer_create(unsigned int bytes, int rate, int bits, int channels, unsigned int flags);
+// Creates a second buffer that shares buffer's sound but plays on its own, and returns its handle or NULL.
+void* HOST_CALL host_sound_buffer_duplicate(void* buffer);
+// Frees the buffer and its handle.
+void HOST_CALL host_sound_buffer_free(void* buffer);
+// Gives write access to bytes bytes of the buffer from offset, sets *data and *size to the part that can be written, and returns 1, or 0 on failure.
+int HOST_CALL host_sound_buffer_lock(void* buffer, unsigned int offset, unsigned int bytes, void** data, unsigned int* size);
+// Ends the write access that host_sound_buffer_lock gave to data, after size bytes were written, and returns 1, or 0 on failure.
+int HOST_CALL host_sound_buffer_unlock(void* buffer, void* data, unsigned int size);
+// Starts the buffer playing from its position, in a loop when loop is nonzero, and returns 1, or 0 on failure.
+int HOST_CALL host_sound_buffer_play(void* buffer, int loop);
+// Stops the buffer, keeping its position, and returns 1, or 0 on failure.
+int HOST_CALL host_sound_buffer_stop(void* buffer);
+// Returns the buffer's HOST_SOUND_PLAYING and HOST_SOUND_LOOPING bits, 0 when it is stopped, or -1 on failure.
+int HOST_CALL host_sound_buffer_status(void* buffer);
+// Sets *play to the byte offset being played and *write to the first offset that is safe to write, and returns 1, or 0 on failure.
+int HOST_CALL host_sound_buffer_position(void* buffer, unsigned int* play, unsigned int* write);
+// Moves the buffer's play position to offset bytes and returns 1, or 0 on failure.
+int HOST_CALL host_sound_buffer_set_position(void* buffer, unsigned int offset);
+// Sets the buffer's volume in hundredths of a decibel, from 0 (unchanged) down to -10000 (silent), and returns 1, or 0 on failure.
+int HOST_CALL host_sound_buffer_set_volume(void* buffer, int volume);
+// Places a HOST_SOUND_3D buffer at the point xyz, heard fully within min_distance and no quieter beyond max_distance, or with xyz NULL plays it unplaced; returns 1, or 0 when the buffer cannot be placed.
+int HOST_CALL host_sound_buffer_place(void* buffer, const float* xyz, float min_distance, float max_distance);
+
+// Mixer line: the wave output devices.
+#define HOST_MIXER_WAVE 0
+// Mixer line: the CD audio device.
+#define HOST_MIXER_CD 1
+
+// Returns the number of wave output devices.
+int HOST_CALL host_mixer_wave_count(void);
+// Returns the device number of the first CD audio mixer device, or -1 when there is none.
+int HOST_CALL host_mixer_cd_device(void);
+// Sets *volume to the device's volume, the left channel in the low 16 bits and the right in the high 16, each 0 to 0xffff, and returns 1, or 0 on failure.
+int HOST_CALL host_mixer_get(int line, int device, unsigned int* volume);
+// Sets the device's volume, packed as host_mixer_get returns it, and returns 1, or 0 on failure.
+int HOST_CALL host_mixer_set(int line, int device, unsigned int volume);
+
+// Opens the music device (the CD drive, or the host's own music files) with positions in milliseconds and returns 1, or 0 on failure.
+int HOST_CALL host_music_open(void);
+// Stops and closes the music device.
+void HOST_CALL host_music_close(void);
+// Stops the music and returns 1, or 0 on failure.
+int HOST_CALL host_music_stop(void);
+// Pauses the music and returns 1, or 0 on failure.
+int HOST_CALL host_music_pause(void);
+// Returns 1 when the music is playing, 0 when it is not, or -1 on failure.
+int HOST_CALL host_music_playing(void);
+// Returns the number of tracks, counting a data track, or -1 on failure.
+int HOST_CALL host_music_track_count(void);
+// Returns 1 when the track (counted from 1) is audio, 0 when it is data or other, or -1 on failure.
+int HOST_CALL host_music_track_is_audio(int track);
+// Returns the track's length in milliseconds, or -1 on failure.
+int HOST_CALL host_music_track_length(int track);
+// Returns the position where the track starts in milliseconds, or -1 on failure.
+int HOST_CALL host_music_track_start(int track);
+// Returns the number of the track at the play position, or -1 on failure.
+int HOST_CALL host_music_current_track(void);
+// Returns the play position in milliseconds, or -1 on failure.
+int HOST_CALL host_music_position(void);
+// Plays from the start of track first up to the start of track last, or to the end with last 0, posting HOST_EVENT_MEDIA_NOTIFY to the window when it ends; returns 1, or 0 on failure.
+int HOST_CALL host_music_play_tracks(int first, int last);
+// Plays from the position from_ms, or the current position with from_ms -1, up to to_ms, or to the end with to_ms -1, posting HOST_EVENT_MEDIA_NOTIFY to the window when it ends; returns 1, or 0 on failure.
+int HOST_CALL host_music_play_range(int from_ms, int to_ms);
+// Returns the volume serial number of the music disc, or 0 when there is no disc.
+unsigned int HOST_CALL host_music_disc_serial(void);
 
 #ifdef __cplusplus
 }
