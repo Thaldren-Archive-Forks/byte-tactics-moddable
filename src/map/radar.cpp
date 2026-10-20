@@ -90,25 +90,7 @@ struct UnitType_00466dc0 {
 };
 
 #include "../units/unit.h"
-
-struct Projectile_00466dc0 {
-    WeaponDef* shot;                     // +0x0
-    int posx;                            // +0x4
-    int posy;                            // +0x8
-    int posz;                            // +0xc
-    char unknown_10[0x52 - 0x10];
-    Unit* owner;                         // +0x52
-    char unknown_56[0x66 - 0x56];
-    unsigned char player;                // +0x66
-    char unknown_67[0x6b - 0x67];
-};
-
-struct Tail_00466dc0 {
-    char unknown_0[0x48];
-    Unit* owner;                         // q+0x48
-    char unknown_4c[0x5c - 0x4c];
-    unsigned char player;                // q+0x5c
-};
+#include "../weapons/projectile.h"
 
 // The four shorts at +0x142e7 are named minimapGadgetX/Y/W/H, originX/
 // originY/sizeX/sizeY and the four-element `dim` the rectangle test indexes,
@@ -495,37 +477,35 @@ void DrawRadarUnits(void)
         } while (u <= g_game->unitsEnd);
     }
 
-    Projectile_00466dc0* p = (Projectile_00466dc0 *)g_game->projectiles;
+    Projectile* p = g_game->projectiles;
     int i = 0;
     if (g_game->projectileCount > 0) {
-        short* q = (short*)((char*)p + 0xa);
         do {
-            int px = q[-2];
+            int px = p->positionWords.xWhole;
             int x = (int)g_game->width_142eb * px / g_game->mapWidth;
-            int py = q[2] - ((int)q[0] >> 1);
+            int py = p->positionWords.zWhole - ((int)p->positionWords.yWhole >> 1);
             int y = (int)g_game->screen_h * py / g_game->mapHeight;
-            if ((p->shot->flags.value & 0x60000000) == 0) {
-                if ((p->shot->flags.value & 0x40) == 0) {
+            if ((p->type->flags.value & 0x60000000) == 0) {
+                if ((p->type->flags.value & 0x40) == 0) {
                     if (OnRadar_00466dc0(px, py) ||
-                        ((Tail_00466dc0*)q)->player ==
+                        p->owner ==
                             g_game->playerIndex) {
                         DrawPixel(surface, x, y, base[0xe]);
                     }
                 }
             } else {
                 if (OnRadar_00466dc0(px, py) ||
-                    ((Tail_00466dc0*)((char*)q))->owner->playerIndex ==
+                    p->attacker->playerIndex ==
                         g_game->playerIndex) {
                     DrawFrame(surface,
                         GetGafFrame(g_game->nuclogo,
                             Player_Get(
-                                ((Tail_00466dc0*)q)->player)->info->color),
+                                p->owner)->info->color),
                         x, y);
                 }
             }
             i++;
-            p = (Projectile_00466dc0*)((char*)p + 0x6b);
-            q = (short*)((char*)q + 0x6b);
+            p++;
         } while (i < g_game->projectileCount);
     }
 
