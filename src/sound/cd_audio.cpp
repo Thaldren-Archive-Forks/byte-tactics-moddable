@@ -146,6 +146,7 @@ int Sound::QueryDisc()
 
     currentTrack = 0;
     playState = 0;
+    // TODO(#176): read the audio disc's volume serial through the host, so ReopenCdAudio tells discs apart
     // Both mciSendStringA results are assigned to an int local before being tested.
 #ifdef __clang__
     SeedTrackReplies(buf, type);

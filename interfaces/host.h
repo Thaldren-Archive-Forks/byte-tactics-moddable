@@ -94,11 +94,11 @@ void HOST_CALL host_exit(int code);
 // Writes a line of text to the host's log.
 void HOST_CALL host_log(const char* text);
 
-// Opens an existing file under the game directory for reading only and returns its handle, or NULL when it cannot be opened.
+// Opens an existing file, with a path relative to the game directory or absolute, for reading only and returns its handle, or NULL when it cannot be opened.
 void* HOST_CALL host_file_open_read(const char* path);
-// Creates a file under the game directory, or empties it when it exists, for reading and writing, and returns its handle or NULL.
+// Creates a file, with a path relative to the game directory or absolute, or empties it when it exists, for reading and writing (for writing only when flags has HOST_FILE_TEXT), and returns its handle or NULL.
 void* HOST_CALL host_file_create(const char* path, unsigned int flags);
-// Opens a file under the game directory for reading and appending, creating it when it is missing, and returns its handle or NULL.
+// Opens a file, with a path relative to the game directory or absolute, for reading and appending, creating it when it is missing, and returns its handle or NULL.
 void* HOST_CALL host_file_open_append(const char* path);
 // Reads up to size bytes into buf and returns how many were read, fewer at the end of the file.
 unsigned int HOST_CALL host_file_read(void* file, void* buf, unsigned int size);
@@ -146,7 +146,7 @@ struct host_dir_entry {
     unsigned int time_write;
 };
 
-// Lists the entries under the game directory that match pattern (* and ? wildcards), fills entry with the first, and returns the listing's handle, or NULL when nothing matches.
+// Lists the entries that match pattern (* and ? wildcards, a path relative to the game directory or absolute), fills entry with the first, and returns the listing's handle, or NULL when nothing matches.
 void* HOST_CALL host_dir_first(const char* pattern, struct host_dir_entry* entry);
 // Fills entry with the listing's next entry and returns 1, or returns 0 when there are no more.
 int HOST_CALL host_dir_next(void* dir, struct host_dir_entry* entry);

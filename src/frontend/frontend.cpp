@@ -773,7 +773,7 @@ void __stdcall PlayMovie(char* param_1)
     char path[256];
 
     StopAllSounds();
-    sprintf(path, "%s\\%s", "Data", param_1);
+    sprintf(path, ".\\\\%s\\%s", "Data", param_1);
     StripExtension(path);
     strcat(path, ".zrb");
     if (HAPI_FileLengthByName(path) != 0) {
