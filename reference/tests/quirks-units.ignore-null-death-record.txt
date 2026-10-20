@@ -1,0 +1,13 @@
+# A zeroed unit-killed record is applied at tick 100; the flag makes ApplyUnitDeath skip it.
+game_seed 201
+crt_seed 1201
+view_seed 2201
+map The Pass
+start_positions fixed
+ticks 300
+player0.controller human
+player0.side Arm
+player1.controller ai
+player1.side Core
+quirks 3.1c +units.ignore-null-death-record
+quirks_reach 100 units.ignore-null-death-record

@@ -54,6 +54,7 @@ Defaults are the ones in `LoadSettings`, never the registry.
 | `steps_per_frame` | 1 | Game ticks run between two drawn frames, 1 to 8; the traces must not depend on it |
 | `quirks` | `3.1c` | Quirk flags for the run, a spec: a preset (`3.1c`, all off; `recommended`, all on) then `+flag` or `-flag` words, as in `recommended -flag` |
 | `quirks_tamper` | none | Test only: flips a quirk flag at this tick, so the freeze check exits 2 (see Quirk flags) |
+| `quirks_reach` | none | Test only: `<tick> <flag name>`, at that tick makes the game reach the guard of `units.ignore-null-death-record`, `ai.patrol-null-enemy-skip` or `units.skip-empty-yardmap` (see Quirk flags) |
 | `map` | required | Map name, the rest of the line (names have spaces) |
 | `difficulty` | 1 | AI difficulty 0 to 2, one value for all computer players |
 | `commander_death` | 1 | 1: the game ends when a commander dies |
@@ -86,6 +87,22 @@ In test mode the flags are frozen: the exe checks them before every tick, and if
 ```sh
 uv run tools/playtest.py --exe build/modern/TotalA.exe --testmode reference/tests/quirks-tamper.txt --game-dir ~/.ta
 ```
+
+No stock game data reaches the guards of the first three flags, so a `quirks_reach <tick> <flag name>`
+line makes the exe reach one at that tick: `units.ignore-null-death-record` applies a unit-killed
+record whose unit id is 0, `units.skip-empty-yardmap` runs the commander's COB `set YARD_OPEN`, and
+`ai.patrol-null-enemy-skip` puts a unit in the first computer player's scout squad, sets its rally
+point to the origin and runs its scout timer with every player allied to it, so no enemy is found.
+`reference/tests/quirks-<flag name>.txt` does this for each flag, with `quirks 3.1c +<flag name>`:
+
+```sh
+uv run tools/playtest.py --exe build/modern/TotalA.exe --testmode reference/tests/quirks-units.ignore-null-death-record.txt --game-dir ~/.ta
+uv run tools/playtest.py --exe build/modern/TotalA.exe --testmode reference/tests/quirks-ai.patrol-null-enemy-skip.txt --game-dir ~/.ta
+uv run tools/playtest.py --exe build/modern/TotalA.exe --testmode reference/tests/quirks-units.skip-empty-yardmap.txt --game-dir ~/.ta
+```
+
+Each runs to the last tick. With the `quirks` line removed, the exe faults at the guard's tick, as 3.1c
+does, and the run stops before the last tick.
 
 ## Scripted orders
 

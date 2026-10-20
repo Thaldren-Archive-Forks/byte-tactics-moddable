@@ -67,6 +67,8 @@ static char s_quirkSpec[512] = "3.1c";
 static unsigned s_quirkHash = 0;
 static unsigned s_quirkTamperTick = 0;
 static int s_quirkTamper = 0;
+static unsigned s_quirkReachTick = 0;
+static int s_quirkReach = 0;
 
 static void Fail(const char* text)
 {
@@ -370,6 +372,22 @@ static void ReadKey(int lineNo, const char* key, char* value)
     } else if (strcmp(key, "quirks_tamper") == 0) {
         s_quirkTamperTick = ParseNumber(lineNo, key, value);
         s_quirkTamper = 1;
+    } else if (strcmp(key, "quirks_reach") == 0) {
+        static const char* const reachFlags[] = { "units.ignore-null-death-record", "ai.patrol-null-enemy-skip", "units.skip-empty-yardmap" };
+        char flag[64];
+        unsigned tick;
+        if (sscanf(value, "%u %63s", &tick, flag) != 2)
+            FailLine(lineNo, "needs <tick> <flag name>", key, "");
+        if (tick == 0)
+            FailLine(lineNo, "needs a tick of at least 1", key, "");
+        for (int f = 0; f < 3; f++) {
+            if (strcmp(flag, reachFlags[f]) == 0) {
+                s_quirkReachTick = tick;
+                s_quirkReach = f + 1;
+            }
+        }
+        if (s_quirkReach == 0)
+            FailLine(lineNo, "names a flag with no guard to reach", key, "");
     } else if (strcmp(key, "order") == 0)
         ReadOrder(lineNo, value);
     else if (strncmp(key, "player", 6) == 0 && isdigit((unsigned char)key[6]) && key[7] == '.')
@@ -2672,6 +2690,57 @@ static void IssueScriptedOrder(const ScriptedOrder* o)
     free(selected);
 }
 
+void __stdcall ApplyUnitDeath(void* cmd, int local);
+
+static void ReachQuirkGuard()
+{
+    if (s_quirkReach == 1) {
+        unsigned char cmd[11];
+        memset(cmd, 0, sizeof cmd);
+        cmd[0] = 12;
+        ApplyUnitDeath(cmd, 0);
+        return;
+    }
+    if (s_quirkReach == 2) {
+        for (int slot = 0; slot < MAX_PLAYERS; slot++) {
+            if (!s_players[slot].named || s_players[slot].human)
+                continue;
+            unsigned manager = ReadU32At((unsigned)PlayerAt(slot), PLAYER_MANAGER);
+            unsigned char* ai = g_playerAI[slot];
+            unsigned count = *(unsigned short*)GameAt(GAME_POOL_COUNT);
+            for (unsigned i = 0; manager != 0 && ai != 0 && i < count; i++) {
+                unsigned char* u = PoolUnit(i);
+                if (*(unsigned short*)(u + UNIT_TYPE) == 0 || !UnitIsSlot(u, slot))
+                    continue;
+                g_seams.ai->SetUnitSquad((Unit*)u, 8);
+                memset(ai + 0x35, 0, 12);
+                void* timer = (void*)ReadU32At(manager, MANAGER_TIMERS + 8 * 4);
+                void (__thiscall* onTimer)(void*) = (void (__thiscall*)(void*))(*(void***)timer)[0];
+                unsigned char* allied = PlayerAt(slot) + 0x108;
+                unsigned char saved[11];
+                memcpy(saved, allied, sizeof saved);
+                memset(allied, 1, sizeof saved);
+                onTimer(timer);
+                memcpy(allied, saved, sizeof saved);
+                return;
+            }
+            return;
+        }
+        return;
+    }
+    for (unsigned i = 0, count = *(unsigned short*)GameAt(GAME_POOL_COUNT); i < count; i++) {
+        unsigned char* u = PoolUnit(i);
+        if (*(unsigned short*)(u + UNIT_TYPE) == 0 || !UnitIsSlot(u, 0))
+            continue;
+        void* script = (void*)ReadU32At((unsigned)u, UNIT_SCRIPT);
+        if (script == NULL)
+            return;
+        void (__thiscall* setUnitValue)(void*, int, int) = (void (__thiscall*)(void*, int, int))(*(void***)script)[16];
+        setUnitValue(script, 18, 1);
+        return;
+    }
+}
+
 void HarnessBeforeStep()
 {
     if (!s_testMode)
@@ -2679,6 +2748,8 @@ void HarnessBeforeStep()
     unsigned tick = GameU32(GAME_TICK);
     if (s_quirkTamper && tick == s_quirkTamperTick)
         QuirksFlipFirstSim(&g_quirks);
+    if (s_quirkReach && tick == s_quirkReachTick)
+        ReachQuirkGuard();
     if (QuirksHash(g_quirks) != s_quirkHash) {
         char msg[96];
         sprintf(msg, "testmode: quirk flags changed at tick %u\n", tick);
