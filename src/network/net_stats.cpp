@@ -276,8 +276,8 @@ extern unsigned int g_bytesSentPerSecond;
 extern unsigned int g_bytesReceivedPerSecond;
 
 #include "../network/packet_manager.h"
+#include "../state/sim_globals.h"
 
-extern PacketManager g_packetManager;
 
 // FUNCTION: 0x416150
 void __stdcall GetByteRates(unsigned int* sent, unsigned int* received)

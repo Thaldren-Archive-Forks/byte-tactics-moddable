@@ -59,6 +59,7 @@ struct Flags16 {
 };
 
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 static inline void AccumulateProfileTime(FrameTimers* timers, int i)
@@ -93,7 +94,6 @@ extern int g_cdActivityRingWriteIdx;
 extern int g_cdActivitySampleRing[];
 extern int g_lastCdActivityMode;
 extern int g_usePacketManager;
-extern PacketManager g_packetManager;
 
 Gadget* __stdcall FindGadgetChecked_D(Gadget* entries, char* name);
 int __stdcall ReadSliderValue(Gadget* entry);

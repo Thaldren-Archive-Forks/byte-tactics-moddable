@@ -132,11 +132,11 @@ struct Item {
 };
 
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 // GLOBAL: 0x511de8
 extern Game* g_game;
-extern char DAT_005119b8[];            // ""
 extern char* g_briefingWrappedText;
 extern int g_briefingPageIndex;
 extern int g_briefingPaginateReset;

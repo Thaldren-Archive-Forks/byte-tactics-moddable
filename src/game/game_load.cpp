@@ -203,7 +203,6 @@ extern int g_nonCampaignGame;
 
 #include "../network/packet_manager.h"
 
-extern PacketManager g_packetManager;
 
 #include "../sound/sound.h"
 // Unused here: the symbol ids these declarations take keep the allocation of LoadMatch,
@@ -319,6 +318,7 @@ unsigned int __cdecl GetTicks();
 char* __cdecl GetPreferredLanguage();
 
 #include "../../interfaces/seams.h"
+#include "../state/sim_globals.h"
 int __stdcall PointInRect(Rect* r, int x, int y);
 
 

@@ -83,6 +83,7 @@ struct FixedPos_00496ee0 {
 };
 
 #include "../network/player.h"
+#include "../state/sim_globals.h"
 
 // One view of the game state. The ten team records and the sub-object at
 // +0x1cd5 overlap
@@ -94,7 +95,6 @@ struct FixedPos_00496ee0 {
 
 extern Game* g_game;
 extern int g_usePacketManager;
-extern PacketManager g_packetManager;
 extern int g_netProbeNextTick;
 extern int g_netHeartbeatNextTick;
 

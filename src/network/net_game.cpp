@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include "../../interfaces/host.h"
 #include "../state/game_rand.h"
+#include "../state/sim_globals.h"
 
 // DirectPlay 3 DPNAME (the toolchain's DirectX 3 <dplay.h> lacks it).
 struct DPNAME {
@@ -32,7 +33,9 @@ struct DPNAME {
 };
 
 typedef int (__stdcall *EntryFunc)(int);
-extern EntryFunc g_packetHandlers[45];
+typedef EntryFunc SimView_g_packetHandlers[45];
+#undef g_packetHandlers
+#define g_packetHandlers (*reinterpret_cast<SimView_g_packetHandlers*>(&Sim().g_packetHandlers))
 
 class NetPacket {
 public:
@@ -93,8 +96,6 @@ struct PlayerIdPacket {
 extern Game* g_game;
 extern char* g_leftGameTexts[8];
 extern int g_usePacketManager;
-extern PacketManager g_packetManager;
-extern char DAT_005119b8[];
 
 int __stdcall HAPINET_setplayername(void* net, int dpid, DPNAME* name, int flags);
 int __stdcall HAPINET_getplayername(void* net, unsigned long id, void* data, unsigned long* size);
@@ -1002,9 +1003,7 @@ struct Packet_00453d40 {
 
 #pragma pack(pop)
 
-extern PacketChannel g_packetChannels[];
 extern int g_broadcastPeersSeen[11];
-extern PacketReceiver g_packetManagerReceiver;
 extern int DAT_00512c8c;
 extern char g_onlineLobbyPlayerName;
 extern char g_onlineLobbyPassword;
@@ -1012,14 +1011,14 @@ extern char* g_loungeChatter;
 extern int g_loungeRefreshTime;
 extern int g_timeoutPlayerDpid;
 extern unsigned int g_timeoutTimerStart;
-extern int g_packetModes[45];
 extern char g_allySoundName[];
 extern char g_playerDisconnectedText[];
 extern char g_integrityBreachText[];
 extern char g_playerMessageFormat[];
 extern char s_PACKET_DATA_00506524[];
-extern EntryFunc g_packetHandlerType2;
-extern int g_packetSizes[45];
+typedef EntryFunc SimView_g_packetHandlerType2;
+#undef g_packetHandlerType2
+#define g_packetHandlerType2 (*reinterpret_cast<SimView_g_packetHandlerType2*>(reinterpret_cast<char*>(&g_packetHandlers) + 0x8))
 
 void* __cdecl GameAllocIgnoreTag(char* tag, int size);
 int __stdcall InitPacketTables(Class_00451fd0* obj);

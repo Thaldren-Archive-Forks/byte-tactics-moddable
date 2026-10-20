@@ -1,10 +1,10 @@
+#include "../state/sim_globals.h"
 // Decompiled by Claude Opus 5.5, finished by deepseek-v4.1-flash, finished by Claude Opus 5.5, finished by space-bunny-free, finished by DeepSeek V4.1 Flash. Names are provisional.
 // FLAGS: /Gi
 // A Park-Miller random number generator (seed * 16807 mod 2^31 - 1, with
 // q = seed / 127773 to avoid overflow), then seed % range.
 
 // No <windows.h>: with it the two divisions below merge into one.
-extern unsigned int g_randomSeed;
 
 // Stays in its own file: it matches only with /Gi, and that per-file flag
 // moves DotProduct and CrossProduct in src/util/math.cpp.

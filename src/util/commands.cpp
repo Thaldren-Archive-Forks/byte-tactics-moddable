@@ -42,9 +42,9 @@ extern "C" int __cdecl _strcmpi(const char* str1, const char* str2);
 
 extern int g_defaultCommandHandler;
 extern int g_defaultCommandMask;
-extern char DAT_005119b8[];
 
 #include "string_ref.h"
+#include "../state/sim_globals.h"
 
 static inline bool operator==(const StringRef& a, const StringRef& b)
 {

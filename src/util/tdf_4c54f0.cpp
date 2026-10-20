@@ -15,7 +15,6 @@
 #include <new>
 
 extern char g_language[64];
-extern char DAT_005119b8[];
 
 void __cdecl AllocNotifyNop(int);
 
@@ -98,6 +97,7 @@ static inline StringRef* InsertNew(TranslationTable* s, TdfField* e, const Strin
 }
 
 #include "../quirks/quirks.h"
+#include "../state/sim_globals.h"
 
 // Reloads one TDF file into the global map (g_translations):
 // frees the old map when the section name changed, builds a new one and inserts

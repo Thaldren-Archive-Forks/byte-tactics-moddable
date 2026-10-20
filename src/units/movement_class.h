@@ -49,8 +49,6 @@ public:
 
 struct MovementClassTable {
     MovementClass entries[32];
-
-    static MovementClassTable g_movementClasses;
 };
 
 #endif

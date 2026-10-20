@@ -57,7 +57,5 @@ inline PacketChannel::~PacketChannel()
 
 inline PacketManager::~PacketManager() { }
 
-// FUNCTION: 0x460e20 _$E4
-PacketManager g_packetManager;
 
 PacketManager::PacketManager() : m_defaultSendPacingMs(200), buffer(0), size(0), capacity(0), member(this) { }

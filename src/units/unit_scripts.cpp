@@ -320,6 +320,7 @@ struct Obj_0043e3c0 {
 #include "../graphics/spot_state.h"
 #include "../quirks/quirks.h"
 #include <stddef.h>
+#include "../state/sim_globals.h"
 
 static_assert(offsetof(Unit, state) == 0x9e, "state");
 static_assert(offsetof(SpotState, animDirty) == 0x8, "animDirty");

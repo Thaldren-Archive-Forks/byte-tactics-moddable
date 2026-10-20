@@ -12,6 +12,7 @@
 #include <memory.h>
 #include <windows.h>
 #include <ddraw.h>
+#include <new>
 #include <new.h>
 // Included only for their symbol ids: the functions below match at this count.
 #include <setjmp.h>
@@ -135,7 +136,6 @@ struct FrameRing {
 
 // Length of each packet command, one int per command byte (the size in
 // the low word, the writer leaves the high word zero).
-extern int g_packetSizes[45];
 
 #include "packet_receiver.h"
 
@@ -188,7 +188,6 @@ extern NetCondenser g_sendCondenser;
 extern NetCondenser g_receiveCondenser;
 // Unused here: the symbol id this declaration takes keeps the allocation
 // of 0x461da0 and 0x462bf0 (docs/c2-regalloc.md).
-extern int g_packetModes[];
 extern int g_usePacketManager;
 extern int g_netFrameRateConfig;
 
@@ -201,10 +200,10 @@ struct Msg_00461900 {
 };
 
 #include "packet_manager.h"
+#include "../state/sim_globals.h"
 
 // Defined in packets_460e20.cpp, whose dynamic initialiser (_$E4) and static
 // destructor (packets_460f60.cpp, _$E2) need views of their own.
-extern PacketManager g_packetManager;
 
 // Unused here: the symbol ids these declarations take keep the allocation,
 // standing in for the view classes joined into PacketRing, PacketBuffer and

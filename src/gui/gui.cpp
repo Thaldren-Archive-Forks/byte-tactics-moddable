@@ -59,6 +59,7 @@ struct Root_004a32a0 {                 // g_guiContext
 extern Root_004a32a0* g_guiContext;
 
 #include "../graphics/rect.h"
+#include "../state/sim_globals.h"
 
 // Unused here: real declarations that keep the file's symbol count (docs/c2-regalloc.md).
 void ShowFrontendErrorText(void);
@@ -155,7 +156,6 @@ char* __stdcall Translate(char* text);
 void __stdcall DrawButton(Dialog* param_1, int param_2);
 void __stdcall SelectAdjacentGadget(Dialog* menu, int value);
 
-extern char DAT_005119b8[];
 
 static inline int FindEntry(Entry_0049f8c0* entries, char* name)
 {
@@ -4299,7 +4299,6 @@ struct Point {                          // 24 bytes, copied with rep movsd
 #pragma pack(pop)
 
 extern char DAT_00502a20[];
-extern char DAT_005119b8[];
 extern int DAT_0051fbac;
 extern int DAT_0051fbb0;
 extern int DAT_0051fbb4;

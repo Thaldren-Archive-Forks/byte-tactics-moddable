@@ -4,7 +4,6 @@
 
 #include "quirks.h"
 
-Quirks g_quirks;
 
 namespace {
 

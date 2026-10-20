@@ -174,9 +174,51 @@ static void RunStreamTests()
     Check(Stream(0) == 1 && Stream(1) == 1, "both streams are 1 again after SimBlockReset");
 }
 
+static void* g_tracked;
+
+static void RunTrackTests()
+{
+    SimBlockTrack(&g_tracked);
+    SimBlockTrack(&g_tracked);
+    SimBlockReset();
+    SimBlockInit();
+    g_tracked = SimAlloc(64);
+    memset(g_tracked, 0x5a, 64);
+    unsigned int off = (unsigned int)((char*)g_tracked - (char*)SimBlockBase());
+
+    void* copy = VirtualAlloc(0, kSimBlockBytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    void* base = SimBlockBase();
+    memcpy(copy, base, kSimBlockBytes);
+    SimBlockAttach(copy);
+    Check(g_tracked == (char*)copy + off, "a tracked pointer follows an attached copy at the same offset");
+    Check(SimOwns(g_tracked) && ((unsigned char*)g_tracked)[63] == 0x5a, "the tracked pointer reaches the copied bytes");
+    SimBlockAttach(base);
+    Check(g_tracked == (char*)base + off, "a tracked pointer follows the block back");
+
+    int onStack = 0;
+    void* outside = &onStack;
+    g_tracked = outside;
+    SimBlockAttach(copy);
+    Check(g_tracked == outside, "a tracked pointer outside the block is left alone");
+    SimBlockAttach(base);
+    g_tracked = 0;
+    SimBlockAttach(copy);
+    Check(g_tracked == 0, "a null tracked pointer stays null");
+    SimBlockAttach(base);
+    VirtualFree(copy, 0, MEM_RELEASE);
+
+    g_tracked = SimAlloc(16);
+    SimBlockReset();
+    Check(g_tracked == 0, "SimBlockReset nulls a tracked pointer");
+    g_tracked = SimAlloc(16);
+    Check(AllZero(g_tracked, 16) && Stream(0) == 1, "the next use after a reset is a fresh zeroed block");
+    SimBlockReset();
+}
+
 int main()
 {
     RunStreamTests();
+    RunTrackTests();
     Run a, b;
     Fresh(&a, 400);
     Fresh(&b, 400);

@@ -224,8 +224,6 @@ struct DebrisView {
 #pragma pack(pop)
 
 extern Game* g_game;
-extern CMemoryCache g_debrisMemCache;
-extern ExplodedPiece* g_explodedPieces[100];
 extern int g_explosion0Duration, g_explosion0StartSize, g_explosion0EndSize, g_explosion1Duration, g_explosion1StartSize, g_explosion1EndSize, g_explosion2Duration, g_explosion2StartSize, g_explosion2EndSize;
 extern unsigned short g_faceVertexIndices[6][4];
 
@@ -251,6 +249,7 @@ Vec3f __stdcall VectorFromTo(Vec3f from, Vec3f to);
 Vec3f __stdcall CrossProduct(Vec3f a, Vec3f b);
 Vec3f __stdcall NormalizeVector(Vec3f v);
 #include "../../interfaces/seams.h"
+#include "../state/sim_globals.h"
 void __stdcall AddExplosionEffect(Vec3* pos, GafSequence* src, int index, int flag);
 Explosion* __stdcall BuildCalcedExplosion(int n, int from, int to);
 void* __stdcall BuildExplosionFrame(int size);

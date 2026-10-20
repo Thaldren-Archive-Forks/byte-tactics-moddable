@@ -86,10 +86,10 @@ struct SrcHolder_00495a30 {
 #include "../map/mission.h"
 
 #include "../orders/mission_type.h"
+#include "../state/sim_globals.h"
 
 extern Game* g_game;
 extern char g_pathSepBackslash[];
-extern char DAT_005119b8[];
 
 int __stdcall FindGadgetIndexBySubstring(int value, const char* name);
 void __stdcall ClearGroupStatus(Gui* gui, int handle);

@@ -202,12 +202,15 @@ static inline short PosZWhole(Unit* unit) { return *(short*)((char*)&unit->pos +
 // std::vector's _First): the status text at +0, a per-kind notify callback at
 // +4, the draw mask at +0xc and its name at +0x15.
 #include "order_type_entry.h"
+#include "../state/sim_globals.h"
 
 
 #pragma pack(pop)
 
 extern Game* g_game;
-extern Elem_0043c390* g_missionOrderTableBegin;
+typedef Elem_0043c390* SimView_g_missionOrderTableBegin;
+#undef g_missionOrderTableBegin
+#define g_missionOrderTableBegin (*reinterpret_cast<SimView_g_missionOrderTableBegin*>(reinterpret_cast<char*>(&g_missionOrderTableVec) + 0x4))
 
 void __stdcall DeleteOrder(Unit* owner, Order* node);
 
@@ -804,8 +807,9 @@ class Class_0043db50 { public: void UpdateSfxOccupy(Unit* u); };
 #pragma pack(pop)
 
 extern Game* g_game;
-extern Elem_0043c390* g_missionOrderTableBegin;
-extern int g_missionOrderTableEnd;
+typedef Elem_0043c390* SimView_g_missionOrderTableBegin;
+#undef g_missionOrderTableBegin
+#define g_missionOrderTableBegin (*reinterpret_cast<SimView_g_missionOrderTableBegin*>(reinterpret_cast<char*>(&g_missionOrderTableVec) + 0x4))
 extern Elem_0043c390 g_readyOrder[];
 extern signed char g_slopeSpeedFactor[];
 
@@ -1240,8 +1244,9 @@ void __stdcall RunSecondaryOrders(Unit* p)
     }
 }
 
-// File-static: internal linkage keeps the vector bounds in registers across the sort.
-static Vec_0043c390 g_missionOrderTableVec;
+typedef Vec_0043c390 SimView_g_missionOrderTableVec;
+#undef g_missionOrderTableVec
+#define g_missionOrderTableVec (*reinterpret_cast<SimView_g_missionOrderTableVec*>(&Sim().g_missionOrderTableVec))
 
 // std::_Unguarded_insert
 // FUNCTION: 0x43c940

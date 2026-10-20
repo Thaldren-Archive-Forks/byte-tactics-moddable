@@ -11,8 +11,8 @@
 #include "../util/tdf.h"
 
 #include "../util/file_handle.h"
+#include "../state/sim_globals.h"
 
-extern char DAT_005119b8[];
 extern int DAT_0051fba8;
 
 unsigned int __stdcall HAPI_WriteFile(FileHandle* file, void* data, unsigned int size);
