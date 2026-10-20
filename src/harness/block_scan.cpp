@@ -51,6 +51,9 @@ Span* g_spans;
 unsigned g_spanCount;
 unsigned g_spanMin;
 unsigned g_spanMax;
+unsigned* g_pages;
+const unsigned kPageShift = 12;
+const unsigned kPageWords = (1u << (32 - kPageShift)) / 32;
 bool g_dirty = true;
 Row* g_rows;
 unsigned g_rowCount;
@@ -189,6 +192,7 @@ void BuildSpans()
     g_spanCount = 0;
     g_spanMin = 0xffffffffu;
     g_spanMax = 0;
+    memset(g_pages, 0, kPageWords * sizeof(unsigned));
     for (unsigned i = 0; i < kRegistrySize; i++) {
         const Entry& e = g_registry[i];
         if (e.addr == 0 || e.size == 0 || Inside(e.addr))
@@ -197,6 +201,8 @@ void BuildSpans()
         g_spans[g_spanCount].end = e.addr + e.size;
         g_spans[g_spanCount].index = i;
         g_spanCount++;
+        for (unsigned pg = e.addr >> kPageShift; pg <= (e.addr + e.size - 1) >> kPageShift; pg++)
+            g_pages[pg >> 5] |= 1u << (pg & 31);
         if (e.addr < g_spanMin)
             g_spanMin = e.addr;
         if (e.addr + e.size > g_spanMax)
@@ -343,10 +349,14 @@ void __cdecl Visit(void* payload, unsigned size, void* ctx)
     const unsigned char* bytes = (const unsigned char*)payload;
     const unsigned spanMin = g_spanMin;
     const unsigned spanMax = g_spanMax;
+    const unsigned* pages = g_pages;
     for (unsigned off = 0; off + 4 <= size; off++) {
         unsigned v;
         memcpy(&v, bytes + off, 4);
-        if (v < spanMin || v >= spanMax || Inside(v))
+        if (v < spanMin || v >= spanMax)
+            continue;
+        unsigned pg = v >> kPageShift;
+        if ((pages[pg >> 5] & (1u << (pg & 31))) == 0 || Inside(v))
             continue;
         const Span* s = FindSpan(v);
         if (s == 0)
@@ -413,6 +423,7 @@ void BlockScanEnable(unsigned every)
     g_registry = (Entry*)AllocZeroed(sizeof(Entry) * kRegistrySize);
     g_spans = (Span*)AllocZeroed(sizeof(Span) * kRegistrySize);
     g_rows = (Row*)AllocZeroed(sizeof(Row) * kRowSize);
+    g_pages = (unsigned*)AllocZeroed(kPageWords * sizeof(unsigned));
     InitializeCriticalSection(&g_scanLock);
     const char* base = (const char*)GetModuleHandle(0);
     const IMAGE_DOS_HEADER* dos = (const IMAGE_DOS_HEADER*)base;
