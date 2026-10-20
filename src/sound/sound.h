@@ -6,8 +6,6 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-struct IDirectSound;
-struct IDirectSoundBuffer;
 struct FileHandle;
 struct Pos_004cf570;
 // HWND__ has no use with STRICT off; the declaration stays because
@@ -25,19 +23,19 @@ public:
     int waveVolume;                    // +0x18
     int auxVolume;                     // +0x1c
     int cdVolume;                      // +0x20
-    IDirectSound* directSound;         // +0x24
-    IDirectSoundBuffer* primary;       // +0x28
+    void* directSound;
+    void* primary;
     int maxBuffers;                    // +0x2c
     int count;                         // +0x30, of the playing buffers
     int sequence;                      // +0x34
-    IDirectSoundBuffer* buffers[0x20]; // +0x38
+    void* buffers[0x20];
     int priority[0x20];                // +0xb8
     int flags[0x20];                   // +0x138, looping
     int sampleRate;                    // +0x1b8
     int sampleBits;                    // +0x1bc
     int sampleChannels;                // +0x1c0
-    IDirectSoundBuffer** sets[8];      // +0x1c4
-    IDirectSoundBuffer* stream;        // +0x1e4
+    void** sets[8];
+    void* stream;
     FileHandle* streamFile;            // +0x1e8, the streamed sample's
     int streamBits;                    // +0x1ec
     int streamSize;                    // +0x1f0
@@ -102,11 +100,11 @@ public:
     void StopOldestBuffer();
     void SetMaxBuffers(int val);
     int GetMaxBuffers();
-    IDirectSoundBuffer** CreateSampleFromMemory(void* src, unsigned long bytes, int sampleRate, int bits, int channels);
-    IDirectSoundBuffer** CreateSampleFromFile(FileHandle* file, unsigned long bytes, int sampleRate, int bits, int channels);
-    void ReleaseSampleSet(IDirectSoundBuffer** set);
-    void PlayLooping(IDirectSoundBuffer** set, long volume);
-    int PlaySampleSet(IDirectSoundBuffer** set, long volume, Pos_004cf570* pos);
+    void** CreateSampleFromMemory(void* src, unsigned long bytes, int sampleRate, int bits, int channels);
+    void** CreateSampleFromFile(FileHandle* file, unsigned long bytes, int sampleRate, int bits, int channels);
+    void ReleaseSampleSet(void** set);
+    void PlayLooping(void** set, long volume);
+    int PlaySampleSet(void** set, long volume, Pos_004cf570* pos);
     int PlayMemorySample(void* src, unsigned long bytes, int sampleRate, int bits, int channels, long volume, Pos_004cf570* pos);
     int PlayFileSample(FileHandle* file, unsigned long bytes, int sampleRate, int bits, int channels, long volume, Pos_004cf570* pos);
     void StartStream(FileHandle* file, int sampleRate, int bits, int channels, long volume);

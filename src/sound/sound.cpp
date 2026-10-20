@@ -2,7 +2,6 @@
 // Sound start-up and shutdown, the sound-name tables and the queue of unit speech.
 
 #include <windows.h>
-#include <dsound.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
@@ -15,7 +14,7 @@ public:
     int HasNoDriver();
     void ReleaseDirectSound();
     void* LoadSample(char* path);
-    void ReleaseSampleSet(IDirectSoundBuffer** set);
+    void ReleaseSampleSet(void** set);
     int StreamSampleDelayed(char* name, int value, int delay);
     int PlayLooping(int sample, int volume);
     int PlaySampleSet(int a, int b, int c);
@@ -312,7 +311,7 @@ void* __stdcall LoadSoundFile(const char* name)
 // Releases a set of sound buffers: frees the set directly when
 // g_useWindowsSound is set, otherwise through the sound object's ReleaseSampleSet.
 // FUNCTION: 0x47f060
-void __stdcall FreeSoundSet(IDirectSoundBuffer** set)
+void __stdcall FreeSoundSet(void** set)
 {
     if (g_useWindowsSound != 0) {
         GameFreeThunk(set);

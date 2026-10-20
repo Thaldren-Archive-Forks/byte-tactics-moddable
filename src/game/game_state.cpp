@@ -11,6 +11,7 @@
 #include "../map/mission.h"
 #include "../state/game_rand.h"
 #include "../../interfaces/seams.h"
+#include "../../interfaces/host.h"
 
 struct Display_00491a70;
 struct Src_004ab400;
@@ -287,9 +288,8 @@ void ReopenCdAudio()
     char buf[0x88];
 
     int saved = ((Sound*)g_game->field_10)->GetTrackCategory();
-    mciSendStringA("stop cdaudio", 0, 0, 0);
-    mciSendStringA("close cdaudio", 0, 0, 0);
-    mciSendStringA("open cdaudio", 0, 0, 0);
+    host_music_close();
+    host_music_open();
     ((Sound*)g_game->field_10)->EnableCdAudio(g_game->musicMode & 1);
     ((Sound*)g_game->field_10)->SetPlaybackOrder(g_game->cdMode);
     ((Sound*)g_game->field_10)->SetTrackCategory(saved);
