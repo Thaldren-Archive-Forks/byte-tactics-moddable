@@ -2,6 +2,7 @@
 
     uv run tools/blockpointers.py                    # play the suite with -blockscan, write data/block_pointers.csv
     uv run tools/blockpointers.py --from DIR...      # build from blockptrs files already collected (no Wine)
+    uv run tools/blockpointers.py --save-scans DIR   # also write each played scenario's scan to DIR/<scenario>.txt
     uv run tools/blockpointers.py --out F            # write F instead (a dry run; class and note kept from the data file)
     uv run tools/blockpointers.py --check            # CI: the file itself is valid (classes, notes, order)
     uv run tools/blockpointers.py --unclassified     # list the rows with no class
@@ -567,12 +568,22 @@ def play_suite(exe: Path, game_dir: str | None, parallel: int) -> dict[str, str 
     return scans
 
 
+def save_scans(texts: dict[str, str | None], directory: Path) -> None:
+    """Write each scenario's scan text to directory/<scenario>.txt, the files --from reads; skip the None ones."""
+    directory.mkdir(parents=True, exist_ok=True)
+    for name, text in texts.items():
+        if text is not None:
+            (directory / f"{name}.txt").write_text(text)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--check", action="store_true", help="fail if the data file is not valid (CI)")
     parser.add_argument("--unclassified", action="store_true", help="list the rows with no class")
     parser.add_argument("--from", dest="sources", nargs="+", type=Path, metavar="DIR",
                         help="build from these blockptrs files or directories of <scenario>.txt, playing nothing")
+    parser.add_argument("--save-scans", type=Path, metavar="DIR",
+                        help="write each played scenario's blockptrs.txt to DIR/<scenario>.txt, as --from reads them")
     parser.add_argument("--exe", type=Path, default=DEFAULT_EXE, help="the exe to play (default build/modern/TotalA.exe)")
     parser.add_argument("--map", type=Path, help="the linker map (default: the exe's)")
     parser.add_argument("--game-dir", help="the game's install (default: Steam's)")
@@ -580,6 +591,8 @@ def main() -> None:
     parser.add_argument("--build-dir", type=Path, help="compile database for the SimGlobals layout (default build/rwsets)")
     parser.add_argument("--out", type=Path, default=OUT, help="write the rows here instead of the data file")
     args = parser.parse_args()
+    if args.save_scans and (args.sources or args.check or args.unclassified):
+        parser.error("--save-scans saves the scans the tool plays; it cannot be used with --from, --check or --unclassified")
     if args.check:
         problems = check_rows(OUT.read_text()) if OUT.exists() else ["%s does not exist" % OUT]
         for p in problems[:40]:
@@ -605,6 +618,8 @@ def main() -> None:
     else:
         import reference
         texts = play_suite(args.exe.resolve(), args.game_dir, args.parallel or reference.default_parallel())
+        if args.save_scans:
+            save_scans(texts, args.save_scans)
         absent = [n for n, t in texts.items() if t is None]
         if absent:
             sys.exit("blockpointers: no blockptrs.txt from: " + ", ".join(absent))

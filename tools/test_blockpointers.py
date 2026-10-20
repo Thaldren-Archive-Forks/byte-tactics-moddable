@@ -3,7 +3,9 @@
     uv run tools/test_blockpointers.py
 """
 
+import tempfile
 import unittest
+from pathlib import Path
 
 import blockpointers as bp
 
@@ -284,6 +286,15 @@ class WildcardTest(unittest.TestCase):
         lines = bp.describe_uncovered(missing, rows)
         self.assertIn("pair not listed", lines[0])
         self.assertIn("offset not listed", lines[1])
+
+
+class SaveScansTest(unittest.TestCase):
+    def test_saved_files_read_back(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / "nested" / "scans"
+            bp.save_scans({"b": SCAN, "a": SCAN, "none": None}, target)
+            self.assertEqual(sorted(p.name for p in target.iterdir()), ["a.txt", "b.txt"])
+            self.assertEqual([s.scenario for s in bp.read_scans([target])], ["a", "b"])
 
 
 if __name__ == "__main__":
