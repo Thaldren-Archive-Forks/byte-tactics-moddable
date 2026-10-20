@@ -324,6 +324,7 @@ struct Obj_0043e3c0 {
 static_assert(offsetof(Unit, state) == 0x9e, "state");
 static_assert(offsetof(SpotState, animDirty) == 0x8, "animDirty");
 static_assert(offsetof(SpotState, pos) == 0x18, "pos");
+static_assert(offsetof(SpotState, root) == 0x1e, "root");
 static_assert(offsetof(Piece_459c70, modified) == 0x26, "modified");
 
 void __stdcall UpdateObjectState(Unit* unit);
@@ -335,7 +336,7 @@ void __stdcall PoseUnitModel(Unit* unit)
         return;
     memcpy(&state->pos, &unit->angles, 6);
     state->animDirty = 1;
-    (*(Piece_459c70**)((char*)state + 0x1e))->modified = 0;
+    state->root->modified = 0;
     UpdateObjectState(unit);
 }
 
