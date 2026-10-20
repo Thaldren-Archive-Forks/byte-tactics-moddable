@@ -9,9 +9,25 @@
 
 #include <string.h>
 
-struct TdfField;
-class StringRef;
+#pragma pack(push, 8)
+#include "string_ref.h"
+
 class TdfRecord;
+
+struct TdfField {
+    StringRef key;
+    StringRef value;
+
+    TdfField(const StringRef& a, const StringRef& b);
+    // FUNCTION: 0x4c54a0 ??0TdfField@@QAE@ABU0@@Z
+    TdfField(const TdfField& other)
+        : key(other.key), value(other.value)
+    {
+    }
+    ~TdfField();
+    void* AssignPair(int* param_1);
+};
+#pragma pack(pop)
 
 #pragma pack(push, 1)
 struct TdfRecordList {

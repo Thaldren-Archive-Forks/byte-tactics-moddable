@@ -562,12 +562,12 @@ void ApplyUseOnlyUnits()
         return;
     {
         ProtectBlockReadWrite(g_game->defs);
-        for (int i = 1; i < g_game->count_1438f; i++)
+        for (int i = 1; i < g_game->unitDefCount; i++)
             g_game->defs[i].flags1 &= 0xff7fffff;
         parser.ResetCurrentRecord();
         for (int j = 0; parser.SelectRecordAt(j); j++, parser.ResetCurrentRecord()) {
             parser.current->CopyRecordName(name, 0x100);
-            for (int k = 0; k < g_game->count_1438f; k++) {
+            for (int k = 0; k < g_game->unitDefCount; k++) {
                 if (_strcmpi(g_game->defs[k].unitname, name) == 0) {
                     g_game->defs[k].flags1 |= 0x800000;
                     break;

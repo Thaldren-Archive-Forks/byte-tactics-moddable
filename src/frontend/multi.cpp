@@ -358,7 +358,7 @@ void __stdcall UpdateGameSelection(Gui* menu, Gadget* entry)
     int index = FindGadgetIndex(gadgets, "WATCH", 1);
     if (index != -1) {
         gd = (Gadget*)((char*)gadgets + index * 0x15b);
-        gv = ((value & 0xff) >= (int)(signed char)g_game->version) ? 1 : 0;
+        gv = ((value & 0xff) >= g_game->version) ? 1 : 0;
         p = (unsigned short*)((char*)gd + 0x13c);
         r = (unsigned short)((~flags & 0x80) | (flags >> 8));
         r >>= 3;
@@ -369,7 +369,7 @@ void __stdcall UpdateGameSelection(Gui* menu, Gadget* entry)
     index = FindGadgetIndex(gadgets, "JOINGAME", 1);
     if (index != -1) {
         gd = (Gadget*)((char*)gadgets + index * 0x15b);
-        gv = ((value & 0xff) >= (int)(signed char)g_game->version) ? 1 : 0;
+        gv = ((value & 0xff) >= g_game->version) ? 1 : 0;
         p = (unsigned short*)((char*)gd + 0x13c);
         r = (unsigned short)((flags >> 11) | (flags & 0x10));
         r >>= 4;
@@ -479,7 +479,7 @@ shown:
             strcpy(p[3], temp);
             p[3] += strlen(p[3]) + 1;
 
-            if ((sb.s.version & 0xff) >= (int)(signed char)g_game->version) {
+            if ((sb.s.version & 0xff) >= g_game->version) {
                 if (sb.s.lock)
                     msg = "Lock";
                 else if (sb.s.playing)
@@ -1897,7 +1897,7 @@ void __stdcall HandleSelectGameClick(Gui* param_1)
         flags = *(unsigned int*)((char*)&msg.group + 2);
         ver = *(unsigned int*)((char*)&msg.group + 0xe) & 0xff;
 
-        if (ver <= (int)(signed char)g_game->version && ver >= (int)(signed char)g_game->version) {
+        if (ver <= g_game->version && ver >= g_game->version) {
             if ((flags & 0x8000) != 0 || (flags & 0x10) != 0) {
                 PlaySoundByName("Previous", 0);
                 ClearSelectedGadget(param_1);
@@ -4260,7 +4260,7 @@ void __stdcall LoadUnitRestrictListFile(char* name)
         int a, b;
         fread(&a, 4, 1, f);
         fread(&b, 4, 1, f);
-        int n = g_game->count_1438f;
+        int n = g_game->unitDefCount;
         for (int idx = 1; idx < n; idx++) {
             if (((UnitType_00446f50 *)g_game->defs)[idx].fbiChecksum == a) {
                 for (int j = 0; j < n; j++) {
@@ -4281,12 +4281,12 @@ void __stdcall SaveUnitRestrictListFile(char* filename)
 {
     FILE* f = fopen(filename, "wb+");
 
-    int count = g_game->count_1438f - 1;
+    int count = g_game->unitDefCount - 1;
     fwrite(&count, 4, 1, f);
     count++;
 
     for (int i = 1; i < count; i++) {
-        for (int j = 0; j < g_game->count_1438f; j++) {
+        for (int j = 0; j < g_game->unitDefCount; j++) {
             if (*(int*)((char*)g_unitRestrictEntries + 0x52 + j * 0x62) == i) {
                 int v = ((UnitType_00446f50 *)g_game->defs)[i].fbiChecksum;
                 fwrite(&v, 4, 1, f);
@@ -4621,7 +4621,7 @@ void LoadUnitPortrait()
         g_unitRestrictPicCursor = (int)g_unitRestrictPics;
     }
     int i = g_unitRestrictPicLoadIndex++;
-    if (i < g_game->count_1438f) {
+    if (i < g_game->unitDefCount) {
         int type = g_unitRestrictEntries[i].unitIndex;
         UnitType_00446f50* defs = (UnitType_00446f50 *)g_game->defs;
         if (defs[type].name && ((unsigned char)(defs[type].flags2.raw >> 15) & 1) == 0) {
@@ -4738,7 +4738,7 @@ void OpenUnitRestrictions()
     LoadPictureCached("UnitRestrict5x", 0, 0, 0);
 
     entries = layer->entries;
-    flags = (char*)GameAllocIgnoreTag("FLAGS", g_game->count_1438f);
+    flags = (char*)GameAllocIgnoreTag("FLAGS", g_game->unitDefCount);
     desc = FindGadgetChecked(entries, "DESCLIST");
     desc->callback = ShowSelectedUnitCosts;
     desc->flags = flags;
@@ -4750,23 +4750,23 @@ void OpenUnitRestrictions()
     pic->attribs |= 0x180;
     pic->scroll = desc->scroll;
 
-    pics = (int*)GameAllocIgnoreTag("UNITPICARRAY", g_game->count_1438f * 0x18);
-    memset(pics, 0, g_game->count_1438f * 0x18);
-    text = (char*)GameAllocIgnoreTag("UNITTEXTARRAY", g_game->count_1438f << 5);
+    pics = (int*)GameAllocIgnoreTag("UNITPICARRAY", g_game->unitDefCount * 0x18);
+    memset(pics, 0, g_game->unitDefCount * 0x18);
+    text = (char*)GameAllocIgnoreTag("UNITTEXTARRAY", g_game->unitDefCount << 5);
     *(int*)text = 0;
 
-    g_unitRestrictEntries = (Record_00446f50*)GameAllocIgnoreTag("UNITSRESTRICTINFO", g_game->count_1438f * 0x62);
+    g_unitRestrictEntries = (Record_00446f50*)GameAllocIgnoreTag("UNITSRESTRICTINFO", g_game->unitDefCount * 0x62);
     desc->records = g_unitRestrictEntries;
-    for (i = 0; i < g_game->count_1438f; i++)
+    for (i = 0; i < g_game->unitDefCount; i++)
         g_unitRestrictEntries[i].unitIndex = 0;
 
-    g_unitRestrictPics = (int*)GameAllocIgnoreTag("UNITSPICS", g_game->count_1438f << 2);
-    memset(g_unitRestrictPics, 0, g_game->count_1438f << 2);
-    memset(g_unitRestrictEntries, 0, g_game->count_1438f * 0x62);
-    g_unitRestrictOldCounts = (int*)GameAllocIgnoreTag("OLDCOUNTS", g_game->count_1438f << 2);
+    g_unitRestrictPics = (int*)GameAllocIgnoreTag("UNITSPICS", g_game->unitDefCount << 2);
+    memset(g_unitRestrictPics, 0, g_game->unitDefCount << 2);
+    memset(g_unitRestrictEntries, 0, g_game->unitDefCount * 0x62);
+    g_unitRestrictOldCounts = (int*)GameAllocIgnoreTag("OLDCOUNTS", g_game->unitDefCount << 2);
 
     n = 0;
-    for (i = 1; i < g_game->count_1438f; i++) {
+    for (i = 1; i < g_game->unitDefCount; i++) {
         // continue on the bit, an int bitfield tested positively.
         if (((UnitType_00446f50 *)g_game->defs)[i].flags2.bits.flag)
             continue;
@@ -4793,7 +4793,7 @@ void OpenUnitRestrictions()
     qsort(g_unitRestrictEntries, n, 0x62, (int (__cdecl*)(const void*, const void*))CompareUnitRestrictEntries);
 
     dst = text;
-    for (i = 0; i < g_game->count_1438f; i++) {
+    for (i = 0; i < g_game->unitDefCount; i++) {
         strcpy(dst, g_unitRestrictEntries[i].name);
         dst += strlen(g_unitRestrictEntries[i].name) + 1;
     }

@@ -112,7 +112,7 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
         GameFreeThunk(desc->field_c2);
         SetDescListCleanupFlag((int)menu, 1);
         if (IsHostLocal() != 0) {
-            for (i = 0; i < g_game->count_1438f; i++) {
+            for (i = 0; i < g_game->unitDefCount; i++) {
                 type = g_unitRestrictEntries[i].unitIndex;
                 if (type != 0) {
                     item = &((Item_0044c420 *)g_game->defs)[type];
@@ -150,7 +150,7 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
     }
     if (IsCurrentGadgetNamed(menu, "Reset") != 0) {
         PlaySoundByName("Options", 0);
-        for (i = 0; i < g_game->count_1438f; i++) {
+        for (i = 0; i < g_game->unitDefCount; i++) {
             type = g_unitRestrictEntries[i].unitIndex;
             if (type != 0) {
                 if ((((Item_0044c420 *)g_game->defs)[type].flags2.raw & 0x10000) == 0)
@@ -176,7 +176,7 @@ void __stdcall HandleRestrictionsClick(Menu_0044c420* menu)
     if (IsCurrentGadgetNamed(menu, "Cancel") != 0) {
         PlaySoundByName("Previous", 0);
         n = 0;
-        for (i = 1; i < g_game->count_1438f; i++) {
+        for (i = 1; i < g_game->unitDefCount; i++) {
             // The original also tests the address of items[i].name (an array at
             // +0x20, so its address can never be null); kept for byte fidelity.
             if (((Item_0044c420 *)g_game->defs)[i].flags2.bits.flag) {

@@ -229,14 +229,14 @@ void FreeUnitInfo()
         ProtectBlockReadWrite(g_game->defs);
         GameFreeThunk(g_game->defs);
         g_game->defs = 0;
-        g_game->count_1438f = 0;
+        g_game->unitDefCount = 0;
     }
 }
 
 // FUNCTION: 0x42bd10
 void RefreshUnitInfo()
 {
-    if (g_game->count_1438f == 0 || g_game->unitDefEnumDirty != 0) {
+    if (g_game->unitDefCount == 0 || g_game->unitDefEnumDirty != 0) {
         LoadUnitInfo();
         g_game->unitDefEnumDirty = 0;
     }
@@ -251,7 +251,7 @@ void CheckDownloadableFlags()
 {
     UnitDef* def = g_game->defs;
     // One for statement with `i++, def += 0x249`; no source guard on the first test.
-    for (int i = 0; i < g_game->count_1438f;
+    for (int i = 0; i < g_game->unitDefCount;
          i++, def = (UnitDef*)((char*)def + 0x249)) {
         for (int j = 0; j < g_game->buildListCount; j++) {
             if (_strcmpi(((BuildList_0042dcf0 *)g_game->buildLists)[j].entries[0].name, def->unitname) == 0
@@ -276,7 +276,7 @@ void AddDownloadBuildOptions()
 {
     ProtectBlockReadWrite(g_game->defs);
     UnitDef* e = g_game->defs;
-    for (int a = 0; a < g_game->count_1438f; a++, e++) {
+    for (int a = 0; a < g_game->unitDefCount; a++, e++) {
         if (e->ids != 0) {
             for (int b = 0; b < g_game->buildListCount; b++) {
                 for (int c = 0; c < ((BuildList_0042dcf0 *)g_game->buildLists)[b].count; c++) {
@@ -749,7 +749,7 @@ void LoadUnitTypes() {
 
     ProtectBlockReadWrite(g_game->defs);
 
-    UnitDef* end = g_game->defs + g_game->count_1438f;
+    UnitDef* end = g_game->defs + g_game->unitDefCount;
     UnitDef* start = g_game->defs + 1;
 
     UnitDef* p = start;
@@ -771,7 +771,7 @@ void LoadUnitTypes() {
         }
         d = w;
     }
-    g_game->count_1438f = (int)(d - g_game->defs);
+    g_game->unitDefCount = (int)(d - g_game->defs);
 
     start = g_game->defs + 1;
     UnitDef* last = d;
@@ -796,14 +796,14 @@ void LoadUnitTypes() {
 
     {
         unsigned short index = 0;
-        if (g_game->count_1438f > 0) {
+        if (g_game->unitDefCount > 0) {
             do {
                 g_game->defs[index].id = index;
                 index++;
-            } while ((int)index < g_game->count_1438f);
+            } while ((int)index < g_game->unitDefCount);
         }
     }
-    int c = g_game->count_1438f;
+    int c = g_game->unitDefCount;
     g_game->unitDefCountBits = 0;
     if (c) {
         do {
@@ -812,14 +812,14 @@ void LoadUnitTypes() {
         } while (c);
     }
 
-    (*(void ***)&g_game->types) = (void**)SimAllocTagged("MODEL PTRS", g_game->count_1438f * 4);
+    (*(void ***)&g_game->types) = (void**)SimAllocTagged("MODEL PTRS", g_game->unitDefCount * 4);
 
     // `u` must be an unsigned short: an int counter breaks the loop.
-    for (unsigned short u = 1; u < g_game->count_1438f; u++) {
+    for (unsigned short u = 1; u < g_game->unitDefCount; u++) {
         UnitDef* type = &g_game->defs[u];
         // Divisor read through this body-local pointer: g_game then takes ecx.
         Game* gp = g_game;
-        g_game->loadPctUnits = (unsigned char)((u * 100) / gp->count_1438f);
+        g_game->loadPctUnits = (unsigned char)((u * 100) / gp->unitDefCount);
         type->id = u;
         BuildDataPath(path, "units", type->unitname, "FBI");
         if (HAPI_FileLengthByName(path))
@@ -880,7 +880,7 @@ void LoadUnitTypes() {
         FatalError("Can't load GAMEDATA.TDF");
     } else {
         short* list = (short*)GameAllocIgnoreTag("TEMP UTYPE LIST", 0x3c);
-        for (unsigned short s = 1; s < g_game->count_1438f; s++) {
+        for (unsigned short s = 1; s < g_game->unitDefCount; s++) {
             UnitDef* type = &g_game->defs[s];
             type->count = 0;
             type->ids = 0;
@@ -933,7 +933,7 @@ void FreeUnitTypes()
     ProtectBlockReadWrite(g_game->defs);
     ProtectBlockReadWrite((void **)g_game->types);
 
-    for (unsigned short i = 1; i < g_game->count_1438f; i++) {
+    for (unsigned short i = 1; i < g_game->unitDefCount; i++) {
         UnitDef* type = &g_game->defs[i];
         void* p = ((void **)g_game->types)[i];
         if (p != 0) {
@@ -1019,7 +1019,7 @@ void LoadDownloadMenus()
                 ((BuildList_0042dcf0 *)g_game->buildLists)[i].count = j + 1;
                 char* buf = unitbuf;
                 if (parser.current->GetFieldString(unitbuf, "UNITMENU", 0x20, DAT_005119b8)) {
-                    for (unsigned short u = 0; u < g_game->count_1438f; u++) {
+                    for (unsigned short u = 0; u < g_game->unitDefCount; u++) {
                         if (_strcmpi(g_game->defs[u].unitname, buf) == 0) {
                             ((BuildList_0042dcf0 *)g_game->buildLists)[i].entries[j].typeId = u;
                             ((BuildList_0042dcf0 *)g_game->buildLists)[i].entries[j].page = (unsigned char)parser.current->GetFieldInt("MENU", 0);
@@ -1035,7 +1035,7 @@ void LoadDownloadMenus()
     }
 
     ProtectBlockReadWrite(g_game->defs);
-    for (unsigned short u = 0; u < g_game->count_1438f; u++) {
+    for (unsigned short u = 0; u < g_game->unitDefCount; u++) {
         for (c = 0; c < n; c++) {
             for (int d = 0; d < ((BuildList_0042dcf0 *)g_game->buildLists)[c].count; d++) {
                 if (((BuildList_0042dcf0 *)g_game->buildLists)[c].entries[d].typeId == u) {
@@ -1048,7 +1048,7 @@ void LoadDownloadMenus()
     ProtectBlockReadOnly(g_game->defs);
 
     UnitDef* defs = g_game->defs;
-    for (c = 0; c < g_game->count_1438f; c++) {
+    for (c = 0; c < g_game->unitDefCount; c++) {
         for (int i = 0; i < g_game->buildListCount; i++) {
             if (_strcmpi(((BuildList_0042dcf0 *)g_game->buildLists)[i].entries[0].name, defs[c].unitname) == 0
                 && !defs[c].downloadable) {

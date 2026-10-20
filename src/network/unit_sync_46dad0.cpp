@@ -225,11 +225,11 @@ void UnitSync::ProcessSync() {
     }
 
     if (pendingPlayerCount > 0) {
-        if (checksumProgress < g_game->count_1438f) {
+        if (checksumProgress < g_game->unitDefCount) {
             if (checksumProgress == 0) {
                 if (GetHostDpid() == -1)
                     return;
-                int v = g_game->count_1438f - 1;
+                int v = g_game->unitDefCount - 1;
                 if (disabled == 0) {
                     UnitSyncPacket packet;
                     packet.type = 0x1a;
@@ -251,7 +251,7 @@ void UnitSync::ProcessSync() {
             // when checksumProgress >= unitDefCount.
             for (int n = 0; n < 4;) {
                 Game* game = g_game;
-                if (checksumProgress >= game->count_1438f)
+                if (checksumProgress >= game->unitDefCount)
                     return;
                 UnitDef* def = &game->defs[checksumProgress];
                 ComputeUnitScriptChecksum(def);

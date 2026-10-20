@@ -72,7 +72,6 @@ static inline Vec3 PosMinus(const Vec3& a, const Vec3& b)
     return r;
 }
 
-struct Point { short x, y; };
 struct Pair16 { short lo, hi; };
 
 #include "box.h"
@@ -139,43 +138,10 @@ struct Mover {
 
 #include "../map/feature.h"
 
-struct Struct_Game391e9 {
-    char unknown_0[0xd3c];
-    int gravity;                       // +0xd3c
-};
-
-struct Game {
-    char unknown_0[0x1422b];
-    int mapPixelWidth;                 // +0x1422b
-    int mapPixelHeight;                // +0x1422f
-    char unknown_14233[0x1426f - 0x14233];
-    Feature* features;                 // +0x1426f
-    char unknown_14273[0x1427f - 0x14273];
-    unsigned char seaLevel;            // +0x1427f
-    char unknown_14280[0x142b7 - 0x14280];
-    int overflowBucket;                // +0x142b7
-    char unknown_142bb[0x1439b - 0x142bb];
-    UnitDef* unitDefs;                 // +0x1439b
-    char unknown_1439f[0x38a47 - 0x1439f];
-    union {
-        int gameTick;                  // +0x38a47
-        unsigned int tick;
-    };
-    char unknown_38a4b[0x391e9 - 0x38a4b];
-    Struct_Game391e9* mapInfo;         // +0x391e9
-};
+#include "../game/game.h"
 
 // The link node embedded in an order at +0x12: its +0x4 is the target unit.
 #include "path_order_attach.h"
-
-// The link node at an order's +0x12 seen without its virtual destructor, so
-// it can share a union with the plain target pointer the handlers use.
-struct Link_004895c0 {
-    void* vptr;                        // +0x0
-    Unit* owner;                       // +0x4
-    Link_004895c0* next;               // +0x8
-    int value;                         // +0xc
-};
 
 #include "order.h"
 
@@ -281,7 +247,7 @@ void __stdcall DrawUnit(void*, Unit*);
 Vec3 __stdcall AddVec3(const Vec3& a, const Vec3& b);
 Vec3 __stdcall DirectionFromAngle(short angle, Fixed scale);
 int __stdcall FindLandingPad(Unit* unit, int pad);
-void __stdcall CellToWorldPos(Point a, Vec3* out, Point b);
+void __stdcall CellToWorldPos(Point16 a, Vec3* out, Point16 b);
 
 // The fixed-point direction of a heading and a distance.
 static inline Vec3 Direction(short angle, int range)
@@ -335,15 +301,15 @@ static inline Vec3 AddComponentwise(const Vec3& a, const Vec3& b)
     return r;
 }
 
-static inline Point WorldToCell(Vec3 v, Point origin)
+static inline Point16 WorldToCell(Vec3 v, Point16 origin)
 {
-    Point c;
+    Point16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
     c.y = (v.z - (origin.y << 19) + 0x80000) >> 20;
     return c;
 }
 
-static inline Point16 WorldToCell16(Vec3 v, Point origin)
+static inline Point16 WorldToCell16(Vec3 v, Point16 origin)
 {
     Point16 c;
     c.x = (v.x - (origin.x << 19) + 0x80000) >> 20;
@@ -352,23 +318,23 @@ static inline Point16 WorldToCell16(Vec3 v, Point origin)
 }
 
 // The multiply, not a shift by 19: the shift changes the register use.
-static inline Point WorldToCellMul(Vec3 v, Point origin)
+static inline Point16 WorldToCellMul(Vec3 v, Point16 origin)
 {
-    Point c;
+    Point16 c;
     c.x = (v.x - origin.x * 0x80000 + 0x80000) >> 20;
     c.y = (v.z - origin.y * 0x80000 + 0x80000) >> 20;
     return c;
 }
 
-static inline void CellToWorld(Point origin, Point c, Vec3* v)
+static inline void CellToWorld(Point16 origin, Point16 c, Vec3* v)
 {
     v->x = (origin.x + c.x * 2) << 19;
     v->z = (origin.y + c.y * 2) << 19;
 }
 
-static inline void Snap(Vec3* v, Point size)
+static inline void Snap(Vec3* v, Point16 size)
 {
-    Point c = WorldToCellMul(*v, size);
+    Point16 c = WorldToCellMul(*v, size);
     CellToWorld(size, c, v);
 }
 
@@ -474,8 +440,8 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
         return 5;
     if (unit->spatialBucket == g_game->overflowBucket) {
         Vec3 centre;
-        centre.x = g_game->mapPixelWidth / 2 << 16;
-        centre.z = g_game->mapPixelHeight / 2 << 16;
+        centre.x = g_game->mapWidth / 2 << 16;
+        centre.z = g_game->mapHeight / 2 << 16;
         short angle = GetHeadingBetween(&unit->pos, &centre);
         Vec3 dest = AddVec3(unit->pos, Offset(angle, 0x3200000));
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);
@@ -513,8 +479,8 @@ int __stdcall VtolLandIfCanOrder(Unit* unit, Order* order, int flags)
             Vec3 p = unit->pos;
             p.x += (RandomInt(r * 2 + 1) - r) << 16;
             p.z += (RandomInt(r * 2 + 1) - r) << 16;
-            Point fp = *(Point*)&unit->footprint;
-            Point cell = WorldToCellMul(p, fp);
+            Point16 fp = *(Point16*)&unit->footprint;
+            Point16 cell = WorldToCellMul(p, fp);
             CellToWorld(fp, cell, &p);
             if (g_seams.map->CanPlaceFootprintAt(unit, &p)) {
                 order->SetAttachedFx(new (kSim) Class_0044e2d0(order, p));
@@ -629,7 +595,7 @@ int __stdcall VtolMoveOrder(Unit* unit, Order* order, int flags)
     case 1:
         order->AnnounceStatusIfFlagged(0);
         g_seams.weapons->ReleaseWeapons((Unit*)unit, 0, 3);
-        Snap(&order->pos, *(Point*)&unit->footprint);
+        Snap(&order->pos, *(Point16*)&unit->footprint);
         order->SetAttachedFx(new (kSim) Class_0044e2d0(order, order->pos));
         order->flags = 0xe0;
         return 1;
@@ -770,7 +736,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         break;
     case 1: {
         Unit* cargo = order->target;
-        if (g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, WorldToCell16(order->pos, *(Point*)&cargo->footprint), 1)) {
+        if (g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, WorldToCell16(order->pos, *(Point16*)&cargo->footprint), 1)) {
             Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, order->pos);
             // Through an int local: passing the expression straight sign-extends differently.
             int h = unit->cargo->def->field_170;
@@ -786,7 +752,7 @@ int __stdcall VtolUnloadOrder(Unit* unit, Order* order, int flags)
         if (flags & 0x40)
             return 9;
         Unit* cargo = order->target;
-        if (!g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, WorldToCell16(order->pos, *(Point*)&cargo->footprint), 1)) {
+        if (!g_seams.map->CanPlaceUnitFootprint(cargo->def, 0, WorldToCell16(order->pos, *(Point16*)&cargo->footprint), 1)) {
             QueueUnitSpeech(unit, 7, "Unable to unload unit");
             return 9;
         }
@@ -890,10 +856,10 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
         }
         break;
     case 1: {
-        UnitDef* def=&g_game->unitDefs[order->type];
+        UnitDef* def=&g_game->defs[order->type];
         order->retries=0;
-        Point origin=*(Point*)&def->footprintx;
-        Point cell=WorldToCell(order->pos,origin);
+        Point16 origin=*(Point16*)&def->footprintx;
+        Point16 cell=WorldToCell(order->pos,origin);
         CellToWorldPos(cell,&order->pos,origin);
         Class_0044e2d0* move=new (kSim) Class_0044e2d0(order,order->pos);
         ((Class_0044e730*)move)->SetApproachRadius(unit->def->buildRange);
@@ -903,8 +869,8 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     }
     case 2: {
         if (flags&0x40) return 8;
-        UnitDef* def=&g_game->unitDefs[order->type];
-        if (!g_seams.map->CanPlaceUnitFootprint(def,0,WorldToCell16(order->pos,*(Point*)&g_game->unitDefs[order->type].footprintx),1)) {
+        UnitDef* def=&g_game->defs[order->type];
+        if (!g_seams.map->CanPlaceUnitFootprint(def,0,WorldToCell16(order->pos,*(Point16*)&g_game->defs[order->type].footprintx),1)) {
             if (!order->retries) QueueUnitSpeech(unit,7,"Waiting for target area to clear");
             else if (order->retries>10) { QueueUnitSpeech(unit,7,"Target area was blocked"); return 8; }
             ++order->retries;
@@ -923,7 +889,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
     case 3:
         WaitIfNotInBuildStance(unit,order,10);
     case 4: {
-        if (g_game->tick%150==0) {
+        if ((unsigned int)g_game->ticks%150==0) {
             int angle=GetHeadingBetween(&unit->pos,&order->target->pos);
             int range=unit->def->buildRange<<16;
             angle+=0xdb6e;
@@ -959,7 +925,7 @@ int __stdcall VtolMobileBuildOrder(Unit* unit,Order* order,int flags)
 // of line: every site calls it.
 #pragma auto_inline(off)
 // FUNCTION: 0x414350
-void __stdcall CellToWorldPos(Point a, Vec3* out, Point b)
+void __stdcall CellToWorldPos(Point16 a, Vec3* out, Point16 b)
 {
     out->x = (b.x + a.x * 2) << 19;
     out->z = (b.y + a.y * 2) << 19;
@@ -1171,8 +1137,8 @@ int __stdcall AirToGroundHoverOrder(Unit* unit, Order* order, int flags)
     }
     if (unit->spatialBucket == g_game->overflowBucket) {
         Vec3 centre;
-        centre.x = g_game->mapPixelWidth / 2 << 16;
-        centre.z = g_game->mapPixelHeight / 2 << 16;
+        centre.x = g_game->mapWidth / 2 << 16;
+        centre.z = g_game->mapHeight / 2 << 16;
         short angle = GetHeadingBetween(&unit->pos, &centre);
         Vec3 dest = AddVec3(unit->pos, Offset(angle, 0x3200000));
         Class_0044e2d0* obj = new (kSim) Class_0044e2d0(order, dest);

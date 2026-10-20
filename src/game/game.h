@@ -101,8 +101,8 @@ struct Game {
     union {
         struct {
             char unknown_0;
-            unsigned char version;
-            unsigned char versionMinor;
+            signed char version;
+            signed char versionMinor;
             unsigned char field_3;
         };
         int field_0;
@@ -635,7 +635,7 @@ struct Game {
     void* xform;
     void* projected;
     void* field_1438b;
-    int count_1438f;
+    int unitDefCount;
     int unitDefCountBits;
     int unitDefEnumDirty;
     UnitDef* defs;
