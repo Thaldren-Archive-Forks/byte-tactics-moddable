@@ -3,6 +3,7 @@
     uv run tools/blockpointers.py                    # play the suite with -blockscan, write data/block_pointers.csv
     uv run tools/blockpointers.py --from DIR...      # build from blockptrs files already collected (no Wine)
     uv run tools/blockpointers.py --save-scans DIR   # also write each played scenario's scan to DIR/<scenario>.txt
+    uv run tools/blockpointers.py --scenario N...    # play only these (needs --save-scans), to merge later with --from
     uv run tools/blockpointers.py --out F            # write F instead (a dry run; class and note kept from the data file)
     uv run tools/blockpointers.py --check            # CI: the file itself is valid (classes, notes, order)
     uv run tools/blockpointers.py --unclassified     # list the rows with no class
@@ -14,7 +15,9 @@ allocation of the block and the `SimGlobals` struct at the end of each tick and 
 (reference/README.md, "Block pointers") with each 4-byte word, read at every byte offset (the packed
 structs keep pointers at odd offsets), that points into a live heap allocation outside the block.
 This tool plays the whole scenario suite (the scenarios of reference/scenarios/, as tools/reference.py
-does, quirks off) with the scan on every tick, or takes the files of an earlier run (`--from DIR...`,
+does, quirks off) with the scan on every tick (a scenario that fails is tried once more; the scans
+that finished are saved with --save-scans even when another scenario fails, and the data file is then
+left alone), or takes the files of an earlier run (`--from DIR...`,
 files named `<scenario>.txt`, which `reference.py --check --save-blockptrs DIR` writes; the gate scans
 every 8th tick and every tick of the last 64, so the list is best made by playing the suite), resolves
 the allocation sites with the linker map and merges the results. It accepts version 2 files only.
@@ -560,11 +563,27 @@ def default_build_dir() -> Path:
     return rwsets.DEFAULT_BUILD_DIR
 
 
-def play_suite(exe: Path, game_dir: str | None, parallel: int) -> dict[str, str | None]:
-    """Play every scenario with the scan on; each scenario's blockptrs.txt text (None when it wrote none)."""
+def select_scenarios(all_scenarios: dict[str, Path], names: list[str] | None) -> dict[str, Path]:
+    """The scenarios named (all of them when names is None); exits on a name that is not a scenario."""
+    if not names:
+        return all_scenarios
+    unknown = [n for n in names if n not in all_scenarios]
+    if unknown:
+        sys.exit("blockpointers: no such scenario: %s (have %s)" % (", ".join(unknown), ", ".join(sorted(all_scenarios))))
+    return {n: all_scenarios[n] for n in names}
+
+
+def play_suite(exe: Path, game_dir: str | None, parallel: int, names: list[str] | None = None,
+               failed: dict[str, str] | None = None) -> dict[str, str | None]:
+    """Play the scenarios with the scan on every tick; each one's blockptrs.txt text (None when it wrote none).
+
+    A scenario that fails is tried once more, and one that fails twice is recorded in `failed`
+    (name -> the last lines of its error) and has no entry in the result.
+    """
     import reference
     scans: dict[str, str | None] = {}
-    reference.play_all(exe, reference.scenario_files(), game_dir, parallel, scans=scans)
+    reference.play_all(exe, select_scenarios(reference.scenario_files(), names), game_dir, parallel,
+                       failed=failed if failed is not None else {}, scans=scans, retry_any=True)
     return scans
 
 
@@ -584,6 +603,8 @@ def main() -> None:
                         help="build from these blockptrs files or directories of <scenario>.txt, playing nothing")
     parser.add_argument("--save-scans", type=Path, metavar="DIR",
                         help="write each played scenario's blockptrs.txt to DIR/<scenario>.txt, as --from reads them")
+    parser.add_argument("--scenario", nargs="+", metavar="NAME",
+                        help="play only these scenarios (needs --save-scans, to merge later with --from)")
     parser.add_argument("--exe", type=Path, default=DEFAULT_EXE, help="the exe to play (default build/modern/TotalA.exe)")
     parser.add_argument("--map", type=Path, help="the linker map (default: the exe's)")
     parser.add_argument("--game-dir", help="the game's install (default: Steam's)")
@@ -593,6 +614,11 @@ def main() -> None:
     args = parser.parse_args()
     if args.save_scans and (args.sources or args.check or args.unclassified):
         parser.error("--save-scans saves the scans the tool plays; it cannot be used with --from, --check or --unclassified")
+    if args.scenario and (args.sources or args.check or args.unclassified):
+        parser.error("--scenario picks the scenarios to play; it cannot be used with --from, --check or --unclassified")
+    if args.scenario and not args.save_scans:
+        parser.error("--scenario plays part of the suite, which must not overwrite the data file: add --save-scans DIR "
+                     "and merge the saved scans with --from")
     if args.check:
         problems = check_rows(OUT.read_text()) if OUT.exists() else ["%s does not exist" % OUT]
         for p in problems[:40]:
@@ -617,9 +643,19 @@ def main() -> None:
         scans = read_scans(args.sources)
     else:
         import reference
-        texts = play_suite(args.exe.resolve(), args.game_dir, args.parallel or reference.default_parallel())
+        failed: dict[str, str] = {}
+        texts = play_suite(args.exe.resolve(), args.game_dir, args.parallel or reference.default_parallel(),
+                           args.scenario, failed)
         if args.save_scans:
             save_scans(texts, args.save_scans)
+        if failed:
+            print("blockpointers: %d scenarios failed:" % len(failed))
+            for name, message in sorted(failed.items()):
+                print("  %s:\n    %s" % (name, message))
+            sys.exit(1)
+        if args.scenario:
+            print("blockpointers: played %d scenarios; merge with --from %s" % (len(texts), args.save_scans))
+            return
         absent = [n for n, t in texts.items() if t is None]
         if absent:
             sys.exit("blockpointers: no blockptrs.txt from: " + ", ".join(absent))

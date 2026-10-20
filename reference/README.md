@@ -419,7 +419,11 @@ is printed (scenario, holder, offset, target) and `--check` exits 1. `--quick` d
 `--save-blockptrs <dir>` writes each scenario's file to `<dir>/<scenario>.txt`, and
 `uv run tools/blockpointers.py --from <dir>` regenerates the data file from them, keeping the hand-set `class` and
 `note` columns; without `--from` it plays the suite itself with the scan on every tick, which is how the list
-should be made (a `--from` of sampled files warns). `tools/blockpointers.py --check` (CI) checks the file.
+should be made (a `--from` of sampled files warns). The every-tick run is slow (its timeout allows 6 ticks a
+second), retries a scenario once on any failure, and with `--save-scans DIR` saves the scans that finished even when
+another scenario failed; it then lists the failures, exits 1 and leaves the data file alone. `--scenario NAME...`
+(with `--save-scans`) plays only those, so a failed one can be re-run and the saved scans merged with `--from DIR`.
+`tools/blockpointers.py --check` (CI) checks the file.
 
 Integers that look like heap addresses come per field, not per pair (they hit many targets, which change with the
 heap layout), and a grid with no pointers at all can make tens of thousands of offsets. For those a hand-written

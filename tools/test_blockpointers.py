@@ -3,9 +3,12 @@
     uv run tools/test_blockpointers.py
 """
 
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import blockpointers as bp
 
@@ -295,6 +298,50 @@ class SaveScansTest(unittest.TestCase):
             bp.save_scans({"b": SCAN, "a": SCAN, "none": None}, target)
             self.assertEqual(sorted(p.name for p in target.iterdir()), ["a.txt", "b.txt"])
             self.assertEqual([s.scenario for s in bp.read_scans([target])], ["a", "b"])
+
+
+class PlaySuiteTest(unittest.TestCase):
+    SCENARIOS = {"a": Path("a.txt"), "b": Path("b.txt"), "c": Path("c.txt")}
+
+    def play(self, names, fail=()):
+        import reference
+        calls = []
+
+        def fake_play_all(exe, scenarios, game_dir, parallel, failed=None, scans=None, retry_any=False, **kw):
+            calls.append((sorted(scenarios), retry_any))
+            for n in scenarios:
+                if n in fail:
+                    failed[n] = "boom"
+                else:
+                    scans[n] = SCAN
+
+        failed = {}
+        with mock.patch.object(reference, "play_all", fake_play_all), \
+                mock.patch.object(reference, "scenario_files", lambda: self.SCENARIOS):
+            texts = bp.play_suite(Path("x.exe"), None, 1, names, failed)
+        return texts, failed, calls
+
+    def test_finished_scans_are_kept_and_failures_listed(self):
+        texts, failed, calls = self.play(None, fail=("b",))
+        self.assertEqual(sorted(texts), ["a", "c"])
+        self.assertEqual(failed, {"b": "boom"})
+        self.assertEqual(calls, [(["a", "b", "c"], True)])
+
+    def test_scenario_subset(self):
+        texts, _, calls = self.play(["c", "a"])
+        self.assertEqual(sorted(texts), ["a", "c"])
+        self.assertEqual(calls[0][0], ["a", "c"])
+
+    def test_unknown_scenario_exits(self):
+        with self.assertRaises(SystemExit):
+            self.play(["nope"])
+
+    def test_scenario_without_save_scans_is_refused(self):
+        with mock.patch("sys.argv", ["blockpointers.py", "--scenario", "a"]), \
+                contextlib.redirect_stderr(io.StringIO()) as err, self.assertRaises(SystemExit) as cm:
+            bp.main()
+        self.assertEqual(cm.exception.code, 2)
+        self.assertIn("--save-scans", err.getvalue())
 
 
 if __name__ == "__main__":
