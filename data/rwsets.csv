@@ -40431,7 +40431,6 @@ address,function,file,kind,target
 0x4ceee0,Sound::ReleaseDirectSound,src/sound/samples.cpp,call,host_sound_buffer_free
 0x4ceee0,Sound::ReleaseDirectSound,src/sound/samples.cpp,call,host_sound_buffer_stop
 0x4ceee0,Sound::ReleaseDirectSound,src/sound/samples.cpp,call,host_sound_close
-0x4ceee0,Sound::ReleaseDirectSound,src/sound/samples.cpp,field_read,Sound::directSound
 0x4ceee0,Sound::ReleaseDirectSound,src/sound/samples.cpp,field_read,Sound::sets
 0x4ceee0,Sound::ReleaseDirectSound,src/sound/samples.cpp,field_read,Sound::stream
 0x4ceee0,Sound::ReleaseDirectSound,src/sound/samples.cpp,field_read,Sound::streamFile
@@ -52039,7 +52038,6 @@ address,function,file,kind,target
 ,host_sound_open,src/host/win32/sound.cpp,call,CreateSoundBuffer
 ,host_sound_open,src/host/win32/sound.cpp,call,DirectSoundCreate
 ,host_sound_open,src/host/win32/sound.cpp,call,FillFormat
-,host_sound_open,src/host/win32/sound.cpp,call,ReleaseAll
 ,host_sound_open,src/host/win32/sound.cpp,call,SetCooperativeLevel
 ,host_sound_open,src/host/win32/sound.cpp,call,SetFormat
 ,host_sound_open,src/host/win32/sound.cpp,deref_write,*int
