@@ -180,7 +180,7 @@ static const TraceField kProjectileFields[] = {
     { "nextSmokeTick", 0x4a, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "", 0x4e, 4, TF_POINTER, TT_HEAP, 0x0 },
     { "attacker", 0x52, 4, TF_POINTER, TT_UNIT, 0x0 },
-    { "interceptedProjectile", 0x56, 4, TF_SCALAR, TT_NONE, 0x0 },
+    { "field_56", 0x56, 4, TF_SCALAR, TT_NONE, 0x0 },
     { "cellX", 0x5a, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "cellZ", 0x5c, 2, TF_SCALAR, TT_NONE, 0x0 },
     { "radius", 0x5e, 2, TF_SCALAR, TT_NONE, 0x0 },

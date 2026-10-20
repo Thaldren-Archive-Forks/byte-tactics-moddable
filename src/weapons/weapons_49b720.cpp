@@ -59,7 +59,7 @@ int __cdecl FUN_004b7123(short angle, int scale);
 
 // A copy of AllocProjectile (matched in its own file), the function just before
 // this one in the original source; defined here so that /Ob2 inlines it.
-Projectile* AllocProjectile()
+static Projectile* AllocProjectile()
 {
     Projectile* p = 0;
     if (g_game->projectileCount < 300) {

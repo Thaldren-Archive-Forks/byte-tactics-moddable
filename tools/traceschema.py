@@ -67,8 +67,6 @@ POINTERS: dict[str, dict[int, str]] = {
 
 POINTER_NAMES: dict[tuple[str, int], str] = {}
 
-SCALAR_POINTERS: set[tuple[str, str]] = {("Projectile", "interceptedProjectile")}
-
 EXCLUSIONS: list[tuple[str, str, str]] = [
     ("Eye", "screen", "points at the record's own screenPos"),
     ("Eye", "flagPtr", "points at the record's own flagB"),
@@ -1076,8 +1074,6 @@ class Schema:
         if d.get("union"):
             leaves.append({"name": name, "offset": pos, "size": d["size"],
                            "kind": "scalar" if d["size"] in (1, 2, 4, 8) else "bytes", "target": None})
-        elif d["ptr"] and (tname, name) in SCALAR_POINTERS:
-            leaves.append({"name": name, "offset": pos, "size": 4, "kind": "scalar", "target": None})
         elif d["ptr"]:
             target = POINTER_TARGETS.get(base, "HEAP")
             for i in range(count):

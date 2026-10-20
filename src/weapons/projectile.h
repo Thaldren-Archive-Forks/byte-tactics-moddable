@@ -33,7 +33,10 @@ struct Projectile {
     int nextSmokeTick;
     int targetUnit;
     Unit* attacker;
-    Projectile* interceptedProjectile;
+    union {
+        int field_56;
+        Projectile* interceptedProjectile;
+    };
     short cellX;
     short cellZ;
     union {
