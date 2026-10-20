@@ -27130,7 +27130,6 @@ address,function,file,kind,target
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,call,FUN_004b715a
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,call,FUN_004b7173
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,call,GetTicks
-0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,call,HarnessTestMode
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,call,abs
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,deref_read,*MapInfo_0048a490
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,deref_read,*unsigned char
@@ -27153,6 +27152,7 @@ address,function,file,kind,target
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_read,MapVertex_0048a490::z
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_read,Pos2_0048a490::x
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_read,Pos2_0048a490::z
+0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_read,Quirks::hoverBobWallClock
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_read,Unit::def
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_read,Unit::flags
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_read,Unit::hoverBobPhase
@@ -27172,6 +27172,7 @@ address,function,file,kind,target
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,field_write,Unit::yWhole
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,function,
 0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,global_read,g_game
+0x48a490,AlignUnitToGround,src/units/unit_targets.cpp,global_read,g_quirks
 0x48a7f0,SnapUnitToGround,src/units/unit_position.cpp,call,GetGroundHeight
 0x48a7f0,SnapUnitToGround,src/units/unit_position.cpp,field_maybe_written,Unit::pos
 0x48a7f0,SnapUnitToGround,src/units/unit_position.cpp,field_read,<anon>::floats
