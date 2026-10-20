@@ -90,7 +90,6 @@ int __stdcall IsScreenNamed(Gui* gui, char* name);
 void __stdcall SetSliderFromValue(Gadget_0044a680* gadget, int value);
 int __stdcall ReadSliderValue(Gadget_0044a680* gadget);
 int __stdcall GetTicks();
-unsigned char __stdcall FindGameCdDrive(int param);
 void __stdcall SendNetHeartbeat();
 void __stdcall BroadcastPlayerInfo();
 void __stdcall UpdateNetGameInfo();
@@ -343,12 +342,10 @@ void UpdateBattleRoom()
 
     ((UnitSync *)g_game->sync)->ProcessSync();
     if (g_heartbeatNextTick < (unsigned int)GetTicks()) {
-        unsigned char r;
         PlayerInfo* info;
         g_heartbeatNextTick = GetTicks() + 0x3c;
-        r = FindGameCdDrive(1);
         info = pl->info;
-        info->f9d_2 = (r != 0);
+        info->f9d_2 = 1;
         SendNetHeartbeat();
     }
 }

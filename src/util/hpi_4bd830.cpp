@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <io.h>
+#include "../../interfaces/host.h"
 #include "archive_entry.h"
 
 #pragma pack(push, 1)
@@ -19,7 +20,7 @@ struct Node_004bd830 {
 };
 
 struct OPENHAPIFILE {
-    FILE* fp;                            // +0x0
+    void* fp;
     int pos;                             // +0x4
     Node_004bd830* node;                 // +0x8
     int count;                           // +0xc
@@ -46,7 +47,7 @@ unsigned int __stdcall SquashMaxPackedSize(unsigned int value, int mode);
 void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 void __cdecl GameFreeThunk(void* p);
 // This forward declaration, Node_004bd830 and the casts in nblocks all stay.
-void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, FILE* f,
+void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, void* f,
                             void (__cdecl* cb)(unsigned), unsigned extra,
                             int key, int flags);
 
@@ -57,7 +58,7 @@ long __stdcall HAPI_FileLength(FileHandle* file)
     if (file->shared != 0)
         return file->info->size;
     if (file->fp != 0)
-        return _filelength(file->fp->_file);
+        return host_file_size(file->fp);
     return 0;
 }
 
@@ -68,7 +69,7 @@ static inline int nblocks(unsigned w)
 }
 
 // FUNCTION: 0x4bd830
-void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, FILE* f,
+void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, void* f,
                             void (__cdecl* cb)(unsigned), unsigned extra,
                             int key, int flags)
 {
@@ -103,13 +104,13 @@ void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, FILE* f,
         } else {
             file = HAPI_OpenFile(full, "rb");
             info = (Info*)(base + e->data);
-            info->offset = ftell(f);
+            info->offset = host_file_seek(f, 0, HOST_SEEK_CUR);
             info->size = HAPI_FileLength(file);
             info->compressed = (char)flags;
             if ((char)flags) {
                 int blocks = nblocks(info->size);
                 table = (int*)GameAllocIgnoreTag("Block Sizes", blocks * 4);
-                fwrite(table, blocks, 4, f);
+                host_file_write(f, table, blocks * 4);
                 packlen = SquashMaxPackedSize(0x10000, flags & 0xff);
                 pack = (unsigned char*)GameAllocIgnoreTag("Pack Buffer", packlen);
                 data = (unsigned char*)GameAllocIgnoreTag("Data Buffer", 0x10000);
@@ -122,23 +123,23 @@ void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, FILE* f,
                     clen = packlen;
                     SquashPack(pack, &clen, (char*)data, chunk, flags & 0xff, 1);
                     table[n] = clen;
-                    pos = ftell(f);
+                    pos = host_file_seek(f, 0, HOST_SEEK_CUR);
                     len = clen;
                     if ((char)key) {
                         for (j = 0; j < len; j++)
                             pack[j] = (unsigned char)~((char)j + (char)pos ^ (char)key ^ pack[j]);
                     }
-                    fwrite(pack, len, 1, f);
+                    host_file_write(f, pack, len);
                 }
-                fseek(f, info->offset, SEEK_SET);
-                pos2 = ftell(f);
+                host_file_seek(f, info->offset, HOST_SEEK_SET);
+                pos2 = host_file_seek(f, 0, HOST_SEEK_CUR);
                 if ((char)key) {
                     for (j = 0; j < blocks * 4; j++)
                         ((unsigned char*)table)[j] = (unsigned char)~((char)j
                             + ((char)pos2) ^ (char)key ^ ((unsigned char*)table)[j]);
                 }
-                fwrite(table, blocks, 4, f);
-                fseek(f, 0, SEEK_END);
+                host_file_write(f, table, blocks * 4);
+                host_file_seek(f, 0, HOST_SEEK_END);
                 GameFreeThunk(table);
                 GameFreeThunk(pack);
                 GameFreeThunk(data);
@@ -147,24 +148,24 @@ void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, FILE* f,
                 while (size > 0) {
                     int chunk = size >= 0x1000 ? 0x1000 : size;
                     HAPI_readfromfile(file, buffer, chunk);
-                    pos = ftell(f);
+                    pos = host_file_seek(f, 0, HOST_SEEK_CUR);
                     if ((char)key) {
                         for (j = 0; j < chunk; j++)
                             buffer[j] = (unsigned char)~(buffer[j] ^ ((char)pos + (char)j
                                             ^ ((char)key)));
                     }
-                    fwrite(buffer, chunk, 1, f);
+                    host_file_write(f, buffer, chunk);
                     size -= chunk;
                 }
             }
             if (file->shared != 0) {
                 --file->shared->count;
                 if (file->shared->count == 0 && file->shared->unknown_10 == 0) {
-                    fclose(file->shared->fp);
+                    host_file_close(file->shared->fp);
                     file->shared->fp = 0;
                 }
             } else {
-                fclose(file->fp);
+                host_file_close(file->fp);
             }
             if (file->buffer != 0)
                 GameFreeThunk(file->buffer);

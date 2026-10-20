@@ -2440,7 +2440,6 @@ void UpdateEdgeScroll();
 void CenterCameraOnRadarClick();
 void CenterCameraOnStartPosition();
 void RegisterDataArchives();
-int GetCdPathMismatch();
 
 void __stdcall SetFont(int id);
 int GetFontHeight();
