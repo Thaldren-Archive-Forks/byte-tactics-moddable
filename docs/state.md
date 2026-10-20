@@ -14,6 +14,7 @@ The classes:
 - **view**: one player's view and the UI. Presentation owns it.
 - **platform**: devices, files, windows, network slots and other host state.
 - **mixed**: used both ways. Split it; the note says how.
+- **const**: read-only input to the sim: nothing writes it, it stays in the image, and `--check` fails if a strong writer appears. A weak writer (a `?` in `writers`, the address taken or the table passed to a function) is allowed when the `note` says what it does with the table; `--check` fails on weak writers with an empty note. It also fails when load code reaches a strong writer.
 
 `proposed` comes from the rules below and is rewritten on every run. `class` is the hand review, starts empty, and is kept by regeneration, as is `note`.
 
@@ -48,14 +49,14 @@ Known limits:
 
 ## Counts
 
-As of the last read of `data/state_classes.csv` (1690 rows):
+As of the last read of `data/state_classes.csv` (2153 rows):
 
-| kind | sim | view | platform | mixed | total |
-|---|---|---|---|---|---|
-| global | 108 | 370 | 291 | 0 | 769 |
-| static | 10 | 13 | 114 | 0 | 137 |
-| game-region | 75 | 293 | 69 | 9 | 446 |
-| heap | 215 | 46 | 77 | 0 | 338 |
+| kind | sim | view | platform | mixed | const | total |
+|---|---|---|---|---|---|---|
+| global | 76 | 379 | 296 | 0 | 23 | 774 |
+| static | 5 | 14 | 223 | 0 | 6 | 248 |
+| game-region | 120 | 507 | 128 | 39 | 0 | 794 |
+| heap | 212 | 46 | 79 | 0 | 0 | 337 |
 
 ## Mixed cases and how to split them
 

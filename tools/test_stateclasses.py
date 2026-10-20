@@ -528,6 +528,42 @@ class RegenerationTest(unittest.TestCase):
             self.assertEqual(sc.read_rows(path), rows)
 
 
+class ConstTest(unittest.TestCase):
+    def row(self, cls="const", writers="", note="", strong_write=False, strong_load=False):
+        return {"kind": "global", "name": "g_x", "class": cls, "writers": writers, "note": note,
+                "strong_write": strong_write, "strong_load": strong_load}
+
+    def test_const_is_a_class(self):
+        self.assertIn("const", sc.CLASSES)
+
+    def test_a_clean_const_row_passes(self):
+        self.assertEqual(sc.const_violations([self.row()]), [])
+
+    def test_a_strong_writer_fails_and_is_named(self):
+        bad = sc.const_violations([self.row(writers="1:Init", note="why", strong_write=True)])
+        self.assertEqual(len(bad), 1)
+        self.assertIn("g_x", bad[0])
+
+    def test_weak_writers_without_a_note_fail(self):
+        self.assertEqual(len(sc.const_violations([self.row(writers="1:Init?")])), 1)
+
+    def test_weak_writers_with_a_note_pass(self):
+        self.assertEqual(sc.const_violations([self.row(writers="1:Init?", note="address stored")]), [])
+
+    def test_load_write_by_a_strong_writer_fails(self):
+        row = self.row(writers="1:Init?|Load", note="why", strong_load=True)
+        self.assertEqual(len(sc.const_violations([row])), 1)
+
+    def test_a_strong_writer_is_read_from_the_writers_column(self):
+        row = {"kind": "global", "name": "g_x", "class": "const", "writers": "2:A?|B", "note": "why"}
+        self.assertEqual(len(sc.const_violations([row])), 1)
+        row["writers"] = "2:A?|B?"
+        self.assertEqual(sc.const_violations([row]), [])
+
+    def test_other_classes_may_have_writers(self):
+        self.assertEqual(sc.const_violations([self.row("sim", "1:Init", strong_write=True, strong_load=True)]), [])
+
+
 class DataTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
