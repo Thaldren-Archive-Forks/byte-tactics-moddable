@@ -198,8 +198,7 @@ void Sound::ReleaseDirectSound()
         HAPI_CloseFile(streamFile);
     }
     CloseCdAudio();
-    if (directSound != 0)
-        host_sound_close();
+    host_sound_close();
     primary = 0;
     directSound = 0;
 }

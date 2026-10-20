@@ -89,7 +89,6 @@ extern "C" void* HOST_CALL host_sound_open(void* window, int rate, int bits, int
     return g_ds;
 fail:
     *error = hr == (HRESULT)0x88780078 ? HOST_SOUND_NO_DRIVER : 0;
-    ReleaseAll();
     return NULL;
 }
 

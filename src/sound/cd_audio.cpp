@@ -331,9 +331,11 @@ int Sound::OpenCdAudio()
     open = 0;
     trackCount = 0;
     dataTrack = 0;
-    if (!host_music_open()) {
+    int r = host_music_open();
+    if (r == 0) {
         EnumWindows((WNDENUMPROC)FindCdPlayerWindow, 0);
-        if (!host_music_open())
+        r = host_music_open();
+        if (r == 0)
             return 0;
     }
     playState = 0;
@@ -343,6 +345,8 @@ int Sound::OpenCdAudio()
     RemoveTimer(g_cdFadeTimer);
     g_cdFadeTimer = -1;
     g_cdNextTrackTimer = -1;
+    if (r < 0)
+        return 0;
     discSerial = 0;
     trackCount = QueryDisc();
     SetMediaNotifyCallback((void (__stdcall*)(int, int, int))HandleCdMessage);

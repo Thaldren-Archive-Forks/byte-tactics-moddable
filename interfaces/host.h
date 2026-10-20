@@ -262,9 +262,9 @@ void HOST_CALL host_dir_close(void* dir);
 // Result of host_sound_open when the machine has no sound driver.
 #define HOST_SOUND_NO_DRIVER (-1)
 
-// Opens the sound device for window, when it is not open yet, and sets its output to rate samples a second of bits-bit samples on channels channels; returns its handle, or NULL with *error set to 0 or HOST_SOUND_NO_DRIVER.
+// Opens the sound device for window, when it is not open yet, and sets its output to rate samples a second of bits-bit samples on channels channels; returns its handle, or NULL with *error set to 0 or HOST_SOUND_NO_DRIVER (host_sound_close then releases what was opened).
 void* HOST_CALL host_sound_open(void* window, int rate, int bits, int channels, int* error);
-// Closes the sound device; every buffer must be freed first.
+// Closes the sound device, or does nothing when none is open; call it after every buffer is freed, and after a failed host_sound_open.
 void HOST_CALL host_sound_close(void);
 // Returns the host's own sound device object for a video decoder that plays its sound through it, or NULL when the device is not open.
 void* HOST_CALL host_sound_native(void);
@@ -307,7 +307,7 @@ int HOST_CALL host_mixer_get(int line, int device, unsigned int* volume);
 // Sets the device's volume, packed as host_mixer_get returns it, and returns 1, or 0 on failure.
 int HOST_CALL host_mixer_set(int line, int device, unsigned int volume);
 
-// Opens the music device (the CD drive, or the host's own music files) with positions in milliseconds and returns 1, or 0 on failure.
+// Opens the music device (the CD drive, or the host's own music files) with positions in milliseconds and returns 1, 0 when it could not be opened, or -1 when it opened but its positions could not be set to milliseconds (it stays open).
 int HOST_CALL host_music_open(void);
 // Stops and closes the music device.
 void HOST_CALL host_music_close(void);

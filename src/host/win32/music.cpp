@@ -57,7 +57,7 @@ extern "C" int HOST_CALL host_music_open(void)
     mciSendStringA("stop cdaudio", 0, 0, 0);
     hr = mciSendStringA("set cdaudio time format milliseconds", 0, 0, 0);
     if (hr != 0) {
-        return 0;
+        return -1;
     }
     return 1;
 }
@@ -107,9 +107,7 @@ extern "C" int HOST_CALL host_music_track_is_audio(int track)
     char cmd[0x40];
     int ok;
 
-    if (mciSendStringA("set cdaudio time format tmsf", 0, 0, 0) != 0) {
-        return -1;
-    }
+    mciSendStringA("set cdaudio time format tmsf", 0, 0, 0);
     sprintf(cmd, "status cdaudio type track %i", track);
 #ifdef __clang__
     SeedTrackReplies(NULL, type);
