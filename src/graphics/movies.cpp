@@ -2,7 +2,6 @@
 // The Smacker movie player.
 #include <stdio.h>
 #include <windows.h>
-#include <ddraw.h>
 #include "../../interfaces/host.h"
 #include "../util/file_printf.h"
 
@@ -78,11 +77,11 @@ struct SmkStats_0047c530 {
 extern "C" __declspec(dllimport) void __stdcall SmackSummary(Smk_0047c3a0* smk, SmkStats_0047c530* stats);
 
 struct Surfaces_0047bdf0 {
-    IDirectDraw* ddraw;              // +0x0
-    IDirectDrawSurface* primary;     // +0x4
-    IDirectDrawSurface* back;        // +0x8
-    IDirectDrawSurface* clipper;     // +0xc
-    IDirectDrawPalette* palette;     // +0x10
+    void* ddraw;                     // +0x0
+    void* primary;                   // +0x4
+    void* back;                      // +0x8
+    void* clipper;                   // +0xc
+    void* palette;                   // +0x10
 };
 
 struct Display_0047bdf0 {
@@ -101,7 +100,7 @@ struct Display_0047c3a0 {
     char unknown_0[8];
     unsigned int width;                 // +0x8
     unsigned int height;                // +0xc
-    IDirectDrawPalette* palette;        // +0x10
+    void* palette;                      // +0x10
 };
 
 #pragma pack(push, 1)
@@ -139,8 +138,6 @@ struct Smk_0047bf70_b {
     DWORD paletteType;                 // +0x43c
 };
 
-extern int __stdcall DirectDrawCreateThunk(int guid, void *display, int zero);
-
 // smackw32.dll's buffer API, imported by ordinal: ordinal 2 opens the decoder
 // state (HWND, HDC, 640, 480, 0, 0), ordinal 5 takes the movie's 256 colour
 // palette, and ordinal 25 is given the movie and three fields of that state.
@@ -148,12 +145,7 @@ extern "C" __declspec(dllimport) Smk_0047bf70_b *__stdcall SmackBufferOpen(HWND 
 extern "C" __declspec(dllimport) void __stdcall SmackBufferNewPalette(Smk_0047bf70_b *smk, unsigned char *rgb, unsigned short flag);
 extern "C" __declspec(dllimport) void __stdcall SmackColorRemap(Smk_0047c3a0 *smk, DWORD *palette, DWORD paletteColors, DWORD paletteType);
 
-typedef void (__stdcall *GetPixelFormatFn)(void* self, DDPIXELFORMAT* format);
-
-// The object's DirectDraw surface as the pixel format query sees it.
-struct SmackerSurface {
-    GetPixelFormatFn* methods;      // +0x00, slot 21 is the pixel format query
-};
+struct SmackerSurface;
 
 class MoviePlayer {
 public:
@@ -205,39 +197,23 @@ MoviePlayer::MoviePlayer(char* path, int a, int b, int c, int d, int e)
 
     Display_0047bdf0* disp = GetDisplay();
     hwnd = disp->hwnd;
-    if ((disp->flags & 2) && disp->surfaces.ddraw) {
-        wrapper = &disp->surfaces;
+    if ((disp->flags & 2) && host_display_is_open()) {
         hasSurfaces = 0;
-    } else if (!(disp->flags & 2) && !disp->surfaces.ddraw) {
-        wrapper = &surfaces;
-        wrapper->ddraw = 0;
-        wrapper->primary = 0;
-        wrapper->back = 0;
-        wrapper->palette = 0;
-        wrapper->clipper = 0;
+    } else if (!(disp->flags & 2) && !host_display_is_open()) {
         if (!SetupDirectDraw())
             FatalError("Could not setup Direct Draw to play movie.");
         hasSurfaces = 1;
     }
 
-    DDBLTFX fx;
-    fx.dwSize = sizeof(DDBLTFX);
-    fx.dwFillColor = 0;
-    wrapper->primary->Blt(NULL, NULL, NULL, DDBLT_WAIT | DDBLT_COLORFILL, &fx);
+    host_frame_fill(HOST_FRAME_FRONT, 0);
 }
 
 // FUNCTION: 0x47bf20
 void MoviePlayer::Close()
 {
     SmackClose(smack);
-    if (hasSurfaces) {
-        if (wrapper->palette)
-            wrapper->palette->Release();
-        if (wrapper->primary)
-            wrapper->primary->Release();
-        if (wrapper->ddraw)
-            wrapper->ddraw->Release();
-    }
+    if (hasSurfaces)
+        host_display_close();
 }
 
 // Sets the movie player up: asks DirectDraw for full screen exclusive on the
@@ -254,18 +230,11 @@ int MoviePlayer::SetupDirectDraw()
     point.x = 0;
     point.y = 0;
     ClientToScreen(hwnd, &point);
-    if (DirectDrawCreateThunk(0, wrapper, 0) != 0)
+    int shown = host_display_mode_set(0, 0, HOST_DISPLAY_PRIMARY_ONLY, 0);
+    if (shown == HOST_DISPLAY_FAILED)
         goto fail;
-    if (wrapper->ddraw->SetCooperativeLevel(hwnd, 8) != 0) {
-        wrapper->ddraw->Release();
-        goto fail;
-    }
-    memset(&surfaceDesc, 0, sizeof(surfaceDesc));
-    surfaceDesc.dwSize = sizeof(surfaceDesc);
-    surfaceDesc.dwFlags = 1;
-    surfaceDesc.dwCaps = 0x200;
-    if (wrapper->ddraw->CreateSurface((LPDDSURFACEDESC)&surfaceDesc, &wrapper->primary, 0) == 0) {
-        paletteResult = GetBlitMode((SmackerSurface *)wrapper->primary);
+    if (shown == HOST_DISPLAY_OK) {
+        paletteResult = GetBlitMode(0);
         if (paletteResult == 0) {
             hdc = GetDC(hwnd);
             GetSystemPaletteEntries(hdc, 0, 0x100, entries);
@@ -273,8 +242,7 @@ int MoviePlayer::SetupDirectDraw()
             for (i = 10; i < 246; ++i) entries[i].peFlags = 4;
             for (i = 246; i < 256; ++i) entries[i].peFlags = 0;
             ReleaseDC(hwnd, hdc);
-            if (wrapper->ddraw->CreatePalette(4, entries, &wrapper->palette, 0) == 0)
-                wrapper->primary->SetPalette(wrapper->palette);
+            host_palette_create((unsigned char*)entries);
         }
         SetWindowPos(hwnd, 0, 0, 0, smack->width, smack->height, 2);
     }
@@ -294,20 +262,17 @@ fail:
 // FUNCTION: 0x47c150
 int MoviePlayer::GetBlitMode(SmackerSurface* unused)
 {
-    DDPIXELFORMAT format;
-    format.dwSize = sizeof(format);
-    format.dwFlags = DDPF_RGB;
-    SmackerSurface* surface = (SmackerSurface*)wrapper->primary;
-    surface->methods[21](surface, &format);
-    if (format.dwRGBBitCount == 8)
+    host_pixel_format format;
+    host_frame_pixel_format(&format);
+    if (format.bits == 8)
         return 0;
-    if (format.dwRBitMask == 0xf800 && format.dwGBitMask == 0x7e0 && format.dwBBitMask == 0x1f)
+    if (format.red == 0xf800 && format.green == 0x7e0 && format.blue == 0x1f)
         return 0xc0000000;
-    if (format.dwRBitMask == 0x7c00 && format.dwGBitMask == 0x3e0 && format.dwBBitMask == 0x1f)
+    if (format.red == 0x7c00 && format.green == 0x3e0 && format.blue == 0x1f)
         return 0x80000000;
-    if (format.dwRBitMask == 0xf800 && format.dwGBitMask == 0x7c0 && format.dwBBitMask == 0x3f)
+    if (format.red == 0xf800 && format.green == 0x7c0 && format.blue == 0x3f)
         return 0xa0000000;
-    if (format.dwRBitMask == 0xfc00 && format.dwGBitMask == 0x3e0 && format.dwBBitMask == 0x1f)
+    if (format.red == 0xfc00 && format.green == 0x3e0 && format.blue == 0x1f)
         return 0xe0000000;
     host_message(NULL, "Smacker Error", "Unsupported pixel format.", HOST_MESSAGE_PLAIN);
     return 0;
@@ -340,16 +305,13 @@ void MoviePlayer::UpdatePalette(void)
         entries[i].peGreen = *src++;
         entries[i].peBlue = *src++;
     }
-    wrapper->palette->SetEntries(0, 0, 256, entries);
+    host_palette_set(0, 256, (unsigned char*)entries);
 }
 
 // FUNCTION: 0x47c2f0
 void MoviePlayer::ClearScreen()
 {
-    DDBLTFX fx;
-    fx.dwSize = sizeof(DDBLTFX);
-    fx.dwFillColor = 0;
-    wrapper->primary->Blt(NULL, NULL, NULL, DDBLT_WAIT | DDBLT_COLORFILL, &fx);
+    host_frame_fill(HOST_FRAME_FRONT, 0);
 }
 
 // The WM_PAINT handler: clears the video area to black, then, when a full
@@ -372,7 +334,7 @@ void MoviePlayer::OnPaint(HWND hwnd)
 // FUNCTION: 0x47c3a0
 void MoviePlayer::PlayFrame(HWND hwnd)
 {
-    if (GetFocus() != hwnd)
+    if (!host_window_has_focus())
         return;
     if (stopped)
         return;
@@ -383,7 +345,7 @@ void MoviePlayer::PlayFrame(HWND hwnd)
             entries[i].peGreen = *src++;
             entries[i].peBlue = *src++;
         }
-        wrapper->palette->SetEntries(0, 0, 256, entries);
+        host_palette_set(0, 256, (unsigned char*)entries);
     }
     SetOffscreenSurface((Display_0047c3a0 *)g_game->screen);
     SmackToBuffer(smack, 0, (0x1e0 - smack->height) >> 1, ((Display_0047c3a0 *)g_game->screen)->width, smack->height, ((Display_0047c3a0 *)g_game->screen)->height, 0);

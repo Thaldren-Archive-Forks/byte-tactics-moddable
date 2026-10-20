@@ -3,7 +3,6 @@
 // palette, screen size, flags and work area), the installed DirectX version
 // check, the display mode list, the timer table and the frame rate counter.
 #include <windows.h>
-#include <ddraw.h>
 #include <string.h>
 #include <stdlib.h>
 #include "../../interfaces/host.h"
@@ -58,11 +57,11 @@ struct FrameCounter_4b66a0 {
 
 // The display's DirectDraw objects at +0x84.
 struct DirectDrawState {
-    IDirectDraw *ddraw;          // +0x84
-    IDirectDrawSurface *primary; // +0x88
-    IDirectDrawSurface *back;    // +0x8c
-    IDirectDrawClipper *clipper; // +0x90
-    IDirectDrawPalette *palette; // +0x94
+    void *ddraw;                 // +0x84
+    void *primary;               // +0x88
+    void *back;                  // +0x8c
+    void *clipper;               // +0x90
+    void *palette;               // +0x94
     void *activeSurface;         // +0x98
     int haveBackBuffer;          // +0x9c
 };
@@ -208,7 +207,6 @@ int __stdcall AllocBlueTable(App_4b5980* d);
 void __stdcall PushKeyCode(int v);
 void __stdcall HandleVirtualKey(int v, int flag);
 void __stdcall PushMouseEvent(Event_4b5cc0* ev);
-int __stdcall DirectDrawCreateThunk(int guid, void *display, int zero);
 void __stdcall InitSurface(Surface *s, int width, int height, int a, int b);
 int __stdcall LockScreen(Surface *s);
 void __cdecl BlitSurface(Surface *dst, void *src, int x, int y);
@@ -238,10 +236,7 @@ int ApplyPalette()
         ReleaseDC(g_display->hwnd, dc);
         return 1;
     }
-    HRESULT hr = E_FAIL;
-    if (d->draw.primary && d->draw.palette)
-        hr = d->draw.primary->SetPalette(d->draw.palette);
-    return hr == DD_OK ? 1 : 0;
+    return host_palette_apply();
 }
 
 // Stores a callback and the argument it will be called with.
@@ -257,26 +252,7 @@ void __stdcall SetCloseHandler(void (__cdecl *callback)(int), int param)
 // FUNCTION: 0x4b4ff0
 void __stdcall ReleaseDirectDraw(App_4b5980* d)
 {
-    if (d->draw.ddraw) {
-        if (d->draw.palette) {
-            d->draw.palette->Release();
-            d->draw.palette = 0;
-        }
-        if (d->draw.back) {
-            d->draw.back->Release();
-            d->draw.back = 0;
-        }
-        if (d->draw.primary) {
-            d->draw.primary->Release();
-            d->draw.primary = 0;
-        }
-        if (d->draw.clipper) {
-            d->draw.clipper->Release();
-            d->draw.clipper = 0;
-        }
-        d->draw.ddraw->Release();
-        d->draw.ddraw = 0;
-    }
+    host_display_close();
 }
 
 // Reads the installed DirectX version: first through dsetup.dll's
@@ -385,20 +361,19 @@ void __stdcall InitDisplayDefaults(App_4b5980* p)
     p->scale = 1.0f;
 }
 
-// IDirectDraw::EnumDisplayModes callback: records every 8-bit display mode
+// Display mode filter: records every 8-bit display mode
 // (width, height, refresh rate) in the caller's list.
 // FUNCTION: 0x4b5330
-HRESULT __stdcall EnumModesCallback(DDSURFACEDESC* desc, void* context)
+void __stdcall EnumModesCallback(const host_display_mode* desc, void* context)
 {
     ModeList_004b5330* list = (ModeList_004b5330*)context;
     Mode_004b5330* mode = &list->modes[list->count];
-    if (desc->ddpfPixelFormat.dwRGBBitCount == 8) {
-        mode->width = desc->dwWidth;
-        mode->height = desc->dwHeight;
-        mode->refreshRate = desc->dwRefreshRate;
+    if (desc->bits == 8) {
+        mode->width = desc->width;
+        mode->height = desc->height;
+        mode->refreshRate = desc->refresh;
         list->count++;
     }
-    return DDENUMRET_OK;
 }
 
 // Fills the list with the display modes to offer. In GDI mode the modes come
@@ -440,20 +415,12 @@ int __stdcall GetDisplayModes(ModeList_004b5330* list)
         return 1;
     }
 
-    LPDIRECTDRAW2 ddraw2 = 0;
-    int result = 1;
-    DWORD hr;
+    host_display_mode found[512];
+    int found_count = 0;
+    int result = host_display_mode_list(found, 512, &found_count);
     list->count = 0;
-    hr = g_display->draw.ddraw->QueryInterface(IID_IDirectDraw2, (LPVOID*)&ddraw2);
-    if (hr == 0) {
-        hr = ddraw2->EnumDisplayModes(0, 0, list, (LPDDENUMMODESCALLBACK)EnumModesCallback);
-        if (hr != 0)
-            result = 0;
-    } else {
-        result = 0;
-    }
-    if (ddraw2)
-        ddraw2->Release();
+    for (int i = 0; i < found_count; i++)
+        EnumModesCallback(&found[i], list);
     return result;
 }
 
@@ -480,11 +447,8 @@ static inline void FreeGdi_004b5510(App_4b5980 *d, HDC &dc)
 int __stdcall SetFullScreen(int mode) {
     int lockResult;
     App_4b5980 *d;
-    DDSURFACEDESC ddsd;
     BitmapInfo_004b5510 bmi;
     Surface surf;
-    DDSCAPS caps;
-    HRESULT hr;
 
     while (1) {
         int result = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
@@ -511,64 +475,16 @@ int __stdcall SetFullScreen(int mode) {
     if (mode != 0) {
         g_display->flags.value |= 2;
 
-        hr = DirectDrawCreateThunk(0, &dd->ddraw, 0);
-        if (hr == DD_OK) {
-            hr = dd->ddraw->SetCooperativeLevel(d->hwnd, 0x53);
-            if (hr == DD_OK) {
-                hr = dd->ddraw->SetDisplayMode(g_display->width, g_display->height, 8);
-                if (hr == DD_OK) {
-
-                    ZeroMemory(&ddsd, sizeof(ddsd));
-                    ddsd.dwSize = sizeof(ddsd);
-                    ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
-                    ddsd.dwWidth = g_display->width;
-                    ddsd.dwHeight = g_display->height;
-                    ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
-                    ddsd.dwBackBufferCount = 1;
-                    hr = dd->ddraw->CreateSurface(&ddsd, &dd->primary, NULL);
-                    if (hr == DD_OK) {
-
-                        caps.dwCaps = DDSCAPS_BACKBUFFER;
-                        hr = dd->primary->GetAttachedSurface(&caps, &dd->back);
-                        if (hr == DD_OK) {
-
-                            dd->haveBackBuffer = 1;
-                            hr = dd->ddraw->CreateClipper(0, &dd->clipper, NULL);
-                            if (hr == DD_OK) {
-                                hr = dd->clipper->SetHWnd(0, d->hwnd);
-                                if (hr == DD_OK) {
-                                    hr = dd->primary->SetClipper(dd->clipper);
-                                    if (hr == DD_OK) {
-
-                                        hr = dd->ddraw->CreatePalette(4, g_display->entries,
-                                                                      &dd->palette, NULL);
-                                        if (hr == DD_OK) {
-                                            hr = dd->primary->SetPalette(dd->palette);
-                                            if (hr != DD_OK)
-                                                goto fail;
-                                        }
-
-                                        if (g_display->draw.activeSurface) {
-                                            LockScreen(&surf);
-                                            BlitSurface(&surf, g_display->draw.activeSurface, 0, 0);
-                                            UnlockScreen(&surf);
-                                        }
-                                    } else
-                                        goto fail;
-                                } else
-                                    goto fail;
-                            } else
-                                goto fail;
-                        } else
-                            goto fail;
-                    } else
-                        goto fail;
-                } else
-                    goto fail;
-            } else
-                goto fail;
-        } else
+        int shown = host_display_mode_set(g_display->width, g_display->height, 0,
+                                          (const unsigned char*)g_display->entries);
+        dd->haveBackBuffer = host_display_has_back_buffer();
+        if (shown == HOST_DISPLAY_FAILED)
             goto fail;
+        if (g_display->draw.activeSurface) {
+            LockScreen(&surf);
+            BlitSurface(&surf, g_display->draw.activeSurface, 0, 0);
+            UnlockScreen(&surf);
+        }
     } else {
         g_display->flags.value &= ~2;
 
@@ -803,8 +719,8 @@ int __stdcall HandleHostEvent(host_event* ev)
             RealizePalette(dc);
             ReleaseDC(g_display->hwnd, dc);
         }
-        else if (g_display->draw.primary && g_display->draw.palette) {
-            g_display->draw.primary->SetPalette(g_display->draw.palette);
+        else {
+            host_palette_apply();
         }
         return 1;
     case HOST_EVENT_PALETTE_CHANGED:
@@ -817,8 +733,7 @@ int __stdcall HandleHostEvent(host_event* ev)
             ReleaseDC(g_display->hwnd, dc);
             return 1;
         }
-        if (g_display->draw.primary && g_display->draw.palette)
-            g_display->draw.primary->SetPalette(g_display->draw.palette);
+        host_palette_apply();
         return 1;
     default:
         return 1;
@@ -1037,17 +952,9 @@ int __stdcall DrawFrameRate()
     }
 
     if (!g_display->dib) {
-        HDC dc;
         char buf[128];
-        if (g_display->draw.back->GetDC(&dc) == 0) {
-            SetBkMode(dc, TRANSPARENT);
-            HGDIOBJ oldFont = SelectObject(dc, g_display->font);
-            int len = wsprintf(buf, "FRATE %d", g_display->counter.rate);
-            SetTextColor(dc, RGB(255, 255, 0));
-            TextOut(dc, 0, 0, buf, len);
-            SelectObject(dc, oldFont);
-            g_display->draw.back->ReleaseDC(dc);
-        }
+        int len = wsprintf(buf, "FRATE %d", g_display->counter.rate);
+        host_frame_text(HOST_FRAME_BACK, g_display->font, 0, 0, buf, len, 0xffff00);
     }
 
     return g_display->counter.rate;
