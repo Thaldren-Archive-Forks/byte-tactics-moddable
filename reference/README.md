@@ -398,6 +398,25 @@ works with `--quick`, `--steps-per-frame` and `--parallel`, and not with `--pois
 
 The full `--check` is what a pull request's gate needs.
 
+## Block pointers
+
+`-blockscan` (`--blockscan` for playtest.py, with `-testmode`) makes the game list the pointers out of the shared
+state block. At the end of each tick, after the last phase, it walks every live allocation of the block and
+the `SimGlobals` struct, reads each aligned 4-byte word, and keeps the ones that point into a live heap
+allocation outside the block. When the run ends it writes `blockptrs.txt` beside `trace.txt`: tab-separated,
+a header (`bt-blockptrs 1`, `commit`, `ticks`) and one row per distinct (holder site, holder tag, offset,
+target site, target tag) with the holder (`SimGlobals` or the allocation site, a return address in the exe),
+the offset in the holder, the target site, the ticks it was seen in and the smallest and largest offset it
+pointed at in the target. The scan does not change the traces.
+
+`reference.py --check` always runs with the scan on, resolves the sites with the linker map beside the exe
+(`build/modern/TotalA.map`) and compares every row with `data/block_pointers.csv`, after printing the trace
+results. A (holder, target) pair or an offset the file does not cover, or a scenario with no `blockptrs.txt`,
+is printed (scenario, holder, offset, target) and `--check` exits 1. `--quick` does not check the pointers.
+`--save-blockptrs <dir>` writes each scenario's file to `<dir>/<scenario>.txt`, and
+`uv run tools/blockpointers.py --from <dir>` regenerates the data file from them, keeping the hand-set `class` and
+`note` columns; without `--from` it plays the suite itself. `tools/blockpointers.py --check` (CI) checks the file.
+
 ## Zero fill and poison mode
 
 Game memory comes from `GameAlloc` (and `operator new`, which calls it), which is plain

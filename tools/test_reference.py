@@ -87,7 +87,7 @@ class CheckQuirksTest(unittest.TestCase):
             quirk_rows = [(1, "units", "1" * 16), (2, "units", "2" * 16), (2, "players", "9" * 16)]
             off_rows = [(1, "units", "1" * 16), (2, "units", "2" * 16), (2, "players", "3" * 16)]
 
-            def fake_play_all(exe, scenarios, game_dir, parallel, expected, poison, failed, keep_always=False):
+            def fake_play_all(exe, scenarios, game_dir, parallel, expected, poison, failed, keep_always=False, scans=None):
                 if keep_always:
                     reruns.extend(scenarios)
                     self.rerun_texts = {name: path.read_text() for name, path in scenarios.items()}
