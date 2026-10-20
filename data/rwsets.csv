@@ -44451,6 +44451,7 @@ address,function,file,kind,target
 ,DropPlayer,src/network/net_game_453d40.cpp,field_write,PlayerIdPacket::type
 ,DropPlayer,src/network/net_game_453d40.cpp,function,
 ,DropPlayer,src/network/net_game_453d40.cpp,global_read,g_game
+,Droppable,src/host/win32/window.cpp,function,
 ,Dummy,src/ingame/selection.cpp,function,
 ,Dummy,src/orders/vtol_orders.cpp,function,
 ,Dummy,src/orders/vtol_orders_410e70.cpp,function,
@@ -49260,6 +49261,7 @@ address,function,file,kind,target
 ,PruneUsed,src/orders/order_list.cpp,field_read,Order::flags_42
 ,PruneUsed,src/orders/order_list.cpp,field_read,Unit::list
 ,PruneUsed,src/orders/order_list.cpp,function,
+,Push,src/host/win32/window.cpp,call,Droppable
 ,Push,src/host/win32/window.cpp,call,operator=
 ,Push,src/host/win32/window.cpp,field_read,host_event::type
 ,Push,src/host/win32/window.cpp,function,
