@@ -307,9 +307,6 @@ public:
 #pragma pack(pop)
 
 extern Game* g_game;
-extern int g_aiCommandsEnabled;
-extern char DAT_005119b8[];
-extern PlayerAI* g_playerAI[];
 
 void __stdcall ScaleUnitWeights(int player, UnitTypeSet* set, float value, int count);
 void __stdcall SetUnitLimits(int player, UnitTypeSet* set, int value, int param_4);
@@ -318,6 +315,7 @@ typedef void (__stdcall* Command_00406f00)(CommandArgs* args);
 void __stdcall RegisterCommand(const char* name, Command_00406f00 fn, int flags);
 #include "../../interfaces/seams.h"
 #include "../quirks/quirks.h"
+#include "../state/sim_globals.h"
 #include "../util/file_printf.h"
 int __stdcall RandomInt(int);
 void __stdcall QueueUnitSpeechIfNotVisible(Unit*, int, int);

@@ -374,7 +374,6 @@ struct Elem {
 };
 
 extern Game* g_game;
-extern char DAT_005119b8[];
 
 typedef std::vector<TdfFile*> FeatureList;
 // File-scope static: 0x4223e0 needs it static (an extern global changes

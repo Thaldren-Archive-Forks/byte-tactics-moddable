@@ -372,6 +372,7 @@ int __stdcall LoadPcxPalette(char* path, unsigned int* out)
 // Included only for its symbol ids: AddObjectBounds matches only with them.
 #include <io.h>
 #include <stdlib.h>
+#include "../state/sim_globals.h"
 
 struct FindData_004cb170 {
     char unknown_0[0x14];
@@ -379,7 +380,6 @@ struct FindData_004cb170 {
 };
 
 extern char g_pathSepBackslash[];
-extern char DAT_005119b8[];
 
 int __stdcall HAPI_FindFirst(const char* path, FindData_004cb170* fd, int a, int b);
 int __stdcall HAPI_FindNext(int handle, FindData_004cb170* fd);

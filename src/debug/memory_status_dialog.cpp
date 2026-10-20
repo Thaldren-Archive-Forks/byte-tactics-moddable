@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include "../state/sim_globals.h"
 
 HWND __cdecl CreateDialogFromTemplate(int id, HWND parent, DLGPROC proc, LPARAM param);
 BOOL CALLBACK MemoryStatusDlgProc(HWND, UINT, WPARAM, LPARAM);
@@ -21,7 +22,9 @@ extern unsigned int g_freeBlockWraps;
 extern unsigned int g_allocSerial;
 extern unsigned int g_liveAllocCount;
 extern unsigned int g_liveAllocPeak;
-extern char DAT_005119b8;
+typedef char SimView_DAT_005119b8;
+#undef DAT_005119b8
+#define DAT_005119b8 (*reinterpret_cast<SimView_DAT_005119b8*>(&Sim().DAT_005119b8))
 extern char g_memStatusLastText[];
 extern char* g_memoryStatusWindowName;
 

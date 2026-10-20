@@ -40,5 +40,3 @@ inline PacketChannel::~PacketChannel()
 
 inline PacketManager::~PacketManager() { }
 
-// FUNCTION: 0x460f60 _$E2
-PacketManager g_packetManager;

@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../../interfaces/host.h"
+#include "../state/sim_globals.h"
 
 extern const char g_errorCaption[];  // "Error"
-extern unsigned int g_randomSeed;
 
 // FUNCTION: 0x4b6b80
 void __stdcall ShowErrorBox(const char* message, int unused)

@@ -21,6 +21,7 @@
 
 #include "string_ref.h"
 #include "tdf.h"
+#include "../state/sim_globals.h"
 
 #ifdef __clang__
 __attribute__((optnone)) void __stdcall EmitTdfFieldDestructor(TdfField* field)
@@ -37,7 +38,6 @@ inline void _Destroy(TdfField* p)
 }
 }
 
-extern char DAT_005119b8[];
 void __cdecl GameFreeThunk(void* p);
 char* __cdecl GameStrdup(char* text);
 char* ComputeChecksum(char* text, int len);

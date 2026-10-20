@@ -9,9 +9,12 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 #pragma pack(push,1)
 struct Def { char pad[0x241]; unsigned flags; };
 #include "../units/unit.h"
+#include "../state/sim_globals.h"
 struct Owner { char pad[0x25]; std::vector<Unit*> factories; };
 #pragma pack(pop)
-extern Owner* g_playerAI[];
+typedef Owner* SimView_g_playerAI[];
+#undef g_playerAI
+#define g_playerAI (*reinterpret_cast<SimView_g_playerAI*>(&Sim().g_playerAI))
 // FUNCTION: 0x40b530
 void __stdcall GetFactoriesInRadius(int player,const Vec* pos,int radius,std::vector<Unit*>* out)
 {

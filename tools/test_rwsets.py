@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import rwsets
 
@@ -192,6 +193,210 @@ class RwsetsTest(unittest.TestCase):
         self.assertEqual(addresses["ReadGlobal"], "0x401000")
         self.assertEqual(addresses["Increment"], "")
         self.assertEqual(self.rows, sorted(self.rows, key=lambda r: (r[0] == "", int(r[0] or "0", 16), *r[1:])))
+
+
+SIM_COMMON = """struct Counter { int n; int Get() const { return n; } void Bump() { n++; } };
+typedef int (*Handler)(int);
+void Fill(int* out);
+void FillU(unsigned* out);
+void Look(const int* in);
+void Put(char* out);
+void Peek(const char* in);
+int Fmt(char* out, const char* fmt, ...);
+"""
+
+PLAIN_DECLS = """extern int g_count;
+extern int g_arr[4];
+extern Counter g_counter;
+extern unsigned g_viewed[4];
+extern unsigned g_scalar;
+extern int g_inner;
+extern Handler g_handlers[4];
+static int g_st;
+extern char g_sep[];
+extern char g_buf[];
+"""
+
+SIM_DECLS = """struct SimGlobals {
+    int g_count;
+    int g_arr[4];
+    Counter g_counter;
+    int g_viewed[4];
+    int g_scalar;
+    char g_container[16];
+    Handler g_handlers[4];
+    int g_st_a;
+    char g_buf[8];
+};
+extern char g_sep[];
+SimGlobals& Sim();
+static SimGlobals* g_simGlobals;
+SimGlobals& Sim() { return *g_simGlobals; }
+#define g_count (Sim().g_count)
+#define g_arr (Sim().g_arr)
+#define g_counter (Sim().g_counter)
+#define g_handlers (Sim().g_handlers)
+#define g_st (Sim().g_st_a)
+#define g_buf (Sim().g_buf)
+typedef unsigned SimView_g_viewed[4];
+#define g_viewed (*reinterpret_cast<SimView_g_viewed*>(&Sim().g_viewed))
+#define g_scalar (*reinterpret_cast<unsigned*>(&Sim().g_scalar))
+#define g_inner (*reinterpret_cast<int*>(reinterpret_cast<char*>(&Sim().g_container) + 8))
+"""
+
+SIM_BODIES = """
+int Read() { return g_count; }
+void Write() { g_count = 1; }
+void Compound() { g_count += 2; g_scalar += 2; g_inner++; }
+void ArrayWrite(int i) { g_arr[i] = 3; g_viewed[i] = 4; }
+int ArrayRead(int i) { return g_arr[i] + g_viewed[i]; }
+void Escape() { int* p = &g_count; unsigned* q = &g_scalar; int* r = &g_inner; *p = 1; *q = 2; *r = 3; }
+void Args() { Fill(&g_count); Fill(g_arr); Look(&g_count); FillU(&g_scalar); FillU(g_viewed); Fill(&g_inner); }
+void Views() { g_scalar = 5; g_viewed[1] = g_scalar; }
+void Interior() { g_inner = 7; Look(&g_inner); }
+int Method() { g_counter.Bump(); return g_counter.Get() + g_counter.n; }
+int Indirect(int x) { return g_handlers[x](x); }
+void PickWrite(int f) { Put(f ? g_sep : g_buf); }
+void PickPeek(int f) { Peek(f ? g_sep : g_buf); }
+void PickFormat(char* o, int f) { Fmt(o, "%s", f ? g_sep : g_buf); }
+int Static() { g_st = 1; return g_st; }
+const char* Pick(int f) { return f ? g_sep : g_buf; }
+void Mixed() { Counter local; local.Bump(); Sim(); }
+"""
+
+SIM_MAP_TEXT = (
+    "field,name,container,offset\n"
+    "g_st_a,g_st@src/a.cpp,,\n"
+    "g_inner,g_inner,g_container,0x8\n"
+)
+
+
+@unittest.skipUnless(shutil.which("clang-cl"), "clang-cl is not installed")
+class SimGlobalsTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sim_globals.csv"
+            path.write_text(SIM_MAP_TEXT)
+            cls.patch = mock.patch.object(rwsets, "SIM", rwsets.load_sim_map(path))
+        cls.patch.start()
+        _, cls.plain = rows_of(SIM_COMMON + PLAIN_DECLS + SIM_BODIES.replace("Sim();", ""))
+        _, cls.sim = rows_of(SIM_COMMON + SIM_DECLS + SIM_BODIES)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.patch.stop()
+
+    def same(self, name):
+        self.assertEqual(self.sim[name], self.plain[name])
+        return self.sim[name]
+
+    def test_read(self):
+        self.assertEqual(self.same("Read"), {("global_read", "g_count")})
+
+    def test_write(self):
+        self.assertEqual(self.same("Write"), {("global_write", "g_count")})
+
+    def test_compound_assignment(self):
+        self.assertIn(("global_write", "g_count"), self.same("Compound"))
+
+    def test_array_element(self):
+        self.same("ArrayWrite")
+        self.same("ArrayRead")
+
+    def test_escape(self):
+        self.assertIn(("global_escape", "g_count"), self.same("Escape"))
+
+    def test_non_const_pointer_argument(self):
+        rows = self.same("Args")
+        self.assertIn(("global_maybe_written", "g_count"), rows)
+
+    def test_per_file_view(self):
+        rows = self.same("Views")
+        self.assertIn(("global_write", "g_scalar"), rows)
+        self.assertIn(("global_read", "g_scalar"), rows)
+
+    def test_interior_offset(self):
+        rows = self.same("Interior")
+        self.assertEqual(rows, {("global_write", "g_inner"), ("global_read", "g_inner"), ("call", "Look")})
+
+    def test_methods_and_indirect_calls(self):
+        self.same("Method")
+        self.assertIn(("indirect_call", "indirect via int (*)(int) [g_handlers]"), self.same("Indirect"))
+
+    def test_static_is_named_by_its_row(self):
+        self.assertEqual(self.same("Static"), {("global_write", "g_st@src/a.cpp"),
+                                               ("global_read", "g_st@src/a.cpp")})
+
+    def test_arrays_chosen_by_a_conditional_stay_reads(self):
+        self.assertEqual(self.same("Pick"), {("global_read", "g_sep"), ("global_read", "g_buf")})
+
+    def test_arrays_chosen_by_a_conditional_take_the_mode_of_the_context(self):
+        self.assertEqual(self.sim["PickWrite"], {("global_maybe_written", "g_sep"), ("global_maybe_written", "g_buf"),
+                                                 ("call", "Put")})
+        self.assertEqual(self.sim["PickPeek"], {("global_read", "g_sep"), ("global_read", "g_buf"), ("call", "Peek")})
+        self.assertEqual(self.sim["PickFormat"], {("global_read", "g_sep"), ("global_read", "g_buf"), ("call", "Fmt")})
+
+    def test_sim_calls_and_the_pointer_add_no_rows(self):
+        rows = self.sim["Mixed"]
+        self.assertEqual(rows, self.plain["Mixed"])
+        self.assertFalse([r for r in rows if "Sim" in r[1] or "g_simGlobals" in r[1]])
+        self.assertFalse([r for fn in self.sim.values() for r in fn if "g_simGlobals" in r[1]])
+
+
+class FixedParametersTest(unittest.TestCase):
+    def test_variadic_types_count_the_declared_parameters(self):
+        self.assertEqual(rwsets.fixed_parameters("int (char *, const char *, ...)"), 2)
+        self.assertEqual(rwsets.fixed_parameters("int (void (*)(int, int), ...) __attribute__((cdecl))"), 1)
+        self.assertEqual(rwsets.fixed_parameters("int (...)"), 0)
+
+    def test_other_types_have_no_count(self):
+        self.assertIsNone(rwsets.fixed_parameters("int (char *, int)"))
+        self.assertIsNone(rwsets.fixed_parameters("int"))
+
+
+class SimMapTest(unittest.TestCase):
+    TEXT = (
+        "field,name,container,offset\n"
+        "g_dup,g_dup,,\n"
+        "g_dup,g_dup@src/a.cpp,,\n"
+        "g_bare,g_bare,,\n"
+        "g_bare,g_bare,,\n"
+        "g_only,g_only@src/b.cpp,,\n"
+        "g_in,g_in,g_dup,0x8\n"
+    )
+
+    def load(self, text):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sim_globals.csv"
+            path.write_text(text)
+            return rwsets.load_sim_map(path)
+
+    def test_static_row_is_used_only_in_its_own_file(self):
+        sim = self.load(self.TEXT)
+        sim.current_file = "src/a.cpp"
+        self.assertEqual(sim.name("g_dup"), "g_dup@src/a.cpp")
+        sim.current_file = "src/other.cpp"
+        self.assertEqual(sim.name("g_dup"), "g_dup")
+
+    def test_file_column_names_the_file_of_a_bare_static_row(self):
+        sim = self.load("field,name,container,offset,file\ng_t,T::g_t,,,\ng_t,g_t,,,src/m.cpp\n")
+        sim.current_file = "src/m.cpp"
+        self.assertEqual(sim.name("g_t"), "g_t")
+        sim.current_file = "src/u.cpp"
+        self.assertEqual(sim.name("g_t"), "T::g_t")
+
+    def test_lone_static_and_unlisted_fields(self):
+        sim = self.load(self.TEXT)
+        sim.current_file = "src/a.cpp"
+        self.assertEqual(sim.name("g_only"), "g_only@src/b.cpp")
+        self.assertEqual(sim.name("g_unlisted"), "g_unlisted")
+
+    def test_every_name_maps_to_its_field_and_interiors_hang_on_the_field(self):
+        sim = self.load(self.TEXT)
+        self.assertEqual(sim.names["g_dup@src/a.cpp"], "g_dup")
+        self.assertEqual(sim.names["g_dup"], "g_dup")
+        self.assertEqual(sim.interiors[("g_dup", 8)], "g_in")
 
 
 if __name__ == "__main__":

@@ -104,11 +104,14 @@ struct MissionOrderTableEntry {       // 0x19-byte entries, table at g_missionOr
 // The hudPalette members are the Gui colours (Thaldren's aHudPaletteIndices,
 // +0x8b2 of the Gui at +0x519) at the index in their name.
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 
 #pragma pack(pop)
 
 extern Game* g_game;
-extern MissionOrderTableEntry* g_missionOrderTableBegin;
+typedef MissionOrderTableEntry* SimView_g_missionOrderTableBegin;
+#undef g_missionOrderTableBegin
+#define g_missionOrderTableBegin (*reinterpret_cast<SimView_g_missionOrderTableBegin*>(reinterpret_cast<char*>(&g_missionOrderTableVec) + 0x4))
 extern double TWO_PI;                    // 6.28318530717958
 extern double ONE_EIGHTH;                // 0.125
 

@@ -30,10 +30,10 @@ struct IDirectSoundBuffer;
 
 #pragma pack(push, 1)
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 extern Game* g_game;
-extern char DAT_005119b8[];
 extern char g_sayChoiceArrayName[];
 extern SoundInfo_005086fc g_speechCategories[];
 

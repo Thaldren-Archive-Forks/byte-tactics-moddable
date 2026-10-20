@@ -38,6 +38,8 @@ const unsigned int kFirstChunk = sizeof(BlockHeader);
 
 char* g_base;
 unsigned int g_insideThread;
+void** g_tracked[8];
+unsigned int g_trackedCount;
 
 void Fatal(const char* what)
 {
@@ -324,14 +326,31 @@ void* __cdecl SimBlockBase()
 
 void __cdecl SimBlockAttach(void* base)
 {
+    for (unsigned int i = 0; i < g_trackedCount; i++) {
+        unsigned int off = (unsigned int)((char*)*g_tracked[i] - g_base);
+        if (g_base != 0 && *g_tracked[i] != 0 && off < kSimBlockBytes)
+            *g_tracked[i] = (char*)base + off;
+    }
     g_base = (char*)base;
 }
 
 void __cdecl SimBlockReset()
 {
+    for (unsigned int i = 0; i < g_trackedCount; i++)
+        *g_tracked[i] = 0;
     if (g_base != 0)
         VirtualFree(g_base, 0, MEM_RELEASE);
     g_base = 0;
+}
+
+void __cdecl SimBlockTrack(void** slot)
+{
+    for (unsigned int i = 0; i < g_trackedCount; i++)
+        if (g_tracked[i] == slot)
+            return;
+    if (g_trackedCount == sizeof(g_tracked) / sizeof(g_tracked[0]))
+        Fatal("too many tracked pointers");
+    g_tracked[g_trackedCount++] = slot;
 }
 
 void* __cdecl operator new(size_t size, const SimHeap&)

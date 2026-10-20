@@ -103,7 +103,6 @@ struct MissionHolder {
 #pragma pack(pop)
 
 extern Game* g_game;
-extern char DAT_005119b8[];
 extern char g_noneString[];
 
 void* __stdcall GetCategoryMask(char* name);
@@ -314,6 +313,7 @@ static inline unsigned int ReplaceFlagField(unsigned int flags, unsigned int val
 // numbers: with <malloc.h> it puts LoadUnitFbi's yardmap stores back in the
 // original's base/index order (docs/c2-regalloc.md).
 #include <conio.h>
+#include "../state/sim_globals.h"
 
 // Reads a unit's FBI file (the UNITINFO section of a TDF) into its 0x249-byte
 // unit definition: names, costs, movement, energy, the two flag words, the
@@ -711,8 +711,8 @@ void LoadUnitTypes() {
             FatalError("Can't load MOVEINFO.TDF");
 
         int i = 0;
-        MovementClass* cls = MovementClassTable::g_movementClasses.entries;
-        MovementClass* cls_end = &MovementClassTable::g_movementClasses.entries[32];
+        MovementClass* cls = g_movementClasses.entries;
+        MovementClass* cls_end = &g_movementClasses.entries[32];
         do {
             sprintf(classbuf, "CLASS%d", i);
             parser.ResetCurrentRecord();

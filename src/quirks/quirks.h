@@ -7,8 +7,6 @@ struct Quirks {
 #undef QUIRK
 };
 
-extern Quirks g_quirks;
-
 bool QuirksParse(const char* spec, Quirks* out, char* err, int errLen);
 
 bool QuirksNormalise(const char* spec, char* out, int outLen);
