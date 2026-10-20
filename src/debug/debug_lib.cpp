@@ -4104,20 +4104,20 @@ void __cdecl WalkFrameChain(int* frame, int* stack, int eip, int skip, int* out,
         copy[i] = 0;
 }
 
-// The STACKFRAME-ish record StackWalk fills in.
 struct Frame_004de700 {
-    int addrFrame;                             // +0x00
+    int addrPc;
     int unknown_04;
     int flags0;                                // +0x08
     char unknown_0c[0x0c];
-    int addrStack;                             // +0x18
+    int addrFrame;
     char unknown_1c[4];
     int flags1;                                // +0x20
-    int handler;                               // +0x24
+    int addrStack;
     char unknown_28[4];
     int flags2;                                // +0x2c
-    char unknown_30[0x40];
+    char unknown_30[0x68];
 };
+static_assert(sizeof(Frame_004de700) == 0x98, "StackWalk writes the 0x98-byte STACKFRAME");
 
 extern char g_stackProcessHandleRead;         // "process handle read" flag
 extern HANDLE g_stackProcessHandle;           // cached process handle
@@ -4127,12 +4127,12 @@ void __cdecl WalkStack(int param1, int param2, int param3, int param4, int* para
 {
     Frame_004de700 frame;
     memset(&frame, 0, sizeof(frame));
-    frame.addrFrame = param3;
+    frame.addrPc = param3;
     frame.flags0 = 3;
     frame.flags2 = 3;
     frame.flags1 = 3;
-    frame.handler = param2;
-    frame.addrStack = param1;
+    frame.addrStack = param2;
+    frame.addrFrame = param1;
     if (!(g_stackProcessHandleRead & 1)) {
         g_stackProcessHandleRead |= 1;
         g_stackProcessHandle = GetCurrentProcess();
@@ -4146,12 +4146,12 @@ void __cdecl WalkStack(int param1, int param2, int param3, int param4, int* para
             }
             return;
         }
-        if (frame.addrStack == 0)
-            return;
         if (frame.addrFrame == 0)
             return;
+        if (frame.addrPc == 0)
+            return;
         if (param4 == 0) {
-            param5[*param7] = frame.addrFrame;
+            param5[*param7] = frame.addrPc;
             ++(*param7);
         } else {
             --param4;
