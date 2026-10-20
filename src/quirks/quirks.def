@@ -3,3 +3,4 @@ QUIRK(patrolNullEnemySkip, "ai.patrol-null-enemy-skip", sim, "ai.patrol-null-ene
 QUIRK(skipEmptyYardmap, "units.skip-empty-yardmap", sim, "units.skip-empty-yardmap")
 QUIRK(boundLanguageCopy, "util.bound-language-copy", view, "")
 QUIRK(renderPoseReads, "units.render-pose-reads", sim, "")
+QUIRK(hoverBobWallClock, "units.hover-bob-wall-clock", sim, "")
