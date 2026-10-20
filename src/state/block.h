@@ -36,8 +36,11 @@ unsigned int* __cdecl SimRandStream(int stream);
 // Makes a copy of the block (kSimBlockBytes bytes) the live sim block.
 void __cdecl SimBlockAttach(void* base);
 
-// Releases the block so that the next use reserves a fresh zeroed one.
+// Releases the block so that the next use reserves a fresh zeroed one; a tracked pointer becomes null.
 void __cdecl SimBlockReset();
+
+// Tracks a pointer into the block: SimBlockReset nulls *slot and SimBlockAttach moves it into the new block.
+void __cdecl SimBlockTrack(void** slot);
 
 // The tag that selects the sim block in a placement new.
 struct SimHeap {};

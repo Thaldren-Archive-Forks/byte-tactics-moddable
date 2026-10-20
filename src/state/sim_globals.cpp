@@ -10,14 +10,20 @@ inline PacketManager::~PacketManager() { }
 
 static void __cdecl DestroySimGlobals()
 {
-    g_simGlobals->~SimGlobals();
+    if (g_simGlobals != 0)
+        g_simGlobals->~SimGlobals();
 }
 
 SimGlobals& SimCreate()
 {
+    static bool registered = false;
     void* mem = SimAlloc(sizeof(SimGlobals));
     g_simGlobals = static_cast<SimGlobals*>(mem);
+    SimBlockTrack(reinterpret_cast<void**>(&g_simGlobals));
     new (mem) SimGlobals();
-    atexit(DestroySimGlobals);
+    if (!registered) {
+        registered = true;
+        atexit(DestroySimGlobals);
+    }
     return *g_simGlobals;
 }
