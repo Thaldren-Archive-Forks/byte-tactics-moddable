@@ -49270,6 +49270,7 @@ address,function,file,kind,target
 ,Push,src/host/win32/window.cpp,global_read,g_queue
 ,Push,src/host/win32/window.cpp,global_read,kQueueSize
 ,Push,src/host/win32/window.cpp,global_write,g_count
+,Push,src/host/win32/window.cpp,global_write,g_head
 ,Push,src/host/win32/window.cpp,global_write,g_queue
 ,PushKey,src/gui/keyboard.cpp,call,GetDisplay
 ,PushKey,src/gui/keyboard.cpp,field_read,Queue_004c1ab0::head

@@ -21,7 +21,7 @@ bool Droppable(unsigned int type, int level)
     if (type == HOST_EVENT_CLOSE || type == HOST_EVENT_DESTROY) {
         return false;
     }
-    if (level == 1 && type == HOST_EVENT_KEY_UP || type == HOST_EVENT_SYS_KEY_UP) {
+    if (level == 1 && (type == HOST_EVENT_KEY_UP || type == HOST_EVENT_SYS_KEY_UP)) {
         return false;
     }
     return true;
@@ -44,6 +44,10 @@ void Push(const host_event& ev)
             if (dropped) {
                 break;
             }
+        }
+        if (g_count == kQueueSize) {
+            g_head = (g_head + 1) % kQueueSize;
+            g_count--;
         }
     }
     g_queue[(g_head + g_count) % kQueueSize] = ev;
