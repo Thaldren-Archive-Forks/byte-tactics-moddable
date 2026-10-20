@@ -205,7 +205,6 @@ int __stdcall AllocAlphaTable(App_4b5980* d);
 int __stdcall AllocLightTable(App_4b5980* d);
 int __stdcall AllocGrayTable(App_4b5980* d);
 int __stdcall AllocBlueTable(App_4b5980* d);
-long __stdcall WindowProc(HWND hwnd, unsigned int msg, unsigned int wparam, unsigned int lparam);
 void __stdcall PushKeyCode(int v);
 void __stdcall HandleVirtualKey(int v, int flag);
 void __stdcall PushMouseEvent(Event_4b5cc0* ev);
@@ -707,30 +706,11 @@ int __stdcall InitEnvironment(App_4b5980* d)
         d->dib = 0;
         d->callback = 0;
         d->mode = d->startMode;
-        d->wc.lpfnWndProc = (WNDPROC)WindowProc;
-        d->wc.style = 8;
-        d->wc.hInstance = d->hInstance;
-        d->wc.lpszClassName = d->className;
-        d->wc.hIcon = LoadIconA(d->hInstance, IDI_APPLICATION);
-        // IDC_ARROW passed as the raw Win16 value 103.
-        d->wc.hCursor = LoadCursorA(d->hInstance, (LPCSTR)103);
-        d->wc.lpszMenuName = (LPSTR)d->menuId;
-        d->wc.cbClsExtra = 0;
-        d->wc.cbWndExtra = 0;
-        d->wc.hbrBackground = GetStockObject(BLACK_BRUSH);
-        unsigned int cls = RegisterClassA(&d->wc);
-        if (cls != 0) {
-            d->hwnd = CreateWindowExA(WS_EX_APPWINDOW, d->className, d->title,
-                                      WS_POPUP | WS_VISIBLE | WS_SYSMENU,
-                                      CW_USEDEFAULT, CW_USEDEFAULT, w, h,
-                                      0, 0, d->hInstance, 0);
-            if (d->hwnd != 0) {
-                ShowWindow(d->hwnd, d->nCmdShow);
-                UpdateWindow(d->hwnd);
-                int r = SetFullScreen(d->videoFlags & 1);
-                if (r != 0) {
-                    return 1;
-                }
+        d->hwnd = (HWND)host_window_open(d->title, w, h, d->videoFlags & 1);
+        if (d->hwnd != 0) {
+            int r = SetFullScreen(d->videoFlags & 1);
+            if (r != 0) {
+                return 1;
             }
         }
         ReleaseDirectDraw(d);
@@ -747,125 +727,117 @@ int __stdcall InitEnvironment(App_4b5980* d)
         d->hpalette = 0;
         d->dib = 0;
         host_message(d->hwnd, d->title, "Error:  Environment Initialization Failed!\nCheck your DirectX setup", HOST_MESSAGE_PLAIN);
-        DestroyWindow(d->hwnd);
+        host_window_close();
         return 0;
     }
     return 1;
 }
 
-// Window procedure of the main application window: translates the custom
-// display messages and forwards the rest to the default handler.
-// FUNCTION: 0x4b5cc0
-long __stdcall WindowProc(HWND hwnd, unsigned int msg, unsigned int wparam,
-                            unsigned int lparam)
+int __stdcall HandleHostEvent(host_event* ev)
 {
     Event_4b5cc0 e;
-    switch (msg) {
-    case WM_CREATE:
-        return 0;
-    case WM_DESTROY:
+    switch (ev->type) {
+    case HOST_EVENT_DESTROY:
         if (g_display->flags.bits.bit1)
             SetFullScreen(0);
-        PostQuitMessage(0);
+        host_post_quit();
         return 0;
-    case WM_ACTIVATE:
-        if ((unsigned short)wparam == 0)
+    case HOST_EVENT_FOCUS:
+        if (ev->a == 0)
             g_display->active = 0;
         else
             g_display->active = 1;
-        return 0;
-    case WM_CLOSE:
+        return 1;
+    case HOST_EVENT_CLOSE:
         if (g_timerSlots.closeHandler != 0) {
             g_timerSlots.closeHandler(g_timerSlots.closeHandlerArg);
-            return 0;
+            return 1;
         }
-        DestroyWindow(hwnd);
-        return 0;
-    case WM_KEYDOWN:
-        HandleVirtualKey(wparam, 0);
-        return 0;
-    case WM_CHAR:
-        PushKeyCode(wparam);
-        return 0;
-    case WM_SYSKEYDOWN:
-        HandleVirtualKey(wparam, 1);
-        return DefWindowProcA(hwnd, msg, wparam, lparam);
-    case WM_SYSCOMMAND:
-        if (wparam == 0xf100)
-            return 0;
-        return DefWindowProcA(hwnd, msg, wparam, lparam);
-    case WM_MOUSEMOVE:
-        e.x = lparam & 0xffff;
-        e.y = (lparam >> 16) & 0xffff;
-        e.buttons = wparam;
-        e.time = host_time_ms() * g_display->tickScale / 1000;
+        host_window_close();
+        return 1;
+    case HOST_EVENT_KEY_DOWN:
+        HandleVirtualKey(ev->a, 0);
+        return 1;
+    case HOST_EVENT_CHAR:
+        PushKeyCode(ev->a);
+        return 1;
+    case HOST_EVENT_SYS_KEY_DOWN:
+        HandleVirtualKey(ev->a, 1);
+        return 1;
+    case HOST_EVENT_MOUSE_MOVE:
+        e.x = ev->x;
+        e.y = ev->y;
+        e.buttons = ev->buttons;
+        e.time = ev->time_ms * g_display->tickScale / 1000;
         e.flag = 0;
-        e.message = msg;
+        e.message = ev->type;
         SetCurrentMouseEvent((int*)&e);
-        return 0;
-    case WM_LBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_RBUTTONDOWN:
-    case WM_RBUTTONUP:
-        e.x = lparam & 0xffff;
-        e.y = (lparam >> 16) & 0xffff;
-        e.buttons = wparam;
-        e.time = host_time_ms() * g_display->tickScale / 1000;
+        return 1;
+    case HOST_EVENT_LBUTTON_DOWN:
+    case HOST_EVENT_LBUTTON_UP:
+    case HOST_EVENT_RBUTTON_DOWN:
+    case HOST_EVENT_RBUTTON_UP:
+        e.x = ev->x;
+        e.y = ev->y;
+        e.buttons = ev->buttons;
+        e.time = ev->time_ms * g_display->tickScale / 1000;
         e.flag = 0;
         break;
-    case WM_LBUTTONDBLCLK:
-    case WM_RBUTTONDBLCLK:
-        e.x = lparam & 0xffff;
-        e.y = (lparam >> 16) & 0xffff;
-        e.buttons = wparam;
-        e.time = host_time_ms() * g_display->tickScale / 1000;
+    case HOST_EVENT_LBUTTON_DOUBLE:
+    case HOST_EVENT_RBUTTON_DOUBLE:
+        e.x = ev->x;
+        e.y = ev->y;
+        e.buttons = ev->buttons;
+        e.time = ev->time_ms * g_display->tickScale / 1000;
         e.flag = 1;
         break;
-    case 0x219:
+    case HOST_EVENT_DEVICE_CHANGE:
+    case HOST_EVENT_MEDIA_NOTIFY:
         if (g_display->callback != 0)
-            g_display->callback(0x219, wparam, lparam);
+            g_display->callback(ev->type, ev->a, ev->b);
         return 1;
-    case 0x30f: {
-        // Single result local and one `return ok;`: keeps the return path folded.
-        long ok;
+    case HOST_EVENT_PALETTE_QUERY:
         if (g_display->hpalette) {
             HDC dc = GetDC(g_display->hwnd);
             SelectPalette(dc, g_display->hpalette, FALSE);
             RealizePalette(dc);
             ReleaseDC(g_display->hwnd, dc);
-            ok = 1;
         }
-        else {
-            HRESULT hr = E_FAIL;
-            if (g_display->draw.primary && g_display->draw.palette)
-                hr = g_display->draw.primary->SetPalette(g_display->draw.palette);
-            ok = hr == DD_OK ? 1 : 0;
+        else if (g_display->draw.primary && g_display->draw.palette) {
+            g_display->draw.primary->SetPalette(g_display->draw.palette);
         }
-        return ok;
-    }
-    case 0x311:
-        if (g_display->hwnd == (HWND)wparam)
-            return 0;
+        return 1;
+    case HOST_EVENT_PALETTE_CHANGED:
+        if (ev->a != 0)
+            return 1;
         if (g_display->hpalette) {
             HDC dc = GetDC(g_display->hwnd);
             SelectPalette(dc, g_display->hpalette, FALSE);
             RealizePalette(dc);
             ReleaseDC(g_display->hwnd, dc);
-            return 0;
+            return 1;
         }
         if (g_display->draw.primary && g_display->draw.palette)
             g_display->draw.primary->SetPalette(g_display->draw.palette);
-        return 0;
-    case 0x3b9:
-        if (g_display->callback != 0)
-            g_display->callback(0x3b9, wparam, lparam);
         return 1;
     default:
-        return DefWindowProcA(hwnd, msg, wparam, lparam);
+        return 1;
     }
-    e.message = msg;
+    e.message = ev->type;
     PushMouseEvent(&e);
-    return 0;
+    return 1;
+}
+
+// FUNCTION: 0x4b5cc0
+int DispatchHostEvents()
+{
+    host_event ev;
+    int alive = 1;
+    while (host_event_next(&ev)) {
+        if (!HandleHostEvent(&ev))
+            alive = 0;
+    }
+    return alive;
 }
 
 // Shuts a display object down: stops the input thread, frees the item list and
@@ -922,7 +894,7 @@ void __stdcall QuitApp(char* message)
     if (message) {
         host_message(g_display->hwnd, g_display->title, message, HOST_MESSAGE_PLAIN);
     }
-    PostMessageA(g_display->hwnd, WM_DESTROY, 0, 0);
+    host_window_post(HOST_EVENT_DESTROY);
 }
 
 // Fatal error: shows an optional message box and exits the process.

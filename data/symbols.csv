@@ -2451,7 +2451,7 @@ address,name
 0x4b5910,ToggleFullScreen
 0x4b5940,SetResolution
 0x4b5980,InitEnvironment
-0x4b5cc0,WindowProc
+0x4b5cc0,DispatchHostEvents
 0x4b6110,ShutdownEnvironment
 0x4b6220,GetDisplay
 0x4b6230,QuitApp

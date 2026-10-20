@@ -6,6 +6,7 @@
 // state. The module's files gathered in address order; 0x41b2e0 and 0x41bde0
 // keep their own files (their own include sets decide their matches).
 #include <windows.h>
+#include "../../interfaces/host.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1729,11 +1730,11 @@ void UpdateEdgeScroll()
     GetCurrentMouseEvent(&mouse);
     Display_0041ce90* d = GetDisplay();
     if (!(d->flags_f0 & 2)) {
-        GetCursorPos(&pt);
+        host_cursor_get((int*)&pt.x, (int*)&pt.y);
         int w = g_game->width_37e1f;
         int h = g_game->field_37e23;
         if ((pt.x >= w || pt.y >= h) && pt.x < w + 100 && pt.y < h + 100
-            && GetFocus() == d->hwnd) {
+            && host_window_has_focus()) {
             mouse.x = pt.x;
             if (pt.x >= w)
                 mouse.x = w - 1;

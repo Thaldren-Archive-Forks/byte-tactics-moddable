@@ -71,3 +71,8 @@ extern "C" void HOST_CALL host_event_destroy(void* event)
 {
     CloseHandle((HANDLE)event);
 }
+
+extern "C" void HOST_CALL host_thread_set_priority(int level)
+{
+    SetThreadPriority(GetCurrentThread(), level);
+}

@@ -518,6 +518,7 @@ game,platform,call,CommandArgs::GetIntArg,25
 game,platform,call,CommandArgs::InitArgs,1
 game,platform,call,CommandArgs::Tokenize,1
 game,platform,call,CountDirectoryEntries,1
+game,platform,call,DispatchHostEvents,1
 game,platform,call,EmptyPostArchiveMountHook,1
 game,platform,call,ExecuteCommand,1
 game,platform,call,ExecuteCommandText,2
@@ -601,6 +602,7 @@ game,platform,call,host_file_create,2
 game,platform,call,host_file_open_append,1
 game,platform,call,host_file_write,1
 game,platform,call,host_message,2
+game,platform,call,host_pump_events,1
 game,platform,call,host_setting_get,1
 game,platform,call,host_setting_set,1
 game,platform,call,host_sleep_ms,3
@@ -1538,6 +1540,7 @@ network,pathfinding,shared_write,Player::index,1
 network,pathfinding,shared_write,Player::type,1
 network,platform,call,AllocNotifyNop,1
 network,platform,call,ComputeUnitScriptChecksum,2
+network,platform,call,DispatchHostEvents,1
 network,platform,call,FatalError,2
 network,platform,call,GameAllocIgnoreTag,8
 network,platform,call,GameFreeThunk,7
@@ -1553,6 +1556,7 @@ network,platform,call,SkipTextLines,2
 network,platform,call,ToggleFullScreen,2
 network,platform,call,Translate,10
 network,platform,call,_Destroy,2
+network,platform,call,host_pump_events,1
 network,platform,call,host_sleep_ms,3
 network,platform,call,host_time_ms,2
 network,platform,call,operator delete,26
@@ -3009,6 +3013,7 @@ presentation,platform,call,CheckDirectXVersion,1
 presentation,platform,call,CheckGpfVersion,1
 presentation,platform,call,CountDirectoryEntries,7
 presentation,platform,call,CrossProduct,1
+presentation,platform,call,DispatchHostEvents,1
 presentation,platform,call,FatalError,15
 presentation,platform,call,FilePrintf,1
 presentation,platform,call,GameAllocIgnoreTag,52
@@ -3038,6 +3043,7 @@ presentation,platform,call,HAPI_SeekFile,9
 presentation,platform,call,HAPI_TellFile,1
 presentation,platform,call,HAPI_WriteFile,19
 presentation,platform,call,HAPI_readfromfile,12
+presentation,platform,call,HandleHostEvent,1
 presentation,platform,call,HapiBank::GetIntegerItem,1
 presentation,platform,call,HapiBank::OpenAccount,2
 presentation,platform,call,HapiBank::ReadBox,1
@@ -3084,10 +3090,13 @@ presentation,platform,call,VectorFromToInt,1
 presentation,platform,call,WorldToCell,2
 presentation,platform,call,WriteBufferToFile,3
 presentation,platform,call,host_atomic_exchange,10
+presentation,platform,call,host_cursor_get,5
+presentation,platform,call,host_cursor_set,1
 presentation,platform,call,host_dir_close,1
 presentation,platform,call,host_dir_first,1
 presentation,platform,call,host_dir_next,1
 presentation,platform,call,host_event_create,2
+presentation,platform,call,host_event_next,1
 presentation,platform,call,host_event_reset,2
 presentation,platform,call,host_event_set,5
 presentation,platform,call,host_event_wait,5
@@ -3097,10 +3106,15 @@ presentation,platform,call,host_file_open_read,1
 presentation,platform,call,host_file_read,1
 presentation,platform,call,host_file_seek,3
 presentation,platform,call,host_file_write,4
+presentation,platform,call,host_key_state,2
 presentation,platform,call,host_message,1
+presentation,platform,call,host_post_quit,1
+presentation,platform,call,host_pump_events,2
 presentation,platform,call,host_sleep_ms,4
+presentation,platform,call,host_thread_set_priority,1
 presentation,platform,call,host_thread_start,2
 presentation,platform,call,host_time_ms,5
+presentation,platform,call,host_window_has_focus,1
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
 presentation,platform,call,operator-,5
