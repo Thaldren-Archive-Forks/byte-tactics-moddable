@@ -878,6 +878,7 @@ enum {
     SQUAD_TIMERS = 10,
     MANAGER_TIMERS = 0x11,
     MANAGER_SCOUT_TIMER = 8,
+    SQUAD_SCOUT = 8,
     SCRIPT_SET_UNIT_VALUE_SLOT = 16,
     SCRIPT_VALUE_YARD_OPEN = 18,
     PACKET_UNIT_DEATH = 12,
@@ -2722,7 +2723,7 @@ static void ReachQuirkGuard()
                 unsigned char* u = PoolUnit(i);
                 if (*(unsigned short*)(u + UNIT_TYPE) == 0 || !UnitIsSlot(u, slot))
                     continue;
-                g_seams.ai->SetUnitSquad((Unit*)u, 8);
+                g_seams.ai->SetUnitSquad((Unit*)u, SQUAD_SCOUT);
                 memset(ai + AI_CENTRE, 0, AI_CENTRE_SIZE);
                 void* timer = (void*)ReadU32At(manager, MANAGER_TIMERS + MANAGER_SCOUT_TIMER * 4);
                 void (__thiscall* onTimer)(void*) = (void (__thiscall*)(void*))(*(void***)timer)[0];
