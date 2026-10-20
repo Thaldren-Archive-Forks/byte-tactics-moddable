@@ -604,7 +604,7 @@ game,platform,call,host_thread_start,1
 game,platform,call,host_time_counter,1
 game,platform,call,host_time_ms,1
 game,platform,call,operator delete,6
-game,platform,call,operator new,4
+game,platform,call,operator new,5
 game,platform,shared_write,Vec3::x,21
 game,platform,shared_write,Vec3::z,21
 game,platform,shared_write,_MEMORYSTATUS::dwLength,2
@@ -2701,7 +2701,6 @@ presentation,ai,shared_write,Unit::pos,2
 presentation,ai,shared_write,Vec3::x,21
 presentation,ai,shared_write,Vec3::y,14
 presentation,ai,shared_write,Vec3::z,21
-presentation,ai,shared_write,g_game,42
 presentation,economy,call,ShareMapInfo,1
 presentation,economy,shared_write,Game::difficulty,4
 presentation,economy,shared_write,Game::netGameFlags,8
@@ -2713,7 +2712,6 @@ presentation,economy,shared_write,Player::metal,7
 presentation,economy,shared_write,Point16::x,1
 presentation,economy,shared_write,Point16::y,1
 presentation,economy,shared_write,Unit::flags,1
-presentation,economy,shared_write,g_game,19
 presentation,features,shared_write,Fixed::whole,2
 presentation,features,shared_write,GafFrame::height,1
 presentation,features,shared_write,GafFrame::width,1
@@ -2727,7 +2725,6 @@ presentation,features,shared_write,Point16::y,11
 presentation,features,shared_write,Vec3::x,7
 presentation,features,shared_write,Vec3::y,5
 presentation,features,shared_write,Vec3::z,7
-presentation,features,shared_write,g_game,34
 presentation,game,call,ApplySlotsToGamePlayers,1
 presentation,game,call,ExecuteCommandLine,2
 presentation,game,call,Force640x480Surfaces,2
@@ -2746,6 +2743,7 @@ presentation,game,call,ShowLoadGameScreen,3
 presentation,game,call,ShowSaveGameScreen,2
 presentation,game,call,ShutdownIngameAndQuit,1
 presentation,game,call,ShutdownIngameSystems,1
+presentation,game,call,SimAlloc,1
 presentation,game,call,SimAllocTagged,1
 presentation,game,call,StepGafSequence,1
 presentation,game,call,UpdateBattleRoom,1
@@ -2786,12 +2784,10 @@ presentation,game,shared_write,Ref_004b8b30::value,1
 presentation,game,shared_write,Unit::flags,3
 presentation,game,shared_write,Vec3::x,2
 presentation,game,shared_write,Vec3::z,2
-presentation,game,shared_write,g_game,116
 presentation,harness,call,HarnessViewRand,19
 presentation,harness,shared_write,Game::difficulty,1
 presentation,harness,shared_write,Game::numPlayers,1
 presentation,harness,shared_write,g_explodedPieces,1
-presentation,harness,shared_write,g_game,4
 presentation,los_radar,call,BuildFogTiles,1
 presentation,los_radar,call,CalcRadarViewportRect,1
 presentation,los_radar,call,GetMapCell,1
@@ -2821,7 +2817,6 @@ presentation,los_radar,shared_write,Unit::selected,1
 presentation,los_radar,shared_write,Vec3::x,10
 presentation,los_radar,shared_write,Vec3::y,10
 presentation,los_radar,shared_write,Vec3::z,10
-presentation,los_radar,shared_write,g_game,54
 presentation,map,call,CanBuildAt,1
 presentation,map,call,GetCellHeight,1
 presentation,map,call,GetFootprintHeight,1
@@ -2859,7 +2854,6 @@ presentation,map,shared_write,Unit::pos,1
 presentation,map,shared_write,Vec3::x,8
 presentation,map,shared_write,Vec3::y,2
 presentation,map,shared_write,Vec3::z,8
-presentation,map,shared_write,g_game,37
 presentation,network,call,AddMessage,4
 presentation,network,call,AddNetPlayer,1
 presentation,network,call,AreAllPlayersReady,1
@@ -2951,7 +2945,6 @@ presentation,network,shared_write,PlayerInfo::started,2
 presentation,network,shared_write,Unit::angles,1
 presentation,network,shared_write,Unit::flags,2
 presentation,network,shared_write,Unit::pos,1
-presentation,network,shared_write,g_game,149
 presentation,orders,call,AdjustBuildCount,1
 presentation,orders,call,DeleteOrder,1
 presentation,orders,call,FindOrderByType,1
@@ -2989,14 +2982,12 @@ presentation,orders,shared_write,Unit::pos,69
 presentation,orders,shared_write,Vec3::x,110
 presentation,orders,shared_write,Vec3::y,83
 presentation,orders,shared_write,Vec3::z,110
-presentation,orders,shared_write,g_game,57
 presentation,pathfinding,call,PathGrid::At,1
 presentation,pathfinding,shared_write,Game::numPlayers,1
 presentation,pathfinding,shared_write,Player::active,1
 presentation,pathfinding,shared_write,Player::index,1
 presentation,pathfinding,shared_write,Point16::x,7
 presentation,pathfinding,shared_write,Point16::y,7
-presentation,pathfinding,shared_write,g_game,4
 presentation,platform,call,AddTimer,3
 presentation,platform,call,AllocNotifyNop,1
 presentation,platform,call,BuildCdFilePath,1
@@ -3092,7 +3083,7 @@ presentation,platform,call,host_event_wait,5
 presentation,platform,call,host_message,1
 presentation,platform,call,host_sleep_ms,4
 presentation,platform,call,host_thread_start,2
-presentation,platform,call,host_time_ms,5
+presentation,platform,call,host_time_ms,4
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
 presentation,platform,call,operator-,5
@@ -3109,7 +3100,6 @@ presentation,platform,shared_write,StringRef::data,6
 presentation,platform,shared_write,Vec3::x,21
 presentation,platform,shared_write,Vec3::y,9
 presentation,platform,shared_write,Vec3::z,21
-presentation,platform,shared_write,g_game,14
 presentation,players,call,EnableReporter,1
 presentation,players,call,GetEnergyIncome,1
 presentation,players,call,GetEnergyUsage,1
@@ -3155,7 +3145,6 @@ presentation,players,shared_write,Unit::pos,1
 presentation,players,shared_write,Vec3::x,3
 presentation,players,shared_write,Vec3::y,3
 presentation,players,shared_write,Vec3::z,3
-presentation,players,shared_write,g_game,46
 presentation,seams,indirect,ComputeMapChecksumNative,1
 presentation,seams,indirect,GetTerrainLengthNative,1
 presentation,seams,shared_write,Vec3::x,1
@@ -3165,7 +3154,6 @@ presentation,targeting,shared_write,Unit::pos,1
 presentation,targeting,shared_write,Vec3::x,2
 presentation,targeting,shared_write,Vec3::y,1
 presentation,targeting,shared_write,Vec3::z,2
-presentation,targeting,shared_write,g_game,3
 presentation,units,call,FindUnitTypeId,7
 presentation,units,call,GetCategoryMask,5
 presentation,units,call,GetGroundHeight,7
@@ -3202,7 +3190,6 @@ presentation,units,shared_write,Unit::state,5
 presentation,units,shared_write,Vec3::x,9
 presentation,units,shared_write,Vec3::y,11
 presentation,units,shared_write,Vec3::z,9
-presentation,units,shared_write,g_game,47
 presentation,weapons,shared_write,Angles16::bank,1
 presentation,weapons,shared_write,Angles16::heading,10
 presentation,weapons,shared_write,Angles16::pitch,6
@@ -3235,13 +3222,11 @@ presentation,weapons,shared_write,Vec3f::x,1
 presentation,weapons,shared_write,Vec3f::y,1
 presentation,weapons,shared_write,Vec3f::z,1
 presentation,weapons,shared_write,g_explodedPieces,5
-presentation,weapons,shared_write,g_game,53
 presentation,wind_meteors,shared_write,Point16::x,5
 presentation,wind_meteors,shared_write,Point16::y,5
 presentation,wind_meteors,shared_write,Vec3::x,1
 presentation,wind_meteors,shared_write,Vec3::y,1
 presentation,wind_meteors,shared_write,Vec3::z,1
-presentation,wind_meteors,shared_write,g_game,5
 seams,ai,call,GetFactoriesInRadius,1
 seams,ai,call,GetVisibleEnemiesInRadius,1
 seams,ai,call,SquadManager::DeleteTimers,1

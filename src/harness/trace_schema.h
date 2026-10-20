@@ -23,6 +23,7 @@ struct TraceGlobal {
     unsigned size;
     unsigned char kind;
     unsigned char target;
+    unsigned char relative;
 };
 
 struct TraceTable {
@@ -1390,55 +1391,100 @@ static const TraceField kGameScalarFields[] = {
 
 static const unsigned kGameScalarFieldCount = 14;
 
-extern int g_meteorNextStrikeTime;
-extern char g_meteorWeaponName[32];
-extern int g_meteorSpawnMagnitude;
-extern int g_meteorSpawnInterval;
-extern int g_meteorActive;
-extern int g_meteorStrikeEndTime;
-extern Point16 g_meteorOrigin;
-extern int g_meteorShowerDuration;
-extern WeaponDef* g_meteorWeapon;
-extern int g_meteorsEnabled;
-extern int g_meteorNextHitTime;
-extern Point16 g_meteorTarget;
-extern int g_meteorScheduleGap;
-extern int g_cdPathMismatch;
-extern unsigned int g_cdMismatchDefeatTick;
-extern int g_economyPacketTick;
-extern int g_playerTickLoad[10];
-extern int g_playerBudgetCap[10];
-extern int g_budgetRefreshCounter;
+#include <stddef.h>
+#include "../state/sim_globals.h"
+#define TRACE_SIM_BASE ((const unsigned char*)&Sim())
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma push_macro("g_meteorNextStrikeTime")
+#undef g_meteorNextStrikeTime
+#pragma push_macro("g_meteorWeaponName")
+#undef g_meteorWeaponName
+#pragma push_macro("g_meteorSpawnMagnitude")
+#undef g_meteorSpawnMagnitude
+#pragma push_macro("g_meteorSpawnInterval")
+#undef g_meteorSpawnInterval
+#pragma push_macro("g_meteorActive")
+#undef g_meteorActive
+#pragma push_macro("g_meteorStrikeEndTime")
+#undef g_meteorStrikeEndTime
+#pragma push_macro("g_meteorOrigin")
+#undef g_meteorOrigin
+#pragma push_macro("g_meteorShowerDuration")
+#undef g_meteorShowerDuration
+#pragma push_macro("g_meteorWeapon")
+#undef g_meteorWeapon
+#pragma push_macro("g_meteorsEnabled")
+#undef g_meteorsEnabled
+#pragma push_macro("g_meteorNextHitTime")
+#undef g_meteorNextHitTime
+#pragma push_macro("g_meteorTarget")
+#undef g_meteorTarget
+#pragma push_macro("g_meteorScheduleGap")
+#undef g_meteorScheduleGap
+#pragma push_macro("g_cdPathMismatch")
+#undef g_cdPathMismatch
+#pragma push_macro("g_cdMismatchDefeatTick")
+#undef g_cdMismatchDefeatTick
+#pragma push_macro("g_economyPacketTick")
+#undef g_economyPacketTick
+#pragma push_macro("g_playerTickLoad")
+#undef g_playerTickLoad
+#pragma push_macro("g_playerBudgetCap")
+#undef g_playerBudgetCap
+#pragma push_macro("g_budgetRefreshCounter")
+#undef g_budgetRefreshCounter
 
 static const TraceGlobal kMeteorGlobals[] = {
-    { "nextStrikeTime", &g_meteorNextStrikeTime, 4, TF_SCALAR, TT_NONE },
-    { "weaponName", &g_meteorWeaponName, 32, TF_BYTES, TT_NONE },
-    { "spawnMagnitude", &g_meteorSpawnMagnitude, 4, TF_SCALAR, TT_NONE },
-    { "spawnInterval", &g_meteorSpawnInterval, 4, TF_SCALAR, TT_NONE },
-    { "active", &g_meteorActive, 4, TF_SCALAR, TT_NONE },
-    { "strikeEndTime", &g_meteorStrikeEndTime, 4, TF_SCALAR, TT_NONE },
-    { "origin", &g_meteorOrigin, 4, TF_SCALAR, TT_NONE },
-    { "showerDuration", &g_meteorShowerDuration, 4, TF_SCALAR, TT_NONE },
-    { "weapon", &g_meteorWeapon, 4, TF_POINTER, TT_WEAPONDEF },
-    { "enabled", &g_meteorsEnabled, 4, TF_SCALAR, TT_NONE },
-    { "nextHitTime", &g_meteorNextHitTime, 4, TF_SCALAR, TT_NONE },
-    { "target", &g_meteorTarget, 4, TF_SCALAR, TT_NONE },
-    { "scheduleGap", &g_meteorScheduleGap, 4, TF_SCALAR, TT_NONE },
+    { "nextStrikeTime", (const void*)(offsetof(SimGlobals, g_meteorNextStrikeTime)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "weaponName", (const void*)(offsetof(SimGlobals, g_meteorWeaponName)), 32, TF_BYTES, TT_NONE, 1 },
+    { "spawnMagnitude", (const void*)(offsetof(SimGlobals, g_meteorSpawnMagnitude)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "spawnInterval", (const void*)(offsetof(SimGlobals, g_meteorSpawnInterval)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "active", (const void*)(offsetof(SimGlobals, g_meteorActive)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "strikeEndTime", (const void*)(offsetof(SimGlobals, g_meteorStrikeEndTime)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "origin", (const void*)(offsetof(SimGlobals, g_meteorOrigin)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "showerDuration", (const void*)(offsetof(SimGlobals, g_meteorShowerDuration)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "weapon", (const void*)(offsetof(SimGlobals, g_meteorWeapon)), 4, TF_POINTER, TT_WEAPONDEF, 1 },
+    { "enabled", (const void*)(offsetof(SimGlobals, g_meteorsEnabled)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "nextHitTime", (const void*)(offsetof(SimGlobals, g_meteorNextHitTime)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "target", (const void*)(offsetof(SimGlobals, g_meteorTarget)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "scheduleGap", (const void*)(offsetof(SimGlobals, g_meteorScheduleGap)), 4, TF_SCALAR, TT_NONE, 1 },
 };
 static const unsigned kMeteorGlobalsCount = 13;
 
 static const TraceGlobal kScalarGlobals[] = {
-    { "cdPathMismatch", &g_cdPathMismatch, 4, TF_SCALAR, TT_NONE },
-    { "cdMismatchDefeatTick", &g_cdMismatchDefeatTick, 4, TF_SCALAR, TT_NONE },
-    { "economyPacketTick", &g_economyPacketTick, 4, TF_SCALAR, TT_NONE },
+    { "cdPathMismatch", (const void*)(offsetof(SimGlobals, g_cdPathMismatch)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "cdMismatchDefeatTick", (const void*)(offsetof(SimGlobals, g_cdMismatchDefeatTick)), 4, TF_SCALAR, TT_NONE, 1 },
+    { "economyPacketTick", (const void*)(offsetof(SimGlobals, g_economyPacketTick)), 4, TF_SCALAR, TT_NONE, 1 },
 };
 static const unsigned kScalarGlobalsCount = 3;
 
 static const TraceGlobal kPathGlobals[] = {
-    { "playerTickLoad", &g_playerTickLoad, 40, TF_BYTES, TT_NONE },
-    { "playerBudgetCap", &g_playerBudgetCap, 40, TF_BYTES, TT_NONE },
-    { "budgetRefreshCounter", &g_budgetRefreshCounter, 4, TF_SCALAR, TT_NONE },
+    { "playerTickLoad", (const void*)(offsetof(SimGlobals, g_playerTickLoad)), 40, TF_BYTES, TT_NONE, 1 },
+    { "playerBudgetCap", (const void*)(offsetof(SimGlobals, g_playerBudgetCap)), 40, TF_BYTES, TT_NONE, 1 },
+    { "budgetRefreshCounter", (const void*)(offsetof(SimGlobals, g_budgetRefreshCounter)), 4, TF_SCALAR, TT_NONE, 1 },
 };
 static const unsigned kPathGlobalsCount = 3;
+
+#pragma pop_macro("g_budgetRefreshCounter")
+#pragma pop_macro("g_playerBudgetCap")
+#pragma pop_macro("g_playerTickLoad")
+#pragma pop_macro("g_economyPacketTick")
+#pragma pop_macro("g_cdMismatchDefeatTick")
+#pragma pop_macro("g_cdPathMismatch")
+#pragma pop_macro("g_meteorScheduleGap")
+#pragma pop_macro("g_meteorTarget")
+#pragma pop_macro("g_meteorNextHitTime")
+#pragma pop_macro("g_meteorsEnabled")
+#pragma pop_macro("g_meteorWeapon")
+#pragma pop_macro("g_meteorShowerDuration")
+#pragma pop_macro("g_meteorOrigin")
+#pragma pop_macro("g_meteorStrikeEndTime")
+#pragma pop_macro("g_meteorActive")
+#pragma pop_macro("g_meteorSpawnInterval")
+#pragma pop_macro("g_meteorSpawnMagnitude")
+#pragma pop_macro("g_meteorWeaponName")
+#pragma pop_macro("g_meteorNextStrikeTime")
+#pragma clang diagnostic pop
 
 #endif
