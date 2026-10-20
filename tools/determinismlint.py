@@ -22,7 +22,10 @@ Flagged, outside comments and string literals:
     Anything less certain is not reported.
 
 ALLOWLIST holds the sites that exist today, keyed by function address and
-callee, each with the issue that removes it; an allowlisted site never fails.
+callee, each with the issue that removes it, except QUIRK_ONLY sites (a 3.1c
+clock read behind a quirk flag that is off by default), which stay
+allowlisted because the default path does not take them (the reviewer checks
+that each is a real flag guard). An allowlisted site never fails.
 Prints file:line: <function> 0x<addr>: <what> and exits 1 if there are any
 findings. Standard library only.
 """
