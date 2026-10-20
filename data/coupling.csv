@@ -3089,6 +3089,10 @@ presentation,platform,call,host_event_create,2
 presentation,platform,call,host_event_reset,2
 presentation,platform,call,host_event_set,5
 presentation,platform,call,host_event_wait,5
+presentation,platform,call,host_file_close,2
+presentation,platform,call,host_file_create,1
+presentation,platform,call,host_file_seek,3
+presentation,platform,call,host_file_write,3
 presentation,platform,call,host_message,1
 presentation,platform,call,host_sleep_ms,4
 presentation,platform,call,host_thread_start,2

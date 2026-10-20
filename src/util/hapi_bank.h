@@ -9,8 +9,6 @@
 struct AccountList;
 struct StringPool;
 struct FileHandle;
-struct _iobuf;
-typedef struct _iobuf FILE;
 
 class HapiBank {
 public:
@@ -21,7 +19,7 @@ public:
     void NewBank();
     int OpenBank(char* filename, char* name, char* account);
     int SaveBank(char* filename, char* name, int compress, int audit);
-    void SaveAccount(int index, FILE* file, StringPool* pool, int compress);
+    void SaveAccount(int index, void* file, StringPool* pool, int compress);
     void LoadAccount(FileHandle* file, int* image, char* name);
     int OpenAccount(char* name);
     int SetIntegerItem(const char* name, int value);

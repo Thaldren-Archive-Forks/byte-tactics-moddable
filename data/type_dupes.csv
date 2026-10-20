@@ -21,7 +21,7 @@ App_004b6220,no,2,src/sound/cd_audio.cpp:37|src/sound/samples.cpp:37,identical,s
 App_004bec70,no,2,include/ta_types.h:14373|src/graphics/draw.cpp:63,same-layout,include/ta_types.h
 App_004bed70,no,2,include/ta_types.h:14378|src/graphics/draw.cpp:69,same-layout,include/ta_types.h
 App_004c0b10,no,2,include/ta_types.h:14422|src/graphics/draw.cpp:75,same-layout,include/ta_types.h
-ArchiveDirectory,no,4,src/util/hpi.cpp:91|src/util/hpi_4bb4e0.cpp:8|src/util/hpi_4bc800.cpp:11|src/util/hpi_4be320.cpp:8,identical,src/util/hpi.cpp
+ArchiveDirectory,no,4,src/util/hpi.cpp:93|src/util/hpi_4bb4e0.cpp:8|src/util/hpi_4bc800.cpp:11|src/util/hpi_4be320.cpp:8,identical,src/util/hpi.cpp
 ArchiveEntry,no,2,include/ta_types.h:14338|src/util/archive_entry.h:12,differs,src/util/archive_entry.h
 Arena_004da9f0,no,2,include/ta_types.h:16811|src/debug/debug_lib_4db7d0.cpp:98,differs,include/ta_types.h
 Arg_004c6210,no,2,include/ta_types.h:14941|src/graphics/surface.cpp:197,differs,include/ta_types.h
@@ -101,7 +101,7 @@ Diff_00480570,no,2,include/ta_types.h:10304|src/units/unit_script_calls.cpp:12,i
 DirectDrawState,no,2,include/ta_types.h:13663|src/graphics/display.cpp:60,differs,include/ta_types.h
 DirectPlay_4c97b0,no,2,include/ta_types.h:15263|src/network/hapinet.cpp:69,same-layout,include/ta_types.h
 Display,no,2,src/frontend/endgame.cpp:92|src/graphics/surface.cpp:65,differs,src/graphics/surface.cpp
-DisplayContext,no,4,include/ta_types.h:14507|src/graphics/palette.cpp:14|src/gui/keyboard.cpp:19|src/util/hpi.cpp:120,differs,src/graphics/palette.cpp
+DisplayContext,no,4,include/ta_types.h:14507|src/graphics/palette.cpp:14|src/gui/keyboard.cpp:19|src/util/hpi.cpp:122,differs,src/graphics/palette.cpp
 Display_0041ce90,no,2,include/ta_types.h:3788|src/ingame/control_panel.cpp:173,differs,include/ta_types.h
 Display_00425d80,no,2,include/ta_types.h:4409|src/frontend/frontend.cpp:120,same-layout,include/ta_types.h
 Display_0047c3a0,no,2,include/ta_types.h:9991|src/graphics/movies.cpp:97,identical,include/ta_types.h
@@ -202,10 +202,10 @@ Gui_00453a50,no,2,include/ta_types.h:6852|src/network/net_game.cpp:946,differs,i
 Gun_0049c9c0,no,2,include/ta_types.h:12032|src/weapons/weapons.cpp:52,identical,include/ta_types.h
 Handle,no,2,include/ta_types.h:4002|src/graphics/handle.h:13,differs,src/graphics/handle.h
 HandlerSlot_004b7900,no,2,include/ta_types.h:13880|src/util/commands.cpp:325,differs,include/ta_types.h
-HapiBank,no,3,include/ta_types.h:2150|src/units/unit_types_42a8d0.cpp:57|src/util/hapi_bank.h:15,differs,src/util/hapi_bank.h
-HapiBuf,no,2,include/ta_types.h:14306|src/util/hpi.cpp:1257,identical,include/ta_types.h
-Hapi_004bd160,no,2,include/ta_types.h:14311|src/util/hpi.cpp:1263,identical,include/ta_types.h
-Header,no,3,src/frontend/endgame.cpp:129|src/frontend/skirmish_menu.cpp:284|src/util/hpi.cpp:97,differs,src/frontend/endgame.cpp
+HapiBank,no,3,include/ta_types.h:2150|src/units/unit_types_42a8d0.cpp:57|src/util/hapi_bank.h:13,differs,src/util/hapi_bank.h
+HapiBuf,no,2,include/ta_types.h:14306|src/util/hpi.cpp:1278,identical,include/ta_types.h
+Hapi_004bd160,no,2,include/ta_types.h:14311|src/util/hpi.cpp:1284,identical,include/ta_types.h
+Header,no,3,src/frontend/endgame.cpp:129|src/frontend/skirmish_menu.cpp:284|src/util/hpi.cpp:99,differs,src/frontend/endgame.cpp
 Header_004cac40,no,2,include/ta_types.h:16135|src/graphics/pcx.cpp:93,differs,include/ta_types.h
 Hits_0049a120,no,2,src/weapons/weapons.cpp:625|src/weapons/weapons_49a120.cpp:95,identical,src/weapons/weapons.cpp
 Holder_00401000,no,2,include/ta_types.h:2134|src/game/economy.cpp:67,identical,include/ta_types.h
@@ -216,7 +216,7 @@ Id_004df1e0,no,2,include/ta_types.h:17223|src/debug/debug_lib.cpp:4432,differs,i
 Iface_00417f30,no,2,include/ta_types.h:3580|src/game/console_commands.cpp:161,same-layout,include/ta_types.h
 Iface_0043dd20,no,2,include/ta_types.h:5596|src/orders/order_list.cpp:789,same-layout,include/ta_types.h
 ImageFrame,no,2,include/ta_types.h:3977|src/weapons/explosions.cpp:44,identical,include/ta_types.h
-Info,no,2,src/util/hpi.cpp:82|src/util/hpi_4bd830.cpp:30,differs,src/util/hpi.cpp
+Info,no,2,src/util/hpi.cpp:84|src/util/hpi_4bd830.cpp:31,differs,src/util/hpi.cpp
 Info_00477510,no,2,include/ta_types.h:9670|src/frontend/campaign_menu.cpp:28,same-layout,include/ta_types.h
 InsertResult,no,2,include/ta_types.h:8408|src/network/unit_sync.cpp:1606,differs,include/ta_types.h
 InsertResult_004db450,no,2,include/ta_types.h:16779|src/debug/debug_lib.cpp:2003,identical,include/ta_types.h
@@ -302,11 +302,11 @@ Net_00443100,no,2,include/ta_types.h:5889|src/frontend/multi.cpp:183,differs,src
 Net_4517b0,no,2,include/ta_types.h:6793|src/network/net_game.cpp:888,differs,include/ta_types.h
 Net_4c97b0,no,3,include/ta_types.h:15294|src/network/hapinet.cpp:144|src/network/unit_sync.cpp:156,differs,src/network/hapinet.cpp
 Node_00489a90,no,2,include/ta_types.h:11026|src/units/unit.cpp:58,differs,include/ta_types.h
-Node_004bd830,no,2,src/util/hpi.cpp:1491|src/util/hpi_4bd830.cpp:16,identical,src/util/hpi.cpp
+Node_004bd830,no,2,src/util/hpi.cpp:1512|src/util/hpi_4bd830.cpp:17,identical,src/util/hpi.cpp
 Node_004d0b10,no,2,include/ta_types.h:16448|src/util/sqsh.cpp:47,differs,include/ta_types.h
 Node_004db000,no,3,src/debug/debug_lib.cpp:1668|src/debug/free_block_map.cpp:26|src/debug/free_block_map.h:21,identical,src/debug/free_block_map.h
 Node_004dd1b0,no,2,src/debug/debug_lib.cpp:1677|src/debug/free_block_map.cpp:35,identical,src/debug/debug_lib.cpp
-OPENHAPIFILE,no,2,src/util/hpi.cpp:108|src/util/hpi_4bd830.cpp:21,differs,src/util/hpi.cpp
+OPENHAPIFILE,no,2,src/util/hpi.cpp:110|src/util/hpi_4bd830.cpp:22,differs,src/util/hpi.cpp
 Obj,no,5,include/ta_types.h:13710|src/game/economy.cpp:57|src/graphics/draw.cpp:95|src/map/features.cpp:328|src/units/unit_save.cpp:92,differs,include/ta_types.h
 Obj1_49fd20,no,2,include/ta_types.h:12342|src/gui/gui.cpp:133,same-layout,include/ta_types.h
 Obj2_49fd20,no,2,include/ta_types.h:12330|src/gui/gui.cpp:138,same-layout,include/ta_types.h

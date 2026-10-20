@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 0
+#define HOST_VERSION_MINOR 1
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -93,6 +93,65 @@ void HOST_CALL host_fatal(void* owner, const char* title, const char* text);
 void HOST_CALL host_exit(int code);
 // Writes a line of text to the host's log.
 void HOST_CALL host_log(const char* text);
+
+// Opens an existing file under the game directory for reading only and returns its handle, or NULL when it cannot be opened.
+void* HOST_CALL host_file_open_read(const char* path);
+// Creates a file under the game directory, or empties it when it exists, for reading and writing, and returns its handle or NULL.
+void* HOST_CALL host_file_create(const char* path, unsigned int flags);
+// Opens a file under the game directory for reading and appending, creating it when it is missing, and returns its handle or NULL.
+void* HOST_CALL host_file_open_append(const char* path);
+// Reads up to size bytes into buf and returns how many were read, fewer at the end of the file.
+unsigned int HOST_CALL host_file_read(void* file, void* buf, unsigned int size);
+// Writes size bytes from buf and returns how many were written.
+unsigned int HOST_CALL host_file_write(void* file, const void* buf, unsigned int size);
+// Moves the file position by offset from origin and returns the new position from the start, or -1 on failure.
+long HOST_CALL host_file_seek(void* file, long offset, int origin);
+// Returns the length of the file in bytes, or -1 on failure.
+long HOST_CALL host_file_size(void* file);
+// Sets the length of the file to size bytes and returns 1, or 0 on failure.
+int HOST_CALL host_file_truncate(void* file, long size);
+// Closes the file and frees its handle.
+void HOST_CALL host_file_close(void* file);
+
+// File creation flag: write newlines as the host's text files end their lines.
+#define HOST_FILE_TEXT 1
+
+// Seek origin: offset is from the start of the file.
+#define HOST_SEEK_SET 0
+// Seek origin: offset is from the current position.
+#define HOST_SEEK_CUR 1
+// Seek origin: offset is from the end of the file.
+#define HOST_SEEK_END 2
+
+// Entry attribute bit: the entry is read-only.
+#define HOST_ATTR_READONLY 0x01
+// Entry attribute bit: the entry is hidden.
+#define HOST_ATTR_HIDDEN 0x02
+// Entry attribute bit: the entry belongs to the system.
+#define HOST_ATTR_SYSTEM 0x04
+// Entry attribute bit: the entry is a directory.
+#define HOST_ATTR_DIRECTORY 0x10
+// Entry attribute bit: the entry is marked for archiving.
+#define HOST_ATTR_ARCHIVE 0x20
+
+// One entry of a directory listing.
+struct host_dir_entry {
+    // The entry's name, without its directory.
+    char name[260];
+    // The entry's HOST_ATTR_ bits.
+    unsigned int attrib;
+    // The entry's length in bytes.
+    unsigned int size;
+    // The entry's last write time, in seconds since 1970-01-01 UTC.
+    unsigned int time_write;
+};
+
+// Lists the entries under the game directory that match pattern (* and ? wildcards), fills entry with the first, and returns the listing's handle, or NULL when nothing matches.
+void* HOST_CALL host_dir_first(const char* pattern, struct host_dir_entry* entry);
+// Fills entry with the listing's next entry and returns 1, or returns 0 when there are no more.
+int HOST_CALL host_dir_next(void* dir, struct host_dir_entry* entry);
+// Ends the listing and frees its handle.
+void HOST_CALL host_dir_close(void* dir);
 
 #ifdef __cplusplus
 }

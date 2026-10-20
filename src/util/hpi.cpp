@@ -16,6 +16,8 @@
 #include <stddef.h>
 #include <vector>
 
+#include "../../interfaces/host.h"
+
 // Unused here: the symbol ids these declarations take keep the allocation (docs/c2-regalloc.md).
 void RegisterUnitOrders(void);
 void RegisterGroundOrders(void);
@@ -106,7 +108,7 @@ struct Header {
 // An open archive: the file, the read position, its header, the open count
 // and the mode it was opened in.
 struct OPENHAPIFILE {
-    FILE* fp;                          // +0x0
+    void* fp;
     int pos;                           // +0x4, read position
     Header* node;                      // +0x8
     int count;                         // +0xc, handles open on this item
@@ -172,7 +174,7 @@ FileHandle* __stdcall HAPI_OpenFile(char* filename, const char* mode)
     memset(h, 0, 0x118);
     strncpy(h->name, filename, 0x100);
     h->name[0xff] = 0;
-    h->fp = fopen(filename, mode);
+    h->fp = mode[0] == 'a' ? host_file_open_append(filename) : host_file_open_read(filename);
     if (h->fp) {
         h->shared = 0;
         return h;
@@ -182,7 +184,7 @@ FileHandle* __stdcall HAPI_OpenFile(char* filename, const char* mode)
         if (e == 0 || (e->flags & 1))
             continue;
         if (state->files[i]->fp == 0) {
-            state->files[i]->fp = fopen(state->files[i]->name, "rb");
+            state->files[i]->fp = host_file_open_read(state->files[i]->name);
             if (state->files[i]->fp == 0) {
                 GameFreeThunk(h);
                 return 0;
@@ -197,8 +199,8 @@ FileHandle* __stdcall HAPI_OpenFile(char* filename, const char* mode)
             size = nblocks(h->info->size) * 4;
             h->buffer = (int*)GameAllocIgnoreTag("Block Sizes", size);
             off = h->info->offset;
-            fseek(h->shared->fp, off, 0);
-            fread(h->buffer, 1, size, h->shared->fp);
+            host_file_seek(h->shared->fp, off, HOST_SEEK_SET);
+            host_file_read(h->shared->fp, h->buffer, size);
             h->shared->pos = off + size;
             p = (unsigned char*)h->buffer;
             unsigned char key = h->shared->node->obfuscate;
@@ -227,11 +229,13 @@ int __stdcall HAPI_CloseFile(FileHandle* file)
         result = 0;
         file->shared->count--;
         if (file->shared->count == 0 && file->shared->mode == 0) {
-            result = fclose(file->shared->fp);
+            host_file_close(file->shared->fp);
+            result = 0;
             file->shared->fp = 0;
         }
     } else {
-        result = fclose(file->fp);
+        host_file_close(file->fp);
+        result = 0;
     }
     if (file->buffer != 0) {
         GameFreeThunk(file->buffer);
@@ -261,7 +265,7 @@ void FileHandle::SetFileName(const char* text)
 // FUNCTION: 0x4bb6a0
 FileHandle* __stdcall HAPI_CreateFile(char* path)
 {
-    FILE* fp = fopen(path, "w+b");
+    void* fp = host_file_create(path, 0);
     if (fp) {
         FileHandle* file = (FileHandle*)GameAllocIgnoreTag("File Handle", sizeof(FileHandle));
         memset(file, 0, sizeof(FileHandle));
@@ -290,16 +294,16 @@ long __stdcall HAPI_SeekFile(FileHandle* file, long pos)
         }
         return 0;
     }
-    int result;
+    long result;
     if (pos == -1) {
-        result = fseek(file->fp, 0, SEEK_END);
+        result = host_file_seek(file->fp, 0, HOST_SEEK_END);
     } else {
-        result = fseek(file->fp, pos, SEEK_SET);
+        result = host_file_seek(file->fp, pos, HOST_SEEK_SET);
     }
-    if (result != 0) {
+    if (result == -1) {
         return -1;
     }
-    return ftell(file->fp);
+    return result;
 }
 
 // FUNCTION: 0x4bb7a0
@@ -308,7 +312,7 @@ long __stdcall HAPI_TellFile(FileHandle* file)
     if (file->shared != 0) {
         return file->pos;
     }
-    return ftell(file->fp);
+    return host_file_seek(file->fp, 0, HOST_SEEK_CUR);
 }
 
 int __stdcall SquashUnpack(unsigned char* dst, unsigned char* src);
@@ -353,11 +357,11 @@ int __stdcall HAPI_readfromfile(FileHandle* file, unsigned char* buf, int size)
                     int k;
                     int off = BlockOffset(file,k,b,tableSize);
                     off += file->info->offset;
-                    fseek(file->shared->fp, off, 0);
+                    host_file_seek(file->shared->fp, off, HOST_SEEK_SET);
                     file->shared->pos = off;
                     file->buffer2 = (unsigned char*)GameAllocIgnoreTag("Uncompressed Block", 0x10000);
                     comp = (unsigned char*)GameAllocIgnoreTag("Compressed Buffer", file->buffer[k]);
-                    int got = fread(comp, 1, file->buffer[k], file->shared->fp);
+                    int got = host_file_read(file->shared->fp, comp, file->buffer[k]);
                     if (got != file->buffer[k]) {
                         GameFreeThunk(file->buffer2);
                         file->buffer2 = 0;
@@ -400,10 +404,10 @@ int __stdcall HAPI_readfromfile(FileHandle* file, unsigned char* buf, int size)
         // Read through file->info, not the cached info local.
         int off = file->pos + file->info->offset;
         if (off != item->pos) {
-            fseek(item->fp, off, 0);
+            host_file_seek(item->fp, off, HOST_SEEK_SET);
             file->shared->pos = off;
         }
-        n = fread(buf, 1, n, file->shared->fp);
+        n = host_file_read(file->shared->fp, buf, n);
         unsigned char key = file->shared->node->obfuscate;
         if (key) {
             for (int i = 0; i < n; i++)
@@ -415,7 +419,7 @@ int __stdcall HAPI_readfromfile(FileHandle* file, unsigned char* buf, int size)
         file->shared->pos += n;
         goto done;
     }
-    n = fread(buf, 1, size, file->fp);
+    n = host_file_read(file->fp, buf, size);
 done:
     return n;
 }
@@ -425,7 +429,7 @@ unsigned int __stdcall HAPI_WriteFile(FileHandle* file, void* buf, unsigned int 
 {
     if (file->shared != 0)
         return 0xffffffff;
-    return fwrite(buf, 1, size, file->fp);
+    return host_file_write(file->fp, buf, size);
 }
 
 // FUNCTION: 0x4bbc10
@@ -457,18 +461,18 @@ long __stdcall HAPI_FileLengthByName(char* name)
     if (h->shared != 0)
         len = h->info->size;
     else if (h->fp != 0)
-        len = _filelength(h->fp->_file);
+        len = host_file_size(h->fp);
     else
         len = 0;
 
     if (h->shared != 0) {
         h->shared->count--;
         if (h->shared->count == 0 && h->shared->mode == 0) {
-            fclose(h->shared->fp);
+            host_file_close(h->shared->fp);
             h->shared->fp = 0;
         }
     } else {
-        fclose(h->fp);
+        host_file_close(h->fp);
     }
 
     if (h->buffer != 0)
@@ -486,7 +490,7 @@ long __stdcall HAPI_FileLength(FileHandle* file)
     if (file->shared != 0)
         return file->info->size;
     if (file->fp != 0)
-        return _filelength(file->fp->_file);
+        return host_file_size(file->fp);
     return 0;
 }
 
@@ -510,11 +514,11 @@ void* __stdcall HAPI_ReadFileAt(char* name, void* buffer, long pos, unsigned int
     if (file->shared != 0) {
         file->shared->count--;
         if (file->shared->count == 0 && file->shared->mode == 0) {
-            fclose(file->shared->fp);
+            host_file_close(file->shared->fp);
             file->shared->fp = 0;
         }
     } else {
-        fclose(file->fp);
+        host_file_close(file->fp);
     }
     if (file->buffer != 0) {
         GameFreeThunk(file->buffer);
@@ -529,11 +533,11 @@ fail:
     if (file->shared != 0) {
         file->shared->count--;
         if (file->shared->count == 0 && file->shared->mode == 0) {
-            fclose(file->shared->fp);
+            host_file_close(file->shared->fp);
             file->shared->fp = 0;
         }
     } else {
-        fclose(file->fp);
+        host_file_close(file->fp);
     }
     if (file->buffer != 0) {
         GameFreeThunk(file->buffer);
@@ -576,7 +580,7 @@ char* __stdcall HAPI_LoadFile(char* name, int* size)
     if (f->shared) {
         len = f->info->size;
     } else if (f->fp) {
-        len = _filelength(_fileno(f->fp));
+        len = host_file_size(f->fp);
     } else {
         len = 0;
     }
@@ -615,11 +619,11 @@ close:
     if (f->shared != 0) {
         f->shared->count--;
         if (f->shared->count == 0 && f->shared->mode == 0) {
-            fclose(f->shared->fp);
+            host_file_close(f->shared->fp);
             f->shared->fp = 0;
         }
     } else {
-        fclose(f->fp);
+        host_file_close(f->fp);
     }
     if (f->buffer != 0) {
         GameFreeThunk(f->buffer);
@@ -655,7 +659,7 @@ void* __stdcall HAPI_LoadOpenFile(char* name, FileHandle* file, unsigned int* ou
     if (file->shared != 0) {
         len = file->info->size;
     } else if (file->fp != 0) {
-        len = _filelength(file->fp->_file);
+        len = host_file_size(file->fp);
     } else {
         len = 0;
     }
@@ -703,7 +707,7 @@ int* __stdcall HAPI_LoadFileInto(char* name, int* buf)
     if (file->shared != 0)
         size = file->info->size;
     else if (file->fp != 0)
-        size = _filelength(file->fp->_file);
+        size = host_file_size(file->fp);
     else
         size = 0;
     if (size <= 0)
@@ -716,11 +720,11 @@ int* __stdcall HAPI_LoadFileInto(char* name, int* buf)
     if (file->shared != 0) {
         file->shared->count--;
         if (file->shared->count == 0 && file->shared->mode == 0) {
-            fclose(file->shared->fp);
+            host_file_close(file->shared->fp);
             file->shared->fp = 0;
         }
     } else {
-        fclose(file->fp);
+        host_file_close(file->fp);
     }
     if (file->buffer != 0)
         GameFreeThunk(file->buffer);
@@ -737,11 +741,11 @@ fail:
         if (file->shared != 0) {
             file->shared->count--;
             if (file->shared->count == 0 && file->shared->mode == 0) {
-                fclose(file->shared->fp);
+                host_file_close(file->shared->fp);
                 file->shared->fp = 0;
             }
         } else {
-            fclose(file->fp);
+            host_file_close(file->fp);
         }
         if (file->buffer != 0)
             GameFreeThunk(file->buffer);
@@ -756,12 +760,12 @@ fail:
 // FUNCTION: 0x4bc290
 int __stdcall WriteBufferToFile(char* filename, void* data, int size)
 {
-    FILE* f = fopen(filename, "wb");
+    void* f = host_file_create(filename, 0);
     if (f == NULL) {
         return -1;
     }
-    int written = fwrite(data, 1, size, f);
-    fclose(f);
+    int written = host_file_write(f, data, size);
+    host_file_close(f);
     return written;
 }
 
@@ -858,7 +862,7 @@ struct FindFiles {
     int state;               // +0x200, negative while a _findfirst handle is open
     char recursive;          // +0x204
     union {                  // +0x205, the _findfirst handle or the current directory list
-        long handle;
+        void* handle;
         ArchiveDirectory* list;
     };
     int index;               // +0x209
@@ -885,6 +889,16 @@ static char* StripDir(char* path)
     return path;
 }
 
+static void CopyDirEntry(struct _finddata_t* fd, const struct host_dir_entry* entry)
+{
+    fd->attrib = entry->attrib;
+    fd->time_create = 0;
+    fd->time_access = 0;
+    fd->time_write = entry->time_write;
+    fd->size = entry->size;
+    strcpy(fd->name, entry->name);
+}
+
 // FUNCTION: 0x4bc4b0
 int __stdcall HAPI_FindFirst(const char* path, void* fd, int state, char recursive)
 {
@@ -903,9 +917,12 @@ int __stdcall HAPI_FindFirst(const char* path, void* fd, int state, char recursi
     f->recursive = recursive;
     f->state = state;
     if (state == -1) {
-        f->handle = _findfirst(path, (struct _finddata_t*)fd);
-        if (f->handle != -1)
+        struct host_dir_entry entry;
+        f->handle = host_dir_first(path, &entry);
+        if (f->handle != 0) {
+            CopyDirEntry((struct _finddata_t*)fd, &entry);
             return (int)f;
+        }
         if (f->recursive == 0)
             goto fail;
         f->state = 0;
@@ -934,9 +951,12 @@ int __stdcall HAPI_FindNext(FindFiles* f, struct _finddata_t* fd)
     if (f == (FindFiles*)-1 || f == 0)
         return -1;
     if (f->state < 0) {
-        if (_findnext(f->handle, fd) != -1)
+        struct host_dir_entry entry;
+        if (host_dir_next(f->handle, &entry)) {
+            CopyDirEntry(fd, &entry);
             return 0;
-        _findclose(f->handle);
+        }
+        host_dir_close(f->handle);
         f->state = 0;
         f->index = -1;
         if (!f->recursive)
@@ -982,9 +1002,10 @@ int __stdcall HAPI_FindClose(FindFiles* f)
     if (f == (FindFiles*)-1 || f == 0)
         return -1;
     int result;
-    if (f->state < 0)
-        result = _findclose(f->handle);
-    else
+    if (f->state < 0) {
+        host_dir_close(f->handle);
+        result = 0;
+    } else
         result = 0;
     GameFreeThunk(f);
     return result;
@@ -1007,7 +1028,7 @@ int __stdcall CountDirectoryEntries(const char* path, int flag)
         if (handle != 0) {
             FindFiles* h = (FindFiles*)handle;
             if (h->state < 0)
-                _findclose(h->handle);
+                host_dir_close(h->handle);
             GameFreeThunk(h);
         }
     }
@@ -1034,7 +1055,7 @@ void __stdcall ListDirectory(const char* path, int dirsOnly, FileList* list)
         if (h != 0) {
             FindFiles* f = (FindFiles*)h;
             if (f->state < 0)
-                _findclose(f->handle);
+                host_dir_close(f->handle);
             GameFreeThunk(f);
         }
     }
@@ -1074,7 +1095,7 @@ void __stdcall FindFilesRecursive(char* path, const char* pat, FileList* tree, i
         } while ((r = HAPI_FindNext((FindFiles*)h, &fd)) != -1);
         if (f != (FindFiles*)-1 && f != 0) {
             if (f->state < 0)
-                _findclose(f->handle);
+                host_dir_close(f->handle);
             GameFreeThunk(f);
         }
     }
@@ -1100,7 +1121,7 @@ void __stdcall GetDirectoryEntry(struct _finddata_t* fd, int index, const char* 
         } while (HAPI_FindNext(handle, fd) != -1);
         if (handle != 0) {
             if (handle->state < 0)
-                _findclose(handle->handle);
+                host_dir_close(handle->handle);
             GameFreeThunk(handle);
         }
     }
@@ -1181,11 +1202,11 @@ static void Close_004bcf80(FileHandle* f)
     if (f->shared) {
         f->shared->count--;
         if (f->shared->count == 0 && f->shared->mode == 0) {
-            fclose(f->shared->fp);
+            host_file_close(f->shared->fp);
             f->shared->fp = 0;
         }
     } else {
-        fclose(f->fp);
+        host_file_close(f->fp);
     }
     if (f->buffer)
         GameFreeThunk(f->buffer);
@@ -1215,7 +1236,7 @@ int __stdcall HAPI_CopyIntoFile(FileHandle* dst, char* name)
     if (f->shared)
         len = f->info->size;
     else if (f->fp)
-        len = _filelength(f->fp->_file);
+        len = host_file_size(f->fp);
     else
         len = 0;
     if (len == 0)
@@ -1231,7 +1252,7 @@ int __stdcall HAPI_CopyIntoFile(FileHandle* dst, char* name)
         if (dst->shared)
             written = -1;
         else
-            written = (int)fwrite(buf, 1, got, dst->fp);
+            written = (int)host_file_write(dst->fp, buf, got);
         if (written != got)
             goto fail;
         left -= got;
@@ -1274,7 +1295,7 @@ struct Hapi_004bd160 {
 };
 
 void* __cdecl GameReallocTagged(void* p, const char* name, unsigned int size);
-void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, FILE* f,
+void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, void* f,
                            void (__cdecl* cb)(unsigned), unsigned extra,
                            int key, int flags);
 unsigned int __stdcall HAPI_BuildArchiveDirectory(char* path, HapiBuf* out, int* total);
@@ -1301,7 +1322,7 @@ int __stdcall HAPI_PackDirectory(char* srcname, char* dstname, void (__cdecl* cb
     char year[8];
     char copyright[0x40];
     int off;
-    FILE* f;
+    void* f;
     int i, n;
     unsigned char* p;
 
@@ -1336,13 +1357,13 @@ int __stdcall HAPI_PackDirectory(char* srcname, char* dstname, void (__cdecl* cb
         h->extra = off;
     }
 
-    f = fopen(dstname, "wb");
+    f = host_file_create(dstname, 0);
     if (!f) {
         if (sb.buf)
             GameFreeThunk(sb.buf);
         return 0;
     }
-    fwrite(sb.buf, sb.size, 1, f);
+    host_file_write(f, sb.buf, sb.size);
     if (cb)
         cb(5);
     HAPI_WriteArchiveData(srcname, sb.buf, off, f, (void (__cdecl*)(unsigned))cb, (unsigned)extra, key, flags);
@@ -1354,8 +1375,8 @@ int __stdcall HAPI_PackDirectory(char* srcname, char* dstname, void (__cdecl* cb
         for (i = 0; i < n; i++)
             p[i] = (char)~((unsigned char)(i + 20) ^ (unsigned char)key ^ p[i]);
     }
-    rewind(f);
-    fwrite(sb.buf, sb.size, 1, f);
+    host_file_seek(f, 0, HOST_SEEK_SET);
+    host_file_write(f, sb.buf, sb.size);
     {
     time_t now;
     struct tm* t;
@@ -1364,9 +1385,9 @@ int __stdcall HAPI_PackDirectory(char* srcname, char* dstname, void (__cdecl* cb
     sprintf(year, "%i", t->tm_year + 1900);
     strcpy(copyright, "Copyright 0000 Cavedog Entertainment");
     strncpy(strstr(copyright, "0000"), year, 4);
-    fseek(f, 0, SEEK_END);
-    fprintf(f, copyright);
-    fclose(f);
+    host_file_seek(f, 0, HOST_SEEK_END);
+    host_file_write(f, copyright, strlen(copyright));
+    host_file_close(f);
     if (sb.buf)
         GameFreeThunk(sb.buf);
     }
@@ -1432,7 +1453,7 @@ unsigned int __stdcall HAPI_BuildArchiveDirectory(char* path, HapiBuf* out, int*
         } while (HAPI_FindNext(h, &fd) == 0);
         if (h != 0) {
             if (h->state < 0)
-                _findclose(h->handle);
+                host_dir_close(h->handle);
             GameFreeThunk(h);
         }
     }
@@ -1480,7 +1501,7 @@ unsigned int __stdcall HAPI_BuildArchiveDirectory(char* path, HapiBuf* out, int*
         } while (HAPI_FindNext(h, &fd) == 0);
         if (h != 0) {
             if (h->state < 0)
-                _findclose(h->handle);
+                host_dir_close(h->handle);
             GameFreeThunk(h);
         }
     }
@@ -1500,7 +1521,7 @@ struct Node_004bd830 {
 int __stdcall SquashPack(void* chunk, int* chunkSize, char* data,
                            int size, int method, int encrypt);
 unsigned int __stdcall SquashMaxPackedSize(unsigned int value, int mode);
-void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, FILE* f,
+void __stdcall HAPI_WriteArchiveData(char* path, char* base, int off, void* f,
                             void (__cdecl* cb)(unsigned), unsigned extra,
                             int key, int flags);
 
@@ -1512,14 +1533,14 @@ extern char g_hapiCopyright[];         // "Copyright 0000 Cavedog Entertainment"
 void __stdcall HAPI_RelocateDirectory(ArchiveDirectory* h, int delta);
 void __stdcall HAPI_RelocateDirectory(int name, int base);
 
-static inline int Bad_004bdd70(FILE* f, Header* hdr, char* copyright)
+static inline int Bad_004bdd70(void* f, Header* hdr, char* copyright)
 {
     if (strncmp(hdr->magic, "HAPI", 4) != 0 || hdr->version[0] != 0 || hdr->version[1] != 0 ||
         hdr->version[2] != 1 || hdr->version[3] != 0)
         return 1;
     int len = strlen(g_hapiCopyright);
-    fseek(f, -len, 2);
-    fread(copyright, 1, len, f);
+    host_file_seek(f, -len, HOST_SEEK_END);
+    host_file_read(f, copyright, len);
     copyright[len] = 0;
     strncpy(copyright + (strstr(g_hapiCopyright, "0000") - g_hapiCopyright), "0000", 4);
     if (strcmp(copyright, g_hapiCopyright) == 0)
@@ -1530,7 +1551,7 @@ static inline int Bad_004bdd70(FILE* f, Header* hdr, char* copyright)
 // FUNCTION: 0x4bdd70
 OPENHAPIFILE* __stdcall HAPI_OpenArchive(const char* name, int mode)
 {
-    FILE* f = fopen(name, "rb");
+    void* f = host_file_open_read(name);
     if (f == 0)
         return 0;
     OPENHAPIFILE* h = (OPENHAPIFILE*)GameAllocIgnoreTag("OPENHAPIFILE structure", 0x118);
@@ -1541,16 +1562,16 @@ OPENHAPIFILE* __stdcall HAPI_OpenArchive(const char* name, int mode)
     h->mode = mode;
     GetFullPathNameA(name, 0x104, h->name, &filePart);
     Header hdr;
-    fread(&hdr, 0x14, 1, f);
+    host_file_read(f, &hdr, 0x14);
     char copyright[0x40];
     if (Bad_004bdd70(f, &hdr, copyright)) {
-        fclose(f);
+        host_file_close(f);
         GameFreeThunk(h);
         return 0;
     }
     h->node = (Header*)GameAllocIgnoreTag("HAPIFILE header", hdr.size);
-    rewind(f);
-    fread(h->node, hdr.size, 1, f);
+    host_file_seek(f, 0, HOST_SEEK_SET);
+    host_file_read(f, h->node, hdr.size);
     {
         Header* base = h->node;
         // Key derivation: a byte key for the condition, an unsigned w for the split rotate,
@@ -1589,7 +1610,7 @@ OPENHAPIFILE* __stdcall HAPI_OpenArchive(const char* name, int mode)
         }
     }
     if (mode == 0) {
-        fclose(f);
+        host_file_close(f);
         h->fp = 0;
     }
     return h;
@@ -1615,7 +1636,7 @@ void __stdcall HAPI_CloseArchive(OPENHAPIFILE* f)
 {
     if (f != 0) {
         if (f->fp != 0)
-            fclose(f->fp);
+            host_file_close(f->fp);
         GameFreeThunk(f->node);
         GameFreeThunk(f);
     }
@@ -1650,7 +1671,7 @@ static void FreeRecord_004be180(OPENHAPIFILE* p)
 {
     if (p != 0) {
         if (p->fp != 0)
-            fclose(p->fp);
+            host_file_close(p->fp);
         GameFreeThunk(p->node);
         GameFreeThunk(p);
     }
@@ -1667,7 +1688,7 @@ void HAPI_DropMissingArchives(void)
     int i;
     for (i = 0; i < state->count; i++) {
         if (state->files[i]->fp == 0) {
-            state->files[i]->fp = fopen(state->files[i]->name, "rb");
+            state->files[i]->fp = host_file_open_read(state->files[i]->name);
             OPENHAPIFILE* rec = state->files[i];
             if (rec->fp == 0) {
                 // Passed state->files[i], not rec: keeps the redundant file test.
@@ -1678,7 +1699,7 @@ void HAPI_DropMissingArchives(void)
                 state->count--;
                 i--;
             } else {
-                fclose(state->files[i]->fp);
+                host_file_close(state->files[i]->fp);
                 state->files[i]->fp = 0;
             }
         }
@@ -1698,7 +1719,7 @@ void __stdcall HAPI_RemoveArchive(OPENHAPIFILE* pRecord)
             OPENHAPIFILE* p = state->files[i];
             if (p != 0) {
                 if (p->fp != 0)
-                    fclose(p->fp);
+                    host_file_close(p->fp);
                 GameFreeThunk(p->node);
                 GameFreeThunk(p);
             }
@@ -1772,7 +1793,7 @@ void __stdcall HAPI_MarkShadowedFiles(char* path, int state, int recursive)
     } while (HAPI_FindNext((FindFiles*)h, &fd) != -1);
     if (f) {
         if (f->state < 0)
-            _findclose(f->handle);
+            host_dir_close(f->handle);
         GameFreeThunk(f);
     }
 }
