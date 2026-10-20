@@ -860,7 +860,7 @@ class Run:
         self.testmode = testmode     # a reference/ scenario file to run the exe on
         self.testdump = testdump     # the tick to dump the state of, with testmode
         self.poison = poison
-        self.blockscan = blockscan   # scan the block pointers every this many ticks, 0 for never
+        self.blockscan = blockscan
         self.instances = [Instance(self, i + 1) for i in range(scenario.instances)]
         self.t0 = time.time()
         self.log = None
