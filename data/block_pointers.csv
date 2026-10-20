@@ -34,26 +34,91 @@ holder,offsets,target,scenarios,ticks,target_offsets,class,note
 ??$copy@PAGPAG@std@@YGPAGPAG00@Z: FEATURE ANIM DATA,*,vector::insert #7,3,86400,0x3-0x13,not-a-pointer,FeatureAnim element words (0x30 bytes) that straddle fields
 ??0Pathfinder@@QAE@XZ,*,*,27,251247,0x0-0x5808e0,not-a-pointer,"Pathfinder search arrays: costs, cell indices and stamps"
 ??0Pathfinder@@QAE@XZ: AISearch touched mapentries,*,*,16,5167,0x0-0x83ffe0,not-a-pointer,Pathfinder touched map entries: cell indices
+??0Squad@@QAE@HH@Z: SQUADS,*,??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBDABV?$allocator@D@1@@Z,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,??0Player@@QAE@XZ,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,??0SpeechQueue@@QAE@HH@Z,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,AddAnimplayPointer,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AddStateEntries: Point List,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocAlphaTable: ALPHA TABLE,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocBlueTable: BLUE TABLE,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,*,AllocDepthFrame: CompositeBuffer,3,10084,0x3fe0-0xa47e2,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocDepthFrame: LensFrame,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,*,AllocFrame: ExplosionFrame,2,2744,0x69-0x225a,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocFrame: TED GENERATED PIC,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocGrayTable: GRAY TABLE,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocLightTable: LIGHT TABLE,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocShadeTable: SHADE TABLE,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface,1,2310,0x5260-0x7262,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface: OFFSCREEN,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface: RADAR FINAL,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface: RADAR MAPPED,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface: RADAR PICTURE,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface: SAVEMOUSE 1,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface: SAVEMOUSE 2,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocSurface: SAVEMOUSE 3,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocateUnitMemory: HOT RADAR UNITS,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,AllocateUnitMemory: HOT UNITS,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,*,CMemoryCache::InitCache: CMemoryCache CCH,5,9752,0x21fe0-0x3ccfe2,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,ClearCommandTable,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,Close_004bcf80: HAPIFILE header,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,Close_004bcf80: OPENHAPIFILE structure,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,CobScript::SetCob,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,CobScript::SetCob #2,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,*,CreateObjectState: Object State,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,CreateParticleLists,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,GameMain,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,GetCategoryMask,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,HAPI_AddArchive,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,*,HAPI_LoadFile,8,57784,0xba-0xadfe2,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,InitExplosions: CalcedExplosion,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,InitExplosions: CalcedExplosion #2,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,InitExplosions: CalcedExplosion #3,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,InitGame: SkirmishInfo,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,InitMouse: MOUSE EVENTS,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,InitPacketTables: PACKET DATA,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadAnimGaf,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadBattleAssets: ASSEM PTS,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadBattleAssets: TEMP PROJECTED PTS,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadBattleAssets: TEMP XFORM PTS,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,0x36,LoadFeatureType,1,1308,0xe4c9,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadGuiLayer,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadMapList,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadSoundCategories,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,0x3c,LoadSoundCategories #2,1,962,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
 ??0Squad@@QAE@HH@Z: SQUADS,0x3c,LoadSoundCategories #3,1,11852,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
 ??0Squad@@QAE@HH@Z: SQUADS,0x38 0x3c 0x7c,LoadSoundCategories #4,2,30661,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
 ??0Squad@@QAE@HH@Z: SQUADS,*,LoadSoundCategories: Sound Categories,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTextureGafs: TEXTURE PTRS,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap #2,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap: SORT INDICES,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap: SORT LINE COUNT,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap: SORT UNIT LIST,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap: TILE MAP,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,*,LoadTntMap: TILE SET,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadUnitTypes,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,LoadUnitTypes #2,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x38+0x20*k 0x118 0x11c,NanoParticles::Emit,22,126198,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
 ??0Squad@@QAE@HH@Z: SQUADS,*,PlayerAI::BuildFeatureCells,0,0,-,not-a-pointer,Squad words that only look like addresses
+??0Squad@@QAE@HH@Z: SQUADS,*,RegisterOrderTypes,0,0,-,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x38 0x58+0x60*k 0x98 0x11c,SmokeParticles::Emit,5,11986,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
 ??0Squad@@QAE@HH@Z: SQUADS,*,Sound::CreateSampleFromFile: Digital Audio Sample,1,51,0x0,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x38 0x58 0x98 0xb8 0x11c,SpeechQueue::EnqueueSpeech: Speech Text,10,39,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
 ??0Squad@@QAE@HH@Z: SQUADS,0x1c+0x20*k 0x38 0x58+0x60*k 0x98 0x11c,ThrustParticles::Emit,4,1039,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,*,TimedSubParticles::Emit,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,_Tree::_Insert,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,allocator::deallocate,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::_Destroy,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
 ??0Squad@@QAE@HH@Z: SQUADS,0x14+0x20*k 0x18+0x20*k 0x3c+0x20*k 0xf8 0x118,vector::insert,27,277800,0x0-0xb0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::insert #2,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::insert #3,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::insert #4,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::insert #5,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::insert #6,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
 ??0Squad@@QAE@HH@Z: SQUADS,0x38 0x3c,vector::insert #7,3,3754,0x0,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20); the end pointer is one past the buffer"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::insert #8,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
+??0Squad@@QAE@HH@Z: SQUADS,*,vector::insert #9,0,0,-,moves-in,"Squad.items vector buffer (first 0x14, last 0x18, end 0x1c; stride 0x20); target names change with the heap"
 ??0SquadManager@@QAE@PAUPlayer@@@Z,*,*,21,4140,0xc-0x9c0308,not-a-pointer,SquadManager timer state: tick counters and cell words
 ??0SquadManager@@QAE@PAUPlayer@@@Z #2,*,*,21,3780,0x42-0x8402d4,not-a-pointer,SquadManager timer state: tick counters and cell words
 ??0SquadManager@@QAE@PAUPlayer@@@Z #3,*,*,21,7801,0x375-0x610258,not-a-pointer,SquadManager timer state: tick counters and cell words
@@ -254,21 +319,26 @@ CobScript::SetCob #2,*,*,6,1560,0x5d4-0x28009c,not-a-pointer,"COB static variabl
 CreatePathfinder,*,*,26,26514,0x1-0x98029f,not-a-pointer,"Pathfinder search arrays: costs, cell indices and stamps"
 CreatePlayerAI,0x35 0x91 0xa1,??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBDABV?$allocator@D@1@@Z,27,277800,0x0-0x10c,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,??0Player@@QAE@XZ,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,??0SpeechQueue@@QAE@HH@Z,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,2,300,0x1d8-0x598,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0xc,AddAnimplayPointer,1,7290,0x322-0x722,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AddStateEntries: Point List,0,0,-,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,AllocAlphaTable: ALPHA TABLE,5,510,0x2c4-0xbcb8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocBlueTable: BLUE TABLE,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocDepthFrame: CompositeBuffer,24,18420,0x32-0xaf5d0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocDepthFrame: LensFrame,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocFrame: ExplosionFrame,13,10621,0xca-0x8258,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocFrame: TED GENERATED PIC,7,540,0x900-0xce60,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocGrayTable: GRAY TABLE,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocLightTable: LIGHT TABLE,2,300,0x180-0xd94,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocShadeTable: SHADE TABLE,2,180,0x8f4-0x1550,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocSurface,4,150,0x1828-0x9670,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocSurface: OFFSCREEN,10,2280,0x80-0x49e04,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocSurface: RADAR FINAL,2,60,0x1a1-0x2a63,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocSurface: RADAR MAPPED,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface: RADAR PICTURE,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocSurface: SAVEMOUSE 1,1,30,0x1bc,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,AllocSurface: SAVEMOUSE 2,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocSurface: SAVEMOUSE 3,1,30,0x3ec,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocateUnitMemory: HOT RADAR UNITS,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,AllocateUnitMemory: HOT UNITS,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
@@ -277,14 +347,23 @@ CreatePlayerAI,*,ClearCommandTable,0,0,-,not-a-pointer,"PlayerAI words (indices,
 CreatePlayerAI,*,Close_004bcf80: HAPIFILE header,11,5822,0x20-0xe370,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,Close_004bcf80: OPENHAPIFILE structure,2,60,0x34-0x80,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,CobScript::SetCob,0,0,-,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,CobScript::SetCob #2,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,CreateObjectState: Object State,1,30,0xb8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,CreateParticleLists,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,GameMain,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,GetCategoryMask,1,30,0x18,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,HAPI_AddArchive,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,HAPI_LoadFile,27,237632,0x0-0x130cfb,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,InitExplosions: CalcedExplosion,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,InitExplosions: CalcedExplosion #2,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x3d,InitExplosions: CalcedExplosion #3,1,30,0x34,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,InitGame: SkirmishInfo,1,30,0xe8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,InitMouse: MOUSE EVENTS,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,InitPacketTables: PACKET DATA,3,90,0xfac-0x1a00,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadAnimGaf,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadBattleAssets: ASSEM PTS,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadBattleAssets: TEMP PROJECTED PTS,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadBattleAssets: TEMP XFORM PTS,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadFeatureType,8,13260,0xb18-0x1b6a8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadGuiLayer,4,2880,0x8cd-0xf908,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadMapList,1,60,0x30-0x4a0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
@@ -293,16 +372,27 @@ CreatePlayerAI,*,LoadSoundCategories #2,8,11884,0x0-0x3c,not-a-pointer,"PlayerAI
 CreatePlayerAI,*,LoadSoundCategories #3,5,7770,0x0-0x38,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadSoundCategories #4,3,420,0x0-0x38,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadSoundCategories: Sound Categories,4,1200,0x598-0x8858,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTextureGafs: TEXTURE PTRS,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTntMap,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTntMap #2,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTntMap: SORT INDICES,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadTntMap: SORT LINE COUNT,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadTntMap: SORT UNIT LIST,1,30,0x740,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadTntMap: TILE MAP,4,120,0xb08-0x25306,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,LoadTntMap: TILE SET,26,130981,0xce5-0xa561b0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadUnitTypes,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,LoadUnitTypes #2,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,NanoParticles::Emit,21,66773,0x0-0x1da,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,PlayerAI::BuildFeatureCells,25,241800,0x0-0x7a0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,RegisterOrderTypes,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,SmokeParticles::Emit,4,13815,0x0-0x6,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,Sound::CreateSampleFromFile: Digital Audio Sample,0,0,-,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x11 0x21 0x59,SpeechQueue::EnqueueSpeech: Speech Text,4,9,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,ThrustParticles::Emit,4,704,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,TimedSubParticles::Emit,0,0,-,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,_Tree::_Insert,2,60,0x8-0xc,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,allocator::deallocate,1,30,0x28,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
+CreatePlayerAI,*,vector::_Destroy,0,0,-,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,vector::insert,27,277027,0x0-0x114,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,0x81,vector::insert #2,27,277800,0x0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerAI,*,vector::insert #3,27,277800,0x0-0xd8,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
@@ -311,6 +401,7 @@ CreatePlayerAI,*,vector::insert #5,27,277800,0x0-0x370,moves-in,"PlayerAI vector
 CreatePlayerAI,*,vector::insert #6,3,270,0x38-0xcc,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,*,vector::insert #7,1,6900,0x0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x3d 0x59,vector::insert #8,2,173,0x0-0x750,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,*,vector::insert #9,0,0,-,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
 CreatePlayerObjectState: Object State,*,??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBDABV?$allocator@D@1@@Z,5,7,0x0-0x110,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
 CreatePlayerObjectState: Object State,*,??0Player@@QAE@XZ,0,0,-,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
 CreatePlayerObjectState: Object State,*,??0SpeechQueue@@QAE@HH@Z,3,4,0x30,not-a-pointer,"Object State words (sizes, flags, counters) that only look like addresses"
