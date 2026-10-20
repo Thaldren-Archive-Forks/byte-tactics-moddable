@@ -25,49 +25,11 @@ struct CellPos_0049a120 {
 #pragma pack(push, 1)
 
 #include "weapon_def.h"
+#include "projectile.h"
 #include "../util/vec3.h"
-
-// Not units/unit_def.h: the header takes 0x49a120 out of its symbol-id window.
-struct UnitDef_0049a120 {
-    char unknown_0[0x15e];
-    Vec3 boxMin;
-    Vec3 boxMax;
-};
-
-struct Holder_0049a120;
-
-struct Unit_0049a120 {
-    char unknown_0[0x6a];
-    Vec3 pos;
-    char unknown_76[0x92 - 0x76];
-    UnitDef_0049a120* def;             // +0x92
-    Holder_0049a120* player;           // +0x96
-    char unknown_9a[0xff - 0x9a];
-    unsigned char playerIndex;         // +0xff
-    char unknown_100[0x118 - 0x100];
-};
-
-struct Weapon_0049a120 {
-    WeaponDef* def;                    // +0x0
-    Vec3 pos;
-    char unknown_10[0x28 - 0x10];
-    Vec3 aim;
-    char unknown_34[0x52 - 0x34];
-    Unit_0049a120* attacker;           // +0x52
-    char unknown_56[0x66 - 0x56];
-    unsigned char owner;               // +0x66
-    char unknown_67[0x69 - 0x67];
-    unsigned short flags;              // +0x69
-};
-
-class SquadManager;
-
-struct Holder_0049a120 {
-    char unknown_0[4];
-    int playerId;                      // +0x4
-    char unknown_8[0x74 - 8];
-    SquadManager* object;              // +0x74
-};
+#include "../units/unit.h"
+#include "../units/unit_def.h"
+#include "../network/player.h"
 
 struct Cell {
     unsigned short unit;               // +0x0
@@ -105,7 +67,7 @@ struct ProjectileDetonatePacket {
 struct Game_0049a120 {
     char unknown_0[0x141f3];
     int projectileCount;               // +0x141f3
-    Weapon_0049a120* projectiles;      // +0x141f7
+    Projectile* projectiles;
     char unknown_141fb[0x1420b - 0x141fb];
     Spot_0049a120* spots;              // +0x1420b
     char unknown_1420f[0x14233 - 0x1420f];
@@ -116,7 +78,7 @@ struct Game_0049a120 {
     char unknown_14273[0x14287 - 0x14273];
     Cell* heightMap;                   // +0x14287
     char unknown_1428b[0x14357 - 0x1428b];
-    Unit_0049a120* units;              // +0x14357
+    Unit* units;
 };
 #pragma pack(pop)
 
@@ -133,12 +95,12 @@ extern Game_0049a120* g_game;
 struct Hits_0049a120 {
     int numUnits;
     int numFeatures;
-    Unit_0049a120* units[20];
+    Unit* units[20];
     Cell* features[64];
 
     // Each returns 0 if the thing was hit already, else records it (while
     // there is room) and returns 1.
-    int AddUnit(Unit_0049a120* unit)
+    int AddUnit(Unit* unit)
     {
         for (int k = 0; k < numUnits; k++) {
             if (units[k] == unit)
@@ -164,8 +126,8 @@ struct Hits_0049a120 {
     }
 };
 
-int __stdcall ApplyWeaponDamage(Weapon_0049a120* weapon, Unit_0049a120* target, float scale);
-void __stdcall DetonateProjectile(Weapon_0049a120* weapon, Unit_0049a120* unit);
+int __stdcall ApplyWeaponDamage(Projectile* weapon, Unit* target, float scale);
+void __stdcall DetonateProjectile(Projectile* weapon, Unit* unit);
 int __stdcall VectorLength(Vec3* v);
 int __stdcall BroadcastPacket(int id, void* data, int size);
 
@@ -177,7 +139,7 @@ static inline int Length(Vec3* v)
     return (int)sqrt(x * x + y * y + z * z);
 }
 
-static inline Unit_0049a120* UnitFromId(unsigned short id)
+static inline Unit* UnitFromId(unsigned short id)
 {
     if (id == 0)
         return 0;
@@ -203,11 +165,11 @@ static inline Vec3 Sub(const Vec3& a, const Vec3& b)
 // classified gap by tools/sources.py, so the game build would leave the
 // other functions out.
 // FUNCTION: 0x49a120
-void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
+void __stdcall ApplyAreaDamage(Projectile* weapon, Vec3* pos)
 {
     Hits_0049a120 hits;
     memset(&hits, 0, 8);
-    int radius = weapon->def->areaOfEffect >> 1;
+    int radius = weapon->type->areaOfEffect >> 1;
     int r = radius / 16 + 1;
     int cx = ((FixedVec3*)pos)->x.part.whole;
     int x0 = cx / 16 - r;
@@ -232,22 +194,22 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
             if (!cell)
                 continue;
             for (int i = 0; i <= 1; i++) {
-                Unit_0049a120* unit = i ? UnitFromId(cell->unit2) : UnitFromId(cell->unit);
+                Unit* unit = i ? UnitFromId(cell->unit2) : UnitFromId(cell->unit);
                 if (!unit || unit == weapon->attacker)
                     continue;
                 if (!hits.AddUnit(unit))
                     continue;
-                UnitDef_0049a120* def = unit->def;
+                UnitDef* def = unit->def;
                 Vec3 d;
                 {
                     // The upper-bound sum is written in the test and again in the
                     // block local `hi`, used once: the two sums become one temporary.
                     int p = pos->x;
-                    if (p < unit->pos.x + def->boxMin.x) {
-                        int lo = unit->pos.x + def->boxMin.x;
+                    if (p < unit->pos.x + def->modelMinX) {
+                        int lo = unit->pos.x + def->modelMinX;
                         d.x = lo - p;
-                    } else if (p > unit->pos.x + def->boxMax.x) {
-                        int hi = unit->pos.x + def->boxMax.x;
+                    } else if (p > unit->pos.x + def->modelMaxX) {
+                        int hi = unit->pos.x + def->modelMaxX;
                         d.x = p - hi;
                     } else {
                         d.x = 0;
@@ -255,11 +217,11 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
                 }
                 {
                     int p = pos->y;
-                    if (p < unit->pos.y + def->boxMin.y) {
-                        int lo = unit->pos.y + def->boxMin.y;
+                    if (p < unit->pos.y + def->modelMinY) {
+                        int lo = unit->pos.y + def->modelMinY;
                         d.y = lo - p;
-                    } else if (p > unit->pos.y + def->boxMax.y) {
-                        int hi = unit->pos.y + def->boxMax.y;
+                    } else if (p > unit->pos.y + def->modelMaxY) {
+                        int hi = unit->pos.y + def->modelMaxY;
                         d.y = p - hi;
                     } else {
                         d.y = 0;
@@ -267,11 +229,11 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
                 }
                 {
                     int p = pos->z;
-                    if (p < unit->pos.z + def->boxMin.z) {
-                        int lo = unit->pos.z + def->boxMin.z;
+                    if (p < unit->pos.z + def->modelMinZ) {
+                        int lo = unit->pos.z + def->modelMinZ;
                         d.z = lo - p;
-                    } else if (p > unit->pos.z + def->boxMax.z) {
-                        int hi = unit->pos.z + def->boxMax.z;
+                    } else if (p > unit->pos.z + def->modelMaxZ) {
+                        int hi = unit->pos.z + def->modelMaxZ;
                         d.z = p - hi;
                     } else {
                         d.z = 0;
@@ -281,7 +243,7 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
                 dist.raw = Length(&d);
                 int distance = dist.part.whole;
                 if (distance < radius) {
-                    float edge = weapon->def->edgeDamage;
+                    float edge = weapon->type->edgeDamage;
                     float scale;
                     if (distance) {
 #ifdef __clang__
@@ -309,7 +271,7 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
                 }
             }
             // A mask test (bit 14, unitsOnly): the bit-field form changes the code.
-            if (weapon->def->flags.value & 0x4000)
+            if (weapon->type->flags.value & 0x4000)
                 continue;
             Cell* origin = cell;
             int fx = x;
@@ -346,38 +308,38 @@ void __stdcall ApplyAreaDamage(Weapon_0049a120* weapon, Vec3* pos)
                 continue;
             if (!hits.AddFeature(origin))
                 continue;
-            g_seams.features->DamageFeature(origin, fx, fz, weapon->def);
+            g_seams.features->DamageFeature(origin, fx, fz, weapon->type);
         }
     }
 
-    if (weapon->def->flags.b.interceptor) {
+    if (weapon->type->flags.b.interceptor) {
         // Every field is read through `other` (no projectiles[j]): the derived
         // pointer is stepped after it.
-        Weapon_0049a120* other = g_game->projectiles;
+        Projectile* other = g_game->projectiles;
         for (int j = 0; j < g_game->projectileCount; j++, other++) {
             if ((other->flags & 2) || other == weapon)
                 continue;
-            Vec3* p = &other->pos;
-            int dx = weapon->pos.x - p->x;
-            int dy = weapon->pos.y - p->y;
-            int dz = weapon->pos.z - p->z;
-            int reach = weapon->def->areaOfEffect;
+            Vec3* p = &other->position;
+            int dx = weapon->position.x - p->x;
+            int dy = weapon->position.y - p->y;
+            int dz = weapon->position.z - p->z;
+            int reach = weapon->type->areaOfEffect;
             if ((int)(((__int64)dx * dx) >> 32) + (int)(((__int64)dy * dy) >> 32) + (int)(((__int64)dz * dz) >> 32)
                 < reach * reach) {
                 DetonateProjectile(other, 0);
                 ProjectileDetonatePacket packet;
                 packet.type = 0xe;
-                packet.aim = other->aim;
-                packet.weaponIndex = other->def->index;
-                BroadcastPacket(weapon->attacker->player->playerId, &packet, sizeof(packet));
+                packet.aim = other->target;
+                packet.weaponIndex = other->type->index;
+                BroadcastPacket(weapon->attacker->player->id, &packet, sizeof(packet));
                 packet.type = 0xe;
-                packet.aim = weapon->aim;
-                packet.weaponIndex = weapon->def->index;
-                BroadcastPacket(weapon->attacker->player->playerId, &packet, sizeof(packet));
+                packet.aim = weapon->target;
+                packet.weaponIndex = weapon->type->index;
+                BroadcastPacket(weapon->attacker->player->id, &packet, sizeof(packet));
             }
         }
     }
 
     if (weapon->attacker)
-        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(weapon->attacker->player->object, 0, (Projectile*)weapon, enemyDamage, friendlyDamage);
+        g_seams.ai->MarkOwnerNetDirtyFromDamageSplit(weapon->attacker->player->ai, 0, weapon, enemyDamage, friendlyDamage);
 }
