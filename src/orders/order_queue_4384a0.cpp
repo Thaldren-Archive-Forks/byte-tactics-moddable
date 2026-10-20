@@ -85,6 +85,7 @@ struct SaveDesc_0043a1f0 {             // the 0x3a-byte snapshot, read and writt
 
 #include "../util/vec3.h"
 #include "air_maneuver_order.h"
+#include "../state/sim_globals.h"
 
 // Unused here: forward declarations of real functions; their symbol ids keep
 // ComputeReclaimDamagePulse (0x438650) matching (docs/c2-regalloc.md).
@@ -119,8 +120,12 @@ void __stdcall SendScriptCall(Unit* obj, int index, int param_3, int param_4, in
 void __stdcall QueueUnitSpeech(Unit* unit, int kind, char* text);
 
 extern Game* g_game;
-extern Entry_0043a1f0* g_missionOrderTableBegin;
-extern Entry_0043a1f0* g_missionOrderTableEnd;
+typedef Entry_0043a1f0* SimView_g_missionOrderTableBegin;
+#undef g_missionOrderTableBegin
+#define g_missionOrderTableBegin (*reinterpret_cast<SimView_g_missionOrderTableBegin*>(reinterpret_cast<char*>(&g_missionOrderTableVec) + 0x4))
+typedef Entry_0043a1f0* SimView_g_missionOrderTableEnd;
+#undef g_missionOrderTableEnd
+#define g_missionOrderTableEnd (*reinterpret_cast<SimView_g_missionOrderTableEnd*>(reinterpret_cast<char*>(&g_missionOrderTableVec) + 0x8))
 
 #include "path_order_attach.h"
 

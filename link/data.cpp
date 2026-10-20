@@ -22,7 +22,6 @@ float g_buildPercentScale = 0.003921568859368563f;  // 0x4fd750 .rdata
 unsigned char DAT_004fdaf0[16] = {0};  // 0x4fdaf0 .rdata
 double g_shadeStep = -0.06875;  // 0x4fdbe8 .rdata
 char g_hapiCopyright[40] = "Copyright 0000 Cavedog Entertainment";  // 0x4fdbf0 .rdata
-int g_aiCommandsEnabled = 1;  // 0x501774 .data
 // 0x501d18 .data
 unsigned char g_contourColors[32] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111, 110, 109, 108, 107, 106,
@@ -321,12 +320,6 @@ char* g_libraryDateStamp = (char*)"Library date stamp: Jun 30 1998 16:08:53";  /
 char* g_performanceWindowName = (char*)"Performance status";  // 0x50d660 .data
 char g_performanceDialogError[36] = "Performance dialog failed to open";  // 0x50d6b4 .data
 char* g_memoryStatusWindowName = (char*)"Memory Status";  // 0x50d72c .data
-char DAT_005119b8[8];  // 0x5119b8 .bss
-PlayerAI* g_playerAI[10];  // 0x5119c0 .bss
-int g_playerBudgetCap[10];  // 0x5119e8 .bss
-int g_playerTickLoad[10];  // 0x511a10 .bss
-int g_budgetRefreshCounter;  // 0x511a38 .bss
-unsigned char DAT_00511a3c[4];  // 0x511a3c .bss
 int g_byteRatesLastReceived;  // 0x511a40 .bss
 int g_compressionPercent;  // 0x511a44 .bss
 unsigned int g_bytesSentPerSecond;  // 0x511a48 .bss
@@ -363,10 +356,8 @@ int g_contourOffset;  // 0x511dd4 .bss
 unsigned int g_netStatsTick;  // 0x511dd8 .bss
 unsigned int g_byteRatesTick;  // 0x511ddc .bss
 int g_cdBypassDriveScan;  // 0x511de0 .bss
-int g_cdPathMismatch;  // 0x511de4 .bss
 Game* g_game;  // 0x511de8 .bss
 int g_endGameGlamourSoundStarted;  // 0x511dec .bss
-unsigned char g_debrisMemCache[16];  // 0x511f80 .bss
 int g_explosion0Duration;  // 0x511f90 .bss
 int g_explosion0StartSize;  // 0x511f94 .bss
 int g_explosion0EndSize;  // 0x511f98 .bss
@@ -376,7 +367,6 @@ int g_explosion1EndSize;  // 0x511fa4 .bss
 int g_explosion2Duration;  // 0x511fa8 .bss
 int g_explosion2StartSize;  // 0x511fac .bss
 int g_explosion2EndSize;  // 0x511fb0 .bss
-unsigned char DAT_00511fb4[4];  // 0x511fb4 .bss
 char g_frontendErrorText[256];  // 0x511fb8 .bss
 unsigned char g_pictureCache[464];  // 0x5120b8 .bss
 int DAT_00512288;  // 0x512288 .bss
@@ -391,23 +381,6 @@ int g_otaEnumCacheComplete;  // 0x5122d8 .bss
 int g_otaEnumFileListBytes;  // 0x5122dc .bss
 int g_otaEnumFileCount;  // 0x5122e0 .bss
 unsigned char DAT_005122e4[4];  // 0x5122e4 .bss
-int g_meteorNextStrikeTime;  // 0x5122e8 .bss
-unsigned char DAT_005122ec[4];  // 0x5122ec .bss
-unsigned char DAT_005122f4[28];  // 0x5122f4 .bss
-int g_meteorSpawnMagnitude;  // 0x512310 .bss
-int g_meteorSpawnInterval;  // 0x512314 .bss
-int g_meteorActive;  // 0x512318 .bss
-int g_meteorStrikeEndTime;  // 0x51231c .bss
-unsigned char g_meteorOrigin[4];  // 0x512320 .bss
-int g_meteorShowerDuration;  // 0x512324 .bss
-WeaponDef* g_meteorWeapon;  // 0x512328 .bss
-int g_meteorsEnabled;  // 0x51232c .bss
-int g_meteorNextHitTime;  // 0x512330 .bss
-unsigned char g_meteorTarget[4];  // 0x512334 .bss
-int g_meteorScheduleGap;  // 0x512338 .bss
-unsigned char DAT_0051233c[4];  // 0x51233c .bss
-unsigned char DAT_00512350[8];  // 0x512350 .bss
-unsigned char DAT_00512758[8];  // 0x512758 .bss
 int DAT_00512760;  // 0x512760 .bss
 int g_unitRestrictPicLoadIndex;  // 0x512768 .bss
 int DAT_0051276c;  // 0x51276c .bss
@@ -434,12 +407,7 @@ int DAT_005129c0;  // 0x5129c0 .bss
 int* g_unitRestrictOldCounts;  // 0x5129c4 .bss
 int g_unitRestrictNextPicTick;  // 0x5129c8 .bss
 unsigned char DAT_005129cc[4];  // 0x5129cc .bss
-int (__stdcall* g_packetHandlers[45])(int);  // 0x512a20 .bss (the type runs past the next known address, 0x512a20+0xb0)
-unsigned char DAT_00512ad4[4];  // 0x512ad4 .bss
-int g_packetSizes[45];  // 0x512ad8 .bss (the type runs past the next known address, 0x512ad8+0xb0)
-unsigned char DAT_00512b8c[4];  // 0x512b8c .bss
 int g_broadcastPeersSeen[12];  // 0x512b90 .bss
-int g_packetModes[45];  // 0x512bc0 .bss (the type runs past the next known address, 0x512bc0+0xb0)
 char* g_loungeChatter;  // 0x512c74 .bss
 int g_loungeRefreshTime;  // 0x512c78 .bss
 unsigned int g_timeoutTimerStart;  // 0x512c7c .bss
@@ -465,7 +433,6 @@ int g_optionsLightbarAnim;  // 0x512ff0 .bss
 Surface* g_optionsBackupSurface;  // 0x512ff4 .bss
 int g_battleQuitIntent;  // 0x512ff8 .bss
 unsigned char DAT_00512ffc[4];  // 0x512ffc .bss
-int g_economyPacketTick;  // 0x51e53c .bss
 int g_probePanelBottom;  // 0x51e540 .bss
 int g_statusPanelNextTick;  // 0x51e544 .bss
 int (__stdcall* g_riInitializeEx)(int*, int);  // 0x51e54c .bss
@@ -499,16 +466,11 @@ short g_briefingPanoramaScrollX;  // 0x51e674 .bss
 int g_briefingPanoramaNextTick;  // 0x51e678 .bss
 unsigned int g_briefingPlanetLastTick;  // 0x51e67c .bss
 unsigned int g_briefingPlanetNextTick;  // 0x51e680 .bss
-int g_lastPlaceHeight;  // 0x51e684 .bss
-int g_lastPlaceMetalSum;  // 0x51e688 .bss
 SpeechQueue* g_speechQueue;  // 0x51e68c .bss
 int g_noDirectSound;  // 0x51e690 .bss
 int g_useWindowsSound;  // 0x51e694 .bss
 int g_cmdSingEnabled;  // 0x51e698 .bss
 int g_playLooping;  // 0x51e69c .bss
-unsigned char DAT_0051e6b0[4];  // 0x51e6b0 .bss
-int g_mapLoadFlag;  // 0x51e6c0 .bss
-unsigned int g_cdMismatchDefeatTick;  // 0x51e6c4 .bss
 unsigned char g_loadingBarFlashAlpha[8];  // 0x51e6c8 .bss
 int g_shareDialogPlayerNetIds[10];  // 0x51e6d0 .bss
 char g_savegameRadarFrame[24];  // 0x51e6f8 .bss
@@ -546,8 +508,6 @@ int DAT_0051fbb4;  // 0x51fbb4 .bss
 unsigned char DAT_0051fbd4[4];  // 0x51fbd4 .bss
 unsigned char g_timerSlots[172];  // 0x51fbd8 .bss
 unsigned int g_lastTimerTick;  // 0x51fc84 .bss
-unsigned int g_randomSeed;  // 0x51fc88 .bss
-unsigned char DAT_0051fc8c[4];  // 0x51fc8c .bss
 int g_defaultCommandHandler;  // 0x51fc90 .bss
 int g_defaultCommandMask;  // 0x51fc94 .bss
 unsigned char g_gafEncodeLiteralBuffer[256];  // 0x51fcb0 .bss

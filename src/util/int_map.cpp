@@ -39,6 +39,7 @@ extern void __cdecl GameFreeThunk(void* x);
 
 // FUNCTION: 0x4b2290 _$E6
 // FUNCTION: 0x4b2340 _$E4
+// TODO(#187): move the cache into the block, with Ref keys and nodes from the block
 static std::map<int, int> s_cobScriptCache;
 
 // The size of this helper decides whether the compiler expands map::insert

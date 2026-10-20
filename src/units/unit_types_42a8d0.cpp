@@ -29,6 +29,7 @@
 #include "../game/game.h"
 
 #include "../util/string_ref.h"
+#include "../state/sim_globals.h"
 
 // One file name of ListDirectory's list (a reference-counted string handle).
 struct Elem_00432be0 {
@@ -100,7 +101,6 @@ static TdfFile* s_weaponTdfParsers;
 static int s_weaponTdfLoadedCount;
 static int s_weaponTdfAllocCount;
 
-extern char DAT_005119b8[];
 
 int FUN_0041d8a0();
 int GetCdPathMismatch();

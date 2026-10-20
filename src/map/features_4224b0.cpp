@@ -83,11 +83,11 @@ struct FeatureDef_004224b0 {
 
 #pragma pack(push, 1)
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 extern Game* g_game;
 extern List_004224b0* s_featureTdfParsers;
-extern char DAT_005119b8[];
 
 void __stdcall BuildDataPath(char* out, const char* dir, const char* name, const char* ext);
 void __stdcall FatalError(char* path);

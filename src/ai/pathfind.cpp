@@ -120,15 +120,13 @@ struct Owner_0040eb70 {
 #pragma pack(pop)
 
 extern Game* g_game;
-extern int g_budgetRefreshCounter;
-extern int g_playerTickLoad[10];
-extern int g_playerBudgetCap[10];
 
 #include "../units/movement_class.h"
 
 #include "../../interfaces/seams.h"
 
 #include "ai_search_goal.h"
+#include "../state/sim_globals.h"
 
 class Planner_0040eb70 {
 public:

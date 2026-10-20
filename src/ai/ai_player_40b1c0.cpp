@@ -14,9 +14,9 @@ struct Vec_0040b1c0 {
 
 #include "../util/vec3.h"
 #include "player_ai.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
-extern PlayerAI* g_playerAI[];
 
 // FUNCTION: 0x40b1c0
 int __stdcall SumUnitRatingsInRange(int player, Vec_0040b1c0* pos, int range)

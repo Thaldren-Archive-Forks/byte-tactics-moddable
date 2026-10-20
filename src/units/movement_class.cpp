@@ -109,6 +109,7 @@ void AbortProgram(void);
 
 #pragma pack(push, 1)
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 // Four dwords of the path lock (0x440ca0 only copies them), not known to be a
@@ -133,11 +134,7 @@ struct Src_00440ca0 {
 };
 
 extern Game* g_game;
-extern char DAT_00512370[];
 
-// FUNCTION: 0x440230 _$E6
-// FUNCTION: 0x440290 _$E3
-MovementClassTable MovementClassTable::g_movementClasses;
 
 // Out-of-line constructor of the 32-byte entry that the table's compiler-
 // generated initialiser (0x440230) declares with the same inline body.
@@ -198,9 +195,9 @@ void MovementClass::ReadMoveInfo(Source_00440340* src)
 MovementClass* __stdcall FindMovementClass(char* name)
 {
     for (int i = 0; i < 32; i++) {
-        if (MovementClassTable::g_movementClasses.entries[i].name != 0
-            && _strcmpi((char*)MovementClassTable::g_movementClasses.entries[i].name, name) == 0) {
-            return &MovementClassTable::g_movementClasses.entries[i];
+        if (g_movementClasses.entries[i].name != 0
+            && _strcmpi((char*)g_movementClasses.entries[i].name, name) == 0) {
+            return &g_movementClasses.entries[i];
         }
     }
     return 0;
@@ -366,13 +363,13 @@ void BuildAllPassMaps(void)
 {
     int count = 0;
     unsigned int n;
-    int p = (int)&MovementClassTable::g_movementClasses;
+    int p = (int)&g_movementClasses;
     do {
         if (*(int*)p != 0) {
             count++;
         }
         p += 0x20;
-    } while (p < (int)&MovementClassTable::g_movementClasses + (int)sizeof(MovementClassTable));
+    } while (p < (int)&g_movementClasses + (int)sizeof(MovementClassTable));
 
     int progress = 100;
     unsigned int* q = (unsigned int*)DAT_00512370;
@@ -432,8 +429,8 @@ void FreeMovementClasses(void)
 void __stdcall RefreshAllPassMaps(Point16 a, Point16 b)
 {
     for (int i = 0; i < 32; i++) {
-        if (MovementClassTable::g_movementClasses.entries[i].name != 0) {
-            ((MovementClass*)&MovementClassTable::g_movementClasses.entries[i])->RefreshPassMap(a, b);
+        if (g_movementClasses.entries[i].name != 0) {
+            ((MovementClass*)&g_movementClasses.entries[i])->RefreshPassMap(a, b);
         }
     }
 }
@@ -441,8 +438,8 @@ void __stdcall RefreshAllPassMaps(Point16 a, Point16 b)
 static inline void UpdateAll(Point16 a, Point16 b)
 {
     for (int i = 0; i < 32; i++) {
-        if (MovementClassTable::g_movementClasses.entries[i].name != 0) {
-            ((MovementClass*)&MovementClassTable::g_movementClasses.entries[i])->RefreshPassMap(a, b);
+        if (g_movementClasses.entries[i].name != 0) {
+            ((MovementClass*)&g_movementClasses.entries[i])->RefreshPassMap(a, b);
         }
     }
 }
@@ -457,8 +454,8 @@ void __stdcall RefreshPassMapsForUnit(Struct_00440a70* p)
         unsigned int last = p->unit->lastTick;
         p->unit->lastTick = (unsigned int)g_game->ticks;
         for (int i = 0; i < 32; i++) {
-            if (last < MovementClassTable::g_movementClasses.entries[i].lastTick) {
-                ((MovementClass*)&MovementClassTable::g_movementClasses.entries[i])->RefreshPassMap(p->a, p->b);
+            if (last < g_movementClasses.entries[i].lastTick) {
+                ((MovementClass*)&g_movementClasses.entries[i])->RefreshPassMap(p->a, p->b);
             }
         }
         return;

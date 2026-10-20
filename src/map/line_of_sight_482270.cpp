@@ -35,7 +35,6 @@ void FUN_004161f0(void);
 void InitCommands(void);
 void ResetNetStats(void);
 
-extern LosTables g_losTables;
 
 struct MapSize_482270 {
     unsigned int width;                // +0x0
@@ -62,6 +61,7 @@ struct Player_482270 {
 #include "../game/game.h"
 
 #include "../graphics/gaf_frame.h"
+#include "../state/sim_globals.h"
 
 #pragma pack(pop)
 

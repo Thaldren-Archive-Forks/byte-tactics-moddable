@@ -17,9 +17,9 @@
 #pragma pack(pop)
 
 #include "../graphics/rect.h"
+#include "../state/sim_globals.h"
 
 extern Game* g_game;
-extern char DAT_005119b8[];
 
 void __stdcall PlaySoundByName(char* name, int param_2);
 int __stdcall IsScreenNamed(void* obj, const char* name);

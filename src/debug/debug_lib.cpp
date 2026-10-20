@@ -3507,6 +3507,7 @@ MapInsertResult* MapInsertResult::Assign(int* iter, unsigned char* inserted)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <algorithm>
+#include "../state/sim_globals.h"
 
 // A 0x18-byte pooled node, allocated 0x155 at a time (one 0x2000 block).
 extern void* g_freeBlockFreeList;      // free list
@@ -4182,7 +4183,6 @@ bool __cdecl FileExists(char* dir, char* name)
 // and the two usual source roots are tried in turn, MFC first, then the CRT.
 // g_msdevDirRead is the "MSDevDir already read" flag, g_crtSourceRoot the CRT root,
 // g_mfcSourceRoot the MFC root, DAT_005119b8 the empty default prefix.
-extern char DAT_005119b8[];
 extern char g_msdevDirRead;
 extern char g_crtSourceRoot[0x1e8];
 extern char g_mfcSourceRoot[0x1e8];
@@ -5908,7 +5908,6 @@ extern unsigned int g_freeBlockWraps;
 extern unsigned int g_allocSerial;
 extern unsigned int g_liveAllocCount;
 extern unsigned int g_liveAllocPeak;
-extern char DAT_005119b8[];
 extern char g_memStatusLastText[];
 
 void __cdecl OpenUrl(HWND hwnd, char* url, char* ext);

@@ -109,6 +109,7 @@ void __stdcall DrawFrame(void* surface, void* header, int x, int y);
 
 #pragma pack(push, 1)
 #include "game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 extern Game* g_game;
@@ -118,7 +119,6 @@ extern char* g_appName;
 extern char* g_windowClassName;
 extern int g_cmdlineDisplaySeed;
 extern char g_preferredLanguage[];
-extern char DAT_005119b8[];
 extern int g_cdTrackCategory;
 extern int g_cdNeedsReopenAfterFocus;
 extern DWORD g_lastSoundReapTick;

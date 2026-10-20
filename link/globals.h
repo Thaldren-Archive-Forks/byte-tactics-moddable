@@ -36,7 +36,6 @@ extern float g_buildPercentScale;                                               
 extern unsigned char DAT_004fdaf0[16];                                                                          // 0x4fdaf0, 16 bytes; V4i by value in 1 of 2 files (conflicting: struct names only)
 extern double g_shadeStep;                                                                                      // 0x4fdbe8, 8 bytes; 1 of 1 files
 extern char g_hapiCopyright[40];                                                                                // 0x4fdbf0, 40 bytes; 1 of 1 files
-extern int g_aiCommandsEnabled;                                                                                 // 0x501774, 4 bytes; 1 of 1 files
 extern unsigned char g_contourColors[32];                                                                       // 0x501d18, 32 bytes; 1 of 1 files
 extern char g_mappingKey[8];                                                                                    // 0x502288, 8 bytes; 1 of 1 files
 extern char g_screenshotDirFormat[16];                                                                          // 0x5024fc, 16 bytes; 1 of 1 files
@@ -233,12 +232,6 @@ extern char* g_libraryDateStamp;                                                
 extern char* g_performanceWindowName;                                                                           // 0x50d660, 4 bytes; 1 of 1 files
 extern char g_performanceDialogError[36];                                                                       // 0x50d6b4, 36 bytes; 1 of 1 files
 extern char* g_memoryStatusWindowName;                                                                          // 0x50d72c, 4 bytes; 2 of 2 files
-extern char DAT_005119b8[8];                                                                                    // 0x5119b8, 8 bytes; 32 of 34 files (conflicting: shape)
-extern PlayerAI* g_playerAI[10];                                                                                // 0x5119c0, 40 bytes; 2 of 3 files (conflicting: struct names only)
-extern int g_playerBudgetCap[10];                                                                               // 0x5119e8, 40 bytes; 1 of 1 files
-extern int g_playerTickLoad[10];                                                                                // 0x511a10, 40 bytes; 1 of 1 files
-extern int g_budgetRefreshCounter;                                                                              // 0x511a38, 4 bytes; 1 of 1 files
-extern unsigned char DAT_00511a3c[4];                                                                           // 0x511a3c, 4 bytes; nothing refers to it
 extern int g_byteRatesLastReceived;                                                                             // 0x511a40, 4 bytes; 1 of 1 files
 extern int g_compressionPercent;                                                                                // 0x511a44, 4 bytes; 1 of 1 files
 extern unsigned int g_bytesSentPerSecond;                                                                       // 0x511a48, 4 bytes; 1 of 1 files
@@ -275,10 +268,8 @@ extern int g_contourOffset;                                                     
 extern unsigned int g_netStatsTick;                                                                             // 0x511dd8, 4 bytes; 1 of 1 files
 extern unsigned int g_byteRatesTick;                                                                            // 0x511ddc, 4 bytes; 1 of 1 files
 extern int g_cdBypassDriveScan;                                                                                 // 0x511de0, 4 bytes; 2 of 2 files
-extern int g_cdPathMismatch;                                                                                    // 0x511de4, 4 bytes; 1 of 1 files
 extern Game* g_game;                                                                                            // 0x511de8, 4 bytes; 131 of 145 files (conflicting: shape)
 extern int g_endGameGlamourSoundStarted;                                                                        // 0x511dec, 4 bytes; 1 of 1 files
-extern unsigned char g_debrisMemCache[16];                                                                      // 0x511f80, 16 bytes; CMemoryCache by value in 2 of 2 files
 extern int g_explosion0Duration;                                                                                // 0x511f90, 4 bytes; 1 of 1 files
 extern int g_explosion0StartSize;                                                                               // 0x511f94, 4 bytes; 1 of 1 files
 extern int g_explosion0EndSize;                                                                                 // 0x511f98, 4 bytes; 1 of 1 files
@@ -288,7 +279,6 @@ extern int g_explosion1EndSize;                                                 
 extern int g_explosion2Duration;                                                                                // 0x511fa8, 4 bytes; 1 of 1 files
 extern int g_explosion2StartSize;                                                                               // 0x511fac, 4 bytes; 1 of 1 files
 extern int g_explosion2EndSize;                                                                                 // 0x511fb0, 4 bytes; 1 of 1 files
-extern unsigned char DAT_00511fb4[4];                                                                           // 0x511fb4, 4 bytes; nothing refers to it
 extern char g_frontendErrorText[256];                                                                           // 0x511fb8, 256 bytes; 1 of 1 files
 extern unsigned char g_pictureCache[464];                                                                       // 0x5120b8, 464 bytes; Entry_00428730[10] by value in 1 of 1 files
 extern int DAT_00512288;                                                                                        // 0x512288, 4 bytes; 1 of 1 files
@@ -303,23 +293,6 @@ extern int g_otaEnumCacheComplete;                                              
 extern int g_otaEnumFileListBytes;                                                                              // 0x5122dc, 4 bytes; 1 of 1 files
 extern int g_otaEnumFileCount;                                                                                  // 0x5122e0, 4 bytes; 1 of 1 files
 extern unsigned char DAT_005122e4[4];                                                                           // 0x5122e4, 4 bytes; nothing refers to it
-extern int g_meteorNextStrikeTime;                                                                              // 0x5122e8, 4 bytes; 2 of 2 files
-extern unsigned char DAT_005122ec[4];                                                                           // 0x5122ec, 4 bytes; nothing refers to it
-extern unsigned char DAT_005122f4[28];                                                                          // 0x5122f4, 28 bytes; nothing refers to it
-extern int g_meteorSpawnMagnitude;                                                                              // 0x512310, 4 bytes; 2 of 2 files
-extern int g_meteorSpawnInterval;                                                                               // 0x512314, 4 bytes; 2 of 2 files
-extern int g_meteorActive;                                                                                      // 0x512318, 4 bytes; 2 of 2 files
-extern int g_meteorStrikeEndTime;                                                                               // 0x51231c, 4 bytes; 2 of 2 files
-extern unsigned char g_meteorOrigin[4];                                                                         // 0x512320, 4 bytes; Point16 by value in 2 of 2 files
-extern int g_meteorShowerDuration;                                                                              // 0x512324, 4 bytes; 2 of 2 files
-extern WeaponDef* g_meteorWeapon;                                                                               // 0x512328, 4 bytes; 2 of 2 files
-extern int g_meteorsEnabled;                                                                                    // 0x51232c, 4 bytes; 2 of 2 files
-extern int g_meteorNextHitTime;                                                                                 // 0x512330, 4 bytes; 2 of 2 files
-extern unsigned char g_meteorTarget[4];                                                                         // 0x512334, 4 bytes; Point16 by value in 2 of 2 files
-extern int g_meteorScheduleGap;                                                                                 // 0x512338, 4 bytes; 2 of 2 files
-extern unsigned char DAT_0051233c[4];                                                                           // 0x51233c, 4 bytes; nothing refers to it
-extern unsigned char DAT_00512350[8];                                                                           // 0x512350, 8 bytes; nothing refers to it
-extern unsigned char DAT_00512758[8];                                                                           // 0x512758, 8 bytes; nothing refers to it
 extern int DAT_00512760;                                                                                        // 0x512760, 4 bytes; 1 of 1 files
 extern int g_unitRestrictPicLoadIndex;                                                                          // 0x512768, 4 bytes; 1 of 1 files
 extern int DAT_0051276c;                                                                                        // 0x51276c, 4 bytes; 1 of 1 files
@@ -346,12 +319,7 @@ extern int DAT_005129c0;                                                        
 extern int* g_unitRestrictOldCounts;                                                                            // 0x5129c4, 4 bytes; 2 of 2 files
 extern int g_unitRestrictNextPicTick;                                                                           // 0x5129c8, 4 bytes; 1 of 1 files
 extern unsigned char DAT_005129cc[4];                                                                           // 0x5129cc, 4 bytes; nothing refers to it
-extern int (__stdcall* g_packetHandlers[45])(int);                                                              // 0x512a20, 180 bytes; 1 of 1 files
-extern unsigned char DAT_00512ad4[4];                                                                           // 0x512ad4, 4 bytes; nothing refers to it
-extern int g_packetSizes[45];                                                                                   // 0x512ad8, 180 bytes; 2 of 2 files
-extern unsigned char DAT_00512b8c[4];                                                                           // 0x512b8c, 4 bytes; nothing refers to it
 extern int g_broadcastPeersSeen[12];                                                                            // 0x512b90, 48 bytes (declared int[11]); 1 of 1 files
-extern int g_packetModes[45];                                                                                   // 0x512bc0, 180 bytes; 2 of 2 files
 extern char* g_loungeChatter;                                                                                   // 0x512c74, 4 bytes; 1 of 1 files
 extern int g_loungeRefreshTime;                                                                                 // 0x512c78, 4 bytes; 1 of 1 files
 extern unsigned int g_timeoutTimerStart;                                                                        // 0x512c7c, 4 bytes; 1 of 1 files
@@ -377,7 +345,6 @@ extern int g_optionsLightbarAnim;                                               
 extern Surface* g_optionsBackupSurface;                                                                         // 0x512ff4, 4 bytes; 1 of 1 files
 extern int g_battleQuitIntent;                                                                                  // 0x512ff8, 4 bytes; 1 of 1 files
 extern unsigned char DAT_00512ffc[4];                                                                           // 0x512ffc, 4 bytes; nothing refers to it
-extern int g_economyPacketTick;                                                                                 // 0x51e53c, 4 bytes; 1 of 1 files
 extern int g_probePanelBottom;                                                                                  // 0x51e540, 4 bytes; 1 of 1 files
 extern int g_statusPanelNextTick;                                                                               // 0x51e544, 4 bytes; 1 of 1 files
 extern int (__stdcall* g_riInitializeEx)(int*, int);                                                            // 0x51e54c, 4 bytes; 1 of 1 files
@@ -411,16 +378,11 @@ extern short g_briefingPanoramaScrollX;                                         
 extern int g_briefingPanoramaNextTick;                                                                          // 0x51e678, 4 bytes; 1 of 1 files
 extern unsigned int g_briefingPlanetLastTick;                                                                   // 0x51e67c, 4 bytes; 1 of 1 files
 extern unsigned int g_briefingPlanetNextTick;                                                                   // 0x51e680, 4 bytes; 1 of 1 files
-extern int g_lastPlaceHeight;                                                                                   // 0x51e684, 4 bytes; 2 of 2 files
-extern int g_lastPlaceMetalSum;                                                                                 // 0x51e688, 4 bytes; 2 of 2 files
 extern SpeechQueue* g_speechQueue;                                                                              // 0x51e68c, 4 bytes; 1 of 1 files
 extern int g_noDirectSound;                                                                                     // 0x51e690, 4 bytes; 1 of 1 files
 extern int g_useWindowsSound;                                                                                   // 0x51e694, 4 bytes; 1 of 1 files
 extern int g_cmdSingEnabled;                                                                                    // 0x51e698, 4 bytes; 2 of 2 files
 extern int g_playLooping;                                                                                       // 0x51e69c, 4 bytes; 1 of 1 files
-extern unsigned char DAT_0051e6b0[4];                                                                           // 0x51e6b0, 4 bytes; nothing refers to it
-extern int g_mapLoadFlag;                                                                                       // 0x51e6c0, 4 bytes; 1 of 1 files
-extern unsigned int g_cdMismatchDefeatTick;                                                                     // 0x51e6c4, 4 bytes; 1 of 1 files
 extern "C" unsigned char g_loadingBarFlashAlpha[8];                                                             // 0x51e6c8, 8 bytes; extern "C" (no type) with the globals inside it
 extern int g_shareDialogPlayerNetIds[10];                                                                       // 0x51e6d0, 40 bytes; 1 of 1 files
 extern char g_savegameRadarFrame[24];                                                                           // 0x51e6f8, 24 bytes; 1 of 1 files
@@ -458,8 +420,6 @@ extern int DAT_0051fbb4;                                                        
 extern unsigned char DAT_0051fbd4[4];                                                                           // 0x51fbd4, 4 bytes; nothing refers to it
 extern unsigned char g_timerSlots[172];                                                                         // 0x51fbd8, 172 bytes; Timer_4b63f0[10] by value in 1 of 1 files
 extern unsigned int g_lastTimerTick;                                                                            // 0x51fc84, 4 bytes; 1 of 1 files
-extern unsigned int g_randomSeed;                                                                               // 0x51fc88, 4 bytes; 3 of 3 files
-extern unsigned char DAT_0051fc8c[4];                                                                           // 0x51fc8c, 4 bytes; nothing refers to it
 extern int g_defaultCommandHandler;                                                                             // 0x51fc90, 4 bytes; 1 of 1 files
 extern int g_defaultCommandMask;                                                                                // 0x51fc94, 4 bytes; 1 of 1 files
 extern unsigned char g_gafEncodeLiteralBuffer[256];                                                             // 0x51fcb0, 256 bytes; 1 of 1 files
@@ -588,7 +548,6 @@ extern void* g_squashThreadLockEvent;                                           
 extern long g_squashThreadLockTicket;                                                                           // 0x52a4fc, 4 bytes; 1 of 2 files (conflicting: signedness or const)
 
 // Not declared: 209 globals defined in a data file or whose type is not settled (see data/globals.csv).
-//   0x513000 g_packetManager: defined in src/network/packets_460e20.cpp
 //   0x4fcdb8 g_dpspGuidSerial: defined in src/data/guids.cpp
 //   0x4fcdc8 g_dpspGuidModem: defined in src/data/guids.cpp
 //   0x4fcd98 g_dpspGuidIpx: defined in src/data/guids.cpp
@@ -597,13 +556,11 @@ extern long g_squashThreadLockTicket;                                           
 //   0x5292c4 QBDUValue_004e17c0::PBDU?$pair::?$_Tree::_Nil: defined in src/debug/debug_lib.cpp
 //   0x4fcfb8 DAT_004fcfb8: defined in src/data/guids.cpp
 //   0x4fd2f8 g_orderFxVtable: defined in src/data/vtables.cpp
-//   0x512344 g_missionOrderTableBegin: part of another global: g_missionOrderTableVec+0x4
 //   0x512ca8 g_cmdlineHostGameName: part of another global: DAT_00512c80+0x28
 //   0x512d48 g_onlineLobbyPlayerName: part of another global: DAT_00512c80+0xc8
 //   0x51e574 g_onlineReportPlayers: PlayerInfo_0046c2a0** (1), PlayerInfo_0046bce0** (1), int* (1)
 //   0x51e57c g_onlineReportScoreBoards: ScoreBoard_0046c2a0** (1), ScoreBoard_0046bce0** (1), void* (1)
 //   0x51e59c IUUnitSyncEntry::IU?$pair::?$_Tree::_Nilrefs: defined in src/network/unit_sync.cpp
-//   0x51e6a0 g_losTables: defined in src/map/line_of_sight.cpp
 //   0x51fba4 g_guiContext: Root_004a32a0* (1), Holder_004a3ef0* (1), int* (1)
 //   0x5289c8 g_debugThreadRunning: defined in src/data/exe_only.cpp
 //   0x528a54 std::IH::IU?$pair::?$_Tree::_Nil: defined in src/debug/debug_lib_4db610.cpp
@@ -637,9 +594,6 @@ extern long g_squashThreadLockTicket;                                           
 //   0x50ced8 g_profilerDialog: defined in src/debug/debug_dialogs.cpp
 //   0x50d980 g_pentiumEvents: defined in src/debug/perf_counters.cpp
 //   0x50da00 g_pentiumProEvents: defined in src/debug/perf_counters.cpp
-//   0x511df0 g_explodedPieces: unsigned char*[] (1), ExplodedPiece*[100] (1)
-//   0x5122f0 g_meteorWeaponName: char* (1), char[] (1)
-//   0x512348 g_missionOrderTableEnd: part of another global: g_missionOrderTableVec+0x8
 //   0x512358 MovementClassTable::g_movementClasses: defined in src/units/movement_class.cpp
 //   0x512764 g_battleRoomBaseGadgetCount: short (1), int (1)
 //   0x512770 g_serialPortNumber: char[] (1), Serial_00441c30 (1)
@@ -739,10 +693,7 @@ extern long g_squashThreadLockTicket;                                           
 //   0x50b6e0 DAT_0050b6e0: defined in src/data/unused.cpp
 //   0x5122c4 g_mapCacheBegin: part of another global: src/map/map_list.cpp:0x5122c0+0x4
 //   0x5122c8 g_mapCacheEnd: part of another global: src/map/map_list.cpp:0x5122c0+0x8
-//   0x512340 g_missionOrderTableVec: defined in src/map/meteors.cpp
-//   0x512370 DAT_00512370: part of another global: MovementClassTable::g_movementClasses+0x18
 //   0x512774 g_serialBaudRate: part of another global: g_serialPortNumber+0x4
-//   0x512a28 g_packetHandlerType2: part of another global: g_packetHandlers+0x8
 //   0x512c8c DAT_00512c8c: part of another global: DAT_00512c80+0xc
 //   0x512c94 g_netFrameRateConfig: part of another global: DAT_00512c80+0x14
 //   0x512ce8 g_lobbyMapName: part of another global: DAT_00512c80+0x68
@@ -769,8 +720,6 @@ extern long g_squashThreadLockTicket;                                           
 //   0x512f51 g_optionsBackupDisplayHeight: part of another global: g_optionsPrefsSnapshot+0x39
 //   0x512f55 g_optionsBackupTextScroll: part of another global: g_optionsPrefsSnapshot+0x3d
 //   0x512f59 g_optionsBackupTextLines: part of another global: g_optionsPrefsSnapshot+0x41
-//   0x513008 g_packetChannels: part of another global: g_packetManager+0x8
-//   0x51e300 g_packetManagerReceiver: part of another global: g_packetManager+0xb300
 //   0x51e6cc DAT_0051e6cc: part of another global: g_loadingBarFlashAlpha+0x4
 //   0x51e821 DAT_0051e821: part of another global: g_loadingBarPrevPercent+0x1
 //   0x51e822 DAT_0051e822: part of another global: g_loadingBarPrevPercent+0x2

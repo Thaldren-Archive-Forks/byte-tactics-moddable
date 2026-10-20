@@ -12,6 +12,7 @@
 #include "condition_class.h"
 #include "../../interfaces/seams.h"
 #include "../quirks/quirks.h"
+#include "../state/sim_globals.h"
 
 extern Game* g_game;
 
@@ -736,7 +737,6 @@ void HarnessAfterStep()
 #include "trace_schema.h"
 
 #include "../state/game_rand.h"
-extern unsigned int g_randomSeed;
 
 enum {
     GAME_PLAYERS = 0x1b63,
@@ -924,14 +924,15 @@ enum {
 
 #define LINK_IN_FX 0x80000000u
 
-extern char DAT_00512370[];
 
 static unsigned char* MoveClasses()
 {
     return (unsigned char*)DAT_00512370 - 0x18;
 }
 
-extern unsigned char* g_explodedPieces[EXPLODED_SLOTS];
+typedef unsigned char* SimView_g_explodedPieces[EXPLODED_SLOTS];
+#undef g_explodedPieces
+#define g_explodedPieces (*reinterpret_cast<SimView_g_explodedPieces*>(&Sim().g_explodedPieces))
 extern void* g_approachRadiusVtable[];
 extern void* g_ringApproachVtable[];
 extern void* g_pointMarkerVtable[];
@@ -942,7 +943,9 @@ extern void* g_aiSearchGoalVtable[];
 extern void* g_packedGoalVtable[];
 extern void* g_liteGoalVtable[];
 extern void* g_packedPosGoalVtable[];
-extern unsigned char* g_playerAI[MAX_PLAYERS];
+typedef unsigned char* SimView_g_playerAI[MAX_PLAYERS];
+#undef g_playerAI
+#define g_playerAI (*reinterpret_cast<SimView_g_playerAI*>(&Sim().g_playerAI))
 
 static const char* const s_phaseNames[9] = { "net", "units", "projectiles", "explosions", "players", "features",
                                              "wind", "meteors", "world" };
@@ -1845,7 +1848,9 @@ static void NumberUnitHeap(unsigned char* units, unsigned count)
     }
 }
 
-extern Elem_0043c390* g_missionOrderTableBegin;
+typedef Elem_0043c390* SimView_g_missionOrderTableBegin;
+#undef g_missionOrderTableBegin
+#define g_missionOrderTableBegin (*reinterpret_cast<SimView_g_missionOrderTableBegin*>(reinterpret_cast<char*>(&g_missionOrderTableVec) + 0x4))
 
 static const char* OrderKindName(unsigned order)
 {

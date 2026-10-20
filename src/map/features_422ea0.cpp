@@ -29,11 +29,11 @@ struct FeatureDef_00422ea0 {
 
 #pragma pack(push, 1)
 #include "../game/game.h"
+#include "../state/sim_globals.h"
 #pragma pack(pop)
 
 extern Game* g_game;
 extern List_00422ea0* s_featureTdfParsers;
-extern char DAT_005119b8[];
 
 unsigned short __stdcall LoadFeatureType(char* name);
 

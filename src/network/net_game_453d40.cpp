@@ -154,12 +154,10 @@ struct AllyFlagsPacket {
 #pragma pack(pop)
 
 #include "../network/packet_manager.h"
+#include "../state/sim_globals.h"
 
 extern Game* g_game;
-extern char DAT_005119b8[];
-extern int g_packetModes[];
 extern int g_usePacketManager;
-extern PacketManager g_packetManager;
 extern char g_allySoundName[];
 extern char g_playerDisconnectedText[];
 extern char g_integrityBreachText[];

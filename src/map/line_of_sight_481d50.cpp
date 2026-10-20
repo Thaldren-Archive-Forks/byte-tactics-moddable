@@ -33,7 +33,6 @@ void FUN_00406f40(void);
 void ResetAIPlayers(void);
 void RegisterVtolOrders(void);
 
-extern LosTables g_losTables;
 
 struct MapSize_00481d50 {
     unsigned int width;                // +0x0
@@ -60,6 +59,7 @@ struct Map_00481d50 {
 #include "../game/game.h"
 
 #include "../graphics/gaf_frame.h"
+#include "../state/sim_globals.h"
 
 #pragma pack(pop)
 

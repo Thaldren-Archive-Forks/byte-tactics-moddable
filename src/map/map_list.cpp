@@ -13,7 +13,6 @@
 
 class StringRef;
 
-extern char DAT_005119b8[];
 
 #pragma pack(push, 1)
 struct Slot_00436860 {
@@ -33,7 +32,6 @@ extern int g_otaEnumCacheComplete;
 extern int g_otaEnumFileListBytes;
 extern int g_otaEnumFileCount;
 extern int g_usePacketManager;
-extern PacketManager g_packetManager;
 
 int __stdcall HAPI_FileLengthByName(char* path);
 void __stdcall OpenMessageBox(char* dest, char* text, int wrapWidth, int centre, int autoHeight);
@@ -106,6 +104,7 @@ void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
 #include "../util/vec3.h"
 
 #include "../util/string_ref.h"
+#include "../state/sim_globals.h"
 
 struct Header_004373a0 {
     int magic;                         // +0x00

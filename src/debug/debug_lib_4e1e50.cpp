@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include "../state/sim_globals.h"
 
 unsigned char __cdecl HasPerfCounters(void);
 double __cdecl GetTimeSeconds();
@@ -22,7 +23,6 @@ extern unsigned char g_perfEnabled;     // profiling is on
 extern unsigned char g_perfDisplayInDebugger;  // reports go to the debugger too
 extern unsigned char g_perfDisplayInWindow;  // reports go to the log
 extern char g_reportIndentText[];       // the indent of the current report
-extern char DAT_005119b8[];             // ""
 
 // A report for the log: its name and its text.
 class NameKey {

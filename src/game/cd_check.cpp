@@ -8,6 +8,7 @@
 class TdfRecord;
 
 #include "../util/tdf.h"
+#include "../state/sim_globals.h"
 
 
 struct FindData_0041d4c0 {
@@ -17,7 +18,6 @@ struct FindData_0041d4c0 {
 
 extern int DAT_0050289c;
 extern int g_cdBypassDriveScan;
-extern int g_cdPathMismatch;
 
 void HAPI_DropMissingArchives();
 void ChdirToExeDirectory();

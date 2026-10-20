@@ -155,13 +155,12 @@ struct Entry_0047ea40 {
 
 extern Game* g_game;
 extern ClaimFootprintVisitor g_claimFootprintVtable[];
-extern int g_lastPlaceHeight;
-extern int g_lastPlaceMetalSum;
 void __stdcall RefreshAllPassMaps(Point16 pos, Point16 size);
 // Stays in a file of its own: see the note at its definition.
 void __stdcall RemoveUnitFromMap(Unit* unit);
 
 #include "../../interfaces/seams.h"
+#include "../state/sim_globals.h"
 
 // FUNCTION: 0x47c790
 void __stdcall ClaimFootprintCells(Unit* obj)
@@ -345,8 +344,6 @@ void __stdcall ClearFootprintAndUnlink(Unit* unit)
 // depending on flag 2 of g_game+0x14281), then a walk of the footprint cells
 // that accumulates the build cost into g_lastPlaceMetalSum and the height envelope
 // into the returned g_lastPlaceHeight.
-extern int g_lastPlaceHeight;
-extern int g_lastPlaceMetalSum;
 
 int __stdcall GetCellHeight(Point16* p);
 

@@ -10,8 +10,11 @@
 #include "../util/hapi_bank.h"
 #include "../harness/condition_class.h"
 #include "victory_conditions.h"
+#include "../state/sim_globals.h"
 
-extern void* DAT_005119b8;
+typedef void* SimView_DAT_005119b8;
+#undef DAT_005119b8
+#define DAT_005119b8 (*reinterpret_cast<SimView_DAT_005119b8*>(&Sim().DAT_005119b8))
 
 struct Unit;
 class HapiBank;
@@ -96,7 +99,6 @@ void __stdcall PlaySoundByName(char* str, int flag);
 
 extern int GetCdPathMismatch();
 
-extern unsigned int g_cdMismatchDefeatTick;
 
 
 // Appends a condition to one of the two lists, at the caller's count.

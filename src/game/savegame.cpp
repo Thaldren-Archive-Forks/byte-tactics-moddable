@@ -98,9 +98,9 @@ union Flags_3923b {
 extern Game* g_game;
 
 #include "../map/mission.h"
+#include "../state/sim_globals.h"
 
 extern char* g_savegameDir;
-extern char DAT_005119b8[];
 extern const char g_invalidSavegameText[]; // "Invalid savegame file"
 extern char g_savegameRadarFrame[];
 extern char* g_savegameFileNames;

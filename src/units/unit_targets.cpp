@@ -402,6 +402,7 @@ extern char s_HitByWeapon_00508d74[];
 extern char s_TakeDamage_00508d68[];
 
 #include "../../interfaces/seams.h"
+#include "../state/sim_globals.h"
 void __stdcall AddCdActivitySample(int flag);
 int __cdecl FUN_004b7123(unsigned short idx, int scale);
 int __cdecl FUN_004b70ef(short idx, int scale);

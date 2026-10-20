@@ -4,6 +4,7 @@
 // out of line.
 
 #include "archive_entry.h"
+#include "../state/sim_globals.h"
 
 struct ArchiveDirectory {
     int count;
@@ -26,7 +27,6 @@ struct State_004be320 {
     int itemCount;                  // +0x61c
 };
 
-extern char DAT_005119b8[];
 
 State_004be320* GetDisplay(void);
 void __stdcall HAPI_ClearShadowFlags(ArchiveDirectory* list);

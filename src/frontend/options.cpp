@@ -448,6 +448,7 @@ struct GadgetOwner_004605c0 {
 #include "../graphics/surface.h"
 
 #include "../graphics/gaf_frame.h"
+#include "../state/sim_globals.h"
 
 // Unused: keeps the symbol ids in line for 0x45e4c0 (docs/c2-regalloc.md).
 struct Unit;
@@ -502,7 +503,6 @@ extern char g_testGadgetName[];        // "TEST"
 extern char g_volTextGadgetName[];     // "VOLTEXT"
 extern char g_modeGadgetName[];        // "MODE"
 extern char g_explodeSoundFile[];      // "sounds\\explode.wav"
-extern char DAT_005119b8[];
 extern int DAT_00512c80;
 extern int g_cmdlineHostMode;
 extern char g_cmdlineHostGameName[];

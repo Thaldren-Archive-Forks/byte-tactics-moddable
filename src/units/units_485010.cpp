@@ -668,6 +668,7 @@ void __stdcall InitUnit(int unitType, Vec3 pos, int param_5, Unit* unit)
 // initialises it (InitUnit inlined) and registers it.
 
 #include "../game/mission_conditions.h"
+#include "../state/sim_globals.h"
 
 // Unused here: the symbol id this declaration takes keeps 0x4854a0 matching
 // after the header moved the file's symbol count (docs/c2-regalloc.md).
