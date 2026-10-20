@@ -979,6 +979,7 @@ game,weapons,indirect,InitExplosions,1
 game,weapons,indirect,LoadWeaponTypes,1
 game,weapons,indirect,UpdateExplosions,1
 game,weapons,indirect,UpdateProjectiles,1
+game,weapons,shared_write,Angles16::heading,8
 game,weapons,shared_write,Game::flags_2a44,4
 game,weapons,shared_write,Game::localPlayer,3
 game,weapons,shared_write,Game::seaLevel,9
@@ -1955,6 +1956,9 @@ orders,units,shared_write,Vec3::z,9
 orders,weapons,indirect,DamageUnit,4
 orders,weapons,indirect,FindFeatureAtPos,3
 orders,weapons,indirect,WeaponCanReachUnit,5
+orders,weapons,shared_write,Angles16::bank,1
+orders,weapons,shared_write,Angles16::heading,8
+orders,weapons,shared_write,Angles16::pitch,4
 orders,weapons,shared_write,Fixed::value,5
 orders,weapons,shared_write,Order::ticks,2
 orders,weapons,shared_write,Point16::x,1
@@ -3197,6 +3201,9 @@ presentation,units,shared_write,Vec3::x,9
 presentation,units,shared_write,Vec3::y,11
 presentation,units,shared_write,Vec3::z,9
 presentation,units,shared_write,g_game,47
+presentation,weapons,shared_write,Angles16::bank,1
+presentation,weapons,shared_write,Angles16::heading,8
+presentation,weapons,shared_write,Angles16::pitch,4
 presentation,weapons,shared_write,Fixed::value,5
 presentation,weapons,shared_write,Fixed::whole,3
 presentation,weapons,shared_write,GafFrame::pixelsOrLayers,1
@@ -4188,6 +4195,9 @@ units,weapons,indirect,UnitScript::ExplodeLegacy,1
 units,weapons,indirect,UnitScript::ExplodePiece,1
 units,weapons,indirect,UpdateUnitWeapons,1
 units,weapons,indirect,WeaponAimCobCb::OnAimCobReturn,2
+units,weapons,shared_write,Angles16::bank,1
+units,weapons,shared_write,Angles16::heading,8
+units,weapons,shared_write,Angles16::pitch,4
 units,weapons,shared_write,Fixed::value,5
 units,weapons,shared_write,Game::units,4
 units,weapons,shared_write,Point16::x,1
@@ -4263,6 +4273,7 @@ weapons,features,shared_write,Vec3::z,7
 weapons,game,call,GameRand,1
 weapons,game,call,SimAllocTagged,1
 weapons,game,call,StepGafSequence,1
+weapons,game,shared_write,Angles16::heading,1
 weapons,game,shared_write,Unit::flags,3
 weapons,game,shared_write,Unit::health,1
 weapons,game,shared_write,Vec3::x,2
@@ -4301,6 +4312,9 @@ weapons,network,call,GetLocalDpid,3
 weapons,network,call,SendScriptCallByName,1
 weapons,network,shared_write,Unit::flags,2
 weapons,orders,indirect,AppendOrder,1
+weapons,orders,shared_write,Angles16::bank,1
+weapons,orders,shared_write,Angles16::heading,12
+weapons,orders,shared_write,Angles16::pitch,2
 weapons,orders,shared_write,Fixed::value,9
 weapons,orders,shared_write,Fixed::whole,3
 weapons,orders,shared_write,Order::ticks,2
@@ -4383,6 +4397,9 @@ weapons,presentation,call,Load3do,1
 weapons,presentation,call,MirrorObject,1
 weapons,presentation,call,PlaySoundAt,3
 weapons,presentation,call,UpdateBuildMenuIfFocusUnit,1
+weapons,presentation,shared_write,Angles16::bank,1
+weapons,presentation,shared_write,Angles16::heading,1
+weapons,presentation,shared_write,Angles16::pitch,1
 weapons,presentation,shared_write,DebrisView::angle_x,1
 weapons,presentation,shared_write,DebrisView::obj,1
 weapons,presentation,shared_write,ExplodedPiece::rec,1
@@ -4459,6 +4476,9 @@ weapons,targeting,shared_write,Vec3::z,2
 weapons,units,indirect,GetPieceOffset,1
 weapons,units,indirect,GetPiecePosition,1
 weapons,units,indirect,MarkRecentlyDamaged,1
+weapons,units,shared_write,Angles16::bank,6
+weapons,units,shared_write,Angles16::heading,10
+weapons,units,shared_write,Angles16::pitch,7
 weapons,units,shared_write,Fixed::value,3
 weapons,units,shared_write,Point16::x,7
 weapons,units,shared_write,Point16::y,7
