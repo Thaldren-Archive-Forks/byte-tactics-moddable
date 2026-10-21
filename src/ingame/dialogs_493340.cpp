@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <windows.h>
+#include "win_types.h"
 #include <math.h>
 #include <vector>
 
@@ -479,7 +479,8 @@ void __stdcall HandleTalkDialogEvent(Gui* gadget)
     if (IsCurrentGadgetNamed(gadget, g_talkGadgetName)) {
         Gadget* talk = FindGadgetChecked_B(entries, g_talkGadgetName);
         mode = g_game->mode_2bf0;
-        lstrcpynA(buf, (char*)talk + 0xb6, 0x100);
+        strncpy(buf, (char*)talk + 0xb6, 0xff);
+        buf[0xff] = 0;
         char* p = buf;
         while (*p && *p == ' ')
             p++;

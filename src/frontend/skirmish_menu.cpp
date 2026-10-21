@@ -3,7 +3,7 @@
 // The skirmish setup screen: the per-player rows (name, side, allies, colour,
 // metal, energy), the game-option buttons, the SELMAP.GUI map selector, the
 // click and cheat-text handlers, and the "forces destroyed" announcement.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -101,7 +101,7 @@ void RefreshAllyIcons(void)
     Gadget* entries = g_game->gui.layer->entries;
     for (; i < g_game->playerCount; i++) {
         char name[64];
-        wsprintfA(name, "Allies%d", i);
+        sprintf(name, "Allies%d", i);
         int index = FindGadgetIndex(entries, name, 6);
         if (index != -1) {
             Gadget* gadget = &entries[index];
@@ -208,7 +208,7 @@ static void NewColour(int playerIndex)
     char name[64];
     Gadget* entries = g_game->gui.layer->entries;
     ((Table *)g_game->options)->players[playerIndex].color = FindFreeColor();
-    wsprintfA(name, "Color%d", playerIndex);
+    sprintf(name, "Color%d", playerIndex);
     int index = FindGadgetIndex(entries, name, 6);
     if (index != -1) {
         Gadget* e = &entries[index];
@@ -227,7 +227,7 @@ void __stdcall CycleSlotController(int playerIndex)
 {
     char buffer[64];
 
-    wsprintfA(buffer, "Player%d", playerIndex);
+    sprintf(buffer, "Player%d", playerIndex);
     switch (((Table *)g_game->options)->players[playerIndex].active) {
     case 0:
         ((Table *)g_game->options)->players[playerIndex].active = 2;
@@ -249,32 +249,32 @@ void __stdcall CycleSlotController(int playerIndex)
     }
 
     if (((Table *)g_game->options)->players[playerIndex].active == 0) {
-        wsprintfA(buffer, "Player%d", playerIndex);
+        sprintf(buffer, "Player%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 1);
-        wsprintfA(buffer, "Side%d", playerIndex);
+        sprintf(buffer, "Side%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 0);
-        wsprintfA(buffer, "Allies%d", playerIndex);
+        sprintf(buffer, "Allies%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 0);
-        wsprintfA(buffer, "Metal%d", playerIndex);
+        sprintf(buffer, "Metal%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 0);
-        wsprintfA(buffer, "Energy%d", playerIndex);
+        sprintf(buffer, "Energy%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 0);
-        wsprintfA(buffer, "Color%d", playerIndex);
+        sprintf(buffer, "Color%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 0);
     } else {
         if (IsColorTaken(((Table *)g_game->options)->players[playerIndex].color, playerIndex))
             NewColour(playerIndex);
-        wsprintfA(buffer, "Player%d", playerIndex);
+        sprintf(buffer, "Player%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 1);
-        wsprintfA(buffer, "Side%d", playerIndex);
+        sprintf(buffer, "Side%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 1);
-        wsprintfA(buffer, "Allies%d", playerIndex);
+        sprintf(buffer, "Allies%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 1);
-        wsprintfA(buffer, "Metal%d", playerIndex);
+        sprintf(buffer, "Metal%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 1);
-        wsprintfA(buffer, "Energy%d", playerIndex);
+        sprintf(buffer, "Energy%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 1);
-        wsprintfA(buffer, "Color%d", playerIndex);
+        sprintf(buffer, "Color%d", playerIndex);
         SetGadgetActiveByName(&g_game->gui, buffer, 1);
     }
     RefreshAllyIcons();
@@ -362,7 +362,7 @@ void BuildSkirmishPlayerRows(void)
     while (i < g_game->playerCount) {
         rec1.h.y = y;
         rec2.h.y = y;
-        wsprintfA(rec1.h.name, "Player%d", i);
+        sprintf(rec1.h.name, "Player%d", i);
         rec1.h.x = 0x2d;
         rec1.h.w = 0x70;
         rec1.h.h = 0x14;
@@ -371,7 +371,7 @@ void BuildSkirmishPlayerRows(void)
         BindGadgetAnimSequence(&rec1, "skirmname");
         AddButtonGadget(&g_game->gui, &rec1);
 
-        wsprintfA(rec1.h.name, "Side%d", i);
+        sprintf(rec1.h.name, "Side%d", i);
         rec1.h.x = 0xa3;
         rec1.h.w = 0x2d;
         BindGadgetAnimSequence(&rec1, "SIDEx");
@@ -379,21 +379,21 @@ void BuildSkirmishPlayerRows(void)
         rec1.stages = 2;
         AddButtonGadget(&g_game->gui, &rec1);
 
-        wsprintfA(rec2.h.name, "Color%d", i);
+        sprintf(rec2.h.name, "Color%d", i);
         rec2.h.x = 0xd6;
         rec2.h.w = 0x14;
         rec2.h.h = 0x14;
         rec2.text[0] = 0;
         AddHotspotGadget(&g_game->gui, &rec2);
 
-        wsprintfA(rec2.h.name, "Allies%d", i);
+        sprintf(rec2.h.name, "Allies%d", i);
         rec2.h.x = 0xf1;
         rec2.h.w = 0x28;
         rec2.h.h = 0x14;
         strcpy(rec2.text, Translate("Click to select an allegiance symbol."));
         AddHotspotGadget(&g_game->gui, &rec2);
 
-        wsprintfA(rec1.h.name, "Metal%d", i);
+        sprintf(rec1.h.name, "Metal%d", i);
         rec1.h.x = 0x11e;
         rec1.h.w = 0x2d;
         rec1.h.h = 0x14;
@@ -406,7 +406,7 @@ void BuildSkirmishPlayerRows(void)
         strcpy(rec1.text, Translate("Left click to increase metal. Right click to decrease metal."));
         AddButtonGadget(&g_game->gui, &rec1);
 
-        wsprintfA(rec1.h.name, "Energy%d", i);
+        sprintf(rec1.h.name, "Energy%d", i);
         rec1.h.x = 0x151;
         rec1.h.w = 0x2d;
         BindGadgetAnimSequence(&rec1, "skirmmet");
@@ -468,7 +468,7 @@ void RefreshSkirmishSetup()
     {
         int i;
         for (i = 0; i < g_game->playerCount; i++) {
-            wsprintfA(buf, "Player%d", i);
+            sprintf(buf, "Player%d", i);
             int type = ((Table *)g_game->options)->players[i].active;
             switch (type) {
             case 2:
@@ -480,31 +480,31 @@ void RefreshSkirmishSetup()
             case 0:
                 SetTranslatedTextByName(&g_game->gui, buf, "Open", 0);
                 SetGadgetActiveByName(&g_game->gui, buf, 1);
-                wsprintfA(buf, "Side%d", i);
+                sprintf(buf, "Side%d", i);
                 SetGadgetActiveByName(&g_game->gui, buf, 0);
-                wsprintfA(buf, "Allies%d", i);
+                sprintf(buf, "Allies%d", i);
                 SetGadgetActiveByName(&g_game->gui, buf, 0);
-                wsprintfA(buf, "Metal%d", i);
+                sprintf(buf, "Metal%d", i);
                 SetGadgetActiveByName(&g_game->gui, buf, 0);
-                wsprintfA(buf, "Energy%d", i);
+                sprintf(buf, "Energy%d", i);
                 SetGadgetActiveByName(&g_game->gui, buf, 0);
-                wsprintfA(buf, "Color%d", i);
+                sprintf(buf, "Color%d", i);
                 SetGadgetActiveByName(&g_game->gui, buf, 0);
                 break;
             }
 
-            wsprintfA(buf, "Side%d", i);
+            sprintf(buf, "Side%d", i);
             SetButtonStageByName(&g_game->gui, buf, ((Table *)g_game->options)->players[i].shade);
 
-            wsprintfA(buf, "Metal%d", i);
+            sprintf(buf, "Metal%d", i);
             _itoa(((Table *)g_game->options)->players[i].metal, num, 10);
             SetTranslatedTextByName(&g_game->gui, buf, num, 0);
 
-            wsprintfA(buf, "Energy%d", i);
+            sprintf(buf, "Energy%d", i);
             _itoa(((Table *)g_game->options)->players[i].energy, num, 10);
             SetTranslatedTextByName(&g_game->gui, buf, num, 0);
 
-            wsprintfA(buf, "Color%d", i);
+            sprintf(buf, "Color%d", i);
             index = FindGadgetIndex(entries, buf, 6);
             if (index != -1) {
                 Gadget* gadget = &entries[index];
@@ -514,7 +514,7 @@ void RefreshSkirmishSetup()
                 }
             }
 
-            wsprintfA(buf, "Allies%d", i);
+            sprintf(buf, "Allies%d", i);
             index = FindGadgetIndex(entries, buf, 6);
             if (index != -1) {
                 Gadget* gadget = &entries[index];
@@ -817,7 +817,7 @@ void __stdcall CyclePlayerColor(int reverse)
             ((Table *)g_game->options)->players[current].color = *(unsigned short *)g_game->logos32 - 1;
     } while (color_taken(current));
 
-    wsprintfA(buf, "Color%d", current);
+    sprintf(buf, "Color%d", current);
     int index = FindGadgetIndex(entries, buf, 6);
     if (index != -1) {
         Gadget* gadget = &entries[index];
@@ -1016,7 +1016,7 @@ void __stdcall HandleSkirmishClick(Gui* menu)
             int* q = &t2->players[player].energy;
             if (*q == 0x2bc)
                 *q = 0x1f4;
-            wsprintfA(frame.sB, "Energy%d", player);
+            sprintf(frame.sB, "Energy%d", player);
             _itoa(((Table *)g_game->options)->players[player].energy, frame.sA, 10);
             SetTranslatedTextByName(menu, frame.sB, frame.sA, 10);
         }
@@ -1026,7 +1026,7 @@ void __stdcall HandleSkirmishClick(Gui* menu)
             int* p = &t->players[player].energy;
             // min()/max() from windef.h on the pointee; down clamp is *p + -0x1f4.
             *p = max(*p + -0x1f4, 0xc8);
-            wsprintfA(frame.sB, "Energy%d", player);
+            sprintf(frame.sB, "Energy%d", player);
             _itoa(((Table *)g_game->options)->players[player].energy, frame.sA, 10);
             SetTranslatedTextByName(menu, frame.sB, frame.sA, 10);
         }
@@ -1040,7 +1040,7 @@ void __stdcall HandleSkirmishClick(Gui* menu)
             int* q = &t2->players[player].metal;
             if (*q == 0x2bc)
                 *q = 0x1f4;
-            wsprintfA(frame.sA, "Metal%d", player);
+            sprintf(frame.sA, "Metal%d", player);
             _itoa(((Table *)g_game->options)->players[player].metal, frame.sB, 10);
             SetTranslatedTextByName(menu, frame.sA, frame.sB, 10);
         }
@@ -1049,7 +1049,7 @@ void __stdcall HandleSkirmishClick(Gui* menu)
             Table* t = (Table *)g_game->options;
             int* p = &t->players[player].metal;
             *p = max(*p + -0x1f4, 0xc8);
-            wsprintfA(frame.sA, "Metal%d", player);
+            sprintf(frame.sA, "Metal%d", player);
             _itoa(((Table *)g_game->options)->players[player].metal, frame.sB, 10);
             SetTranslatedTextByName(menu, frame.sA, frame.sB, 10);
         }

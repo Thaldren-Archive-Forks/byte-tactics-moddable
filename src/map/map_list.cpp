@@ -1,6 +1,6 @@
 // Decompiled by Opus, Space Bunny Free, deepseek-v4.1-flash, deepseek-v4.1, Haiku, DeepSeek V4.1 Flash, Claude Opus 5.5, Sonnet and GPT-6.1-sol. Names are provisional.
 
-#include <windows.h>
+#include "win_types.h"
 #include "../state/block.h"
 #include <stdio.h>
 #include <string.h>
@@ -366,7 +366,7 @@ void Mission::LoadCampaign(char* file)
         BuildCampaignFilePath(0, "camps", campaign, "TDF");
         if (strlen(file) != 0) {
             if (!list.LoadFile(GetNameSlot(0))) {
-                wsprintfA(msg, "The requested campaign file, %s, does not exist.", GetNameSlot(0));
+                sprintf(msg, "The requested campaign file, %s, does not exist.", GetNameSlot(0));
                 OpenMessageBox(g_game->messages, msg, 0x1e0, 1, 1);
                 LoadCampaign(DAT_005119b8);
                 return;
@@ -776,7 +776,7 @@ int Mission::LoadMission(char* map)
         list.ResetCurrentRecord();
         if (!list.SelectRecord(key)) {
             char msg[0x100];
-            wsprintfA(msg, "The requested mission file, %s, does not exist.", key);
+            sprintf(msg, "The requested mission file, %s, does not exist.", key);
             OpenMessageBox(g_game->messages, msg, 0x1e0, 1, 1);
             return 0;
         }
