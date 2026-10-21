@@ -81,6 +81,20 @@ It does not
 link: the link needs `orig/TotalA.exe`, which must never be committed, and
 trace runs need the game's data, so both stay local.
 
+## Dynamic initialisation
+
+New code must not rely on dynamic initialisation of namespace-scope objects
+(`static const bool x = Init();`, a global with a constructor): initialise on
+first use, as `src/host/win32/headless.cpp` does. The link keeps only 3.1c's
+own initialisers, re-added from the original's table in their original order,
+and drops every other `.CRT$XCU` entry, so a new one would never run. The
+build now fails on one, naming the file and symbol. The wasm32 build (#29) has
+no `.CRT$X*` sections either, so `#pragma init_seg` is not portable;
+`src/state/block.cpp`'s `#pragma init_seg(lib)` predates this rule. A drop that
+is correct (a decompile-only object 3.1c never constructed) goes in
+`data/initialiser_allow.csv`, with a reason that says what 3.1c does instead
+and the symbols the initialiser references, which the build checks.
+
 ## Running an agent
 
 Start your agent in the repository folder. Claude Code reads `CLAUDE.md`,

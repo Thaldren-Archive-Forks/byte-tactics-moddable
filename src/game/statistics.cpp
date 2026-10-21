@@ -1,6 +1,6 @@
 // Decompiled by space-bunny-free, Haiku, nemotron-3.5-lightning-free. Names are provisional.
 #include <string.h>
-#include <windows.h>
+#include <stdio.h>
 #include "../../interfaces/host.h"
 
 // A DirectPlay service provider GUID, 16 bytes: the IPX, modem and serial
@@ -37,7 +37,7 @@ extern PlayerInfo_0046bce0** g_onlineReportPlayers;
 extern ScoreBoard_0046bce0** g_onlineReportScoreBoards;
 extern char** g_onlineReportScores;
 extern int g_hapinetOnlineReport;
-extern HMODULE g_reporterDll;
+extern int g_reporterDll;
 
 typedef int (__stdcall *EnableFn_0046bf30)(int);
 typedef int (__stdcall *VersionFn_0046bf30)(char*);
@@ -101,32 +101,32 @@ int AllocScoreTables()
     while (1) {
         if (i >= 10)
             break;
-        wsprintfA(name, "PlayerInfo%d", i);
+        sprintf(name, "PlayerInfo%d", i);
         g_onlineReportPlayers[i] = (PlayerInfo_0046bce0*)GameAllocIgnoreTag(name, 0x18);
         if (g_onlineReportPlayers[i] == 0) {
             failed = 1;
             break;
         }
-        wsprintfA(name, "Allies%d", i);
+        sprintf(name, "Allies%d", i);
         g_onlineReportPlayers[i]->allies = GameAllocIgnoreTag(name, 0x28);
         if (g_onlineReportPlayers[i]->allies == 0) {
             failed = 1;
             break;
         }
-        wsprintfA(name, "ScoreBoard%d", i);
+        sprintf(name, "ScoreBoard%d", i);
         g_onlineReportScoreBoards[i] = (ScoreBoard_0046bce0*)GameAllocIgnoreTag(name, 0xc);
         if (g_onlineReportScoreBoards[i] == 0) {
             failed = 1;
             break;
         }
-        wsprintfA(name, "ppScores%d", i);
+        sprintf(name, "ppScores%d", i);
         g_onlineReportScoreBoards[i]->ppScores = GameAllocIgnoreTag(name, 0x24);
         if (g_onlineReportScoreBoards[i]->ppScores == 0) {
             failed = 1;
             break;
         }
         memset(g_onlineReportScoreBoards[i]->ppScores, 0, 0x24);
-        wsprintfA(name, "Scores%d", i);
+        sprintf(name, "Scores%d", i);
         g_onlineReportScores[i] = (char*)GameAllocIgnoreTag(name, 0x48);
         if (g_onlineReportScores[i] == 0) {
             failed = 1;
@@ -168,12 +168,6 @@ bool IsReporterDllLoaded()
     return g_reporterDll != 0;
 }
 
-// Brings up the network session and the remote console. Copies the service
-// provider GUID out of the joined network game, refuses the three providers
-// that cannot host one, then loads reporter.dll and resolves the Reporting
-// Interface entry points into the DAT_0051e5xx globals.
-// Returns 0 once the console is up, 2 when reporter.dll could not be loaded
-// complete, and 4 when there is still nothing to report to.
 // FUNCTION: 0x46bf30
 int __stdcall LoadReporterDll(int* count, int names)
 {
@@ -202,57 +196,9 @@ int __stdcall LoadReporterDll(int* count, int names)
 
     g_hapinetOnlineReport = 1;
     RISetCallbacks((int)ReportGameEventCallback, (int)ShowGameMessage);
+    *count = 0;
 
-    if (g_reporterDll == 0) {
-        g_reporterDll = LoadLibraryA("reporter.dll");
-        if (g_reporterDll != 0) {
-            // Nested, so the cleanup is the fall-through out of all eight: a goto
-            // target would be laid out before the block below.
-            g_riEnable = (EnableFn_0046bf30)GetProcAddress(g_reporterDll, "_RIEnable@4");
-            if (g_riEnable != 0) {
-                g_riGetVersion = (VersionFn_0046bf30)GetProcAddress(g_reporterDll, "_RIGetVersion@4");
-                if (g_riGetVersion != 0) {
-                    g_riInitializeEx = (InitFn_0046bf30)GetProcAddress(g_reporterDll, "_RIInitializeEx@8");
-                    if (g_riInitializeEx != 0) {
-                        g_riReport = (ReportFn_0046bf30)GetProcAddress(g_reporterDll, "_RIReport@40");
-                        if (g_riReport != 0) {
-                            g_riReportGameChat = (ChatFn_0046bf30)GetProcAddress(g_reporterDll, "_RIReportGameChat@8");
-                            if (g_riReportGameChat != 0) {
-                                g_riSetCallbacks = (SetCbFn_0046bf30)GetProcAddress(g_reporterDll, "_RISetCallbacks@8");
-                                if (g_riSetCallbacks != 0) {
-                                    g_riIntervalTimer = (TimerFn_0046bf30)GetProcAddress(g_reporterDll, "_RIIntervalTimer@0");
-                                    if (g_riIntervalTimer != 0) {
-                                        g_riTerminate = (TermFn_0046bf30)GetProcAddress(g_reporterDll, "_RITerminate@0");
-                                        if (g_riTerminate != 0) {
-                                            if (g_riGetVersion("Total Annihilation") != 0) {
-                                                g_riTerminate();
-                                                FreeLibrary(g_reporterDll);
-                                                g_reporterDll = 0;
-                                            } else if (g_riInitializeEx(count, names) == 4) {
-                                                g_riTerminate();
-                                                FreeLibrary(g_reporterDll);
-                                                g_reporterDll = 0;
-                                            } else {
-                                                g_riSetCallbacks(ReportGameEventCallback, ShowGameMessage);
-                                            }
-                                            goto tail;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            FreeLibrary(g_reporterDll);
-            g_reporterDll = 0;
-            return 2;
-        } else {
-            *count = 0;
-        }
-    }
-tail:
-    if (g_reporterDll != 0 || g_hapinetOnlineReport != 0) {
+    if (g_hapinetOnlineReport != 0) {
         return 0;
     }
 four:
@@ -268,8 +214,6 @@ void ShutdownScoreTables()
         host_net_uninit((host_net*)g_game->session_14_1);
         if (g_riTerminate != 0)
             g_riTerminate();
-        FreeLibrary(g_reporterDll);
-        g_reporterDll = 0;
     }
     for (int i = 0; i < 10; i++) {
         if (g_onlineReportPlayers != 0) {

@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 10
+#define HOST_VERSION_MINOR 11
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -129,6 +129,8 @@ void HOST_CALL host_message(void* owner, const char* title, const char* text, un
 void HOST_CALL host_fatal(void* owner, const char* title, const char* text);
 // Ends the program at once with the exit code, running no cleanup.
 void HOST_CALL host_exit(int code);
+// Plays the platform's error sound.
+void HOST_CALL host_alert(void);
 // Writes a line of text to the host's log.
 void HOST_CALL host_log(const char* text);
 // Returns 1 when another copy of the game already holds name, else claims name for this process and returns 0.
@@ -316,6 +318,14 @@ int HOST_CALL host_display_is_open(void);
 int HOST_CALL host_display_has_back_buffer(void);
 // Stores up to max of the machine's display modes in modes and their number in *count, and returns 1, or 0 when they could not be listed.
 int HOST_CALL host_display_mode_list(struct host_display_mode* modes, int max, int* count);
+
+// The installed media support's version (DirectX on Win32), in four parts; major_only is set when only major_lo is known.
+typedef struct host_media_version {
+    unsigned int major_hi, major_lo, minor_hi, minor_lo;
+    int major_only;
+} host_media_version;
+// Fills version with the installed media support's version and returns 1, or returns 0 when it can't be found.
+int HOST_CALL host_media_version_get(host_media_version* version);
 
 // Locks a frame (HOST_FRAME_BACK or HOST_FRAME_FRONT) for writing into *frame and returns a HOST_FRAME_ result.
 int HOST_CALL host_frame_lock(int which, struct host_frame* frame);
@@ -589,6 +599,16 @@ int HOST_CALL host_net_create_play_interface(const struct host_guid* provider, s
 int HOST_CALL host_net_release_play_interface(struct host_net_pair* pair);
 // Reads a player's address into data (size holds its capacity and receives the length) and returns 0 or a network error.
 int HOST_CALL host_net_get_player_address(struct host_net_pair* pair, unsigned long player, void* data, unsigned long* size);
+// Registers the program with the platform's game lobby (DirectPlay on Win32) and returns nonzero on success.
+int HOST_CALL host_net_register_application(const char* name, const char* file, const char* command_line, const char* folder);
+// Runs a button command of Cavedog's online service (online.dll), translating its text through translate, and returns its result, or 2 when the service is missing or too old.
+int HOST_CALL host_net_online_button(int button, char* message, unsigned int size, void* translate);
+// Fills links with the entries of Cavedog's online service (online.dll) and returns their number, or 0 when the service is missing or too old.
+unsigned int HOST_CALL host_net_online_link_info(void* links);
+// Reads the configuration file into config for Cavedog's online service (online.dll) and returns its result, or 0 when the service is missing or too old.
+int HOST_CALL host_net_online_load_config(char* file, void* config, int size);
+// Frees Cavedog's online service (online.dll), or does nothing when it is not loaded.
+void HOST_CALL host_net_online_unload(void);
 
 #ifdef __cplusplus
 }

@@ -594,6 +594,7 @@ game,platform,call,TdfRecord::GetFieldString,1
 game,platform,call,ToggleFullScreen,2
 game,platform,call,Translate,7
 game,platform,call,UpdateTimers,1
+game,platform,call,host_alert,1
 game,platform,call,host_crash_report,1
 game,platform,call,host_debug_break,1
 game,platform,call,host_dir_set_current,1
@@ -614,6 +615,7 @@ game,platform,call,host_music_open,1
 game,platform,call,host_mutex_lock,1
 game,platform,call,host_mutex_unlock,1
 game,platform,call,host_net_guarantee_packets,1
+game,platform,call,host_net_register_application,1
 game,platform,call,host_pump_events,1
 game,platform,call,host_setting_get,1
 game,platform,call,host_setting_set,1
@@ -1583,7 +1585,6 @@ network,platform,call,host_event_create,1
 network,platform,call,host_event_destroy,1
 network,platform,call,host_event_set,1
 network,platform,call,host_event_wait,1
-network,platform,call,host_file_exe_path,3
 network,platform,call,host_net_add_player,1
 network,platform,call,host_net_create_new_game,1
 network,platform,call,host_net_create_or_join_lobby_game,1
@@ -1596,6 +1597,10 @@ network,platform,call,host_net_init_connection,1
 network,platform,call,host_net_init_defaults,2
 network,platform,call,host_net_init_lobbied_connection,1
 network,platform,call,host_net_join_game,1
+network,platform,call,host_net_online_button,1
+network,platform,call,host_net_online_link_info,1
+network,platform,call,host_net_online_load_config,1
+network,platform,call,host_net_online_unload,1
 network,platform,call,host_net_password_required,1
 network,platform,call,host_net_quit_game,2
 network,platform,call,host_net_receive_packet,2
@@ -2117,6 +2122,7 @@ platform,features,shared_write,Vec3::y,5
 platform,features,shared_write,Vec3::z,7
 platform,game,call,AllocSite::~AllocSite,12
 platform,game,call,ChdirToExeDirectory,1
+platform,game,call,GameEntry,1
 platform,game,call,GetPreferredLanguage,1
 platform,game,call,SimAlloc,2
 platform,game,call,SimFree,4

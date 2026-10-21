@@ -6,6 +6,10 @@
 #include "../../../interfaces/host.h"
 
 HWND host_win32_window(void);
+extern const GUID DAT_004fcfb8;
+
+static char g_onlineDllPath[261];
+static void* g_onlineDll;
 
 namespace {
 
@@ -755,4 +759,123 @@ extern "C" int HOST_CALL host_net_get_player_address(host_net_pair* net, unsigne
     if (net->dp3 != 0)
         return net->dp3->GetPlayerAddress(player, data, size);
     return 0x88770140;
+}
+
+extern "C" int HOST_CALL host_net_register_application(const char* name, const char* file, const char* command_line, const char* folder)
+{
+    struct RegisterApp {
+        DWORD dwSize;
+        DWORD dwFlags;
+        LPSTR lpszApplicationName;
+        LPGUID lpGUID;
+        LPSTR lpszFilename;
+        LPSTR lpszCommandLine;
+        LPSTR lpszPath;
+        LPSTR lpszCurrentDirectory;
+    };
+    typedef int (__stdcall* RegisterApplication)(HWND, RegisterApp*);
+    RegisterApp app;
+    int registered = 0;
+    memset(&app, 0, sizeof(app));
+    app.dwSize = sizeof(app);
+    app.lpszApplicationName = (LPSTR)name;
+    app.lpGUID = (LPGUID)&DAT_004fcfb8;
+    app.lpszFilename = (LPSTR)file;
+    app.lpszCommandLine = (LPSTR)command_line;
+    app.lpszPath = (LPSTR)folder;
+    app.lpszCurrentDirectory = (LPSTR)folder;
+    HMODULE setupDll = LoadLibraryA("dsetup.dll");
+    if (setupDll) {
+        RegisterApplication func = (RegisterApplication)GetProcAddress(setupDll, "DirectXRegisterApplicationA");
+        if (func)
+            registered = func(NULL, &app);
+    }
+    FreeLibrary(setupDll);
+    return registered;
+}
+
+// TODO(#28): carry the online service's transport through the net seam
+namespace {
+
+typedef unsigned int (__stdcall* OnlGetVersion)(void);
+typedef int (__stdcall* OnlProcessButtonCommand)(int button, char* message, unsigned int size,
+                                                 void (__stdcall* translate)(char* text));
+typedef unsigned int (__stdcall* OnlGetLinkInfo)(void* links);
+typedef int (__stdcall* OnlLoadConfigFile)(char* file, void* config, int size);
+
+BOOL LoadOnline(void)
+{
+    if (g_onlineDllPath[0] == 0) {
+        int len = host_file_exe_path(g_onlineDllPath, MAX_PATH);
+        g_onlineDllPath[MAX_PATH] = 0;
+        char* p = g_onlineDllPath;
+        if (len > 0) {
+            for (p = &g_onlineDllPath[len - 1]; len > 0; p--, len--) {
+                if (strchr("/\\", *p))
+                    break;
+            }
+        }
+        strcpy(p + ((len > 0) & 1), "online.dll");
+    }
+    if (g_onlineDll == 0) {
+        g_onlineDll = LoadLibraryA(g_onlineDllPath);
+        if (g_onlineDll == 0)
+            return FALSE;
+    }
+    return TRUE;
+}
+
+BOOL CheckOnlineVersion(void)
+{
+    BOOL ok = FALSE;
+    if (g_onlineDll) {
+        OnlGetVersion f = (OnlGetVersion)GetProcAddress((HMODULE)g_onlineDll, "ONLGetVersion");
+        if (f)
+            ok = f() >= 3;
+    }
+    return ok;
+}
+
+}
+
+extern "C" int HOST_CALL host_net_online_button(int button, char* message, unsigned int size, void* translate)
+{
+    int result = 2;
+    if (LoadOnline() && CheckOnlineVersion()) {
+        OnlProcessButtonCommand f =
+            (OnlProcessButtonCommand)GetProcAddress((HMODULE)g_onlineDll, "ONLProcessButtonCommand");
+        if (f)
+            result = f(button, message, size, (void (__stdcall*)(char*))translate);
+    }
+    return result;
+}
+
+extern "C" unsigned int HOST_CALL host_net_online_link_info(void* links)
+{
+    unsigned int count = 0;
+    if (LoadOnline() && CheckOnlineVersion()) {
+        OnlGetLinkInfo f = (OnlGetLinkInfo)GetProcAddress((HMODULE)g_onlineDll, "ONLGetLinkInfo");
+        if (f)
+            count = f(links);
+    }
+    return count;
+}
+
+extern "C" int HOST_CALL host_net_online_load_config(char* file, void* config, int size)
+{
+    int result = 0;
+    if (LoadOnline() && CheckOnlineVersion()) {
+        OnlLoadConfigFile f = (OnlLoadConfigFile)GetProcAddress((HMODULE)g_onlineDll, "ONLLoadConfigFile");
+        if (f)
+            result = f(file, config, size);
+    }
+    return result;
+}
+
+extern "C" void HOST_CALL host_net_online_unload(void)
+{
+    if (g_onlineDll != 0) {
+        FreeLibrary((HMODULE)g_onlineDll);
+        g_onlineDll = 0;
+    }
 }
