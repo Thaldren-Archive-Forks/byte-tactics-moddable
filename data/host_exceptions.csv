@@ -6,9 +6,13 @@ src/debug/debug_lib_4d8d70.cpp,windows.h,#302
 src/debug/debug_lib_4d9ab0.cpp,windows.h,#302
 src/debug/debug_lib_4da120.cpp,windows.h,#302
 src/debug/debug_lib_4da2c0.cpp,windows.h,#302
+src/debug/debug_lib_4dacf0.cpp,interfaces/host.h,#29
+src/debug/debug_lib_4db610.cpp,interfaces/host.h,#29
+src/debug/debug_lib_4db7d0.cpp,interfaces/host.h,#29
 src/debug/debug_lib_4e1990.cpp,windows.h,#302
 src/debug/debug_lib_4e1e50.cpp,windows.h,#302
 src/debug/debug_lib_4e35b0.cpp,windows.h,#302
+src/debug/free_block_map.cpp,interfaces/host.h,#29
 src/debug/memory_stats.cpp,windows.h,#302
 src/debug/memory_status_dialog.cpp,windows.h,#302
 src/frontend/endgame.cpp,windows.h,#304
