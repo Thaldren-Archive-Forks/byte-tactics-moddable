@@ -92,7 +92,8 @@ build now fails on one, naming the file and symbol. The wasm32 build (#29) has
 no `.CRT$X*` sections either, so `#pragma init_seg` is not portable;
 `src/state/block.cpp`'s `#pragma init_seg(lib)` predates this rule. A drop that
 is correct (a decompile-only object 3.1c never constructed) goes in
-`data/initialiser_allow.csv`, with a reason that says what 3.1c does instead.
+`data/initialiser_allow.csv`, with a reason that says what 3.1c does instead
+and the symbols the initialiser references, which the build checks.
 
 ## Running an agent
 
