@@ -126,6 +126,7 @@ src/gui/listbox.cpp,src/graphics/gaf_frame.h,#22
 src/gui/listbox.cpp,src/graphics/rect.h,#22
 src/gui/mouse.cpp,interfaces/host.h,#22
 src/gui/mouse.cpp,src/graphics/gaf_frame.h,#22
+src/harness/block_scan.cpp,windows.h,#304
 src/ingame/control_panel.cpp,interfaces/host.h,#22
 src/ingame/control_panel.cpp,src/gui/gadget.h,#22
 src/ingame/control_panel.cpp,src/gui/gui.h,#22
