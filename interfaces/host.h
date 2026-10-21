@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 7
+#define HOST_VERSION_MINOR 8
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -93,6 +93,13 @@ void HOST_CALL host_mem_free(void* block);
 
 // Returns the command line the program was started with.
 const char* HOST_CALL host_command_line(void);
+
+// Appends a report of the exception (an EXCEPTION_POINTERS on Win32) to ErrorLog.txt beside the program, naming handler as the code that caught it.
+void HOST_CALL host_crash_report(void* exception, const char* handler);
+// Makes an exception that nothing else catches write the crash report with the handler name "Global Exception Handler".
+void HOST_CALL host_crash_install(void);
+// Passes value to DebugFunc1 of DebugHelper.dll and returns its result, or shows why it could not and returns value.
+int HOST_CALL host_debug_helper(int value);
 
 // Creates an event, signalled or not, that a wait resets itself unless manual_reset is set, and returns its handle.
 void* HOST_CALL host_event_create(int manual_reset, int signalled);
