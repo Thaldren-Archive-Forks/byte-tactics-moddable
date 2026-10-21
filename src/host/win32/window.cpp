@@ -196,6 +196,24 @@ extern "C" void HOST_CALL host_window_post(unsigned int type)
     PostMessageA(g_hwnd, type, 0, 0);
 }
 
+extern "C" void HOST_CALL host_window_place(int x, int y, int width, int height)
+{
+    if (HostHeadless() || g_hwnd == NULL) return;
+    SetWindowPos(g_hwnd, NULL, x, y, width, height, SWP_NOZORDER);
+}
+
+extern "C" void HOST_CALL host_window_resize(int width, int height)
+{
+    if (HostHeadless() || g_hwnd == NULL) return;
+    SetWindowPos(g_hwnd, NULL, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
+}
+
+extern "C" void HOST_CALL host_window_set_topmost(int on)
+{
+    if (HostHeadless() || g_hwnd == NULL) return;
+    SetWindowPos(g_hwnd, on ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+}
+
 // FUNCTION: 0x4da380
 static BOOL HandleDialogMessage(MSG* msg)
 {

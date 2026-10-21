@@ -9,7 +9,7 @@
 //
 // <memory.h> stays before <windows.h>: it fixes the map-name block's x87 schedule.
 #include <memory.h>
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -759,7 +759,7 @@ void LoadingScreenFrame(void)
             g_game->screen = 0;
             SetRestoreSurface(0);
             RestoreScreen();
-            SetWindowPos(((Display_00497f40*)g_game->unknown_c)->hwnd, 0, 0, 0, 0x280, 0x1e0, 4);
+            host_window_place(0, 0, 0x280, 0x1e0);
             SetResolution(0x280, 0x1e0);
             g_game->screen = (int)AllocSurface("OFFSCREEN", g_game->width_37e1f, g_game->field_37e23);
             SetRestoreSurface(g_game->screen);
@@ -813,8 +813,7 @@ void LoadingScreenFrame(void)
             g_game->screen = 0;
             SetRestoreSurface(0);
             RestoreScreen();
-            SetWindowPos(((Display_00497f40*)g_game->unknown_c)->hwnd, 0, 0, 0, g_game->width_37f1b,
-                         g_game->height_37f1f, 4);
+            host_window_place(0, 0, g_game->width_37f1b, g_game->height_37f1f);
             SetResolution(g_game->width_37f1b, g_game->height_37f1f);
             g_game->screen = (int)AllocSurface("OFFSCREEN", g_game->width_37e1f, g_game->field_37e23);
             SetRestoreSurface(g_game->screen);
