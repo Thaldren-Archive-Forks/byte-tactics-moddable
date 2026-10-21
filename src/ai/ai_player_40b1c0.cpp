@@ -3,6 +3,7 @@
 // `range` of `pos`; the distance is the 64-bit high product (>> 32).
 
 #include <vector>
+#include "../state/sim_allocator.h"
 #pragma pack(push, 1)
 struct Vec_0040b1c0 {
     int x;
@@ -24,8 +25,8 @@ int __stdcall SumUnitRatingsInRange(int player, Vec_0040b1c0* pos, int range)
     int total = 0;
     PlayerAI* p = g_playerAI[player];
     int r2 = range * range;
-    std::vector<Unit*>& units = p->visible.units;
-    for (std::vector<Unit*>::iterator it = units.begin(); it != units.end(); it++) {
+    SimVector<Unit*>& units = p->visible.units;
+    for (SimVector<Unit*>::iterator it = units.begin(); it != units.end(); it++) {
         Unit* u = *it;
         int dz = pos->z - u->pos.z;
         int dx = pos->x - u->pos.x;

@@ -13,6 +13,7 @@
 // The explored-map test is the inlined player method 0x475470 describes: a
 // {data, width, height} ByteMap at +0x7c.
 #include <vector>
+#include "../state/sim_allocator.h"
 
 #pragma pack(push, 1)
 #include "../game/game.h"
@@ -123,7 +124,7 @@ void SpatialTimer::OnTimer()
             best = probe;
         }
     }
-    for (std::vector<Unit*>::iterator it = group->units.begin();
+    for (SimVector<Unit*>::iterator it = group->units.begin();
          it != group->units.end(); ++it) {
         Unit* u = *it;
         if (((UnitDefFlags_00407e90*)u->def)->flag4) {

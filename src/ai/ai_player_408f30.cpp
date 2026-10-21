@@ -5,10 +5,11 @@
 // <vector>, emitted out of line through a member pointer. Callers 0x407560,
 // 0x40aa40 and 0x40ad80 call it.
 #include <vector>
+#include "../state/sim_allocator.h"
 
 #include "../units/unit.h"
 
-typedef std::vector<Unit*> Vec_00408f30;
+typedef SimVector<Unit*> Vec_00408f30;
 typedef void (Vec_00408f30::*InsertFn_00408f30)(
     Vec_00408f30::iterator, Vec_00408f30::size_type, Unit* const&);
 

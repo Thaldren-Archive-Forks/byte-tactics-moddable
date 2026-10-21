@@ -32,6 +32,7 @@
 #include <minmax.h>
 #include <math.h>
 #include <vector>
+#include "../state/sim_allocator.h"
 #include "win_types.h"
 
 
@@ -614,7 +615,7 @@ int SquadTimer::GetAveragePosition(Vec3* out)
     if (n == 0)
         return 0;
     int x = 0, y = 0, z = 0;
-    for (std::vector<Unit*>::iterator it = g->units.begin(); it != g->units.end(); ++it) {
+    for (SimVector<Unit*>::iterator it = g->units.begin(); it != g->units.end(); ++it) {
         x += (*it)->xWhole;
         y += (*it)->yWhole;
         z += (*it)->zWhole;
@@ -662,7 +663,7 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
         SetUnitSquad(other->group->units[0], group->id);
     }
     int sx = 0, sz = 0;
-    std::vector<Unit*>::iterator it;
+    SimVector<Unit*>::iterator it;
     for (it = group->units.begin(); it != group->units.end(); ++it) {
         sx += (*it)->xWhole;
         sz += (*it)->zWhole;
@@ -675,7 +676,7 @@ void AssaultTimer::RebalanceAssaultGroupByCentroid(int kind, int limit)
         if (g->units.size() == 1)
             break;
         int maxd = 0;
-        std::vector<Unit*>::iterator best = g->units.end();
+        SimVector<Unit*>::iterator best = g->units.end();
         for (it = g->units.begin(); it != g->units.end(); ++it) {
             int dx = (*it)->xWhole - cx;
             int dz = (*it)->zWhole - cz;
@@ -897,7 +898,7 @@ void __stdcall UpdateConverter(Unit* unit)
 void BuildTimer::OnTimer()
 {
     next = (unsigned int)g_game->ticks + 30;
-    for (std::vector<Unit*>::iterator it = group->units.begin(); it != group->units.end(); ++it) {
+    for (SimVector<Unit*>::iterator it = group->units.begin(); it != group->units.end(); ++it) {
         Unit* u = *it;
         if ((u->flags & 0x20000000) && (u->flags & 0x10000000) && !(u->flags & 0x4000)) {
             if (u->def->makesMetal) {
@@ -1305,7 +1306,7 @@ void PlayerAI::InitPlacementGrid()
 }
 
 // FUNCTION: 0x40a260
-bool PlayerAI::FindCellNearFeatures(UnitDef* type, Vec3* pos, std::vector<Elem_0040cc40>* list, int range, Point16* out)
+bool PlayerAI::FindCellNearFeatures(UnitDef* type, Vec3* pos, SimVector<Elem_0040cc40>* list, int range, Point16* out)
 {
     if (list->empty())
         return false;
@@ -1313,7 +1314,7 @@ bool PlayerAI::FindCellNearFeatures(UnitDef* type, Vec3* pos, std::vector<Elem_0
     heap.reserve(list->size());
     int rangeSq = range * range;
     Point16 center = WorldToCell(*pos, *(Point16*)&type->f14a);
-    for (std::vector<Elem_0040cc40>::iterator p = list->begin(); p != list->end(); p++) {
+    for (SimVector<Elem_0040cc40>::iterator p = list->begin(); p != list->end(); p++) {
         int d = DistSq(p->pos, center);
         if (d <= rangeSq) {
             heap.push_back(*p);
@@ -1431,8 +1432,8 @@ void __stdcall ProbeUnitDefEnergyRate(int unused1, int unused2, int param_3)
 void __stdcall GetVisibleEnemiesInRadius(int player,const Vec* pos,int radius,int flags,std::vector<Unit*>* out)
 {
     int radius2=radius*radius;
-    std::vector<Unit*>& visible=g_playerAI[player]->visible.units;
-    std::vector<Unit*>::iterator it;
+    SimVector<Unit*>& visible=g_playerAI[player]->visible.units;
+    SimVector<Unit*>::iterator it;
     for(it=visible.begin();it!=visible.end();++it) {
         Unit* unit=*it;
         int dz=pos->z-unit->pos.z;
@@ -1457,8 +1458,8 @@ bool __stdcall HasReadyUnitInRange(int player, Vec3_40b0d0* p, int range)
 {
     int r2 = range * range;
     PlayerAI* t = g_playerAI[player];
-    std::vector<Unit*>& units = t->visible.units;
-    std::vector<Unit*>::iterator it = units.begin();
+    SimVector<Unit*>& units = t->visible.units;
+    SimVector<Unit*>::iterator it = units.begin();
     if (it != units.end()) {
         do {
             Unit* u = *it;
@@ -1733,6 +1734,6 @@ int __stdcall HasSpecialUnit(int param_1)
 // (the destructor) on that same local; 0x410850 also builds a local with it.
 
 // Explicit instantiation of the whole class emits this constructor.
-template class std::vector<Unit*>;
+template class std::vector<Unit*, SimAllocator<Unit*> >;
 
 // FUNCTION: 0x40c510 ??0?$vector@PAUUnit@@V?$allocator@PAUUnit@@@std@@@std@@QAE@ABV?$allocator@PAUUnit@@@1@@Z

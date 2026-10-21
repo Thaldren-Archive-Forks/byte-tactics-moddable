@@ -45,7 +45,6 @@ src/ingame/info_panel.cpp,860,format-security,DrawStatusPanel (0x4689c0),not-a-b
 src/ingame/info_panel_46a860.cpp,340,format,DrawUnitInfoPanel (0x46a860),not-a-bug,,"name is the first field of UnitDef (offset 0), so %s of the pointer prints the name"
 src/ingame/selection_48cf30.cpp,12,pragma-pack,file scope,not-a-bug,,the pack(1) push covers the rest of the file by design; nothing follows the end of the file
 src/map/plot_map.cpp,71,mismatched-new-delete,SavePlayerFeaturesPlotmap (0x484df0),bug-harmless,,delete on a new[] buffer of bytes: the CRT delete[] is delete for a type with no destructor; fixed with delete[]
-src/network/hapinet.cpp,694,format,HAPINET_enumproviders (0x4ca330),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical"
 src/network/net_condenser.cpp,114,format,NetCondenser::Accumulate (0x44f940),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; log line only"
 src/network/net_condenser.cpp,136,format,NetCondenser::ReceivePacket (0x44f9c0),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; log line only"
 src/network/net_condenser.cpp,174,format,NetCondenser::ReceivePacket (0x44f9c0),not-a-bug,,"format width mismatch only: int, long, unsigned and pointers are all 32 bits on the i686 target, so the output is identical; log line only"
