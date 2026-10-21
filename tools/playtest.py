@@ -1377,7 +1377,7 @@ def main() -> None:
         ap.error("--testdump takes a tick of 0 or more")
     if args.testmode and not Path(args.testmode).is_file():
         ap.error(f"{args.testmode} is not a file")
-    tools = ("wine",) if args.testmode else ("Xephyr" if args.window else "Xvfb", "xdotool", "import", "wine", "pactl", "parec")
+    tools = ("wine",) if args.testmode and not args.scenario else ("Xephyr" if args.window else "Xvfb", "xdotool", "import", "wine", "pactl", "parec")
     for tool in tools:
         if not shutil.which(tool):
             raise SystemExit(f"{tool} is not installed")
