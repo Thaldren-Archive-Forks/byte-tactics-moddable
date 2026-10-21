@@ -14,13 +14,6 @@
 #include "win_types.h"
 #include <memory.h>
 #include <math.h>
-// Unused here: the symbol ids these declarations take keep the allocation
-// (docs/c2-regalloc.md), standing in for the placeholder class ta_types.h
-// no longer declares. They sit before the header so the vector it
-// instantiates keeps its ids.
-void RegisterEmptyAtexitB(void);
-bool __cdecl ReadGdperf(unsigned long, void*);
-
 #include "ta_types.h"
 
 #include <new>

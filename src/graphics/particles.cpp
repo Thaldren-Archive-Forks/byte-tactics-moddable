@@ -617,9 +617,7 @@ struct Map_004745e0 {               // one entry of g_game->players
 
 // Unused here: real functions declared to keep the symbol ids that
 // WakeParticle::DrawParticle (0x4745e0) matches in (docs/c2-regalloc.md).
-void SetMemFussyDefault(void);
 void AbortProgram(void);
-void ResetAllocStats(void);
 void MemFussyAtexitHandler(void);
 void GonzoAtexitHandler(void);
 void MemSetAtexitHandler(void);

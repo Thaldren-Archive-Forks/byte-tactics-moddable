@@ -88,7 +88,6 @@ public:
 // file's symbol ids (TakeFreeBlock matches only in a window of them).
 void __cdecl CountAlloc(unsigned int size);
 void __cdecl CountFree(int size);
-void ResetAllocStats(void);
 char IsMemFussy();
 char IsGonzo();
 char IsMemSet();
