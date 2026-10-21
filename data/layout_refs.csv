@@ -45,10 +45,6 @@ ListSaveGameFiles,0x44b4e0,src/frontend/multi.cpp,end-of,g_savegameNamesName,0,g
 JoinNetGame,0x4517b0,src/network/net_game.cpp,end-of,g_onlineLobbyPlayerName,0,g_onlineLobbyPassword,,none
 HandleNetPackets,0x453d40,src/network/net_game_453d40.cpp,end-of,g_playerDisconnectedText,0,g_integrityBreachText,,none
 InitLobbiedConnection,0x457710,src/network/net_game.cpp,end-of,g_cmdlineHostGameName,0,DAT_00512c98,,none
-OnlineProcessButtonCommand,0x45b250,src/network/online_45b250.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,none
-OnlineGetLinkInfo,0x45b490,src/network/online_45b490.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,none
-Onl_LoadConfigFile,0x45b670,src/network/online_45b670.cpp,end-of,g_onlineDllPath,0,DAT_00512c80,,none
-Onl_LoadConfigFile,0x45b670,src/network/online_45b670.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,none
 SetHostGameName,0x45b820,src/frontend/options.cpp,end-of,g_cmdlineHostGameName,0,g_cmdlineHostMode,,none
 LoadSavedSettings,0x45cc50,src/frontend/options.cpp,end-of,g_optionsBackupTrackTypes,0,g_optionsBackupEdgeScroll,,none
 HandleMusicOptionsClick,0x45d280,src/frontend/options.cpp,end-of,g_cdPlayGadgetName,0,g_cdNextGadgetName,,none
@@ -162,3 +158,6 @@ SetSubStateLogged,,src/frontend/frontend.cpp,end-of,g_frontendSourceFile,0,g_fro
 VisitWorld,,src/harness/harness.cpp,end-of,g_liteGoalVtable,0,g_packedGoalVtable,,none
 VisitWorld,,src/harness/harness.cpp,end-of,g_packedPosGoalVtable,0,g_liteGoalVtable,,none
 VisitWorld,,src/harness/harness.cpp,end-of,g_patrolGoalVtable,0,g_aiSearchGoalVtable,,none
+host_net_online_button,,src/host/win32/net.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,
+host_net_online_link_info,,src/host/win32/net.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,
+host_net_online_load_config,,src/host/win32/net.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,
