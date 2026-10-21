@@ -95,6 +95,71 @@ class HostLintTest(unittest.TestCase):
                 gh.chmod(gh.stat().st_mode | stat.S_IXUSR)
                 self.assertEqual(len(self.lint(open_issues=True, gh=str(gh))), expect)
 
+    def logic(self, *files):
+        self.write("data/game_logic.csv", "address,function,file\n" + "".join(f"0x1,F,{f}\n" for f in files))
+
+    def boundary_tree(self, include):
+        self.write("interfaces/host.h", "int h;\n")
+        self.write("src/host/settings_io.h", "int s;\n")
+        self.write("src/sound/sound.h", "int snd;\n")
+        self.write("src/units/unit.cpp", f"#include {include}\n")
+        self.logic("src/units/unit.cpp")
+
+    def test_game_logic_including_presentation_header_fails_unless_listed(self):
+        self.boundary_tree('"../sound/sound.h"')
+        found = self.lint()
+        self.assertEqual(len(found), 1)
+        self.assertIn("src/sound/sound.h", found[0])
+        self.exceptions("src/units/unit.cpp,src/sound/sound.h,#22")
+        self.assertEqual(self.lint(), [])
+
+    def test_game_logic_including_host_header_fails_unless_listed(self):
+        for include, header in [('"../../interfaces/host.h"', "interfaces/host.h"),
+                                ('"../host/settings_io.h"', "src/host/settings_io.h")]:
+            with self.subTest(include=include):
+                self.boundary_tree(include)
+                self.exceptions()
+                found = self.lint()
+                self.assertEqual(len(found), 1)
+                self.assertIn(header, found[0])
+                self.exceptions(f"src/units/unit.cpp,{header},#29")
+                self.assertEqual(self.lint(), [])
+
+    def test_other_files_may_include_presentation_headers(self):
+        self.boundary_tree('"../sound/sound.h"')
+        self.logic("src/units/other.cpp")
+        self.write("src/units/other.cpp", "int x;\n")
+        self.assertEqual(self.lint(), [])
+
+    def test_includes_resolve_against_file_directory_include_and_root(self):
+        self.write("src/sound/sound.h", "int snd;\n")
+        self.write("src/units/sound.h", "int local;\n")
+        self.write("include/gui/dialog.h", "int d;\n")
+        self.write("src/units/a.cpp", '#include "sound.h"\n#include "src/sound/sound.h"\n#include <gui/dialog.h>\n')
+        self.logic("src/units/a.cpp")
+        found = self.lint()
+        self.assertEqual(len(found), 1)
+        self.assertIn("src/sound/sound.h", found[0])
+
+    def test_unresolved_include_is_ignored(self):
+        self.write("src/units/a.cpp", '#include "../sound/missing.h"\n')
+        self.logic("src/units/a.cpp")
+        self.assertEqual(self.lint(), [])
+
+    def test_stale_boundary_row_fails(self):
+        self.boundary_tree('"../sound/sound.h"')
+        self.exceptions("src/units/unit.cpp,src/sound/sound.h,#22", "src/units/unit.cpp,interfaces/host.h,#29")
+        found = self.lint()
+        self.assertEqual(len(found), 1)
+        self.assertIn("stale row", found[0])
+
+    def test_game_logic_row_for_missing_file_fails(self):
+        self.logic("src/gone.cpp")
+        found = self.lint()
+        self.assertEqual(len(found), 1)
+        self.assertIn("src/gone.cpp", found[0])
+        self.assertIn("does not exist", found[0])
+
     def test_main_exit_codes(self):
         self.write("tests/a.cpp", "#include <windows.h>\n")
         with contextlib.redirect_stdout(io.StringIO()) as out:

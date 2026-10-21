@@ -1,4 +1,4 @@
-"""Fail when a file outside src/host/ includes a platform header that data/host_exceptions.csv does not list.
+"""Fail when a file includes a platform, host or presentation header that data/host_exceptions.csv does not list.
 
     python3 tools/hostlint.py                  # check the repository
     python3 tools/hostlint.py --open-issues    # also check that each row's issue is open
@@ -8,7 +8,16 @@ Platform headers are windows.h, shlobj.h, imagehlp.h, mmsystem.h, winsock*.h, th
 DirectX headers (ddraw, dsound, dplay, dplobby, dinput, d3d*, dxguid) and SDL.
 data/host_exceptions.csv (file,header,issue) lists the pairs that remain, each
 with the open issue that removes it. A row whose file no longer includes its
-header is stale, so the list only shrinks. Prints one line per problem and
+header is stale, so the list only shrinks.
+
+The game-logic rule: a game-logic file is a file with any function in data/game_logic.csv
+(its file column). Presentation headers are the headers under PRESENTATION_DIRS of
+tools/stateclasses.py. Host headers are interfaces/host.h and anything under src/host/.
+Each quoted or angle include of a game-logic file is resolved against the including file's
+directory, include/ and the repository root (the directories the build searches), and a
+resolved host or presentation header is listed by its path from the root, for example
+src/sound/sound.h. A game-logic file that includes one without a row fails, and so does a
+data/game_logic.csv row naming a file that does not exist. Prints one line per problem and
 exits 1 if there are any. Standard library only.
 """
 
@@ -17,14 +26,21 @@ import csv
 import json
 import os
 import re
+import posixpath
 import subprocess
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from stateclasses import PRESENTATION_DIRS  # noqa: E402
 
 EXCEPTIONS = "data/host_exceptions.csv"
 REPO = "ozgb/byte-tactics-moddable"
 SUFFIXES = {".c", ".cpp", ".h", ".hpp", ".inc", ".cc"}
 SKIP_DIRS = {".git", "build", "toolchain", "orig"}
 HOST_DIR = "src/host"
+HOST_HEADER = "interfaces/host.h"
+GAME_LOGIC = "data/game_logic.csv"
+INCLUDE_DIRS = ("include", "")
 INCLUDE = re.compile(r'^\s*#\s*include\s*[<"]([^>"]+)[>"]', re.MULTILINE)
 PLATFORM = re.compile(
     r"^(windows|shlobj|imagehlp|mmsystem|winsock2?|ddraw|dsound|dplay|dplobby|dinput|dxguid|d3d\w*)\.h$"
@@ -47,6 +63,42 @@ def platform_includes(root):
                 text = f.read()
             for header in sorted({m.group(1).lower() for m in INCLUDE.finditer(text) if PLATFORM.match(m.group(1))}):
                 yield path, header
+
+
+def game_logic_files(root):
+    """The sorted files named by data/game_logic.csv, empty when it is absent."""
+    path = os.path.join(root, GAME_LOGIC)
+    if not os.path.exists(path):
+        return []
+    with open(path, newline="") as f:
+        return sorted({r["file"] for r in csv.DictReader(f)})
+
+
+def boundary_header(resolved):
+    return resolved == HOST_HEADER or resolved.startswith(HOST_DIR + "/") or resolved.startswith(PRESENTATION_DIRS)
+
+
+def resolve_include(root, file, name):
+    """Return the repository path an include of file names, or None when no include directory has it."""
+    for base in (posixpath.dirname(file), *INCLUDE_DIRS):
+        candidate = posixpath.normpath(posixpath.join(base, name))
+        if not candidate.startswith("..") and os.path.isfile(os.path.join(root, candidate)):
+            return candidate
+    return None
+
+
+def boundary_includes(root, files):
+    """Yield (file, resolved header) for each host or presentation include of the existing files."""
+    for file in files:
+        path = os.path.join(root, file)
+        if not os.path.isfile(path):
+            continue
+        with open(path, encoding="latin-1") as f:
+            text = f.read()
+        for name in sorted({m.group(1) for m in INCLUDE.finditer(text)}):
+            resolved = resolve_include(root, file, name)
+            if resolved and boundary_header(resolved):
+                yield file, resolved
 
 
 def read_exceptions(root):
@@ -76,8 +128,13 @@ def lint(root, open_issues=False, gh="gh"):
             problems.append(f"{EXCEPTIONS}: {file} {header}: issue {issue!r} is not #<number>")
         listed.add((file, header))
     found = set(platform_includes(root))
+    logic = game_logic_files(root)
+    for file in logic:
+        if not os.path.isfile(os.path.join(root, file)):
+            problems.append(f"{GAME_LOGIC}: names {file}, which does not exist, remove its rows")
+    found |= set(boundary_includes(root, logic))
     for file, header in sorted(found - listed):
-        problems.append(f"{file}: includes <{header}> outside src/host/ and is not in {EXCEPTIONS}")
+        problems.append(f"{file}: includes {header} and is not in {EXCEPTIONS}")
     for file, header, _ in rows:
         if (file, header) not in found:
             reason = "no longer includes it" if os.path.exists(os.path.join(root, file)) else "no longer exists"
