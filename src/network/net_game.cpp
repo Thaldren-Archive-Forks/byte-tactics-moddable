@@ -1226,9 +1226,10 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
                 // hasPassword must be a 16-bit 1-bit field, not a byte field.
                 p->info->hasPassword = 1;
                 // Cast on a reloaded dplConnection, not a cached local.
-                if ((*(unsigned char*)&g_game->dplConnection->flags & 2) != 0)
+                if ((*(unsigned char*)&g_game->dplConnection->flags & 2) != 0) {
                     g_game->password[0] = 0;
                     strncat(g_game->password, &g_onlineLobbyPassword, 0xa);
+                }
             }
 
             ResetPlayerSlots();
