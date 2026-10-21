@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 9
+#define HOST_VERSION_MINOR 10
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -227,6 +227,12 @@ void* HOST_CALL host_window_open(const char* title, int width, int height, int f
 void HOST_CALL host_window_close(void);
 // Returns 1 when the game window has the keyboard focus.
 int HOST_CALL host_window_has_focus(void);
+// Moves the game window to x, y and sizes it to width by height, keeping its place in the z-order.
+void HOST_CALL host_window_place(int x, int y, int width, int height);
+// Sizes the game window to width by height, keeping its position and place in the z-order.
+void HOST_CALL host_window_resize(int width, int height);
+// Makes the game window stay above all other windows when on is nonzero, or an ordinary window when it is 0, without moving, sizing or activating it.
+void HOST_CALL host_window_set_topmost(int on);
 // Queues an event of the given type for the game window, to arrive after the platform messages already waiting, with a and b as 0 (for types such as HOST_EVENT_CLOSE).
 void HOST_CALL host_window_post(unsigned int type);
 // Handles the calling thread's waiting platform messages, first waiting for one when wait is set, and returns 0 when the quit request was among them.
