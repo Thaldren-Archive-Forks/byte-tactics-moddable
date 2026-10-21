@@ -39,9 +39,6 @@ int __cdecl CallDebugHelperDll(int value)
     return value;
 }
 
-// Sets up the debug support once: DebugHelper.dll when the command line asks
-// for it (-debughelper=<n>), and, unless `flags` says otherwise, the
-// unhandled exception filter (2) and SetFpuFussy (4).
 // FUNCTION: 0x4da1d0
 void __cdecl InitDebugSupport(unsigned int flags)
 {

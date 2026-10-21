@@ -90,7 +90,6 @@ int GetMemSetValue();
 
 
 // The "setmemory" command-line switch, held in a function-local static.
-// The original calls this out of line from GameAlloc.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d8200
 char IsMemSet()
@@ -114,7 +113,6 @@ public:
     ~CommandLineNumber() {}
 };
 
-// The original calls this out of line from GameAlloc.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d8260
 int GetMemSetValue()
@@ -131,7 +129,6 @@ void SetValueAtexitHandler(void)
 
 // Fills n bytes at p with a repeating 4-byte pattern (a debug-heap fill; its
 // checking counterpart follows at 0x4d8310).
-// The original calls this out of line from GameAlloc.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d82c0
 void __cdecl FillPattern(void* p, unsigned int pattern, unsigned int n)
@@ -445,7 +442,6 @@ void __cdecl ProtectBlockReadWrite(void* p)
     ProtectBlock(p, HOST_MEM_READWRITE);
 }
 
-// Memory block description, 0x30 bytes.
 class BlockInfo {
 public:
     unsigned int address;              // +0x00
@@ -877,7 +873,6 @@ extern int g_debugLibInstance;
 
 extern int g_debugLibInstance;
 
-// The original calls this out of line.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d9f50
 int GetDebugLibInstance(void)
@@ -1228,7 +1223,6 @@ public:
 
 extern Container_004da9f0<int>* g_freedBlockRing;
 
-// The original calls this out of line from the allocator walk.
 #pragma auto_inline(off)
 // FUNCTION: 0x4da9f0
 Container_004da9f0<int>* GetFreedBlockRing()
@@ -3768,9 +3762,6 @@ void FpuFussyAtexitHandler(void)
 {
 }
 
-// Constructor of a memory-mapped-file wrapper: initialises the handle/state
-// fields, then opens the file if a name was given (see OpenMappedFile).
-// The original calls this out of line from the LoadedImage constructor.
 #pragma auto_inline(off)
 // FUNCTION: 0x4e1560
 MappedFile::MappedFile(const char* fileName)
@@ -3785,10 +3776,6 @@ MappedFile::MappedFile(const char* fileName)
 }
 #pragma auto_inline(on)
 
-// Opens a memory-mapped file: create the file, map it read-only, then map a
-// view. On each failure the handles are closed and a state code is stored
-// (1 = file open failed, 2 = mapping failed, 3 = view failed).
-// The original calls this out of line from the mapped-file users.
 #pragma auto_inline(off)
 // FUNCTION: 0x4e1590
 void MappedFile::OpenMappedFile(const char* fileName)
@@ -3818,9 +3805,6 @@ void MappedFile::OpenMappedFile(const char* fileName)
 }
 #pragma auto_inline(on)
 
-// Closes a memory-mapped file (the wrapper built by 0x4e1560): unmaps the
-// view, then closes the mapping and file handles.
-// The original calls this out of line from CloseLoadedImage.
 #pragma auto_inline(off)
 // FUNCTION: 0x4e1650
 void MappedFile::CloseMappedFile()
