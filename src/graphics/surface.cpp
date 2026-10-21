@@ -5,7 +5,6 @@
 // order.
 #include <windows.h>
 #include <string.h>
-#include <ddraw.h>
 #include "../../interfaces/host.h"
 
 #include "surface.h"
@@ -800,7 +799,6 @@ void __stdcall DrawTile(Surface* dst, Surface* src, Rect* rect, Point* pos)
 // width and height, then one row per scan line. The read counterpart is
 // 0x4c6f80, which allocates a surface of width*height and reads the rows back.
 // The surface layout matches the one built by 0x4c69f0.
-// Must stay: <ddraw.h> decides the multiply operand order.
 // FUNCTION: 0x4c6f10
 void __stdcall SaveSurface(Surface* surface, HapiBank* file)
 {
@@ -843,7 +841,6 @@ static inline Surface* NewSurface(char* name, int w, int h)
 
 // Reads back a surface written by 0x4c6f10: an 8-byte header of width and
 // height, then one row per scan line into a freshly allocated surface.
-// Must stay: <ddraw.h> decides the operand order of the row-loop multiply.
 // FUNCTION: 0x4c6f80
 Surface* __stdcall LoadSurface(HapiBank* file)
 {
