@@ -16,6 +16,14 @@ unsigned int g_count;
 UINT g_savedMouseTrails;
 bool g_mouseTrailsSaved;
 
+void RestoreMouseTrails()
+{
+    if (g_mouseTrailsSaved) {
+        SystemParametersInfoA(SPI_SETMOUSETRAILS, g_savedMouseTrails, 0, TRUE);
+        g_mouseTrailsSaved = false;
+    }
+}
+
 bool Droppable(unsigned int type, int level)
 {
     if (level == 0) {
@@ -89,6 +97,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     case WM_CREATE:
         return 0;
     case WM_DESTROY:
+        RestoreMouseTrails();
         Queue(HOST_EVENT_DESTROY, 0, 0);
         return 0;
     case WM_ACTIVATE:
@@ -187,10 +196,7 @@ extern "C" void HOST_CALL host_window_close(void)
 {
     if (HostHeadless()) { HeadlessWindowClose(); return; }
     DestroyWindow(g_hwnd);
-    if (g_mouseTrailsSaved) {
-        SystemParametersInfoA(SPI_SETMOUSETRAILS, g_savedMouseTrails, 0, TRUE);
-        g_mouseTrailsSaved = false;
-    }
+    RestoreMouseTrails();
 }
 
 extern "C" int HOST_CALL host_window_has_focus(void)
