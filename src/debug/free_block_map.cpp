@@ -4,7 +4,7 @@
 // from a block's base offset to its length, walked by hand. DAT_00528a54 is the
 // tree's _Nil node, head->left is begin() and head->parent is the root.
 
-#include <windows.h>
+#include "../../interfaces/host.h"
 #include <string>
 #include <yvals.h>
 // Only for their symbol ids: TakeFreeBlock matches only in a window of the
@@ -88,7 +88,6 @@ public:
 // file's symbol ids (TakeFreeBlock matches only in a window of them).
 void __cdecl CountAlloc(unsigned int size);
 void __cdecl CountFree(int size);
-void ResetAllocStats(void);
 char IsMemFussy();
 char IsGonzo();
 char IsMemSet();
@@ -152,18 +151,16 @@ public:
             len = ((size + 0x1fff) & 0xffffe000) * 2;
         if (size > len)
             len = (size + 0x1fff) & 0xffffe000;
-        base = (unsigned int)VirtualAlloc(0, len + 0x2000, 0x2000,
-                                          PAGE_READWRITE);
+        base = (unsigned int)host_mem_reserve(len + 0x2000);
         for (;;) {
             if (base != 0 && base + len <= 0x80000000u)
                 break;
             if (base != 0)
-                VirtualFree((void*)base, len + 0x2000, MEM_RELEASE);
+                host_mem_release((void*)base);
             len = (len >> 1) & 0x7fffe000;
             if (len < 0x10000 || len < size)
                 return false;
-            base = (unsigned int)VirtualAlloc(0, len + 0x2000, 0x2000,
-                                              PAGE_READWRITE);
+            base = (unsigned int)host_mem_reserve(len + 0x2000);
         }
         total += len;
         AddFreeBlock(Pair_004db000(base, len));

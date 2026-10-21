@@ -568,7 +568,6 @@ game,platform,call,QuitApp,1
 game,platform,call,RandomInt,1
 game,platform,call,RegisterDataArchives,2
 game,platform,call,RemoveFile,1
-game,platform,call,ReportException,1
 game,platform,call,SeedRandom,1
 game,platform,call,SetCloseHandler,10
 game,platform,call,SetOutOfMemoryHandler,2
@@ -1059,6 +1058,8 @@ harness,platform,call,IsMemSet,1
 harness,platform,call,host_exit,3
 harness,platform,call,host_file_exe_path,1
 harness,platform,call,host_log,6
+harness,platform,call,host_mutex_lock,1
+harness,platform,call,host_mutex_unlock,1
 harness,platform,call,host_time_counter,1
 harness,platform,shared_write,g_quirks,1
 harness,players,call,HarnessConditionClass,1
@@ -3089,7 +3090,6 @@ presentation,platform,call,ReleaseDirectDraw,1
 presentation,platform,call,RemoveFile,2
 presentation,platform,call,RemoveTimer,14
 presentation,platform,call,RenameFile,1
-presentation,platform,call,ReportException,1
 presentation,platform,call,RotateByAngles,5
 presentation,platform,call,SetDefaultCommandHandler,1
 presentation,platform,call,SetMediaNotifyCallback,1
@@ -3115,6 +3115,7 @@ presentation,platform,call,VectorFromToInt,1
 presentation,platform,call,WorldToCell,2
 presentation,platform,call,WriteBufferToFile,3
 presentation,platform,call,host_atomic_exchange,10
+presentation,platform,call,host_crash_report,1
 presentation,platform,call,host_cursor_get,5
 presentation,platform,call,host_cursor_set,1
 presentation,platform,call,host_display_close,1

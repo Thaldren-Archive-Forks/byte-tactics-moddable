@@ -2,19 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../interfaces/host.h"
 #include "../src/state/block.h"
 #include "../src/harness/block_spans.h"
 
-class CritSec_004da780 {
-public:
-    CRITICAL_SECTION cs;
-    CritSec_004da780() { InitializeCriticalSection(&cs); }
-};
-
-CritSec_004da780* GetAllocLock()
+void* GetAllocLock()
 {
-    static CritSec_004da780 lock;
-    return &lock;
+    static void* lock;
+    if (lock == 0)
+        lock = host_mutex_create();
+    return lock;
 }
 
 void (*g_outOfMemoryHandler)() = 0;

@@ -14,10 +14,15 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 7
+#define HOST_VERSION_MINOR 9
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
+
+// Memory access: pages that can only be read.
+#define HOST_MEM_READONLY 0
+// Memory access: pages that can be read and written.
+#define HOST_MEM_READWRITE 1
 
 // Setting scope: a value of the game's own, kept per user.
 #define HOST_SCOPE_GAME 0
@@ -70,6 +75,31 @@ void HOST_CALL host_mutex_lock(void* mutex);
 void HOST_CALL host_mutex_unlock(void* mutex);
 // Frees the mutex.
 void HOST_CALL host_mutex_destroy(void* mutex);
+
+// Reserves size bytes of address space for read and write access once committed and returns its start, or NULL when none is free.
+void* HOST_CALL host_mem_reserve(unsigned int size);
+// Commits size bytes at addr inside a reserved range as read-write pages and returns addr, or NULL when it cannot.
+void* HOST_CALL host_mem_commit(void* addr, unsigned int size);
+// Returns the committed pages at addr to the reserved state.
+void HOST_CALL host_mem_decommit(void* addr, unsigned int size);
+// Gives back the whole range that host_mem_reserve returned at addr.
+void HOST_CALL host_mem_release(void* addr);
+// Sets the access of the whole pages at addr and returns nonzero on success.
+int HOST_CALL host_mem_protect(void* addr, unsigned int size, int access);
+// Allocates size bytes from a heap apart from the C library's and returns them, or NULL when none are free.
+void* HOST_CALL host_mem_alloc(unsigned int size);
+// Frees a block that host_mem_alloc returned.
+void HOST_CALL host_mem_free(void* block);
+
+// Returns the command line the program was started with.
+const char* HOST_CALL host_command_line(void);
+
+// Appends a report of the exception (an EXCEPTION_POINTERS on Win32) to ErrorLog.txt beside the program, naming handler as the code that caught it.
+void HOST_CALL host_crash_report(void* exception, const char* handler);
+// Makes an exception that nothing else catches write the crash report with the handler name "Global Exception Handler".
+void HOST_CALL host_crash_install(void);
+// Passes value to DebugFunc1 of DebugHelper.dll and returns its result, or shows why it could not and returns value.
+int HOST_CALL host_debug_helper(int value);
 
 // Creates an event, signalled or not, that a wait resets itself unless manual_reset is set, and returns its handle.
 void* HOST_CALL host_event_create(int manual_reset, int signalled);

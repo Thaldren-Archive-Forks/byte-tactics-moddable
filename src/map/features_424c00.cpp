@@ -12,7 +12,6 @@
 // (docs/c2-regalloc.md), standing in for the placeholder class ta_types.h
 // no longer declares.
 void SetMissionStatus(int, int, int);
-bool __cdecl WriteGdperf(unsigned long, unsigned long, unsigned long);
 
 // Own views of the cell, spot and Animating record: the header's differ.
 struct Spot_00424c00 {

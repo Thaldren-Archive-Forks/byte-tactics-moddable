@@ -46,7 +46,7 @@ extern "C" void HOST_CALL host_log(const char* text)
 }
 
 int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                           LPSTR lpCmdLine, int nCmdShow);
+                       LPSTR lpCmdLine, int nCmdShow);
 int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
 
 // FUNCTION: 0x49eda0
@@ -58,4 +58,9 @@ extern "C" int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
     }
     return 0;
+}
+
+extern "C" const char* HOST_CALL host_command_line(void)
+{
+    return GetCommandLineA();
 }
