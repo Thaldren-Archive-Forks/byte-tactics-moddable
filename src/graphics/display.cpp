@@ -2,10 +2,11 @@
 // The display module: the display context (window, DirectDraw and GDI set-up,
 // palette, screen size, flags and work area), the installed DirectX version
 // check, the display mode list, the timer table and the frame rate counter.
-#include <windows.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../../interfaces/host.h"
+#include "win_types.h"
 
 #include "rect.h"
 
@@ -71,24 +72,23 @@ struct DirectDrawState {
 // +0x202.
 #pragma pack(push, 2)
 struct App_4b5980 {
-    HINSTANCE hInstance;                 // +0x00
+    void* hInstance;
     int nCmdShow;                        // +0x04
     char* className;                     // +0x08
     char* title;                         // +0x0c
-    WNDPROC wndProc;                     // +0x10
+    void* wndProc;
     unsigned short menuId;               // +0x14
     // Pads WNDCLASSA to +0x18 by hand, for the same packing reason.
     char unknown_16[2];
-    WNDCLASSA wc;                        // +0x18
-    HWND hwnd;                           // +0x40
-    HBITMAP dib;                         // +0x44
-    HDC dc;                              // +0x48
-    HPALETTE hpalette;                   // +0x4c
+    char wc[0x28];
+    void* hwnd;
+    int windowed;
+    char unknown_48[8];
     char unknown_50[0x80 - 0x50];
     void (__cdecl *callback)(int, int, int); // +0x80
     DirectDrawState draw;                // +0x84
     Rect mode;                           // +0xa0
-    HFONT font;                          // +0xb0
+    void* font;
     char unknown_b4[0xc4 - 0xb4];
     int shadeTable;                      // +0xc4
     int lightTable;                      // +0xc8
@@ -109,7 +109,7 @@ struct App_4b5980 {
     int startHeight;                     // +0x1fe
     unsigned short videoFlags;           // +0x202
     char unknown_204[0x214 - 0x204];
-    PALETTEENTRY entries[256];           // +0x214
+    tagPALETTEENTRY entries[256];
     float scale;                         // +0x614
     void** items;                        // +0x618
     int itemCount;                       // +0x61c
@@ -122,9 +122,9 @@ struct App_4b5980 {
 
 // One display mode, as the EnumModesCallback enum callback stores it.
 struct Mode_004b5330 {
-    DWORD width;                       // +0x0
-    DWORD height;                      // +0x4
-    DWORD refreshRate;                 // +0x8
+    unsigned int width;
+    unsigned int height;
+    unsigned int refreshRate;
 };
 
 // The caller's list: a count and the array of modes to fill.
@@ -144,11 +144,6 @@ struct View_4b5980 {
 };
 
 #include "surface.h"
-
-struct BitmapInfo_004b5510 {
-    BITMAPINFOHEADER bmiHeader;
-    RGBQUAD bmiColors[256];
-};
 
 // 24 byte event packet shared with SetCurrentMouseEvent and PushMouseEvent.
 struct Event_4b5cc0 {
@@ -179,9 +174,9 @@ typedef void (__stdcall *TimerCb_4b63f0)(int);
 extern App_4b5980* g_display;
 extern TimerTable_4b63f0 g_timerSlots;
 extern unsigned int g_lastTimerTick;   // last tick count, in game ticks
-extern LONG g_gfxBlitLockHeld;
-extern LONG g_gfxBlitLockOwner;
-extern HANDLE g_gfxBlitLockEvent;
+extern long g_gfxBlitLockHeld;
+extern long g_gfxBlitLockOwner;
+extern void* g_gfxBlitLockEvent;
 
 void SaveStartDirectory(void);
 void __stdcall SetCurrentMouseEvent(int* p);
@@ -199,7 +194,7 @@ void __stdcall InitSurface(Surface *s, int width, int height, int a, int b);
 int __stdcall LockScreen(Surface *s);
 void __cdecl BlitSurface(Surface *dst, void *src, int x, int y);
 int __stdcall UnlockScreen(Surface *s);
-int __stdcall SetPaletteColors(PALETTEENTRY *entries, int start, int count);
+int __stdcall SetPaletteColors(tagPALETTEENTRY *entries, int start, int count);
 void DestroyPreCleanup(void);
 void ShutdownMouse(void);
 void __stdcall FreeAlphaTable(App_4b5980* obj);
@@ -217,10 +212,8 @@ void __cdecl GameFreeThunk(void* p);
 int ApplyPalette()
 {
     App_4b5980* d = g_display;
-    if (d->hpalette) {
-        void* dc = host_frame_context_get(g_display->hwnd);
-        host_frame_context_palette(dc, g_display->hpalette);
-        host_frame_context_release(g_display->hwnd, dc);
+    if (d->windowed) {
+        host_palette_apply();
         return 1;
     }
     return host_palette_apply();
@@ -306,7 +299,7 @@ void __stdcall EnumModesCallback(const host_display_mode* desc, void* context)
 // FUNCTION: 0x4b5370
 int __stdcall GetDisplayModes(ModeList_004b5330* list)
 {
-    if (g_display->dib) {
+    if (g_display->windowed) {
         int width;
         int height;
         list->count = 0;
@@ -322,8 +315,7 @@ int __stdcall GetDisplayModes(ModeList_004b5330* list)
         list->modes[list->count].height = 0x300;
         list->modes[list->count].refreshRate = 0;
         list->count++;
-        width = GetSystemMetrics(SM_CXSCREEN);
-        height = GetSystemMetrics(SM_CYSCREEN);
+        host_display_screen_size(&width, &height);
         if (width >= 0x500 && height >= 0x400) {
             list->modes[list->count].width = 0x500;
             list->modes[list->count].height = 0x400;
@@ -352,26 +344,15 @@ int __stdcall GetDisplayModes(ModeList_004b5330* list)
 // level, display mode, flipping primary with one back buffer, clipper, palette,
 // then redraws the saved picture) and a windowed GDI DIB section (mode == 0),
 // under the display lock at g_gfxBlitLockHeld, and finally reloads the palette.
-//
-// Takes the DC by reference: the original reloads it at the block head.
-static inline void FreeGdi_004b5510(App_4b5980 *d, HDC &dc)
+static inline void FreeGdi_004b5510(App_4b5980 *d)
 {
-    if (dc)
-        DeleteDC(dc);
-    if (d->hpalette)
-        DeleteObject(d->hpalette);
-    if (d->dib)
-        DeleteObject(d->dib);
-    d->hpalette = 0;
-    d->dib = 0;
-    dc = 0;
+    d->windowed = 0;
 }
 
 // FUNCTION: 0x4b5510
 int __stdcall SetFullScreen(int mode) {
     int lockResult;
     App_4b5980 *d;
-    BitmapInfo_004b5510 bmi;
     Surface surf;
 
     while (1) {
@@ -392,7 +373,7 @@ int __stdcall SetFullScreen(int mode) {
     dd->haveBackBuffer = 0;
     ReleaseDirectDraw(g_display);
 
-    FreeGdi_004b5510(g_display, g_display->dc);
+    FreeGdi_004b5510(g_display);
     host_window_resize(g_display->width, g_display->height);
 
     if (mode != 0) {
@@ -411,26 +392,17 @@ int __stdcall SetFullScreen(int mode) {
     } else {
         g_display->flags.value &= ~2;
 
-        void *bits;
-        void* hdc = host_frame_context_get(d->hwnd);
-        d->dc = CreateCompatibleDC((HDC)hdc);
-        host_frame_context_release(d->hwnd, hdc);
-
-        bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        bmi.bmiHeader.biWidth = g_display->width;
-        bmi.bmiHeader.biHeight = -g_display->height;
-        bmi.bmiHeader.biPlanes = 1;
-        bmi.bmiHeader.biCompression = 0;
-        bmi.bmiHeader.biBitCount = 8;
-        bmi.bmiHeader.biSizeImage = 0;
-        bmi.bmiHeader.biClrUsed = 0;
-        bmi.bmiHeader.biClrImportant = 0;
-        ZeroMemory(bmi.bmiColors, sizeof(bmi.bmiColors));
-        d->dib = CreateDIBSection(d->dc, (BITMAPINFO *)&bmi, DIB_RGB_COLORS, &bits,
-                                  NULL, 0);
+        unsigned char *bits = 0;
+        host_frame frame;
+        if (host_display_mode_set(g_display->width, g_display->height, HOST_DISPLAY_WINDOWED, 0) == HOST_DISPLAY_OK) {
+            d->windowed = 1;
+            if (host_frame_lock(HOST_FRAME_BACK, &frame) == HOST_FRAME_OK) {
+                bits = frame.pixels;
+                host_frame_unlock(HOST_FRAME_BACK);
+            }
+        }
         InitSurface((Surface *)&d->unknown_50[0], g_display->width, g_display->height,
                      (g_display->width + 3) & ~3, (int)bits);
-        SelectObject(d->dc, d->dib);
         host_window_set_topmost(0);
     }
 
@@ -469,20 +441,13 @@ void __stdcall SetResolution(int x, int y)
     SetFullScreen(g_display->flags.bits.bit1);
 }
 
-// Suspected original bug: the work area rectangle fetched with
-// SystemParametersInfoA(SPI_GETWORKAREA) at +0xec overlaps the flag word at
-// +0xf0, which is the rectangle's `top`, and the flag word is overwritten
-// three instructions later, so the fetch is pointless.
 // FUNCTION: 0x4b5980
 int __stdcall InitEnvironment(App_4b5980* d)
 {
     g_display = d;
-    MEMORYSTATUS mem;
-    mem.dwLength = 0x20;
-    GlobalMemoryStatus(&mem);
-    d->availPhys = mem.dwTotalPhys;
-    SystemParametersInfoA(0x5e, 0, (LPRECT)&g_display->wa_left, TRUE);
-    SystemParametersInfoA(0x5d, 0, 0, TRUE);
+    host_memory m;
+    host_memory_status(&m);
+    d->availPhys = m.total;
     d->counter.accum = 0;
     d->counter.lastTick = host_time_ms();
     d->counter.frames = 0;
@@ -540,12 +505,10 @@ int __stdcall InitEnvironment(App_4b5980* d)
         AllocBlueTable(d);
     }
     if (d->flags.bits.gdi) {
-        d->dc = 0;
-        d->hpalette = 0;
-        d->dib = 0;
+        d->windowed = 0;
         d->callback = 0;
         d->mode = d->startMode;
-        d->hwnd = (HWND)host_window_open(d->title, w, h, d->videoFlags & 1);
+        d->hwnd = host_window_open(d->title, w, h, d->videoFlags & 1);
         if (d->hwnd != 0) {
             int r = SetFullScreen(d->videoFlags & 1);
             if (r != 0) {
@@ -553,18 +516,7 @@ int __stdcall InitEnvironment(App_4b5980* d)
             }
         }
         ReleaseDirectDraw(d);
-        if (d->dc) {
-            DeleteDC(d->dc);
-        }
-        if (d->hpalette) {
-            DeleteObject(d->hpalette);
-        }
-        if (d->dib) {
-            DeleteObject(d->dib);
-        }
-        d->dc = 0;
-        d->hpalette = 0;
-        d->dib = 0;
+        d->windowed = 0;
         host_message(d->hwnd, d->title, "Error:  Environment Initialization Failed!\nCheck your DirectX setup", HOST_MESSAGE_PLAIN);
         host_window_close();
         return 0;
@@ -636,24 +588,11 @@ int __stdcall HandleHostEvent(host_event* ev)
             g_display->callback(ev->type, ev->a, ev->b);
         return 1;
     case HOST_EVENT_PALETTE_QUERY:
-        if (g_display->hpalette) {
-            void* dc = host_frame_context_get(g_display->hwnd);
-            host_frame_context_palette(dc, g_display->hpalette);
-            host_frame_context_release(g_display->hwnd, dc);
-        }
-        else {
-            host_palette_apply();
-        }
+        host_palette_apply();
         return 1;
     case HOST_EVENT_PALETTE_CHANGED:
         if (ev->a != 0)
             return 1;
-        if (g_display->hpalette) {
-            void* dc = host_frame_context_get(g_display->hwnd);
-            host_frame_context_palette(dc, g_display->hpalette);
-            host_frame_context_release(g_display->hwnd, dc);
-            return 1;
-        }
         host_palette_apply();
         return 1;
     default:
@@ -699,16 +638,7 @@ void __stdcall ShutdownEnvironment(App_4b5980* d)
     if (d->flags.bits.has_d0)
         FreeBlueTable(d);
     ReleaseDirectDraw(d);
-    if (d->dc)
-        DeleteDC(d->dc);
-    if (d->hpalette)
-        DeleteObject(d->hpalette);
-    if (d->dib)
-        DeleteObject(d->dib);
-    d->dc = 0;
-    d->hpalette = 0;
-    d->dib = 0;
-    SystemParametersInfoA(0x5d, (unsigned int)g_display->wa_left, 0, 1);
+    d->windowed = 0;
 }
 
 // FUNCTION: 0x4b6220
@@ -872,9 +802,9 @@ int __stdcall DrawFrameRate()
         c->frames = 0;
     }
 
-    if (!g_display->dib) {
+    if (!g_display->windowed) {
         char buf[128];
-        int len = wsprintf(buf, "FRATE %d", g_display->counter.rate);
+        int len = sprintf(buf, "FRATE %d", g_display->counter.rate);
         host_frame_text(HOST_FRAME_BACK, g_display->font, 0, 0, buf, len, 0xffff00);
     }
 

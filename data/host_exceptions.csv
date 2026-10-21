@@ -38,7 +38,6 @@ src/game/victory.cpp,interfaces/host.h,#29
 src/graphics/display.cpp,interfaces/host.h,#22
 src/graphics/display.cpp,src/graphics/rect.h,#22
 src/graphics/display.cpp,src/graphics/surface.h,#22
-src/graphics/display.cpp,windows.h,#305
 src/graphics/draw.cpp,src/graphics/gaf_frame.h,#22
 src/graphics/draw.cpp,src/graphics/rect.h,#22
 src/graphics/draw.cpp,src/graphics/surface.h,#22
@@ -62,7 +61,6 @@ src/graphics/model_render_458fa0.cpp,src/graphics/model_types.h,#22
 src/graphics/movies.cpp,interfaces/host.h,#22
 src/graphics/movies.cpp,windows.h,#305
 src/graphics/palette.cpp,interfaces/host.h,#22
-src/graphics/palette.cpp,windows.h,#305
 src/graphics/particles.cpp,src/graphics/nano_particle_vector.h,#22
 src/graphics/particles.cpp,src/graphics/object_pool.h,#22
 src/graphics/particles.cpp,src/graphics/particle_lists.h,#22
@@ -83,7 +81,6 @@ src/graphics/pcx.cpp,interfaces/host.h,#22
 src/graphics/surface.cpp,interfaces/host.h,#22
 src/graphics/surface.cpp,src/graphics/gaf_frame.h,#22
 src/graphics/surface.cpp,src/graphics/surface.h,#22
-src/graphics/surface.cpp,windows.h,#305
 src/gui/dialogs.cpp,interfaces/host.h,#22
 src/gui/dialogs.cpp,src/gui/gadget.h,#22
 src/gui/dialogs.cpp,src/gui/gui.h,#22
