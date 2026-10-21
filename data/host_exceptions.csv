@@ -25,10 +25,8 @@ src/game/data_files.cpp,src/graphics/gaf_frame.h,#22
 src/game/game_load.cpp,interfaces/host.h,#25
 src/game/game_load.cpp,src/graphics/rect.h,#22
 src/game/game_load.cpp,src/sound/sound.h,#22
-src/game/game_load.cpp,windows.h,#305
 src/game/game_state.cpp,interfaces/host.h,#29
 src/game/game_state.cpp,src/gui/gui.h,#22
-src/game/game_state.cpp,windows.h,#305
 src/game/main.cpp,interfaces/host.h,#29
 src/game/main_49e680.cpp,interfaces/host.h,#29
 src/game/main_49eda0.cpp,windows.h,#303
@@ -84,7 +82,6 @@ src/graphics/particles_475470.cpp,src/graphics/particle_system.h,#22
 src/graphics/particles_475700.cpp,src/graphics/particle_system.h,#22
 src/graphics/particles_475700.cpp,src/graphics/timed_sub_particles.h,#22
 src/graphics/pcx.cpp,interfaces/host.h,#22
-src/graphics/pcx.cpp,windows.h,#305
 src/graphics/surface.cpp,interfaces/host.h,#22
 src/graphics/surface.cpp,src/graphics/gaf_frame.h,#22
 src/graphics/surface.cpp,src/graphics/surface.h,#22

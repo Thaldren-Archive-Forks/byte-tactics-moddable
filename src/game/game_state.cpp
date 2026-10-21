@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <windows.h>
+#include "win_types.h"
 
 #include "../map/mission.h"
 #include "../state/game_rand.h"
@@ -389,12 +389,9 @@ void InitGame()
 {
     unsigned int size;
 
-    // Each GlobalMemoryStatus call in its own nested block: sets the dwLength
-    // store position and shares one stack slot.
     {
-        MEMORYSTATUS mem;
-        mem.dwLength = 0x20;
-        GlobalMemoryStatus(&mem);
+        host_memory mem;
+        host_memory_status(&mem);
     }
     g_game->width_37e1f = GetScreenWidth();
     g_game->field_37e23 = GetScreenHeight();
@@ -468,9 +465,8 @@ void InitGame()
     g_game->handler = InitFrame;
     SetCloseHandler(LeaveNetGameCallback, 0);
     {
-        MEMORYSTATUS mem2;
-        mem2.dwLength = 0x20;
-        GlobalMemoryStatus(&mem2);
+        host_memory mem2;
+        host_memory_status(&mem2);
     }
     ClearPictureCache();
     g_game->gui.clearQuickKeys = 1;
@@ -631,7 +627,7 @@ void Force640x480Surfaces()
         g_game->screen = 0;
         SetRestoreSurface(0);
         RestoreScreen();
-        SetWindowPos(((Display_00491a70*)g_game->unknown_c)->hwnd, 0, 0, 0, 0x280, 0x1e0, 4);
+        host_window_place(0, 0, 0x280, 0x1e0);
         SetResolution(0x280, 0x1e0);
         g_game->screen = AllocSurface(g_offscreenSurfaceName, g_game->width_37e1f, g_game->field_37e23);
         SetRestoreSurface(g_game->screen);

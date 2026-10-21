@@ -231,7 +231,7 @@ out:
     return 0;
 }
 
-#include <windows.h>
+#include "win_types.h"
 
 // An image: the surface header that LoadPcx fills and the display hands out.
 struct Bitmap_004caec0 {
@@ -889,7 +889,7 @@ int __stdcall ExceptionFilter(int exception, int thread)
         Unlock(held);
         ReleaseDirectDraw(app);
         if (app->hwnd != 0) {
-            SetWindowPos(app->hwnd, (HWND)-2, 0, 0, 0, 0, 0x13);
+            host_window_set_topmost(0);
         }
     }
     return 0;

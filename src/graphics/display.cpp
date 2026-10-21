@@ -466,8 +466,7 @@ int __stdcall SetFullScreen(int mode) {
     ReleaseDirectDraw(g_display);
 
     FreeGdi_004b5510(g_display, g_display->dc);
-    SetWindowPos(d->hwnd, NULL, 0, 0, g_display->width, g_display->height,
-                 SWP_NOZORDER | SWP_NOMOVE);
+    host_window_resize(g_display->width, g_display->height);
 
     if (mode != 0) {
         g_display->flags.value |= 2;
@@ -505,7 +504,7 @@ int __stdcall SetFullScreen(int mode) {
         InitSurface((Surface *)&d->unknown_50[0], g_display->width, g_display->height,
                      (g_display->width + 3) & ~3, (int)bits);
         SelectObject(d->dc, d->dib);
-        SetWindowPos(d->hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        host_window_set_topmost(0);
     }
 
     SetPaletteColors(g_display->entries, 0, 0x100);
