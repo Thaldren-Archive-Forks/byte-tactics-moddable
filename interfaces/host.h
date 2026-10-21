@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 11
+#define HOST_VERSION_MINOR 12
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -264,6 +264,8 @@ void HOST_CALL host_cursor_set(int x, int y);
 
 // Display mode flag: set up only the frame on the screen, for a video player that has no display of its own.
 #define HOST_DISPLAY_PRIMARY_ONLY 1
+// Display mode flag: keep the screen's mode and make the back frame an 8-bit bitmap of the window's size, which host_frame_present_rect copies to the window.
+#define HOST_DISPLAY_WINDOWED 2
 
 // Result of host_display_mode_set: the display could not be set up.
 #define HOST_DISPLAY_FAILED 0
@@ -308,16 +310,18 @@ struct host_pixel_format {
     unsigned int blue;
 };
 
-// Sets the screen to an 8-bit width by height mode with a back frame and a palette of the 256 four-byte red, green, blue and zero entries (NULL for none), and returns a HOST_DISPLAY_ result; HOST_DISPLAY_PRIMARY_ONLY in flags sets up only the frame on the screen.
+// Sets the screen to an 8-bit width by height mode with a back frame and a palette of the 256 four-byte red, green, blue and zero entries (NULL for none), and returns a HOST_DISPLAY_ result; HOST_DISPLAY_PRIMARY_ONLY in flags sets up only the frame on the screen, beside any HOST_DISPLAY_WINDOWED frame, and HOST_DISPLAY_WINDOWED sets up the windowed frame in place of everything before it.
 int HOST_CALL host_display_mode_set(int width, int height, int flags, const unsigned char* palette);
-// Releases the display and its frames and palette, or does nothing when none is set up.
+// Releases a HOST_DISPLAY_PRIMARY_ONLY display set up beside the windowed frame, or else the display and its frames and palette, or does nothing when none is set up.
 void HOST_CALL host_display_close(void);
-// Returns 1 when a display is set up.
+// Returns 1 when a display is set up, not counting the frame of HOST_DISPLAY_WINDOWED.
 int HOST_CALL host_display_is_open(void);
 // Returns 1 when the display has a back frame, even if setting it up failed later.
 int HOST_CALL host_display_has_back_buffer(void);
 // Stores up to max of the machine's display modes in modes and their number in *count, and returns 1, or 0 when they could not be listed.
 int HOST_CALL host_display_mode_list(struct host_display_mode* modes, int max, int* count);
+// Stores the size in pixels of the screen the window is on in *width and *height.
+void HOST_CALL host_display_screen_size(int* width, int* height);
 
 // The installed media support's version (DirectX on Win32), in four parts; major_only is set when only major_lo is known.
 typedef struct host_media_version {
@@ -333,6 +337,8 @@ int HOST_CALL host_frame_lock(int which, struct host_frame* frame);
 int HOST_CALL host_frame_unlock(int which);
 // Shows the back frame by swapping it with the frame on the screen when flip is set, or else by copying it to the window; returns a HOST_FRAME_ result.
 int HOST_CALL host_frame_present(int flip);
+// Copies a rectangle of the HOST_DISPLAY_WINDOWED frame to the same place in the window, with the display palette, and returns a HOST_FRAME_ result.
+int HOST_CALL host_frame_present_rect(int x, int y, int width, int height);
 // Returns 1 when the frames were lost.
 int HOST_CALL host_frame_is_lost(void);
 // Restores the frames, which leaves them empty, and returns 1, or returns 0 when they could not be restored.
@@ -353,13 +359,13 @@ void HOST_CALL host_frame_context_release(void* window, void* context);
 // Selects the display palette (a native palette handle) into the context, without forcing it to the background, and realises it.
 void HOST_CALL host_frame_context_palette(void* context, void* palette);
 
-// Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen, and returns 1, or returns 0 on failure.
+// Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen (the bitmap's colours for the windowed frame), and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_create(const unsigned char* entries);
 // Sets count four-byte entries from index start of the display palette and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_set(int start, int count, const unsigned char* entries);
 // Stores the display palette's 256 four-byte entries in entries and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_get(unsigned char* entries);
-// Attaches the display palette to the frame on the screen again and returns 1, or returns 0 when there is none or it failed.
+// Attaches the display palette to the frame on the screen again (realises it in the window for the windowed frame) and returns 1, or returns 0 when there is none or it failed.
 int HOST_CALL host_palette_apply(void);
 
 // Opens an existing file, with a path relative to the game directory or absolute, for reading only and returns its handle, or NULL when it cannot be opened.
