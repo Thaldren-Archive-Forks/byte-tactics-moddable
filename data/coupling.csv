@@ -604,7 +604,6 @@ game,platform,call,host_file_write,1
 game,platform,call,host_message,2
 game,platform,call,host_music_close,1
 game,platform,call,host_music_open,1
-game,platform,call,host_mutex_create,1
 game,platform,call,host_mutex_lock,1
 game,platform,call,host_mutex_unlock,1
 game,platform,call,host_net_guarantee_packets,1
