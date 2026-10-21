@@ -1,6 +1,7 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
 #include <windows.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 
 void __cdecl ReportException(EXCEPTION_POINTERS* exception, const char* message);
 void NopAbortHook(void);
@@ -15,7 +16,7 @@ void __cdecl FatalError(const char* message)
     char path[1000];
     // `length` (otherwise unused) and the sep/file/written block give the frame layout.
     DWORD length;
-    if (message && (length = GetModuleFileNameA(0, path, sizeof path)) > 0) {
+    if (message && (length = host_file_exe_path(path, sizeof path)) > 0) {
         char* sep = strrchr(path, '\\');
         HANDLE file;
         DWORD written;

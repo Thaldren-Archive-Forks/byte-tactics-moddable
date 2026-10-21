@@ -20,7 +20,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <windows.h>
-#include <ddraw.h>
 #include <math.h>
 #include "../../interfaces/host.h"
 

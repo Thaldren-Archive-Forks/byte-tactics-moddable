@@ -5,7 +5,6 @@
 // order.
 #include <windows.h>
 #include <string.h>
-#include <ddraw.h>
 #include "../../interfaces/host.h"
 
 #include "surface.h"
@@ -35,16 +34,9 @@ union Flags_004c61b0 {
 // surface at +0xc.
 struct Screen {
     char unknown_0[0x8];
-    IDirectDrawSurface* primary;       // +0x8
-    IDirectDrawSurface* surface;       // +0xc
+    void* primary;
+    void* surface;
     char unknown_10[0x18 - 0x10];
-
-    // Lock in a one-expression method: gives the separate surface reload.
-    int LockSurface(DDSURFACEDESC* p) { return surface->Lock(0, p, 0x801, 0); }
-    int LockPrimary(DDSURFACEDESC* p) { return primary->Lock(0, p, DDLOCK_WAIT, 0); }
-    void UnlockPrimary() { primary->Unlock(0); }
-    void UnlockSurface() { surface->Unlock(0); }
-    void UnlockRect(LPRECT p) { surface->Unlock(p); }
 };
 
 // One entry of the screen lock stack: a surface and the flag saying which
@@ -74,7 +66,7 @@ struct Display {
     int haveBackBuffer;                // +0x9c
     Rect vec;                          // +0xa0
     char unknown_b0[0xb4 - 0xb0];
-    IDirectDrawSurface* lastBackBuffer;  // +0xb4
+    void* lastBackBuffer;
     char unknown_b8[0xbc - 0xb8];
     Surface* overrideSurface;          // +0xbc
     char unknown_c0[0xc4 - 0xc0];
@@ -110,16 +102,13 @@ struct Display {
             *out = cached;
             return 1;
         }
-        if (screen.surface == 0)
+        host_frame frame;
+        if (host_frame_lock(HOST_FRAME_BACK, &frame) != HOST_FRAME_OK)
             return 0;
-        DDSURFACEDESC desc;
-        desc.dwSize = sizeof(desc);
-        // One-case switch: tests the result with test eax, eax.
-        switch (screen.LockSurface(&desc)) { case 0: break; default: return 0; }
         out->width = width;
         out->height = height;
-        out->pitch = desc.lPitch;
-        out->pixels = (unsigned char*)desc.lpSurface;
+        out->pitch = frame.pitch;
+        out->pixels = frame.pixels;
         out->x = 0;
         out->y = 0;
         out->zPriority = 10000;
@@ -140,16 +129,13 @@ struct Display {
             *out = cached;
             return 1;
         }
-        if (screen.primary == 0)
+        host_frame frame;
+        if (host_frame_lock(HOST_FRAME_FRONT, &frame) != HOST_FRAME_OK)
             return 0;
-        DDSURFACEDESC desc;
-        desc.dwSize = sizeof(desc);
-        // One-case switch: tests the result with test eax, eax.
-        switch (screen.LockPrimary(&desc)) { case 0: break; default: return 0; }
         out->width = width;
         out->height = height;
-        out->pitch = desc.lPitch;
-        out->pixels = (unsigned char*)desc.lpSurface;
+        out->pitch = frame.pitch;
+        out->pixels = frame.pixels;
         out->x = 0;
         out->y = 0;
         out->zPriority = 10000;
@@ -161,43 +147,10 @@ struct Display {
 };
 #pragma pack(pop)
 
-// COM interface (slot 27 = +0x6c is the tested method).
-class Intf_004c6210 {
-public:
-    virtual int __stdcall Slot00();
-    virtual int __stdcall Slot01();
-    virtual int __stdcall Slot02();
-    virtual int __stdcall Slot03();
-    virtual int __stdcall Slot04();
-    virtual int __stdcall Slot05();
-    virtual int __stdcall Slot06();
-    virtual int __stdcall Slot07();
-    virtual int __stdcall Slot08();
-    virtual int __stdcall Slot09();
-    virtual int __stdcall Slot10();
-    virtual int __stdcall Slot11();
-    virtual int __stdcall Slot12();
-    virtual int __stdcall Slot13();
-    virtual int __stdcall Slot14();
-    virtual int __stdcall Slot15();
-    virtual int __stdcall Slot16();
-    virtual int __stdcall Slot17();
-    virtual int __stdcall Slot18();
-    virtual int __stdcall Slot19();
-    virtual int __stdcall Slot20();
-    virtual int __stdcall Slot21();
-    virtual int __stdcall Slot22();
-    virtual int __stdcall Slot23();
-    virtual int __stdcall Slot24();
-    virtual int __stdcall Slot25();
-    virtual int __stdcall Slot26();
-    virtual int __stdcall Slot27();
-};
-
 struct Arg_004c6210 {
     int ddraw;                         // +0x0
-    Intf_004c6210* primary;            // +0x4
-    Intf_004c6210* back;               // +0x8
+    void* primary;
+    void* back;
 };
 
 Display* GetDisplay(void);
@@ -244,9 +197,8 @@ static inline int UnlockScreenInline(Surface* s)
 {
     Display* d = GetDisplay();
     if (d->offscreenDC == 0 && d->useOverrideSurface == 0) {
-        if (d->screen.surface == 0)
+        if (!host_frame_unlock(HOST_FRAME_BACK))
             return 0;
-        d->screen.UnlockSurface();
         if (g_screenLockCount > 0)
             g_screenLockCount--;
     }
@@ -295,9 +247,8 @@ int __stdcall UnlockScreen(Surface* s)
 {
     Display* d = GetDisplay();
     if (d->offscreenDC == 0 && d->useOverrideSurface == 0) {
-        if (d->screen.surface == 0)
+        if (!host_frame_unlock(HOST_FRAME_BACK))
             return 0;
-        d->screen.UnlockSurface();
         if (g_screenLockCount > 0)
             g_screenLockCount--;
     }
@@ -324,9 +275,8 @@ int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2)
 {
     Display* d = GetDisplay();
     if (d->offscreenDC != 0) {
-        HDC dc = GetDC(d->hwnd);
-        SelectPalette(dc, d->hpalette, FALSE);
-        RealizePalette(dc);
+        HDC dc = (HDC)host_frame_context_get(d->hwnd);
+        host_frame_context_palette(dc, d->hpalette);
         if (r1 != 0) {
             BitBlt(dc, r1->left, r1->top, r1->right - r1->left,
                    r1->bottom - r1->top, d->sourceDC, r1->left, r1->top,
@@ -337,13 +287,12 @@ int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2)
                    r2->bottom - r2->top, d->sourceDC, r2->left, r2->top,
                    SRCCOPY);
         }
-        ReleaseDC(d->hwnd, dc);
+        host_frame_context_release(d->hwnd, dc);
         return 1;
     }
-    if (d->screen.primary == 0) {
+    if (!host_frame_unlock(HOST_FRAME_FRONT)) {
         return 0;
     }
-    d->screen.UnlockPrimary();
     return 1;
 }
 
@@ -367,10 +316,6 @@ void __stdcall SetRestoreSurface(int surface)
     obj->activeSurface = (Surface*)surface;
 }
 
-// Locks the screen into a local surface, blits the bitmap at display+0x98
-// into it at (0, 0), then unlocks. Both objects at arg+4 and arg+8 are
-// COM-like interfaces; slot 27 (+0x6c) is tested first and its non-zero
-// result aborts the blit.
 // FUNCTION: 0x4c6210
 int __stdcall RestoreSurfaces(Arg_004c6210* arg)
 {
@@ -378,20 +323,16 @@ int __stdcall RestoreSurfaces(Arg_004c6210* arg)
     if (d->offscreenDC != 0)
         return 0;
 
-    int r = arg->primary->Slot27();
+    int r = host_frame_restore() ? 0 : 1;
     if (r == 0) {
-        r = arg->back->Slot27();
-        if (r == 0) {
-            Surface screen;
-            LockScreen(&screen);
-            BlitSurface(&screen, d->activeSurface, r, r);
+        Surface screen;
+        LockScreen(&screen);
+        BlitSurface(&screen, d->activeSurface, r, r);
 
-            Display* d2 = GetDisplay();
-            if (d2->offscreenDC == 0 && d2->useOverrideSurface == 0 && d2->screen.surface != 0) {
-                d2->screen.UnlockRect((LPRECT)r);
-                if (g_screenLockCount > 0)
-                    g_screenLockCount--;
-            }
+        Display* d2 = GetDisplay();
+        if (d2->offscreenDC == 0 && d2->useOverrideSurface == 0 && host_frame_unlock(HOST_FRAME_BACK)) {
+            if (g_screenLockCount > 0)
+                g_screenLockCount--;
         }
     }
     return r;
@@ -402,40 +343,30 @@ static inline int UnlockScreenInline()
 {
     Display* d = GetDisplay();
     if (d->offscreenDC == 0 && d->useOverrideSurface == 0) {
-        if (d->screen.surface == 0)
+        if (!host_frame_unlock(HOST_FRAME_BACK))
             return 0;
-        d->screen.UnlockSurface();
         if (g_screenLockCount > 0)
             g_screenLockCount--;
     }
     return 1;
 }
 
-// Frame recovery for a lost DirectDraw surface: when bit 1 of the display
-// flags at +0xf0 is set, check whether the primary surface at +0x88 reports
-// DDERR_SURFACELOST, restore the two surfaces at screen+0x8 and screen+0xc,
-// lock the screen with LockScreen, blit the object at +0x98 onto it with
-// BlitSurface, then unlock with the +0x80 method. The screen surface at +0x8c
-// is saved to +0xb4 and +0xdc is always cleared.
 // FUNCTION: 0x4c62c0
 void RestoreScreen(void)
 {
     Display* d = GetDisplay();
     if (d->flags.bits.flag1) {
-        if (d->screen.primary->IsLost() == DDERR_SURFACELOST) {
+        if (host_frame_is_lost()) {
             Display* d2 = GetDisplay();
             if (d2->offscreenDC == 0) {
-                if (d->screen.primary->Restore() == 0) {
-                    if (d->screen.surface->Restore() == 0) {
-                        Surface screen;
-                        LockScreen(&screen);
-                        BlitSurface(&screen, d2->activeSurface, 0, 0);
-                        UnlockScreenInline();
-                    }
+                if (host_frame_restore()) {
+                    Surface screen;
+                    LockScreen(&screen);
+                    BlitSurface(&screen, d2->activeSurface, 0, 0);
+                    UnlockScreenInline();
                 }
             }
         }
-        d->lastBackBuffer = d->screen.surface;
     }
     d->useOverrideSurface = 0;
 }
@@ -469,31 +400,19 @@ static inline void Unlock(LONG held)
 
 // Restores both surfaces after DDERR_SURFACELOST and redraws the screen.
 // Must stay an inline helper used in both places: gives matching registers.
-static inline HRESULT RestoreSurfacesInline(Display* d)
+static inline int RestoreSurfacesInline(Display* d)
 {
     Display* dd = GetDisplay();
     if (dd->offscreenDC != 0)
         return 0;
-    HRESULT hr = d->screen.primary->Restore();
-    if (hr == 0) {
-        hr = d->screen.surface->Restore();
-        if (hr == 0) {
-            Surface screen;
-            LockScreen(&screen);
-            BlitSurface(&screen, dd->activeSurface, 0, 0);
-            UnlockScreenInline();
-        }
-    }
-    return hr;
+    if (!host_frame_restore())
+        return 1;
+    Surface screen;
+    LockScreen(&screen);
+    BlitSurface(&screen, dd->activeSurface, 0, 0);
+    UnlockScreenInline();
+    return 0;
 }
-
-struct Desc {
-    DWORD dwSize, dwFlags, height, width;
-    LONG lPitch;
-    DWORD backbuffers, mipmaps, alpha, reserved;
-    void* lpSurface;
-    char fields[68];
-};
 
 // Presents a frame. With flag bit 1 clear it blits the cached bitmap through
 // GDI. Otherwise, when +0xdc is set, it copies the bitmap at +0xbc (if its
@@ -511,17 +430,16 @@ void FlipScreen(void)
         Surface* p = &d->cached;
         DrawSurface(p, d->overrideSurface, 0, 0);
         DrawCursor(d, p);
-        HDC hdc = GetDC(d->hwnd);
-        SelectPalette(hdc, d->hpalette, 0);
-        RealizePalette(hdc);
+        HDC hdc = (HDC)host_frame_context_get(d->hwnd);
+        host_frame_context_palette(hdc, d->hpalette);
         BitBlt(hdc, 0, 0, p->width, d->cached.height, d->sourceDC, 0, 0, SRCCOPY);
-        ReleaseDC(d->hwnd, hdc);
+        host_frame_context_release(d->hwnd, hdc);
         Unlock(held);
         return;
     }
 
     if (d->useOverrideSurface != 0) {
-        Desc desc;
+        host_frame frame;
         Surface out;
         Surface* bmp = d->overrideSurface;
         if (bmp->width != GetScreenWidth())
@@ -530,19 +448,18 @@ void FlipScreen(void)
             return;
 
         LONG held = Lock();
-        desc.dwSize = sizeof(desc);
-        unsigned long lr = d->screen.primary->Lock(0, (DDSURFACEDESC*)&desc, 1, 0);
-        if (lr == 0) {
+        int lr = host_frame_lock(HOST_FRAME_FRONT, &frame);
+        if (lr == HOST_FRAME_OK) {
             out.width = d->width;
             out.height = d->height;
-            out.pitch = desc.lPitch;
-            out.pixels = (unsigned char*)desc.lpSurface;
+            out.pitch = frame.pitch;
+            out.pixels = frame.pixels;
             DrawCursor(d, bmp);
             BlitSurface(&out, bmp, 0, 0);
             if (d->cursorThreadEnabled != 0 && d->cursorOverlayEnabled != 0)
                 DrawSurface(bmp, d->saveMouse1, d->x, d->y);
-            d->screen.primary->Unlock(0);
-        } else if (lr == 0x887601c2) {
+            host_frame_unlock(HOST_FRAME_FRONT);
+        } else if (lr == HOST_FRAME_LOST) {
             RestoreSurfacesInline(d);
         }
         Unlock(held);
@@ -550,32 +467,21 @@ void FlipScreen(void)
     }
 
     if (d->haveBackBuffer != 0 && (flags & 1) != 0) {
-        d->screen.primary->Flip(0, 1);
+        host_frame_present(1);
         return;
     }
 
-    {
-    RECT rect;
-    POINT pt;
-    GetClientRect(d->hwnd, &rect);
-    pt.x = 0;
-    pt.y = 0;
-    RECT src = rect;
-    ClientToScreen(d->hwnd, &pt);
-    OffsetRect(&rect, pt.x, pt.y);
-
     int hr;
     while (1) {
-        hr = d->screen.primary->Blt(&rect, d->screen.surface, &src, 0x1000000, 0);
-        if (hr == 0)
+        hr = host_frame_present(0);
+        if (hr == HOST_FRAME_OK)
             return;
-        if (hr != 0x887601c2)
+        if (hr != HOST_FRAME_LOST)
             continue;
         hr = RestoreSurfacesInline(d);
         if (hr != 0)
             continue;
         return;
-    }
     }
 }
 
@@ -602,29 +508,6 @@ void __stdcall DrawCursor(Display* obj, Surface* dst)
 // symbol count (docs/c2-regalloc.md, "Symbol ids"). It also declares the
 // memset the fills below call.
 #include <memory.h>
-
-// What the driver is handed: 0x64 bytes, of which two fields are set.
-struct Fade_004c6890 {
-    int amount;                        // +0x0
-    char unknown_4[0x50 - 0x4];
-    int colour;                        // +0x50
-    char unknown_54[0x64 - 0x54];      // never touched
-};
-
-// The driver's table of __stdcall function pointers, each of which takes the
-// driver object itself as its first argument.
-struct Table_004c6890 {
-    void* slot0;                        // +0x00
-    void* slot1;                        // +0x04
-    void* slot2;                        // +0x08
-    void* slot3;                        // +0x0c
-    void* slot4;                        // +0x10
-    int (__stdcall* fade)(void* self, int a, int b, int c, int colour, Fade_004c6890* fade);  // +0x14
-};
-
-struct Driver_004c6890 {
-    Table_004c6890* table;              // +0x0
-};
 
 // The three fills are written through these little helpers because the order in
 // which the count and the fill value are evaluated decides which of the two
@@ -662,22 +545,14 @@ int __stdcall FillSurface(Surface* surface, int colour)
         } else if (!(obj->flags.byte & 2)) {
             clear_screen(obj, colour);
         } else {
-            Fade_004c6890 fade;
-            fade.amount = 100;
-            fade.colour = colour;
-            if (((Driver_004c6890*)obj->screen.surface)->table->fade(
-                    (Driver_004c6890*)obj->screen.surface, 0, 0, 0, 0x1000400, &fade) != 0)
+            if (!host_frame_fill(HOST_FRAME_BACK, colour))
                 ret = 0;
             return ret;
         }
     } else if (surface->flag0) {
         clear_surface(surface, colour);
     } else {
-        Fade_004c6890 fade;
-        fade.amount = 100;
-        fade.colour = colour;
-        if (((Driver_004c6890*)obj->screen.surface)->table->fade(
-                (Driver_004c6890*)obj->screen.surface, 0, 0, 0, 0x1000400, &fade) != 0)
+        if (!host_frame_fill(HOST_FRAME_BACK, colour))
             ret = 0;
     }
     return ret;
@@ -914,7 +789,6 @@ void __stdcall DrawTile(Surface* dst, Surface* src, Rect* rect, Point* pos)
 // width and height, then one row per scan line. The read counterpart is
 // 0x4c6f80, which allocates a surface of width*height and reads the rows back.
 // The surface layout matches the one built by 0x4c69f0.
-// Must stay: <ddraw.h> decides the multiply operand order.
 // FUNCTION: 0x4c6f10
 void __stdcall SaveSurface(Surface* surface, HapiBank* file)
 {
@@ -957,7 +831,6 @@ static inline Surface* NewSurface(char* name, int w, int h)
 
 // Reads back a surface written by 0x4c6f10: an 8-byte header of width and
 // height, then one row per scan line into a freshly allocated surface.
-// Must stay: <ddraw.h> decides the operand order of the row-loop multiply.
 // FUNCTION: 0x4c6f80
 Surface* __stdcall LoadSurface(HapiBank* file)
 {

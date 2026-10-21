@@ -14,7 +14,6 @@
 #include <string.h>
 #include <math.h>
 #include <memory.h>
-#include <ddraw.h>
 
 #pragma pack(push, 1)
 

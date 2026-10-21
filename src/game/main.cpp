@@ -345,9 +345,9 @@ void ChdirToExeDirectory()
 {
     char path[256];
 
-    GetModuleFileNameA(NULL, path, 256);
+    host_file_exe_path(path, 256);
     StripFileName(path);
-    SetCurrentDirectoryA(path);
+    host_dir_set_current(path);
 }
 
 // FUNCTION: 0x49f580
@@ -362,7 +362,7 @@ UINT __stdcall GetPreferenceInt(char* key, int defaultValue)
     char exePath[256];
     char iniPath[256];
 
-    GetModuleFileNameA(NULL, exePath, 256);
+    host_file_exe_path(exePath, 256);
     StripFileName(exePath);
     sprintf(iniPath, "%s\\totala.ini", exePath);
     return GetPrivateProfileIntA("Preferences", key, defaultValue, iniPath);

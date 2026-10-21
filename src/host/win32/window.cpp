@@ -143,7 +143,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 extern "C" void* HOST_CALL host_window_open(const char* title, int width, int height, int fullscreen)
 {
-    (void)fullscreen;
     HINSTANCE instance = GetModuleHandleA(NULL);
     WNDCLASSA wc;
     wc.style = 8;
@@ -162,7 +161,7 @@ extern "C" void* HOST_CALL host_window_open(const char* title, int width, int he
     g_thread = GetCurrentThreadId();
     g_hwnd = CreateWindowExA(WS_EX_APPWINDOW, wc.lpszClassName, title,
                              WS_POPUP | WS_VISIBLE | WS_SYSMENU,
-                             CW_USEDEFAULT, CW_USEDEFAULT, width, height,
+                             fullscreen ? 0 : CW_USEDEFAULT, fullscreen ? 0 : CW_USEDEFAULT, width, height,
                              NULL, NULL, instance, NULL);
     if (g_hwnd != NULL) {
         STARTUPINFOA startup;
@@ -269,11 +268,6 @@ extern "C" void HOST_CALL host_cursor_get(int* x, int* y)
 extern "C" void HOST_CALL host_cursor_set(int x, int y)
 {
     SetCursorPos(x, y);
-}
-
-void* HostWindowHandle()
-{
-    return g_hwnd;
 }
 
 HWND host_win32_window(void)

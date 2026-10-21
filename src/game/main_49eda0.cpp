@@ -209,7 +209,7 @@ int __stdcall ParseCommandLine(char* cmdLine, char* appName)
                 // reuses p: one more named local would add a slot.
                 char moduleName[MAX_PATH];
                 HMODULE setupDll;
-                DWORD len = GetModuleFileNameA(NULL, moduleName, MAX_PATH);
+                DWORD len = host_file_exe_path(moduleName, MAX_PATH);
                 int registered = 0;
                 if (len > 0) {
                     char drive[_MAX_DRIVE];

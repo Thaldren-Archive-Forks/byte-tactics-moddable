@@ -2,8 +2,6 @@
 
 // <windows.h> is needed for CanRepair's operand order (see there).
 #include <windows.h>
-// Only for its symbol ids: SetStateBits matches at one symbol count.
-#include <ddraw.h>
 
 #include "cob_script.h"
 

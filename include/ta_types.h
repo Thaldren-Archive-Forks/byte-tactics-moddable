@@ -9824,8 +9824,8 @@ struct Table_0047ae60 {  // 0x22c bytes, 1 view
 struct Surfaces_0047bdf0 {  // 0x14 bytes, 2 views
     IUnknown* surface_0;  // +0x0
     IUnknown* surface_4;  // +0x4
-    IDirectDrawSurface* back;  // +0x8
-    IDirectDrawSurface* field_c;  // +0xc
+    void* back;  // +0x8
+    void* field_c;  // +0xc
     IUnknown* surface_10;  // +0x10
 };
 
@@ -9854,11 +9854,11 @@ public:
 
 class DDraw_0047bf70 {  // 0x14 bytes, 1 view
 public:
-    IDirectDraw* lpDD;  // +0x0
-    IDirectDrawSurface* lpSurface;  // +0x4
+    void* lpDD;  // +0x0
+    void* lpSurface;  // +0x4
     int width;  // +0x8
     int height;  // +0xc
-    IDirectDrawPalette* lpPalette;  // +0x10
+    void* lpPalette;  // +0x10
 };
 
 struct Smk_0047bf70 {  // 0x390 bytes, 2 views
@@ -9914,7 +9914,7 @@ public:
 };
 
 struct SmackerSurface {  // 0x4 bytes, 1 view
-    void (__stdcall ** methods)(void*, _DDPIXELFORMAT*);  // +0x0
+    void* methods;  // +0x0
 };
 
 struct SmackerSurfaces {  // 0x8 bytes, 1 view
@@ -9942,7 +9942,7 @@ public:
 
 struct DisplaySurface {  // 0x14 bytes, 1 view
     char unknown_0[16];
-    IDirectDrawPalette* palette;  // +0x10
+    void* palette;  // +0x10
 };
 
 struct PaletteSource {  // 0x36c bytes, 1 view
@@ -9959,7 +9959,7 @@ public:
 
 struct SurfaceWrapper {  // 0x8 bytes, 1 view
     char unknown_0[4];
-    IDirectDrawSurface* surface;  // +0x4
+    void* surface;  // +0x4
 };
 
 class Class_0047c330 {  // 0x8 bytes, 1 view
@@ -9991,7 +9991,7 @@ struct Display_0047c3a0 {  // 0x14 bytes, 1 view
     char unknown_0[8];
     unsigned int width;  // +0x8
     unsigned int height;  // +0xc
-    IDirectDrawPalette* palette;  // +0x10
+    void* palette;  // +0x10
 };
 
 struct SmkStats_0047c530 {  // 0x54 bytes, 1 view
@@ -13660,11 +13660,11 @@ struct BitmapInfo_004b5510 {  // 0x428 bytes, 1 view
 };
 
 struct DirectDrawState {  // 0x1c bytes, 1 view
-    IDirectDraw* ddraw;  // +0x0
-    IDirectDrawSurface* primary;  // +0x4
-    IDirectDrawSurface* back;  // +0x8
-    IDirectDrawClipper* clipper;  // +0xc
-    IDirectDrawPalette* palette;  // +0x10
+    void* ddraw;  // +0x0
+    void* primary;  // +0x4
+    void* back;  // +0x8
+    void* clipper;  // +0xc
+    void* palette;  // +0x10
     void* field_98;  // +0x14
     int field_9c;  // +0x18
 };
@@ -13721,11 +13721,11 @@ struct Obj {  // 0x729 bytes, 29 views
     void* hpalette;  // +0x4c
     char unknown_50[48];
     void (__cdecl *callback)(int, int, int);  // +0x80
-    IDirectDraw2* ddraw;  // +0x84
-    IDirectDrawSurface* primary;  // +0x88
+    void* ddraw;  // +0x84
+    void* primary;  // +0x88
     Surface_4b6570* surface;  // +0x8c
-    IDirectDrawSurface* field_90;  // +0x90
-    IDirectDrawPalette* palette;  // +0x94
+    void* field_90;  // +0x90
+    void* palette;  // +0x94
     char unknown_98[8];
     Mode_4b5980 mode;  // +0xa0
     void* font;  // +0xb0
@@ -14056,7 +14056,7 @@ struct Display_004ba200 {  // 0x614 bytes, 1 view
     void* dc;  // +0x48
     void* palette;  // +0x4c
     char unknown_50[68];
-    IDirectDrawPalette* ddPalette;  // +0x94
+    void* ddPalette;  // +0x94
     char unknown_98[88];
     unsigned short pad_f0 : 2;  // +0xf0
     unsigned short bit2 : 1;
@@ -14071,7 +14071,7 @@ struct Display_004ba4c0 {  // 0xf2 bytes, 1 view
     char unknown_48[4];
     void* hpalette;  // +0x4c
     char unknown_50[68];
-    IDirectDrawPalette* palette;  // +0x94
+    void* palette;  // +0x94
     char unknown_98[88];
     unsigned short bit0_1 : 2;  // +0xf0
     unsigned short flag2 : 1;
@@ -14833,7 +14833,7 @@ struct LockEntry_004c5d90 {  // 0x5 bytes, 3 views
 
 struct Screen_004c5df0 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 
@@ -14868,7 +14868,7 @@ struct Display_004c5e70 {  // 0xe0 bytes, 1 view
 
 struct Screen_004c5fa0 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 
@@ -14910,7 +14910,7 @@ struct Display_004c5ff0 {  // 0xdc bytes, 1 view
 };
 
 struct Screen_004c60d0 {  // 0x4 bytes, 1 view
-    IDirectDrawSurface* surface;  // +0x0
+    void* surface;  // +0x0
     void Unlock(void);
 };
 
@@ -14977,7 +14977,7 @@ public:
 
 struct Screen_004c6210 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockRect(tagRECT*);
 };
 
@@ -14994,8 +14994,8 @@ struct Display_004c6210 {  // 0xe0 bytes, 1 view
 
 struct Screen_004c62c0 {  // 0x10 bytes, 1 view
     char unknown_0[8];
-    IDirectDrawSurface* field_88;  // +0x8
-    IDirectDrawSurface* surface;  // +0xc
+    void* field_88;  // +0x8
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 
@@ -15007,7 +15007,7 @@ struct Display_004c62c0 {  // 0xf2 bytes, 1 view
     char unknown_90[8];
     void* field_98;  // +0x98
     char unknown_9c[24];
-    IDirectDrawSurface* field_b4;  // +0xb4
+    void* field_b4;  // +0xb4
     char unknown_b8[36];
     int field_dc;  // +0xdc
     char unknown_e0[16];
@@ -15032,8 +15032,8 @@ struct Desc {  // 0x6c bytes, 1 view
 
 struct Screen_004c63a0 {  // 0x18 bytes, 1 view
     char unknown_0[8];
-    IDirectDrawSurface* primary;  // +0x8
-    IDirectDrawSurface* surface;  // +0xc
+    void* primary;  // +0x8
+    void* surface;  // +0xc
     char unknown_10[8];
     void UnlockSurface(void);
 };
@@ -15103,7 +15103,7 @@ struct Struct_004c6ac0 {  // 0x2d bytes, 1 view
 
 struct Screen_004c6b70 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 
@@ -15118,7 +15118,7 @@ struct Display_004c6b70 {  // 0xe0 bytes, 1 view
 
 struct Screen_004c6c50 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 
@@ -15133,7 +15133,7 @@ struct Display_004c6c50 {  // 0xe0 bytes, 1 view
 
 struct Screen_004c6d20 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 
@@ -15148,7 +15148,7 @@ struct Display_004c6d20 {  // 0xe0 bytes, 1 view
 
 struct Screen_004c6dc0 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 
@@ -15163,7 +15163,7 @@ struct Display_004c6dc0 {  // 0xe0 bytes, 1 view
 
 struct Screen_004c6e70 {  // 0x10 bytes, 1 view
     char unknown_0[12];
-    IDirectDrawSurface* surface;  // +0xc
+    void* surface;  // +0xc
     void UnlockSurface(void);
 };
 

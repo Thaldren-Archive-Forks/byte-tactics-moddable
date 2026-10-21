@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 4
+#define HOST_VERSION_MINOR 6
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -170,8 +170,7 @@ struct host_event {
     unsigned int time_ms;
 };
 
-// TODO(#175): cover the screen when fullscreen is set.
-// Opens the game window with the given title and client size and returns its native handle or NULL; fullscreen is unused for now.
+// Opens the game window with the given title and client size, at the screen's top left when fullscreen is set, and returns its native handle or NULL.
 void* HOST_CALL host_window_open(const char* title, int width, int height, int fullscreen);
 // Destroys the game window, which queues HOST_EVENT_DESTROY.
 void HOST_CALL host_window_close(void);
@@ -191,6 +190,110 @@ int HOST_CALL host_key_state(int vk);
 void HOST_CALL host_cursor_get(int* x, int* y);
 // Moves the mouse cursor to a position on the screen.
 void HOST_CALL host_cursor_set(int x, int y);
+
+// Frame result: the call worked.
+#define HOST_FRAME_OK 0
+// Frame result: the surface was lost; the game restores it with host_frame_restore and redraws the whole frame.
+#define HOST_FRAME_LOST 1
+// Frame result: the call failed, or the display has no such frame.
+#define HOST_FRAME_FAILED 2
+
+// Frame selector: the frame the game draws into.
+#define HOST_FRAME_BACK 0
+// Frame selector: the frame on the screen.
+#define HOST_FRAME_FRONT 1
+
+// Display mode flag: set up only the frame on the screen, for a video player that has no display of its own.
+#define HOST_DISPLAY_PRIMARY_ONLY 1
+
+// Result of host_display_mode_set: the display could not be set up.
+#define HOST_DISPLAY_FAILED 0
+// Result of host_display_mode_set: the display is set up.
+#define HOST_DISPLAY_OK 1
+// Result of host_display_mode_set with HOST_DISPLAY_PRIMARY_ONLY: the display is set up but its frame could not be made.
+#define HOST_DISPLAY_NO_FRAME 2
+
+// One display mode of the machine.
+struct host_display_mode {
+    // The mode's width in pixels.
+    int width;
+    // The mode's height in pixels.
+    int height;
+    // The mode's bits for each pixel.
+    int bits;
+    // The mode's refresh rate in hertz, or 0 when it is not known.
+    int refresh;
+};
+
+// An 8-bit frame, locked for drawing.
+struct host_frame {
+    // The first pixel, one byte for each, valid until host_frame_unlock.
+    unsigned char* pixels;
+    // The distance in bytes from a row to the next.
+    int pitch;
+    // The frame's width in pixels.
+    int width;
+    // The frame's height in pixels.
+    int height;
+};
+
+// The layout of a frame's pixels, as the masks of the bits of each colour.
+struct host_pixel_format {
+    // The bits for each pixel.
+    int bits;
+    // The bits of the red part.
+    unsigned int red;
+    // The bits of the green part.
+    unsigned int green;
+    // The bits of the blue part.
+    unsigned int blue;
+};
+
+// Sets the screen to an 8-bit width by height mode with a back frame and a palette of the 256 four-byte red, green, blue and zero entries (NULL for none), and returns a HOST_DISPLAY_ result; HOST_DISPLAY_PRIMARY_ONLY in flags sets up only the frame on the screen.
+int HOST_CALL host_display_mode_set(int width, int height, int flags, const unsigned char* palette);
+// Releases the display and its frames and palette, or does nothing when none is set up.
+void HOST_CALL host_display_close(void);
+// Returns 1 when a display is set up.
+int HOST_CALL host_display_is_open(void);
+// Returns 1 when the display has a back frame, even if setting it up failed later.
+int HOST_CALL host_display_has_back_buffer(void);
+// Stores up to max of the machine's display modes in modes and their number in *count, and returns 1, or 0 when they could not be listed.
+int HOST_CALL host_display_mode_list(struct host_display_mode* modes, int max, int* count);
+
+// Locks a frame (HOST_FRAME_BACK or HOST_FRAME_FRONT) for writing into *frame and returns a HOST_FRAME_ result.
+int HOST_CALL host_frame_lock(int which, struct host_frame* frame);
+// Ends the lock of host_frame_lock and returns 1, or returns 0 when the display has no such frame.
+int HOST_CALL host_frame_unlock(int which);
+// Shows the back frame by swapping it with the frame on the screen when flip is set, or else by copying it to the window; returns a HOST_FRAME_ result.
+int HOST_CALL host_frame_present(int flip);
+// Returns 1 when the frames were lost.
+int HOST_CALL host_frame_is_lost(void);
+// Restores the frames, which leaves them empty, and returns 1, or returns 0 when they could not be restored.
+int HOST_CALL host_frame_restore(void);
+// Fills a frame with one palette index and returns 1, or returns 0 on failure.
+int HOST_CALL host_frame_fill(int which, unsigned int colour);
+// Stores the pixel layout of the frame on the screen in *format and returns 1, or returns 0 on failure.
+int HOST_CALL host_frame_pixel_format(struct host_pixel_format* format);
+// Draws length bytes of text at x and y of a frame in the 0xrrggbb colour, with the host's own font handle font (NULL for the default font), and returns 1, or returns 0 on failure.
+int HOST_CALL host_frame_text(int which, void* font, int x, int y, const char* text, int length, unsigned int rgb);
+// Copies the back frame to pixels (rows pitch bytes apart) and its 256 four-byte palette entries to palette, and returns 1, or returns 0 on failure.
+int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsigned char* palette);
+
+// Returns a drawing context for the window (the native handle of host_window_open), or NULL on failure; end it with host_frame_context_release.
+void* HOST_CALL host_frame_context_get(void* window);
+// Ends a context from host_frame_context_get on the same window.
+void HOST_CALL host_frame_context_release(void* window, void* context);
+// Selects the display palette (a native palette handle) into the context, without forcing it to the background, and realises it.
+void HOST_CALL host_frame_context_palette(void* context, void* palette);
+
+// Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen, and returns 1, or returns 0 on failure.
+int HOST_CALL host_palette_create(const unsigned char* entries);
+// Sets count four-byte entries from index start of the display palette and returns 1, or returns 0 on failure.
+int HOST_CALL host_palette_set(int start, int count, const unsigned char* entries);
+// Stores the display palette's 256 four-byte entries in entries and returns 1, or returns 0 on failure.
+int HOST_CALL host_palette_get(unsigned char* entries);
+// Attaches the display palette to the frame on the screen again and returns 1, or returns 0 when there is none or it failed.
+int HOST_CALL host_palette_apply(void);
 
 // Opens an existing file, with a path relative to the game directory or absolute, for reading only and returns its handle, or NULL when it cannot be opened.
 void* HOST_CALL host_file_open_read(const char* path);
@@ -250,6 +353,12 @@ void* HOST_CALL host_dir_first(const char* pattern, struct host_dir_entry* entry
 int HOST_CALL host_dir_next(void* dir, struct host_dir_entry* entry);
 // Ends the listing and frees its handle.
 void HOST_CALL host_dir_close(void* dir);
+// Writes the path of the game's executable, a full path with its file name, into buf of size bytes and returns its length, or 0 on failure.
+unsigned int HOST_CALL host_file_exe_path(char* buf, unsigned int size);
+// Writes the full path of name (relative to the current directory or absolute) into buf of size bytes and returns its length, or 0 on failure.
+unsigned int HOST_CALL host_file_full_path(const char* name, char* buf, unsigned int size);
+// Makes path the current directory, against which relative paths resolve, and returns 1, or 0 on failure.
+int HOST_CALL host_dir_set_current(const char* path);
 
 // Sound buffer flag: the buffer can be placed in space with host_sound_buffer_place.
 #define HOST_SOUND_3D 0x01
@@ -293,6 +402,16 @@ int HOST_CALL host_sound_buffer_set_volume(void* buffer, int volume);
 // Places a HOST_SOUND_3D buffer at the point xyz, heard fully within min_distance and no quieter beyond max_distance, or with xyz NULL plays it unplaced; returns 1, or 0 when the buffer cannot be placed.
 int HOST_CALL host_sound_buffer_place(void* buffer, const float* xyz, float min_distance, float max_distance);
 
+// Wave flag: the sound repeats until host_sound_wav_stop.
+#define HOST_WAV_LOOP 0x01
+// Wave flag: the call does nothing when a wave is already playing.
+#define HOST_WAV_KEEP 0x02
+
+// Starts playing the WAV file image at wav, which must stay valid while it plays, without waiting for it to end, and returns 1, or 0 on failure.
+int HOST_CALL host_sound_wav_play(const void* wav, unsigned int flags);
+// Stops the wave that host_sound_wav_play started, without waiting for it to end.
+void HOST_CALL host_sound_wav_stop(void);
+
 // Mixer line: the wave output devices.
 #define HOST_MIXER_WAVE 0
 // Mixer line: the CD audio device.
@@ -335,6 +454,10 @@ int HOST_CALL host_music_play_tracks(int first, int last);
 int HOST_CALL host_music_play_range(int from_ms, int to_ms);
 // Returns the volume serial number of the music disc, or 0 when there is no disc.
 unsigned int HOST_CALL host_music_disc_serial(void);
+// Returns the handle of the CD player program's window, or NULL when it has none.
+void* HOST_CALL host_music_find_cd_player(void);
+// Closes the CD player program's window that host_music_find_cd_player returned, and waits for it to go.
+void HOST_CALL host_music_close_cd_player(void* window);
 
 // The session record of a network game: the host fills it and the game reads some of its fields, so the game keeps its bytes in the state block.
 struct host_net;

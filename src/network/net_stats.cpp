@@ -5,7 +5,6 @@
 // This header set must stay: FormatNetStats needs it.
 #include <windows.h>
 #include <stdio.h>
-#include <ddraw.h>
 // Included only for its symbol ids: FormatNetStats matches at this count with
 // the BitReader header's inline ReadBit (see bit_reader.h).
 #include <io.h>

@@ -12,7 +12,6 @@
 #include "../state/block.h"
 #include <memory.h>
 #include <windows.h>
-#include <ddraw.h>
 #include <new>
 #include <new.h>
 // Included only for their symbol ids: the functions below match at this count.

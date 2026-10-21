@@ -19,8 +19,6 @@
 // The helpers below that no handler here calls still count symbols: removing
 // them moves the register allocation of the handlers that do match.
 #include <windows.h>
-#include <ddraw.h>
-#include <dsound.h>
 #include <stdio.h>
 struct Unit;
 void __stdcall CopyDwordIfNonNull(Unit**, Unit* const*);

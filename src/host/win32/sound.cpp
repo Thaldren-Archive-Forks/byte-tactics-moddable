@@ -264,3 +264,18 @@ extern "C" int HOST_CALL host_mixer_set(int line, int device, unsigned int volum
     }
     return r == MMSYSERR_NOERROR;
 }
+
+extern "C" int HOST_CALL host_sound_wav_play(const void* wav, unsigned int flags)
+{
+    unsigned int mode = SND_ASYNC | SND_MEMORY;
+    if (flags & HOST_WAV_LOOP)
+        mode |= SND_LOOP;
+    if (flags & HOST_WAV_KEEP)
+        mode |= SND_NOSTOP;
+    return PlaySoundA((LPCSTR)wav, 0, mode);
+}
+
+extern "C" void HOST_CALL host_sound_wav_stop(void)
+{
+    PlaySoundA(0, 0, SND_NOWAIT);
+}
