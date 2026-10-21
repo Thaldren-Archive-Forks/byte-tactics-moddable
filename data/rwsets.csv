@@ -49750,12 +49750,12 @@ address,function,file,kind,target
 ,ScaleY_00466dc0,src/map/radar.cpp,field_read,Unit::zWhole
 ,ScaleY_00466dc0,src/map/radar.cpp,function,
 ,ScaleY_00466dc0,src/map/radar.cpp,global_read,g_game
+,Scan,src/host/win32/headless.cpp,call,InterlockedExchange
 ,Scan,src/host/win32/headless.cpp,call,ScanCommandLine
+,Scan,src/host/win32/headless.cpp,deref_read,*long
 ,Scan,src/host/win32/headless.cpp,function,
-,Scan,src/host/win32/headless.cpp,global_read,g_headless
-,Scan,src/host/win32/headless.cpp,global_read,g_scanned
-,Scan,src/host/win32/headless.cpp,global_write,g_headless
-,Scan,src/host/win32/headless.cpp,global_write,g_scanned
+,Scan,src/host/win32/headless.cpp,global_escape,g_headlessState
+,Scan,src/host/win32/headless.cpp,global_maybe_written,g_headlessState
 ,ScanCommandLine,src/host/win32/headless.cpp,call,GetCommandLineW
 ,ScanCommandLine,src/host/win32/headless.cpp,call,_wcsnicmp
 ,ScanCommandLine,src/host/win32/headless.cpp,deref_read,*wchar_t
