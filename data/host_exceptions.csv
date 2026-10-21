@@ -47,7 +47,6 @@ src/game/game_state.cpp,src/gui/gui.h,#22
 src/game/game_state.cpp,windows.h,#305
 src/game/main.cpp,interfaces/host.h,#29
 src/game/main.cpp,windows.h,#304
-src/game/main_49eda0.cpp,windows.h,#303
 src/game/main_loop.cpp,src/gui/gui.h,#22
 src/game/main_loop.cpp,src/ingame/frame_timers.h,#22
 src/game/settings.cpp,src/host/settings_io.h,#25
@@ -59,7 +58,7 @@ src/game/victory.cpp,windows.h,#304
 src/graphics/display.cpp,interfaces/host.h,#22
 src/graphics/display.cpp,src/graphics/rect.h,#22
 src/graphics/display.cpp,src/graphics/surface.h,#22
-src/graphics/display.cpp,windows.h,#303
+src/graphics/display.cpp,windows.h,#305
 src/graphics/draw.cpp,src/graphics/gaf_frame.h,#22
 src/graphics/draw.cpp,src/graphics/rect.h,#22
 src/graphics/draw.cpp,src/graphics/surface.h,#22
@@ -167,10 +166,6 @@ src/network/net_game.cpp,src/gui/gui.h,#22
 src/network/net_game.cpp,src/gui/layer.h,#22
 src/network/net_game.cpp,windows.h,#304
 src/network/net_game_453d40.cpp,interfaces/host.h,#28
-src/network/online.cpp,windows.h,#303
-src/network/online_45b250.cpp,windows.h,#303
-src/network/online_45b490.cpp,windows.h,#303
-src/network/online_45b670.cpp,windows.h,#303
 src/network/packets.cpp,interfaces/host.h,#28
 src/orders/unit_orders.cpp,src/sound/sound.h,#22
 src/orders/unit_orders_404db0.cpp,windows.h,#304
