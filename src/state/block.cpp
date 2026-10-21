@@ -4,10 +4,9 @@
 #include <string.h>
 
 #include "block.h"
+#include "../../interfaces/host.h"
 #include "../../lib/bitexact/bitexact.h"
 
-class CritSec_004da780;
-CritSec_004da780* GetAllocLock();
 extern void (*g_outOfMemoryHandler)();
 
 const SimHeap kSim = SimHeap();
@@ -38,6 +37,7 @@ const unsigned int kFirstChunk = sizeof(BlockHeader);
 
 char* g_base;
 unsigned int g_insideThread;
+void* g_lock;
 void** g_tracked[8];
 unsigned int g_trackedCount;
 
@@ -88,20 +88,20 @@ void Prepare()
 }
 
 struct Guard {
-    CRITICAL_SECTION* cs;
     Guard()
     {
-        cs = (CRITICAL_SECTION*)GetAllocLock();
-        EnterCriticalSection(cs);
+        if (g_lock == 0)
+            g_lock = host_mutex_create();
+        host_mutex_lock(g_lock);
         if (g_insideThread != 0)
             Fatal("re-entered the allocator");
-        g_insideThread = GetCurrentThreadId();
+        g_insideThread = host_thread_id();
         Prepare();
     }
     ~Guard()
     {
         g_insideThread = 0;
-        LeaveCriticalSection(cs);
+        host_mutex_unlock(g_lock);
     }
 };
 
