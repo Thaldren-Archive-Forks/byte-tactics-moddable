@@ -162,6 +162,22 @@ int g_width;
 int g_height;
 unsigned char* g_front;
 unsigned char* g_back;
+unsigned char* g_windowed;
+int g_windowedWidth;
+int g_windowedHeight;
+bool g_windowedPalette;
+
+void FreeWindowed()
+{
+    free(g_windowed);
+    g_windowed = NULL;
+    g_windowedPalette = false;
+}
+
+bool WindowedPaletteActive()
+{
+    return g_windowed != NULL && !g_displayOpen;
+}
 
 void FreeFrames()
 {
@@ -344,7 +360,21 @@ int HeadlessDisplayModeSet(int width, int height, int flags, const unsigned char
     if (width <= 0 || height <= 0) {
         return HOST_DISPLAY_FAILED;
     }
+    if (!(flags & HOST_DISPLAY_PRIMARY_ONLY)) {
+        FreeWindowed();
+    }
     FreeFrames();
+    if (flags & HOST_DISPLAY_WINDOWED) {
+        g_displayOpen = false;
+        g_windowedWidth = width;
+        g_windowedHeight = height;
+        g_windowed = (unsigned char*)calloc((size_t)((width + 3) & ~3) * (size_t)height, 1);
+        if (g_windowed == NULL) {
+            return HOST_DISPLAY_FAILED;
+        }
+        g_windowedPalette = palette != NULL;
+        return HOST_DISPLAY_OK;
+    }
     g_width = width;
     g_height = height;
     g_displayOpen = true;
@@ -370,8 +400,14 @@ int HeadlessDisplayModeSet(int width, int height, int flags, const unsigned char
 
 void HeadlessDisplayClose()
 {
-    FreeFrames();
-    g_displayOpen = false;
+    if (g_displayOpen) {
+        FreeFrames();
+        g_displayOpen = false;
+        if (g_windowed != NULL) {
+            return;
+        }
+    }
+    FreeWindowed();
 }
 
 int HeadlessDisplayIsOpen()
@@ -401,9 +437,22 @@ int HeadlessDisplayModeList(host_display_mode* modes, int max, int* count)
     return 1;
 }
 
+void HeadlessDisplayScreenSize(int* width, int* height)
+{
+    *width = 1024;
+    *height = 768;
+}
+
 int HeadlessFrameLock(int which, host_frame* frame)
 {
     unsigned char* pixels = Frame(which);
+    if (pixels == NULL && which == HOST_FRAME_BACK && g_windowed != NULL) {
+        frame->pixels = g_windowed;
+        frame->pitch = (g_windowedWidth + 3) & ~3;
+        frame->width = g_windowedWidth;
+        frame->height = g_windowedHeight;
+        return HOST_FRAME_OK;
+    }
     if (pixels == NULL) {
         return HOST_FRAME_FAILED;
     }
@@ -417,13 +466,25 @@ int HeadlessFrameLock(int which, host_frame* frame)
 
 int HeadlessFrameUnlock(int which)
 {
+    if (which == HOST_FRAME_BACK && Frame(which) == NULL && g_windowed != NULL) {
+        return 1;
+    }
     return Frame(which) != NULL ? 1 : 0;
 }
 
 int HeadlessFramePresent(int flip)
 {
     (void)flip;
-    return g_displayOpen ? HOST_FRAME_OK : HOST_FRAME_FAILED;
+    return g_displayOpen || g_windowed != NULL ? HOST_FRAME_OK : HOST_FRAME_FAILED;
+}
+
+int HeadlessFramePresentRect(int x, int y, int width, int height)
+{
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)height;
+    return g_windowed != NULL ? HOST_FRAME_OK : HOST_FRAME_FAILED;
 }
 
 int HeadlessFrameIsLost()
@@ -467,6 +528,13 @@ int HeadlessFrameText(int which, void* font, int x, int y, const char* text, int
 
 int HeadlessFrameRead(unsigned char* pixels, int pitch, unsigned char* palette)
 {
+    if (Frame(HOST_FRAME_BACK) == NULL && g_windowed != NULL) {
+        for (int row = 0; row < g_windowedHeight; row++) {
+            memcpy(pixels + row * pitch, g_windowed + row * ((g_windowedWidth + 3) & ~3), (size_t)g_windowedWidth);
+        }
+        memset(palette, 0, 256 * 4);
+        return g_windowedPalette ? 1 : 0;
+    }
     if (Frame(HOST_FRAME_BACK) == NULL) {
         return 0;
     }
@@ -498,6 +566,10 @@ void HeadlessFrameContextPalette(void* context, void* palette)
 int HeadlessPaletteCreate(const unsigned char* entries)
 {
     (void)entries;
+    if (WindowedPaletteActive()) {
+        g_windowedPalette = true;
+        return 1;
+    }
     if (!g_displayOpen || !g_hasPrimary) {
         return 0;
     }
@@ -510,11 +582,21 @@ int HeadlessPaletteSet(int start, int count, const unsigned char* entries)
     (void)start;
     (void)count;
     (void)entries;
+    if (WindowedPaletteActive()) {
+        return g_windowedPalette ? 1 : 0;
+    }
     return g_hasPalette ? 1 : 0;
 }
 
 int HeadlessPaletteGet(unsigned char* entries)
 {
+    if (WindowedPaletteActive()) {
+        if (!g_windowedPalette) {
+            return 0;
+        }
+        memset(entries, 0, 256 * 4);
+        return 1;
+    }
     if (!g_hasPalette) {
         return 0;
     }
@@ -524,6 +606,9 @@ int HeadlessPaletteGet(unsigned char* entries)
 
 int HeadlessPaletteApply()
 {
+    if (WindowedPaletteActive()) {
+        return g_windowedPalette ? 1 : 0;
+    }
     return g_hasPrimary && g_hasPalette ? 1 : 0;
 }
 
