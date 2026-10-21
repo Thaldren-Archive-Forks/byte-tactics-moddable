@@ -359,9 +359,9 @@ void HOST_CALL host_frame_context_release(void* window, void* context);
 // Selects the display palette (a native palette handle) into the context, without forcing it to the background, and realises it.
 void HOST_CALL host_frame_context_palette(void* context, void* palette);
 
-// Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen (the bitmap's colours for the windowed frame), and returns 1, or returns 0 on failure.
+// Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen (a HOST_DISPLAY_PRIMARY_ONLY display's frame while one is set up, else the windowed frame's bitmap colours), and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_create(const unsigned char* entries);
-// Sets count four-byte entries from index start of the display palette and returns 1, or returns 0 on failure.
+// Sets count four-byte entries from index start of the display palette (a HOST_DISPLAY_PRIMARY_ONLY display's while one is set up, else the windowed frame's) and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_set(int start, int count, const unsigned char* entries);
 // Stores the display palette's 256 four-byte entries in entries and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_get(unsigned char* entries);
