@@ -200,3 +200,26 @@ extern "C" unsigned int HOST_CALL host_music_disc_serial(void)
     }
     return 0;
 }
+
+static BOOL CALLBACK FindCdPlayerWindow(HWND hwnd, LPARAM param)
+{
+    char className[200];
+    GetClassNameA(hwnd, className, sizeof(className) - 1);
+    if (strcmp(className, "SJE_CdPlayerClass") == 0)
+        *(HWND*)param = hwnd;
+    return TRUE;
+}
+
+extern "C" void* HOST_CALL host_music_find_cd_player(void)
+{
+    HWND found = 0;
+    EnumWindows((WNDENUMPROC)FindCdPlayerWindow, (LPARAM)&found);
+    return found;
+}
+
+extern "C" void HOST_CALL host_music_close_cd_player(void* window)
+{
+    SendMessageA((HWND)window, WM_CLOSE, 0, 0);
+    SendMessageA((HWND)window, WM_QUIT, 0, 0);
+    host_sleep_ms(500);
+}

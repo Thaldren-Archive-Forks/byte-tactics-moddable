@@ -63,9 +63,7 @@ int __stdcall HAPI_readfromfile(void* file, void* buf, int size);
 // The sound object g_cdPlayer points at: the same object as g_game+0x10.
 extern Sound* g_cdPlayer;
 
-// OpenCdAudio registers these; 0x4ce1e0 defines FindCdPlayerWindow.
 extern void __stdcall SetMediaNotifyCallback(void (__stdcall*)(int, int, int));
-extern BOOL __stdcall FindCdPlayerWindow(HWND, LPARAM);
 
 // FUNCTION: 0x4cd9b0
 void __stdcall NopRet4(int)
@@ -283,9 +281,7 @@ void __cdecl HandleCdMessage(int msg, int wParam, int lParam)
 void Sound::CloseCdPlayerWindow()
 {
     if (g_cdPlayerWindow) {
-        SendMessageA(g_cdPlayerWindow, WM_CLOSE, 0, 0);
-        SendMessageA(g_cdPlayerWindow, WM_QUIT, 0, 0);
-        host_sleep_ms(500);
+        host_music_close_cd_player(g_cdPlayerWindow);
         g_cdPlayerWindow = 0;
     }
 }
@@ -296,17 +292,6 @@ void Sound::CloseCdPlayerWindow()
 bool Sound::HasCdPlayerWindow()
 {
     return g_cdPlayerWindow != 0;
-}
-
-// EnumWindows callback: remembers the window whose class is the CD player's.
-// FUNCTION: 0x4ce1e0
-BOOL __stdcall FindCdPlayerWindow(HWND hwnd, LPARAM param)
-{
-    char className[200];
-    GetClassNameA(hwnd, className, sizeof(className) - 1);
-    if (strcmp(className, "SJE_CdPlayerClass") == 0)
-        g_cdPlayerWindow = hwnd;
-    return TRUE;
 }
 
 // Initialises the CD player object and opens the MCI cdaudio device.
@@ -333,7 +318,7 @@ int Sound::OpenCdAudio()
     dataTrack = 0;
     int r = host_music_open();
     if (r == 0) {
-        EnumWindows((WNDENUMPROC)FindCdPlayerWindow, 0);
+        g_cdPlayerWindow = (HWND)host_music_find_cd_player();
         r = host_music_open();
         if (r == 0)
             return 0;

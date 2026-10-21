@@ -2939,7 +2939,6 @@ int ExceptionFilter(int, int);
 int PassThroughDebugHelper(int);
 void NopRet4(int);
 void __cdecl HandleCdMessage(int, int, int);
-int FindCdPlayerWindow(void*, long);
 int GetTrackLength(int);
 void OnNextTrackTimer(void*);
 void OnCdFadeTimer(void*);

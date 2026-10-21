@@ -395,6 +395,16 @@ int HOST_CALL host_sound_buffer_set_volume(void* buffer, int volume);
 // Places a HOST_SOUND_3D buffer at the point xyz, heard fully within min_distance and no quieter beyond max_distance, or with xyz NULL plays it unplaced; returns 1, or 0 when the buffer cannot be placed.
 int HOST_CALL host_sound_buffer_place(void* buffer, const float* xyz, float min_distance, float max_distance);
 
+// Wave flag: the sound repeats until host_sound_wav_stop.
+#define HOST_WAV_LOOP 0x01
+// Wave flag: the call does nothing when a wave is already playing.
+#define HOST_WAV_KEEP 0x02
+
+// Starts playing the WAV file image at wav, which must stay valid while it plays, without waiting for it to end, and returns 1, or 0 on failure.
+int HOST_CALL host_sound_wav_play(const void* wav, unsigned int flags);
+// Stops the wave that host_sound_wav_play started, without waiting for it to end.
+void HOST_CALL host_sound_wav_stop(void);
+
 // Mixer line: the wave output devices.
 #define HOST_MIXER_WAVE 0
 // Mixer line: the CD audio device.
@@ -437,6 +447,10 @@ int HOST_CALL host_music_play_tracks(int first, int last);
 int HOST_CALL host_music_play_range(int from_ms, int to_ms);
 // Returns the volume serial number of the music disc, or 0 when there is no disc.
 unsigned int HOST_CALL host_music_disc_serial(void);
+// Returns the handle of the CD player program's window, or NULL when it has none.
+void* HOST_CALL host_music_find_cd_player(void);
+// Closes the CD player program's window that host_music_find_cd_player returned, and waits for it to go.
+void HOST_CALL host_music_close_cd_player(void* window);
 
 // The session record of a network game: the host fills it and the game reads some of its fields, so the game keeps its bytes in the state block.
 struct host_net;
