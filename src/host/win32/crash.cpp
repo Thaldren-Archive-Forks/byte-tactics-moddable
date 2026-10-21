@@ -6,19 +6,10 @@
 #include "../../../interfaces/host.h"
 #include "../../debug/command_line.h"
 
+__declspec(thread) char* g_stackLow;
+__declspec(thread) char* g_stackHigh;
+__declspec(thread) char g_stackKnown;
 
-// This thread's stack, as the last check saw it (the image's .tls section
-// holds them at +4, +8 and +0xc, after the runtime's __tls_start; 0x4d8df0.cpp
-// and 0x4d8e20.cpp read the first two). This object defines them, the only
-// thread-local data the original has. They are separate variables: as fields
-// of one struct, the compiler would not read the flag before storing
-// stackLow.
-__declspec(thread) char* g_stackLow;       // the stack pointer at the last check
-__declspec(thread) char* g_stackHigh;      // the end of the stack's memory region
-__declspec(thread) char g_stackKnown;      // g_stackHigh has been looked up
-
-// Whether [p, p + size) lies outside this thread's live stack: 0 when it is
-// between the current stack pointer and the end of the stack's region.
 // FUNCTION: 0x4d8d70
 char __cdecl IsOutsideStack(char* p, int size)
 {
@@ -37,8 +28,6 @@ char __cdecl IsOutsideStack(char* p, int size)
     return 0;
 }
 
-
-// The original calls this out of line from FormatSystemInfo.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d8df0
 int __cdecl GetStackLow(void)
@@ -48,7 +37,6 @@ int __cdecl GetStackLow(void)
 }
 #pragma auto_inline(on)
 
-// The original calls this out of line from FormatSystemInfo.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d8e20
 void* GetStackHigh()
@@ -58,21 +46,14 @@ void* GetStackHigh()
 }
 #pragma auto_inline(on)
 
-// Suspected original bugs: the `i % 3 == 3` test in the parameters loop can never
-// be true, so the per-three newline is dead code; CreateFileA's result is tested
-// against 0 rather than INVALID_HANDLE_VALUE, so a failed open passes the check;
-// and the lstrcpynA dump buffer at obj+0x2084 is copied with
-// room = 0x7358 - strlen(log) - 0x3e8 regardless of its own length.
-// The EAX register-dump format string really reads "EFLGS" in the exe.
-
 class StackTrace {
 public:
-    unsigned long ret[0x1e];           // +0x00
-    int count;                         // +0x78
-    int stack[0x800];                  // +0x7c
-    int copied;                        // +0x207c
-    unsigned long* pc;                 // +0x2080
-    char dump_text[0xa44c];            // +0x2084
+    unsigned long ret[0x1e];
+    int count;
+    int stack[0x800];
+    int copied;
+    unsigned long* pc;
+    char dump_text[0xa44c];
 
     void CaptureStack(int* frame, int* esp, int eip, int skip);
     void FormatStackReport();
@@ -86,8 +67,6 @@ void __cdecl NormalizeLineEndings(char* buf, int size);
 void __cdecl FormatSystemInfo(char* dst, int size);
 void UnloadImageHelp();
 
-// The game's structured-exception reporter: builds a text dump in a 0x7358-byte
-// stack buffer and appends it to ErrorLog.txt next to the executable.
 // FUNCTION: 0x4d8e60
 int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
 {
@@ -105,8 +84,6 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     obj.CaptureStack((int*)ctx->Ebp, (int*)ctx->Esp, ctx->Eip, 0);
     obj.FormatStackReport();
 
-    // Each sprintf site keeps its destination form (`d`, `L` or inline strlen): it sets push order.
-    // find the executable's directory and open the log there
     char* slash;
     if (0 == host_file_exe_path(path, 1000) || !(((slash = strrchr(path, '\\')) != 0) != 0)) { strcpy(path, "C:\\"); } else { slash[1] = 0; }
     strcat(path, "ErrorLog.txt");
@@ -116,7 +93,6 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     log[0] = 0;
     reason = GetExceptionName(rec->ExceptionCode);
 
-    // the "what crashed" header, written out early
     if (((0 < host_file_exe_path(exe, 1000)) != 0)) {
         base = strrchr(exe, '\\');
         base = base != 0 ? 1 + base : exe;
@@ -128,12 +104,9 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
         if (file) {
             WriteFile(file, log, strlen(log), &written, 0);
         }
-        // Stays inside this block.
         log[0] = 0;
     }
 
-    // the handler name, the module walk and the code/data address the fault
-    // happened at
     { size_t L = strlen(log); sprintf(log + L, "Exception handler called in %s. ", handlerName); }
     { char* d = log + strlen(log); FormatSystemInfo(d, 0x7358 - strlen(log)); }
     { char* d = log + strlen(log); sprintf(d, "Instruction pointer is %08lX\n", ctx->Eip); }
@@ -152,12 +125,10 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
         }
     }
 
-    // the exception record, then the general registers
     { size_t L = strlen(log); sprintf(log + L, "ExceptionFlags = %08lX\t", rec->ExceptionFlags); }
     { char* d = log + strlen(log); sprintf(d, "ExceptionAddress = %08lX\n", rec->ExceptionAddress); }
     if (rec->NumberParameters > 0) {
         { size_t L = strlen(log); sprintf(log + L, "Parameters = "); }
-        // Index ExceptionInformation[i] directly; `c` is its own local before `d`.
         for (unsigned int i = 0; i < rec->NumberParameters; i++) {
             char c = ((((int)i) == rec->NumberParameters - 1) || i % 3 == 3) ? '\n' : '\t';
             char* d = log + strlen(log);
@@ -179,7 +150,6 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     sprintf(d, "EDX=%08lX ES=%04lX EDI=%08lX GS=%08lX\n",
             ctx->Edx, ctx->SegEs, ctx->Edi, ctx->SegGs); }
 
-    // the 16 bytes of code at the faulting address
     { size_t L = strlen(log); sprintf(log + L, "\n"); }
     { size_t L = strlen(log); sprintf(L + log, "Bytes at CS:EIP:\n"); }
     unsigned char* code = *((unsigned char**)&ctx->Eip);
@@ -193,10 +163,8 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     }
     { size_t L = strlen(log); sprintf(L + log, "\n"); }
 
-    // the disassembler's own dump, the debug registers and the saved FPU state
     int room = 0x7358 - (int)strlen(log);
     room = room - 0x3e8;
-    // The whole tail of the dump stays inside this if.
     if (room > 0) {
         lstrcpynA(log + strlen(log), obj.dump_text, room);
         { size_t L = strlen(log); sprintf(log + L, "\n"); }
@@ -219,7 +187,6 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
         { size_t L = strlen(log); sprintf(log + L, "\n\n\n\n\n"); }
     }
 
-    // flush the buffer, close the log and exit the handler
     NormalizeLineEndings(log, 0x7358);
     if (0 != file) {
         WriteFile(file, log, strlen(log), &written, 0);
@@ -229,11 +196,6 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     return 0;
 }
 
-// Turns an exception status code into a printable name. A 24 entry table of
-// (code, name) pairs is built on the stack and scanned from the top; the first
-// pair whose code matches is returned, and anything else returns "Unknown
-// exception type". The codes are the Win32 exception status values from
-// windows.h, in ascending order.
 struct ExceptionName {
     unsigned long code;
     char* name;
@@ -281,7 +243,6 @@ void __cdecl WalkFrameChain(int* frame, int* stack, int eip, int skip,
                            void* this_, int flag, int* field_78, int* field_7c,
                            int size, int* field_207c);
 
-// The original calls this out of line from ReportException.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d9c60
 void StackTrace::CaptureStack(int* frame, int* esp, int eip, int skip)
@@ -291,15 +252,12 @@ void StackTrace::CaptureStack(int* frame, int* esp, int eip, int skip)
 }
 #pragma auto_inline(on)
 
-// Formats the saved call stack and stack dump into buf.
-
 // FUNCTION: 0x4d9ca0
 void StackTrace::FormatStackReport()
 {
     int m = copied;
     unsigned long* q0 = pc;
     int n = count;
-    // One len for both phases, not a second copy.
     unsigned int len = 0xa44c;
     char* p = dump_text;
     int i;
@@ -308,11 +266,9 @@ void StackTrace::FormatStackReport()
         sprintf(p, "Call stack:\n");
         len -= strlen(p);
         p += strlen(p);
-        // Both loops index the arrays; walking pointers changes the loop setup.
         for (i = 0; i < n; i++) {
             if (len <= 0x1e) break;
             sprintf(p, "%08lX", ret[i]);
-            // A named local set by this if/else, not a ternary: fixes the register split.
             const char* sep;
             if (i == n - 1) {
                 sep = "\n";
@@ -357,34 +313,33 @@ void __stdcall UnhandledExceptionHandler(int ep)
 
 class MappedFile {
 public:
-    HANDLE hFile;     // +0x0
-    HANDLE hMapping;  // +0x4
-    void* view;       // +0x8
-    int size;         // +0xc
-    int state;        // +0x10
+    HANDLE hFile;
+    HANDLE hMapping;
+    void* view;
+    int size;
+    int state;
 
     MappedFile(const char* fileName);
     void OpenMappedFile(const char* fileName);
     void CloseMappedFile();
 };
 
-// One FPO_DATA record (see 0x4de020).
 struct Fpo_004de020 {
-    unsigned int offStart;             // +0x0
-    unsigned int procSize;             // +0x4
-    unsigned int locals;               // +0x8
-    unsigned short params;             // +0xc
-    unsigned short flags;              // +0xe
+    unsigned int offStart;
+    unsigned int procSize;
+    unsigned int locals;
+    unsigned short params;
+    unsigned short flags;
 };
 
 class LoadedImage : public MappedFile {
 public:
-    HMODULE module;                        // +0x14
-    unsigned int imageBase;                // +0x18
-    IMAGE_DOS_HEADER* dosHeader;           // +0x1c
-    IMAGE_NT_HEADERS* ntHeaders;           // +0x20
-    IMAGE_DEBUG_DIRECTORY* debugDirs;      // +0x24
-    int numDebugDirs;                      // +0x28
+    HMODULE module;
+    unsigned int imageBase;
+    IMAGE_DOS_HEADER* dosHeader;
+    IMAGE_NT_HEADERS* ntHeaders;
+    IMAGE_DEBUG_DIRECTORY* debugDirs;
+    int numDebugDirs;
 
     LoadedImage(HMODULE m);
     ~LoadedImage();
@@ -393,8 +348,6 @@ public:
     Fpo_004de020* FindFpoRecord(unsigned int address);
 };
 
-// The loaded-image reader of the debug library; 0x4de0a0's function-local
-// static builds the one at 0x528a78 lazily.
 extern LoadedImage g_loadedImage;
 
 // FUNCTION: 0x4ddf00
@@ -411,21 +364,15 @@ LoadedImage::LoadedImage(HMODULE m) : MappedFile(0)
     OpenMappedFile(path);
     ntHeaders = (IMAGE_NT_HEADERS*)((char*)dosHeader + dosHeader->e_lfanew);
     numDebugDirs = ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size / sizeof(IMAGE_DEBUG_DIRECTORY);
-    // Count stored before debugDirs is cleared: ntHeaders is reloaded for the sum.
     debugDirs = 0;
     if (numDebugDirs)
     {
-        // base local and the second test pick the registers of the sum.
         char* base = (char*)imageBase;
         if (numDebugDirs)
             debugDirs = (IMAGE_DEBUG_DIRECTORY*)(base + ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress);
     }
 }
 
-// Returns the image's FPO records (debug directory type 3,
-// IMAGE_DEBUG_TYPE_FPO), or 0 if it has none.
-
-// The original calls this out of line from 0x4de020.
 #pragma auto_inline(off)
 // FUNCTION: 0x4ddfa0
 Fpo_004de020* LoadedImage::GetFpoRecords()
@@ -440,7 +387,6 @@ Fpo_004de020* LoadedImage::GetFpoRecords()
 }
 #pragma auto_inline(on)
 
-// The original calls this out of line from 0x4de020.
 #pragma auto_inline(off)
 // FUNCTION: 0x4ddfe0
 unsigned int LoadedImage::GetFpoRecordCount()
@@ -500,9 +446,6 @@ void __stdcall GetModuleBase(int arg1, int arg2)
     GetDebugLibInstance();
 }
 
-// The imagehlp entry points, resolved by LoadImageHelp (0x4de180): the
-// loader, the stack walker and the call-stack formatter each use a different
-// signature of the same pointer.
 typedef DWORD (__stdcall *SymSetOptions_004de180)(DWORD);
 typedef BOOL (__stdcall *SymInitialize_004de180)(HANDLE, char*, DWORD);
 typedef void (__stdcall *SymProc_004de180)(void);
@@ -521,7 +464,6 @@ extern SymProc_004de180 g_pfnSymGetSymFromAddr;
 extern SymProc_004de180 g_pfnSymGetLineFromAddr;
 extern SymProc_004de180 g_pfnUnDecorateSymbolName;
 
-// The original calls this out of line from 0x4de180.
 #pragma auto_inline(off)
 // FUNCTION: 0x4de110
 void UnloadImageHelp()
@@ -600,7 +542,6 @@ char __cdecl LoadImageHelp(char param)
             }
         }
     }
-    // The second SymInitialize passes this result as its last argument, not a literal.
     BOOL inited = g_pfnSymInitialize(getCurrentProcess(), searchPath, 1);
     if (!inited) {
         g_pfnSymFunctionTableAccess = (SymProc_004de180)FunctionTableAccess;
@@ -623,15 +564,6 @@ void ImageHlpAtexitHandler(void)
 {
 }
 
-
-
-
-
-
-
-// A chain of stack frames (each frame holds the next frame pointer and a
-// return address), walked without imagehlp when a stack symbol lookup is
-// unavailable.
 void __cdecl WalkStack(int param1, int param2, int param3, int param4,
                        int* param5, int param6, int* param7);
 
@@ -682,20 +614,20 @@ void __cdecl WalkFrameChain(int* frame, int* stack, int eip, int skip, int* out,
 struct Frame_004de700 {
     int addrPc;
     int unknown_04;
-    int flags0;                                // +0x08
+    int flags0;
     char unknown_0c[0x0c];
     int addrFrame;
     char unknown_1c[4];
-    int flags1;                                // +0x20
+    int flags1;
     int addrStack;
     char unknown_28[4];
-    int flags2;                                // +0x2c
+    int flags2;
     char unknown_30[0x68];
 };
 static_assert(sizeof(Frame_004de700) == 0x98, "StackWalk writes the 0x98-byte STACKFRAME");
 
-extern char g_stackProcessHandleRead;         // "process handle read" flag
-extern HANDLE g_stackProcessHandle;           // cached process handle
+extern char g_stackProcessHandleRead;
+extern HANDLE g_stackProcessHandle;
 
 // FUNCTION: 0x4de700
 void __cdecl WalkStack(int param1, int param2, int param3, int param4, int* param5, int param6, int* param7)
@@ -733,12 +665,6 @@ void __cdecl WalkStack(int param1, int param2, int param3, int param4, int* para
         }
     }
 }
-
-
-
-
-
-
 
 extern char* g_libraryDateStamp;
 int __cdecl GetStackLow(void);
@@ -804,7 +730,6 @@ void __cdecl FormatSystemInfo(char* dest, int destLen)
     }
 
     HANDLE hMod = GetModuleHandleA(NULL);
-    // NT header named and used twice: forces it into a register.
     IMAGE_NT_HEADERS* pNT = (IMAGE_NT_HEADERS*)((char*)hMod + ((IMAGE_DOS_HEADER*)hMod)->e_lfanew);
     gmTimeCopy = *gmtime((time_t*)&pNT->FileHeader.TimeDateStamp);
     p = buf + strlen(buf);
@@ -816,7 +741,6 @@ void __cdecl FormatSystemInfo(char* dest, int destLen)
 
     GetSystemInfo(&sysInfo);
     if (sysInfo.dwNumberOfProcessors > 1) {
-        // Then arm keeps the p temporary, else arm calls sprintf directly: not interchangeable.
         p = buf + strlen(buf);
     sprintf(p, "%d processors\n", sysInfo.dwNumberOfProcessors);
     } else {
@@ -896,11 +820,6 @@ void MappedFile::CloseMappedFile()
 }
 #pragma auto_inline(on)
 
-// Normalizes the line endings in `text` in place: counts the '\n's, moves the
-// string to the tail of the buffer, then rewrites it from the front converting
-// lone '\r' and lone '\n' into "\r\n" and collapsing existing "\r\n" pairs.
-// Needed: keeps the destination as `text + (size - len) - 1`.
-
 // FUNCTION: 0x4da3f0
 void __cdecl NormalizeLineEndings(char *text, int size)
 {
@@ -908,14 +827,12 @@ void __cdecl NormalizeLineEndings(char *text, int size)
     char *dst = text + (size - len) - 1;
     int room = dst - text;
 
-    // Index text[i]; a pointer copy is set up after the loop guard.
     for (int i = 0; text[i] != 0; i++)
         if (text[i] == '\n')
             room--;
     if (room <= 0)
         return;
 
-    // memmove, not memcpy: the callee is 0x4e84e0.
     memmove(dst, text, len + 1);
 
     while (*dst != '\0') {
