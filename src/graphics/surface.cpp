@@ -317,9 +317,7 @@ void __stdcall SetRestoreSurface(int surface)
 }
 
 // Locks the screen into a local surface, blits the bitmap at display+0x98
-// into it at (0, 0), then unlocks. Both objects at arg+4 and arg+8 are
-// COM-like interfaces; slot 27 (+0x6c) is tested first and its non-zero
-// result aborts the blit.
+// into it at (0, 0), then unlocks.
 // FUNCTION: 0x4c6210
 int __stdcall RestoreSurfaces(Arg_004c6210* arg)
 {
@@ -359,8 +357,7 @@ static inline int UnlockScreenInline()
 // flags at +0xf0 is set, check whether the primary surface at +0x88 reports
 // DDERR_SURFACELOST, restore the two surfaces at screen+0x8 and screen+0xc,
 // lock the screen with LockScreen, blit the object at +0x98 onto it with
-// BlitSurface, then unlock with the +0x80 method. The screen surface at +0x8c
-// is saved to +0xb4 and +0xdc is always cleared.
+// BlitSurface, then unlock with the +0x80 method. +0xdc is always cleared.
 // FUNCTION: 0x4c62c0
 void RestoreScreen(void)
 {

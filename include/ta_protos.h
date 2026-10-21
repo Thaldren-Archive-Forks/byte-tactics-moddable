@@ -1006,7 +1006,6 @@ struct Weapon_00499cd0;
 struct Weapon_499c70;
 struct Window_00478790;
 struct Window_00478b40;
-struct _DDSURFACEDESC;
 struct _EXCEPTION_POINTERS;
 struct _GUID;
 struct _RTL_CRITICAL_SECTION;
