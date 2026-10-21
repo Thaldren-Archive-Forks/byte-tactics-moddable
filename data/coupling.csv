@@ -595,12 +595,15 @@ game,platform,call,TdfRecord::GetFieldString,1
 game,platform,call,ToggleFullScreen,2
 game,platform,call,Translate,7
 game,platform,call,UpdateTimers,1
+game,platform,call,host_debug_break,1
 game,platform,call,host_dir_set_current,1
 game,platform,call,host_file_close,3
+game,platform,call,host_file_config_int,1
 game,platform,call,host_file_create,2
 game,platform,call,host_file_exe_path,3
 game,platform,call,host_file_open_append,1
 game,platform,call,host_file_write,1
+game,platform,call,host_instance_running,1
 game,platform,call,host_message,2
 game,platform,call,host_music_close,1
 game,platform,call,host_music_open,1
@@ -619,7 +622,7 @@ game,platform,call,operator delete,6
 game,platform,call,operator new,5
 game,platform,shared_write,Vec3::x,21
 game,platform,shared_write,Vec3::z,21
-game,platform,shared_write,_MEMORYSTATUS::dwLength,2
+game,platform,shared_write,_MEMORYSTATUS::dwLength,3
 game,players,indirect,FreePlayers,1
 game,players,indirect,InitPlayerResources,1
 game,players,indirect,InitPlayers,1
@@ -659,7 +662,6 @@ game,players,shared_write,Unit::flags,6
 game,players,shared_write,Unit::health,1
 game,players,shared_write,Vec3::x,3
 game,players,shared_write,Vec3::z,3
-game,players,shared_write,_MEMORYSTATUS::dwLength,1
 game,presentation,call,AccumulateProfileTime,1
 game,presentation,call,AllocSurface,5
 game,presentation,call,ApplyBrightnessAndVolume,1
@@ -1595,6 +1597,7 @@ network,platform,call,host_sleep_ms,3
 network,platform,call,host_thread_set_priority,2
 network,platform,call,host_thread_start,1
 network,platform,call,host_time_ms,2
+network,platform,call,host_user_name,2
 network,platform,call,operator delete,26
 network,platform,call,operator new,17
 network,platform,call,operator==,5
@@ -1676,6 +1679,7 @@ network,presentation,shared_write,Game::flags_2a44,4
 network,presentation,shared_write,Game::head,2
 network,presentation,shared_write,Game::netGameFlags,4
 network,presentation,shared_write,Game::numPlayers,4
+network,presentation,shared_write,Game::password,4
 network,presentation,shared_write,Game::tail,2
 network,presentation,shared_write,Player::active,43
 network,presentation,shared_write,Player::alliance,15
@@ -2221,7 +2225,6 @@ platform,players,shared_write,Point16::y,3
 platform,players,shared_write,Vec3::x,3
 platform,players,shared_write,Vec3::y,3
 platform,players,shared_write,Vec3::z,3
-platform,players,shared_write,_MEMORYSTATUS::dwLength,1
 platform,presentation,call,AllocAlphaTable,1
 platform,presentation,call,AllocBlueTable,1
 platform,presentation,call,AllocFrame,1
@@ -2424,7 +2427,6 @@ players,game,shared_write,Unit::flags,3
 players,game,shared_write,Unit::health,1
 players,game,shared_write,Vec3::x,2
 players,game,shared_write,Vec3::z,2
-players,game,shared_write,_MEMORYSTATUS::dwLength,1
 players,harness,shared_write,Game::localPlayer,1
 players,harness,shared_write,Game::playerIndex,1
 players,los_radar,indirect,ClampWorldPosToTerrain,1
@@ -2567,6 +2569,7 @@ players,platform,call,SettingSetInt,1
 players,platform,call,TdfRecord::GetFieldInt,1
 players,platform,call,TdfRecord::GetFieldString,1
 players,platform,call,Translate,2
+players,platform,call,host_memory_status,1
 players,platform,call,host_net_uninit,1
 players,platform,call,operator delete,3
 players,platform,call,operator new,5
@@ -2575,7 +2578,6 @@ players,platform,shared_write,Point16::y,11
 players,platform,shared_write,Vec3::x,21
 players,platform,shared_write,Vec3::y,9
 players,platform,shared_write,Vec3::z,21
-players,platform,shared_write,_MEMORYSTATUS::dwLength,2
 players,presentation,call,ClearSelectedGadget,1
 players,presentation,call,FocusCommander,1
 players,presentation,call,IsGadgetNamed,1
@@ -2955,6 +2957,7 @@ presentation,network,indirect,HandleTimeoutDialog,3
 presentation,network,shared_write,Game::head,5
 presentation,network,shared_write,Game::netGameFlags,12
 presentation,network,shared_write,Game::numPlayers,6
+presentation,network,shared_write,Game::password,3
 presentation,network,shared_write,Game::pauseFlags,1
 presentation,network,shared_write,Game::textLines,1
 presentation,network,shared_write,Game::uiOptionFlags,1
@@ -3036,7 +3039,7 @@ presentation,platform,call,FatalError,15
 presentation,platform,call,FilePrintf,1
 presentation,platform,call,GameAllocIgnoreTag,51
 presentation,platform,call,GameAllocShared,1
-presentation,platform,call,GameFreeThunk,84
+presentation,platform,call,GameFreeThunk,85
 presentation,platform,call,GameReallocIgnoreTag,1
 presentation,platform,call,GameReallocTagged,1
 presentation,platform,call,GetCurrentDriveLetter,2
@@ -3108,6 +3111,7 @@ presentation,platform,call,VectorFromToInt,1
 presentation,platform,call,WorldToCell,2
 presentation,platform,call,WriteBufferToFile,3
 presentation,platform,call,host_atomic_exchange,10
+presentation,platform,call,host_clipboard_text_get,1
 presentation,platform,call,host_cursor_get,5
 presentation,platform,call,host_cursor_set,1
 presentation,platform,call,host_display_close,1
@@ -3119,6 +3123,8 @@ presentation,platform,call,host_event_reset,2
 presentation,platform,call,host_event_set,5
 presentation,platform,call,host_event_wait,5
 presentation,platform,call,host_file_close,5
+presentation,platform,call,host_file_config_int,2
+presentation,platform,call,host_file_config_string,2
 presentation,platform,call,host_file_create,3
 presentation,platform,call,host_file_open_read,1
 presentation,platform,call,host_file_read,1
@@ -3196,6 +3202,7 @@ presentation,platform,call,host_sound_wav_stop,1
 presentation,platform,call,host_thread_set_priority,1
 presentation,platform,call,host_thread_start,2
 presentation,platform,call,host_time_ms,4
+presentation,platform,call,host_user_name,1
 presentation,platform,call,host_window_has_focus,2
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
