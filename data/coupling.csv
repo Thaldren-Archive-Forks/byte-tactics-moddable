@@ -598,7 +598,7 @@ game,platform,call,UpdateTimers,1
 game,platform,call,host_dir_set_current,1
 game,platform,call,host_file_close,3
 game,platform,call,host_file_create,2
-game,platform,call,host_file_exe_path,2
+game,platform,call,host_file_exe_path,3
 game,platform,call,host_file_open_append,1
 game,platform,call,host_file_write,1
 game,platform,call,host_message,2
@@ -1053,6 +1053,7 @@ harness,pathfinding,shared_write,Game::numPlayers,1
 harness,platform,call,GetMemSetValue,1
 harness,platform,call,IsMemSet,1
 harness,platform,call,host_exit,2
+harness,platform,call,host_file_exe_path,1
 harness,platform,call,host_log,3
 harness,platform,shared_write,g_quirks,1
 harness,players,call,HarnessConditionClass,1
@@ -1565,6 +1566,7 @@ network,platform,call,host_event_create,1
 network,platform,call,host_event_destroy,1
 network,platform,call,host_event_set,1
 network,platform,call,host_event_wait,1
+network,platform,call,host_file_exe_path,3
 network,platform,call,host_net_add_player,1
 network,platform,call,host_net_create_new_game,1
 network,platform,call,host_net_create_or_join_lobby_game,1
@@ -3117,6 +3119,9 @@ presentation,platform,call,host_file_open_read,1
 presentation,platform,call,host_file_read,1
 presentation,platform,call,host_file_seek,3
 presentation,platform,call,host_file_write,4
+presentation,platform,call,host_frame_context_get,5
+presentation,platform,call,host_frame_context_palette,3
+presentation,platform,call,host_frame_context_release,5
 presentation,platform,call,host_frame_fill,3
 presentation,platform,call,host_frame_is_lost,1
 presentation,platform,call,host_frame_lock,3
