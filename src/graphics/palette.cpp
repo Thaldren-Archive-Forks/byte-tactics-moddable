@@ -3,7 +3,6 @@
 // shade, light, gray and blue tables, the palette index lookups and the file
 // name helpers, in address order (the palette module of data/modules.csv).
 #include <windows.h>
-#include <ddraw.h>
 #include <string.h>
 #include "../../interfaces/host.h"
 
@@ -17,7 +16,7 @@ struct DisplayContext {
     HDC dc;                            // +0x48
     HPALETTE hpalette;                 // +0x4c
     char unknown_50[0x94 - 0x50];
-    LPDIRECTDRAWPALETTE ddPalette;     // +0x94
+    void* ddPalette;
     char unknown_98[0xc0 - 0x98];
     void* alphaTable;                  // +0xc0
     void* shadeTable;                  // +0xc4
@@ -145,9 +144,7 @@ int __stdcall SetPaletteColors(unsigned char* src, int start, int count)
         SetDIBColorTable(d->dc, 0, 0x100, (RGBQUAD*)quad);
         GameFreeThunk(lp);
     } else if (d->gdi) {
-        // Named HRESULT: gives the compare against the hoisted zero.
-        HRESULT hr = d->ddPalette->SetEntries(0, start, count, (LPPALETTEENTRY)(local + start * 4));
-        if (hr != 0) {
+        if (!host_palette_set(start, count, local + start * 4)) {
             Unlock(held);
             return 0;
         }
@@ -170,8 +167,7 @@ int __stdcall GetPaletteColors(unsigned char* dest, int first, int count)
             if (GetPaletteEntries(d->hpalette, 0, 0x100, pal) == 0)
                 return 0;
         } else {
-            HRESULT hr = d->ddPalette->GetEntries(0, 0, 0x100, pal);
-            if (hr != 0)
+            if (!host_palette_get((unsigned char*)pal))
                 return 0;
         }
     }

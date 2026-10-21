@@ -2608,7 +2608,7 @@ void SetCloseHandler(void (__cdecl *)(int), int);
 void ReleaseDirectDraw(Display_004b4ff0*);
 int CheckDirectXVersion(int, int, int, int, int);
 void InitDisplayDefaults(Class_004b52e0*);
-long EnumModesCallback(_DDSURFACEDESC*, void*);
+void EnumModesCallback(const struct host_display_mode*, void*);
 int GetDisplayModes(ModeList_004b5330*);
 int SetFullScreen(int);
 void ToggleFullScreen(void);

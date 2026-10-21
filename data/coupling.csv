@@ -2225,6 +2225,7 @@ platform,presentation,call,FreeGrayTable,1
 platform,presentation,call,FreeLightTable,1
 platform,presentation,call,FreeShadeTable,1
 platform,presentation,call,GetDisplay,12
+platform,presentation,call,GetEntries,1
 platform,presentation,call,HandleVirtualKey,1
 platform,presentation,call,InitGafSequence,1
 platform,presentation,call,InitKeyQueue,1
@@ -2235,7 +2236,7 @@ platform,presentation,call,LoadGaf,2
 platform,presentation,call,LoadPcx,1
 platform,presentation,call,LoadPcxPalette,1
 platform,presentation,call,LoadSoundFile,1
-platform,presentation,call,Lock,1
+platform,presentation,call,Lock,2
 platform,presentation,call,LockScreen,1
 platform,presentation,call,MirrorObject,1
 platform,presentation,call,OpenMessageBox,1
@@ -2248,7 +2249,7 @@ platform,presentation,call,StringRef::AssignText,1
 platform,presentation,call,StringRef::MakeLower,1
 platform,presentation,call,StringRef::ReleaseRef,3
 platform,presentation,call,StripExtension,2
-platform,presentation,call,Unlock,1
+platform,presentation,call,Unlock,2
 platform,presentation,call,UnlockScreen,1
 platform,presentation,indirect,CmdBPS,1
 platform,presentation,indirect,CmdSFX,1
@@ -3097,6 +3098,9 @@ presentation,platform,call,WriteBufferToFile,3
 presentation,platform,call,host_atomic_exchange,10
 presentation,platform,call,host_cursor_get,5
 presentation,platform,call,host_cursor_set,1
+presentation,platform,call,host_display_close,1
+presentation,platform,call,host_display_is_open,1
+presentation,platform,call,host_display_mode_set,1
 presentation,platform,call,host_event_create,2
 presentation,platform,call,host_event_next,1
 presentation,platform,call,host_event_reset,2
@@ -3108,6 +3112,14 @@ presentation,platform,call,host_file_open_read,1
 presentation,platform,call,host_file_read,1
 presentation,platform,call,host_file_seek,3
 presentation,platform,call,host_file_write,4
+presentation,platform,call,host_frame_fill,3
+presentation,platform,call,host_frame_is_lost,1
+presentation,platform,call,host_frame_lock,3
+presentation,platform,call,host_frame_pixel_format,1
+presentation,platform,call,host_frame_present,1
+presentation,platform,call,host_frame_restore,3
+presentation,platform,call,host_frame_text,1
+presentation,platform,call,host_frame_unlock,5
 presentation,platform,call,host_key_state,2
 presentation,platform,call,host_message,1
 presentation,platform,call,host_mixer_cd_device,1
@@ -3140,6 +3152,10 @@ presentation,platform,call,host_net_init_lobbied_connection,3
 presentation,platform,call,host_net_quit_game,1
 presentation,platform,call,host_net_release_play_interface,1
 presentation,platform,call,host_net_uninit,1
+presentation,platform,call,host_palette_apply,1
+presentation,platform,call,host_palette_create,1
+presentation,platform,call,host_palette_get,1
+presentation,platform,call,host_palette_set,3
 presentation,platform,call,host_post_quit,1
 presentation,platform,call,host_pump_events,2
 presentation,platform,call,host_sleep_ms,4
@@ -3161,7 +3177,7 @@ presentation,platform,call,host_sound_open,1
 presentation,platform,call,host_thread_set_priority,1
 presentation,platform,call,host_thread_start,2
 presentation,platform,call,host_time_ms,4
-presentation,platform,call,host_window_has_focus,1
+presentation,platform,call,host_window_has_focus,2
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
 presentation,platform,call,operator-,5
