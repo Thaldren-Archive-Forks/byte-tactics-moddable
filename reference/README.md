@@ -34,6 +34,10 @@ WINEARCH=win64 uv run tools/playtest.py --exe build/modern/TotalA.exe \
   --testmode reference/scenarios/skirmish2.txt     # under Wine, headless
 ```
 
+A `-testmode` run uses the game's headless host: it opens no window and no
+DirectDraw or DirectSound device, so it needs no X display and no sound device
+(`playtest.py --testmode` starts no Xvfb or audio sink and needs only `wine`).
+
 The FPU check ignores the infinity-control bit, which no x87 since the 80387
 uses, so both `0x9001F` and Wine's `0xD001F` pass.
 
