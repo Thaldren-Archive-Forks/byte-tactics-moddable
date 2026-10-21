@@ -5,7 +5,7 @@
 // copy of the record in the debug ring (the last 0x2000 freed blocks), drops
 // it from the live map, decommits the pages and gives the reserved range back
 // to the free-block set.
-#include <windows.h>
+#include "../../interfaces/host.h"
 #include <vector>
 #include "free_block_map.h"
 
@@ -76,7 +76,7 @@ public:
     {
         pointer _P;
         do {
-            _P = (pointer)GlobalAlloc(0, _N * sizeof(value_type));
+            _P = (pointer)host_mem_alloc(_N * sizeof(value_type));
             if (_P == 0 && g_outOfMemoryHandler != 0)
                 g_outOfMemoryHandler();
         } while (_P == 0 && g_outOfMemoryHandler != 0);
@@ -85,7 +85,7 @@ public:
     void deallocate(pointer _P, size_type)
     {
         if (_P != 0)
-            GlobalFree(_P);
+            host_mem_free(_P);
     }
     void construct(pointer _P, const value_type& _V)
     {
@@ -129,7 +129,7 @@ inline void FreeBlockMap::AddFreeBlock(Pair_004db000 p)
     InsertOrFind(p);
 }
 
-CRITICAL_SECTION* GetAllocLock();
+void* GetAllocLock();
 BlockMap* GetBlockMap();
 Arena_004da9f0* GetFreedBlockRing();
 FreeBlockMap* GetFreeBlockSet();
@@ -145,13 +145,13 @@ void __cdecl FreeDebugBlock(void* p, int flags)
 {
     if (p == 0)
         return;
-    CRITICAL_SECTION* lock = GetAllocLock();
-    EnterCriticalSection(lock);
+    void* lock = GetAllocLock();
+    host_mutex_lock(lock);
     BlockMap* live = GetBlockMap();
     BlockInfo rec((unsigned int)p, 0, 0, 0, 0);
     BlockMapIter it = live->Find(rec.base);
     if (it == GetBlockMap()->end()) {
-        LeaveCriticalSection(lock);
+        host_mutex_unlock(lock);
         return;
     }
     unsigned int size = it->size;
@@ -174,9 +174,9 @@ void __cdecl FreeDebugBlock(void* p, int flags)
     if (size == 0)
         size = 1;
     unsigned int commit = RoundUpToPage(size);
-    VirtualFree(p, commit, MEM_DECOMMIT);
+    host_mem_decommit(p, commit);
     unsigned int reserve = RoundUpToDoublePage(size);
     FreeBlockMap* blocks = GetFreeBlockSet();
     blocks->AddFreeBlock(Pair_004db000((unsigned int)p, reserve));
-    LeaveCriticalSection(lock);
+    host_mutex_unlock(lock);
 }

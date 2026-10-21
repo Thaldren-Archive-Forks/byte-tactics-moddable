@@ -3015,7 +3015,6 @@ int __cdecl SetOutOfMemoryHandler(int);
 int __cdecl ReportException(_EXCEPTION_POINTERS*, char*);
 char* __cdecl GetExceptionName(unsigned long);
 int SetDebugLibInstance(void*, unsigned long, void*);
-int GetDebugLibInstance(void);
 char* __cdecl FindCommandLineSwitch(char*);
 int GetDebugLibVersion(void);
 void AbortProgram(void);

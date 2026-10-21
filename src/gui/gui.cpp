@@ -1403,7 +1403,6 @@ void __cdecl CycleCurrentPlayerSide();
 void OpenSkirmishMapSelector();
 void __cdecl CycleCurrentPlayerAllyGroup();
 void OpenSkirmishMenu();
-void ShowStatsSummary();
 int GetBuildSiteMetal();
 
 // FUNCTION: 0x4a19f0

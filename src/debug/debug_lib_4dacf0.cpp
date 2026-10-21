@@ -4,7 +4,7 @@
 // takes `want` bytes of reserved address space from the free-block set (the
 // allocator's TakeFreeBlock, inlined here), commits `need` of it with
 // VirtualAlloc, pads the block and records it in the second set.
-#include <windows.h>
+#include "../../interfaces/host.h"
 #include <set>
 #include "free_block_map.h"
 
@@ -27,7 +27,7 @@ public:
 
 class BlockMap { public: MapInsertResult Insert(const BlockInfo& v); };
 
-CRITICAL_SECTION* GetAllocLock();
+void* GetAllocLock();
 unsigned int __cdecl RoundUpToDoublePage(unsigned int size);
 unsigned int __cdecl RoundUpToPage(unsigned int size);
 FreeBlockMap* GetFreeBlockSet();
@@ -96,8 +96,8 @@ inline unsigned int FreeBlockMap::TakeFreeBlock(unsigned int bytes)
 // FUNCTION: 0x4dacf0
 unsigned int __cdecl AllocDebugBlock(unsigned int n, unsigned int arg2)
 {
-    CRITICAL_SECTION* lock = GetAllocLock();
-    EnterCriticalSection(lock);
+    void* lock = GetAllocLock();
+    host_mutex_lock(lock);
     unsigned int size = n;
     unsigned int res = 0;
     if (size == 0)
@@ -105,19 +105,19 @@ unsigned int __cdecl AllocDebugBlock(unsigned int n, unsigned int arg2)
     unsigned int need = RoundUpToPage(size);
     unsigned int want = RoundUpToDoublePage(size);
     if (want < need) {
-        LeaveCriticalSection(lock);
+        host_mutex_unlock(lock);
         return 0;
     }
     unsigned int base = GetFreeBlockSet()->TakeFreeBlock(want);
     if (base != 0) {
-        res = (unsigned int)VirtualAlloc((void*)base, need, MEM_COMMIT, PAGE_READWRITE);
+        res = (unsigned int)host_mem_commit((void*)base, need);
         if (res == 0) {
             FreeBlockMap* pool = GetFreeBlockSet();
             pool->AddFreeBlock(Pair_004db000(base, want));
         }
     }
     if (res == 0) {
-        LeaveCriticalSection(lock);
+        host_mutex_unlock(lock);
         return 0;
     }
     unsigned int pad = (0 - (n & 0xfff)) & 0xfff;
@@ -134,6 +134,6 @@ unsigned int __cdecl AllocDebugBlock(unsigned int n, unsigned int arg2)
     g_committedBytes += (n + 0xfff) & 0xfffff000;
     if (g_committedBytes > g_committedBytesPeak)
         g_committedBytesPeak = g_committedBytes;
-    LeaveCriticalSection(lock);
+    host_mutex_unlock(lock);
     return res;
 }

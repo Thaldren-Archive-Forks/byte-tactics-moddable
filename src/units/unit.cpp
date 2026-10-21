@@ -11,7 +11,6 @@ char IsMemFussy();
 char IsGonzo();
 char IsMemSet();
 int GetMemSetValue();
-void SetMemFussyDefault(void);
 
 #include "unit_def.h"
 

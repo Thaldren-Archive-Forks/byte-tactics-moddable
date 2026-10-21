@@ -848,7 +848,6 @@ extern LONG g_gfxBlitLockHeld;
 extern LONG g_gfxBlitLockOwner;
 extern HANDLE g_gfxBlitLockEvent;
 
-void __cdecl ReportException(int ep, int handlerName);
 void __stdcall ReleaseDirectDraw(Game_004caec0* app);
 void UnlockAllScreens(void);
 
@@ -881,7 +880,7 @@ static inline void Unlock(LONG held)
 // FUNCTION: 0x4cbab0
 int __stdcall ExceptionFilter(int exception, int thread)
 {
-    ReportException(exception, thread);
+    host_crash_report((void*)exception, (const char*)thread);
     Game_004caec0* app = GetDisplay();
     if (app != 0) {
         LONG held = Lock();

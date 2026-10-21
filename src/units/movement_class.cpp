@@ -102,7 +102,6 @@ struct Struct_00440a70 {
 
 // Unused here: real functions declared to keep the symbol ids RefreshPassMap and
 // SetPassMapCell match in (docs/c2-regalloc.md).
-void SetMemFussyDefault(void);
 void AbortProgram(void);
 
 #include "../map/mission.h"
