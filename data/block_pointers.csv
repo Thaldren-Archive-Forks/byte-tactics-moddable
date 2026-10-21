@@ -80,11 +80,10 @@ holder,offsets,target,scenarios,ticks,target_offsets,class,note
 ??0Pathfinder@@QAE@XZ: AISearch touched mapentries,0x290+0x8*k 0x2bf 0x2d8+0x88*k 0x2e0+0x88*k 0x2e8+0x8c*k 0x2f0 0x350+0xe0*k 0x358+0xa0*k 0x35c+0x8*k 0x410+0x8*k 0x438+0x8*k 0x480+0x8*k 0x508 0x714 0xc30+0x8*k 0xc50 0xe6a,NanoParticles::Emit,2,25,0x20-0x1e0,not-a-pointer,Pathfinder touched map entries: cell indices
 ??0Pathfinder@@QAE@XZ: AISearch touched mapentries,0xed4,vector::insert #2,1,1,0x10,not-a-pointer,Pathfinder touched map entries: cell indices
 ??0Pathfinder@@QAE@XZ: AISearch touched mapentries,0xed4+0x8*k,vector::insert #3,1,1,0x10,not-a-pointer,Pathfinder touched map entries: cell indices
-??0Squad@@QAE@HH@Z: SQUADS,*,*,0,0,-,moves-in,"the 12 moves-in pair rows of ??0Squad@@QAE@HH@Z: SQUADS, which follow"
 ??0Squad@@QAE@HH@Z: SQUADS,*,*,0,0,-,not-a-pointer,words of ??0Squad@@QAE@HH@Z: SQUADS that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,0x92,AllocDepthFrame: CompositeBuffer,1,1562,0x9ffe0,not-a-pointer,Squad words that only look like addresses
 ??0Squad@@QAE@HH@Z: SQUADS,0x52+0x4*k,CMemoryCache::InitCache: CMemoryCache CCH,1,301,0x6ffe0-0xb0333,not-a-pointer,Squad words that only look like addresses
-??0Squad@@QAE@HH@Z: SQUADS,0x12+0x4*k 0x72+0x4*k 0x96 0x9a 0xb2+0x4*k,HAPI_LoadFile,4,10801,0x1da-0x100267,moves-in,"Squad.items vector (first 0x14, last 0x18, end 0x1c; stride 0x20): the buffer is sim state; target names change with the heap layout (its offsets fall under rows of more than one class: moves-in, not-a-pointer; classed moves-in because some offset is a pointer field)"
+??0Squad@@QAE@HH@Z: SQUADS,0x12+0x4*k 0x72+0x4*k 0x96 0x9a 0xb2+0x4*k,HAPI_LoadFile,4,10801,0x1da-0x100267,not-a-pointer,"Squad (stride 0x20): every offset is 2 mod 4, a misaligned word across two in-block items pointers"
 ??0SquadManager@@QAE@PAUPlayer@@@Z,*,*,0,0,-,not-a-pointer,SquadManager timer state: tick counters and cell words
 ??0SquadManager@@QAE@PAUPlayer@@@Z,0xa,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,1,30,0x30f-0x314,not-a-pointer,SquadManager timer state: tick counters and cell words
 ??0SquadManager@@QAE@PAUPlayer@@@Z,0xa,AllocDepthFrame: CompositeBuffer,1,30,0x20297-0x2029a,not-a-pointer,SquadManager timer state: tick counters and cell words
@@ -721,7 +720,6 @@ CreatePathfinder,0x9 0x11 0x2d+0x2*k 0x39+0x25*k 0x77+0x4*k 0x8f+0x4*k 0xaa+0x8*
 CreatePathfinder,0x6 0xa 0x12 0x32+0x2*k 0x87+0x18*k 0xa3+0x8*k,NanoParticles::Emit,5,433,0x8a-0x1e0,not-a-pointer,"Pathfinder search arrays: costs, cell indices and stamps"
 CreatePathfinder,0x2e,Sound::CreateSampleFromFile: Digital Audio Sample,1,180,0x2,not-a-pointer,"Pathfinder search arrays: costs, cell indices and stamps"
 CreatePathfinder,0x30,_Tree::_Insert,1,180,0x14,not-a-pointer,"Pathfinder search arrays: costs, cell indices and stamps"
-CreatePlayerAI,*,*,0,0,-,moves-in,"the 11 moves-in pair rows of CreatePlayerAI, which follow"
 CreatePlayerAI,*,*,0,0,-,not-a-pointer,words of CreatePlayerAI that only look like addresses
 CreatePlayerAI,0x34+0x1*k 0x3c 0x3d 0xeb,??4?$vector@UElem_00476490@@V?$allocator@UElem_00476490@@@std@@@std@@QAEAAV01@ABV01@@Z,4,240,0x10-0x798,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x35 0x3d,AllocAlphaTable: ALPHA TABLE,5,510,0x2c4-0xbcb8,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
@@ -756,11 +754,11 @@ CreatePlayerAI,0x3d,LoadTntMap: SORT UNIT LIST,1,30,0xe58,not-a-pointer,"PlayerA
 CreatePlayerAI,0x34+0x4*k 0x35 0x3d,LoadTntMap: TILE MAP,7,1471,0x8b0-0x2c500,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x33+0x1*k 0x3a+0x1*k 0x6a 0x6e 0xeb 0xee 0xf0 0x107,LoadTntMap: TILE SET,25,53791,0x2a7-0xa45aa0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x3d,LoadUnitTypes,1,30,0x4,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
-CreatePlayerAI,0x34+0x1*k 0x3c 0x3d,NanoParticles::Emit,4,261,0x18-0x1e0,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,0x34+0x1*k 0x3c 0x3d,NanoParticles::Emit,4,261,0x18-0x1e0,not-a-pointer,"PlayerAI.centre (0x35, a Vec3) and the bytes before it: coordinates and misaligned words, not pointers"
 CreatePlayerAI,0x3d,Sound::CreateSampleFromFile: Digital Audio Sample,1,150,0x4,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x35,_Tree::_Insert,1,30,0xc,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
 CreatePlayerAI,0x35 0x3d,allocator::deallocate,3,120,0x110-0x2d0,not-a-pointer,"PlayerAI words (indices, ticks, counters) that only look like addresses"
-CreatePlayerAI,0x35,vector::insert #2,1,30,0x6c,moves-in,"PlayerAI vectors (visible, known, factories, cells, counts, weights, ...): first, last and end pointers"
+CreatePlayerAI,0x35,vector::insert #2,1,30,0x6c,not-a-pointer,"PlayerAI.centre (0x35, a Vec3) and the bytes before it: coordinates and misaligned words, not pointers"
 CreatePlayerObjectState: Object State,*,*,0,0,-,not-a-pointer,words of CreatePlayerObjectState: Object State that only look like addresses
 CreatePlayerObjectState: Object State,*,*,0,0,-,outside,"the 2 outside pair rows of CreatePlayerObjectState: Object State, which follow"
 CreatePlayerObjectState: Object State,0x75 0x253 0x289 0x32b,??0SpeechQueue@@QAE@HH@Z,3,4,0x50,not-a-pointer,"Object State words other than bitmap (0x10), shadow (0x14), root (0x1e) and the piece links (object, points, sibling, child, parent of the 0x36 byte pieces from 0x22): sizes, flags, counters and transforms that only look like addresses"
