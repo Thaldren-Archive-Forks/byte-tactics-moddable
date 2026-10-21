@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,8 +56,9 @@ void OutOfBlock()
 
 void Reserve()
 {
-    // TODO(#172): reserve the block through the host interface
-    void* p = VirtualAlloc(0, kSimBlockBytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    void* p = host_mem_reserve(kSimBlockBytes);
+    if (p != 0)
+        p = host_mem_commit(p, kSimBlockBytes);
     if (p == 0)
         OutOfBlock();
     g_base = (char*)p;
@@ -371,7 +371,7 @@ void __cdecl SimBlockReset()
     for (unsigned int i = 0; i < g_trackedCount; i++)
         *g_tracked[i] = 0;
     if (g_base != 0)
-        VirtualFree(g_base, 0, MEM_RELEASE);
+        host_mem_release(g_base);
     g_base = 0;
 }
 

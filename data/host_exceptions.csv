@@ -107,7 +107,6 @@ src/gui/listbox.cpp,src/graphics/gaf_frame.h,#22
 src/gui/listbox.cpp,src/graphics/rect.h,#22
 src/gui/mouse.cpp,interfaces/host.h,#22
 src/gui/mouse.cpp,src/graphics/gaf_frame.h,#22
-src/harness/block_scan.cpp,windows.h,#304
 src/ingame/control_panel.cpp,interfaces/host.h,#22
 src/ingame/control_panel.cpp,src/gui/gadget.h,#22
 src/ingame/control_panel.cpp,src/gui/gui.h,#22
@@ -156,7 +155,6 @@ src/sound/cd_audio.cpp,src/sound/sound.h,#22
 src/sound/play_sound.cpp,interfaces/host.h,#22
 src/sound/samples.cpp,interfaces/host.h,#22
 src/sound/samples.cpp,src/sound/sound.h,#22
-src/state/block.cpp,windows.h,#304
 src/units/unit.cpp,src/sound/sound.h,#22
 src/units/unit_motion.cpp,src/graphics/gaf_frame.h,#22
 src/units/unit_motion.cpp,src/graphics/memory_cache.h,#22
@@ -175,4 +173,3 @@ src/util/sqsh.cpp,interfaces/host.h,#25
 src/weapons/explosions.cpp,src/graphics/memory_cache.h,#22
 src/weapons/explosions_420d20.cpp,src/graphics/gaf_frame.h,#22
 src/weapons/weapons.cpp,src/sound/sound.h,#22
-tests/block_test.cpp,windows.h,#304

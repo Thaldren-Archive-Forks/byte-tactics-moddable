@@ -209,7 +209,7 @@ add_custom_command(
   VERBATIM COMMAND_EXPAND_LISTS)
 add_custom_target(TotalA ALL DEPENDS "${CMAKE_BINARY_DIR}/TotalA.exe")
 
-add_library(block_test_objects OBJECT src/state/block.cpp src/host/win32/threads.cpp tests/block_test.cpp)
+add_library(block_test_objects OBJECT src/state/block.cpp src/host/win32/memory.cpp src/host/win32/threads.cpp tests/block_test.cpp)
 target_include_directories(block_test_objects SYSTEM PRIVATE "${MSVC5_INCLUDE}")
 target_compile_options(block_test_objects PRIVATE ${GAME_COMPILE_OPTIONS})
 add_custom_command(

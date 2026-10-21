@@ -90,6 +90,10 @@ int HOST_CALL host_mem_protect(void* addr, unsigned int size, int access);
 void* HOST_CALL host_mem_alloc(unsigned int size);
 // Frees a block that host_mem_alloc returned.
 void HOST_CALL host_mem_free(void* block);
+// Returns 1 when the size bytes at addr can be read, else 0.
+int HOST_CALL host_mem_readable(const void* addr, unsigned int size);
+// Writes the base and byte size of the running program's image and returns 1, or returns 0 when it cannot be found.
+int HOST_CALL host_image_range(const void** base, unsigned int* size);
 
 // Returns the command line the program was started with.
 const char* HOST_CALL host_command_line(void);
