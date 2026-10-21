@@ -135,7 +135,7 @@ data/globals.csv with the same name, or with the address of a `DAT_<8 hex digits
 `std::_Tree::_Nil` only that way). A target that joins nothing is a static row. The
 globals no target joins have no evidence and an empty proposal unless their type or name
 says platform; `--unjoined` lists them. They are the `unreferenced` rows, the GUID
-constants of src/data/guids.cpp, some float and string constants of src/data/unused.cpp, and
+constants of src/host/win32/guids.cpp, some float and string constants of src/data/unused.cpp, and
 tables the source declares `extern` inside a function (g_unitOrders, g_groundOrders), which
 rwsets.py takes for a local, or uses only in inline assembly (g_sinTable, g_cosTable).
 

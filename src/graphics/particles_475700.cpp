@@ -5,7 +5,7 @@
 // (the family is listed in particles.cpp): the same shape as SmokeParticles,
 // without the fog culling.
 // Needed: without <windows.h> slot 2 subtracts the scroll y before the half height.
-#include <windows.h>
+#include "win_types.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <vector>

@@ -1,7 +1,7 @@
 #include "../../interfaces/seams.h"
 // Decompiled by GPT-6 Astra. Names are provisional.
 // Stays in its own file: in unit_orders.cpp the first state's cell lookup loads g_game before the index, and the nano box corners need a member operator+ view of Vec3.
-#include <windows.h>
+#include "win_types.h"
 #include <math.h>
 #include "../util/vec3.h"
 

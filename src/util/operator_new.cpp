@@ -10,8 +10,9 @@ void __cdecl GameFreeIndirectThunk(void* p);
 // Cavedog replaced the global operator new and delete, scalar and array,
 // with wrappers around the game's own allocator.
 // FUNCTION: 0x4b4f10
-void* __cdecl operator new(size_t size)
+__declspec(noinline) void* __cdecl operator new(size_t size)
 {
+    AllocSite site(_ReturnAddress(), 0);
     return GameAllocThunk(size);
 }
 
@@ -26,8 +27,9 @@ void __cdecl operator delete(void* p)
 }
 
 // FUNCTION: 0x4b4f30 ??_U@YAPAXI@Z
-void* __cdecl operator new[](size_t size)
+__declspec(noinline) void* __cdecl operator new[](size_t size)
 {
+    AllocSite site(_ReturnAddress(), 0);
     return GameAllocThunk(size);
 }
 

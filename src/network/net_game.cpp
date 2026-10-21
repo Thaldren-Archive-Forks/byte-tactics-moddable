@@ -17,6 +17,7 @@
 // for its loop's base/index order, but in this file's declaration context it
 // matches without it. It arrives with the module's second part, whose files
 // included it.
+#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

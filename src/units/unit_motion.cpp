@@ -2,8 +2,9 @@
 // The memory cache: an arena of chunks {owner handle, size} that hands out
 // bitmaps, and the object pictures built in it.
 // Needed for AllocHandle's operand orders.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
+#include "../state/block.h"
 
 void __cdecl GameFreeThunk(int* param_1);
 void* __cdecl GameAllocIgnoreTag(char* name, unsigned int size);
@@ -115,6 +116,21 @@ int CMemoryCache::InitCache(unsigned int newSize)
         base = 0;
     }
     Chunk_00437a30* chunk = (Chunk_00437a30*)GameAllocIgnoreTag("CMemoryCache CCH", newSize);
+    base = (int)chunk;
+    cap = newSize;
+    cur = chunk;
+    chunk->owner = 0;
+    cur->size = cap;
+    return 1;
+}
+
+int CMemoryCache::InitSimCache(unsigned int newSize)
+{
+    if (base != 0) {
+        GameFreeThunk((int*)base);
+        base = 0;
+    }
+    Chunk_00437a30* chunk = (Chunk_00437a30*)SimAllocTagged("CMemoryCache CCH", newSize);
     base = (int)chunk;
     cap = newSize;
     cur = chunk;

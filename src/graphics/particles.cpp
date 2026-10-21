@@ -21,7 +21,7 @@
 // draw pick other registers (SIB base, fog pointer, temporaries) in this
 // file's symbol context. 0x4750f0 returns bool where 0x475600 tests the
 // result as an int.
-#include <windows.h>
+#include "win_types.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>

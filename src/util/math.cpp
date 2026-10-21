@@ -3,7 +3,7 @@
 // (it needs /Gi) and the fixed-point trigonometry in math_4b70a0.cpp (a gap
 // region's hand-written assembly, which the build places apart).
 
-#include <windows.h>
+#include "win_types.h"
 #include <stdlib.h>
 #include <math.h>
 #include "../../interfaces/host.h"

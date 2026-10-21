@@ -402,6 +402,43 @@ works with `--quick`, `--steps-per-frame` and `--parallel`, and not with `--pois
 
 The full `--check` is what a pull request's gate needs.
 
+## Block pointers
+
+`-blockscan` (`--blockscan` for playtest.py, with `-testmode`) makes the game list the pointers out of the shared
+state block. At the end of a scanned tick, after the last phase, it walks every live allocation of the block and
+the `SimGlobals` struct, reads a 4-byte word at every byte offset (the packed structs keep pointers at odd
+offsets, such as `Unit.state` at 0x9e), and keeps the ones that point into a live heap allocation outside the
+block. `-blockscan` scans every tick; `-blockscan=N` (playtest.py `--blockscan-every N`) scans the ticks
+divisible by N and every tick of the last 64. When the run ends it writes `blockptrs.txt` beside `trace.txt`:
+tab-separated, a header (`bt-blockptrs 2`, `commit`, `every`, `ticks`, the ticks scanned) and one row per distinct (holder site, holder tag, offset,
+target site, target tag) with the holder (`SimGlobals` or the allocation site, a return address in the exe),
+the offset in the holder, the target site, the ticks it was seen in and the smallest and largest offset it
+pointed at in the target. The scan does not change the traces.
+
+`reference.py --check` always runs with the scan on, every 8th tick and every tick of the last 64 (`-blockscan=8`),
+resolves the sites with the linker map beside the exe
+(`build/modern/TotalA.map`) and compares every row with `data/block_pointers.csv`, after printing the trace
+results. A word whose holder the file has no wildcard row for (see below), or a scenario with no `blockptrs.txt`,
+is printed (scenario, holder, offset, target) and `--check` exits 1. `--quick` does not check the pointers.
+`--save-blockptrs <dir>` writes each scenario's file to `<dir>/<scenario>.txt`, and
+`uv run tools/blockpointers.py --from <dir>` regenerates the data file from them, keeping the hand-set `class` and
+`note` columns; without `--from` it plays the suite itself with the scan on every tick, which is how the list
+should be made (a `--from` of sampled files warns). The every-tick run is slow (its timeout allows 6 ticks a
+second), retries a scenario once on any failure, and with `--save-scans DIR` saves the scans that finished even when
+another scenario failed; it then lists the failures, exits 1 and leaves the data file alone. `--scenario NAME...`
+(with `--save-scans`) plays only those, so a failed one can be re-run and the saved scans merged with `--from DIR`.
+`tools/blockpointers.py --check` (CI) checks the file.
+
+Addresses outside the block differ from run to run, so the (holder, offsets, target) rows can never be complete: they
+are the record that later issues use, and an every-tick regeneration produces them. The gate matches by holder. Each
+holder has a wildcard row with `*` as its `offsets` and as its `target` for every class among its pair rows, and one
+for `not-a-pointer` (its words that only look like addresses). A word in a holder with a wildcard row is covered,
+whatever its offset and target; a heap address in any other holder fails the gate. Wildcard rows have `0` scenarios,
+`0` ticks and `-` target_offsets, a class and a note; regeneration keeps them as written. They are keyed by
+(holder, class), the pair rows by (holder, target), and they sort by holder, then wildcard rows first, by class.
+`blockpointers.py --check` fails on a holder with pair rows that lacks one of them. A holder the scans have not met
+yet is added by hand as a `*`/`*` row, with its class and a note.
+
 ## Zero fill and poison mode
 
 Game memory comes from `GameAlloc` (and `operator new`, which calls it), which is plain

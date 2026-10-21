@@ -2,7 +2,7 @@
 // The software mouse cursor: the hide/show refcount blits, the mouse-event
 // ring ("MOUSE EVENTS"), the saved-background surfaces ("SAVEMOUSE 1" to 3),
 // the cursor blit thread and the two spin locks it takes.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 #include "../../interfaces/host.h"
 

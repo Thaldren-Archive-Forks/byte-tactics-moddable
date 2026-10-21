@@ -6,7 +6,7 @@
 // size, checksum and encryption helpers around them (0x4d0ab0 to 0x4d1c60).
 // The module's files gathered in address order; the tree is the flat 0x1001
 // node array of the classic LZSS source, with node 0x1000 as its root.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -2,7 +2,7 @@
 // Explosions: the CalcedExplosion frames built at start-up, the 300-entry
 // debris table and the 100-slot pool of exploded pieces, all reached through
 // g_game.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 // <minmax.h> and <setjmp.h> are here for their symbols only (docs/c2-regalloc.md).
 #include <minmax.h>
@@ -306,7 +306,7 @@ void InitExplosions()
             (*(Face (*)[300][6])&g_game->frames)[i][j].nverts = 4;
             (*(Face (*)[300][6])&g_game->frames)[i][j].vindex = g_faceVertexIndices[j];
         }
-    g_debrisMemCache.InitCache(100000);
+    g_debrisMemCache.InitSimCache(100000);
     memset(g_explodedPieces, 0, sizeof(g_explodedPieces));
 }
 

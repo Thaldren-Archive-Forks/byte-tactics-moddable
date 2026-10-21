@@ -1,7 +1,8 @@
 // Decompiled by deepseek-v4.1-flash, finished by space-bunny-free, finished by GPT-6, finished by deepseek-v4.1-flash. Names are provisional.
 // Stays in its own file: in line_of_sight.cpp it needs many more symbol ids
 // before it than the module provides.
-#include <windows.h>
+#include <string.h>
+#include "win_types.h"
 
 #pragma pack(push, 1)
 

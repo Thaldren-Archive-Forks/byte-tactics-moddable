@@ -6,7 +6,7 @@
 #include <memory.h>
 #include "../state/block.h"
 #include "../state/block.h"
-#include <windows.h>
+#include "win_types.h"
 #include "../util/vec3.h"
 static inline Vec3 PosMinus(const Vec3& a, const Vec3& v) { Vec3 r; r.x=a.x-v.x; r.y=a.y-v.y; r.z=a.z-v.z; return r; }
 static inline Vec3 PosPlus(const Vec3& a, const Vec3& other)

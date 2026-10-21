@@ -19,7 +19,8 @@ reference/README.md) and passes when it exits with status 0 within
 audio sink, screenshots or dialog checks, and only wine needs to be installed. The trace the exe writes (trace.txt, and dump.txt
 with `--testdump <tick>`) is copied to the run's directory. Every `--testmode` run passes the game's
 own `-memset=0` switch, which makes GameAlloc (and so operator new) zero new memory. `--poison` passes
-`-memset=0xcdcdcdcd` instead, which fills it with 0xCD.
+`-memset=0xcdcdcdcd` instead, which fills it with 0xCD. `--blockscan` adds `-blockscan` (every tick) and copies
+blockptrs.txt too; `--blockscan-every N` adds `-blockscan=N`.
 
 Each run has its own (except that a `--testmode` run has no X server or audio sink):
 
@@ -394,7 +395,7 @@ class Instance:
         self.base.mkdir(parents=True, exist_ok=True)
         link_prefix(template, self.prefix)
         copy_game(game_src, self.game)
-        for stale in ("trace.txt", "dump.txt"):
+        for stale in ("trace.txt", "dump.txt", "blockptrs.txt"):
             (self.game / stale).unlink(missing_ok=True)
         shutil.copy2(self.run.exes[min(self.index, len(self.run.exes)) - 1], self.game / "TotalA.exe")
         if self.run.testmode:
@@ -468,6 +469,8 @@ class Instance:
             args += ["-testdump", str(self.run.testdump)]
         if self.run.testmode:
             args += [POISON_SWITCH if self.run.poison else ZERO_FILL_SWITCH]
+        if self.run.testmode and self.run.blockscan:
+            args += ["-blockscan" if self.run.blockscan == 1 else f"-blockscan={self.run.blockscan}"]
         self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
                                      stdout=(self.run.out / f"wine{self.suffix}.log").open("w"),
                                      stderr=subprocess.STDOUT)
@@ -666,7 +669,7 @@ class Instance:
     def collect_traces(self) -> None:
         if not self.run.testmode:
             return
-        for name in ("trace.txt", "dump.txt"):
+        for name in ("trace.txt", "dump.txt", "blockptrs.txt"):
             if (self.game / name).is_file():
                 shutil.copyfile(self.game / name, self.run.out / name)
                 self.run.notes.append(f"{name}: {self.run.out / name}")
@@ -851,7 +854,7 @@ class GotoLabel(Exception):
 class Run:
     def __init__(self, number: int, name: str, scenario: Scenario, exes: list[Path], exe_tag: str, session: Path,
                  screens: dict[str, Screen], debug: str, window: bool = False, testmode: Path | None = None,
-                 testdump: int | None = None, poison: bool = False):
+                 testdump: int | None = None, poison: bool = False, blockscan: int = 0):
         self.number = number
         self.name = name
         self.scenario = scenario
@@ -865,6 +868,7 @@ class Run:
         self.testmode = testmode     # a reference/ scenario file to run the exe on
         self.testdump = testdump     # the tick to dump the state of, with testmode
         self.poison = poison
+        self.blockscan = blockscan
         self.instances = [Instance(self, i + 1) for i in range(scenario.instances)]
         self.t0 = time.time()
         self.log = None
@@ -1339,6 +1343,10 @@ def main() -> None:
                     help="--testmode: also run with -testdump TICK, which writes dump.txt")
     ap.add_argument("--poison", action="store_true",
                     help="--testmode: fill new game allocations with 0xCD (the game's -memset switch)")
+    ap.add_argument("--blockscan", action="store_true",
+                    help="--testmode: run with -blockscan, which writes blockptrs.txt (the pointers out of the block)")
+    ap.add_argument("--blockscan-every", type=int, metavar="N", default=0,
+                    help="--testmode: --blockscan on every Nth tick and each tick of the last 64 (-blockscan=N)")
     ap.add_argument("--list", action="store_true", help="list the scenarios")
     ap.add_argument("--signature", nargs="+", metavar="NAME GEOMETRY IMAGE",
                     help="print a screens.txt line for an area of screenshots of one screen")
@@ -1371,6 +1379,11 @@ def main() -> None:
         ap.error("--window cannot be used with --testmode (a test-mode run has no window)")
     if args.testdump is not None and not args.testmode:
         ap.error("--testdump needs --testmode")
+    if (args.blockscan or args.blockscan_every) and not args.testmode:
+        ap.error("--blockscan and --blockscan-every need --testmode")
+    if args.blockscan_every < 0:
+        ap.error("--blockscan-every needs 1 or more")
+    scan_every = args.blockscan_every or int(args.blockscan)
     if args.poison and not args.testmode:
         ap.error("--poison needs --testmode")
     if args.testdump is not None and args.testdump < 0:
@@ -1423,7 +1436,7 @@ def main() -> None:
                                 args.debug, args.window,
                                 Path(args.testmode).resolve() if sc is testmode else None,
                                 args.testdump if sc is testmode else None,
-                                args.poison and sc is testmode))
+                                args.poison and sc is testmode, scan_every if sc is testmode else 0))
     parallel = args.parallel or min(3, len(runs))
     template = template_prefix()
     dplay = directplay_prefix() if any(sc.directplay for sc in scenarios) else None

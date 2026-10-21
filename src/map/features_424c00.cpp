@@ -4,9 +4,7 @@
 // 0x424890.
 // These headers set g_game's symbol id: the 3D loop's `c` must be numbered
 // past 65536, the Animating loop's `c` and `s` below it.
-#include <windows.h>
-#include <shlobj.h>
-#include <imagehlp.h>
+#include "win_types.h"
 #include "ta_types.h"
 #include <string.h>
 

@@ -11,10 +11,7 @@
 // file 0x40c600, 0x40cca0, 0x40d020 and 0x40d290 fall out of their windows
 // (docs/c2-regalloc.md). Splitting just those four out does not help, because
 // the emissions this file still holds are their context.
-#include <windows.h>
-#include <shlobj.h>
-#include <imagehlp.h>
-#include <d3d.h>
+#include "win_types.h"
 #include <memory.h>
 #include <math.h>
 // Unused here: the symbol ids these declarations take keep the allocation

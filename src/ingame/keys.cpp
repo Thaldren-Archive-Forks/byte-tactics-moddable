@@ -10,7 +10,7 @@
 // bitfield views 0x495e90 uses.
 //
 // Needed by 0x495a30: its frame layout depends on this header.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

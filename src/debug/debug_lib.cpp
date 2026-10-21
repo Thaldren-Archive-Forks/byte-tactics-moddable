@@ -210,9 +210,10 @@ void __cdecl AllocNotifyNop(int)
 void* __cdecl GameAlloc(unsigned int size);
 
 // FUNCTION: 0x4d83b0
-void __cdecl GameAllocIgnoreTag(unsigned int name, unsigned int size)
+void* __cdecl GameAllocIgnoreTag(const char* name, unsigned int size)
 {
-    GameAlloc(size);
+    AllocSite site(_ReturnAddress(), name);
+    return GameAlloc(size);
 }
 
 class CritSec_004da780;
@@ -227,6 +228,7 @@ extern void (*g_outOfMemoryHandler)();
 // FUNCTION: 0x4d83c0
 void* __cdecl GameAlloc(unsigned int size)
 {
+    AllocSite site(_ReturnAddress(), 0);
     CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
     EnterCriticalSection(cs);
     void* p;
@@ -245,21 +247,25 @@ void* __cdecl GameAlloc(unsigned int size)
         if (IsMemSet())
             FillPattern(p, GetMemSetValue(), size);
     }
+    if (p != 0 && g_allocHooks != 0)
+        g_allocHooks->added(p, size);
     LeaveCriticalSection(cs);
     return p;
 }
 #pragma auto_inline(on)
 
 // FUNCTION: 0x4d8450
-void __cdecl GameAllocShared(unsigned int size)
+void* __cdecl GameAllocShared(unsigned int size)
 {
-    GameAlloc(size);
+    AllocSite site(_ReturnAddress(), 0);
+    return GameAlloc(size);
 }
 
 // calloc-style allocation: count * size bytes from GameAlloc, zeroed.
 // FUNCTION: 0x4d8460
 void* __cdecl GameCalloc(unsigned int count, unsigned int size)
 {
+    AllocSite site(_ReturnAddress(), 0);
     unsigned int total = size * count;
     void* p = GameAlloc(total);
     if (p != 0) {
@@ -273,9 +279,10 @@ void* __cdecl GameRealloc(void* block, unsigned int size);
 // The original calls this out of line from GameReallocIgnoreTag.
 #pragma auto_inline(off)
 // FUNCTION: 0x4d84a0
-void __cdecl GameReallocTagged(void* block, int unused_param_2, unsigned int size)
+void* __cdecl GameReallocTagged(void* block, int unused_param_2, unsigned int size)
 {
-    GameRealloc(block, size);
+    AllocSite site(_ReturnAddress(), 0);
+    return GameRealloc(block, size);
 }
 #pragma auto_inline(on)
 
@@ -288,6 +295,7 @@ int HarnessTestMode();
 // FUNCTION: 0x4d84c0
 void* __cdecl GameRealloc(void* block, unsigned int size)
 {
+    AllocSite site(_ReturnAddress(), 0);
     if (SimOwns(block))
         return SimRealloc(block, size);
     CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
@@ -317,15 +325,22 @@ void* __cdecl GameRealloc(void* block, unsigned int size)
     } while (p == 0 && size != 0 && g_outOfMemoryHandler != 0);
     if (HarnessTestMode() && p != 0 && IsMemSet() && size > grownFrom)
         FillPattern((char*)p + grownFrom, GetMemSetValue(), size - grownFrom);
+    if (g_allocHooks != 0 && (p != 0 || size == 0)) {
+        if (block != 0)
+            g_allocHooks->removed(block);
+        if (p != 0)
+            g_allocHooks->added(p, size);
+    }
     LeaveCriticalSection(cs);
     return p;
 }
 #pragma auto_inline(on)
 
 // FUNCTION: 0x4d8580
-void __cdecl GameReallocIgnoreTag(int* block, int size)
+void* __cdecl GameReallocIgnoreTag(int* block, int size)
 {
-    GameReallocTagged(block, 0, size);
+    AllocSite site(_ReturnAddress(), 0);
+    return GameReallocTagged(block, 0, size);
 }
 
 void __cdecl GameFree(void* p);
@@ -355,6 +370,8 @@ void __cdecl GameFree(void* p)
     if (p) {
         CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
         EnterCriticalSection(cs);
+        if (g_allocHooks != 0)
+            g_allocHooks->removed(p);
         if (IsMemFussy()) {
             FreeDebugBlock(p, 0);
         } else {
@@ -372,6 +389,7 @@ char* __cdecl GameStrdup(char* s)
 {
     if (!s)
         return 0;
+    AllocSite site(_ReturnAddress(), 0);
     char* p = (char*)GameAlloc(strlen(s) + 1);
     if (p)
         strcpy(p, s);
@@ -379,9 +397,10 @@ char* __cdecl GameStrdup(char* s)
 }
 
 // FUNCTION: 0x4d8660
-void __cdecl GameAllocThunk(unsigned int size)
+void* __cdecl GameAllocThunk(unsigned int size)
 {
-    GameAlloc(size);
+    AllocSite site(_ReturnAddress(), 0);
+    return GameAlloc(size);
 }
 
 // FUNCTION: 0x4d8670

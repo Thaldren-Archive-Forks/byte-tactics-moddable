@@ -6,7 +6,7 @@
 // free pad when damaged (VTOL_LANDING, as in 0x412710), or takes the next
 // queued order.
 // Kept: the flags/health block's register allocation depends on this include.
-#include <windows.h>
+#include "win_types.h"
 #include <vector>
 
 #include "../util/vec3.h"

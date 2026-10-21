@@ -3,7 +3,7 @@
 // loop walks from the wrong field (particles.cpp).
 // SmokeParticles (vtable 0x4fd618, 0x38 bytes), derived from ParticleSystem
 // (the family is listed in particles.cpp): smoke that drifts with the wind.
-#include <windows.h>   // only for its symbol ids
+#include "win_types.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <vector>

@@ -88,7 +88,7 @@ extern Game_0049a120* g_game;
 // (lean windows.h, vector): the symbol ids they give cell, feature and g_game
 // decide the spot and feature address arithmetic.
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "win_types.h"
 #include <vector>
 
 // What one explosion has already hit, so nothing takes damage twice.

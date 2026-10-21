@@ -4,7 +4,7 @@
 
 // Both includes stay: they decide whether width or height is loaded first in
 // each multiply.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 
 #pragma pack(push, 1)

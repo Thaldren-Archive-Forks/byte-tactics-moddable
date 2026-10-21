@@ -3,7 +3,7 @@
 // 0x4e38e0 opened (\\.\GDPERF, see the caller at 0x4e36c0). Two device families
 // are handled, selected by g_cpuFamily, which holds the CPU family nibble:
 // 5 gets a two-call sequence, 6 a single call.
-#include <windows.h>
+#include "win_types.h"
 
 extern bool __cdecl ReadGdperf(DWORD a, void* out);
 extern bool __cdecl WriteGdperf(DWORD a, __int64 b);

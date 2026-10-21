@@ -355,7 +355,7 @@ int HOST_CALL host_dir_next(void* dir, struct host_dir_entry* entry);
 void HOST_CALL host_dir_close(void* dir);
 // Writes the path of the game's executable, a full path with its file name, into buf of size bytes and returns its length, or 0 on failure.
 unsigned int HOST_CALL host_file_exe_path(char* buf, unsigned int size);
-// Writes the full path of name (relative to the current directory or absolute) into buf of size bytes and returns its length, or 0 on failure.
+// Writes the full path of name (relative to the current directory or absolute) into buf of size bytes and returns its length, or 0 on failure; when buf is too small it returns the size needed, which is larger than size.
 unsigned int HOST_CALL host_file_full_path(const char* name, char* buf, unsigned int size);
 // Makes path the current directory, against which relative paths resolve, and returns 1, or 0 on failure.
 int HOST_CALL host_dir_set_current(const char* path);

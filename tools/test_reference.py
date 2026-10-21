@@ -87,7 +87,7 @@ class CheckQuirksTest(unittest.TestCase):
             quirk_rows = [(1, "units", "1" * 16), (2, "units", "2" * 16), (2, "players", "9" * 16)]
             off_rows = [(1, "units", "1" * 16), (2, "units", "2" * 16), (2, "players", "3" * 16)]
 
-            def fake_play_all(exe, scenarios, game_dir, parallel, expected, poison, failed, keep_always=False):
+            def fake_play_all(exe, scenarios, game_dir, parallel, expected, poison, failed, keep_always=False, scans=None, scan_every=1):
                 if keep_always:
                     reruns.extend(scenarios)
                     self.rerun_texts = {name: path.read_text() for name, path in scenarios.items()}
@@ -177,6 +177,44 @@ class CheckQuirksTest(unittest.TestCase):
                     contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as cm:
                 reference.main()
             self.assertEqual(cm.exception.code, 2)
+
+
+class ScanRunTest(unittest.TestCase):
+    def run_scenario(self, scans, scan_every, retry_any, errors):
+        timeouts = []
+
+        def fake_play(exe, scenario, game_dir, want, timeout, poison, every):
+            timeouts.append(timeout)
+            if errors:
+                raise reference.tracediff.Error(errors.pop(0))
+            raise StopIteration
+
+        with mock.patch.object(reference, "scenario_ticks", lambda s: 600), \
+                mock.patch.object(reference.tracediff, "play", fake_play), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            try:
+                reference.play_scenario(Path("x.exe"), Path("s.txt"), None, scans=scans, scan_every=scan_every,
+                                        retry_any=retry_any)
+            except (StopIteration, reference.tracediff.Error) as e:
+                return timeouts, e, out.getvalue()
+        return timeouts, None, out.getvalue()
+
+    def test_every_tick_scan_gets_the_longer_timeout(self):
+        t = reference.RUN_SECONDS_BASE
+        self.assertEqual(self.run_scenario({}, 1, False, [])[0], [t + 600 / reference.RUN_TICKS_PER_SECOND_SCAN_EVERY_TICK])
+        self.assertEqual(self.run_scenario({}, 8, False, [])[0], [t + 600 / reference.RUN_TICKS_PER_SECOND])
+        self.assertEqual(self.run_scenario(None, 1, False, [])[0], [t + 600 / reference.RUN_TICKS_PER_SECOND])
+
+    def test_retry_any_retries_a_game_fault_once(self):
+        fault = "scenario: playtest.py: dialog-r6025 pure virtual"
+        timeouts, err, out = self.run_scenario({}, 1, True, [fault, fault])
+        self.assertEqual(len(timeouts), 2)
+        self.assertIsInstance(err, reference.tracediff.Error)
+        self.assertIn("trying again", out)
+
+    def test_without_retry_any_a_game_fault_fails_at_once(self):
+        timeouts, _, _ = self.run_scenario({}, 1, False, ["x: dialog-r6025 pure virtual"])
+        self.assertEqual(len(timeouts), 1)
 
 
 class ReferenceEnvTest(unittest.TestCase):

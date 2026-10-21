@@ -7,7 +7,7 @@
 // The sort's five out-of-line instantiations (0x43c720, 0x43c940, 0x43c990,
 // 0x43ca70, 0x43cb20) are the inline helpers the two registration functions
 // (0x43bc90 and 0x43c050) use, so they are defined here.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

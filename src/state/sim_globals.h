@@ -3,7 +3,7 @@
 
 #pragma pack(push, 8)
 
-#include <windows.h>
+#include "win_types.h"
 #include <stddef.h>
 #include <memory>
 #include "block.h"
