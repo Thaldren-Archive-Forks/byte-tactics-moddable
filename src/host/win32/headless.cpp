@@ -77,13 +77,29 @@ DWORD g_quitThread;
 PostRing g_posted;
 CRITICAL_SECTION g_postLock;
 
-bool InitPostLock()
+LONG g_postLockClaims;
+LONG g_postLockReady;
+
+void LockPosts()
 {
-    InitializeCriticalSection(&g_postLock);
-    return true;
+    if (!*(volatile LONG*)&g_postLockReady) {
+        if (InterlockedIncrement(&g_postLockClaims) == 1) {
+            InitializeCriticalSection(&g_postLock);
+            InterlockedIncrement(&g_postLockReady);
+        } else {
+            while (!*(volatile LONG*)&g_postLockReady) {
+                Sleep(0);
+            }
+        }
+    }
+    EnterCriticalSection(&g_postLock);
 }
 
-const bool g_postLockReady = InitPostLock();
+void UnlockPosts()
+{
+    LeaveCriticalSection(&g_postLock);
+}
+
 EventRing g_events;
 int g_cursorX = kScreenWidth / 2;
 int g_cursorY = kScreenHeight / 2;
@@ -244,14 +260,14 @@ void HeadlessWindowPost(unsigned int type)
     if (!g_windowOpen) {
         return;
     }
-    EnterCriticalSection(&g_postLock);
+    LockPosts();
     if (g_posted.count == kQueueSize) {
         g_posted.head = (g_posted.head + 1) % kQueueSize;
         g_posted.count--;
     }
     g_posted.items[(g_posted.head + g_posted.count) % kQueueSize] = type;
     g_posted.count++;
-    LeaveCriticalSection(&g_postLock);
+    UnlockPosts();
 }
 
 int HeadlessPumpEvents(int wait)
@@ -260,23 +276,23 @@ int HeadlessPumpEvents(int wait)
     bool onWindowThread = self == g_windowThread;
     bool quitHere = g_quitPending && g_quitThread == self;
     if (wait) {
-        EnterCriticalSection(&g_postLock);
+        LockPosts();
         bool empty = g_posted.count == 0;
-        LeaveCriticalSection(&g_postLock);
+        UnlockPosts();
         if (empty && !g_quitPending) {
             host_sleep_ms(1);
         }
     }
     while (onWindowThread) {
-        EnterCriticalSection(&g_postLock);
+        LockPosts();
         if (g_posted.count == 0) {
-            LeaveCriticalSection(&g_postLock);
+            UnlockPosts();
             break;
         }
         unsigned int type = g_posted.items[g_posted.head];
         g_posted.head = (g_posted.head + 1) % kQueueSize;
         g_posted.count--;
-        LeaveCriticalSection(&g_postLock);
+        UnlockPosts();
         if (type == 0x12) {
             return 0;
         }
