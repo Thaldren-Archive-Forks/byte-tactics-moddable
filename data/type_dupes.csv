@@ -53,14 +53,14 @@ Cell,no,13,include/ta_types.h:2539|src/ingame/info_panel_46a610.cpp:48|src/map/c
 CellPos_0049a120,no,2,src/weapons/weapons.cpp:573|src/weapons/weapons_49a120.cpp:20,identical,src/weapons/weapons.cpp
 Cell_004b0230,no,2,include/ta_types.h:13173|src/gui/listbox.cpp:16,identical,include/ta_types.h
 Channel_004b0c40,no,2,include/ta_types.h:13316|src/units/cob.cpp:19,same-layout,include/ta_types.h
-Chunk,no,3,include/ta_types.h:5265|src/graphics/surface.cpp:892|src/state/block.cpp:29,differs,include/ta_types.h
+Chunk,no,3,include/ta_types.h:5265|src/graphics/surface.cpp:892|src/state/block.cpp:28,differs,include/ta_types.h
 Chunk_4d1820,no,2,include/ta_types.h:16463|src/util/sqsh.cpp:565,identical,include/ta_types.h
 ClaimFootprintVisitor,no,3,include/ta_types.h:10021|src/map/terrain.cpp:134|src/map/terrain_47d0e0.cpp:48,same-layout,include/ta_types.h
 Class_0043db50,no,3,include/ta_types.h:5639|src/orders/order_list.cpp:804|src/units/sfx_occupy.h:6,differs,src/units/sfx_occupy.h
 Class_00440500,no,2,include/ta_types.h:5797|src/units/movement_class.cpp:67,differs,include/ta_types.h
-Class_0044e6c0,no,6,include/ta_types.h:3210|src/orders/vtol_orders.cpp:172|src/orders/vtol_orders_4103e0.cpp:54|src/orders/vtol_orders_410e70.cpp:20|src/orders/vtol_orders_412710.cpp:24|src/orders/vtol_orders_414380.cpp:26,differs,include/ta_types.h
-Class_0044e720,no,3,include/ta_types.h:3270|src/orders/vtol_orders.cpp:174|src/orders/vtol_orders_414380.cpp:25,differs,include/ta_types.h
-Class_0044e730,no,6,include/ta_types.h:3221|src/orders/vtol_orders.cpp:173|src/orders/vtol_orders_4103e0.cpp:53|src/orders/vtol_orders_410e70.cpp:21|src/orders/vtol_orders_412710.cpp:25|src/orders/vtol_orders_414380.cpp:24,differs,include/ta_types.h
+Class_0044e6c0,no,6,include/ta_types.h:3210|src/orders/vtol_orders.cpp:171|src/orders/vtol_orders_4103e0.cpp:54|src/orders/vtol_orders_410e70.cpp:20|src/orders/vtol_orders_412710.cpp:24|src/orders/vtol_orders_414380.cpp:26,differs,include/ta_types.h
+Class_0044e720,no,3,include/ta_types.h:3270|src/orders/vtol_orders.cpp:173|src/orders/vtol_orders_414380.cpp:25,differs,include/ta_types.h
+Class_0044e730,no,6,include/ta_types.h:3221|src/orders/vtol_orders.cpp:172|src/orders/vtol_orders_4103e0.cpp:53|src/orders/vtol_orders_410e70.cpp:21|src/orders/vtol_orders_412710.cpp:25|src/orders/vtol_orders_414380.cpp:24,differs,include/ta_types.h
 Class_00451fd0,no,2,include/ta_types.h:6804|src/network/net_game.cpp:906,differs,include/ta_types.h
 Class_0046eba0,no,2,include/ta_types.h:8321|src/network/unit_sync.cpp:657,differs,include/ta_types.h
 Class_00470250,no,2,include/ta_types.h:8871|src/network/unit_sync.cpp:1428,differs,include/ta_types.h
@@ -106,7 +106,7 @@ Dword_0051f410,no,2,include/ta_types.h:12268|src/game/main.cpp:131,differs,src/g
 ElemArray_4a4930,no,2,include/ta_types.h:12500|src/gui/gui.cpp:3551,identical,include/ta_types.h
 Elem_00401000,no,2,include/ta_types.h:2127|src/game/economy.cpp:61,same-layout,include/ta_types.h
 Elem_0042a140,no,2,include/ta_types.h:4560|src/game/data_files.cpp:469,same-layout,include/ta_types.h
-Elem_00432be0,no,3,include/ta_types.h:4874|src/map/los_tables.cpp:35|src/units/unit_types_42a8d0.cpp:34,same-layout,include/ta_types.h
+Elem_00432be0,no,3,include/ta_types.h:4874|src/map/los_tables.cpp:35|src/units/unit_types_42a8d0.cpp:33,same-layout,include/ta_types.h
 Elem_004336c0,no,2,include/ta_types.h:5003|src/map/los_tables.cpp:96,identical,include/ta_types.h
 Elem_00434020,no,6,include/ta_types.h:4917|src/map/los_tables.cpp:54|src/map/los_tables_433130.cpp:8|src/map/los_tables_433270.cpp:14|src/map/los_tables_433a80.cpp:11|src/map/los_tables_434360.cpp:10,identical,include/ta_types.h
 Elem_00434360,no,6,include/ta_types.h:4926|src/map/los_tables.cpp:59|src/map/los_tables_433130.cpp:13|src/map/los_tables_433270.cpp:24|src/map/los_tables_433a80.cpp:31|src/map/los_tables_434360.cpp:15,differs,include/ta_types.h
@@ -149,7 +149,7 @@ FindData_00495930,no,2,include/ta_types.h:11858|src/ingame/keys.cpp:49,same-layo
 FindData_004cb170,no,2,include/ta_types.h:16179|src/graphics/pcx.cpp:377,same-layout,include/ta_types.h
 Fix_004736e0,no,2,include/ta_types.h:9380|src/graphics/particles.cpp:85,differs,src/graphics/particles.cpp
 Fix_00473d50,no,2,include/ta_types.h:9408|src/graphics/particles_473d50.cpp:46,differs,src/graphics/particles_473d50.cpp
-Fixed,no,19,include/ta_types.h:2523|src/graphics/model_render.cpp:46|src/graphics/model_render_4589c0.cpp:6|src/ingame/markers.cpp:11|src/map/features.cpp:62|src/map/terrain.cpp:94|src/orders/unit_orders.cpp:898|src/orders/unit_orders_403a20.cpp:28|src/orders/vtol_orders.cpp:79|src/orders/vtol_orders_40fbe0.cpp:28|src/orders/vtol_orders_4103e0.cpp:56|src/orders/vtol_orders_410850.cpp:40|src/orders/vtol_orders_412d40.cpp:25|src/orders/vtol_orders_414380.cpp:54|src/orders/vtol_orders_4152f0.cpp:41|src/units/unit_position.cpp:14|src/units/unit_types.cpp:22|src/weapons/explosions.cpp:30|src/weapons/weapons.cpp:21,differs,src/map/terrain.cpp
+Fixed,no,19,include/ta_types.h:2523|src/graphics/model_render.cpp:46|src/graphics/model_render_4589c0.cpp:6|src/ingame/markers.cpp:11|src/map/features.cpp:62|src/map/terrain.cpp:94|src/orders/unit_orders.cpp:898|src/orders/unit_orders_403a20.cpp:28|src/orders/vtol_orders.cpp:78|src/orders/vtol_orders_40fbe0.cpp:28|src/orders/vtol_orders_4103e0.cpp:56|src/orders/vtol_orders_410850.cpp:39|src/orders/vtol_orders_412d40.cpp:25|src/orders/vtol_orders_414380.cpp:54|src/orders/vtol_orders_4152f0.cpp:41|src/units/unit_position.cpp:14|src/units/unit_types.cpp:22|src/weapons/explosions.cpp:30|src/weapons/weapons.cpp:21,differs,src/map/terrain.cpp
 FixedParts_00407ae0,no,2,include/ta_types.h:17849|src/ai/ai_player.cpp:793,differs,include/ta_types.h
 FixedParts_004853b0,no,2,include/ta_types.h:10609|src/units/units_485010.cpp:135,differs,include/ta_types.h
 FixedVec3,no,2,src/weapons/weapons.cpp:567|src/weapons/weapons_49a120.cpp:14,identical,src/weapons/weapons.cpp
@@ -190,12 +190,12 @@ GafEntry_004b8d40,no,2,include/ta_types.h:13986|src/graphics/gaf.cpp:744,differs
 GameState_4a4930,no,2,include/ta_types.h:12505|src/gui/gui.cpp:3556,same-layout,include/ta_types.h
 Game_004bfe10,no,2,include/ta_types.h:14392|src/graphics/draw.cpp:81,differs,include/ta_types.h
 Game_004caec0,no,2,include/ta_types.h:16160|src/graphics/pcx.cpp:246,differs,src/graphics/pcx.cpp
-GroundAllyVisitor,no,3,src/orders/vtol_orders.cpp:178|src/orders/vtol_orders_410850.cpp:59|src/orders/vtol_orders_410c70.cpp:17,differs,src/orders/vtol_orders.cpp
+GroundAllyVisitor,no,3,src/orders/vtol_orders.cpp:177|src/orders/vtol_orders_410850.cpp:58|src/orders/vtol_orders_410c70.cpp:17,differs,src/orders/vtol_orders.cpp
 Gui_00453a50,no,2,include/ta_types.h:6851|src/network/net_game.cpp:938,differs,include/ta_types.h
 Gun_0049c9c0,no,2,include/ta_types.h:12031|src/weapons/weapons.cpp:52,identical,include/ta_types.h
 Handle,no,2,include/ta_types.h:4001|src/graphics/handle.h:13,differs,src/graphics/handle.h
 HandlerSlot_004b7900,no,2,include/ta_types.h:13879|src/util/commands.cpp:325,differs,include/ta_types.h
-HapiBank,no,3,include/ta_types.h:2149|src/units/unit_types_42a8d0.cpp:57|src/util/hapi_bank.h:13,differs,src/util/hapi_bank.h
+HapiBank,no,3,include/ta_types.h:2149|src/units/unit_types_42a8d0.cpp:56|src/util/hapi_bank.h:13,differs,src/util/hapi_bank.h
 HapiBuf,no,2,include/ta_types.h:14305|src/util/hpi.cpp:1210,identical,include/ta_types.h
 Hapi_004bd160,no,2,include/ta_types.h:14310|src/util/hpi.cpp:1216,identical,include/ta_types.h
 Header,no,3,src/frontend/endgame.cpp:130|src/frontend/skirmish_menu.cpp:284|src/util/hpi.cpp:40,differs,src/frontend/endgame.cpp
@@ -265,7 +265,7 @@ ModeList_004b5330,no,2,include/ta_types.h:5994|src/graphics/display.cpp:143,diff
 Mode_00446310,no,2,include/ta_types.h:5986|src/frontend/multi.cpp:602,differs,include/ta_types.h
 Model_0042a140,no,2,include/ta_types.h:4568|src/game/data_files.cpp:477,same-layout,include/ta_types.h
 Movement,no,2,include/ta_types.h:3599|src/game/console_commands.cpp:44,same-layout,include/ta_types.h
-Mover,no,2,include/ta_types.h:3259|src/orders/vtol_orders.cpp:128,differs,include/ta_types.h
+Mover,no,2,include/ta_types.h:3259|src/orders/vtol_orders.cpp:127,differs,include/ta_types.h
 MoviePlayer,no,3,include/ta_types.h:9832|src/frontend/frontend.cpp:32|src/graphics/movies.cpp:150,differs,src/graphics/movies.cpp
 Msg20_00456310,no,2,include/ta_types.h:6965|src/network/net_game.cpp:2570,differs,include/ta_types.h
 Msg26_00456310,no,2,include/ta_types.h:6970|src/network/net_game.cpp:2565,identical,include/ta_types.h
@@ -333,7 +333,7 @@ Options,no,2,src/frontend/endgame.cpp:164|src/game/settings.cpp:21,differs,src/g
 OrderType,no,3,src/ingame/info_panel.cpp:198|src/ingame/selection_48cf30.cpp:24|src/orders/order_queue_4384a0.cpp:282,differs,src/ingame/selection_48cf30.cpp
 OrderTypeEntry,no,2,include/ta_types.h:11136|src/ingame/selection_48cf30.cpp:15,same-layout,include/ta_types.h
 Outs_t,no,2,include/ta_types.h:10844|src/units/unit_commands.cpp:48,differs,src/units/unit_commands.cpp
-Owner,no,7,include/ta_types.h:17902|src/ai/ai_player_40b530.cpp:13|src/orders/unit_orders_406300.cpp:17|src/orders/vtol_orders_40fbe0.cpp:17|src/orders/vtol_orders_4103e0.cpp:25|src/orders/vtol_orders_410850.cpp:24|src/orders/vtol_orders_410c70.cpp:14,differs,include/ta_types.h
+Owner,no,7,include/ta_types.h:17902|src/ai/ai_player_40b530.cpp:13|src/orders/unit_orders_406300.cpp:17|src/orders/vtol_orders_40fbe0.cpp:17|src/orders/vtol_orders_4103e0.cpp:25|src/orders/vtol_orders_410850.cpp:23|src/orders/vtol_orders_410c70.cpp:14,differs,include/ta_types.h
 OwnershipTransferPacket,no,3,include/ta_types.h:10848|src/network/net_game_453d40.cpp:119|src/units/unit_commands.cpp:345,differs,include/ta_types.h
 PCX_004caa40,no,2,include/ta_types.h:16127|src/graphics/pcx.cpp:9,identical,include/ta_types.h
 PacketSequencer,no,4,include/ta_types.h:8314|src/network/unit_sync.cpp:666|src/network/unit_sync_46cc10.cpp:17|src/network/unit_sync_46dad0.cpp:92,differs,src/network/unit_sync.cpp
@@ -396,7 +396,7 @@ Record_004ab2b0,no,2,include/ta_types.h:12665|src/gui/dialogs.cpp:70,same-layout
 Record_004ab3a0,no,2,include/ta_types.h:12672|src/gui/dialogs.cpp:101,same-layout,include/ta_types.h
 Record_005129b4,no,2,include/ta_types.h:6022|src/frontend/multi_44c420.cpp:23,differs,include/ta_types.h
 Rect,no,2,include/ta_types.h:3606|src/graphics/rect.h:8,same-layout,src/graphics/rect.h
-RepairableUnitVisitor,no,2,src/orders/vtol_orders.cpp:189|src/orders/vtol_orders_4152f0.cpp:28,same-layout,src/orders/vtol_orders.cpp
+RepairableUnitVisitor,no,2,src/orders/vtol_orders.cpp:188|src/orders/vtol_orders_4152f0.cpp:28,same-layout,src/orders/vtol_orders.cpp
 ResourceSharePacket,no,2,src/network/net_game.cpp:2580|src/network/net_game_453d40.cpp:128,identical,src/network/net_game.cpp
 Resources,no,2,include/ta_types.h:8207|src/ingame/info_panel_468cf0.cpp:97,identical,include/ta_types.h
 RgbQuad,no,2,include/ta_types.h:16239|src/graphics/pcx.cpp:722,identical,include/ta_types.h
@@ -530,7 +530,7 @@ Visitor_0047e750,no,2,include/ta_types.h:10073|src/map/terrain.cpp:139,same-layo
 WakeParticle,no,3,include/ta_types.h:9294|src/graphics/particles.cpp:297|src/graphics/particles_472630.cpp:297,differs,include/ta_types.h
 WakeParticles,no,2,include/ta_types.h:9122|src/graphics/particles.cpp:396,differs,include/ta_types.h
 WaveFormat,no,2,include/ta_types.h:16408|src/sound/samples.cpp:91,identical,include/ta_types.h
-Weapon,no,4,include/ta_types.h:2614|src/ingame/markers.cpp:51|src/map/features.cpp:320|src/orders/vtol_orders.cpp:119,differs,include/ta_types.h
+Weapon,no,4,include/ta_types.h:2614|src/ingame/markers.cpp:51|src/map/features.cpp:320|src/orders/vtol_orders.cpp:118,differs,include/ta_types.h
 WeaponFirePacket,no,2,include/ta_types.h:11954|src/weapons/weapons.cpp:234,differs,include/ta_types.h
 Word_0051f522,no,2,include/ta_types.h:12272|src/game/main.cpp:115,differs,src/game/main.cpp
 Wrap_00433270,no,2,include/ta_types.h:4943|src/map/los_tables_433270.cpp:20,identical,include/ta_types.h
