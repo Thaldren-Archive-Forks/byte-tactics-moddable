@@ -4,6 +4,7 @@
 // name helpers, in address order (the palette module of data/modules.csv).
 #include <string.h>
 #include "../../interfaces/host.h"
+#include "win_types.h"
 
 #pragma pack(push, 1)
 struct DisplayContext {
@@ -34,13 +35,6 @@ struct DisplayContext {
     int paletteBrightness;             // +0x614, read as a float by SetPaletteColors
 };
 #pragma pack(pop)
-
-struct tagPALETTEENTRY {
-    unsigned char peRed;
-    unsigned char peGreen;
-    unsigned char peBlue;
-    unsigned char peFlags;
-};
 
 // A palette entry's four bytes, as the table builders and GetPaletteColors
 // walk them.

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../../interfaces/host.h"
+#include "win_types.h"
 
 #include "rect.h"
 
@@ -64,13 +65,6 @@ struct DirectDrawState {
     void *palette;
     void *activeSurface;         // +0x98
     int haveBackBuffer;          // +0x9c
-};
-
-struct tagPALETTEENTRY {
-    unsigned char peRed;
-    unsigned char peGreen;
-    unsigned char peBlue;
-    unsigned char peFlags;
 };
 
 // The display context at g_display. Packed to 2: the mode struct and the two

@@ -5,6 +5,7 @@
 // order.
 #include <string.h>
 #include "../../interfaces/host.h"
+#include "win_types.h"
 
 #include "surface.h"
 #include "gaf_frame.h"
@@ -46,13 +47,6 @@ struct LockEntry {
     char flag;                         // +0x4
 };
 #pragma pack(pop)
-
-struct tagRECT {
-    long left;
-    long top;
-    long right;
-    long bottom;
-};
 
 extern int g_screenLockCount;
 extern LockEntry g_screenLocks[];
