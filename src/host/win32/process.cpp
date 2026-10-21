@@ -45,13 +45,13 @@ extern "C" void HOST_CALL host_log(const char* text)
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), text, (DWORD)strlen(text), &written, NULL);
 }
 
-int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                       LPSTR lpCmdLine, int nCmdShow);
+int __stdcall GameEntry(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                        LPSTR lpCmdLine, int nCmdShow);
 
 extern "C" int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                                  LPSTR lpCmdLine, int nCmdShow)
 {
-    return GameMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+    return GameEntry(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
 
 extern "C" const char* HOST_CALL host_command_line(void)

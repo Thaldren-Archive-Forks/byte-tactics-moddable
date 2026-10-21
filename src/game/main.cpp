@@ -199,9 +199,6 @@ void __stdcall LoadTranslations(const char* param_1, char* param_2);
 void HarnessInit(char* cmdLine);
 unsigned HarnessCrtSeed(unsigned live);
 
-int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
-
-// FUNCTION: 0x49eda0
 // FUNCTION: 0x49e830
 int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                            LPSTR lpCmdLine, int nCmdShow)
@@ -213,134 +210,144 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     char buf74[0x32];
     int lzero = 0;
 
-    __try {
-        HarnessInit(lpCmdLine);
-        (void)hPrevInstance;
+    HarnessInit(lpCmdLine);
+    (void)hPrevInstance;
 
-        InitDebugSupport(8);
-        SetOutOfMemoryHandler((int)OutOfMemoryHandler);
-        if ((g_atexitRegistered & 1) == 0) {
-            g_atexitRegistered |= 1;
-            atexit((void (__cdecl *)(void))AtexitNoOp);
-        }
-        CreateGameObject();
-        HANDLE hSem = OpenSemaphoreA(0x1f0003, lzero, g_appName);
-        if (hSem != (HANDLE)lzero)
-            return -1;
-        CreateSemaphoreA(NULL, 1, 1, g_appName);
-        GameSrand(RAND_STREAM_MAIN, HarnessCrtSeed(time(0)));
-        if (ParseCommandLine(lpCmdLine, g_appName) == 0)
-            return 1;
-        InitDisplayDefaults(&g_displayContext);
-        g_displayContext.startWidth = 0x280;
-        g_displayContext.video.bits.b0 = ~g_cmdlineDisplaySeed;
-        g_displayContext.video.bits.b1 = 1;
-        g_displayContext.video.bits.b8 = 1;
-        g_displayContext.video.bits.b4 = 1;
-        g_displayContext.video.bits.b9 = 1;
-        g_displayContext.video.bits.b5 = 1;
-        g_displayContext.video.bits.b6 = 1;
-        g_displayContext.video.bits.b7 = 1;
-        g_displayContext.startHeight = 0x1e0;
-        g_displayContext.hInstance = (int)hInstance;
-        g_displayContext.nCmdShow = nCmdShow;
-        g_displayContext.className = (int)g_windowClassName;
-        g_displayContext.title = (int)g_appName;
-        g_displayContext.menuId = 0;
-        int bGameOk = InitEnvironment(&g_displayContext);
-        if (bGameOk == lzero)
-            return 0;
-        InitTimers(0x1e);
-        RegisterDataArchives();
-        EmptyPostArchiveMountHook(DAT_005097f4);
-        g_game->unknown_c = (Ctx_00499890*)(&g_displayContext);
-        g_game->version = 3;
-        g_game->versionMinor = 1;
-        g_game->field_3 = 1;
-        if (strlen(g_preferredLanguage) == 0) {
-            size1c = 0x40;
-            ReadGameRegistryValue(g_languageValueName, g_preferredLanguage, (int*)&size1c);
-            if (g_preferredLanguage[0] == 0)
-                strcpy(g_preferredLanguage, g_defaultLanguage);
-        }
-        LoadTranslations(g_translationFile, g_preferredLanguage);
-        g_game->field_10 = (Class_004cdb40*)(new Sound);
-        EmptyPreFrontendInitHook();
-        InitGame();
+    InitDebugSupport(8);
+    SetOutOfMemoryHandler((int)OutOfMemoryHandler);
+    if ((g_atexitRegistered & 1) == 0) {
+        g_atexitRegistered |= 1;
+        // atexit wants a __cdecl handler; /Gz makes AtexitNoOp __stdcall.
+        atexit((void (__cdecl *)(void))AtexitNoOp);
+    }
+    CreateGameObject();
+    HANDLE hSem = OpenSemaphoreA(0x1f0003, lzero, g_appName);
+    if (hSem != (HANDLE)lzero)
+        return -1;
+    CreateSemaphoreA(NULL, 1, 1, g_appName);
+    GameSrand(RAND_STREAM_MAIN, HarnessCrtSeed(time(0)));
+    if (ParseCommandLine(lpCmdLine, g_appName) == 0)
+        return 1;
+    InitDisplayDefaults(&g_displayContext);
+    g_displayContext.startWidth = 0x280;
+    g_displayContext.video.bits.b0 = ~g_cmdlineDisplaySeed;
+    g_displayContext.video.bits.b1 = 1;
+    g_displayContext.video.bits.b8 = 1;
+    g_displayContext.video.bits.b4 = 1;
+    g_displayContext.video.bits.b9 = 1;
+    g_displayContext.video.bits.b5 = 1;
+    g_displayContext.video.bits.b6 = 1;
+    g_displayContext.video.bits.b7 = 1;
+    g_displayContext.startHeight = 0x1e0;
+    g_displayContext.hInstance = (int)hInstance;
+    g_displayContext.nCmdShow = nCmdShow;
+    g_displayContext.className = (int)g_windowClassName;
+    g_displayContext.title = (int)g_appName;
+    g_displayContext.menuId = 0;
+    int bGameOk = InitEnvironment(&g_displayContext);
+    if (bGameOk == lzero)
+        return 0;
+    InitTimers(0x1e);
+    RegisterDataArchives();
+    EmptyPostArchiveMountHook(DAT_005097f4);
+    g_game->unknown_c = (Ctx_00499890*)(&g_displayContext);
+    g_game->version = 3;
+    g_game->versionMinor = 1;
+    g_game->field_3 = 1;
+    if (strlen(g_preferredLanguage) == 0) {
+        size1c = 0x40;
+        ReadGameRegistryValue(g_languageValueName, g_preferredLanguage, (int*)&size1c);
+        if (g_preferredLanguage[0] == 0)
+            strcpy(g_preferredLanguage, g_defaultLanguage);
+    }
+    LoadTranslations(g_translationFile, g_preferredLanguage);
+    g_game->field_10 = (Class_004cdb40*)(new Sound);
+    EmptyPreFrontendInitHook();
+    InitGame();
 
-        size20 = 0x32;
+    size20 = 0x32;
+    size14 = 0x32;
+    int shellRead = host_setting_get(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, buf40, (unsigned int*)&size20);
+    if (shellRead != HOST_SETTING_NO_ACCESS) {
+        if (shellRead == 1) {
+            host_setting_set(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, DAT_005119b8, 1);
+        } else {
+            strcpy(buf40, DAT_005119b8);
+        }
         size14 = 0x32;
-        int shellRead = host_setting_get(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, buf40, (unsigned int*)&size20);
-        if (shellRead != HOST_SETTING_NO_ACCESS) {
-            if (shellRead == 1) {
-                host_setting_set(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, DAT_005119b8, 1);
-            } else {
-                strcpy(buf40, DAT_005119b8);
-            }
-            size14 = 0x32;
-            ReadGameRegistryValue(g_cdShellValueName, buf74, (int*)&size14);
-            if (strlen(buf74) != 0)
-                strcpy(buf40, buf74);
-            else
-                WriteGameRegistryValue(g_cdShellValueName, buf40, 0x32);
-        }
+        ReadGameRegistryValue(g_cdShellValueName, buf74, (int*)&size14);
+        if (strlen(buf74) != 0)
+            strcpy(buf40, buf74);
+        else
+            WriteGameRegistryValue(g_cdShellValueName, buf40, 0x32);
+    }
 
-        for (;;) {
-            if (!host_pump_events(0))
+    for (;;) {
+        if (!host_pump_events(0))
+            break;
+        if (!DispatchHostEvents())
+            break;
+        if (g_displayContext.active == lzero && *(int*)((Sound*)g_game->field_10) != 0) {
+            SaveCdLists();
+            g_cdTrackCategory = ((Sound*)g_game->field_10)->GetTrackCategory();
+            ((Sound*)g_game->field_10)->CloseCdAudio();
+            g_cdNeedsReopenAfterFocus = 1;
+        } else if (g_displayContext.active != lzero && *(int*)((Sound*)g_game->field_10) == 0
+                   && g_cdNeedsReopenAfterFocus != 0) {
+            ((Sound*)g_game->field_10)->OpenCdAudio();
+            ((Sound*)g_game->field_10)->SetCdCallback(ReopenCdAudio);
+            ((Sound*)g_game->field_10)->EnableCdAudio(g_game->musicMode & 1);
+            ((Sound*)g_game->field_10)->SetPlaybackOrder(g_game->cdMode);
+            ((Sound*)g_game->field_10)->SetTrackCategory(g_cdTrackCategory);
+            ReopenCdAudio();
+            g_cdNeedsReopenAfterFocus = 0;
+        }
+        if (g_displayContext.active == 0 && (g_game->flags_2a44 & 1) == 0) {
+            if (!host_pump_events(1))
                 break;
             if (!DispatchHostEvents())
                 break;
-            if (g_displayContext.active == lzero && *(int*)((Sound*)g_game->field_10) != 0) {
-                SaveCdLists();
-                g_cdTrackCategory = ((Sound*)g_game->field_10)->GetTrackCategory();
-                ((Sound*)g_game->field_10)->CloseCdAudio();
-                g_cdNeedsReopenAfterFocus = 1;
-            } else if (g_displayContext.active != lzero && *(int*)((Sound*)g_game->field_10) == 0
-                       && g_cdNeedsReopenAfterFocus != 0) {
-                ((Sound*)g_game->field_10)->OpenCdAudio();
-                ((Sound*)g_game->field_10)->SetCdCallback(ReopenCdAudio);
-                ((Sound*)g_game->field_10)->EnableCdAudio(g_game->musicMode & 1);
-                ((Sound*)g_game->field_10)->SetPlaybackOrder(g_game->cdMode);
-                ((Sound*)g_game->field_10)->SetTrackCategory(g_cdTrackCategory);
-                ReopenCdAudio();
-                g_cdNeedsReopenAfterFocus = 0;
-            }
-            if (g_displayContext.active == 0 && (g_game->flags_2a44 & 1) == 0) {
-                if (!host_pump_events(1))
-                    break;
-                if (!DispatchHostEvents())
-                    break;
-                continue;
-            }
-            MainFrameTick();
-            {
-                DWORD tick = host_time_ms();
-                if ((int)(tick - g_lastSoundReapTick) >= 100) {
-                    ((Sound*)g_game->field_10)->ReapFinishedBuffers();
-                    g_lastSoundReapTick = tick;
-                }
+            continue;
+        }
+        MainFrameTick();
+        {
+            DWORD tick = host_time_ms();
+            if ((int)(tick - g_lastSoundReapTick) >= 100) {
+                ((Sound*)g_game->field_10)->ReapFinishedBuffers();
+                g_lastSoundReapTick = tick;
             }
         }
-
-        if (g_displayContext.flags.bits.b11) {
-            ShutdownMouse();
-            ShutdownGame();
-        }
-        if (host_setting_set(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, buf40, 0)
-            != HOST_SETTING_NO_ACCESS) {
-            strcpy(buf40, DAT_005119b8);
-            WriteGameRegistryValue(g_cdShellValueName, buf40, 0x32);
-        }
-        ShutdownEnvironment(&g_displayContext);
-        return 0;
-    } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
     }
+
+    if (g_displayContext.flags.bits.b11) {
+        ShutdownMouse();
+        ShutdownGame();
+    }
+    if (host_setting_set(HOST_SCOPE_SYSTEM, g_audioCdShellKey, NULL, HOST_SETTING_STRING, buf40, 0)
+        != HOST_SETTING_NO_ACCESS) {
+        strcpy(buf40, DAT_005119b8);
+        WriteGameRegistryValue(g_cdShellValueName, buf40, 0x32);
+    }
+    ShutdownEnvironment(&g_displayContext);
     return 0;
 }
 
 // FUNCTION: 0x49ed90
 void AtexitNoOp(void)
 {
+}
+
+int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
+
+// FUNCTION: 0x49eda0
+int __stdcall GameEntry(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                        LPSTR lpCmdLine, int nCmdShow)
+{
+    __try {
+        return GameMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+    } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
+    }
+    return 0;
 }
 
 // Changes the current directory to the one holding the executable.
