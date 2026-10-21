@@ -8,9 +8,8 @@
 HWND host_win32_window(void);
 extern const GUID DAT_004fcfb8;
 
-// GLOBAL: 0x512dd0
-extern char g_onlineDllPath[261];
-extern void* g_onlineDll;
+static char g_onlineDllPath[261];
+static void* g_onlineDll;
 
 namespace {
 
