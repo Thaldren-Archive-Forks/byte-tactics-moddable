@@ -3,7 +3,6 @@
 // hand-written blitters, the textured span and polygon renderers, and the
 // reference-counted string handle. The module's two files gathered in address
 // order.
-#include <windows.h>
 #include <string.h>
 #include "../../interfaces/host.h"
 
@@ -48,6 +47,13 @@ struct LockEntry {
 };
 #pragma pack(pop)
 
+struct tagRECT {
+    long left;
+    long top;
+    long right;
+    long bottom;
+};
+
 extern int g_screenLockCount;
 extern LockEntry g_screenLocks[];
 
@@ -56,10 +62,9 @@ extern LockEntry g_screenLocks[];
 #pragma pack(push, 1)
 struct Display {
     char unknown_0[0x40];
-    HWND hwnd;                         // +0x40
-    HDC offscreenDC;                   // +0x44
-    HDC sourceDC;                      // +0x48
-    HPALETTE hpalette;                 // +0x4c
+    void* hwnd;                        // +0x40
+    int windowed;                      // +0x44
+    char unknown_48[8];                // +0x48
     Surface cached;                    // +0x50
     Screen screen;                     // +0x80
     Surface* activeSurface;            // +0x98
@@ -98,7 +103,7 @@ struct Display {
             *out = *overrideSurface;
             return 1;
         }
-        if (offscreenDC != 0) {
+        if (windowed != 0) {
             *out = cached;
             return 1;
         }
@@ -125,7 +130,7 @@ struct Display {
     // Method of the display object: this is the call result.
     int LockPrimary(Surface* out)
     {
-        if (offscreenDC != 0) {
+        if (windowed != 0) {
             *out = cached;
             return 1;
         }
@@ -156,7 +161,7 @@ struct Arg_004c6210 {
 Display* GetDisplay(void);
 int __stdcall LockScreen(Surface* out);
 int __stdcall UnlockScreen(Surface* s);
-int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2);
+int __stdcall UnlockPrimary(Surface* unused, tagRECT* r1, tagRECT* r2);
 void __cdecl BlitSurface(Surface* dst, Surface* src, int x, int y);
 void __cdecl BlitSurfaceKeyed(Surface* dst, Surface* src, int x, int y, int color);
 void __stdcall DrawSurface(Surface* dst, Surface* bmp, int x, int y);
@@ -196,7 +201,7 @@ int GetScreenLockCount(void)
 static inline int UnlockScreenInline(Surface* s)
 {
     Display* d = GetDisplay();
-    if (d->offscreenDC == 0 && d->useOverrideSurface == 0) {
+    if (d->windowed == 0 && d->useOverrideSurface == 0) {
         if (!host_frame_unlock(HOST_FRAME_BACK))
             return 0;
         if (g_screenLockCount > 0)
@@ -246,7 +251,7 @@ int __stdcall LockScreen(Surface* out)
 int __stdcall UnlockScreen(Surface* s)
 {
     Display* d = GetDisplay();
-    if (d->offscreenDC == 0 && d->useOverrideSurface == 0) {
+    if (d->windowed == 0 && d->useOverrideSurface == 0) {
         if (!host_frame_unlock(HOST_FRAME_BACK))
             return 0;
         if (g_screenLockCount > 0)
@@ -271,23 +276,18 @@ int __stdcall LockPrimary(Surface* out)
 // in DirectDraw mode, unlocks the primary surface. The first argument is not
 // used by the body.
 // FUNCTION: 0x4c60d0
-int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2)
+int __stdcall UnlockPrimary(Surface* unused, tagRECT* r1, tagRECT* r2)
 {
     Display* d = GetDisplay();
-    if (d->offscreenDC != 0) {
-        HDC dc = (HDC)host_frame_context_get(d->hwnd);
-        host_frame_context_palette(dc, d->hpalette);
+    if (d->windowed != 0) {
         if (r1 != 0) {
-            BitBlt(dc, r1->left, r1->top, r1->right - r1->left,
-                   r1->bottom - r1->top, d->sourceDC, r1->left, r1->top,
-                   SRCCOPY);
+            host_frame_present_rect(r1->left, r1->top, r1->right - r1->left,
+                                    r1->bottom - r1->top);
         }
         if (r2 != 0) {
-            BitBlt(dc, r2->left, r2->top, r2->right - r2->left,
-                   r2->bottom - r2->top, d->sourceDC, r2->left, r2->top,
-                   SRCCOPY);
+            host_frame_present_rect(r2->left, r2->top, r2->right - r2->left,
+                                    r2->bottom - r2->top);
         }
-        host_frame_context_release(d->hwnd, dc);
         return 1;
     }
     if (!host_frame_unlock(HOST_FRAME_FRONT)) {
@@ -320,7 +320,7 @@ void __stdcall SetRestoreSurface(int surface)
 int __stdcall RestoreSurfaces(Arg_004c6210* arg)
 {
     Display* d = GetDisplay();
-    if (d->offscreenDC != 0)
+    if (d->windowed != 0)
         return 0;
 
     int r = host_frame_restore() ? 0 : 1;
@@ -330,7 +330,7 @@ int __stdcall RestoreSurfaces(Arg_004c6210* arg)
         BlitSurface(&screen, d->activeSurface, r, r);
 
         Display* d2 = GetDisplay();
-        if (d2->offscreenDC == 0 && d2->useOverrideSurface == 0 && host_frame_unlock(HOST_FRAME_BACK)) {
+        if (d2->windowed == 0 && d2->useOverrideSurface == 0 && host_frame_unlock(HOST_FRAME_BACK)) {
             if (g_screenLockCount > 0)
                 g_screenLockCount--;
         }
@@ -342,7 +342,7 @@ int __stdcall RestoreSurfaces(Arg_004c6210* arg)
 static inline int UnlockScreenInline()
 {
     Display* d = GetDisplay();
-    if (d->offscreenDC == 0 && d->useOverrideSurface == 0) {
+    if (d->windowed == 0 && d->useOverrideSurface == 0) {
         if (!host_frame_unlock(HOST_FRAME_BACK))
             return 0;
         if (g_screenLockCount > 0)
@@ -358,7 +358,7 @@ void RestoreScreen(void)
     if (d->flags.bits.flag1) {
         if (host_frame_is_lost()) {
             Display* d2 = GetDisplay();
-            if (d2->offscreenDC == 0) {
+            if (d2->windowed == 0) {
                 if (host_frame_restore()) {
                     Surface screen;
                     LockScreen(&screen);
@@ -371,14 +371,14 @@ void RestoreScreen(void)
     d->useOverrideSurface = 0;
 }
 
-extern LONG g_gfxBlitLockHeld;
-extern LONG g_gfxBlitLockOwner;
-extern HANDLE g_gfxBlitLockEvent;
+extern long g_gfxBlitLockHeld;
+extern long g_gfxBlitLockOwner;
+extern void* g_gfxBlitLockEvent;
 
-static inline LONG Lock()
+static inline long Lock()
 {
     while (1) {
-        LONG r = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
+        long r = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
         if (r == 0) {
             g_gfxBlitLockOwner = 0x4d41494e;
             return 0;
@@ -389,7 +389,7 @@ static inline LONG Lock()
     }
 }
 
-static inline void Unlock(LONG held)
+static inline void Unlock(long held)
 {
     if (held == 0) {
         g_gfxBlitLockOwner = 0;
@@ -403,7 +403,7 @@ static inline void Unlock(LONG held)
 static inline int RestoreSurfacesInline(Display* d)
 {
     Display* dd = GetDisplay();
-    if (dd->offscreenDC != 0)
+    if (dd->windowed != 0)
         return 0;
     if (!host_frame_restore())
         return 1;
@@ -426,14 +426,11 @@ void FlipScreen(void)
     unsigned short flags = d->flags.word;
 
     if ((flags & 2) == 0) {
-        LONG held = Lock();
+        long held = Lock();
         Surface* p = &d->cached;
         DrawSurface(p, d->overrideSurface, 0, 0);
         DrawCursor(d, p);
-        HDC hdc = (HDC)host_frame_context_get(d->hwnd);
-        host_frame_context_palette(hdc, d->hpalette);
-        BitBlt(hdc, 0, 0, p->width, d->cached.height, d->sourceDC, 0, 0, SRCCOPY);
-        host_frame_context_release(d->hwnd, hdc);
+        host_frame_present_rect(0, 0, p->width, d->cached.height);
         Unlock(held);
         return;
     }
@@ -447,7 +444,7 @@ void FlipScreen(void)
         if (bmp->height != GetScreenHeight())
             return;
 
-        LONG held = Lock();
+        long held = Lock();
         int lr = host_frame_lock(HOST_FRAME_FRONT, &frame);
         if (lr == HOST_FRAME_OK) {
             out.width = d->width;

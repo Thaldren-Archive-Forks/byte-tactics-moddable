@@ -2,20 +2,17 @@
 // The palette module: the display's palette table and brightness, the alpha,
 // shade, light, gray and blue tables, the palette index lookups and the file
 // name helpers, in address order (the palette module of data/modules.csv).
-#include <windows.h>
 #include <string.h>
 #include "../../interfaces/host.h"
 
-// The display context at g_display, as this module sees it: the GDI and
-// DirectDraw palettes, the table buffers at +0xc0 to +0xd0, the flags at
+// The display context at g_display, as this module sees it: the windowed
+// marker, the DirectDraw palette, the table buffers at +0xc0 to +0xd0, the flags at
 // +0xf0 and the palette table at +0x214. display.cpp has the whole object.
 #pragma pack(push, 1)
 struct DisplayContext {
     char unknown_0[0x44];
-    int dib;                           // +0x44, the DIB section
-    HDC dc;                            // +0x48
-    HPALETTE hpalette;                 // +0x4c
-    char unknown_50[0x94 - 0x50];
+    int windowed;                      // +0x44, the windowed frame is set up
+    char unknown_48[0x94 - 0x48];
     void* ddPalette;
     char unknown_98[0xc0 - 0x98];
     void* alphaTable;                  // +0xc0
@@ -41,6 +38,14 @@ struct DisplayContext {
 };
 #pragma pack(pop)
 
+// One palette entry: red, green, blue and a flag byte.
+struct tagPALETTEENTRY {
+    unsigned char peRed;
+    unsigned char peGreen;
+    unsigned char peBlue;
+    unsigned char peFlags;
+};
+
 // A palette entry's four bytes, as the table builders and GetPaletteColors
 // walk them.
 struct RGBA {
@@ -54,18 +59,18 @@ DisplayContext* GetDisplay(void);
 void* __cdecl GameAllocIgnoreTag(const char* name, unsigned int size);
 void __cdecl GameFreeThunk(void* p);
 void __stdcall SortByBrightness(unsigned char* data, int* sums, unsigned char* idx);
-unsigned char __stdcall NearestColorInBand(PALETTEENTRY* palette, int* band, unsigned char* order, PALETTEENTRY color);
+unsigned char __stdcall NearestColorInBand(tagPALETTEENTRY* palette, int* band, unsigned char* order, tagPALETTEENTRY color);
 
-extern LONG g_gfxBlitLockHeld;
-extern LONG g_gfxBlitLockOwner;
-extern HANDLE g_gfxBlitLockEvent;
+extern long g_gfxBlitLockHeld;
+extern long g_gfxBlitLockOwner;
+extern void* g_gfxBlitLockEvent;
 extern char g_alphaTableName[];
 extern const char g_shadeTableName[];
 
-static inline LONG Lock()
+static inline long Lock()
 {
     while (1) {
-        LONG r = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
+        long r = host_atomic_exchange((int*)&g_gfxBlitLockHeld, 0x4d41494e);
         if (r == 0) {
             g_gfxBlitLockOwner = 0x4d41494e;
             return 0;
@@ -76,7 +81,7 @@ static inline LONG Lock()
     }
 }
 
-static inline void Unlock(LONG held)
+static inline void Unlock(long held)
 {
     if (held == 0) {
         g_gfxBlitLockOwner = 0;
@@ -89,17 +94,15 @@ static inline void Unlock(LONG held)
 // bytes and a zero) under the 'MAIN' lock. The entries are stored in the
 // display's palette table, scaled by the display's brightness (+0x614) and
 // clamped to 255 into a local palette, and that palette is then either
-// installed through GDI (a new logical palette plus SetDIBColorTable on the
-// display's DC, when the display has a window DC) or handed to the
-// DirectDraw palette object, whose failure returns 0.
+// handed to the host as the windowed frame's palette or to the DirectDraw
+// palette object, whose failure returns 0.
 // FUNCTION: 0x4ba200
 int __stdcall SetPaletteColors(unsigned char* src, int start, int count)
 {
-    LONG held = Lock();
+    long held = Lock();
     float brightness;
     DisplayContext* d;
     unsigned char local[0x400];
-    unsigned char quad[0x400];
     int i;
     int end;
     d = GetDisplay();
@@ -127,22 +130,12 @@ int __stdcall SetPaletteColors(unsigned char* src, int start, int count)
         local[i * 4 + 3] = 0;
     }
 
-    if (d->dib != 0) {
-        if (d->hpalette)
-            DeleteObject(d->hpalette);
-        LOGPALETTE* lp = (LOGPALETTE*)GameAllocIgnoreTag("Palette", 0x408);
-        for (i = 0; i < 256; i++) {
-            ((unsigned int*)lp->palPalEntry)[i] = ((unsigned int*)local)[i];
-            quad[i * 4 + 2] = local[i * 4];
-            quad[i * 4 + 1] = local[i * 4 + 1];
-            quad[i * 4 + 0] = local[i * 4 + 2];
-            quad[i * 4 + 3] = 0;
-        }
-        lp->palVersion = 0x300;
-        lp->palNumEntries = 0x100;
-        d->hpalette = CreatePalette(lp);
-        SetDIBColorTable(d->dc, 0, 0x100, (RGBQUAD*)quad);
-        GameFreeThunk(lp);
+    if (d->windowed != 0) {
+        unsigned char* buffer = (unsigned char*)GameAllocIgnoreTag("Palette", 0x408);
+        for (i = 0; i < 256; i++)
+            ((unsigned int*)buffer)[i] = ((unsigned int*)local)[i];
+        host_palette_create(buffer);
+        GameFreeThunk(buffer);
     } else if (d->gdi) {
         if (!host_palette_set(start, count, local + start * 4)) {
             Unlock(held);
@@ -153,23 +146,17 @@ int __stdcall SetPaletteColors(unsigned char* src, int start, int count)
     return 1;
 }
 
-// Fetches the current 256-entry palette (from the DirectDraw palette object
-// when there is no GDI palette, otherwise through GetPaletteEntries) and
+// Fetches the current 256-entry palette from the host and
 // converts entries [first, first+count) into 4-byte RGB0 pixels written to
 // the caller's buffer. Returns 0 if the palette could not be read, 1 otherwise.
 // FUNCTION: 0x4ba4c0
 int __stdcall GetPaletteColors(unsigned char* dest, int first, int count)
 {
-    PALETTEENTRY pal[256];
+    tagPALETTEENTRY pal[256];
     DisplayContext* d = GetDisplay();
     if (d->gdi) {
-        if (d->dib != 0) {
-            if (GetPaletteEntries(d->hpalette, 0, 0x100, pal) == 0)
-                return 0;
-        } else {
-            if (!host_palette_get((unsigned char*)pal))
-                return 0;
-        }
+        if (!host_palette_get((unsigned char*)pal))
+            return 0;
     }
     RGBA* out = (RGBA*)dest;
     count += first;
@@ -276,11 +263,11 @@ unsigned int* __stdcall BuildAlphaTable(unsigned char* data)
                 if (row == col) {
                     ((unsigned char*)obj->alphaTable)[off + col] = (unsigned char)row;
                 } else {
-                    PALETTEENTRY color;
+                    tagPALETTEENTRY color;
                     color.peRed = (pal[row].r + pal[col].r) / 2;
                     color.peGreen = (pal[row].g + pal[col].g) / 2;
                     color.peBlue = (pal[row].b + pal[col].b) / 2;
-                    ((unsigned char*)obj->alphaTable)[off + col] = NearestColorInBand((PALETTEENTRY*)data, sums, idx, color);
+                    ((unsigned char*)obj->alphaTable)[off + col] = NearestColorInBand((tagPALETTEENTRY*)data, sums, idx, color);
                 }
             }
         }
@@ -294,7 +281,7 @@ unsigned int* __stdcall BuildAlphaTable(unsigned char* data)
 // hoists their widened values out of it, which is why the loop counter,
 // not the colour, gets a callee-saved register.
 // FUNCTION: 0x4ba880
-unsigned char __stdcall NearestColor(PALETTEENTRY* palette, PALETTEENTRY color)
+unsigned char __stdcall NearestColor(tagPALETTEENTRY* palette, tagPALETTEENTRY color)
 {
     int best = 1000000000;
     unsigned char bestIndex;
@@ -344,7 +331,7 @@ extern double g_shadeStep;
 // Finds the palette entry closest to `color` whose brightness band `band[k]`
 // is within 40 of the colour's brightness; returns `order[bestIndex]`.
 // FUNCTION: 0x4ba9d0
-unsigned char __stdcall NearestColorInBand(PALETTEENTRY* palette, int* band, unsigned char* order, PALETTEENTRY color)
+unsigned char __stdcall NearestColorInBand(tagPALETTEENTRY* palette, int* band, unsigned char* order, tagPALETTEENTRY color)
 {
     int best = 1000000000;
     unsigned char bestIndex;
@@ -430,7 +417,7 @@ void __stdcall SetBlueTable(unsigned int* table)
 }
 
 // FUNCTION: 0x4babd0
-unsigned char* __stdcall BuildLightTable(PALETTEENTRY* palette)
+unsigned char* __stdcall BuildLightTable(tagPALETTEENTRY* palette)
 {
     DisplayContext* obj = GetDisplay();
     if (obj->has_c8) {
@@ -443,7 +430,7 @@ unsigned char* __stdcall BuildLightTable(PALETTEENTRY* palette)
                 int red = (int)(palette[i].peRed * factor);
                 int green = (int)(palette[i].peGreen * factor);
                 int blue = (int)(palette[i].peBlue * factor);
-                PALETTEENTRY color;
+                tagPALETTEENTRY color;
                 if (red > 255) {
                     red = 255;
                 }
@@ -466,11 +453,11 @@ unsigned char* __stdcall BuildLightTable(PALETTEENTRY* palette)
 }
 
 // FUNCTION: 0x4bad30
-unsigned char* __stdcall BuildGrayTable(PALETTEENTRY* palette)
+unsigned char* __stdcall BuildGrayTable(tagPALETTEENTRY* palette)
 {
     DisplayContext* app = GetDisplay();
     if (app->has_cc) {
-        PALETTEENTRY color;
+        tagPALETTEENTRY color;
         unsigned char order[256];
         int sums[256];
         SortByBrightness((unsigned char*)palette, sums, order);
@@ -492,11 +479,11 @@ unsigned char* __stdcall BuildGrayTable(PALETTEENTRY* palette)
 // -0.06875) once per row, so the first row is all black; kept as it is in the
 // original.
 // FUNCTION: 0x4badf0
-unsigned char* __stdcall BuildShadeTable(PALETTEENTRY* palette)
+unsigned char* __stdcall BuildShadeTable(tagPALETTEENTRY* palette)
 {
     DisplayContext* app = GetDisplay();
     if (app->has_c4) {
-        PALETTEENTRY color;
+        tagPALETTEENTRY color;
         unsigned char order[256];
         int sums[256];
         SortByBrightness((unsigned char*)palette, sums, order);
@@ -528,11 +515,11 @@ unsigned char* __stdcall BuildShadeTable(PALETTEENTRY* palette)
 }
 
 // FUNCTION: 0x4baf30
-unsigned char* __stdcall BuildBlueTable(PALETTEENTRY* palette)
+unsigned char* __stdcall BuildBlueTable(tagPALETTEENTRY* palette)
 {
     DisplayContext* app = GetDisplay();
     if (app->has_d0) {
-        PALETTEENTRY color;
+        tagPALETTEENTRY color;
         unsigned char order[256];
         int sums[256];
         SortByBrightness((unsigned char*)palette, sums, order);
