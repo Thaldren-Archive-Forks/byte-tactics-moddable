@@ -9,6 +9,7 @@
 // the base: flag12 units to the point mirrored through it (a random point 0x280
 // from it when farther), the others to the base itself, or when within 0x140 of
 // it, 0x140 onwards in its direction.
+#include <windows.h>
 #include <ta_types.h>
 // The system header set decides operand and load order in the _allmul and
 // MapRange code.
