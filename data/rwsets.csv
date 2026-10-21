@@ -28797,7 +28797,6 @@ address,function,file,kind,target
 0x491200,InitGame,src/game/game_state.cpp,call,GetPreferenceInt
 0x491200,InitGame,src/game/game_state.cpp,call,GetScreenHeight
 0x491200,InitGame,src/game/game_state.cpp,call,GetScreenWidth
-0x491200,InitGame,src/game/game_state.cpp,call,GlobalMemoryStatus
 0x491200,InitGame,src/game/game_state.cpp,call,InitCursorFrames
 0x491200,InitGame,src/game/game_state.cpp,call,InitPacketTables
 0x491200,InitGame,src/game/game_state.cpp,call,InitSound
@@ -28833,6 +28832,7 @@ address,function,file,kind,target
 0x491200,InitGame,src/game/game_state.cpp,call,Sound::SetCdCallback
 0x491200,InitGame,src/game/game_state.cpp,call,Sound::SetPlaybackOrder
 0x491200,InitGame,src/game/game_state.cpp,call,Sound::SetTrackCategory
+0x491200,InitGame,src/game/game_state.cpp,call,host_memory_status
 0x491200,InitGame,src/game/game_state.cpp,call,memset
 0x491200,InitGame,src/game/game_state.cpp,field_escape,Game::chatHudRing
 0x491200,InitGame,src/game/game_state.cpp,field_escape,Game::field_143a7
@@ -28882,7 +28882,6 @@ address,function,file,kind,target
 0x491200,InitGame,src/game/game_state.cpp,field_write,Game::width_37e1f
 0x491200,InitGame,src/game/game_state.cpp,field_write,Gui::clearQuickKeys
 0x491200,InitGame,src/game/game_state.cpp,field_write,Gui::language
-0x491200,InitGame,src/game/game_state.cpp,field_write,_MEMORYSTATUS::dwLength
 0x491200,InitGame,src/game/game_state.cpp,fn_ref,InitFrame
 0x491200,InitGame,src/game/game_state.cpp,fn_ref,LeaveNetGameCallback
 0x491200,InitGame,src/game/game_state.cpp,fn_ref,ReopenCdAudio
@@ -29041,11 +29040,9 @@ address,function,file,kind,target
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,SetOffscreenSurface
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,SetResolution
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,SetRestoreSurface
-0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,SetWindowPos
-0x491a70,Force640x480Surfaces,src/game/game_state.cpp,field_read,Display_00491a70::hwnd
+0x491a70,Force640x480Surfaces,src/game/game_state.cpp,call,host_window_place
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,field_read,Game::field_37e23
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,field_read,Game::screen
-0x491a70,Force640x480Surfaces,src/game/game_state.cpp,field_read,Game::unknown_c
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,field_read,Game::width_37e1f
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,field_write,Game::field_37e23
 0x491a70,Force640x480Surfaces,src/game/game_state.cpp,field_write,Game::screen
@@ -30558,7 +30555,6 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,SetResolution
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,SetRestoreSurface
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,SetTextColors
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,SetWindowPos
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,ShowSoftwareCursor
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,Sound::IsCdPlaying
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,Sound::PlayNextTrack
@@ -30571,6 +30567,7 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,host_net_guarantee_packets
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,host_sleep_ms
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,host_thread_start
+0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,host_window_place
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,memset
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,sprintf
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,call,strncpy
@@ -30589,7 +30586,6 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,<anon>::b2
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,<anon>::loaded
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,<anon>::started
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Display_00497f40::hwnd
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::colors
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::cursorHourglass
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::cursorMode
@@ -30602,7 +30598,6 @@ address,function,file,kind,target
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::net
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::screen
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::surface
-0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::unknown_c
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::viewCullMaxX
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::viewCullMaxY
 0x497f40,LoadingScreenFrame,src/game/game_load.cpp,field_read,Game::viewCullMinX
@@ -36138,7 +36133,6 @@ address,function,file,kind,target
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,ReleaseDirectDraw
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,SelectObject
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,SetPaletteColors
-0x4b5510,SetFullScreen,src/graphics/display.cpp,call,SetWindowPos
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,UnlockScreen
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,host_atomic_exchange
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,host_display_has_back_buffer
@@ -36147,6 +36141,8 @@ address,function,file,kind,target
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,host_event_wait
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,host_frame_context_get
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,host_frame_context_release
+0x4b5510,SetFullScreen,src/graphics/display.cpp,call,host_window_resize
+0x4b5510,SetFullScreen,src/graphics/display.cpp,call,host_window_set_topmost
 0x4b5510,SetFullScreen,src/graphics/display.cpp,call,memset
 0x4b5510,SetFullScreen,src/graphics/display.cpp,field_escape,App_4b5980::draw
 0x4b5510,SetFullScreen,src/graphics/display.cpp,field_escape,App_4b5980::entries
@@ -39975,10 +39971,10 @@ address,function,file,kind,target
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,GetDisplay
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,Lock
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,ReleaseDirectDraw
-0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,SetWindowPos
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,Unlock
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,UnlockAllScreens
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,host_crash_report
+0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,call,host_window_set_topmost
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,field_read,Game_004caec0::hwnd
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,field_write,Game_004caec0::cursorFrame
 0x4cbab0,ExceptionFilter,src/graphics/pcx.cpp,function,
@@ -51488,11 +51484,23 @@ address,function,file,kind,target
 ,host_window_open,src/host/win32/window.cpp,global_read,g_hwnd
 ,host_window_open,src/host/win32/window.cpp,global_write,g_hwnd
 ,host_window_open,src/host/win32/window.cpp,global_write,g_thread
+,host_window_place,src/host/win32/window.cpp,call,HostHeadless
+,host_window_place,src/host/win32/window.cpp,call,SetWindowPos
+,host_window_place,src/host/win32/window.cpp,function,
+,host_window_place,src/host/win32/window.cpp,global_read,g_hwnd
 ,host_window_post,src/host/win32/window.cpp,call,HeadlessWindowPost
 ,host_window_post,src/host/win32/window.cpp,call,HostHeadless
 ,host_window_post,src/host/win32/window.cpp,call,PostMessageA
 ,host_window_post,src/host/win32/window.cpp,function,
 ,host_window_post,src/host/win32/window.cpp,global_read,g_hwnd
+,host_window_resize,src/host/win32/window.cpp,call,HostHeadless
+,host_window_resize,src/host/win32/window.cpp,call,SetWindowPos
+,host_window_resize,src/host/win32/window.cpp,function,
+,host_window_resize,src/host/win32/window.cpp,global_read,g_hwnd
+,host_window_set_topmost,src/host/win32/window.cpp,call,HostHeadless
+,host_window_set_topmost,src/host/win32/window.cpp,call,SetWindowPos
+,host_window_set_topmost,src/host/win32/window.cpp,function,
+,host_window_set_topmost,src/host/win32/window.cpp,global_read,g_hwnd
 ,key_state,src/gui/keyboard.cpp,call,host_key_state
 ,key_state,src/gui/keyboard.cpp,function,
 ,loopCond_00464f80,src/game/players_464290.cpp,function,
