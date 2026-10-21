@@ -3921,7 +3921,6 @@ char __cdecl LoadImageHelp(char param)
                                    "-disableimagehlp", 0, 0);
     char path[0x100];
     char symPath[0x3e8];
-    // Declared bare and assigned 0 as a statement just before host_file_exe_path.
     char* searchPath;
     char* windir;
     char* slash;

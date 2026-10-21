@@ -316,8 +316,6 @@ void __stdcall SetRestoreSurface(int surface)
     obj->activeSurface = (Surface*)surface;
 }
 
-// Locks the screen into a local surface, blits the bitmap at display+0x98
-// into it at (0, 0), then unlocks.
 // FUNCTION: 0x4c6210
 int __stdcall RestoreSurfaces(Arg_004c6210* arg)
 {
@@ -353,11 +351,6 @@ static inline int UnlockScreenInline()
     return 1;
 }
 
-// Frame recovery for a lost DirectDraw surface: when bit 1 of the display
-// flags at +0xf0 is set, check whether the primary surface at +0x88 reports
-// DDERR_SURFACELOST, restore the two surfaces at screen+0x8 and screen+0xc,
-// lock the screen with LockScreen, blit the object at +0x98 onto it with
-// BlitSurface, then unlock with the +0x80 method. +0xdc is always cleared.
 // FUNCTION: 0x4c62c0
 void RestoreScreen(void)
 {

@@ -2079,7 +2079,6 @@ void __stdcall DrawSliderBar(Object_004a2580* obj, int index)
             g = (GafFrame*)GetGafFrame(e->sliderGaf, e->sliderStyle + 3);
             x -= g->width / 2;
             int ybase = e->knobPos + e->y + 3;
-            // The clamps use the <windows.h> min() macro.
             int lc = min(e->height - 6, e->knobSize);
             limit = lc + ybase - 1;
             int t = e->height + e->y - 4;
