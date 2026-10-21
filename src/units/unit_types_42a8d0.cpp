@@ -87,8 +87,6 @@ void ResetCameraState(void);
 void CountPacket(int, int, int);
 void SetCameraPosition(int, int, int);
 void StartScreenShake(int, int, int);
-void RegisterEmptyAtexitB(void);
-bool __cdecl ReadGdperf(unsigned long, void*);
 
 extern Game* g_game;
 // File statics, not externs: with an extern count new[] reads its own copy.

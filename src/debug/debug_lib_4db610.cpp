@@ -9,7 +9,7 @@
 // block that ends above 2 GB, and records each one with the map's insert
 // (0x4db000, taking the 8-byte pair by value).
 #include <map>
-#include <windows.h>
+#include "../../interfaces/host.h"
 
 class FreeBlockAllocator {
 public:
@@ -41,23 +41,23 @@ public:
 
     void AddFreeBlock(Pair_004db610 p);
 
-    void* operator new(size_t n) { return GlobalAlloc(0, n); }
+    void* operator new(size_t n) { return host_mem_alloc(n); }
 
     FreeBlockMap() : total(0)
     {
         int n = 4;
         do {
             unsigned int len = 0x10000000;
-            void* m = VirtualAlloc(0, len + 0x2000, MEM_RESERVE, PAGE_READWRITE);
+            void* m = host_mem_reserve(len + 0x2000);
             for (;;) {
                 if (m != 0 && (unsigned int)m + len <= 0x80000000u)
                     break;
                 if (m != 0)
-                    VirtualFree(m, len + 0x2000, MEM_RELEASE);
+                    host_mem_release(m);
                 len = (len >> 1) & 0x7fffe000;
                 if (len < 0x10000)
                     goto next;
-                m = VirtualAlloc(0, len + 0x2000, MEM_RESERVE, PAGE_READWRITE);
+                m = host_mem_reserve(len + 0x2000);
             }
             total = total + len;
             Pair_004db610 pair;

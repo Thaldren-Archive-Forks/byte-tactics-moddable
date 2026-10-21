@@ -305,8 +305,6 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x50cd38,g_memoryDialog,.data,1,type,data,char,1,1,2,conflicting: shape,2,,CHAR_C0h_0050cd38,,src/debug/debug_dialogs.cpp,c0
 0x50ced8,g_profilerDialog,.data,1,type,data,char,1,1,2,conflicting: shape,2,,CHAR_C0h_0050ced8,,src/debug/debug_dialogs.cpp,c0
 0x50d220,g_memoryStatusSwitch,.data,16,gap,string,char[],1,0,1,one type,1,,s__memorystatus_0050d220,,,2d6d656d6f7279737461747573000000
-0x50d2d0,g_exceptionHandlerName,.data,28,gap,string,const char[],1,0,1,one type,1,,,,,476c6f62616c20457863657074696f6e2048616e646c657200000000
-0x50d4d0,g_libraryDateStamp,.data,4,type,data,char*,1,0,1,one type,1,,,1,,d4d45000
 0x50d660,g_performanceWindowName,.data,4,type,data,char*,1,0,1,one type,1,,PTR_s_Performance_status_0050d660,1,,64d65000
 0x50d6b4,g_performanceDialogError,.data,36,gap,string,char[],1,0,1,one type,1,,s_Performance_dialog_failed_to_ope_0050d6b4,,,506572666f726d616e6365206469616c6f67206661696c656420746f206f70656e000000
 0x50d72c,g_memoryStatusWindowName,.data,4,type,data,char*,2,0,1,one type,2,,PTR_s_Memory_Status_0050d72c,1,,30d75000
@@ -670,8 +668,6 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x5289b4,g_memFussyQueried,.bss,1,type,data,char,1,0,1,one type,1,,CHAR_00h_005289b4,,,
 0x5289b8,g_memFussyDefault,.bss,1,type,data,char,1,0,1,one type,1,,CHAR_00h_005289b8,,,
 0x5289bc,g_outOfMemoryHandler,.bss,4,type,data,void (__stdcall*)(void),2,0,1,one type,2,,DAT_005289bc,,,
-0x5289c0,g_errorLogWritten,.bss,4,type,data,int,1,0,1,one type,1,,INT_005289c0,,,
-0x5289c4,g_debugLibInstance,.bss,4,type,data,int,1,0,1,one type,1,,INT_005289c4,,,
 0x5289c8,g_debugThreadRunning,.bss,1,type,data,unsigned char,3,0,1,one type,3,,,,src/data/exe_only.cpp,
 0x5289cc,g_debugSupportInited,.bss,1,type,data,unsigned char,2,0,1,one type,2,,,,src/data/exe_only.cpp,
 0x5289d0,g_committedBytesPeak,.bss,4,type,data,unsigned int,3,0,1,one type,3,,DAT_005289d0,,,
@@ -700,23 +696,8 @@ address,name,section,size,size_from,kind,type,type_files,other_files,types,verdi
 0x528a54,std::IH::IU?$pair::?$_Tree::_Nil,.bss,4,definition,template,void*,1,2,3,conflicting: shape,3,,DAT_00528a54,,src/debug/debug_lib_4db610.cpp,
 0x528a58,std::IH::IU?$pair::?$_Tree::_Nilrefs,.bss,4,definition,template,unsigned int,1,0,1,one type,1,,UINT_00528a58,,src/debug/debug_lib_4db610.cpp,
 0x528a5c,DAT_00528a5c,.bss,4,gap,unreferenced,unsigned char[4],0,0,0,,0,,,,,
-0x528a78,g_loadedImage,.bss,44,gap,data,LoadedImage,1,0,1,one type,1,,,,,
 0x528aa4,g_lineProcessHandle,.bss,4,type,data,void*,1,0,1,one type,1,,,,,
-0x528aa8,g_stackProcessHandleRead,.bss,1,type,data,char,1,0,1,one type,1,,CHAR_00h_00528aa8,,,
 0x528aac,g_lineProcessHandleRead,.bss,1,type,data,char,1,0,1,one type,1,,,,,
-0x528ab0,g_stackProcessHandle,.bss,4,type,data,void*,1,0,1,one type,1,,PTR_00528ab0,,,
-0x528ab4,g_pfnSymGetLineFromAddr,.bss,4,type,data,void (__stdcall*)(void),1,0,1,one type,1,,DAT_00528ab4,,,
-0x528ab8,g_pfnSymInitialize,.bss,4,type,data,"int (__stdcall*)(void*, char*, unsigned long)",1,0,1,one type,1,,DAT_00528ab8,,,
-0x528abc,g_pfnSymCleanup,.bss,4,type,data,int (__stdcall*)(void*),1,0,1,one type,1,,DAT_00528abc,,,
-0x528ac0,g_pfnStackWalk,.bss,4,type,data,"int (__stdcall*)(unsigned long, void*, void*, void*, void*, void*, void*, void*, void*)",1,0,1,one type,1,,DAT_00528ac0,,,
-0x528ac4,g_pfnSymFunctionTableAccess,.bss,4,type,data,void*,1,0,1,one type,1,,DAT_00528ac4,,,
-0x528ac8,g_pfnSymGetModuleBase,.bss,4,type,data,void*,1,0,1,one type,1,,DAT_00528ac8,,,
-0x528acc,g_pfnSymGetSymFromAddr,.bss,4,type,data,void (__stdcall*)(void),1,0,1,one type,1,,_DAT_00528acc,,,
-0x528ad0,g_pfnSymSetOptions,.bss,4,type,data,unsigned long (__stdcall*)(unsigned long),1,0,1,one type,1,,DAT_00528ad0,,,
-0x528ad4,g_pfnUnDecorateSymbolName,.bss,4,type,data,void (__stdcall*)(void),1,0,1,one type,1,,_DAT_00528ad4,,,
-0x528ad8,g_imageHelpLoaded,.bss,1,type,data,char,1,0,1,one type,1,,CHAR_00h_00528ad8,,,
-0x528adc,g_imageHelpInited,.bss,1,type,data,char,1,0,1,one type,1,,CHAR_00h_00528adc,,,
-0x528ae0,g_imageHelpModule,.bss,4,type,data,void*,1,0,1,one type,1,,PTR_00528ae0,,,
 0x528ae4,g_msdevDirRead,.bss,1,type,data,char,1,0,1,one type,1,,,,,
 0x528ae8,g_crtSourceRoot,.bss,1000,gap>type,data,char[488],1,0,1,one type,1,,,,,
 0x528ed0,g_mfcSourceRoot,.bss,1000,gap>type,data,char[488],1,0,1,one type,1,,,,,

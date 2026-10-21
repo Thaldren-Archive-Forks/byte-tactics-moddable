@@ -314,8 +314,6 @@ char* g_debugKeywords[19] = {
     (char*)"-enableimagehlplines", (char*)"-debughelper", (char*)"-saveresources"
 };
 char g_memoryStatusSwitch[16] = "-memorystatus";  // 0x50d220 .data
-const char g_exceptionHandlerName[28] = "Global Exception Handler";  // 0x50d2d0 .data
-char* g_libraryDateStamp = (char*)"Library date stamp: Jun 30 1998 16:08:53";  // 0x50d4d0 .data
 char* g_performanceWindowName = (char*)"Performance status";  // 0x50d660 .data
 char g_performanceDialogError[36] = "Performance dialog failed to open";  // 0x50d6b4 .data
 char* g_memoryStatusWindowName = (char*)"Memory Status";  // 0x50d72c .data
@@ -541,8 +539,6 @@ int g_lzssUsePreset;  // 0x526ffc .bss (the type runs past the next known addres
 char g_memFussyQueried;  // 0x5289b4 .bss
 char g_memFussyDefault;  // 0x5289b8 .bss
 void (__stdcall* g_outOfMemoryHandler)(void);  // 0x5289bc .bss
-int g_errorLogWritten;  // 0x5289c0 .bss
-int g_debugLibInstance;  // 0x5289c4 .bss
 unsigned int g_committedBytesPeak;  // 0x5289d0 .bss
 unsigned int g_lastAllocOffset;  // 0x5289d4 .bss
 unsigned int g_currentBytesPeak;  // 0x5289d8 .bss
@@ -567,23 +563,8 @@ unsigned char g_freedBlockRing[4];  // 0x528a48 .bss
 int g_blockMapLiveCount;  // 0x528a4c .bss
 void* g_blockMapNil;  // 0x528a50 .bss
 unsigned char DAT_00528a5c[4];  // 0x528a5c .bss
-unsigned char g_loadedImage[44];  // 0x528a78 .bss
 void* g_lineProcessHandle;  // 0x528aa4 .bss
-char g_stackProcessHandleRead;  // 0x528aa8 .bss
 char g_lineProcessHandleRead;  // 0x528aac .bss
-void* g_stackProcessHandle;  // 0x528ab0 .bss
-void (__stdcall* g_pfnSymGetLineFromAddr)(void);  // 0x528ab4 .bss
-int (__stdcall* g_pfnSymInitialize)(void*, char*, unsigned long);  // 0x528ab8 .bss
-int (__stdcall* g_pfnSymCleanup)(void*);  // 0x528abc .bss
-int (__stdcall* g_pfnStackWalk)(unsigned long, void*, void*, void*, void*, void*, void*, void*, void*);  // 0x528ac0 .bss
-void* g_pfnSymFunctionTableAccess;  // 0x528ac4 .bss
-void* g_pfnSymGetModuleBase;  // 0x528ac8 .bss
-void (__stdcall* g_pfnSymGetSymFromAddr)(void);  // 0x528acc .bss
-unsigned long (__stdcall* g_pfnSymSetOptions)(unsigned long);  // 0x528ad0 .bss
-void (__stdcall* g_pfnUnDecorateSymbolName)(void);  // 0x528ad4 .bss
-char g_imageHelpLoaded;  // 0x528ad8 .bss
-char g_imageHelpInited;  // 0x528adc .bss
-void* g_imageHelpModule;  // 0x528ae0 .bss
 char g_msdevDirRead;  // 0x528ae4 .bss
 char g_crtSourceRoot[1000];  // 0x528ae8 .bss
 char g_mfcSourceRoot[1000];  // 0x528ed0 .bss

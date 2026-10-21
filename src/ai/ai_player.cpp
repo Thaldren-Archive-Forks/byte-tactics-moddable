@@ -208,13 +208,11 @@ int FindOpenSlot(void);
 int GetBuildSiteHeight(void);
 int GetCdPosition(void);
 int GetCobChecksum(int);
-int GetCpuFamily(void);
 char IsMemFussy();
 int GetCursorSprite(void);
 int GetDebugFillPattern(void);
 char IsBackAlign();
 char IsMemSet();
-char IsPentiumOrBetter();
 
 // Unused here: the symbol ids these declarations take keep GetBuildRating (0x40bb00)
 // matching now that the weapon slot view is one type (docs/c2-regalloc.md).

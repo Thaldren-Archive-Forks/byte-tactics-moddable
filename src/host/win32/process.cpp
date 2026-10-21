@@ -73,3 +73,8 @@ extern "C" void HOST_CALL host_memory_status(struct host_memory* status)
     status->total = mem.dwTotalPhys;
     status->available = mem.dwAvailPhys;
 }
+
+extern "C" const char* HOST_CALL host_command_line(void)
+{
+    return GetCommandLineA();
+}
