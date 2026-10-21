@@ -15,13 +15,14 @@ a copy of an ordinary link whose stubs fault when reached (see stub_traps).
 
 `--testmode <file>` instead runs each exe with `-testmode <file>` (a scenario of
 reference/README.md) and passes when it exits with status 0 within
-`--testmode-timeout` seconds. The trace the exe writes (trace.txt, and dump.txt
+`--testmode-timeout` seconds. A `--testmode` run uses the game's headless host: no X server,
+audio sink, screenshots or dialog checks, and only wine needs to be installed. The trace the exe writes (trace.txt, and dump.txt
 with `--testdump <tick>`) is copied to the run's directory. Every `--testmode` run passes the game's
 own `-memset=0` switch, which makes GameAlloc (and so operator new) zero new memory. `--poison` passes
 `-memset=0xcdcdcdcd` instead, which fills it with 0xCD. `--blockscan` adds `-blockscan` (every tick) and copies
 blockptrs.txt too; `--blockscan-every N` adds `-blockscan=N`.
 
-Each run has its own:
+Each run has its own (except that a `--testmode` run has no X server or audio sink):
 
 - X server: an invisible Xvfb display, so nothing opens on the desktop and
   its pointer and keyboard belong to nobody else (`--window` makes it a
@@ -454,8 +455,9 @@ class Instance:
     def start(self, debug: str) -> None:
         with _live_lock:
             _live.append(self)
-        self.start_x()
-        self.start_sink()
+        if not self.run.testmode:
+            self.start_x()
+            self.start_sink()
         (self.run.out / f"exe{self.suffix}.sha256").write_text(
             subprocess.run(["sha256sum", str(self.game / "TotalA.exe")], capture_output=True,
                            text=True).stdout)
@@ -472,10 +474,14 @@ class Instance:
         self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
                                      stdout=(self.run.out / f"wine{self.suffix}.log").open("w"),
                                      stderr=subprocess.STDOUT)
-        self.run.note(f"  game{self.suffix} started on display {self.display}, pid {self.wine.pid}"
-                      + (f", sound to {self.sink}" if self.sink else ""))
+        if self.run.testmode:
+            self.run.note(f"  game{self.suffix} started headless, pid {self.wine.pid}")
+        else:
+            self.run.note(f"  game{self.suffix} started on display {self.display}, pid {self.wine.pid}"
+                          + (f", sound to {self.sink}" if self.sink else ""))
         self.thread(self.files_loop)
-        self.thread(self.shots_loop)
+        if not self.run.testmode:
+            self.thread(self.shots_loop)
 
     def thread(self, fn) -> None:
         t = threading.Thread(target=fn, daemon=True)
@@ -601,6 +607,8 @@ class Instance:
         return classify_dialog(self.windows(), started)
 
     def shot(self, name: str, jpeg: bool = False) -> None:
+        if not self.display:
+            return
         path = self.run.out / (name + (".jpg" if jpeg else ".png"))
         args = ["import", "-window", "root"]
         if jpeg:
@@ -1047,7 +1055,7 @@ class Run:
                 if time.time() >= next_poll:
                     next_poll = time.time() + DIALOG_POLL_SECONDS
                     for i in self.instances:
-                        found = i.alive() and i.error_dialog()
+                        found = not self.testmode and i.alive() and i.error_dialog()
                         if found:
                             raise StepFailed(f"the game{i.suffix} shows an error dialog ({found[0]}, "
                                              f"window title \"{found[1]}\")", found[0])
@@ -1367,6 +1375,8 @@ def main() -> None:
         return
     if not args.exe or not (args.scenario or args.testmode):
         ap.error("--exe and --scenario (or --testmode) are required")
+    if args.window and args.testmode:
+        ap.error("--window cannot be used with --testmode (a test-mode run has no window)")
     if args.testdump is not None and not args.testmode:
         ap.error("--testdump needs --testmode")
     if (args.blockscan or args.blockscan_every) and not args.testmode:
@@ -1380,14 +1390,15 @@ def main() -> None:
         ap.error("--testdump takes a tick of 0 or more")
     if args.testmode and not Path(args.testmode).is_file():
         ap.error(f"{args.testmode} is not a file")
-    for tool in ("Xephyr" if args.window else "Xvfb", "xdotool", "import", "wine", "pactl", "parec"):
+    tools = ("wine",) if args.testmode and not args.scenario else ("Xephyr" if args.window else "Xvfb", "xdotool", "import", "wine", "pactl", "parec")
+    for tool in tools:
         if not shutil.which(tool):
             raise SystemExit(f"{tool} is not installed")
     exes = resolve_exes(args.exe)
     scenarios = [load_scenario(s) for v in args.scenario for s in v.split(",")]
     testmode = None
     if args.testmode:
-        steps = [["every", "5"], ["start"], ["waitexit", f"{args.testmode_timeout:g}"]]
+        steps = [["start"], ["waitexit", f"{args.testmode_timeout:g}"]]
         testmode = Scenario(Path(args.testmode).stem, list(enumerate(steps, 1)), {})
         scenarios.append(testmode)
     for sc in scenarios:

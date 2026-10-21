@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "../../../interfaces/host.h"
+#include "headless.h"
 
 namespace {
 
@@ -143,6 +144,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 extern "C" void* HOST_CALL host_window_open(const char* title, int width, int height, int fullscreen)
 {
+    if (HostHeadless()) return HeadlessWindowOpen(title, width, height, fullscreen);
     HINSTANCE instance = GetModuleHandleA(NULL);
     WNDCLASSA wc;
     wc.style = 8;
@@ -178,16 +180,19 @@ extern "C" void* HOST_CALL host_window_open(const char* title, int width, int he
 
 extern "C" void HOST_CALL host_window_close(void)
 {
+    if (HostHeadless()) { HeadlessWindowClose(); return; }
     DestroyWindow(g_hwnd);
 }
 
 extern "C" int HOST_CALL host_window_has_focus(void)
 {
+    if (HostHeadless()) return HeadlessWindowHasFocus();
     return GetFocus() == g_hwnd;
 }
 
 extern "C" void HOST_CALL host_window_post(unsigned int type)
 {
+    if (HostHeadless()) { HeadlessWindowPost(type); return; }
     PostMessageA(g_hwnd, type, 0, 0);
 }
 
@@ -217,6 +222,7 @@ static void DispatchOne(MSG* msg)
 
 extern "C" int HOST_CALL host_pump_events(int wait)
 {
+    if (HostHeadless()) return HeadlessPumpEvents(wait);
     MSG msg;
     if (wait) {
         int ret = GetMessageA(&msg, NULL, 0, 0);
@@ -238,11 +244,13 @@ extern "C" int HOST_CALL host_pump_events(int wait)
 
 extern "C" void HOST_CALL host_post_quit(void)
 {
+    if (HostHeadless()) { HeadlessPostQuit(); return; }
     PostQuitMessage(0);
 }
 
 extern "C" int HOST_CALL host_event_next(host_event* event)
 {
+    if (HostHeadless()) return HeadlessEventNext(event);
     if (GetCurrentThreadId() != g_thread || g_count == 0) {
         return 0;
     }
@@ -254,11 +262,13 @@ extern "C" int HOST_CALL host_event_next(host_event* event)
 
 extern "C" int HOST_CALL host_key_state(int vk)
 {
+    if (HostHeadless()) return HeadlessKeyState(vk);
     return (unsigned short)GetAsyncKeyState(vk);
 }
 
 extern "C" void HOST_CALL host_cursor_get(int* x, int* y)
 {
+    if (HostHeadless()) { HeadlessCursorGet(x, y); return; }
     POINT pt;
     GetCursorPos(&pt);
     *x = pt.x;
@@ -267,6 +277,7 @@ extern "C" void HOST_CALL host_cursor_get(int* x, int* y)
 
 extern "C" void HOST_CALL host_cursor_set(int x, int y)
 {
+    if (HostHeadless()) { HeadlessCursorSet(x, y); return; }
     SetCursorPos(x, y);
 }
 

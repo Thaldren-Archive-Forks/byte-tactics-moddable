@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "../../../interfaces/host.h"
+#include "headless.h"
 
 HWND host_win32_window(void);
 
@@ -54,6 +55,7 @@ HRESULT __stdcall CollectMode(DDSURFACEDESC* desc, void* context)
 
 extern "C" int HOST_CALL host_display_mode_set(int width, int height, int flags, const unsigned char* palette)
 {
+    if (HostHeadless()) return HeadlessDisplayModeSet(width, height, flags, palette);
     HWND hwnd = host_win32_window();
     DDSURFACEDESC ddsd;
     HRESULT hr;
@@ -136,6 +138,7 @@ extern "C" int HOST_CALL host_display_mode_set(int width, int height, int flags,
 
 extern "C" void HOST_CALL host_display_close(void)
 {
+    if (HostHeadless()) { HeadlessDisplayClose(); return; }
     if (g_ddraw) {
         if (g_palette) {
             g_palette->Release();
@@ -160,16 +163,19 @@ extern "C" void HOST_CALL host_display_close(void)
 
 extern "C" int HOST_CALL host_display_is_open(void)
 {
+    if (HostHeadless()) return HeadlessDisplayIsOpen();
     return g_ddraw != 0;
 }
 
 extern "C" int HOST_CALL host_display_has_back_buffer(void)
 {
+    if (HostHeadless()) return HeadlessDisplayHasBackBuffer();
     return g_back != 0;
 }
 
 extern "C" int HOST_CALL host_display_mode_list(host_display_mode* modes, int max, int* count)
 {
+    if (HostHeadless()) return HeadlessDisplayModeList(modes, max, count);
     ModeCollector collector;
     LPDIRECTDRAW2 ddraw2 = 0;
     int result = 1;
@@ -200,6 +206,7 @@ extern "C" int HOST_CALL host_display_mode_list(host_display_mode* modes, int ma
 
 extern "C" int HOST_CALL host_frame_lock(int which, host_frame* frame)
 {
+    if (HostHeadless()) return HeadlessFrameLock(which, frame);
     IDirectDrawSurface* surface = Frame(which);
     DDSURFACEDESC desc;
     int result;
@@ -221,6 +228,7 @@ extern "C" int HOST_CALL host_frame_lock(int which, host_frame* frame)
 
 extern "C" int HOST_CALL host_frame_unlock(int which)
 {
+    if (HostHeadless()) return HeadlessFrameUnlock(which);
     IDirectDrawSurface* surface = Frame(which);
     if (!surface) {
         return 0;
@@ -231,6 +239,7 @@ extern "C" int HOST_CALL host_frame_unlock(int which)
 
 extern "C" int HOST_CALL host_frame_present(int flip)
 {
+    if (HostHeadless()) return HeadlessFramePresent(flip);
     if (flip) {
         return Result(g_primary->Flip(0, 1));
     }
@@ -248,16 +257,19 @@ extern "C" int HOST_CALL host_frame_present(int flip)
 
 extern "C" int HOST_CALL host_frame_is_lost(void)
 {
+    if (HostHeadless()) return HeadlessFrameIsLost();
     return g_primary && g_primary->IsLost() == kSurfaceLost;
 }
 
 extern "C" int HOST_CALL host_frame_restore(void)
 {
+    if (HostHeadless()) return HeadlessFrameRestore();
     return g_primary && g_back && g_primary->Restore() == 0 && g_back->Restore() == 0;
 }
 
 extern "C" int HOST_CALL host_frame_fill(int which, unsigned int colour)
 {
+    if (HostHeadless()) return HeadlessFrameFill(which, colour);
     IDirectDrawSurface* surface = Frame(which);
     DDBLTFX fx;
 
@@ -272,6 +284,7 @@ extern "C" int HOST_CALL host_frame_fill(int which, unsigned int colour)
 
 extern "C" int HOST_CALL host_frame_pixel_format(host_pixel_format* format)
 {
+    if (HostHeadless()) return HeadlessFramePixelFormat(format);
     DDPIXELFORMAT ddpf;
 
     memset(&ddpf, 0, sizeof(ddpf));
@@ -289,6 +302,7 @@ extern "C" int HOST_CALL host_frame_pixel_format(host_pixel_format* format)
 
 extern "C" int HOST_CALL host_frame_text(int which, void* font, int x, int y, const char* text, int length, unsigned int rgb)
 {
+    if (HostHeadless()) return HeadlessFrameText(which, font, x, y, text, length, rgb);
     IDirectDrawSurface* surface = Frame(which);
     HDC dc;
 
@@ -306,6 +320,7 @@ extern "C" int HOST_CALL host_frame_text(int which, void* font, int x, int y, co
 
 extern "C" int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsigned char* palette)
 {
+    if (HostHeadless()) return HeadlessFrameRead(pixels, pitch, palette);
     host_frame frame;
 
     if (host_frame_lock(HOST_FRAME_BACK, &frame) != HOST_FRAME_OK) {
@@ -321,22 +336,26 @@ extern "C" int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsig
 
 extern "C" void* HOST_CALL host_frame_context_get(void* window)
 {
+    if (HostHeadless()) return HeadlessFrameContextGet(window);
     return GetDC((HWND)window);
 }
 
 extern "C" void HOST_CALL host_frame_context_release(void* window, void* context)
 {
+    if (HostHeadless()) { HeadlessFrameContextRelease(window, context); return; }
     ReleaseDC((HWND)window, (HDC)context);
 }
 
 extern "C" void HOST_CALL host_frame_context_palette(void* context, void* palette)
 {
+    if (HostHeadless()) { HeadlessFrameContextPalette(context, palette); return; }
     SelectPalette((HDC)context, (HPALETTE)palette, FALSE);
     RealizePalette((HDC)context);
 }
 
 extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)
 {
+    if (HostHeadless()) return HeadlessPaletteCreate(entries);
     if (!g_ddraw || !g_primary) {
         return 0;
     }
@@ -348,15 +367,18 @@ extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)
 
 extern "C" int HOST_CALL host_palette_set(int start, int count, const unsigned char* entries)
 {
+    if (HostHeadless()) return HeadlessPaletteSet(start, count, entries);
     return g_palette && g_palette->SetEntries(0, start, count, (LPPALETTEENTRY)entries) == 0;
 }
 
 extern "C" int HOST_CALL host_palette_get(unsigned char* entries)
 {
+    if (HostHeadless()) return HeadlessPaletteGet(entries);
     return g_palette && g_palette->GetEntries(0, 0, 0x100, (LPPALETTEENTRY)entries) == 0;
 }
 
 extern "C" int HOST_CALL host_palette_apply(void)
 {
+    if (HostHeadless()) return HeadlessPaletteApply();
     return g_primary && g_palette && g_primary->SetPalette(g_palette) == DD_OK;
 }
