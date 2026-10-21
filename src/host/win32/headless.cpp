@@ -73,7 +73,17 @@ struct EventRing {
 bool g_windowOpen;
 DWORD g_windowThread;
 bool g_quitPending;
+DWORD g_quitThread;
 PostRing g_posted;
+CRITICAL_SECTION g_postLock;
+
+bool InitPostLock()
+{
+    InitializeCriticalSection(&g_postLock);
+    return true;
+}
+
+const bool g_postLockReady = InitPostLock();
 EventRing g_events;
 int g_cursorX = kScreenWidth / 2;
 int g_cursorY = kScreenHeight / 2;
@@ -234,29 +244,45 @@ void HeadlessWindowPost(unsigned int type)
     if (!g_windowOpen) {
         return;
     }
+    EnterCriticalSection(&g_postLock);
     if (g_posted.count == kQueueSize) {
         g_posted.head = (g_posted.head + 1) % kQueueSize;
         g_posted.count--;
     }
     g_posted.items[(g_posted.head + g_posted.count) % kQueueSize] = type;
     g_posted.count++;
+    LeaveCriticalSection(&g_postLock);
 }
 
 int HeadlessPumpEvents(int wait)
 {
-    if (wait && g_posted.count == 0 && !g_quitPending) {
-        host_sleep_ms(1);
+    DWORD self = GetCurrentThreadId();
+    bool onWindowThread = self == g_windowThread;
+    bool quitHere = g_quitPending && g_quitThread == self;
+    if (wait) {
+        EnterCriticalSection(&g_postLock);
+        bool empty = g_posted.count == 0;
+        LeaveCriticalSection(&g_postLock);
+        if (empty && !g_quitPending) {
+            host_sleep_ms(1);
+        }
     }
-    while (g_posted.count != 0) {
+    while (onWindowThread) {
+        EnterCriticalSection(&g_postLock);
+        if (g_posted.count == 0) {
+            LeaveCriticalSection(&g_postLock);
+            break;
+        }
         unsigned int type = g_posted.items[g_posted.head];
         g_posted.head = (g_posted.head + 1) % kQueueSize;
         g_posted.count--;
+        LeaveCriticalSection(&g_postLock);
         if (type == 0x12) {
             return 0;
         }
         DispatchPosted(type);
     }
-    if (g_quitPending) {
+    if (quitHere) {
         g_quitPending = false;
         return 0;
     }
@@ -265,6 +291,7 @@ int HeadlessPumpEvents(int wait)
 
 void HeadlessPostQuit()
 {
+    g_quitThread = GetCurrentThreadId();
     g_quitPending = true;
 }
 
