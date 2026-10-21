@@ -236,12 +236,12 @@ int MoviePlayer::SetupDirectDraw()
     if (shown == HOST_DISPLAY_OK) {
         paletteResult = GetBlitMode(0);
         if (paletteResult == 0) {
-            hdc = GetDC(hwnd);
+            hdc = (HDC)host_frame_context_get(hwnd);
             GetSystemPaletteEntries(hdc, 0, 0x100, entries);
             for (i = 0; i < 10; ++i) entries[i].peFlags = 0;
             for (i = 10; i < 246; ++i) entries[i].peFlags = 4;
             for (i = 246; i < 256; ++i) entries[i].peFlags = 0;
-            ReleaseDC(hwnd, hdc);
+            host_frame_context_release(hwnd, hdc);
             host_palette_create((unsigned char*)entries);
         }
         SetWindowPos(hwnd, 0, 0, 0, smack->width, smack->height, 2);
@@ -283,7 +283,7 @@ int MoviePlayer::GetBlitMode(SmackerSurface* unused)
 // FUNCTION: 0x47c230
 void MoviePlayer::ReadSystemPalette(int unused)
 {
-    HDC hdc = GetDC(hwnd);
+    HDC hdc = (HDC)host_frame_context_get(hwnd);
     GetSystemPaletteEntries(hdc, 0, 256, entries);
     int i;
     for (i = 0; i < 10; i++)
@@ -292,7 +292,7 @@ void MoviePlayer::ReadSystemPalette(int unused)
         entries[i].peFlags = PC_NOCOLLAPSE;
     for (i = 246; i < 256; i++)
         entries[i].peFlags = 0;
-    ReleaseDC(hwnd, hdc);
+    host_frame_context_release(hwnd, hdc);
 }
 
 // Copies the movie's palette into entries[] and the display palette.

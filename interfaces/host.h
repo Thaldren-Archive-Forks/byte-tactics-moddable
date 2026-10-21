@@ -279,6 +279,13 @@ int HOST_CALL host_frame_text(int which, void* font, int x, int y, const char* t
 // Copies the back frame to pixels (rows pitch bytes apart) and its 256 four-byte palette entries to palette, and returns 1, or returns 0 on failure.
 int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsigned char* palette);
 
+// Returns a drawing context for the window (the native handle of host_window_open), or NULL on failure; end it with host_frame_context_release.
+void* HOST_CALL host_frame_context_get(void* window);
+// Ends a context from host_frame_context_get on the same window.
+void HOST_CALL host_frame_context_release(void* window, void* context);
+// Selects the display palette (a native palette handle) into the context, without forcing it to the background, and realises it.
+void HOST_CALL host_frame_context_palette(void* context, void* palette);
+
 // Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen, and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_create(const unsigned char* entries);
 // Sets count four-byte entries from index start of the display palette and returns 1, or returns 0 on failure.

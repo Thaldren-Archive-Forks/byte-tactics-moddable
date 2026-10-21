@@ -230,10 +230,9 @@ int ApplyPalette()
 {
     App_4b5980* d = g_display;
     if (d->hpalette) {
-        HDC dc = GetDC(g_display->hwnd);
-        SelectPalette(dc, g_display->hpalette, FALSE);
-        RealizePalette(dc);
-        ReleaseDC(g_display->hwnd, dc);
+        void* dc = host_frame_context_get(g_display->hwnd);
+        host_frame_context_palette(dc, g_display->hpalette);
+        host_frame_context_release(g_display->hwnd, dc);
         return 1;
     }
     return host_palette_apply();
@@ -487,9 +486,9 @@ int __stdcall SetFullScreen(int mode) {
         g_display->flags.value &= ~2;
 
         void *bits;
-        HDC hdc = GetDC(d->hwnd);
-        d->dc = CreateCompatibleDC(hdc);
-        ReleaseDC(d->hwnd, hdc);
+        void* hdc = host_frame_context_get(d->hwnd);
+        d->dc = CreateCompatibleDC((HDC)hdc);
+        host_frame_context_release(d->hwnd, hdc);
 
         bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
         bmi.bmiHeader.biWidth = g_display->width;
@@ -712,10 +711,9 @@ int __stdcall HandleHostEvent(host_event* ev)
         return 1;
     case HOST_EVENT_PALETTE_QUERY:
         if (g_display->hpalette) {
-            HDC dc = GetDC(g_display->hwnd);
-            SelectPalette(dc, g_display->hpalette, FALSE);
-            RealizePalette(dc);
-            ReleaseDC(g_display->hwnd, dc);
+            void* dc = host_frame_context_get(g_display->hwnd);
+            host_frame_context_palette(dc, g_display->hpalette);
+            host_frame_context_release(g_display->hwnd, dc);
         }
         else {
             host_palette_apply();
@@ -725,10 +723,9 @@ int __stdcall HandleHostEvent(host_event* ev)
         if (ev->a != 0)
             return 1;
         if (g_display->hpalette) {
-            HDC dc = GetDC(g_display->hwnd);
-            SelectPalette(dc, g_display->hpalette, FALSE);
-            RealizePalette(dc);
-            ReleaseDC(g_display->hwnd, dc);
+            void* dc = host_frame_context_get(g_display->hwnd);
+            host_frame_context_palette(dc, g_display->hpalette);
+            host_frame_context_release(g_display->hwnd, dc);
             return 1;
         }
         host_palette_apply();

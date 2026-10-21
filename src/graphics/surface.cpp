@@ -276,9 +276,8 @@ int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2)
 {
     Display* d = GetDisplay();
     if (d->offscreenDC != 0) {
-        HDC dc = GetDC(d->hwnd);
-        SelectPalette(dc, d->hpalette, FALSE);
-        RealizePalette(dc);
+        HDC dc = (HDC)host_frame_context_get(d->hwnd);
+        host_frame_context_palette(dc, d->hpalette);
         if (r1 != 0) {
             BitBlt(dc, r1->left, r1->top, r1->right - r1->left,
                    r1->bottom - r1->top, d->sourceDC, r1->left, r1->top,
@@ -289,7 +288,7 @@ int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2)
                    r2->bottom - r2->top, d->sourceDC, r2->left, r2->top,
                    SRCCOPY);
         }
-        ReleaseDC(d->hwnd, dc);
+        host_frame_context_release(d->hwnd, dc);
         return 1;
     }
     if (!host_frame_unlock(HOST_FRAME_FRONT)) {
@@ -442,11 +441,10 @@ void FlipScreen(void)
         Surface* p = &d->cached;
         DrawSurface(p, d->overrideSurface, 0, 0);
         DrawCursor(d, p);
-        HDC hdc = GetDC(d->hwnd);
-        SelectPalette(hdc, d->hpalette, 0);
-        RealizePalette(hdc);
+        HDC hdc = (HDC)host_frame_context_get(d->hwnd);
+        host_frame_context_palette(hdc, d->hpalette);
         BitBlt(hdc, 0, 0, p->width, d->cached.height, d->sourceDC, 0, 0, SRCCOPY);
-        ReleaseDC(d->hwnd, hdc);
+        host_frame_context_release(d->hwnd, hdc);
         Unlock(held);
         return;
     }

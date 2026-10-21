@@ -319,6 +319,22 @@ extern "C" int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsig
     return host_palette_get(palette);
 }
 
+extern "C" void* HOST_CALL host_frame_context_get(void* window)
+{
+    return GetDC((HWND)window);
+}
+
+extern "C" void HOST_CALL host_frame_context_release(void* window, void* context)
+{
+    ReleaseDC((HWND)window, (HDC)context);
+}
+
+extern "C" void HOST_CALL host_frame_context_palette(void* context, void* palette)
+{
+    SelectPalette((HDC)context, (HPALETTE)palette, FALSE);
+    RealizePalette((HDC)context);
+}
+
 extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)
 {
     if (!g_ddraw || !g_primary) {
