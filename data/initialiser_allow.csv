@@ -1,0 +1,6 @@
+file,symbol,reason
+src/game/data_files.cpp,__GLOBAL__sub_I_data_files.cpp,"The initialiser builds s_array, a decompile-only static that exists to emit the TdfFile vector deleting destructor COMDAT; it has no 3.1c address and nothing reads it."
+src/game/economy.cpp,__GLOBAL__sub_I_economy.cpp,"The initialiser builds g_holder_00401000, a decompile-only global that exists to emit the COMDAT at 0x401000; it has no 3.1c address and nothing reads it."
+src/graphics/particles.cpp,__GLOBAL__sub_I_particles.cpp,"The initialiser builds s_obj and s_wake, decompile-only statics that exist to emit COMDATs; 3.1c constructs g_particlePool in 0x471c80 (InitParticlePool), re-added from the original table."
+src/gui/gui.cpp,__GLOBAL__sub_I_gui.cpp,"The initialiser is the <iostream> ios_base::Init; the original table has no iostream initialiser (its only library entry, _$E50 at 0x4e4140, sets flag bytes) and the exe has no ios_base symbols."
+src/network/net_game.cpp,__GLOBAL__sub_I_net_game.cpp,"The initialiser is the <iostream> ios_base::Init; the original table has no iostream initialiser (its only library entry, _$E50 at 0x4e4140, sets flag bytes) and the exe has no ios_base symbols."

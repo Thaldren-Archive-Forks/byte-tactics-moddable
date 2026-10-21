@@ -707,6 +707,34 @@ def drop_initialisers(data: bytes) -> bytes:
     return bytes(buf)
 
 
+def initialiser_symbols(data: bytes) -> list[str]:
+    """The symbols the object's .CRT$XCU sections point at."""
+    _, secs, syms = read(data)
+    by_index, n = {}, 0
+    for sym in syms:
+        by_index[n] = sym.name
+        n += 1 + len(sym.aux)
+    return [by_index[r[1]] for sec in secs if sec.name == ".CRT$XCU" for r in sec.relocs if r[1] in by_index]
+
+
+def load_initialiser_allowlist() -> set[tuple[str, str]]:
+    if not INITIALISER_ALLOW.exists():
+        return set()
+    with INITIALISER_ALLOW.open() as fh:
+        return {(r["file"], r["symbol"]) for r in csv.DictReader(fh)}
+
+
+def report_dropped_initialisers(lost: list[tuple[str, str]], allowed: set[tuple[str, str]]) -> None:
+    """Exits non-zero, naming each dynamic initialiser the link would drop that is not allowed."""
+    bad = [(f, s) for f, s in lost if (f, s) not in allowed]
+    for file, symbol in bad:
+        print(f"aliases: dropped dynamic initialiser {symbol} in {file}", file=sys.stderr)
+    if bad:
+        print("aliases: the link keeps only 3.1c's initialisers; initialise on first use instead "
+              "(see CONTRIBUTING.md, Dynamic initialisation)", file=sys.stderr)
+        sys.exit(1)
+
+
 def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
                   source_of=None, ordered: bool = True) -> list[Path]:
     """Copies of the objects under out_dir (named for their position) with
@@ -740,6 +768,7 @@ def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
     patched = 0
     wanted = wanted_initialisers() if source_of else {}
     kept = dropped = 0
+    lost: list[tuple[str, str]] = []
     candidates: dict[int, list[tuple[int, int, int]]] = defaultdict(list)
     targets: dict[int, Path] = {}
     pieces: dict[str, dict[int, int]] = {}
@@ -759,6 +788,7 @@ def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
                 before = new if new is not None else data
                 new = drop_initialisers(before)
                 dropped += new != before
+                lost += [(relative, name) for name in initialiser_symbols(before)]
             else:
                 kept += 1
             for symbol in wanted.get(relative, ()):
@@ -789,6 +819,7 @@ def patch_objects(objects: list[Path], symbols: dict[str, int], out_dir: Path,
               f"the original left", file=sys.stderr)
     print(f"aliases: {len(interior)} interior globals pointed at their containers in {patched} objects; "
           f"initialisers kept in {kept} files, dropped from {dropped}", file=sys.stderr)
+    report_dropped_initialisers(lost, load_initialiser_allowlist())
     return result
 
 
@@ -982,6 +1013,7 @@ IMAGE_SCN_LNK_REMOVE = 0x800
 EXE = ROOT / "orig/TotalA.exe"
 PROGRESS = ROOT / "data/progress.csv"
 FUNCTIONS = ROOT / "data/functions.csv"
+INITIALISER_ALLOW = ROOT / "data/initialiser_allow.csv"
 
 
 def original_initialisers() -> list[int]:
