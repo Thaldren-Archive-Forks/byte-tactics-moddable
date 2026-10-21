@@ -22,11 +22,10 @@ App_004c0b10,no,2,include/ta_types.h:14401|src/graphics/draw.cpp:75,same-layout,
 ArchiveDirectory,no,4,src/util/hpi.cpp:34|src/util/hpi_4bb4e0.cpp:8|src/util/hpi_4bc800.cpp:11|src/util/hpi_4be320.cpp:9,identical,src/util/hpi.cpp
 ArchiveEntry,no,2,include/ta_types.h:14317|src/util/archive_entry.h:12,differs,src/util/archive_entry.h
 Arena_004da9f0,no,2,include/ta_types.h:16790|src/debug/debug_lib_4db7d0.cpp:98,differs,include/ta_types.h
-Arg_004c6210,no,2,include/ta_types.h:14920|src/graphics/surface.cpp:150,differs,include/ta_types.h
+Arg_004c6210,no,2,include/ta_types.h:14920|src/graphics/surface.cpp:149,differs,include/ta_types.h
 Args_00451640,no,2,include/ta_types.h:6770|src/network/net_game.cpp:895,differs,src/network/net_game.cpp
 BitReader,no,3,include/ta_types.h:3322|src/network/bit_reader.h:7|src/orders/order_targets.cpp:214,same-layout,src/network/bit_reader.h
 BitWriter,no,3,include/ta_types.h:3306|src/network/bit_writer.h:7|src/orders/order_targets.cpp:103,differs,src/network/bit_writer.h
-BitmapInfo_004b5510,no,2,include/ta_types.h:13637|src/graphics/display.cpp:148,differs,include/ta_types.h
 Bitmap_004caec0,no,2,include/ta_types.h:16133|src/graphics/pcx.cpp:237,differs,include/ta_types.h
 Blk,no,2,include/ta_types.h:13981|src/graphics/gaf.cpp:706,differs,include/ta_types.h
 BlockInfo,no,4,include/ta_types.h:16496|src/debug/debug_lib.cpp:435|src/debug/debug_lib_4dacf0.cpp:17|src/debug/debug_lib_4db7d0.cpp:18,differs,src/debug/debug_lib.cpp
@@ -48,7 +47,7 @@ Cell,no,13,include/ta_types.h:2533|src/ingame/info_panel_46a610.cpp:47|src/map/c
 CellPos_0049a120,no,2,src/weapons/weapons.cpp:573|src/weapons/weapons_49a120.cpp:20,identical,src/weapons/weapons.cpp
 Cell_004b0230,no,2,include/ta_types.h:13153|src/gui/listbox.cpp:16,identical,include/ta_types.h
 Channel_004b0c40,no,2,include/ta_types.h:13296|src/units/cob.cpp:19,same-layout,include/ta_types.h
-Chunk,no,3,include/ta_types.h:5259|src/graphics/surface.cpp:877|src/state/block.cpp:30,differs,include/ta_types.h
+Chunk,no,3,include/ta_types.h:5259|src/graphics/surface.cpp:868|src/state/block.cpp:30,differs,include/ta_types.h
 Chunk_4d1820,no,2,include/ta_types.h:16443|src/util/sqsh.cpp:565,identical,include/ta_types.h
 ClaimFootprintVisitor,no,3,include/ta_types.h:10001|src/map/terrain.cpp:133|src/map/terrain_47d0e0.cpp:48,same-layout,include/ta_types.h
 Class_0043db50,no,3,include/ta_types.h:5633|src/orders/order_list.cpp:804|src/units/sfx_occupy.h:6,differs,src/units/sfx_occupy.h
@@ -62,7 +61,7 @@ Class_00470250,no,2,include/ta_types.h:8865|src/network/unit_sync.cpp:1428,diffe
 Class_00475bd0,no,2,include/ta_types.h:9476|src/graphics/particles.cpp:239,differs,include/ta_types.h
 Class_00476210,no,4,include/ta_types.h:9552|src/graphics/particles.cpp:788|src/graphics/particles_472630.cpp:349|src/graphics/particles_475470.cpp:97,differs,include/ta_types.h
 Class_004800c0,no,3,include/ta_types.h:2714|src/ai/ai_player.cpp:301|src/sound/sound.cpp:772,differs,include/ta_types.h
-Class_004c90b0,no,2,include/ta_types.h:15214|src/graphics/surface.cpp:1882,same-layout,include/ta_types.h
+Class_004c90b0,no,2,include/ta_types.h:15214|src/graphics/surface.cpp:1873,same-layout,include/ta_types.h
 Cmp_0046d040,no,2,include/ta_types.h:8358|src/network/unit_sync.cpp:362,identical,include/ta_types.h
 Colors_00467b60,no,2,include/ta_types.h:8142|src/ingame/info_panel.cpp:167,identical,include/ta_types.h
 CommandArgs,no,5,src/ai/ai_player.cpp:43|src/game/console_commands.cpp:106|src/game/players_464290.cpp:271|src/game/share_commands.cpp:16|src/util/commands.cpp:100,differs,src/util/commands.cpp
@@ -83,9 +82,9 @@ Desc_004437c0,no,2,include/ta_types.h:5903|src/frontend/multi.cpp:197,same-layou
 DetectionVisitor,no,3,include/ta_types.h:8110|src/ingame/info_panel.cpp:147|src/ingame/info_panel_467440.cpp:62,differs,include/ta_types.h
 Dialog,no,4,include/ta_types.h:12424|src/gui/file_list.cpp:79|src/gui/gui.cpp:110|src/gui/gui_4a3ef0.cpp:34,differs,include/ta_types.h
 Diff_00480570,no,2,include/ta_types.h:10283|src/units/unit_script_calls.cpp:12,identical,include/ta_types.h
-DirectDrawState,no,2,include/ta_types.h:13642|src/graphics/display.cpp:59,differs,include/ta_types.h
+DirectDrawState,no,2,include/ta_types.h:13642|src/graphics/display.cpp:60,differs,include/ta_types.h
 Display,no,2,src/frontend/endgame.cpp:94|src/graphics/surface.cpp:57,differs,src/graphics/surface.cpp
-DisplayContext,no,4,include/ta_types.h:14486|src/graphics/palette.cpp:13|src/gui/keyboard.cpp:19|src/util/hpi.cpp:63,differs,src/graphics/palette.cpp
+DisplayContext,no,4,include/ta_types.h:14486|src/graphics/palette.cpp:10|src/gui/keyboard.cpp:19|src/util/hpi.cpp:63,differs,src/graphics/palette.cpp
 Display_0041ce90,no,2,include/ta_types.h:3781|src/ingame/control_panel.cpp:174,differs,include/ta_types.h
 Display_00425d80,no,2,include/ta_types.h:4402|src/frontend/frontend.cpp:121,same-layout,include/ta_types.h
 Display_0047c3a0,no,2,include/ta_types.h:9970|src/graphics/movies.cpp:99,identical,include/ta_types.h
@@ -111,7 +110,7 @@ Elem_00476490,no,2,include/ta_types.h:9645|src/graphics/particles_476490.cpp:12,
 Elem_004dd8c0,no,3,include/ta_types.h:16812|src/debug/debug_lib.cpp:1472|src/debug/debug_lib_4db7d0.cpp:61,same-layout,include/ta_types.h
 Elem_432cb0,no,2,include/ta_types.h:4889|src/map/los_tables.cpp:43,differs,include/ta_types.h
 Element_00475ef0,no,2,include/ta_types.h:9637|src/graphics/particles_475ef0.cpp:8,same-layout,include/ta_types.h
-EmptyStringRep,no,2,link/globals.h:221|src/graphics/surface.cpp:1918,identical,link/globals.h
+EmptyStringRep,no,2,link/globals.h:221|src/graphics/surface.cpp:1909,identical,link/globals.h
 Entry,no,2,include/ta_types.h:3637|src/harness/block_scan.cpp:20,differs,include/ta_types.h
 Entry_0042f740,no,2,include/ta_types.h:4725|src/sound/sound_types.cpp:24,same-layout,include/ta_types.h
 Entry_004426e0,no,2,include/ta_types.h:5869|src/frontend/multi.cpp:204,same-layout,include/ta_types.h
@@ -122,7 +121,7 @@ Entry_004b7f70,no,2,include/ta_types.h:13895|src/graphics/gaf.cpp:105,identical,
 Entry_004b8b30,no,2,include/ta_types.h:13961|src/graphics/gaf.cpp:592,identical,include/ta_types.h
 Entry_004d0a10,no,2,include/ta_types.h:16421|src/sound/samples.cpp:130,identical,include/ta_types.h
 Event_0049d1e0,no,2,include/ta_types.h:12057|src/weapons/weapons.cpp:1554,differs,include/ta_types.h
-Event_4b5cc0,no,2,include/ta_types.h:13672|src/graphics/display.cpp:154,differs,src/graphics/display.cpp
+Event_4b5cc0,no,2,include/ta_types.h:13672|src/graphics/display.cpp:149,differs,src/graphics/display.cpp
 ExceptionName,no,2,include/ta_types.h:16620|src/host/win32/crash.cpp:194,identical,include/ta_types.h
 Expired,no,2,include/ta_types.h:10498|src/map/line_of_sight.cpp:245,differs,include/ta_types.h
 Explosion,no,2,include/ta_types.h:3976|src/weapons/explosions.cpp:50,differs,include/ta_types.h
@@ -160,7 +159,7 @@ Flags_004898b0,no,2,include/ta_types.h:10955|src/units/unit.cpp:32,differs,src/u
 Flags_00499cd0,no,2,include/ta_types.h:11968|src/weapons/weapons.cpp:372,identical,include/ta_types.h
 Flags_004ab400,no,2,include/ta_types.h:12659|src/gui/dialogs.cpp:53,identical,include/ta_types.h
 Flags_37f06,no,2,src/graphics/model_render.cpp:95|src/graphics/model_render_4581e0.cpp:26,differs,src/graphics/model_render_4581e0.cpp
-Flags_4b5980,no,2,include/ta_types.h:13652|src/graphics/display.cpp:14,differs,src/graphics/display.cpp
+Flags_4b5980,no,2,include/ta_types.h:13652|src/graphics/display.cpp:15,differs,src/graphics/display.cpp
 FogGrid,no,2,src/map/line_of_sight.cpp:66|src/map/line_of_sight_4843c0.cpp:15,differs,src/map/line_of_sight.cpp
 Font_004a3ef0,no,2,include/ta_types.h:12470|src/gui/gui_4a3ef0.cpp:17,differs,include/ta_types.h
 Font_004a50b0,no,2,include/ta_types.h:12371|src/gui/gui.cpp:4087,differs,include/ta_types.h
@@ -357,10 +356,10 @@ Prim_0046bae0,no,2,include/ta_types.h:8231|src/ingame/info_panel.cpp:219,differs
 ProjectileDetonatePacket,no,3,include/ta_types.h:11994|src/weapons/weapons.cpp:999|src/weapons/weapons_49a120.cpp:61,differs,include/ta_types.h
 Quad,no,2,include/ta_types.h:7382|src/ingame/dialogs_493340.cpp:32,differs,include/ta_types.h
 Queue_004c1ab0,no,2,include/ta_types.h:14446|src/gui/keyboard.cpp:9,same-layout,include/ta_types.h
-RGBA,no,2,include/ta_types.h:14083|src/graphics/palette.cpp:46,identical,include/ta_types.h
+RGBA,no,2,include/ta_types.h:14083|src/graphics/palette.cpp:41,identical,include/ta_types.h
 RadarJamVisitor,no,3,include/ta_types.h:8118|src/ingame/info_panel.cpp:155|src/ingame/info_panel_467440.cpp:70,same-layout,include/ta_types.h
-Range,no,2,include/ta_types.h:15176|src/graphics/surface.cpp:882,identical,include/ta_types.h
-Rec_004c7580,no,2,include/ta_types.h:15199|src/graphics/surface.cpp:1076,identical,include/ta_types.h
+Range,no,2,include/ta_types.h:15176|src/graphics/surface.cpp:873,identical,include/ta_types.h
+Rec_004c7580,no,2,include/ta_types.h:15199|src/graphics/surface.cpp:1067,identical,include/ta_types.h
 Record_0044c0d0,no,2,include/ta_types.h:6036|src/frontend/multi.cpp:707,differs,include/ta_types.h
 Record_004ab2b0,no,2,include/ta_types.h:12645|src/gui/dialogs.cpp:72,same-layout,include/ta_types.h
 Record_004ab3a0,no,2,include/ta_types.h:12652|src/gui/dialogs.cpp:103,same-layout,include/ta_types.h
