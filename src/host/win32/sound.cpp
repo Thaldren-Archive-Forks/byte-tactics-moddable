@@ -3,6 +3,7 @@
 #include <dsound.h>
 
 #include "../../../interfaces/host.h"
+#include "headless.h"
 
 extern "C" const GUID IID_IDirectSound3DBuffer;
 
@@ -58,6 +59,7 @@ void ReleaseAll()
 
 extern "C" void* HOST_CALL host_sound_open(void* window, int rate, int bits, int channels, int* error)
 {
+    if (HostHeadless()) return HeadlessSoundOpen(window, rate, bits, channels, error);
     WAVEFORMATEX wfx;
     DSBUFFERDESC desc;
     HRESULT hr;
@@ -94,16 +96,19 @@ fail:
 
 extern "C" void HOST_CALL host_sound_close(void)
 {
+    if (HostHeadless()) { HeadlessSoundClose(); return; }
     ReleaseAll();
 }
 
 extern "C" void* HOST_CALL host_sound_native(void)
 {
+    if (HostHeadless()) return HeadlessSoundNative();
     return g_ds;
 }
 
 extern "C" void* HOST_CALL host_sound_buffer_create(unsigned int bytes, int rate, int bits, int channels, unsigned int flags)
 {
+    if (HostHeadless()) return HeadlessSoundBufferCreate(bytes, rate, bits, channels, flags);
     WAVEFORMATEX wfx;
     DSBUFFERDESC desc;
     IDirectSoundBuffer* buf = NULL;
@@ -125,6 +130,7 @@ extern "C" void* HOST_CALL host_sound_buffer_create(unsigned int bytes, int rate
 
 extern "C" void* HOST_CALL host_sound_buffer_duplicate(void* buffer)
 {
+    if (HostHeadless()) return HeadlessSoundBufferDuplicate(buffer);
     IDirectSoundBuffer* copy = NULL;
 
     if (g_ds == NULL || g_ds->DuplicateSoundBuffer((IDirectSoundBuffer*)buffer, &copy) != 0) {
@@ -135,11 +141,13 @@ extern "C" void* HOST_CALL host_sound_buffer_duplicate(void* buffer)
 
 extern "C" void HOST_CALL host_sound_buffer_free(void* buffer)
 {
+    if (HostHeadless()) { HeadlessSoundBufferFree(buffer); return; }
     ((IDirectSoundBuffer*)buffer)->Release();
 }
 
 extern "C" int HOST_CALL host_sound_buffer_lock(void* buffer, unsigned int offset, unsigned int bytes, void** data, unsigned int* size)
 {
+    if (HostHeadless()) return HeadlessSoundBufferLock(buffer, offset, bytes, data, size);
     DWORD got;
     void* ptr;
 
@@ -153,21 +161,25 @@ extern "C" int HOST_CALL host_sound_buffer_lock(void* buffer, unsigned int offse
 
 extern "C" int HOST_CALL host_sound_buffer_unlock(void* buffer, void* data, unsigned int size)
 {
+    if (HostHeadless()) return HeadlessSoundBufferUnlock(buffer, data, size);
     return ((IDirectSoundBuffer*)buffer)->Unlock(data, size, 0, 0) == 0;
 }
 
 extern "C" int HOST_CALL host_sound_buffer_play(void* buffer, int loop)
 {
+    if (HostHeadless()) return HeadlessSoundBufferPlay(buffer, loop);
     return ((IDirectSoundBuffer*)buffer)->Play(0, 0, loop != 0) == 0;
 }
 
 extern "C" int HOST_CALL host_sound_buffer_stop(void* buffer)
 {
+    if (HostHeadless()) return HeadlessSoundBufferStop(buffer);
     return ((IDirectSoundBuffer*)buffer)->Stop() == 0;
 }
 
 extern "C" int HOST_CALL host_sound_buffer_status(void* buffer)
 {
+    if (HostHeadless()) return HeadlessSoundBufferStatus(buffer);
     DWORD status;
 
     if (((IDirectSoundBuffer*)buffer)->GetStatus(&status) != 0) {
@@ -178,6 +190,7 @@ extern "C" int HOST_CALL host_sound_buffer_status(void* buffer)
 
 extern "C" int HOST_CALL host_sound_buffer_position(void* buffer, unsigned int* play, unsigned int* write)
 {
+    if (HostHeadless()) return HeadlessSoundBufferPosition(buffer, play, write);
     DWORD p;
     DWORD w;
 
@@ -191,16 +204,19 @@ extern "C" int HOST_CALL host_sound_buffer_position(void* buffer, unsigned int* 
 
 extern "C" int HOST_CALL host_sound_buffer_set_position(void* buffer, unsigned int offset)
 {
+    if (HostHeadless()) return HeadlessSoundBufferSetPosition(buffer, offset);
     return ((IDirectSoundBuffer*)buffer)->SetCurrentPosition(offset) == 0;
 }
 
 extern "C" int HOST_CALL host_sound_buffer_set_volume(void* buffer, int volume)
 {
+    if (HostHeadless()) return HeadlessSoundBufferSetVolume(buffer, volume);
     return ((IDirectSoundBuffer*)buffer)->SetVolume(volume) == 0;
 }
 
 extern "C" int HOST_CALL host_sound_buffer_place(void* buffer, const float* xyz, float min_distance, float max_distance)
 {
+    if (HostHeadless()) return HeadlessSoundBufferPlace(buffer, xyz, min_distance, max_distance);
     IDirectSound3DBuffer* chan;
 
     if (((IDirectSoundBuffer*)buffer)->QueryInterface(IID_IDirectSound3DBuffer, (void**)&chan) != 0) {
@@ -220,11 +236,13 @@ extern "C" int HOST_CALL host_sound_buffer_place(void* buffer, const float* xyz,
 
 extern "C" int HOST_CALL host_mixer_wave_count(void)
 {
+    if (HostHeadless()) return HeadlessMixerWaveCount();
     return (int)waveOutGetNumDevs();
 }
 
 extern "C" int HOST_CALL host_mixer_cd_device(void)
 {
+    if (HostHeadless()) return HeadlessMixerCdDevice();
     int count = (int)auxGetNumDevs();
 
     for (int i = 0; i < count; i++) {
@@ -238,6 +256,7 @@ extern "C" int HOST_CALL host_mixer_cd_device(void)
 
 extern "C" int HOST_CALL host_mixer_get(int line, int device, unsigned int* volume)
 {
+    if (HostHeadless()) return HeadlessMixerGet(line, device, volume);
     DWORD v;
     MMRESULT r;
 
@@ -255,6 +274,7 @@ extern "C" int HOST_CALL host_mixer_get(int line, int device, unsigned int* volu
 
 extern "C" int HOST_CALL host_mixer_set(int line, int device, unsigned int volume)
 {
+    if (HostHeadless()) return HeadlessMixerSet(line, device, volume);
     MMRESULT r;
 
     if (line == HOST_MIXER_WAVE) {
@@ -267,6 +287,7 @@ extern "C" int HOST_CALL host_mixer_set(int line, int device, unsigned int volum
 
 extern "C" int HOST_CALL host_sound_wav_play(const void* wav, unsigned int flags)
 {
+    if (HostHeadless()) return HeadlessSoundWavPlay(wav, flags);
     unsigned int mode = SND_ASYNC | SND_MEMORY;
     if (flags & HOST_WAV_LOOP)
         mode |= SND_LOOP;
@@ -277,5 +298,6 @@ extern "C" int HOST_CALL host_sound_wav_play(const void* wav, unsigned int flags
 
 extern "C" void HOST_CALL host_sound_wav_stop(void)
 {
+    if (HostHeadless()) { HeadlessSoundWavStop(); return; }
     PlaySoundA(0, 0, SND_NOWAIT);
 }

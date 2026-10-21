@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "../../../interfaces/host.h"
+#include "headless.h"
 
 extern HWND host_win32_window(void);
 
@@ -50,6 +51,7 @@ int QueryNumber(const char* command)
 
 extern "C" int HOST_CALL host_music_open(void)
 {
+    if (HostHeadless()) return HeadlessMusicOpen();
     MCIERROR hr = mciSendStringA("open cdaudio", 0, 0, 0);
     if (hr != 0) {
         return 0;
@@ -64,22 +66,26 @@ extern "C" int HOST_CALL host_music_open(void)
 
 extern "C" void HOST_CALL host_music_close(void)
 {
+    if (HostHeadless()) { HeadlessMusicClose(); return; }
     mciSendStringA("stop cdaudio", 0, 0, 0);
     mciSendStringA("close cdaudio", 0, 0, 0);
 }
 
 extern "C" int HOST_CALL host_music_stop(void)
 {
+    if (HostHeadless()) return HeadlessMusicStop();
     return mciSendStringA("stop cdaudio", 0, 0, 0) == 0;
 }
 
 extern "C" int HOST_CALL host_music_pause(void)
 {
+    if (HostHeadless()) return HeadlessMusicPause();
     return mciSendStringA("pause cdaudio", 0, 0, host_win32_window()) == 0;
 }
 
 extern "C" int HOST_CALL host_music_playing(void)
 {
+    if (HostHeadless()) return HeadlessMusicPlaying();
     char buf[0x40];
 
     if (!Query("status cdaudio mode", buf, sizeof(buf))) {
@@ -90,6 +96,7 @@ extern "C" int HOST_CALL host_music_playing(void)
 
 extern "C" int HOST_CALL host_music_track_count(void)
 {
+    if (HostHeadless()) return HeadlessMusicTrackCount();
     char buf[0x20];
 
 #ifdef __clang__
@@ -103,6 +110,7 @@ extern "C" int HOST_CALL host_music_track_count(void)
 
 extern "C" int HOST_CALL host_music_track_is_audio(int track)
 {
+    if (HostHeadless()) return HeadlessMusicTrackIsAudio(track);
     char type[0x20];
     char cmd[0x40];
     int ok;
@@ -122,6 +130,7 @@ extern "C" int HOST_CALL host_music_track_is_audio(int track)
 
 extern "C" int HOST_CALL host_music_track_length(int track)
 {
+    if (HostHeadless()) return HeadlessMusicTrackLength(track);
     char cmd[0x40];
 
     sprintf(cmd, "status cdaudio length track %i", track);
@@ -130,6 +139,7 @@ extern "C" int HOST_CALL host_music_track_length(int track)
 
 extern "C" int HOST_CALL host_music_track_start(int track)
 {
+    if (HostHeadless()) return HeadlessMusicTrackStart(track);
     char cmd[0x40];
 
     sprintf(cmd, "status cdaudio position track %i", track);
@@ -138,16 +148,19 @@ extern "C" int HOST_CALL host_music_track_start(int track)
 
 extern "C" int HOST_CALL host_music_current_track(void)
 {
+    if (HostHeadless()) return HeadlessMusicCurrentTrack();
     return QueryNumber("status cdaudio current track");
 }
 
 extern "C" int HOST_CALL host_music_position(void)
 {
+    if (HostHeadless()) return HeadlessMusicPosition();
     return QueryNumber("status cdaudio position");
 }
 
 extern "C" int HOST_CALL host_music_play_tracks(int first, int last)
 {
+    if (HostHeadless()) return HeadlessMusicPlayTracks(first, last);
     char cmd[0x40];
     char to[0x20];
     MCIERROR err;
@@ -168,6 +181,7 @@ extern "C" int HOST_CALL host_music_play_tracks(int first, int last)
 
 extern "C" int HOST_CALL host_music_play_range(int from_ms, int to_ms)
 {
+    if (HostHeadless()) return HeadlessMusicPlayRange(from_ms, to_ms);
     char cmd[0x80];
     char part[0x20];
 
@@ -186,6 +200,7 @@ extern "C" int HOST_CALL host_music_play_range(int from_ms, int to_ms)
 
 extern "C" unsigned int HOST_CALL host_music_disc_serial(void)
 {
+    if (HostHeadless()) return HeadlessMusicDiscSerial();
     char root[4] = {'A', ':', '\\', 0};
 
     for (char letter = 'A'; letter <= 'Z'; letter++) {
@@ -212,6 +227,7 @@ static BOOL CALLBACK FindCdPlayerWindow(HWND hwnd, LPARAM param)
 
 extern "C" void* HOST_CALL host_music_find_cd_player(void)
 {
+    if (HostHeadless()) return HeadlessMusicFindCdPlayer();
     HWND found = 0;
     EnumWindows((WNDENUMPROC)FindCdPlayerWindow, (LPARAM)&found);
     return found;
@@ -219,6 +235,7 @@ extern "C" void* HOST_CALL host_music_find_cd_player(void)
 
 extern "C" void HOST_CALL host_music_close_cd_player(void* window)
 {
+    if (HostHeadless()) { HeadlessMusicCloseCdPlayer(window); return; }
     SendMessageA((HWND)window, WM_CLOSE, 0, 0);
     SendMessageA((HWND)window, WM_QUIT, 0, 0);
     host_sleep_ms(500);

@@ -252,8 +252,8 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
     returns without exiting. With `keep_always`, every run's trace.txt is kept (see play_scenario). With `scans`,
     every run has the block pointer scan on (every `scan_every` ticks) and leaves its blockptrs.txt there; `retry_any` is passed on to play_scenario.
 
-    Each run has its own session directory, Wine prefix, game directory, X display and audio sink
-    (tools/playtest.py names them by its pid), so runs share nothing but the template prefix,
+    Each run has its own session directory, Wine prefix and game directory (tools/playtest.py
+    names them by its pid; a test-mode run is headless, with no X display or audio sink), so runs share nothing but the template prefix,
     which they only hardlink. With `expected`, a scenario that differs keeps its trace (see play_scenario).
     """
     playtest.template_prefix()
