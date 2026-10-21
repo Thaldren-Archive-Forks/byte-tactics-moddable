@@ -39,3 +39,8 @@ extern "C" void HOST_CALL host_log(const char* text)
     OutputDebugStringA(text);
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), text, (DWORD)strlen(text), &written, NULL);
 }
+
+extern "C" const char* HOST_CALL host_command_line(void)
+{
+    return GetCommandLineA();
+}
