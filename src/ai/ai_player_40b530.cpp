@@ -5,12 +5,13 @@ namespace std {
 inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest, &src); }
 }
 #include <vector>
+#include "../state/sim_allocator.h"
 #include "vec.h"
 #pragma pack(push,1)
 struct Def { char pad[0x241]; unsigned flags; };
 #include "../units/unit.h"
 #include "../state/sim_globals.h"
-struct Owner { char pad[0x25]; std::vector<Unit*> factories; };
+struct Owner { char pad[0x25]; SimVector<Unit*> factories; };
 #pragma pack(pop)
 typedef Owner* SimView_g_playerAI[];
 #undef g_playerAI
@@ -18,9 +19,9 @@ typedef Owner* SimView_g_playerAI[];
 // FUNCTION: 0x40b530
 void __stdcall GetFactoriesInRadius(int player,const Vec* pos,int radius,std::vector<Unit*>* out)
 {
-    std::vector<Unit*>& list=g_playerAI[player]->factories;
+    SimVector<Unit*>& list=g_playerAI[player]->factories;
     radius*=radius;
-    for(std::vector<Unit*>::iterator it=list.begin();it!=list.end();++it) {
+    for(SimVector<Unit*>::iterator it=list.begin();it!=list.end();++it) {
         Unit* unit=*it;
         if((((Def*)unit->def)->flags&0x40) && (((Def*)unit->def)->flags&0x200) && (unit->activateFlags&1)) {
             int dz=pos->z-unit->pos.z;
