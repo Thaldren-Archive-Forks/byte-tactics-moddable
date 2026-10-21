@@ -151,12 +151,6 @@ LzssCompress,0x4d0f60,src/util/sqsh.cpp,end-of,g_lzssPresetTree,0,g_lzssPresetWi
 LzssCompress,0x4d0f60,src/util/sqsh.cpp,end-of,g_squashThreadLockTicket,0,g_squashThreadLockEvent,,none
 LzssExpand,0x4d1480,src/util/sqsh.cpp,end-of,g_squashThreadLockTicket,0,g_squashThreadLockEvent,,none
 LzssSetPreset,0x4d1670,src/util/sqsh.cpp,end-of,g_lzssPresetTree,0,g_lzssPresetWindow,,none
-GetSourceFilePath,0x4de8a0,src/debug/debug_lib.cpp,end-of,g_crtSourceRoot,0,g_msdevDirRead,,none
-GetSourceFilePath,0x4de8a0,src/debug/debug_lib.cpp,end-of,g_mfcSourceRoot,0,g_crtSourceRoot,,none
-InitPerformanceEvents,0x4e1be0,src/debug/debug_lib.cpp,end-of,g_pentiumProEvents,0,g_pentiumEvents,,none
-Timer::~Timer,0x4e1de0,src/debug/debug_lib.cpp,past-end,g_reportIndentText,-1,g_reportIndentText,g_pmcEvent1+0xf,none
-Timer::ReportElapsedTime,0x4e1e50,src/debug/debug_lib_4e1e50.cpp,end-of,g_reportIndentText,0,g_pmcEvent0,,none
-Timer::ReportElapsedTime,0x4e1e50,src/debug/debug_lib_4e1e50.cpp,end-of,g_reportIndentText,0,g_pmcEvent1,,none
 SetStateLogged,,src/frontend/frontend.cpp,end-of,g_frontendSourceFile,0,g_frontendStateChangeFormat,,none
 SetSubStateLogged,,src/frontend/frontend.cpp,end-of,g_frontendSourceFile,0,g_frontendStateChangeFormat,,none
 VisitWorld,,src/harness/harness.cpp,end-of,g_liteGoalVtable,0,g_packedGoalVtable,,none
