@@ -104,6 +104,8 @@ void HOST_CALL host_crash_report(void* exception, const char* handler);
 void HOST_CALL host_crash_install(void);
 // Passes value to DebugFunc1 of DebugHelper.dll and returns its result, or shows why it could not and returns value.
 int HOST_CALL host_debug_helper(int value);
+// Breaks into the debugger if one is attached.
+void HOST_CALL host_debug_break(void);
 
 // Creates an event, signalled or not, that a wait resets itself unless manual_reset is set, and returns its handle.
 void* HOST_CALL host_event_create(int manual_reset, int signalled);
@@ -133,8 +135,6 @@ void HOST_CALL host_log(const char* text);
 int HOST_CALL host_instance_running(const char* name);
 // Writes the name of the signed-in user into buf of size bytes and returns its length with the terminator, or 0 on failure (including a buf too small).
 unsigned int HOST_CALL host_user_name(char* buf, unsigned int size);
-// Breaks into the debugger if one is attached.
-void HOST_CALL host_debug_break(void);
 
 // The machine's physical memory, in bytes.
 struct host_memory {
