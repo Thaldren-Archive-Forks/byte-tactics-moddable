@@ -91,7 +91,7 @@ struct Guard {
     Guard()
     {
         if (g_lock == 0)
-            g_lock = host_mutex_create();
+            Fatal("used before SimBlockInit");
         host_mutex_lock(g_lock);
         if (g_insideThread != 0)
             Fatal("re-entered the allocator");
@@ -308,6 +308,8 @@ unsigned int __cdecl SimHighWater()
 
 void __cdecl SimBlockInit()
 {
+    if (g_lock == 0)
+        g_lock = host_mutex_create();
     Guard guard;
 }
 
