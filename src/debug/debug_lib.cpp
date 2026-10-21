@@ -3820,3 +3820,9 @@ void MappedFile::CloseMappedFile()
     }
 }
 #pragma auto_inline(on)
+
+// FUNCTION: 0x4e3e10
+int StringMaxSize(void)
+{
+    return 0xfffffffd;
+}
