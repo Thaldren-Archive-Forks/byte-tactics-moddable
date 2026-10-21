@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "../../../interfaces/host.h"
-#include "../../debug/command_line.h"
+#include <ctype.h>
 
 __declspec(thread) char* g_stackLow;
 __declspec(thread) char* g_stackHigh;
@@ -59,9 +59,8 @@ public:
     void FormatStackReport();
 };
 
-extern int g_errorLogWritten;
+static int g_errorLogWritten;
 
-char __cdecl AvWriteDetectStub();
 char* __cdecl GetExceptionName(unsigned long code);
 void __cdecl NormalizeLineEndings(char* buf, int size);
 void __cdecl FormatSystemInfo(char* dst, int size);
@@ -114,10 +113,6 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     sprintf(log + strlen(log), " - %s\n", reason);
     if (0xc0000005 == rec->ExceptionCode) {
         if (rec->NumberParameters >= 2) {
-            if (0 != ((char(__cdecl*)(unsigned long))AvWriteDetectStub)(rec->ExceptionInformation[1])) {
-                char* d = log + strlen(log);
-                sprintf(d, "Error: Write to read only memory attempted\n");
-            }
             const char* rw = 0 != rec->ExceptionInformation[0] ? "write" : "read";
             char* d = log + strlen(log);
             sprintf(d, "Access violation: Illegal %s, data address 0x%08lX\n",
@@ -240,7 +235,7 @@ char* __cdecl GetExceptionName(unsigned long code)
 }
 
 void __cdecl WalkFrameChain(int* frame, int* stack, int eip, int skip,
-                           void* this_, int flag, int* field_78, int* field_7c,
+                           int* this_, int flag, int* field_78, int* field_7c,
                            int size, int* field_207c);
 
 #pragma auto_inline(off)
@@ -248,7 +243,7 @@ void __cdecl WalkFrameChain(int* frame, int* stack, int eip, int skip,
 void StackTrace::CaptureStack(int* frame, int* esp, int eip, int skip)
 {
     pc = (unsigned long*)esp;
-    WalkFrameChain(frame, esp, eip, skip, this, 0x1e, &count, stack, 0x800, &copied);
+    WalkFrameChain(frame, esp, eip, skip, (int*)this, 0x1e, &count, stack, 0x800, &copied);
 }
 #pragma auto_inline(on)
 
@@ -303,7 +298,7 @@ void StackTrace::FormatStackReport()
 }
 
 int __cdecl ReportException(EXCEPTION_POINTERS*, char*);
-extern const char g_exceptionHandlerName[];
+static const char g_exceptionHandlerName[28] = "Global Exception Handler";
 
 // FUNCTION: 0x4da2a0
 void __stdcall UnhandledExceptionHandler(int ep)
@@ -342,13 +337,12 @@ public:
     int numDebugDirs;
 
     LoadedImage(HMODULE m);
-    ~LoadedImage();
     Fpo_004de020* GetFpoRecords();
     unsigned int GetFpoRecordCount();
     Fpo_004de020* FindFpoRecord(unsigned int address);
 };
 
-extern LoadedImage g_loadedImage;
+static unsigned char g_loadedImage[sizeof(LoadedImage)];
 
 // FUNCTION: 0x4ddf00
 LoadedImage::LoadedImage(HMODULE m) : MappedFile(0)
@@ -435,15 +429,12 @@ void __stdcall FunctionTableAccess(int unused, unsigned int address)
 // FUNCTION: 0x4de0f0
 void CloseLoadedImage()
 {
-    g_loadedImage.CloseMappedFile();
+    ((LoadedImage*)g_loadedImage)->CloseMappedFile();
 }
-
-extern int GetDebugLibInstance();
 
 // FUNCTION: 0x4de100
 void __stdcall GetModuleBase(int arg1, int arg2)
 {
-    GetDebugLibInstance();
 }
 
 typedef DWORD (__stdcall *SymSetOptions_004de180)(DWORD);
@@ -451,18 +442,44 @@ typedef BOOL (__stdcall *SymInitialize_004de180)(HANDLE, char*, DWORD);
 typedef void (__stdcall *SymProc_004de180)(void);
 typedef BOOL (__stdcall *StackWalk_004de700)(DWORD, HANDLE, HANDLE, void*, void*, void*, void*, void*, void*);
 
-extern char g_imageHelpLoaded;
-extern char g_imageHelpInited;
-extern HMODULE g_imageHelpModule;
-extern SymSetOptions_004de180 g_pfnSymSetOptions;
-extern SymInitialize_004de180 g_pfnSymInitialize;
-extern BOOL (__stdcall* g_pfnSymCleanup)(HANDLE);
-extern StackWalk_004de700 g_pfnStackWalk;
-extern void* g_pfnSymFunctionTableAccess;
-extern void* g_pfnSymGetModuleBase;
-extern SymProc_004de180 g_pfnSymGetSymFromAddr;
-extern SymProc_004de180 g_pfnSymGetLineFromAddr;
-extern SymProc_004de180 g_pfnUnDecorateSymbolName;
+static char g_imageHelpLoaded;
+static char g_imageHelpInited;
+static HMODULE g_imageHelpModule;
+static SymSetOptions_004de180 g_pfnSymSetOptions;
+static SymInitialize_004de180 g_pfnSymInitialize;
+static BOOL (__stdcall* g_pfnSymCleanup)(HANDLE);
+static StackWalk_004de700 g_pfnStackWalk;
+static void* g_pfnSymFunctionTableAccess;
+static void* g_pfnSymGetModuleBase;
+static SymProc_004de180 g_pfnSymGetSymFromAddr;
+static SymProc_004de180 g_pfnSymGetLineFromAddr;
+static SymProc_004de180 g_pfnUnDecorateSymbolName;
+
+static bool HasCommandLineSwitch(const char* name)
+{
+    const char* cmd = GetCommandLineA();
+    size_t len = strlen(name);
+    if (!cmd)
+        return false;
+    for (; *cmd; cmd++) {
+        if (_strnicmp(cmd, name, len) == 0) {
+            char c = cmd[len];
+            if (c == 0 || isspace((unsigned char)c) || c == '=')
+                return true;
+        }
+    }
+    return false;
+}
+
+static char ImageHelpEnabled()
+{
+    char on = 1;
+    if (HasCommandLineSwitch("-enableimagehlp"))
+        on = 1;
+    if (HasCommandLineSwitch("-disableimagehlp"))
+        on = 0;
+    return on;
+}
 
 #pragma auto_inline(off)
 // FUNCTION: 0x4de110
@@ -489,8 +506,7 @@ void UnloadImageHelp()
 // FUNCTION: 0x4de180
 char __cdecl LoadImageHelp(char param)
 {
-    static CommandLineSwitch imagehlp("imagehlp", 0, 1, "-enableimagehlp",
-                                   "-disableimagehlp", 0, 0);
+    static char imagehlpOn = ImageHelpEnabled();
     char path[0x100];
     char symPath[0x3e8];
     char* searchPath;
@@ -500,7 +516,7 @@ char __cdecl LoadImageHelp(char param)
     GetProcAddress_004de180 getProcAddress = (GetProcAddress_004de180)GetProcAddress;
     HANDLE (__stdcall *getCurrentProcess)(void) = GetCurrentProcess;
 
-    if (!param && !imagehlp.on)
+    if (!param && !imagehlpOn)
         return 0;
     if (g_imageHelpLoaded)
         return g_imageHelpInited;
@@ -626,8 +642,8 @@ struct Frame_004de700 {
 };
 static_assert(sizeof(Frame_004de700) == 0x98, "StackWalk writes the 0x98-byte STACKFRAME");
 
-extern char g_stackProcessHandleRead;
-extern HANDLE g_stackProcessHandle;
+static char g_stackProcessHandleRead;
+static HANDLE g_stackProcessHandle;
 
 // FUNCTION: 0x4de700
 void __cdecl WalkStack(int param1, int param2, int param3, int param4, int* param5, int param6, int* param7)
@@ -666,7 +682,7 @@ void __cdecl WalkStack(int param1, int param2, int param3, int param4, int* para
     }
 }
 
-extern char* g_libraryDateStamp;
+static char* g_libraryDateStamp = (char*)"Library date stamp: Jun 30 1998 16:08:53";
 int __cdecl GetStackLow(void);
 void* GetStackHigh(void);
 

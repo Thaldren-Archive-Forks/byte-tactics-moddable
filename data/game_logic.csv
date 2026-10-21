@@ -1523,7 +1523,6 @@ address,function,file
 0x4d8820,BlockInfo::BlockInfo,src/debug/debug_lib.cpp
 0x4d8850,BlockInfo::SetName,src/debug/debug_lib.cpp
 0x4d8e50,SetOutOfMemoryHandler,src/debug/debug_lib.cpp
-0x4d9f50,GetDebugLibInstance,src/debug/debug_lib.cpp
 0x4d9f60,FindCommandLineSwitch,src/debug/debug_lib.cpp
 0x4d9fe0,CommandLineSwitch::CommandLineSwitch,src/debug/debug_lib.cpp
 0x4da040,CommandLineNumber::CommandLineNumber,src/debug/debug_lib.cpp

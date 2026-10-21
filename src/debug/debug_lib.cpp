@@ -527,22 +527,6 @@ int __cdecl SetOutOfMemoryHandler(int handler)
 // FatalError (0x4d9ab0) stays in src/debug/debug_lib_4d9ab0.cpp: it is the
 // source of a gap region (its __try/__except and `int 3` have no FPO record).
 
-// A DllMain-shaped entry point: on DLL_PROCESS_ATTACH it saves the module
-// handle (read back by 0x4d9f50). `sub eax, 0; je; dec eax; jne` is a switch
-// with cases 0 and 1.
-
-extern int g_debugLibInstance;
-
-
-extern int g_debugLibInstance;
-
-#pragma auto_inline(off)
-// FUNCTION: 0x4d9f50
-int GetDebugLibInstance(void)
-{
-    return g_debugLibInstance;
-}
-#pragma auto_inline(on)
 
 // Finds a switch on the command line (case-insensitively) that ends at the
 // end of the line, a space or '=', and returns the text just after it, or 0.
@@ -648,10 +632,8 @@ bool __cdecl IsDebugKeyword(const char* arg)
 
 
 
-int GetDebugLibInstance(void);
 
 
-int GetDebugLibInstance(void);
 
 
 extern char* __cdecl strrchr(const char*, int);

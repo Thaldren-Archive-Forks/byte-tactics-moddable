@@ -227,8 +227,6 @@ extern void* g_squashErrorNames[7];                                             
 extern char g_cavedogTitle[8];                                                                                  // 0x50c8ac, 8 bytes; 1 of 1 files
 extern char* g_debugKeywords[19];                                                                               // 0x50c908, 76 bytes; 1 of 1 files
 extern char g_memoryStatusSwitch[16];                                                                           // 0x50d220, 16 bytes; 1 of 1 files
-extern const char g_exceptionHandlerName[28];                                                                   // 0x50d2d0, 28 bytes; 1 of 1 files
-extern char* g_libraryDateStamp;                                                                                // 0x50d4d0, 4 bytes; 1 of 1 files
 extern char* g_performanceWindowName;                                                                           // 0x50d660, 4 bytes; 1 of 1 files
 extern char g_performanceDialogError[36];                                                                       // 0x50d6b4, 36 bytes; 1 of 1 files
 extern char* g_memoryStatusWindowName;                                                                          // 0x50d72c, 4 bytes; 2 of 2 files
@@ -454,8 +452,6 @@ extern int g_lzssUsePreset;                                                     
 extern char g_memFussyQueried;                                                                                  // 0x5289b4, 1 bytes; 1 of 1 files
 extern char g_memFussyDefault;                                                                                  // 0x5289b8, 1 bytes; 1 of 1 files
 extern void (__stdcall* g_outOfMemoryHandler)(void);                                                            // 0x5289bc, 4 bytes; 2 of 2 files
-extern int g_errorLogWritten;                                                                                   // 0x5289c0, 4 bytes; 1 of 1 files
-extern int g_debugLibInstance;                                                                                  // 0x5289c4, 4 bytes; 1 of 1 files
 extern unsigned int g_committedBytesPeak;                                                                       // 0x5289d0, 4 bytes; 3 of 3 files
 extern unsigned int g_lastAllocOffset;                                                                          // 0x5289d4, 4 bytes; 3 of 3 files
 extern unsigned int g_currentBytesPeak;                                                                         // 0x5289d8, 4 bytes; 2 of 2 files
@@ -480,23 +476,8 @@ extern unsigned char g_freedBlockRing[4];                                       
 extern int g_blockMapLiveCount;                                                                                 // 0x528a4c, 4 bytes; 1 of 1 files
 extern void* g_blockMapNil;                                                                                     // 0x528a50, 4 bytes; 1 of 1 files
 extern unsigned char DAT_00528a5c[4];                                                                           // 0x528a5c, 4 bytes; nothing refers to it
-extern unsigned char g_loadedImage[44];                                                                         // 0x528a78, 44 bytes; LoadedImage by value in 1 of 1 files
 extern void* g_lineProcessHandle;                                                                               // 0x528aa4, 4 bytes; 1 of 1 files
-extern char g_stackProcessHandleRead;                                                                           // 0x528aa8, 1 bytes; 1 of 1 files
 extern char g_lineProcessHandleRead;                                                                            // 0x528aac, 1 bytes; 1 of 1 files
-extern void* g_stackProcessHandle;                                                                              // 0x528ab0, 4 bytes; 1 of 1 files
-extern void (__stdcall* g_pfnSymGetLineFromAddr)(void);                                                         // 0x528ab4, 4 bytes; 1 of 1 files
-extern int (__stdcall* g_pfnSymInitialize)(void*, char*, unsigned long);                                        // 0x528ab8, 4 bytes; 1 of 1 files
-extern int (__stdcall* g_pfnSymCleanup)(void*);                                                                 // 0x528abc, 4 bytes; 1 of 1 files
-extern int (__stdcall* g_pfnStackWalk)(unsigned long, void*, void*, void*, void*, void*, void*, void*, void*);  // 0x528ac0, 4 bytes; 1 of 1 files
-extern void* g_pfnSymFunctionTableAccess;                                                                       // 0x528ac4, 4 bytes; 1 of 1 files
-extern void* g_pfnSymGetModuleBase;                                                                             // 0x528ac8, 4 bytes; 1 of 1 files
-extern void (__stdcall* g_pfnSymGetSymFromAddr)(void);                                                          // 0x528acc, 4 bytes; 1 of 1 files
-extern unsigned long (__stdcall* g_pfnSymSetOptions)(unsigned long);                                            // 0x528ad0, 4 bytes; 1 of 1 files
-extern void (__stdcall* g_pfnUnDecorateSymbolName)(void);                                                       // 0x528ad4, 4 bytes; 1 of 1 files
-extern char g_imageHelpLoaded;                                                                                  // 0x528ad8, 1 bytes; 1 of 1 files
-extern char g_imageHelpInited;                                                                                  // 0x528adc, 1 bytes; 1 of 1 files
-extern void* g_imageHelpModule;                                                                                 // 0x528ae0, 4 bytes; 1 of 1 files
 extern char g_msdevDirRead;                                                                                     // 0x528ae4, 1 bytes; 1 of 1 files
 extern char g_crtSourceRoot[1000];                                                                              // 0x528ae8, 1000 bytes (declared char[488]); 1 of 1 files
 extern char g_mfcSourceRoot[1000];                                                                              // 0x528ed0, 1000 bytes (declared char[488]); 1 of 1 files
