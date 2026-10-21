@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 5
+#define HOST_VERSION_MINOR 6
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -346,6 +346,12 @@ void* HOST_CALL host_dir_first(const char* pattern, struct host_dir_entry* entry
 int HOST_CALL host_dir_next(void* dir, struct host_dir_entry* entry);
 // Ends the listing and frees its handle.
 void HOST_CALL host_dir_close(void* dir);
+// Writes the path of the game's executable, a full path with its file name, into buf of size bytes and returns its length, or 0 on failure.
+unsigned int HOST_CALL host_file_exe_path(char* buf, unsigned int size);
+// Writes the full path of name (relative to the current directory or absolute) into buf of size bytes and returns its length, or 0 on failure.
+unsigned int HOST_CALL host_file_full_path(const char* name, char* buf, unsigned int size);
+// Makes path the current directory, against which relative paths resolve, and returns 1, or 0 on failure.
+int HOST_CALL host_dir_set_current(const char* path);
 
 // Sound buffer flag: the buffer can be placed in space with host_sound_buffer_place.
 #define HOST_SOUND_3D 0x01
