@@ -120,18 +120,6 @@ struct App_4b5980 {
 };
 #pragma pack(pop)
 
-// The installed DirectX version, in four 16-bit halves.
-struct DXVersion {
-    unsigned int majhi;
-    unsigned int majlo;
-    unsigned int minhi;
-    unsigned int minlo;
-    // memset zero: the four halves come out as copies of one zero register.
-    DXVersion() { memset(this, 0, sizeof(*this)); }
-};
-
-typedef int (__stdcall *FN_DIRECTXSETUPGETVERSION)(DWORD* major, DWORD* minor);
-
 // One display mode, as the EnumModesCallback enum callback stores it.
 struct Mode_004b5330 {
     DWORD width;                       // +0x0
@@ -267,84 +255,23 @@ void __stdcall ReleaseDirectDraw(App_4b5980* d)
 // FUNCTION: 0x4b5070
 int __stdcall CheckDirectXVersion(int want0, int want1, int want2, int want3, int want4)
 {
-    int isNT;
-    DXVersion v;
-    DWORD status;
-    HMODULE lib;
-
-    // status zeroed before LoadLibraryA and isNT after it: orders the two top stores.
-    status = 0;
-    lib = LoadLibraryA("dsetup.dll");
-    isNT = 0;
-    if (lib) {
-        FARPROC proc = GetProcAddress(lib, "DirectXSetupGetVersion");
-        if (proc) {
-            DWORD dwMaj = 0;
-            DWORD dwMin = 0;
-
-            status = ((FN_DIRECTXSETUPGETVERSION)proc)(&dwMaj, &dwMin);
-            if (status) {
-                // This order fixes the register assignment of the four halves.
-                v.majhi = HIWORD(dwMaj);
-                v.minhi = HIWORD(dwMin);
-                v.majlo = LOWORD(dwMaj);
-                v.minlo = LOWORD(dwMin);
-            }
-        }
-        FreeLibrary(lib);
+    host_media_version v;
+    if (!host_media_version_get(&v)) {
+        return 0;
     }
-    if (!status) {
-        OSVERSIONINFOA osvi;
-        char version[30];
-
-        memset(&v, 0, sizeof(v));
-        isNT = 0;
-        osvi.dwOSVersionInfoSize = sizeof(osvi);
-        if (GetVersionExA(&osvi)) {
-            isNT = osvi.dwPlatformId == 2;
-        }
-        {
-            DWORD installed = 0;
-            int found;
-
-            if (isNT) {
-                unsigned int intSize = 4;
-                found = host_setting_get(HOST_SCOPE_SYSTEM_READ, "Software\\Microsoft\\DirectX", "InstalledVersion",
-                                         HOST_SETTING_INT, &installed, &intSize);
-            } else {
-                unsigned int len = sizeof(version);
-                found = host_setting_get(HOST_SCOPE_SYSTEM_READ, "Software\\Microsoft\\DirectX", "Version",
-                                         HOST_SETTING_STRING, version, &len);
-            }
-            if (found != 1) {
-                goto fail;
-            }
-            if (isNT) {
-                v.majlo = installed & 0xff;
-            } else {
-                v.majhi = atoi(strtok(version, "."));
-                v.majlo = atoi(strtok(0, "."));
-                v.minhi = atoi(strtok(0, "."));
-                v.minlo = atoi(strtok(0, "."));
-            }
-        }
+    if (v.major_only) {
+        return v.major_lo >= (unsigned int)want4;
     }
-    if (isNT) {
-        return v.majlo >= (unsigned int)want4;
-    }
-    if (v.majhi == (unsigned int)want0) {
-        if (v.majlo == (unsigned int)want1) {
-            if (v.minhi == (unsigned int)want2) {
-                return v.minlo >= (unsigned int)want3;
+    if (v.major_hi == (unsigned int)want0) {
+        if (v.major_lo == (unsigned int)want1) {
+            if (v.minor_hi == (unsigned int)want2) {
+                return v.minor_lo >= (unsigned int)want3;
             }
-            return v.minhi >= (unsigned int)want2;
+            return v.minor_hi >= (unsigned int)want2;
         }
-        return v.majlo >= (unsigned int)want1;
+        return v.major_lo >= (unsigned int)want1;
     }
-    return v.majhi >= (unsigned int)want1;
-fail:
-    memset(&v, 0, sizeof(v));
-    return 0;
+    return v.major_hi >= (unsigned int)want1;
 }
 
 // FUNCTION: 0x4b52e0

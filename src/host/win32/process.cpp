@@ -33,9 +33,29 @@ extern "C" void HOST_CALL host_exit(int code)
     TerminateProcess(GetCurrentProcess(), (UINT)code);
 }
 
+extern "C" void HOST_CALL host_alert(void)
+{
+    MessageBeep(MB_ICONHAND);
+}
+
 extern "C" void HOST_CALL host_log(const char* text)
 {
     DWORD written;
     OutputDebugStringA(text);
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), text, (DWORD)strlen(text), &written, NULL);
+}
+
+int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                           LPSTR lpCmdLine, int nCmdShow);
+int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
+
+// FUNCTION: 0x49eda0
+extern "C" int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                                 LPSTR lpCmdLine, int nCmdShow)
+{
+    __try {
+        return GameMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+    } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
+    }
+    return 0;
 }
