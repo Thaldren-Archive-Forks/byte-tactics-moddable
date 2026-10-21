@@ -230,7 +230,6 @@ address,function,file
 0x41d2b0,ReadCameraPosition,src/ingame/camera.cpp
 0x41d360,WriteCameraPosition,src/ingame/camera.cpp
 0x41d8a0,FUN_0041d8a0,src/game/cd_check.cpp
-0x41d8b0,GetCdPathMismatch,src/game/cd_check.cpp
 0x420620,InitExplosions,src/weapons/explosions.cpp
 0x420a30,AddExplosionEffect,src/weapons/explosions.cpp
 0x420b00,DrawExplosions,src/weapons/explosions.cpp

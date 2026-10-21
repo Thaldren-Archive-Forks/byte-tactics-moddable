@@ -1297,7 +1297,6 @@ void RegisterDataArchives(void);
 char FindGameCdDrive(int);
 char* BuildCdFilePath(char*, const char*, const char*, const char*);
 int FUN_0041d8a0(void);
-int GetCdPathMismatch(void);
 void* AllocZeroedWithTickOffset(unsigned int);
 void CreateGameObject(void);
 void SetEndGameState(unsigned int);
