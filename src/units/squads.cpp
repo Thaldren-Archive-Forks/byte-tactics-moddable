@@ -67,7 +67,7 @@ static inline void RemoveFast(SimVector<Unit*>& v, Unit* u)
 // group it is currently in (unit+0xac, -1 means none), then adds it to the
 // new group, then records the new group index. Each player owns ten
 // 0x20-byte Squad squads at player+0x78 (built by 0x480190); the
-// squad holds its units in the SimVector<Unit*> at +0x10.
+// squad holds its units in the std::vector<Unit*> at +0x10.
 //
 // The removal itself overwrites the found slot with the last element and then
 // erases the last element (order is not preserved).

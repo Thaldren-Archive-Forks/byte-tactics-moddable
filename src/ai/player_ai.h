@@ -76,18 +76,18 @@ public:
     Group_00409160 factories;          // +0x25
     Vec3_00409160 centre;              // +0x35
     Vec3_00409160 pos_41;              // +0x41
-    SimVector<Elem_0040cc40> cells;  // +0x4d
+    SimVector<Elem_0040cc40> cells;
     Pos_00409160 center;               // +0x5d
-    SimVector<Elem_0040cfb0> vec_65; // +0x65
+    SimVector<Elem_0040cfb0> vec_65;
     int builders;                      // +0x75
     int hasSpecial;                    // +0x79
-    SimVector<short> counts;         // +0x7d
-    SimVector<unsigned char> vec_8d; // +0x8d
-    SimVector<unsigned char> weights; // +0x9d
-    SimVector<Elem_0040d4f0> vec_ad; // +0xad
-    SimVector<Elem_0040d550> vec_bd; // +0xbd
-    SimVector<Elem_0040d550> values; // +0xcd
-    SimVector<Elem_0040d550> locked; // +0xdd
+    SimVector<short> counts;
+    SimVector<unsigned char> vec_8d;
+    SimVector<unsigned char> weights;
+    SimVector<Elem_0040d4f0> vec_ad;
+    SimVector<Elem_0040d550> vec_bd;
+    SimVector<Elem_0040d550> values;
+    SimVector<Elem_0040d550> locked;
     unsigned int lastTick;             // +0xed
     Point16 spacing0;                  // +0xf1
     Point16 offset0;                   // +0xf5
