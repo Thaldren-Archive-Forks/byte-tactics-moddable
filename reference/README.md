@@ -414,7 +414,7 @@ pointed at in the target. The scan does not change the traces.
 `reference.py --check` always runs with the scan on, every 8th tick and every tick of the last 64 (`-blockscan=8`),
 resolves the sites with the linker map beside the exe
 (`build/modern/TotalA.map`) and compares every row with `data/block_pointers.csv`, after printing the trace
-results. A (holder, target) pair or an offset the file does not cover, or a scenario with no `blockptrs.txt`,
+results. A word whose holder the file has no wildcard row for (see below), or a scenario with no `blockptrs.txt`,
 is printed (scenario, holder, offset, target) and `--check` exits 1. `--quick` does not check the pointers.
 `--save-blockptrs <dir>` writes each scenario's file to `<dir>/<scenario>.txt`, and
 `uv run tools/blockpointers.py --from <dir>` regenerates the data file from them, keeping the hand-set `class` and
@@ -425,14 +425,15 @@ another scenario failed; it then lists the failures, exits 1 and leaves the data
 (with `--save-scans`) plays only those, so a failed one can be re-run and the saved scans merged with `--from DIR`.
 `tools/blockpointers.py --check` (CI) checks the file.
 
-Integers that look like heap addresses come per field, not per pair (they hit many targets, which change with the
-heap layout), and a grid with no pointers at all can make tens of thousands of offsets. For those a hand-written
-row may have `*` as its `target` (any target) and/or as its `offsets` (any offset of the holder; the usual
-`0x10` and `start+stride*k` entries limit it instead). No other column takes `*`. A wildcard row covers the
-scanned words of its holder that its offsets and target match, so `--check` accepts them; regeneration keeps
-its holder, offsets, target, `class` and `note`, recomputes `scenarios`, `ticks` and `target_offsets` from the
-words it covers (`0`, `0` and `-` when it covers none) and takes those words out of the pair rows. Wildcard rows
-need a class, and a `not-a-pointer` one a note, like any row; they sort by holder, then target with `*` first.
+Addresses outside the block differ from run to run, so the (holder, offsets, target) rows can never be complete: they
+are the record that later issues use, and an every-tick regeneration produces them. The gate matches by holder. Each
+holder has a wildcard row with `*` as its `offsets` and as its `target` for every class among its pair rows, and one
+for `not-a-pointer` (its words that only look like addresses). A word in a holder with a wildcard row is covered,
+whatever its offset and target; a heap address in any other holder fails the gate. Wildcard rows have `0` scenarios,
+`0` ticks and `-` target_offsets, a class and a note; regeneration keeps them as written. They are keyed by
+(holder, class), the pair rows by (holder, target), and they sort by holder, then wildcard rows first, by class.
+`blockpointers.py --check` fails on a holder with pair rows that lacks one of them. A holder the scans have not met
+yet is added by hand as a `*`/`*` row, with its class and a note.
 
 ## Zero fill and poison mode
 

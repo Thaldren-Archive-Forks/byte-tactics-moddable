@@ -44,20 +44,17 @@ Rows, one per (holder, target), sorted by holder, then target (a `*` target firs
                   address; it shows in few runs or at varying target offsets, and needs a note)
   note            free text
 
-`class` and `note` are kept by regeneration, by (holder, target). `reference.py --check` plays the
-scan on and fails on a pair or an offset this file does not cover.
+`class` and `note` are kept by regeneration, by (holder, target). Addresses outside the block differ
+from run to run, so the pair rows can never be complete: they are the record, and `reference.py
+--check` plays the scan on and fails only on a word whose holder has no wildcard row.
 
-Wildcard rows. An integer that looks like a heap address comes per field, not per pair: it hits many
-targets, which change with the heap layout, and a grid with no pointers at all (map plot cells) makes
-tens of thousands of offsets. A hand-written row may have `*` as its target (any target) and/or as its
-offsets (any offset of the holder; alone, not mixed with other entries). No other column takes `*`
-(the note is free text). A wildcard row covers the scanned words of its holder whose offset it lists
-and whose target it names or `*`. Regeneration keeps its holder, offsets, target, class and note as
-written and takes every word it covers out of the pair rows (a pair row left with no words is
-dropped); a word two wildcard rows cover goes to the first in file order. Its scenarios, ticks and
-target_offsets are computed from the words it covers, as for a pair row; with none they are `0`, `0`
-and `-` (a wildcard row alone may have `-` there) and the row stays. Wildcard rows follow the class
-and note rules, and sort with the rest: holder, then target with `*` first.
+Wildcard rows. A holder has one row with `*` as its offsets and `*` as its target for each class of
+its pair rows, and one for not-a-pointer (the words that only look like addresses). `*` is no other
+row's offsets or target, and no other column takes it. A wildcard row has scenarios `0`, ticks `0` and
+target_offsets `-`, and a note; regeneration keeps it as written and builds the pair rows as before.
+Wildcard rows are keyed by (holder, class) where pair rows are keyed by (holder, target), and sort
+with the rest: holder, then wildcard rows first, by class. `--check` fails on a holder with pair rows
+that lacks a wildcard row for one of their classes or for not-a-pointer.
 """
 
 import argparse
@@ -88,6 +85,7 @@ WILD = "*"
 HEX = r"0x[0-9a-f]+"
 OFFSET_TOKEN = re.compile(r"^(%s)(?:\+(%s)\*k)?$" % (HEX, HEX))
 TARGET_OFFSETS = re.compile(r"^%s(?:-%s)?$" % (HEX, HEX))
+csv.field_size_limit(1 << 28)
 LAYOUT_FLAG = ["-Xclang", "-fdump-record-layouts-complete"]
 
 
@@ -374,37 +372,24 @@ def merge(rows: list[Resolved]) -> list[dict]:
     return sorted(out, key=row_order)
 
 
-def row_order(row: dict) -> tuple:
-    """The sort key of a row: holder, then target with `*` first."""
-    return row["holder"], row["target"] != WILD, row["target"]
-
-
 def is_wild(row: dict) -> bool:
-    """Whether the row is a wildcard row: `*` as its target or as its offsets."""
-    return row["target"] == WILD or row["offsets"].strip() == WILD
+    """Whether the row is a holder's wildcard row: `*` as its offsets and as its target."""
+    return row["target"] == WILD and row["offsets"].strip() == WILD
 
 
-def wild_covers(row: dict, word: Resolved) -> bool:
-    """Whether the wildcard row covers the scanned word."""
-    return (row["holder"] == word.holder and row["target"] in (WILD, word.target)
-            and offset_covered(word.offset, row["offsets"].split()))
+def row_key(row: dict) -> tuple:
+    """The identity of a row: (holder, target) for a pair row, (holder, `*`, class) for a wildcard row."""
+    return (row["holder"], WILD, row["class"]) if is_wild(row) else (row["holder"], row["target"])
 
 
-def merge_wild(words: list[Resolved], old: list[dict]) -> list[dict]:
-    """The rows of the words: the old file's wildcard rows (statistics recomputed) and pair rows for the rest."""
-    wild = sorted((dict(r) for r in old if is_wild(r)), key=row_order)
-    taken: list[list[Resolved]] = [[] for _ in wild]
-    rest = []
-    for word in words:
-        for members, row in zip(taken, wild):
-            if wild_covers(row, word):
-                members.append(word)
-                break
-        else:
-            rest.append(word)
-    for members, row in zip(taken, wild):
-        row.update(stats(members))
-    return sorted(wild + merge(rest), key=row_order)
+def row_order(row: dict) -> tuple:
+    """The sort key of a row: holder, then wildcard rows by class, then the pair rows by target."""
+    return (row["holder"], False, row["class"]) if is_wild(row) else (row["holder"], True, row["target"])
+
+
+def with_wild(rows: list[dict], old: list[dict]) -> list[dict]:
+    """The pair rows and the old file's wildcard rows, as written, sorted."""
+    return sorted(rows + [dict(r) for r in old if is_wild(r)], key=row_order)
 
 
 def render(rows: list[dict]) -> str:
@@ -424,10 +409,10 @@ def read_rows(path: Path = OUT) -> list[dict]:
 
 
 def merge_kept(rows: list[dict], old: list[dict]) -> list[dict]:
-    """The rows with the class and note the old file had for the same (holder, target)."""
-    kept = {(r["holder"], r["target"]): r for r in old if not is_wild(r)}
+    """The rows with the class and note the old file had for the same row_key."""
+    kept = {row_key(r): r for r in old}
     for row in rows:
-        before = kept.get((row["holder"], row["target"]))
+        before = kept.get(row_key(row))
         if before:
             for column in KEPT:
                 row[column] = before[column]
@@ -450,6 +435,8 @@ def check_rows(text: str) -> list[str]:
         return ["the header is not %s" % ",".join(COLUMNS)]
     problems = []
     previous = None
+    pairs: dict[str, set[str]] = {}
+    wilds: dict[str, set[str]] = {}
     for number, cells in enumerate(table[1:], 2):
         if len(cells) != len(COLUMNS):
             problems.append("line %d: %d columns, expected %d" % (number, len(cells), len(COLUMNS)))
@@ -462,6 +449,8 @@ def check_rows(text: str) -> list[str]:
             problems.append("%s: `*` is only a whole target or the offsets" % where)
         wild = is_wild(row)
         offsets = row["offsets"].split()
+        if (row["offsets"].strip() == WILD) != (row["target"] == WILD):
+            problems.append("%s: `*` is the offsets and the target of a wildcard row together" % where)
         if offsets == [WILD]:
             pass
         elif not offsets or not all(OFFSET_TOKEN.match(o) for o in offsets):
@@ -479,40 +468,23 @@ def check_rows(text: str) -> list[str]:
         if previous is not None and key <= previous:
             problems.append("%s: rows must be sorted by holder then target, without repeats" % where)
         previous = key
+        if row["class"] in CLASSES:
+            classes = (wilds if wild else pairs).setdefault(row["holder"], set())
+            classes.add(row["class"])
+    for holder, classes in sorted(pairs.items()):
+        for cls in sorted(classes | {"not-a-pointer"}):
+            if cls not in wilds.get(holder, set()):
+                problems.append("%s: no `*` row of class %s for its pair rows" % (holder, cls))
     return problems
 
 
-def offset_covered(offset: int, tokens: list[str]) -> bool:
-    """Whether the offset is one of the entries of an offsets column (`*` is every offset)."""
-    for token in tokens:
-        if token == WILD:
-            return True
-        m = OFFSET_TOKEN.match(token)
-        if not m:
-            continue
-        start = int(m.group(1), 16)
-        if m.group(2) is None:
-            if offset == start:
-                return True
-        else:
-            stride = int(m.group(2), 16)
-            if stride and offset >= start and (offset - start) % stride == 0:
-                return True
-    return False
-
-
 def uncovered(scanned: list[Resolved], rows: list[dict]) -> list[Resolved]:
-    """The scanned words whose (holder, target) pair or offset the rows do not list, one per distinct word."""
-    listed: dict[tuple[str, str], list[str]] = {}
-    for r in rows:
-        listed.setdefault((r["holder"], r["target"]), []).extend(r["offsets"].split())
+    """The scanned words whose holder has no wildcard row, one per distinct word."""
+    holders = {r["holder"] for r in rows if is_wild(r)}
     out = []
     seen = set()
     for s in scanned:
-        tokens = listed.get((s.holder, s.target))
-        if tokens is not None and offset_covered(s.offset, tokens):
-            continue
-        if any(wild_covers(r, s) for r in rows if r["target"] == WILD):
+        if s.holder in holders:
             continue
         key = (s.scenario, s.holder, s.offset, s.target)
         if key not in seen:
@@ -521,16 +493,10 @@ def uncovered(scanned: list[Resolved], rows: list[dict]) -> list[Resolved]:
     return out
 
 
-def describe_uncovered(missing: list[Resolved], rows: list[dict]) -> list[str]:
-    """One line per word the file does not cover, with the reason."""
-    pairs = {(r["holder"], r["target"]) for r in rows}
-    wild_holders = {r["holder"] for r in rows if r["target"] == WILD}
-    lines = []
-    for s in missing:
-        listed = (s.holder, s.target) in pairs or s.holder in wild_holders
-        why = "offset not listed" if listed else "pair not listed"
-        lines.append("%s: %s offset 0x%x -> %s (%s)" % (s.scenario, s.holder, s.offset, s.target, why))
-    return lines
+def describe_uncovered(missing: list[Resolved]) -> list[str]:
+    """One line per word the file does not cover."""
+    return ["%s: %s offset 0x%x -> %s (holder not listed)" % (s.scenario, s.holder, s.offset, s.target)
+            for s in missing]
 
 
 def check_scans(texts: dict[str, str | None], map_path: Path, build_dir: Path,
@@ -554,7 +520,7 @@ def check_scans(texts: dict[str, str | None], map_path: Path, build_dir: Path,
     members = load_members(build_dir) if needs_layout else []
     listed = read_rows() if rows is None else rows
     missing = uncovered(resolve(scans, code, members), listed)
-    return problems + describe_uncovered(missing, listed)
+    return problems + describe_uncovered(missing)
 
 
 def default_build_dir() -> Path:
@@ -672,9 +638,9 @@ def main() -> None:
     members = load_members(args.build_dir or default_build_dir()) \
         if any(r.holder == SIM_GLOBALS for s in scans for r in s.rows) else []
     code = parse_map(map_path.read_text(errors="replace"))
-    merged = merge_kept(merge_wild(resolve(scans, code, members), old), old)
-    now = {(r["holder"], r["target"]) for r in merged}
-    lost = [r for r in old if (r["class"] or r["note"]) and (r["holder"], r["target"]) not in now]
+    merged = merge_kept(with_wild(merge(resolve(scans, code, members)), old), old)
+    now = {row_key(r) for r in merged}
+    lost = [r for r in old if (r["class"] or r["note"]) and row_key(r) not in now]
     args.out.write_text(render(merged))
     print("%d rows from %d scans" % (len(merged), len(scans)))
     if lost:
