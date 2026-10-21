@@ -6,7 +6,7 @@
 // countdown, draws each player's version under their logo, and refreshes the
 // local player's bit at +0x9d once a minute.
 // RECT comes from windows.h: the rect sums follow the symbol count.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

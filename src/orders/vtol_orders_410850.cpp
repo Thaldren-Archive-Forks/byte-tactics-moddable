@@ -1,11 +1,9 @@
 // Decompiled by GPT-6 Astra, finished by deepseek-v4.1-flash, edited by deepseek-v4.1, finished by space-bunny-free, finished by deepseek-v4.1-flash, finished by deepseek-v4.1-flash, edited by Claude Opus 5.5, finished by Claude Opus 5.5. re-verified by GPT-6, retried by Claude Opus 5.5, finished by GPT-6, retried by Claude Opus 5.5, finished by GPT-6, matched by Claude Opus 5.5. Names are provisional.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <vector>
 #include <list>
 #include <map>
-#include <shlobj.h>
-#include <imagehlp.h>
 #include <math.h>
 #include <tchar.h>
 #include <time.h>

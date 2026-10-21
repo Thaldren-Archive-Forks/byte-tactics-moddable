@@ -16,7 +16,7 @@
 // needs to be the first function defined after its types, and even then the
 // summing loop's lea moves above the fadd; DrawPieceEdges (0x458fa0,
 // model_render_458fa0.cpp) is one load order short of the original.
-#include <windows.h>
+#include "win_types.h"
 #include "../state/block.h"
 #include <stdio.h>
 #include <stdlib.h>

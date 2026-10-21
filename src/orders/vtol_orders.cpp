@@ -18,7 +18,7 @@
 // code moves 0x413bc0.
 // The helpers below that no handler here calls still count symbols: removing
 // them moves the register allocation of the handlers that do match.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 struct Unit;
 void __stdcall CopyDwordIfNonNull(Unit**, Unit* const*);
@@ -28,8 +28,6 @@ inline void _Construct(Unit** dest, Unit* const& src) { CopyDwordIfNonNull(dest,
 #include <vector>
 #include <list>
 #include <map>
-#include <shlobj.h>
-#include <imagehlp.h>
 #include <stdlib.h>
 #include <math.h>
 #include <memory.h>

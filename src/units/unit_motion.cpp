@@ -2,7 +2,7 @@
 // The memory cache: an arena of chunks {owner handle, size} that hands out
 // bitmaps, and the object pictures built in it.
 // Needed for AllocHandle's operand orders.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 #include "../state/block.h"
 

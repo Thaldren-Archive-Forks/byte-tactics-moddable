@@ -1,5 +1,5 @@
 // Decompiled by deepseek-v4.1, finished by space-bunny-free, finished by GPT-6.1-sol, finished by deepseek-v4.1-flash, finished by mimo-v2.6-pro, finished by opus. Names are provisional.
-#include <windows.h>
+#include "win_types.h"
 
 #pragma pack(push, 1)
 

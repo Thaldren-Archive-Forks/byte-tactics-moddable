@@ -4,7 +4,7 @@
 // type `mode` given by `unit` on `target` / `pos`. GetOrderCursor, the function just before this one
 // in the exe, is its sibling that returns the cursor code.
 // Keep the headers and the unused declarations below: their count before the function matters.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <math.h>
 

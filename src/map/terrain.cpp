@@ -22,13 +22,12 @@
 // orders in the cell multiply, the bounds guard and the explored arm.
 // <vector> and <shlobj.h> stay for their symbol ids too: without them the
 // register allocation of the grid visitors and of 0x47db70 changes.
-#include <windows.h>
+#include "win_types.h"
 #include "../state/block.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <vector>
-#include <shlobj.h>
 
 struct Unit;
 

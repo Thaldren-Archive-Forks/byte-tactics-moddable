@@ -1,7 +1,7 @@
 // Decompiled by Space Bunny Free, space-bunny-free, deepseek-v4.1-flash, Claude Sonnet 5.5, GPT-6.1-sol, Haiku, Opus, Sonnet, DeepSeek V4.1 Flash and deepseek-v4.1. Names are provisional.
 // Sound start-up and shutdown, the sound-name tables and the queue of unit speech.
 
-#include <windows.h>
+#include "win_types.h"
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>

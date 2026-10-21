@@ -1,7 +1,7 @@
 // Decompiled by space-bunny-free, Haiku, deepseek-v4.1-flash, Claude Sonnet 5.5, GPT-6.1-sol, deepseek-v4.1 and mimo-v2.6-pro. Names are provisional.
 
 // <windows.h> is needed for CanRepair's operand order (see there).
-#include <windows.h>
+#include "win_types.h"
 
 #include "cob_script.h"
 

@@ -1,5 +1,5 @@
 // Decompiled by Opus, space-bunny-free, Claude Opus 5.5, Haiku, Sonnet 5.5, deepseek-v4.1-flash, GPT-6, GPT-6.1-sol, deepseek-v4.1, GPT-5.6-Terra, muse-spark-1.3-free, Sonnet, Space Bunny Free, mimo-v2.6-pro, DeepSeek V4.1 Flash, claude-sonnet-5-5 and opus. Names are provisional.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>

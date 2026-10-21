@@ -5,14 +5,12 @@
 // g_game+0x1439b, then drops the units whose version or copyright does not
 // check out and compacts the table.
 
-#include <windows.h>
+#include "win_types.h"
 #include "../state/block.h"
 #include <stdio.h>
 #include <vector>
 #include <list>
 #include <map>
-#include <shlobj.h>
-#include <imagehlp.h>
 #include <string.h>
 #include <math.h>
 #include <io.h>

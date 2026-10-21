@@ -3,7 +3,7 @@
 // different constant pool from the memory status dialog's 0.0, so the original
 // had it in another translation unit (tools/place.py sees one shared copy
 // otherwise).
-#include <windows.h>
+#include "win_types.h"
 
 double __cdecl GetTimeSeconds();
 

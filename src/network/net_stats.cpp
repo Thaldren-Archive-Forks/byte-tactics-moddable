@@ -3,7 +3,7 @@
 // text that report packet and byte rates.
 
 // This header set must stay: FormatNetStats needs it.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 // Included only for its symbol ids: FormatNetStats matches at this count with
 // the BitReader header's inline ReadBit (see bit_reader.h).

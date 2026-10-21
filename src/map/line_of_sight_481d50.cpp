@@ -4,7 +4,7 @@
 // Not gathered into line_of_sight.cpp: merged, the player grid address folds in
 // the other operand order.
 // Required include.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 
 #include <memory>

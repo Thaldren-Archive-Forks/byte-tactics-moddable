@@ -2,7 +2,7 @@
 // Explosions: the CalcedExplosion frames built at start-up, the 300-entry
 // debris table and the 100-slot pool of exploded pieces, all reached through
 // g_game.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 // <minmax.h> and <setjmp.h> are here for their symbols only (docs/c2-regalloc.md).
 #include <minmax.h>

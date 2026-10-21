@@ -4,8 +4,7 @@
 // their fire and move orders, cloak and on/off states and the can* bits into
 // g_game->orders, then opens the unit's build menu page or redraws the bar.
 // This include set decides the symbol ids of the locals: do not change it.
-#include <windows.h>
-#include <shlobj.h>
+#include "win_types.h"
 #include <memory.h>
 #include "ta_types.h"
 

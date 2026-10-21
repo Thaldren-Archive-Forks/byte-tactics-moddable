@@ -54,7 +54,7 @@ ELEMENT_SIZES = {"char": 1, "unsigned char": 1, "signed char": 1, "short": 2, "u
                  "unsigned int": 4, "float": 4}
 
 HEADER_INCLUDES = [
-    "<windows.h>",
+    '"win_types.h"',
     "<stddef.h>",
     "<memory>",
     '"block.h"',

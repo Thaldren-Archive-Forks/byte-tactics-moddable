@@ -9,7 +9,7 @@
 // line. The module's files gathered in address order; 0x467440, 0x468cf0,
 // 0x46a610 and 0x46a860 keep their own files (their symbol counts, the include
 // set or /Gi decide their matches).
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>

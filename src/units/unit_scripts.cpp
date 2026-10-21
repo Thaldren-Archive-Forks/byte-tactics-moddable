@@ -1,7 +1,7 @@
 // Decompiled by DeepSeek V4.1 Flash, Opus, space-bunny-free, Claude Opus 5.5, deepseek-v4.1, GPT-6, deepseek-v4.1-flash, Space Bunny Free and claude-opus-5-5. Names are provisional.
 
 // Must stay: decides which register GetOrderCursor's GetFeature results use.
-#include <windows.h>
+#include "win_types.h"
 // Must stay: GetPieceOffset's main path depends on the symbols it declares.
 #include <string.h>
 

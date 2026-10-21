@@ -5,7 +5,7 @@
 // handling, the commander lookup, and the camera position, follow and scroll
 // state. The module's files gathered in address order; 0x41b2e0 and 0x41bde0
 // keep their own files (their own include sets decide their matches).
-#include <windows.h>
+#include "win_types.h"
 #include "../../interfaces/host.h"
 #include <stdio.h>
 #include <stdlib.h>

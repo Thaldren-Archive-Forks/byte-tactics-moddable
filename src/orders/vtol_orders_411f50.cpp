@@ -8,7 +8,7 @@
 // below three quarters of its health, sends it to a random repair pad
 // ("VTOL_LANDING").
 #include <list>
-#include <windows.h>
+#include "win_types.h"
 #include <math.h>
 #include <vector>
 

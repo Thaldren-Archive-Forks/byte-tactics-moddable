@@ -1,7 +1,7 @@
 // Decompiled by space-bunny-free, deepseek-v4.1-flash, Opus, Claude Opus 5.5, GPT-6, GPT-6.1-sol and mimo-v2.6-pro. Names are provisional.
 // The radar: builds the minimap picture from the terrain icon map, keeps its
 // view and zoom, and draws the units, projectiles and fog over it.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <math.h>
 

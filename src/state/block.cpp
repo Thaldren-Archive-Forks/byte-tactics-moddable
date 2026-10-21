@@ -9,6 +9,8 @@
 
 extern void (*g_outOfMemoryHandler)();
 
+#pragma init_seg(lib)
+
 const SimHeap kSim = SimHeap();
 const AllocHooks* g_allocHooks;
 
@@ -38,7 +40,7 @@ const unsigned int kFirstChunk = sizeof(BlockHeader);
 
 char* g_base;
 unsigned int g_insideThread;
-void* g_lock;
+void* g_lock = host_mutex_create();
 void** g_tracked[8];
 unsigned int g_trackedCount;
 
@@ -92,7 +94,7 @@ struct Guard {
     Guard()
     {
         if (g_lock == 0)
-            g_lock = host_mutex_create();
+            Fatal("used before its static initialisers ran");
         host_mutex_lock(g_lock);
         if (g_insideThread != 0)
             Fatal("re-entered the allocator");

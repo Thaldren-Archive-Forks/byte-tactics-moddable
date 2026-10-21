@@ -8,7 +8,7 @@
 // weapon) and returns the new feature type number.
 // <windows.h> must come before <stdio.h>: it decides the registers of
 // `features[j].anims`.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <string.h>
 

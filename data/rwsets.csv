@@ -45714,14 +45714,12 @@ address,function,file,kind,target
 ,Grow_00476210,src/graphics/particles_476210.cpp,function,
 ,Guard::Guard,src/state/block.cpp,call,Fatal
 ,Guard::Guard,src/state/block.cpp,call,Prepare
-,Guard::Guard,src/state/block.cpp,call,host_mutex_create
 ,Guard::Guard,src/state/block.cpp,call,host_mutex_lock
 ,Guard::Guard,src/state/block.cpp,call,host_thread_id
 ,Guard::Guard,src/state/block.cpp,function,
 ,Guard::Guard,src/state/block.cpp,global_read,g_insideThread
 ,Guard::Guard,src/state/block.cpp,global_read,g_lock
 ,Guard::Guard,src/state/block.cpp,global_write,g_insideThread
-,Guard::Guard,src/state/block.cpp,global_write,g_lock
 ,Guard::~Guard,src/state/block.cpp,call,host_mutex_unlock
 ,Guard::~Guard,src/state/block.cpp,function,
 ,Guard::~Guard,src/state/block.cpp,global_read,g_lock

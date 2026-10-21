@@ -1,7 +1,7 @@
 // Decompiled by space-bunny-free, finished by deepseek-v4.1-flash, finished by GPT-6.1-sol, edited by deepseek-v4.1, finished by deepseek-v4.1-flash, finished by GPT-6.1-sol, finished by Space Bunny Free, verified by GPT-6., retried by Claude Opus 5.5, matched by claude-opus-5-5. Names are provisional.
 // Keep <windows.h> and fewer than 58 symbols after it: the symbol count sets
 // the register choice.
-#include <windows.h>
+#include "win_types.h"
 
 struct Vertex_0045a610 {
     int x;
