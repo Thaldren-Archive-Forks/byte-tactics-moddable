@@ -53,7 +53,6 @@ src/game/settings.cpp,src/host/settings_io.h,#25
 src/game/settings.cpp,src/sound/sound.h,#22
 src/game/settings.cpp,windows.h,#304
 src/game/settings_campaign.cpp,src/host/settings_io.h,#25
-src/game/statistics.cpp,windows.h,#303
 src/game/victory.cpp,windows.h,#304
 src/graphics/display.cpp,interfaces/host.h,#22
 src/graphics/display.cpp,src/graphics/rect.h,#22

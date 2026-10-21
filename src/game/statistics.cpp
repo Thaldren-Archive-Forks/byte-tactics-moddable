@@ -65,6 +65,16 @@ int __stdcall ShowGameMessage(char* text, int mode);
 void __stdcall RISetCallbacks(int report, int notify);
 void __cdecl GameFreeThunk(void* p);
 
+// Builds the player tables: three arrays of ten, then for each slot its player
+// block, that player's allies block, a scoreboard, the scoreboard's ppScores
+// block and a zeroed scores block, every block allocated through GameAllocIgnoreTag
+// with a name wsprintfA formats from the slot number. Any allocation that
+// comes back null tears the lot down again through ShutdownScoreTables and reports 1,
+// so the slot loop only records the failure in a flag and breaks; the
+// epilogue tests that flag.
+// The inner loop writes 0x48 bytes of pointers into the 0x24 byte ppScores
+// block, the original's bug: 18 pointers of 4 bytes into a 36 byte block, so
+// 36 bytes land past the end of the allocation.
 // FUNCTION: 0x46bce0
 int AllocScoreTables()
 {
