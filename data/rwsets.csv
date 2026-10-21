@@ -48444,6 +48444,11 @@ address,function,file,kind,target
 ,ResolveUnitTypeKey,src/orders/order_queue_4384a0.cpp,global_read,g_game
 ,ResolveUnitTypeKey,src/orders/order_queue_4384a0.cpp,global_read,g_seams
 ,ResolveUnitTypeKey,src/orders/order_queue_4384a0.cpp,indirect_call,indirect via unsigned short (*)(const char *) __attribute__((stdcall)) [UnitsSeam::FindUnitTypeId]
+,RestoreMouseTrails,src/host/win32/window.cpp,call,SystemParametersInfoA
+,RestoreMouseTrails,src/host/win32/window.cpp,function,
+,RestoreMouseTrails,src/host/win32/window.cpp,global_read,g_mouseTrailsSaved
+,RestoreMouseTrails,src/host/win32/window.cpp,global_read,g_savedMouseTrails
+,RestoreMouseTrails,src/host/win32/window.cpp,global_write,g_mouseTrailsSaved
 ,RestoreSurfacesInline,src/graphics/surface.cpp,call,BlitSurface
 ,RestoreSurfacesInline,src/graphics/surface.cpp,call,GetDisplay
 ,RestoreSurfacesInline,src/graphics/surface.cpp,call,LockScreen
@@ -50530,6 +50535,7 @@ address,function,file,kind,target
 ,WindowProc,src/host/win32/window.cpp,call,DefWindowProcA
 ,WindowProc,src/host/win32/window.cpp,call,Queue
 ,WindowProc,src/host/win32/window.cpp,call,QueueMouse
+,WindowProc,src/host/win32/window.cpp,call,RestoreMouseTrails
 ,WindowProc,src/host/win32/window.cpp,function,
 ,WindowedBackActive,src/host/win32/display.cpp,function,
 ,WindowedBackActive,src/host/win32/display.cpp,global_read,g_back
@@ -51468,12 +51474,9 @@ address,function,file,kind,target
 ,host_window_close,src/host/win32/window.cpp,call,DestroyWindow
 ,host_window_close,src/host/win32/window.cpp,call,HeadlessWindowClose
 ,host_window_close,src/host/win32/window.cpp,call,HostHeadless
-,host_window_close,src/host/win32/window.cpp,call,SystemParametersInfoA
+,host_window_close,src/host/win32/window.cpp,call,RestoreMouseTrails
 ,host_window_close,src/host/win32/window.cpp,function,
 ,host_window_close,src/host/win32/window.cpp,global_read,g_hwnd
-,host_window_close,src/host/win32/window.cpp,global_read,g_mouseTrailsSaved
-,host_window_close,src/host/win32/window.cpp,global_read,g_savedMouseTrails
-,host_window_close,src/host/win32/window.cpp,global_write,g_mouseTrailsSaved
 ,host_window_has_focus,src/host/win32/window.cpp,call,GetFocus
 ,host_window_has_focus,src/host/win32/window.cpp,call,HeadlessWindowHasFocus
 ,host_window_has_focus,src/host/win32/window.cpp,call,HostHeadless
