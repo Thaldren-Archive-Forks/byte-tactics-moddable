@@ -1,3 +1,4 @@
+#include <windows.h>
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -93,4 +94,20 @@ extern "C" void HOST_CALL host_dir_close(void* dir)
 {
     _findclose(((HostDir*)dir)->handle);
     free(dir);
+}
+
+extern "C" unsigned int HOST_CALL host_file_exe_path(char* buf, unsigned int size)
+{
+    return GetModuleFileNameA(NULL, buf, size);
+}
+
+extern "C" unsigned int HOST_CALL host_file_full_path(const char* name, char* buf, unsigned int size)
+{
+    char* filePart;
+    return GetFullPathNameA(name, size, buf, &filePart);
+}
+
+extern "C" int HOST_CALL host_dir_set_current(const char* path)
+{
+    return SetCurrentDirectoryA(path) != 0;
 }

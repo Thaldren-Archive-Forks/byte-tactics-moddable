@@ -5,7 +5,7 @@
 
 #include "../../../interfaces/host.h"
 
-void* HostWindowHandle();
+HWND host_win32_window(void);
 
 namespace {
 
@@ -232,66 +232,6 @@ int __stdcall HAPINET_getgamescallback(SessionDesc* lpsd, int* lpdwTimeout, unsi
     return 0;
 }
 
-// FUNCTION: 0x4c9d10
-int __stdcall HAPINET_justone(int p1, int p2, int p3, int p4, void* p5)
-{
-    HapinetTrace("HAPINET_justone\n");
-    int* addr = (int*)p5;
-    addr[0x12] = p1;
-    return 0;
-}
-
-// FUNCTION: 0x4c9d30
-int HAPINET_setplayerdatabuffer(host_net* net, unsigned long player, void* data, unsigned long size)
-{
-    HapinetTrace("HAPINET_setplayerdatabuffer\n");
-    if (net->dp != 0 && net->dp->SetPlayerData(player, data, size, 2) == 0) {
-        return 1;
-    }
-    return 0;
-}
-
-// FUNCTION: 0x4c9d80
-int HAPINET_getplayerdatabuffer(host_net* net, unsigned long player, void* data, unsigned long* size)
-{
-    HapinetTrace("HAPINET_getplayerdatabuffer\n");
-    if (net->dp != 0 && net->dp->GetPlayerData(player, data, size, 0) == 0) {
-        return 1;
-    }
-    return 0;
-}
-
-// FUNCTION: 0x4c9dd0
-int HAPINET_getcurrentplayers(host_net* net)
-{
-    int hr;
-    HapinetTrace("HAPINET_getcurrentplayers\n");
-    int players = 0;
-    if (net->dp != 0) {
-        unsigned long size = 0;
-        hr = net->dp->GetSessionDesc(0, &size);
-        if (hr == (int)0x8877001e) {
-            SessionDesc* desc = (SessionDesc*)malloc(size);
-            hr = net->dp->GetSessionDesc(desc, &size);
-            if (hr == 0)
-                players = desc->dwCurrentPlayers;
-            free(desc);
-        }
-    }
-    return players;
-}
-
-// FUNCTION: 0x4c9800
-int HAPINET_sendpacketguaranteed(host_net* net, unsigned long from, unsigned long to, void* data, unsigned long size)
-{
-    HapinetTrace("HAPINET_sendpacketguaranteed\n");
-    int result = 0x887700aa;
-    if (net->dp != 0) {
-        result = net->dp->Send(from, to, 1, data, size);
-    }
-    return result;
-}
-
 // FUNCTION: 0x4ca100
 int __stdcall HAPINET_enumconnections(host_guid* guid, void* connection, unsigned long size,
                                       DPName* name, unsigned long flags, host_net* net)
@@ -315,37 +255,12 @@ int __stdcall HAPINET_enumconnections(host_guid* guid, void* connection, unsigne
     return 1;
 }
 
-// FUNCTION: 0x4ca330
-int __stdcall HAPINET_enumproviders(host_guid* guid, char* name, unsigned long major,
-                                    unsigned long minor, host_net* net)
-{
-    char local[200];
-    HapinetTrace("HAPINET_enumproviders\n");
-    net->guids[net->providerCount] = *guid;
-    sprintf(local, "%s %d.%d", name, major, minor);
-    char* slot = SkipTextLines(net->names, net->providerCount);
-    strcpy(slot, local);
-    net->providerCount++;
-    return 1;
-}
-
-// FUNCTION: 0x4ca400
-int HAPINET_getproviders(host_net* net, int a, int c)
-{
-    HapinetTrace("HAPINET_getproviders\n");
-    net->providerCount = 0;
-    net->guids = (host_guid*)a;
-    net->names = (char*)c;
-    DirectPlayEnumerateA(HAPINET_enumproviders, net);
-    return 1;
-}
-
 // FUNCTION: 0x4ca5d0
 int HAPINET_initmultiplay(host_net* net, host_guid* sp, host_guid* application)
 {
     HapinetTrace("HAPINET_initmultiplay\n");
     g_guaranteePackets = 0;
-    net->hwnd = (int)(size_t)HostWindowHandle();
+    net->hwnd = (int)(size_t)host_win32_window();
     net->application = *application;
     net->created = 0;
     net->lobby = 0;

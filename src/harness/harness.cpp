@@ -2816,7 +2816,7 @@ static void OpenTrace(unsigned controlWord)
     char commit[64];
     char exePath[MAX_PATH + 16];
     strcpy(commit, "unknown");
-    DWORD len = GetModuleFileNameA(NULL, exePath, MAX_PATH);
+    DWORD len = host_file_exe_path(exePath, MAX_PATH);
     while (len > 0 && exePath[len - 1] != '\\' && exePath[len - 1] != '/')
         len--;
     strcpy(exePath + len, "commit.txt");

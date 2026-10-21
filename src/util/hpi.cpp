@@ -1487,12 +1487,11 @@ OPENHAPIFILE* __stdcall HAPI_OpenArchive(const char* name, int mode)
     if (f == 0)
         return 0;
     OPENHAPIFILE* h = (OPENHAPIFILE*)GameAllocIgnoreTag("OPENHAPIFILE structure", 0x118);
-    char* filePart;
     h->fp = f;
     h->pos = -1;
     h->count = 0;
     h->mode = mode;
-    GetFullPathNameA(name, 0x104, h->name, &filePart);
+    host_file_full_path(name, h->name, 0x104);
     Header hdr;
     host_file_read(f, &hdr, 0x14);
     char copyright[0x40];
@@ -1581,8 +1580,7 @@ void* __stdcall HAPI_AddArchive(LPCSTR name, int mode)
 {
     DisplayContext* display = GetDisplay();
     char fullPath[0x100];
-    char* filePart;
-    GetFullPathNameA(name, 0x100, fullPath, &filePart);
+    host_file_full_path(name, fullPath, 0x100);
 
     for (int i = 0; i < display->count; i++) {
         if (_strcmpi(fullPath, display->files[i]->name) == 0)

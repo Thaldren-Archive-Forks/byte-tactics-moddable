@@ -22,7 +22,6 @@ int DispatchHostEvents();
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <ddraw.h>
 #include <iostream>
 #include <math.h>
 
@@ -2080,7 +2079,6 @@ void __stdcall DrawSliderBar(Object_004a2580* obj, int index)
             g = (GafFrame*)GetGafFrame(e->sliderGaf, e->sliderStyle + 3);
             x -= g->width / 2;
             int ybase = e->knobPos + e->y + 3;
-            // The clamps use the <windows.h> min() macro, pulled in by <ddraw.h>.
             int lc = min(e->height - 6, e->knobSize);
             limit = lc + ybase - 1;
             int t = e->height + e->y - 4;

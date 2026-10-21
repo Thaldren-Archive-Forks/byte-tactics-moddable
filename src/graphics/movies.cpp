@@ -115,18 +115,6 @@ void __stdcall FatalError(char* message);
 void __stdcall SetOffscreenSurface(Display_0047c3a0* display);
 void FlipScreen();
 
-// The game's DDSURFACEDESC is 0x6c bytes, so it is not the DirectDraw 1 layout
-// in <ddraw.h> here; only the fields this function writes are named.
-struct SurfaceDesc_0047bf70 {
-    DWORD dwSize;                      // +0x00
-    DWORD dwFlags;                     // +0x04
-    DWORD dwHeight;                    // +0x08
-    DWORD dwWidth;                     // +0x0c
-    DWORD dwPitch;                     // +0x10
-    char unknown_14[0x68 - 0x14];
-    DWORD dwCaps;                      // +0x68, DDSCAPS_PRIMARYSURFACE
-};
-
 // The object smackw32.dll ordinal 2 hands back (a SmackBuf); only the colour
 // remap arguments SmackColorRemap takes from it are named.
 struct Smk_0047bf70_b {
@@ -156,11 +144,7 @@ public:
     PALETTEENTRY entries[256];         // +0x10
     int paletteResult;                 // +0x410
     int hasSurfaces;                   // +0x414
-    char unknown_418[0x528 - 0x418];
-    Surfaces_0047bdf0 surfaces;        // +0x528
-    char unknown_53c[0x544 - 0x53c];
-    Surfaces_0047bdf0* wrapper;        // +0x544
-    SurfaceDesc_0047bf70 surfaceDesc;  // +0x548
+    char unknown_418[0x5b4 - 0x418];
 
     MoviePlayer(char* path, int a, int b, int c, int d, int e);
     void ReadSystemPalette(int unused);
@@ -236,12 +220,12 @@ int MoviePlayer::SetupDirectDraw()
     if (shown == HOST_DISPLAY_OK) {
         paletteResult = GetBlitMode(0);
         if (paletteResult == 0) {
-            hdc = GetDC(hwnd);
+            hdc = (HDC)host_frame_context_get(hwnd);
             GetSystemPaletteEntries(hdc, 0, 0x100, entries);
             for (i = 0; i < 10; ++i) entries[i].peFlags = 0;
             for (i = 10; i < 246; ++i) entries[i].peFlags = 4;
             for (i = 246; i < 256; ++i) entries[i].peFlags = 0;
-            ReleaseDC(hwnd, hdc);
+            host_frame_context_release(hwnd, hdc);
             host_palette_create((unsigned char*)entries);
         }
         SetWindowPos(hwnd, 0, 0, 0, smack->width, smack->height, 2);
@@ -283,7 +267,7 @@ int MoviePlayer::GetBlitMode(SmackerSurface* unused)
 // FUNCTION: 0x47c230
 void MoviePlayer::ReadSystemPalette(int unused)
 {
-    HDC hdc = GetDC(hwnd);
+    HDC hdc = (HDC)host_frame_context_get(hwnd);
     GetSystemPaletteEntries(hdc, 0, 256, entries);
     int i;
     for (i = 0; i < 10; i++)
@@ -292,7 +276,7 @@ void MoviePlayer::ReadSystemPalette(int unused)
         entries[i].peFlags = PC_NOCOLLAPSE;
     for (i = 246; i < 256; i++)
         entries[i].peFlags = 0;
-    ReleaseDC(hwnd, hdc);
+    host_frame_context_release(hwnd, hdc);
 }
 
 // Copies the movie's palette into entries[] and the display palette.

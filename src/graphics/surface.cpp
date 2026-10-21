@@ -5,7 +5,6 @@
 // order.
 #include <windows.h>
 #include <string.h>
-#include <ddraw.h>
 #include "../../interfaces/host.h"
 
 #include "surface.h"
@@ -276,9 +275,8 @@ int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2)
 {
     Display* d = GetDisplay();
     if (d->offscreenDC != 0) {
-        HDC dc = GetDC(d->hwnd);
-        SelectPalette(dc, d->hpalette, FALSE);
-        RealizePalette(dc);
+        HDC dc = (HDC)host_frame_context_get(d->hwnd);
+        host_frame_context_palette(dc, d->hpalette);
         if (r1 != 0) {
             BitBlt(dc, r1->left, r1->top, r1->right - r1->left,
                    r1->bottom - r1->top, d->sourceDC, r1->left, r1->top,
@@ -289,7 +287,7 @@ int __stdcall UnlockPrimary(Surface* unused, RECT* r1, RECT* r2)
                    r2->bottom - r2->top, d->sourceDC, r2->left, r2->top,
                    SRCCOPY);
         }
-        ReleaseDC(d->hwnd, dc);
+        host_frame_context_release(d->hwnd, dc);
         return 1;
     }
     if (!host_frame_unlock(HOST_FRAME_FRONT)) {
@@ -318,10 +316,6 @@ void __stdcall SetRestoreSurface(int surface)
     obj->activeSurface = (Surface*)surface;
 }
 
-// Locks the screen into a local surface, blits the bitmap at display+0x98
-// into it at (0, 0), then unlocks. Both objects at arg+4 and arg+8 are
-// COM-like interfaces; slot 27 (+0x6c) is tested first and its non-zero
-// result aborts the blit.
 // FUNCTION: 0x4c6210
 int __stdcall RestoreSurfaces(Arg_004c6210* arg)
 {
@@ -357,12 +351,6 @@ static inline int UnlockScreenInline()
     return 1;
 }
 
-// Frame recovery for a lost DirectDraw surface: when bit 1 of the display
-// flags at +0xf0 is set, check whether the primary surface at +0x88 reports
-// DDERR_SURFACELOST, restore the two surfaces at screen+0x8 and screen+0xc,
-// lock the screen with LockScreen, blit the object at +0x98 onto it with
-// BlitSurface, then unlock with the +0x80 method. The screen surface at +0x8c
-// is saved to +0xb4 and +0xdc is always cleared.
 // FUNCTION: 0x4c62c0
 void RestoreScreen(void)
 {
@@ -442,11 +430,10 @@ void FlipScreen(void)
         Surface* p = &d->cached;
         DrawSurface(p, d->overrideSurface, 0, 0);
         DrawCursor(d, p);
-        HDC hdc = GetDC(d->hwnd);
-        SelectPalette(hdc, d->hpalette, 0);
-        RealizePalette(hdc);
+        HDC hdc = (HDC)host_frame_context_get(d->hwnd);
+        host_frame_context_palette(hdc, d->hpalette);
         BitBlt(hdc, 0, 0, p->width, d->cached.height, d->sourceDC, 0, 0, SRCCOPY);
-        ReleaseDC(d->hwnd, hdc);
+        host_frame_context_release(d->hwnd, hdc);
         Unlock(held);
         return;
     }
@@ -802,7 +789,6 @@ void __stdcall DrawTile(Surface* dst, Surface* src, Rect* rect, Point* pos)
 // width and height, then one row per scan line. The read counterpart is
 // 0x4c6f80, which allocates a surface of width*height and reads the rows back.
 // The surface layout matches the one built by 0x4c69f0.
-// Must stay: <ddraw.h> decides the multiply operand order.
 // FUNCTION: 0x4c6f10
 void __stdcall SaveSurface(Surface* surface, HapiBank* file)
 {
@@ -845,7 +831,6 @@ static inline Surface* NewSurface(char* name, int w, int h)
 
 // Reads back a surface written by 0x4c6f10: an 8-byte header of width and
 // height, then one row per scan line into a freshly allocated surface.
-// Must stay: <ddraw.h> decides the operand order of the row-loop multiply.
 // FUNCTION: 0x4c6f80
 Surface* __stdcall LoadSurface(HapiBank* file)
 {

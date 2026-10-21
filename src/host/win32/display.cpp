@@ -4,7 +4,7 @@
 
 #include "../../../interfaces/host.h"
 
-void* HostWindowHandle();
+HWND host_win32_window(void);
 
 namespace {
 
@@ -54,7 +54,7 @@ HRESULT __stdcall CollectMode(DDSURFACEDESC* desc, void* context)
 
 extern "C" int HOST_CALL host_display_mode_set(int width, int height, int flags, const unsigned char* palette)
 {
-    HWND hwnd = (HWND)HostWindowHandle();
+    HWND hwnd = host_win32_window();
     DDSURFACEDESC ddsd;
     HRESULT hr;
 
@@ -236,7 +236,7 @@ extern "C" int HOST_CALL host_frame_present(int flip)
     }
     RECT rect;
     POINT pt;
-    HWND hwnd = (HWND)HostWindowHandle();
+    HWND hwnd = host_win32_window();
     GetClientRect(hwnd, &rect);
     pt.x = 0;
     pt.y = 0;
@@ -317,6 +317,22 @@ extern "C" int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsig
     host_frame_unlock(HOST_FRAME_BACK);
     memset(palette, 0, 256 * 4);
     return host_palette_get(palette);
+}
+
+extern "C" void* HOST_CALL host_frame_context_get(void* window)
+{
+    return GetDC((HWND)window);
+}
+
+extern "C" void HOST_CALL host_frame_context_release(void* window, void* context)
+{
+    ReleaseDC((HWND)window, (HDC)context);
+}
+
+extern "C" void HOST_CALL host_frame_context_palette(void* context, void* palette)
+{
+    SelectPalette((HDC)context, (HPALETTE)palette, FALSE);
+    RealizePalette((HDC)context);
 }
 
 extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)

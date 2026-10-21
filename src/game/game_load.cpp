@@ -17,8 +17,6 @@
 #include <time.h>
 #include "../../interfaces/host.h"
 #include "../state/game_rand.h"
-// Needed: without it the x87 schedule of the map-name block differs.
-#include <ddraw.h>
 
 #pragma pack(push, 1)
 

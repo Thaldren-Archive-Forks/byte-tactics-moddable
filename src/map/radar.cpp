@@ -1,13 +1,9 @@
 // Decompiled by space-bunny-free, deepseek-v4.1-flash, Opus, Claude Opus 5.5, GPT-6, GPT-6.1-sol and mimo-v2.6-pro. Names are provisional.
 // The radar: builds the minimap picture from the terrain icon map, keeps its
 // view and zoom, and draws the units, projectiles and fog over it.
-//
-// <stdio.h>, <math.h> and <ddraw.h> stay: their symbol ids decide operand order
-// in 0x466780, 0x466b70 and 0x466dc0.
 #include <windows.h>
 #include <stdio.h>
 #include <math.h>
-#include <ddraw.h>
 
 struct Point_4665d0 {
     int x;
