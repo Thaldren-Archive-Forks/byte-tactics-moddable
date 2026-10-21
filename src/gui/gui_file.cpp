@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "win_types.h"
 
 #include "../util/tdf.h"
@@ -480,7 +481,7 @@ void __stdcall ReadButtonFields(Obj_004adc70* obj, Source_004adc70* src)
     strncpy(obj->text, Translate(obj->text), 0x80);
     char local[20];
     src->tdf->GetFieldString(local, "quickkey", 0x13, DAT_005119b8);
-    if (IsCharAlphaA(local[0]))
+    if (isalpha((unsigned char)local[0]))
         obj->quickkey = (unsigned char)local[0];
     else
         obj->quickkey = (unsigned char)atoi(local);

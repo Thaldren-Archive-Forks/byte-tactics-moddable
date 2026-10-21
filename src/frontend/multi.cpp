@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <windows.h>
+#include "win_types.h"
 #include <math.h>
 #include "../../interfaces/host.h"
 
@@ -1120,7 +1120,7 @@ int GetServiceProviderIndex()
 int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
 {
     // block before size, all three buffers at function top: prologue and frame layout.
-    HGLOBAL block = 0;
+    void* block = 0;
     unsigned long size = 0;
     Elem_00441c30 elements[3];
     GUID guid;
@@ -1189,7 +1189,7 @@ int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
 
     result = host_net_create_compound_address((host_net*)((char*)g_game + 0x14), elements, count, 0, &size);
     if (result != 0x8877001e) goto cleanup;
-    block = (HGLOBAL)GameAllocIgnoreTag("COMPOUND ADDR", size);
+    block = GameAllocIgnoreTag("COMPOUND ADDR", size);
     if (block == 0) {
         result = 0x8007000e;
         goto cleanup;
@@ -1199,8 +1199,7 @@ int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
         // Label inside this body, reached by goto: the shared cleanup block is the true arm.
 cleanup:
         if (block != 0) {
-            GlobalUnlock(GlobalHandle(block));
-            GlobalFree(GlobalHandle(block));
+            GameFreeThunk(block);
         }
         return result;
     }
@@ -1633,10 +1632,10 @@ static inline char* NameSlot(char* buffer)
 }
 
 // FUNCTION: 0x443070
-BOOL __stdcall EnumModemAddressCallback(REFGUID guidDataType, DWORD dataSize, LPCVOID data, LPVOID context)
+BOOL __stdcall EnumModemAddressCallback(const GUID& guidDataType, DWORD dataSize, LPCVOID data, LPVOID context)
 {
     char* name = (char*)data;
-    if (IsEqualGUID(guidDataType, DPAID_Modem)) {
+    if (memcmp(&guidDataType, &DPAID_Modem, sizeof(GUID)) == 0) {
         while (strlen(name) != 0) {
             strcpy(NameSlot(g_modemInfo), name);
             g_modemCount++;
