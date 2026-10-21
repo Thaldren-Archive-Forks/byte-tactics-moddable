@@ -204,7 +204,7 @@ Header_004cac40,no,2,include/ta_types.h:16114|src/graphics/pcx.cpp:93,differs,in
 Hits_0049a120,no,2,src/weapons/weapons.cpp:623|src/weapons/weapons_49a120.cpp:95,identical,src/weapons/weapons.cpp
 Holder_00401000,no,2,include/ta_types.h:2127|src/game/economy.cpp:66,identical,include/ta_types.h
 Hs_0048a490,no,2,include/ta_types.h:11070|src/units/unit_targets.cpp:683,identical,include/ta_types.h
-IDirectSound3DBuffer,no,2,include/ta_types.h:16335|src/host/win32/sound.cpp:9,differs,include/ta_types.h
+IDirectSound3DBuffer,no,2,include/ta_types.h:16335|src/host/win32/sound.cpp:10,differs,include/ta_types.h
 IconSet_00466780,no,2,include/ta_types.h:8072|src/map/radar.cpp:35,differs,include/ta_types.h
 Id_004df1e0,no,2,include/ta_types.h:17202|src/debug/debug_lib.cpp:4447,differs,include/ta_types.h
 Iface_00417f30,no,2,include/ta_types.h:3573|src/game/console_commands.cpp:161,same-layout,include/ta_types.h
