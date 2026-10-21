@@ -44,6 +44,11 @@ jobs:
       - name: No direct calls between sim subsystems
         run: python3 tools/coupling.py --seams
 
+      - name: Platform headers stay in the host
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/hostlint.py --open-issues
+
   modern-compile:
     name: modern-compile
     runs-on: ubuntu-24.04
