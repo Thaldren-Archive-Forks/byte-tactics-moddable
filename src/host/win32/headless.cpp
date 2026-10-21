@@ -37,19 +37,18 @@ bool ScanCommandLine()
     return false;
 }
 
-bool g_scanned;
-bool g_headless;
+LONG g_headlessState;
 
 bool Scan()
 {
-    if (!g_scanned) {
-        g_headless = ScanCommandLine();
-        g_scanned = true;
+    LONG state = *(volatile LONG*)&g_headlessState;
+    if (state == 0) {
+        bool headless = ScanCommandLine();
+        InterlockedExchange(&g_headlessState, headless ? 2 : 1);
+        return headless;
     }
-    return g_headless;
+    return state == 2;
 }
-
-const bool g_startupScan = Scan();
 
 const unsigned int kQueueSize = 256;
 const int kScreenWidth = 640;
