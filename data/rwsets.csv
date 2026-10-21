@@ -32317,7 +32317,6 @@ address,function,file,kind,target
 0x49ed90,AtexitNoOp,src/game/main.cpp,function,
 0x49eda0,WinMain,src/game/main_49eda0.cpp,call,ExceptionFilter
 0x49eda0,WinMain,src/game/main_49eda0.cpp,call,GameMain
-0x49eda0,WinMain,src/game/main_49eda0.cpp,call,SimBlockInit
 0x49eda0,WinMain,src/game/main_49eda0.cpp,call,_exception_info
 0x49eda0,WinMain,src/game/main_49eda0.cpp,function,
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,FreeLibrary
@@ -49855,10 +49854,7 @@ address,function,file,kind,target
 ,SimBlockBase,src/state/block.cpp,function,
 ,SimBlockBase,src/state/block.cpp,global_read,g_base
 ,SimBlockInit,src/state/block.cpp,call,Guard::~Guard
-,SimBlockInit,src/state/block.cpp,call,host_mutex_create
 ,SimBlockInit,src/state/block.cpp,function,
-,SimBlockInit,src/state/block.cpp,global_read,g_lock
-,SimBlockInit,src/state/block.cpp,global_write,g_lock
 ,SimBlockReset,src/state/block.cpp,call,VirtualFree
 ,SimBlockReset,src/state/block.cpp,deref_write,*void
 ,SimBlockReset,src/state/block.cpp,function,
