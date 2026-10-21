@@ -45859,9 +45859,9 @@ address,function,file,kind,target
 ,HeadlessPostQuit,src/host/win32/headless.cpp,global_write,g_quitPending
 ,HeadlessPostQuit,src/host/win32/headless.cpp,global_write,g_quitThread
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,call,DispatchPosted
-,HeadlessPumpEvents,src/host/win32/headless.cpp,call,EnterCriticalSection
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,call,GetCurrentThreadId
-,HeadlessPumpEvents,src/host/win32/headless.cpp,call,LeaveCriticalSection
+,HeadlessPumpEvents,src/host/win32/headless.cpp,call,LockPosts
+,HeadlessPumpEvents,src/host/win32/headless.cpp,call,UnlockPosts
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,call,host_sleep_ms
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,field_read,PostRing::count
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,field_read,PostRing::head
@@ -45869,7 +45869,6 @@ address,function,file,kind,target
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,field_write,PostRing::count
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,field_write,PostRing::head
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,function,
-,HeadlessPumpEvents,src/host/win32/headless.cpp,global_maybe_written,g_postLock
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,global_read,g_posted
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,global_read,g_quitPending
 ,HeadlessPumpEvents,src/host/win32/headless.cpp,global_read,g_quitThread
@@ -45937,15 +45936,14 @@ address,function,file,kind,target
 ,HeadlessWindowOpen,src/host/win32/headless.cpp,global_read,kWindow
 ,HeadlessWindowOpen,src/host/win32/headless.cpp,global_write,g_windowOpen
 ,HeadlessWindowOpen,src/host/win32/headless.cpp,global_write,g_windowThread
-,HeadlessWindowPost,src/host/win32/headless.cpp,call,EnterCriticalSection
-,HeadlessWindowPost,src/host/win32/headless.cpp,call,LeaveCriticalSection
+,HeadlessWindowPost,src/host/win32/headless.cpp,call,LockPosts
+,HeadlessWindowPost,src/host/win32/headless.cpp,call,UnlockPosts
 ,HeadlessWindowPost,src/host/win32/headless.cpp,field_read,PostRing::count
 ,HeadlessWindowPost,src/host/win32/headless.cpp,field_read,PostRing::head
 ,HeadlessWindowPost,src/host/win32/headless.cpp,field_write,PostRing::count
 ,HeadlessWindowPost,src/host/win32/headless.cpp,field_write,PostRing::head
 ,HeadlessWindowPost,src/host/win32/headless.cpp,field_write,PostRing::items
 ,HeadlessWindowPost,src/host/win32/headless.cpp,function,
-,HeadlessWindowPost,src/host/win32/headless.cpp,global_maybe_written,g_postLock
 ,HeadlessWindowPost,src/host/win32/headless.cpp,global_read,g_posted
 ,HeadlessWindowPost,src/host/win32/headless.cpp,global_read,g_windowOpen
 ,HeadlessWindowPost,src/host/win32/headless.cpp,global_read,kQueueSize
@@ -46019,9 +46017,6 @@ address,function,file,kind,target
 ,InitPlayerSpecs,src/harness/harness.cpp,field_write,PlayerSpec::team
 ,InitPlayerSpecs,src/harness/harness.cpp,function,
 ,InitPlayerSpecs,src/harness/harness.cpp,global_escape,s_players@src/harness/harness.cpp
-,InitPostLock,src/host/win32/headless.cpp,call,InitializeCriticalSection
-,InitPostLock,src/host/win32/headless.cpp,function,
-,InitPostLock,src/host/win32/headless.cpp,global_maybe_written,g_postLock
 ,InitUnit_00485e90,src/units/units_485010.cpp,call,InitUnitFromType
 ,InitUnit_00485e90,src/units/units_485010.cpp,call,InitUnitScript
 ,InitUnit_00485e90,src/units/units_485010.cpp,call,operator new
@@ -47480,6 +47475,16 @@ address,function,file,kind,target
 ,LockMouse,src/gui/mouse.cpp,global_read,g_gfxBlitLockEvent
 ,LockMouse,src/gui/mouse.cpp,global_read,g_gfxBlitLockOwner
 ,LockMouse,src/gui/mouse.cpp,global_write,g_gfxBlitLockOwner
+,LockPosts,src/host/win32/headless.cpp,call,EnterCriticalSection
+,LockPosts,src/host/win32/headless.cpp,call,InitializeCriticalSection
+,LockPosts,src/host/win32/headless.cpp,call,InterlockedIncrement
+,LockPosts,src/host/win32/headless.cpp,call,Sleep
+,LockPosts,src/host/win32/headless.cpp,deref_read,*long
+,LockPosts,src/host/win32/headless.cpp,function,
+,LockPosts,src/host/win32/headless.cpp,global_escape,g_postLockReady
+,LockPosts,src/host/win32/headless.cpp,global_maybe_written,g_postLock
+,LockPosts,src/host/win32/headless.cpp,global_maybe_written,g_postLockClaims
+,LockPosts,src/host/win32/headless.cpp,global_maybe_written,g_postLockReady
 ,Lod,src/map/line_of_sight.cpp,call,LodRaw
 ,Lod,src/map/line_of_sight.cpp,function,
 ,LodRaw,src/map/line_of_sight.cpp,field_read,SightQuery::sightDistance
@@ -50701,6 +50706,9 @@ address,function,file,kind,target
 ,UnlockMouse,src/gui/mouse.cpp,global_escape,g_gfxBlitLockHeld
 ,UnlockMouse,src/gui/mouse.cpp,global_read,g_gfxBlitLockEvent
 ,UnlockMouse,src/gui/mouse.cpp,global_write,g_gfxBlitLockOwner
+,UnlockPosts,src/host/win32/headless.cpp,call,LeaveCriticalSection
+,UnlockPosts,src/host/win32/headless.cpp,function,
+,UnlockPosts,src/host/win32/headless.cpp,global_maybe_written,g_postLock
 ,UnlockScreenInline,src/graphics/surface.cpp,call,GetDisplay
 ,UnlockScreenInline,src/graphics/surface.cpp,call,host_frame_unlock
 ,UnlockScreenInline,src/graphics/surface.cpp,field_read,Display::offscreenDC
