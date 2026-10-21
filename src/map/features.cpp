@@ -10,7 +10,6 @@
 // at its exact size.
 // FLAGS: /Gi
 #include <windows.h>
-#include <ddraw.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

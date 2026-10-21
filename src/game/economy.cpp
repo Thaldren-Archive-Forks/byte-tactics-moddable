@@ -7,7 +7,6 @@
 // end-of-tick update (0x401320) are shared with it by address.
 //
 // The included headers decide which operand of the float adds is loaded first.
-#include <ddraw.h>
 #include <float.h>
 #include <stdio.h>
 #include <stdlib.h>

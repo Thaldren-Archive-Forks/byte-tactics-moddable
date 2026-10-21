@@ -6,8 +6,6 @@
 // The unit's resource account is a class at +0xbc whose owner pointer is at
 // +0x30 (unit+0xec); 0x401180..0x4012a0 are its methods and 0x401320 is the
 // end-of-tick update, all defined above without FUNCTION lines.
-#include <ddraw.h>
-// <float.h> after <ddraw.h>: the file's symbol count decides the x87 code of UseEnergy.
 #include <float.h>
 // Load-bearing: the symbol id this forward declaration takes keeps UseEnergy's
 // x87 code; the header's own declaration of Player comes later.

@@ -8,7 +8,6 @@
 #include "../state/block.h"
 #include <string.h>
 #include <windows.h>
-#include <ddraw.h>
 #include <vector>
 
 void __cdecl operator delete(void* p);

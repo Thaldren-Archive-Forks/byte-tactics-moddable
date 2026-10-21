@@ -8,7 +8,6 @@
 // rotation into the local unit, or draws the feature's own frames (with the
 // shadow layer when bit 4 of the draw flags is set).
 
-#include <ddraw.h>
 
 #include "../util/vec3.h"
 

@@ -7,7 +7,6 @@
 
 #include <windows.h>
 #include "../state/block.h"
-#include <ddraw.h>
 #include <stdio.h>
 #include <vector>
 #include <list>
