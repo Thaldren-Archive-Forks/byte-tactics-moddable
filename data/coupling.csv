@@ -1030,7 +1030,6 @@ harness,game,shared_write,Game::difficulty,4
 harness,game,shared_write,Game::localPlayer,13
 harness,game,shared_write,Game::numPlayers,5
 harness,game,shared_write,Game::playerIndex,8
-harness,game,shared_write,g_allocHooks,5
 harness,game,shared_write,g_quirks,1
 harness,los_radar,shared_write,Game::localPlayer,3
 harness,los_radar,shared_write,Game::numPlayers,1
@@ -1054,7 +1053,6 @@ harness,platform,call,IsMemSet,1
 harness,platform,call,host_exit,3
 harness,platform,call,host_log,6
 harness,platform,call,host_time_counter,1
-harness,platform,shared_write,g_allocHooks,3
 harness,platform,shared_write,g_quirks,1
 harness,players,call,HarnessConditionClass,1
 harness,players,call,ResetPlayerSlots,1

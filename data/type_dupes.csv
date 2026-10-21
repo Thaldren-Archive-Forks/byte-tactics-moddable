@@ -125,7 +125,7 @@ Elem_004dd8c0,no,3,include/ta_types.h:16832|src/debug/debug_lib.cpp:2232|src/deb
 Elem_432cb0,no,2,include/ta_types.h:4895|src/map/los_tables.cpp:43,differs,include/ta_types.h
 Element_00475ef0,no,2,include/ta_types.h:9643|src/graphics/particles_475ef0.cpp:8,same-layout,include/ta_types.h
 EmptyStringRep,no,2,link/globals.h:221|src/graphics/surface.cpp:2045,identical,link/globals.h
-Entry,no,2,include/ta_types.h:3643|src/harness/block_scan.cpp:21,differs,include/ta_types.h
+Entry,no,2,include/ta_types.h:3643|src/harness/block_scan.cpp:22,differs,include/ta_types.h
 Entry_0042f740,no,2,include/ta_types.h:4731|src/sound/sound_types.cpp:24,same-layout,include/ta_types.h
 Entry_004426e0,no,2,include/ta_types.h:5875|src/frontend/multi.cpp:205,same-layout,include/ta_types.h
 Entry_0049d120,no,2,include/ta_types.h:12069|src/weapons/weapons.cpp:1499,differs,include/ta_types.h
@@ -446,7 +446,7 @@ Source_004ae300,no,2,include/ta_types.h:12964|src/gui/gui_file.cpp:677,identical
 Source_004ae410,no,2,include/ta_types.h:12981|src/gui/gui_file.cpp:724,identical,include/ta_types.h
 Source_004ae4b0,no,2,include/ta_types.h:12996|src/gui/gui_file.cpp:764,identical,include/ta_types.h
 Source_004ae550,no,2,include/ta_types.h:13011|src/gui/gui_file.cpp:803,identical,include/ta_types.h
-Span,no,2,src/graphics/draw.cpp:28|src/harness/block_scan.cpp:28,differs,src/graphics/draw.cpp
+Span,no,2,src/graphics/draw.cpp:28|src/harness/block_spans.h:4,differs,src/harness/block_spans.h
 SpatialBucket,no,4,src/map/spatial_bucket.h:6|src/map/terrain.cpp:123|src/units/unit_position.cpp:94|src/units/units_485010.cpp:155,differs,src/map/spatial_bucket.h
 Spawn_004861d0,no,2,include/ta_types.h:10635|src/units/units_485010.cpp:766,differs,include/ta_types.h
 SpeechQueue,no,2,include/ta_types.h:10249|src/sound/sound.cpp:103,differs,src/sound/sound.cpp

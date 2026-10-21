@@ -45035,12 +45035,6 @@ address,function,file,kind,target
 ,FindSound,src/sound/sound.cpp,field_read,Game::soundCount
 ,FindSound,src/sound/sound.cpp,function,
 ,FindSound,src/sound/sound.cpp,global_read,g_game
-,FindSpan,src/harness/block_scan.cpp,deref_escape,*Span
-,FindSpan,src/harness/block_scan.cpp,field_read,Span::end
-,FindSpan,src/harness/block_scan.cpp,field_read,Span::start
-,FindSpan,src/harness/block_scan.cpp,function,
-,FindSpan,src/harness/block_scan.cpp,global_read,g_spanCount
-,FindSpan,src/harness/block_scan.cpp,global_read,g_spans
 ,FindTarget,src/network/net_game.cpp,field_read,Player::id
 ,FindTarget,src/network/net_game.cpp,field_read,Player::type
 ,FindTarget,src/network/net_game.cpp,function,
@@ -47583,6 +47577,11 @@ address,function,file,kind,target
 ,LocalPlayer,src/network/net_game_453d40.cpp,field_read,Game::localPlayer
 ,LocalPlayer,src/network/net_game_453d40.cpp,function,
 ,LocalPlayer,src/network/net_game_453d40.cpp,global_read,g_game
+,LocateSpan,src/harness/block_spans.h,deref_escape,*Span
+,LocateSpan,src/harness/block_spans.h,deref_write,*unsigned int
+,LocateSpan,src/harness/block_spans.h,field_read,Span::end
+,LocateSpan,src/harness/block_spans.h,field_read,Span::start
+,LocateSpan,src/harness/block_spans.h,function,
 ,Lock,src/graphics/palette.cpp,call,host_atomic_exchange
 ,Lock,src/graphics/palette.cpp,call,host_event_wait
 ,Lock,src/graphics/palette.cpp,function,
@@ -51435,15 +51434,13 @@ address,function,file,kind,target
 ,Visit,src/harness/block_scan.cpp,call,BuildSpans
 ,Visit,src/harness/block_scan.cpp,call,EnterCriticalSection
 ,Visit,src/harness/block_scan.cpp,call,Find
-,Visit,src/harness/block_scan.cpp,call,FindSpan
-,Visit,src/harness/block_scan.cpp,call,Inside
 ,Visit,src/harness/block_scan.cpp,call,LeaveCriticalSection
+,Visit,src/harness/block_scan.cpp,call,LocateSpan
 ,Visit,src/harness/block_scan.cpp,call,Note
 ,Visit,src/harness/block_scan.cpp,call,memcpy
 ,Visit,src/harness/block_scan.cpp,call,memset
 ,Visit,src/harness/block_scan.cpp,deref_read,*Entry
 ,Visit,src/harness/block_scan.cpp,deref_read,*unsigned int
-,Visit,src/harness/block_scan.cpp,field_read,Entry::addr
 ,Visit,src/harness/block_scan.cpp,field_read,Entry::site
 ,Visit,src/harness/block_scan.cpp,field_read,Entry::tag
 ,Visit,src/harness/block_scan.cpp,field_read,Span::index
@@ -51460,8 +51457,10 @@ address,function,file,kind,target
 ,Visit,src/harness/block_scan.cpp,global_read,g_hits
 ,Visit,src/harness/block_scan.cpp,global_read,g_pages
 ,Visit,src/harness/block_scan.cpp,global_read,g_registry
+,Visit,src/harness/block_scan.cpp,global_read,g_spanCount
 ,Visit,src/harness/block_scan.cpp,global_read,g_spanMax
 ,Visit,src/harness/block_scan.cpp,global_read,g_spanMin
+,Visit,src/harness/block_scan.cpp,global_read,g_spans
 ,Visit,src/harness/block_scan.cpp,global_read,g_words
 ,Visit,src/harness/block_scan.cpp,global_read,kPageShift
 ,Visit,src/harness/block_scan.cpp,global_write,g_hits
