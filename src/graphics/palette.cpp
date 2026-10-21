@@ -5,13 +5,10 @@
 #include <string.h>
 #include "../../interfaces/host.h"
 
-// The display context at g_display, as this module sees it: the windowed
-// marker, the DirectDraw palette, the table buffers at +0xc0 to +0xd0, the flags at
-// +0xf0 and the palette table at +0x214. display.cpp has the whole object.
 #pragma pack(push, 1)
 struct DisplayContext {
     char unknown_0[0x44];
-    int windowed;                      // +0x44, the windowed frame is set up
+    int windowed;
     char unknown_48[0x94 - 0x48];
     void* ddPalette;
     char unknown_98[0xc0 - 0x98];
@@ -38,7 +35,6 @@ struct DisplayContext {
 };
 #pragma pack(pop)
 
-// One palette entry: red, green, blue and a flag byte.
 struct tagPALETTEENTRY {
     unsigned char peRed;
     unsigned char peGreen;
@@ -90,12 +86,6 @@ static inline void Unlock(long held)
     }
 }
 
-// Sets `count` palette entries from `start` (4 bytes each: three colour
-// bytes and a zero) under the 'MAIN' lock. The entries are stored in the
-// display's palette table, scaled by the display's brightness (+0x614) and
-// clamped to 255 into a local palette, and that palette is then either
-// handed to the host as the windowed frame's palette or to the DirectDraw
-// palette object, whose failure returns 0.
 // FUNCTION: 0x4ba200
 int __stdcall SetPaletteColors(unsigned char* src, int start, int count)
 {
@@ -146,9 +136,6 @@ int __stdcall SetPaletteColors(unsigned char* src, int start, int count)
     return 1;
 }
 
-// Fetches the current 256-entry palette from the host and
-// converts entries [first, first+count) into 4-byte RGB0 pixels written to
-// the caller's buffer. Returns 0 if the palette could not be read, 1 otherwise.
 // FUNCTION: 0x4ba4c0
 int __stdcall GetPaletteColors(unsigned char* dest, int first, int count)
 {

@@ -66,7 +66,6 @@ struct DirectDrawState {
     int haveBackBuffer;          // +0x9c
 };
 
-// One palette entry: red, green, blue and a flag byte.
 struct tagPALETTEENTRY {
     unsigned char peRed;
     unsigned char peGreen;
@@ -79,23 +78,23 @@ struct tagPALETTEENTRY {
 // +0x202.
 #pragma pack(push, 2)
 struct App_4b5980 {
-    void* hInstance;                 // +0x00
+    void* hInstance;
     int nCmdShow;                        // +0x04
     char* className;                     // +0x08
     char* title;                         // +0x0c
-    void* wndProc;                       // +0x10
+    void* wndProc;
     unsigned short menuId;               // +0x14
     // Pads WNDCLASSA to +0x18 by hand, for the same packing reason.
     char unknown_16[2];
-    char wc[0x28];                       // +0x18
-    void* hwnd;                          // +0x40
-    int windowed;                        // +0x44
-    char unknown_48[8];                  // +0x48
+    char wc[0x28];
+    void* hwnd;
+    int windowed;
+    char unknown_48[8];
     char unknown_50[0x80 - 0x50];
     void (__cdecl *callback)(int, int, int); // +0x80
     DirectDrawState draw;                // +0x84
     Rect mode;                           // +0xa0
-    void* font;                          // +0xb0
+    void* font;
     char unknown_b4[0xc4 - 0xb4];
     int shadeTable;                      // +0xc4
     int lightTable;                      // +0xc8
@@ -116,7 +115,7 @@ struct App_4b5980 {
     int startHeight;                     // +0x1fe
     unsigned short videoFlags;           // +0x202
     char unknown_204[0x214 - 0x204];
-    tagPALETTEENTRY entries[256];           // +0x214
+    tagPALETTEENTRY entries[256];
     float scale;                         // +0x614
     void** items;                        // +0x618
     int itemCount;                       // +0x61c
@@ -129,9 +128,9 @@ struct App_4b5980 {
 
 // One display mode, as the EnumModesCallback enum callback stores it.
 struct Mode_004b5330 {
-    unsigned int width;                       // +0x0
-    unsigned int height;                      // +0x4
-    unsigned int refreshRate;                 // +0x8
+    unsigned int width;
+    unsigned int height;
+    unsigned int refreshRate;
 };
 
 // The caller's list: a count and the array of modes to fill.

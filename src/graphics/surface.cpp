@@ -62,9 +62,9 @@ extern LockEntry g_screenLocks[];
 #pragma pack(push, 1)
 struct Display {
     char unknown_0[0x40];
-    void* hwnd;                        // +0x40
-    int windowed;                      // +0x44
-    char unknown_48[8];                // +0x48
+    void* hwnd;
+    int windowed;
+    char unknown_48[8];
     Surface cached;                    // +0x50
     Screen screen;                     // +0x80
     Surface* activeSurface;            // +0x98
