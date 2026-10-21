@@ -123,7 +123,7 @@ Entry_004b8b30,no,2,include/ta_types.h:13961|src/graphics/gaf.cpp:592,identical,
 Entry_004d0a10,no,2,include/ta_types.h:16421|src/sound/samples.cpp:130,identical,include/ta_types.h
 Event_0049d1e0,no,2,include/ta_types.h:12057|src/weapons/weapons.cpp:1554,differs,include/ta_types.h
 Event_4b5cc0,no,2,include/ta_types.h:13672|src/graphics/display.cpp:154,differs,src/graphics/display.cpp
-ExceptionName,no,2,include/ta_types.h:16620|src/debug/debug_lib.cpp:965,identical,include/ta_types.h
+ExceptionName,no,2,include/ta_types.h:16620|src/host/win32/crash.cpp:194,identical,include/ta_types.h
 Expired,no,2,include/ta_types.h:10498|src/map/line_of_sight.cpp:245,differs,include/ta_types.h
 Explosion,no,2,include/ta_types.h:3976|src/weapons/explosions.cpp:50,differs,include/ta_types.h
 FP_0043d6d0,no,2,include/ta_types.h:5618|src/orders/order_list.cpp:48,differs,include/ta_types.h
@@ -323,7 +323,7 @@ ParticleLists,no,5,include/ta_types.h:8941|src/graphics/particle_lists.h:15|src/
 ParticleSystem,no,4,src/graphics/particle_system.h:15|src/graphics/particles_471820.cpp:22|src/graphics/particles_471a50.cpp:22|src/graphics/particles_472630.cpp:25,same-layout,src/graphics/particle_system.h
 PathOrder,no,2,include/ta_types.h:6335|src/orders/order_targets.cpp:122,differs,include/ta_types.h
 Pic_004295b0,no,2,include/ta_types.h:4534|src/game/data_files.cpp:197,same-layout,include/ta_types.h
-PlayerData,no,2,src/host/win32/net.cpp:166|src/units/unit_position.cpp:80,differs,src/host/win32/net.cpp
+PlayerData,no,2,src/host/win32/net.cpp:165|src/units/unit_position.cpp:80,differs,src/host/win32/net.cpp
 PlayerData_004ca6a0,no,2,include/ta_types.h:15938|src/network/net_game_453d40.cpp:36,differs,include/ta_types.h
 PlayerIdPacket,no,2,src/network/net_game.cpp:88|src/network/net_game_453d40.cpp:70,differs,src/network/net_game.cpp
 PlayerInfo_00467440,no,2,src/ingame/info_panel.cpp:98|src/ingame/info_panel_467440.cpp:41,differs,src/ingame/info_panel_467440.cpp
@@ -485,7 +485,7 @@ VecInt_0046ca60,no,2,include/ta_types.h:8279|src/network/unit_sync_46ca60.cpp:31
 Vec_0046d1a0,no,2,include/ta_types.h:8383|src/network/unit_sync_46d1a0.cpp:41,differs,include/ta_types.h
 Vec_0046d6c0,no,2,include/ta_types.h:8536|src/network/unit_sync.cpp:372,same-layout,include/ta_types.h
 Vec_0046d860,no,2,include/ta_types.h:8631|src/network/unit_sync_46dad0.cpp:127,differs,include/ta_types.h
-Vec_00476490,no,4,include/ta_types.h:9623|src/graphics/particles.cpp:796|src/graphics/particles_472630.cpp:355|src/graphics/particles_475700.cpp:60,differs,include/ta_types.h
+Vec_00476490,no,4,include/ta_types.h:9623|src/graphics/particles.cpp:794|src/graphics/particles_472630.cpp:355|src/graphics/particles_475700.cpp:60,differs,include/ta_types.h
 View_4b5980,no,2,include/ta_types.h:13663|src/graphics/display.cpp:137,differs,include/ta_types.h
 Visitor_0047e750,no,2,include/ta_types.h:10053|src/map/terrain.cpp:138,same-layout,include/ta_types.h
 WakeParticle,no,3,include/ta_types.h:9288|src/graphics/particles.cpp:297|src/graphics/particles_472630.cpp:297,differs,include/ta_types.h

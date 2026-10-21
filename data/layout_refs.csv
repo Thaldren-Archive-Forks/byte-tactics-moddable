@@ -152,6 +152,3 @@ SetSubStateLogged,,src/frontend/frontend.cpp,end-of,g_frontendSourceFile,0,g_fro
 VisitWorld,,src/harness/harness.cpp,end-of,g_liteGoalVtable,0,g_packedGoalVtable,,none
 VisitWorld,,src/harness/harness.cpp,end-of,g_packedPosGoalVtable,0,g_liteGoalVtable,,none
 VisitWorld,,src/harness/harness.cpp,end-of,g_patrolGoalVtable,0,g_aiSearchGoalVtable,,none
-host_net_online_button,,src/host/win32/net.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,
-host_net_online_link_info,,src/host/win32/net.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,
-host_net_online_load_config,,src/host/win32/net.cpp,past-end,g_onlineDllPath,-1,g_onlineDllPath,DAT_00512c80+0x14f,
