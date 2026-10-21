@@ -31,7 +31,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from stateclasses import PRESENTATION_DIRS  # noqa: E402
+from stateclasses import PRESENTATION_DIRS
 
 EXCEPTIONS = "data/host_exceptions.csv"
 REPO = "ozgb/byte-tactics-moddable"
