@@ -201,8 +201,8 @@ unsigned HarnessCrtSeed(unsigned live);
 
 int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
 
-// FUNCTION: 0x49e830
 // FUNCTION: 0x49eda0
+// FUNCTION: 0x49e830
 int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                            LPSTR lpCmdLine, int nCmdShow)
 {
@@ -221,7 +221,6 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         SetOutOfMemoryHandler((int)OutOfMemoryHandler);
         if ((g_atexitRegistered & 1) == 0) {
             g_atexitRegistered |= 1;
-            // atexit wants a __cdecl handler; /Gz makes AtexitNoOp __stdcall.
             atexit((void (__cdecl *)(void))AtexitNoOp);
         }
         CreateGameObject();

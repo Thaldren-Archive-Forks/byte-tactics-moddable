@@ -36,6 +36,7 @@ src/game/game_state.cpp,src/gui/gui.h,#22
 src/game/game_state.cpp,windows.h,#305
 src/game/main.cpp,interfaces/host.h,#29
 src/game/main.cpp,windows.h,#304
+src/game/main_49e680.cpp,interfaces/host.h,#29
 src/game/main_loop.cpp,src/gui/gui.h,#22
 src/game/main_loop.cpp,src/ingame/frame_timers.h,#22
 src/game/settings.cpp,src/host/settings_io.h,#25
