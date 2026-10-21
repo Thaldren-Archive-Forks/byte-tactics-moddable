@@ -1,6 +1,7 @@
 // Decompiled by Opus, Haiku, space-bunny-free, deepseek-v4.1-flash, deepseek-v4.1 and Sonnet 5.5. Names are provisional.
 // WinMain of Total Annihilation.
 #include "win_types.h"
+#include <excpt.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -333,6 +334,19 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 // FUNCTION: 0x49ed90
 void AtexitNoOp(void)
 {
+}
+
+int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
+
+// FUNCTION: 0x49eda0
+int __stdcall GameEntry(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                        LPSTR lpCmdLine, int nCmdShow)
+{
+    __try {
+        return GameMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+    } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
+    }
+    return 0;
 }
 
 // Changes the current directory to the one holding the executable.

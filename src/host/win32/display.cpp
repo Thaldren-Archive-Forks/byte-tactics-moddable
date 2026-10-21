@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <ddraw.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "../../../interfaces/host.h"
@@ -381,4 +382,57 @@ extern "C" int HOST_CALL host_palette_apply(void)
 {
     if (HostHeadless()) return HeadlessPaletteApply();
     return g_primary && g_palette && g_primary->SetPalette(g_palette) == DD_OK;
+}
+
+extern "C" int HOST_CALL host_media_version_get(host_media_version* version)
+{
+    typedef int (__stdcall* SetupGetVersion)(DWORD* major, DWORD* minor);
+    HMODULE lib = LoadLibraryA("dsetup.dll");
+    if (lib) {
+        FARPROC proc = GetProcAddress(lib, "DirectXSetupGetVersion");
+        if (proc) {
+            DWORD dwMaj = 0;
+            DWORD dwMin = 0;
+            DWORD status = ((SetupGetVersion)proc)(&dwMaj, &dwMin);
+            if (status) {
+                version->major_hi = HIWORD(dwMaj);
+                version->minor_hi = HIWORD(dwMin);
+                version->major_lo = LOWORD(dwMaj);
+                version->minor_lo = LOWORD(dwMin);
+                version->major_only = 0;
+                FreeLibrary(lib);
+                return 1;
+            }
+        }
+        FreeLibrary(lib);
+    }
+    memset(version, 0, sizeof(*version));
+    OSVERSIONINFOA osvi;
+    bool isNT = false;
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    if (GetVersionExA(&osvi)) {
+        isNT = osvi.dwPlatformId == 2;
+    }
+    if (isNT) {
+        DWORD installed = 0;
+        unsigned int intSize = 4;
+        if (host_setting_get(HOST_SCOPE_SYSTEM_READ, "Software\\Microsoft\\DirectX", "InstalledVersion",
+                             HOST_SETTING_INT, &installed, &intSize) != 1) {
+            return 0;
+        }
+        version->major_lo = installed & 0xff;
+        version->major_only = 1;
+        return 1;
+    }
+    char text[30];
+    unsigned int len = sizeof(text);
+    if (host_setting_get(HOST_SCOPE_SYSTEM_READ, "Software\\Microsoft\\DirectX", "Version",
+                         HOST_SETTING_STRING, text, &len) != 1) {
+        return 0;
+    }
+    version->major_hi = atoi(strtok(text, "."));
+    version->major_lo = atoi(strtok(0, "."));
+    version->minor_hi = atoi(strtok(0, "."));
+    version->minor_lo = atoi(strtok(0, "."));
+    return 1;
 }

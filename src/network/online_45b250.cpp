@@ -3,75 +3,20 @@
 // try block does to the locals. Every local has a slot, ordered by a hash of
 // its name (16 buckets, the later declaration first within a bucket), which is
 // why `text` is declared before `format` here.
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include "../../interfaces/host.h"
 
-// GLOBAL: 0x512dd0
-extern char g_onlineDllPath[MAX_PATH + 1];
-extern HMODULE g_onlineDll;
-
 char* __stdcall Translate(char* text);
 void __stdcall OnlineTranslate(char* text);
-
-typedef unsigned int (__stdcall* OnlGetVersion)(void);
-typedef int (__stdcall* OnlProcessButtonCommand)(int button, char* message, unsigned int size,
-                                                 void (__stdcall* translate)(char* text));
-
-// Builds the path of online.dll beside the executable and loads it.
-static BOOL LoadOnline(void)
-{
-    if (g_onlineDllPath[0] == 0) {
-        int len = host_file_exe_path(g_onlineDllPath, MAX_PATH);
-        g_onlineDllPath[MAX_PATH] = 0;
-        char* p = g_onlineDllPath;
-        if (len > 0) {
-            for (p = &g_onlineDllPath[len - 1]; len > 0; p--, len--) {
-                if (strchr("/\\", *p))
-                    break;
-            }
-        }
-        strcpy(p + ((len > 0) & 1), "online.dll");
-    }
-    if (g_onlineDll == 0) {
-        g_onlineDll = LoadLibraryA(g_onlineDllPath);
-        if (g_onlineDll == 0)
-            return FALSE;
-    }
-    return TRUE;
-}
-
-static BOOL CheckVersion(void)
-{
-    BOOL ok = FALSE;
-    if (g_onlineDll) {
-        OnlGetVersion f = (OnlGetVersion)GetProcAddress(g_onlineDll, "ONLGetVersion");
-        if (f)
-            ok = f() >= 3;
-    }
-    return ok;
-}
-
-static int ProcessButtonCommand(int button, char* message, unsigned int size)
-{
-    int result = 2;
-    if (g_onlineDll) {
-        OnlProcessButtonCommand f =
-            (OnlProcessButtonCommand)GetProcAddress(g_onlineDll, "ONLProcessButtonCommand");
-        if (f)
-            result = f(button, message, size, OnlineTranslate);
-    }
-    return result;
-}
 
 // FUNCTION: 0x45b250
 int __stdcall OnlineProcessButtonCommand(int button, char* message, unsigned int size)
 {
     int result = 2;
     try {
-        if (button != -1 && LoadOnline() && CheckVersion())
-            result = ProcessButtonCommand(button, message, size);
+        if (button != -1)
+            result = host_net_online_button(button, message, size, (void*)OnlineTranslate);
     } catch (...) {
         if (message && size > 0) {
             *message = 0;

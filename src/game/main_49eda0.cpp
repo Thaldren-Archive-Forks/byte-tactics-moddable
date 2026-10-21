@@ -1,5 +1,4 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
-#include <windows.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -23,24 +22,6 @@ struct Game_0049ee30 {
 extern Game_0049ee30* g_game;
 extern int g_cmdlineDisplaySeed;
 extern char g_preferredLanguage[];
-extern GUID DAT_004fcfb8;
-
-// dsetup.h's DIRECTXREGISTERAPPA.
-struct DirectXRegisterApp {
-    DWORD dwSize;
-    DWORD dwFlags;
-    LPSTR lpszApplicationName;
-    LPGUID lpGUID;
-    LPSTR lpszFilename;
-    LPSTR lpszCommandLine;
-    LPSTR lpszPath;
-    LPSTR lpszCurrentDirectory;
-};
-typedef int (__stdcall* DirectXRegisterApplicationProc)(HWND, DirectXRegisterApp*);
-
-int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                           LPSTR lpCmdLine, int nCmdShow);
-int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
 bool __cdecl IsDebugKeyword(const char* arg);
 void __stdcall Onl_LoadConfigFile(char* file);
 void __stdcall SetBypassDriveScan(int val);
@@ -52,19 +33,6 @@ void __stdcall SetPacketRate(int rate);
 char* __stdcall Translate(char* text);
 void SetNoDirectSound();
 void SetUseWindowsSound();
-
-// The game's entry point: an exception in the main thread is reported,
-// with the thread's name, before the process dies.
-// FUNCTION: 0x49eda0
-extern "C" int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                                 LPSTR lpCmdLine, int nCmdShow)
-{
-    __try {
-        return GameMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-    } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
-    }
-    return 0;
-}
 
 // Parses the command line. Returns 0 when the game should quit at once
 // (after -r registered it with DirectPlay), 1 otherwise.
@@ -205,11 +173,8 @@ int __stdcall ParseCommandLine(char* cmdLine, char* appName)
                 char* args = cmdLine + (p - copy) + 2;
                 while (isspace(*args))
                     args++;
-                // Local names are chosen for the frame slot order, and the message
-                // reuses p: one more named local would add a slot.
-                char moduleName[MAX_PATH];
-                HMODULE setupDll;
-                DWORD len = host_file_exe_path(moduleName, MAX_PATH);
+                char moduleName[_MAX_PATH];
+                unsigned int len = host_file_exe_path(moduleName, _MAX_PATH);
                 int registered = 0;
                 if (len > 0) {
                     char drive[_MAX_DRIVE];
@@ -217,8 +182,6 @@ int __stdcall ParseCommandLine(char* cmdLine, char* appName)
                     char folder[_MAX_DIR + 2];
                     char fname[_MAX_FNAME + _MAX_EXT];
                     char* lastChar;
-                    DirectXRegisterApp dxra;
-                    DirectXRegisterApplicationProc func;
                     fname[0] = 0;
                     ext[0] = 0;
                     _splitpath(moduleName, drive, folder + 2, fname, ext);
@@ -228,25 +191,10 @@ int __stdcall ParseCommandLine(char* cmdLine, char* appName)
                     lastChar = &folder[strlen(folder) - 1];
                     if (strchr("/\\", *lastChar))
                         *lastChar = 0;
-                    memset(&dxra, 0, sizeof(dxra));
-                    dxra.dwSize = sizeof(dxra);
-                    dxra.lpszApplicationName = appName;
-                    dxra.lpGUID = &DAT_004fcfb8;
-                    dxra.lpszFilename = fname;
-                    dxra.lpszCommandLine = args;
-                    dxra.lpszPath = folder;
-                    dxra.lpszCurrentDirectory = folder;
-                    setupDll = LoadLibraryA("dsetup.dll");
-                    if (setupDll) {
-                        func = (DirectXRegisterApplicationProc)
-                            GetProcAddress(setupDll, "DirectXRegisterApplicationA");
-                        if (func)
-                            registered = func(NULL, &dxra);
-                    }
-                    FreeLibrary(setupDll);
+                    registered = host_net_register_application(appName, fname, args, folder);
                 }
                 if (!registered) {
-                    MessageBeep(MB_ICONHAND);
+                    host_alert();
                     p = Translate("DirectPlay registration failed.");
                     host_message(NULL, appName, p, HOST_MESSAGE_ERROR);
                 }

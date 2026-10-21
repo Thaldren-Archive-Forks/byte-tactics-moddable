@@ -4,10 +4,9 @@
 // and online_45b670.cpp: tools/gapcheck.py sizes a gap region by the file it
 // is in.
 
-#include <windows.h>
+#include "../../interfaces/host.h"
 
 extern int g_onlineConfigLoaded;
-extern HMODULE g_onlineDll;
 
 void __stdcall Translate(unsigned char* text);
 
@@ -20,10 +19,7 @@ void __stdcall OnlineTranslate(unsigned char* text)
 // FUNCTION: 0x45b640
 void OnlineUnload(void)
 {
-    if (g_onlineDll != 0) {
-        FreeLibrary(g_onlineDll);
-        g_onlineDll = 0;
-    }
+    host_net_online_unload();
 }
 
 // FUNCTION: 0x45b660
