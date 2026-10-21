@@ -1115,13 +1115,6 @@ address,function,callee,kind,file,class,notes
 0x4c93f0,StringRef::AssignText,malloc,call,src/graphics/surface.cpp,presentation,sites=1
 0x4c9490,StringRef::SubString,malloc,call,src/graphics/surface.cpp,presentation,sites=1
 0x4c9490,StringRef::SubString,strncpy,call,src/graphics/surface.cpp,presentation,sites=1
-0x4c9750,GetEnumSessionsErrorText,strstr,call,src/network/hapinet.cpp,presentation,sites=1
-0x4c9890,HAPINET_updategameinfo,strncpy,call,src/network/hapinet.cpp,game,sites=1
-0x4c9920,HAPINET_createnewgame,strncpy,call,src/network/hapinet.cpp,presentation,sites=1
-0x4c9a70,HAPINET_createorjoinlobbygame,strncat,call,src/network/hapinet.cpp,presentation,sites=1
-0x4ca100,HAPINET_enumconnections,sprintf,call,src/network/hapinet.cpp,presentation,sites=1
-0x4ca330,HAPINET_enumproviders,sprintf,call,src/network/hapinet.cpp,presentation,sites=1
-0x4ca6a0,HAPINET_addplayer,strncpy,call,src/network/hapinet.cpp,presentation,sites=3
 0x4cb170,SaveScreenshot,atoi,call,src/graphics/pcx.cpp,presentation,sites=1
 0x4cb170,SaveScreenshot,sprintf,call,src/graphics/pcx.cpp,presentation,sites=2
 0x4cb7d0,BmpWriter::Close,fclose,call,src/graphics/pcx.cpp,game,sites=1; via console commands only

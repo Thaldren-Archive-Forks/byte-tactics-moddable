@@ -10,6 +10,8 @@
 #ifndef PLAYER_AI_H
 #define PLAYER_AI_H
 
+#include "../state/sim_allocator.h"
+
 struct Player;
 struct Unit;
 struct UnitDef;
@@ -54,7 +56,7 @@ struct Vec3_00409160 {
 };
 
 struct UnitList_00409160 {
-    std::vector<Unit*> units;
+    SimVector<Unit*> units;
     void Clear() { units.clear(); }
 };
 
@@ -74,18 +76,18 @@ public:
     Group_00409160 factories;          // +0x25
     Vec3_00409160 centre;              // +0x35
     Vec3_00409160 pos_41;              // +0x41
-    std::vector<Elem_0040cc40> cells;  // +0x4d
+    SimVector<Elem_0040cc40> cells;
     Pos_00409160 center;               // +0x5d
-    std::vector<Elem_0040cfb0> vec_65; // +0x65
+    SimVector<Elem_0040cfb0> vec_65;
     int builders;                      // +0x75
     int hasSpecial;                    // +0x79
-    std::vector<short> counts;         // +0x7d
-    std::vector<unsigned char> vec_8d; // +0x8d
-    std::vector<unsigned char> weights; // +0x9d
-    std::vector<Elem_0040d4f0> vec_ad; // +0xad
-    std::vector<Elem_0040d550> vec_bd; // +0xbd
-    std::vector<Elem_0040d550> values; // +0xcd
-    std::vector<Elem_0040d550> locked; // +0xdd
+    SimVector<short> counts;
+    SimVector<unsigned char> vec_8d;
+    SimVector<unsigned char> weights;
+    SimVector<Elem_0040d4f0> vec_ad;
+    SimVector<Elem_0040d550> vec_bd;
+    SimVector<Elem_0040d550> values;
+    SimVector<Elem_0040d550> locked;
     unsigned int lastTick;             // +0xed
     Point16 spacing0;                  // +0xf1
     Point16 offset0;                   // +0xf5
@@ -99,11 +101,28 @@ public:
     void InitUnitTables();
     void InitPlacementGrid();
     void ComputeBaseWeights();
-    bool FindCellNearFeatures(UnitDef* type, Vec3* pos, std::vector<Elem_0040cc40>* list, int range, Point16* out);
+    bool FindCellNearFeatures(UnitDef* type, Vec3* pos, SimVector<Elem_0040cc40>* list, int range, Point16* out);
     bool FindRandomPlacementCell(UnitDef* type, Vec3* pos, int range, Point16* out);
     void BuildFeatureCells();
     void RefreshUnitLists();
     void UpdateEveryThirtyTicks();
 };
+
+#define PLAYER_AI_OFFSET(field, off) \
+    static_assert(__builtin_offsetof(PlayerAI, field) == off, "PlayerAI::" #field)
+PLAYER_AI_OFFSET(visible, 0x05);
+PLAYER_AI_OFFSET(known, 0x15);
+PLAYER_AI_OFFSET(factories, 0x25);
+PLAYER_AI_OFFSET(cells, 0x4d);
+PLAYER_AI_OFFSET(vec_65, 0x65);
+PLAYER_AI_OFFSET(counts, 0x7d);
+PLAYER_AI_OFFSET(vec_8d, 0x8d);
+PLAYER_AI_OFFSET(weights, 0x9d);
+PLAYER_AI_OFFSET(vec_ad, 0xad);
+PLAYER_AI_OFFSET(vec_bd, 0xbd);
+PLAYER_AI_OFFSET(values, 0xcd);
+PLAYER_AI_OFFSET(locked, 0xdd);
+#undef PLAYER_AI_OFFSET
+static_assert(sizeof(PlayerAI) == 0x10d, "PlayerAI size");
 
 #endif

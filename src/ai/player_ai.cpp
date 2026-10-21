@@ -5,6 +5,7 @@
 // ai_player.cpp.
 #include "win_types.h"
 #include <vector>
+#include "../state/sim_allocator.h"
 #include <math.h>
 // Only for its symbol ids: RefreshUnitLists matches only in a window of the
 // symbol count.

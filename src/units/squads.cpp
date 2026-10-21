@@ -1,6 +1,7 @@
 // Decompiled by Opus and deepseek-v4.1-flash. Names are provisional.
 
 #include <vector>
+#include "../state/sim_allocator.h"
 #include "../state/block.h"
 #include <algorithm>
 
@@ -32,7 +33,7 @@ void __stdcall CreateSquads(Player* owner)
         squad->index = i;
         squad->field_8 = 0;
         squad->field_c = 0;
-        new (&squad->items) std::vector<int>;
+        new (&squad->items) SimVector<int>;
     }
 }
 
@@ -51,11 +52,11 @@ void __stdcall FreeSquads(Player* owner)
 // Removes `u` from `v` by moving the last element into its slot and erasing
 // the last element. Kept as an inline helper: the
 // original translation unit had this as its own small function.
-static inline void RemoveFast(std::vector<Unit*>& v, Unit* u)
+static inline void RemoveFast(SimVector<Unit*>& v, Unit* u)
 {
-    std::vector<Unit*>::iterator it = std::find(v.begin(), v.end(), u);
+    SimVector<Unit*>::iterator it = std::find(v.begin(), v.end(), u);
     if (it != v.end()) {
-        std::vector<Unit*>::iterator last = v.end() - 1;
+        SimVector<Unit*>::iterator last = v.end() - 1;
         *it = *last;
         // erase(end() - 1), not pop_back().
         v.erase(last);
@@ -75,9 +76,9 @@ void __stdcall SetUnitSquad(Unit* unit, int index)
 {
     // RemoveFast stays a separate inline helper: a flat body inlines push_back's size() calls too.
     if (unit->group != -1)
-        RemoveFast((std::vector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[unit->group].items, unit);
+        RemoveFast((SimVector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[unit->group].items, unit);
     if (index != -1)
-        ((std::vector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[index].items).push_back(unit);
+        ((SimVector<Unit*>&)((Squad*)((Player *)unit->player)->groups)[index].items).push_back(unit);
     unit->group = index;
 }
 

@@ -11,6 +11,7 @@
 // file 0x40c600, 0x40cca0, 0x40d020 and 0x40d290 fall out of their windows
 // (docs/c2-regalloc.md). Splitting just those four out does not help, because
 // the emissions this file still holds are their context.
+#include "../state/sim_allocator.h"
 #include "win_types.h"
 #include <memory.h>
 #include <math.h>
@@ -27,20 +28,20 @@ inline void _Construct(Elem_0040d4f0* dest, const Elem_0040d4f0& src) { CopyOneB
 inline void _Construct(Elem_0040cc40* dest, const Elem_0040cc40& src) { CopyDwordPair(dest, &src); }
 }
 
-typedef std::vector<Unit*> Vec_0040c530;
-typedef std::vector<Elem_0040cc40> Vec_0040c580;
-typedef std::vector<Elem_0040cfb0> Vec_0040c5d0;
-typedef std::vector<Elem_0040d4f0> Vec_0040c600;
-typedef std::vector<Elem_0040d550> Vec_0040c7f0;
-typedef std::vector<short> Vec_0040d000;
-typedef std::vector<unsigned char> Vec_0040d290;
+typedef SimVector<Unit*> Vec_0040c530;
+typedef SimVector<Elem_0040cc40> Vec_0040c580;
+typedef SimVector<Elem_0040cfb0> Vec_0040c5d0;
+typedef SimVector<Elem_0040d4f0> Vec_0040c600;
+typedef SimVector<Elem_0040d550> Vec_0040c7f0;
+typedef SimVector<short> Vec_0040d000;
+typedef SimVector<unsigned char> Vec_0040d290;
 
 // std::vector<Unit*>::~vector(): _First is freed and the three pointers
 // zeroed. 0x40b390 calls it on the unit lists at +0x05, +0x15 and +0x25, and
 // 0x4103e0, 0x410850 and 0x4152f0 on a local that 0x40c510 (the vector's
 // constructor) builds. Taking the address of the outer vector's operator=
 // makes the compiler emit the inner destructor out of line.
-typedef std::vector<Vec_0040c530> Outer_0040c530;
+typedef SimVector<Vec_0040c530> Outer_0040c530;
 typedef Outer_0040c530& (Outer_0040c530::*AssignFn_0040c530)(const Outer_0040c530&);
 // FUNCTION: 0x40c530 ??1?$vector@PAUUnit@@V?$allocator@PAUUnit@@@std@@@std@@QAE@XZ
 AssignFn_0040c530 g_assign_0040c530 = &Outer_0040c530::operator=;
@@ -54,7 +55,7 @@ SizeFn_0040c560 g_size_0040c560 = &Vec_0040c530::size;
 
 // std::vector<Elem_0040cc40>::~vector() (the same code as 0x40c530). 0x40b390
 // calls it on the vector at +0x4d.
-typedef std::vector<Vec_0040c580> Outer_0040c580;
+typedef SimVector<Vec_0040c580> Outer_0040c580;
 typedef Outer_0040c580& (Outer_0040c580::*AssignFn_0040c580)(const Outer_0040c580&);
 // FUNCTION: 0x40c580 ??1?$vector@UElem_0040cc40@@V?$allocator@UElem_0040cc40@@@std@@@std@@QAE@XZ
 AssignFn_0040c580 g_assign_0040c580 = &Outer_0040c580::operator=;
@@ -67,7 +68,7 @@ SizeFn_0040c5b0 g_size_0040c5b0 = &Vec_0040c580::size;
 
 // std::vector<Elem_0040cfb0>::~vector() (the same code as 0x40c530). 0x40b390
 // calls it on the vector of 3-byte elements at +0x65.
-typedef std::vector<Vec_0040c5d0> Outer_0040c5d0;
+typedef SimVector<Vec_0040c5d0> Outer_0040c5d0;
 typedef Outer_0040c5d0& (Outer_0040c5d0::*AssignFn_0040c5d0)(const Outer_0040c5d0&);
 // FUNCTION: 0x40c5d0 ??1?$vector@UElem_0040cfb0@@V?$allocator@UElem_0040cfb0@@@std@@@std@@QAE@XZ
 AssignFn_0040c5d0 g_assign_0040c5d0 = &Outer_0040c5d0::operator=;
@@ -193,8 +194,8 @@ DestroyFn_0040d280 Access_0040d000::destroy = &Access_0040d000::_Destroy;
 // the inlined resize() of the vector at +0x9d (next to its erase, 0x40d470).
 // The member pointer's type is spelled inline (no typedef): it shifts symbol ids.
 // FUNCTION: 0x40d290 ?insert@?$vector@EV?$allocator@E@std@@@std@@QAEXPAEIABE@Z
-void (std::vector<unsigned char>::*g_insert_0040d290)(unsigned char*, unsigned int,
-                                                      const unsigned char&) = &std::vector<unsigned char>::insert;
+void (SimVector<unsigned char>::*g_insert_0040d290)(unsigned char*, unsigned int,
+                                                      const unsigned char&) = &SimVector<unsigned char>::insert;
 
 // std::vector<unsigned char>::erase(first, last), called from the inlined
 // resize() in 0x409160.
