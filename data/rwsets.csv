@@ -32174,7 +32174,6 @@ address,function,file,kind,target
 0x49e830,GameMain,src/game/main.cpp,call,DispatchHostEvents
 0x49e830,GameMain,src/game/main.cpp,call,EmptyPostArchiveMountHook
 0x49e830,GameMain,src/game/main.cpp,call,EmptyPreFrontendInitHook
-0x49e830,GameMain,src/game/main.cpp,call,ExceptionFilter
 0x49e830,GameMain,src/game/main.cpp,call,GameSrand
 0x49e830,GameMain,src/game/main.cpp,call,HarnessCrtSeed
 0x49e830,GameMain,src/game/main.cpp,call,HarnessInit
@@ -32204,7 +32203,6 @@ address,function,file,kind,target
 0x49e830,GameMain,src/game/main.cpp,call,Sound::SetPlaybackOrder
 0x49e830,GameMain,src/game/main.cpp,call,Sound::SetTrackCategory
 0x49e830,GameMain,src/game/main.cpp,call,WriteGameRegistryValue
-0x49e830,GameMain,src/game/main.cpp,call,_exception_info
 0x49e830,GameMain,src/game/main.cpp,call,atexit
 0x49e830,GameMain,src/game/main.cpp,call,host_pump_events
 0x49e830,GameMain,src/game/main.cpp,call,host_setting_get
@@ -32272,6 +32270,10 @@ address,function,file,kind,target
 0x49e830,GameMain,src/game/main.cpp,global_write,g_displayContext
 0x49e830,GameMain,src/game/main.cpp,global_write,g_lastSoundReapTick
 0x49ed90,AtexitNoOp,src/game/main.cpp,function,
+0x49eda0,GameEntry,src/game/main.cpp,call,ExceptionFilter
+0x49eda0,GameEntry,src/game/main.cpp,call,GameMain
+0x49eda0,GameEntry,src/game/main.cpp,call,_exception_info
+0x49eda0,GameEntry,src/game/main.cpp,function,
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,IsDebugKeyword
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,Onl_LoadConfigFile
 0x49ee30,ParseCommandLine,src/game/main_49eda0.cpp,call,SetBypassDriveScan
@@ -50556,7 +50558,7 @@ address,function,file,kind,target
 ,WidthTextGlyphs,src/graphics/font.cpp,field_read,Font::glyphs
 ,WidthTextGlyphs,src/graphics/font.cpp,field_read,Font::offsets
 ,WidthTextGlyphs,src/graphics/font.cpp,function,
-,WinMain,src/host/win32/process.cpp,call,GameMain
+,WinMain,src/host/win32/process.cpp,call,GameEntry
 ,WinMain,src/host/win32/process.cpp,function,
 ,WindowProc,src/host/win32/window.cpp,call,DefWindowProcA
 ,WindowProc,src/host/win32/window.cpp,call,Queue

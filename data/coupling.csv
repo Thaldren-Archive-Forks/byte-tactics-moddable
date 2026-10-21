@@ -2109,7 +2109,7 @@ platform,features,shared_write,Vec3::y,5
 platform,features,shared_write,Vec3::z,7
 platform,game,call,AllocSite::~AllocSite,12
 platform,game,call,ChdirToExeDirectory,1
-platform,game,call,GameMain,1
+platform,game,call,GameEntry,1
 platform,game,call,GetPreferredLanguage,1
 platform,game,call,SimAlloc,2
 platform,game,call,SimFree,4
