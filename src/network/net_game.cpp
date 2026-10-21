@@ -17,7 +17,7 @@
 // for its loop's base/index order, but in this file's declaration context it
 // matches without it. It arrives with the module's second part, whose files
 // included it.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -852,7 +852,7 @@ int __stdcall CreateLocalPlayer(unsigned char playerIndex, int flag)
 // display calls, <string.h> and <stdio.h> the string and printf
 // patterns, and <iostream> 0x453010's shared return block.
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
@@ -1192,7 +1192,6 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
     // stays under the if (an early return would move the epilogues).
     char name[0x100];
     SideDataPacket packet;
-    DWORD size;
 
     if (player == g_game->localPlayer) {
         Player* p = &g_game->players[player];
@@ -1222,20 +1221,21 @@ int __stdcall JoinNetGame(Guid_4517b0 guid, int player)
             }
 
             if (v != 0 && g_onlineLobbyPassword != 0) {
-                lstrcpynA(p->info->password, &g_onlineLobbyPassword, 0xb);
+                p->info->password[0] = 0;
+                strncat(p->info->password, &g_onlineLobbyPassword, 0xa);
                 // hasPassword must be a 16-bit 1-bit field, not a byte field.
                 p->info->hasPassword = 1;
                 // Cast on a reloaded dplConnection, not a cached local.
                 if ((*(unsigned char*)&g_game->dplConnection->flags & 2) != 0)
-                    lstrcpynA(g_game->password, &g_onlineLobbyPassword, 0xb);
+                    g_game->password[0] = 0;
+                    strncat(g_game->password, &g_onlineLobbyPassword, 0xa);
             }
 
             ResetPlayerSlots();
         }
 
         if (strlen(g_game->nickname) == 0) {
-            size = 0x100;
-            GetUserNameA(name, &size);
+            host_user_name(name, 0x100);
         } else {
             strcpy(name, g_game->nickname);
         }
@@ -3363,8 +3363,8 @@ int InitLobbiedConnection()
             } else if (DAT_00512c98[0] != 0) {
                 strncat(username, DAT_00512c98, 0x10);
             } else {
-                DWORD size = 0xf;
-                if (GetUserNameA(username, &size))
+                unsigned int size = host_user_name(username, 0xf);
+                if (size != 0)
                     username[size] = 0;
                 else
                     strcpy(username, "TotalA");

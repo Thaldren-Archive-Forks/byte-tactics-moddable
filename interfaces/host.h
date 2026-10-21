@@ -14,7 +14,7 @@ extern "C" {
 // Major version of the host interface, changed when a function is removed or its signature changes.
 #define HOST_VERSION_MAJOR 1
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 6
+#define HOST_VERSION_MINOR 7
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -95,6 +95,23 @@ void HOST_CALL host_fatal(void* owner, const char* title, const char* text);
 void HOST_CALL host_exit(int code);
 // Writes a line of text to the host's log.
 void HOST_CALL host_log(const char* text);
+// Returns 1 when another copy of the game already holds name, else claims name for this process and returns 0.
+int HOST_CALL host_instance_running(const char* name);
+// Writes the name of the signed-in user into buf of size bytes and returns its length with the terminator, or 0 on failure (including a buf too small).
+unsigned int HOST_CALL host_user_name(char* buf, unsigned int size);
+// Breaks into the debugger if one is attached.
+void HOST_CALL host_debug_break(void);
+
+// The machine's physical memory, in bytes.
+struct host_memory {
+    // The machine's total physical memory.
+    unsigned int total;
+    // The physical memory that is free.
+    unsigned int available;
+};
+
+// Fills status with the machine's physical memory.
+void HOST_CALL host_memory_status(struct host_memory* status);
 
 // Event type: the window is being destroyed.
 #define HOST_EVENT_DESTROY 0x002
@@ -359,6 +376,13 @@ unsigned int HOST_CALL host_file_exe_path(char* buf, unsigned int size);
 unsigned int HOST_CALL host_file_full_path(const char* name, char* buf, unsigned int size);
 // Makes path the current directory, against which relative paths resolve, and returns 1, or 0 on failure.
 int HOST_CALL host_dir_set_current(const char* path);
+// Reads the integer key of section from the ini file at path and returns it, or fallback when it is missing (the value of GetPrivateProfileInt).
+int HOST_CALL host_file_config_int(const char* path, const char* section, const char* key, int fallback);
+// Reads the string key of section from the ini file at path into buf of size bytes (fallback when it is missing) and returns its length (the value of GetPrivateProfileString).
+unsigned int HOST_CALL host_file_config_string(const char* path, const char* section, const char* key, const char* fallback, char* buf, unsigned int size);
+
+// Copies up to size bytes of the clipboard's text into buf, taking the clipboard for the owner window, and returns how many were copied, or 0 when there is no text.
+unsigned int HOST_CALL host_clipboard_text_get(void* owner, char* buf, unsigned int size);
 
 // Sound buffer flag: the buffer can be placed in space with host_sound_buffer_place.
 #define HOST_SOUND_3D 0x01
