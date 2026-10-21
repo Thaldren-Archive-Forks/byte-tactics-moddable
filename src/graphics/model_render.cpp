@@ -975,7 +975,7 @@ Piece_459c70* __stdcall AddStateEntries(Model_459200* state, Object3do* obj,
     e->flags.word |= 2;
     e->object = obj;
     e->modified = 0;
-    e->points = (Vec3*)GameAllocIgnoreTag("Point List", obj->vertexCount * 12);
+    e->points = (Vec3*)SimAllocTagged("Point List", obj->vertexCount * 12);
     memcpy(e->points, obj->vertices, obj->vertexCount * 12);
     if (obj->vertexCount >= 3) {
         e->flags.word |= 1;

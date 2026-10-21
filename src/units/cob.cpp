@@ -51,7 +51,6 @@ struct SavedPiece {
 extern int GetTickRate();
 void __cdecl GameFreeThunk(void* p);
 int __stdcall GetCobChecksum(void* param);
-void* __cdecl GameReallocTagged(void* ptr, const char* name, unsigned int size);
 int __stdcall RandomInt(int);
 
 // FUNCTION: 0x4b0610
@@ -124,8 +123,8 @@ void CobScript::SetCob(ScriptTable* data)
     table = data;
     if (data != 0) {
         unknown_c = GetCobChecksum(data);
-        pieces = (Piece*)GameReallocTagged(pieces, "Object States", data->pieceCount * 0x4c);
-        statics = (int*)GameReallocTagged(statics, "Static Varibles", data->staticCount * 4);
+        pieces = (Piece*)SimRealloc(pieces, data->pieceCount * 0x4c);
+        statics = (int*)SimRealloc(statics, data->staticCount * 4);
         memset(pieces, 0, data->pieceCount * 0x4c);
     }
 }

@@ -39,6 +39,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import blockpointers
 import playtest
 import tracediff
 import tracedigest
@@ -51,7 +52,9 @@ MAX_PARALLEL = 6
 QUICK = ("eight-full-moon", "eight-greenhaven", "duel-coast-to-coast", "duel-great-divide", "orders-move-attack")
 RUN_SECONDS_BASE = 120
 RUN_TICKS_PER_SECOND = 25
+RUN_TICKS_PER_SECOND_SCAN_EVERY_TICK = 6
 RUN_ATTEMPTS = 2
+GATE_SCAN_EVERY = 8
 RETRY_DIALOG = "dialog-directx"
 
 
@@ -161,10 +164,10 @@ def difference(want: tuple[dict[str, str], list[tuple[int, str]]], header: dict[
 
 
 def keep_run(run: Path, scenario: str, suffix: str = "") -> Path:
-    """Copy the run's trace.txt (and dump.txt, if any) to build/scratch/check-<scenario>-<time>/."""
+    """Copy the run's trace.txt (and dump.txt and blockptrs.txt, if any) to build/scratch/check-<scenario>-<time>/."""
     kept = ROOT / "build/scratch" / f"check-{scenario}{suffix}-{time.strftime('%Y%m%d-%H%M%S')}"
     kept.mkdir(parents=True, exist_ok=True)
-    for name in ("trace.txt", "dump.txt"):
+    for name in ("trace.txt", "dump.txt", "blockptrs.txt"):
         if (run / name).is_file():
             shutil.copy2(run / name, kept / name)
     return kept
@@ -185,7 +188,8 @@ def should_retry(message: str) -> bool:
 
 def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
                   want: tuple[dict[str, str], list[tuple[int, str]]] | None = None, poison: bool = False,
-                  keep_always: bool = False) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
+                  keep_always: bool = False, scans: dict[str, str | None] | None = None,
+                  scan_every: int = 1, retry_any: bool = False) -> tuple[dict[str, str], list[tuple[int, str]], float, Path | None]:
     """Run the scenario under Wine: the trace header, the digest of each tick, the seconds taken.
 
     With `want` (the stored header and digests), a run that differs is kept: the last element is the
@@ -195,16 +199,22 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
     was seen in 1 of 300 runs, and so is one that stopped on the DirectX initialisation dialog before
     tick 1 (startup under load). A run that is still going at the timeout is a hang, and a run that
     stopped on any other error dialog (R6025 and the like) is a game fault: both fail at once.
+
+    With `scans` (a dict) the run has the block pointer scan on (every `scan_every` ticks), and its blockptrs.txt text (None if the run
+    wrote none) is stored there under the scenario's name before the run directory is removed. A scan of every
+    tick is slow (about 20 ticks a second at the end of a long run), so its timeout uses
+    RUN_TICKS_PER_SECOND_SCAN_EVERY_TICK. With `retry_any` a failed run is tried once more whatever the failure.
     """
     ticks = scenario_ticks(scenario)
-    timeout = RUN_SECONDS_BASE + ticks / RUN_TICKS_PER_SECOND
+    rate = RUN_TICKS_PER_SECOND_SCAN_EVERY_TICK if scans is not None and scan_every == 1 else RUN_TICKS_PER_SECOND
+    timeout = RUN_SECONDS_BASE + ticks / rate
     t0 = time.time()
     for attempt in range(RUN_ATTEMPTS):
         try:
-            run = tracediff.play(exe, scenario, game_dir, None, timeout, poison)
+            run = tracediff.play(exe, scenario, game_dir, None, timeout, poison, scan_every if scans is not None else 0)
             break
         except tracediff.Error as e:
-            if attempt == RUN_ATTEMPTS - 1 or not should_retry(str(e)):
+            if attempt == RUN_ATTEMPTS - 1 or not (retry_any or should_retry(str(e))):
                 raise
             print(f"{scenario.stem}: run failed, trying again: {last_lines(e)}", flush=True)
     elapsed = time.time() - t0
@@ -215,6 +225,9 @@ def play_scenario(exe: Path, scenario: Path, game_dir: str | None,
             if key not in header:
                 raise tracediff.Error(f"{scenario}: the trace has no {key} line")
         digests = tracedigest.digests(rows)
+        if scans is not None:
+            scanned = run / "blockptrs.txt"
+            scans[scenario.stem] = scanned.read_text() if scanned.is_file() else None
         if keep_always or (want is not None and difference(want, header, digests)):
             kept = keep_run(run, scenario.stem, "-alloff" if keep_always else "")
     finally:
@@ -230,11 +243,14 @@ def last_lines(error: Exception, count: int = 1) -> str:
 
 def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parallel: int,
              expected: dict[str, tuple] | None = None, poison: bool = False,
-             failed: dict[str, str] | None = None, keep_always: bool = False) -> dict[str, tuple]:
+             failed: dict[str, str] | None = None, keep_always: bool = False,
+             scans: dict[str, str | None] | None = None, scan_every: int = 1,
+             retry_any: bool = False) -> dict[str, tuple]:
     """Every scenario's play_scenario result, `parallel` at a time and longest first; exits 1 if one fails to run.
 
     With `failed` (a dict), a scenario that fails to run is recorded there as name -> message and play_all
-    returns without exiting. With `keep_always`, every run's trace.txt is kept (see play_scenario).
+    returns without exiting. With `keep_always`, every run's trace.txt is kept (see play_scenario). With `scans`,
+    every run has the block pointer scan on (every `scan_every` ticks) and leaves its blockptrs.txt there; `retry_any` is passed on to play_scenario.
 
     Each run has its own session directory, Wine prefix, game directory, X display and audio sink
     (tools/playtest.py names them by its pid), so runs share nothing but the template prefix,
@@ -246,7 +262,7 @@ def play_all(exe: Path, scenarios: dict[str, Path], game_dir: str | None, parall
 
     def one(name: str) -> None:
         try:
-            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name), poison, keep_always)
+            results[name] = play_scenario(exe, scenarios[name], game_dir, (expected or {}).get(name), poison, keep_always, scans, scan_every, retry_any)
         except (tracediff.Error, OSError) as e:
             if failed is not None:
                 failed[name] = last_lines(e, 5)
@@ -302,7 +318,8 @@ def first_difference(stored: list[tuple[int, str]], got: list[tuple[int, str]]) 
 
 
 def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = False, poison: bool = False,
-                 steps_per_frame: int | None = None, quirks: str | None = None) -> None:
+                 steps_per_frame: int | None = None, quirks: str | None = None,
+                 save_blockptrs: Path | None = None) -> None:
     scenarios = scenario_files()
     stored = {p.stem: p for p in sorted(TRACES.glob("*.txt"))} if TRACES.is_dir() else {}
     if quick:
@@ -332,9 +349,11 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     off_results: dict[str, tuple] = {}
     off_failed: dict[str, str] = {}
     failed: dict[str, str] = {}
+    scans: dict[str, str | None] | None = {} if quirks is None else None
     t0 = time.time()
     try:
-        results = play_all(exe, played, game_dir, parallel, expected, poison, failed if quirks is not None else None)
+        results = play_all(exe, played, game_dir, parallel, expected, poison, failed if quirks is not None else None,
+                           scans=scans, scan_every=GATE_SCAN_EVERY)
         if quirks is not None:
             differing = [n for n in scenarios if n in results and n not in failed and difference(expected[n], *results[n][:2])]
             if differing:
@@ -354,7 +373,10 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
         if diff:
             bad.append(name)
     print(f"{len(scenarios) - len(bad)} of {len(scenarios)} scenarios equal, total {clock(wall)}")
+    pointers = report_block_pointers(exe, scans, quick, save_blockptrs)
     if not bad:
+        if pointers:
+            sys.exit(1)
         if quick:
             print("quick subset passed; this is not the gate, a pull request needs the full --check")
         return
@@ -367,6 +389,31 @@ def check_traces(exe: Path, game_dir: str | None, parallel: int, quick: bool = F
     ref_dir = build_cached(sha)
     subprocess.run(tracediff_command(ref_dir / "TotalA.exe", exe, scenarios[name], poison, game_dir))
     sys.exit(1)
+
+
+def report_block_pointers(exe: Path, scans: dict[str, str | None], quick: bool, save: Path | None) -> int:
+    """Print the pointers out of the block that data/block_pointers.csv does not cover; how many there are.
+
+    The names of repeated sites are numbered over the scenarios played, so a --quick subset is not checked.
+    With `save`, each scenario's blockptrs.txt is also written there as <scenario>.txt.
+    """
+    if save is not None:
+        save.mkdir(parents=True, exist_ok=True)
+        for name, text in scans.items():
+            if text is not None:
+                (save / f"{name}.txt").write_text(text)
+    if quick:
+        print("block pointers: not checked in the quick subset")
+        return 0
+    problems = blockpointers.check_scans(scans, exe.with_suffix(".map"), blockpointers.default_build_dir())
+    for line in problems:
+        print(f"BLOCK POINTER {line}")
+    if problems:
+        print(f"{len(problems)} problems with the pointers out of the block; add them to data/block_pointers.csv "
+              f"(uv run tools/blockpointers.py --from <dir>, see reference/README.md)")
+    else:
+        print(f"block pointers: all covered by data/block_pointers.csv ({len(scans)} scenarios)")
+    return len(problems)
 
 
 def tracediff_command(ref_exe: Path, exe: Path, scenario: Path, poison: bool, game_dir: str | None) -> list[str]:
@@ -510,6 +557,8 @@ def main() -> None:
     ap.add_argument("--quirks", metavar="SPEC",
                     help="--check: play every scenario with `quirks SPEC` added and report which equal the stored traces and which differ, with the first tick and phase (a differing scenario is rerun with all flags off; a difference is not a failure; no reference build); not the gate")
     ap.add_argument("--exe", metavar="PATH", help="--check: the exe to check (build/modern/TotalA.exe)")
+    ap.add_argument("--save-blockptrs", metavar="DIR", type=Path,
+                    help="--check: write each scenario's blockptrs.txt to DIR/<scenario>.txt (input of blockpointers.py --from)")
     ap.add_argument("--steps-per-frame", type=int, metavar="N",
                     help="--check: play every scenario with steps_per_frame N (1 to 8) and compare with the stored traces")
     ap.add_argument("--game-dir", help="--traces, --check: the game's install (default: Steam's)")
@@ -522,6 +571,8 @@ def main() -> None:
         ap.error("give one of --traces and --check")
     if args.poison and not args.check:
         ap.error("--poison needs --check")
+    if args.save_blockptrs and (not args.check or args.quirks is not None):
+        ap.error("--save-blockptrs needs --check, and cannot be combined with --quirks")
     if args.quick and not args.check:
         ap.error("--quick needs --check; it cannot be used with --traces")
     if args.steps_per_frame is not None and not args.check:
@@ -544,7 +595,7 @@ def main() -> None:
     if not Path(args.exe).is_file():
         ap.error(f"{args.exe} is not a file")
     check_traces(Path(args.exe).resolve(), args.game_dir, args.parallel, args.quick, args.poison, args.steps_per_frame,
-                 args.quirks)
+                 args.quirks, args.save_blockptrs)
 
 
 if __name__ == "__main__":
