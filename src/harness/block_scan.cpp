@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "block_scan.h"
+#include "block_spans.h"
 #include "../../interfaces/host.h"
 #include "../state/block.h"
 #include "../state/sim_globals.h"
@@ -23,12 +24,6 @@ struct Entry {
     unsigned size;
     unsigned site;
     const char* tag;
-};
-
-struct Span {
-    unsigned start;
-    unsigned end;
-    unsigned index;
 };
 
 struct Row {
@@ -212,23 +207,6 @@ void BuildSpans()
     g_dirty = false;
 }
 
-const Span* FindSpan(unsigned v)
-{
-    unsigned lo = 0;
-    unsigned hi = g_spanCount;
-    while (lo < hi) {
-        unsigned mid = (lo + hi) / 2;
-        if (g_spans[mid].start <= v)
-            lo = mid + 1;
-        else
-            hi = mid;
-    }
-    if (lo == 0)
-        return 0;
-    const Span* s = &g_spans[lo - 1];
-    return v < s->end ? s : 0;
-}
-
 unsigned HashRow(const Row& r)
 {
     unsigned h = r.holder * 2654435761u;
@@ -353,12 +331,14 @@ void __cdecl Visit(void* payload, unsigned size, void* ctx)
     for (unsigned off = 0; off + 4 <= size; off++) {
         unsigned v;
         memcpy(&v, bytes + off, 4);
-        if (v < spanMin || v >= spanMax)
+        if (v <= spanMin || v > spanMax)
             continue;
+        unsigned before = (v - 1) >> kPageShift;
         unsigned pg = v >> kPageShift;
-        if ((pages[pg >> 5] & (1u << (pg & 31))) == 0 || Inside(v))
+        if ((pages[before >> 5] & (1u << (before & 31))) == 0 && (pages[pg >> 5] & (1u << (pg & 31))) == 0)
             continue;
-        const Span* s = FindSpan(v);
+        unsigned targetOffset;
+        const Span* s = LocateSpan(g_spans, g_spanCount, v, &targetOffset);
         if (s == 0)
             continue;
         g_hits++;
@@ -366,7 +346,7 @@ void __cdecl Visit(void* payload, unsigned size, void* ctx)
         key.offset = off;
         key.target = t.site;
         key.targetTag = t.tag;
-        Note(key, v - t.addr, tick);
+        Note(key, targetOffset, tick);
     }
     LeaveCriticalSection(&g_scanLock);
 }

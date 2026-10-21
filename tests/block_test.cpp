@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "../src/state/block.h"
+#include "../src/harness/block_spans.h"
 
 class CritSec_004da780 {
 public:
@@ -252,8 +253,33 @@ static void RunTrackTests()
     SimBlockReset();
 }
 
+static void RunSpanTests()
+{
+    const Span spans[3] = { { 0x1000, 0x1100, 0 }, { 0x1100, 0x1180, 1 }, { 0x3000, 0x3040, 2 } };
+    unsigned off = 99;
+    const Span* s = LocateSpan(spans, 3, 0x1000, &off);
+    Check(s == &spans[0] && off == 0, "a word at the start of the first span is at offset 0");
+    s = LocateSpan(spans, 3, 0x1080, &off);
+    Check(s == &spans[0] && off == 0x80, "a word inside a span is at its offset");
+    s = LocateSpan(spans, 3, 0x1100, &off);
+    Check(s == &spans[0] && off == 0x100, "a word at the end of a span belongs to that span, not the next");
+    s = LocateSpan(spans, 3, 0x1101, &off);
+    Check(s == &spans[1] && off == 1, "a word past the start of the next span is inside it");
+    s = LocateSpan(spans, 3, 0x1180, &off);
+    Check(s == &spans[1] && off == 0x80, "a word at the end of the second span belongs to it");
+    s = LocateSpan(spans, 3, 0x3040, &off);
+    Check(s == &spans[2] && off == 0x40, "a word at the end of the last span belongs to it");
+    s = LocateSpan(spans, 3, 0x3000, &off);
+    Check(s == &spans[2] && off == 0, "a word at the start of a span after a gap is at offset 0");
+    Check(LocateSpan(spans, 3, 0x0fff, &off) == 0, "a word before the first span has no span");
+    Check(LocateSpan(spans, 3, 0x1181, &off) == 0, "a word past a span and before the next has no span");
+    Check(LocateSpan(spans, 3, 0x3041, &off) == 0, "a word past the last span has no span");
+    Check(LocateSpan(spans, 0, 0x1000, &off) == 0, "no spans, no match");
+}
+
 int main()
 {
+    RunSpanTests();
     RunStreamTests();
     RunTrackTests();
     Run a, b;
