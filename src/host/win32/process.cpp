@@ -47,7 +47,6 @@ extern "C" void HOST_CALL host_log(const char* text)
 
 int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                        LPSTR lpCmdLine, int nCmdShow);
-int __stdcall ExceptionFilter(EXCEPTION_POINTERS* exception, const char* thread);
 
 // FUNCTION: 0x49eda0
 extern "C" int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -55,7 +54,7 @@ extern "C" int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     __try {
         return GameMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-    } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
+    } __except (host_crash_report(GetExceptionInformation(), "Main Thread"), EXCEPTION_CONTINUE_SEARCH) {
     }
     return 0;
 }
