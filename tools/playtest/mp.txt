@@ -3,9 +3,10 @@
 # Instance 1 hosts, instance 2 joins at 127.0.0.1. Wine's own DirectPlay TCP/IP
 # provider is a stub, so the prefixes get Microsoft's (`directplay`). The game
 # is Comet Catcher with cheats allowed: each side builds a Kbot lab whose
-# Kbots set off for the other's base. The game ends when a commander dies
-# (the guest's Kbots usually find the host's), or else the guest surrenders
-# after 8 minutes; either way both see their score screen.
+# Kbots gather on their own base, so the game ends when the guest surrenders
+# after 8 minutes and the host wins. If a commander dies first, the game ends
+# there; the winner of that game may be left on the single player menu, and
+# leaves it by Previous Menu.
 instances 2
 directplay
 reg PlayMovie dword 0
@@ -97,7 +98,7 @@ sleep 1
 @1 shot mp_lab_placed
 @2 shot mp_lab_placed
 repeat 5 @1 chat +atm ; @2 chat +atm ; sleep 9
-# --- each lab builds 12 Kbots, rally point on the other base
+# --- each lab builds 12 Kbots, rally point on its own base
 @1 click 330 300
 @2 click 330 300
 sleep 1
@@ -107,8 +108,8 @@ repeat 3 @1 click 32 250 ; @2 click 32 250 ; sleep 0.3
 @1 click 32 388
 @2 click 32 388
 sleep 0.5
-@1 click 94 8
-@2 click 22 114
+@1 click 22 114
+@2 click 94 8
 sleep 1
 @1 shot mp_queued
 @2 shot mp_queued
@@ -139,8 +140,8 @@ sleep 2
 @2 ifmatch defeat note the guest lost
 @1 ifmatch skirmish_end click 520 424
 @2 ifmatch skirmish_end click 520 424
-@1 waitfor mainmenu 30
-@2 waitfor mainmenu 30
+@1 until mainmenu 30 ifmatch single_title click 506 355 ; sleep 2
+@2 until mainmenu 30 ifmatch single_title click 506 355 ; sleep 2
 @1 click 457 438
 @2 click 457 438
 waitexit 30
