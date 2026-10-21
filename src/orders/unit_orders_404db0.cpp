@@ -107,8 +107,14 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         return WaitIfNotInBuildStance(unit, order, 0);
     case 3: {
         char name[0x40];
-        strncpy(name, f->name, 0x3f);
-        name[0x3f] = 0;
+        {
+            int n = 0;
+            while (n < 0x3f && f->name[n]) {
+                name[n] = f->name[n];
+                n++;
+            }
+            name[n] = 0;
+        }
         for (int i = 0; i < 0x40; i++) {
             if (name[i] == '_') {
                 name[i] = 0;

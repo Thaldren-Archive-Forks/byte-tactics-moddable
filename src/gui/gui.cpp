@@ -184,8 +184,14 @@ void __stdcall SetGadgetName(Dialog* obj, char* name, char* text)
         Entry_0049f8c0* entries = obj->holder->entries;
         int index = FindEntry(entries, name);
         if (index != -1)
-            strncpy(entries[index].name, text, 0x10);
-            entries[index].name[0x10] = 0;
+        {
+            int i = 0;
+            while (i < 0x10 && text[i]) {
+                entries[index].name[i] = text[i];
+                i++;
+            }
+            entries[index].name[i] = 0;
+        }
     }
 }
 

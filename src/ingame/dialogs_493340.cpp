@@ -479,8 +479,15 @@ void __stdcall HandleTalkDialogEvent(Gui* gadget)
     if (IsCurrentGadgetNamed(gadget, g_talkGadgetName)) {
         Gadget* talk = FindGadgetChecked_B(entries, g_talkGadgetName);
         mode = g_game->mode_2bf0;
-        strncpy(buf, (char*)talk + 0xb6, 0xff);
-        buf[0xff] = 0;
+        {
+            const char* src = (char*)talk + 0xb6;
+            int i = 0;
+            while (i < 0xff && src[i]) {
+                buf[i] = src[i];
+                i++;
+            }
+            buf[i] = 0;
+        }
         char* p = buf;
         while (*p && *p == ' ')
             p++;
