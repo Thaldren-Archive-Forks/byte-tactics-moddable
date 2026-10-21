@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <windows.h>
+#include "win_types.h"
 #include <math.h>
 #include "../../interfaces/host.h"
 
@@ -1004,7 +1004,8 @@ void __stdcall HandleNewMultiClick(Gui* gadget)
         int ni;                        // NICKNAME gadget index
         PlaySoundByName("BigButton", 0);
         char* pw = (char*)FindGadgetChecked_B(entries, "PASSWORD");
-        lstrcpynA(g_game->password, pw + 0xb6, 0xb);
+        g_game->password[0] = 0;
+        strncat(g_game->password, pw + 0xb6, 0xa);
         gi = FindGadgetIndex(entries, "GAMENAME", 3);
         dst = namebuf;                 // copied through a pointer, as in the original
         strcpy(dst, entries[gi].text);
@@ -1045,7 +1046,6 @@ void __stdcall HandleNewMultiClick(Gui* gadget)
 // FUNCTION: 0x441080
 void OpenNewMultiDialog()
 {
-    DWORD size;
     Layer* layer = LoadGuiLayer(&g_game->gui, "NEWMULTI.GUI", 0x80);
     layer->handler = HandleNewMultiClick;
     layer->owner = g_game;
@@ -1056,8 +1056,7 @@ void OpenNewMultiDialog()
         strncat(g_game->nickname, &g_onlineLobbyPlayerName, 0x10);
     }
     if (strlen(g_game->nickname) == 0) {
-        size = 0x11;
-        GetUserNameA(g_game->nickname, &size);
+        host_user_name(g_game->nickname, 0x11);
     }
     Gadget* gname = FindGadgetChecked_B(entries, "GAMENAME");
     SetTranslatedTextByName(&g_game->gui, "GAMENAME", g_game->gameName_2bc1, 0);
@@ -1121,7 +1120,7 @@ int GetServiceProviderIndex()
 int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
 {
     // block before size, all three buffers at function top: prologue and frame layout.
-    HGLOBAL block = 0;
+    void* block = 0;
     unsigned long size = 0;
     Elem_00441c30 elements[3];
     GUID guid;
@@ -1143,13 +1142,13 @@ int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
         if (s == 0) {
             s = DAT_005119b8;
         }
-        lstrcpyA(buf1, s);
+        strcpy(buf1, s);
         elements[1].guid = DPAID_Modem;
-        elements[1].size = lstrlenA(buf1) + 1;
+        elements[1].size = strlen(buf1) + 1;
         elements[1].data = buf1;
-        lstrcpyA(buf2, GetGadgetText(&g_game->gui, "NUMBER", 0));
+        strcpy(buf2, GetGadgetText(&g_game->gui, "NUMBER", 0));
         elements[2].guid = DPAID_Phone;
-        elements[2].size = lstrlenA(buf2) + 1;
+        elements[2].size = strlen(buf2) + 1;
         elements[2].data = buf2;
         count = 3;
     } else if (memcmp(&guid, &g_dpspGuidTcpip, sizeof(GUID)) == 0) {
@@ -1160,9 +1159,9 @@ int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
         if (t == 0) {
             t = DAT_005119b8;
         }
-        lstrcpyA(buf3, t);
+        strcpy(buf3, t);
         elements[1].guid = DPAID_INet;
-        elements[1].size = lstrlenA(buf3) + 1;
+        elements[1].size = strlen(buf3) + 1;
         elements[1].data = buf3;
         count = 2;
     } else if (memcmp(&guid, &g_dpspGuidIpx, sizeof(GUID)) == 0) {
@@ -1190,7 +1189,7 @@ int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
 
     result = host_net_create_compound_address((host_net*)((char*)g_game + 0x14), elements, count, 0, &size);
     if (result != 0x8877001e) goto cleanup;
-    block = (HGLOBAL)GameAllocIgnoreTag("COMPOUND ADDR", size);
+    block = GameAllocIgnoreTag("COMPOUND ADDR", size);
     if (block == 0) {
         result = 0x8007000e;
         goto cleanup;
@@ -1200,8 +1199,7 @@ int __stdcall BuildCompoundAddress(int* addressOut, int* sizeOut)
         // Label inside this body, reached by goto: the shared cleanup block is the true arm.
 cleanup:
         if (block != 0) {
-            GlobalUnlock(GlobalHandle(block));
-            GlobalFree(GlobalHandle(block));
+            GameFreeThunk(block);
         }
         return result;
     }
@@ -1634,14 +1632,14 @@ static inline char* NameSlot(char* buffer)
 }
 
 // FUNCTION: 0x443070
-BOOL __stdcall EnumModemAddressCallback(REFGUID guidDataType, DWORD dataSize, LPCVOID data, LPVOID context)
+BOOL __stdcall EnumModemAddressCallback(const GUID& guidDataType, DWORD dataSize, LPCVOID data, LPVOID context)
 {
     char* name = (char*)data;
-    if (IsEqualGUID(guidDataType, DPAID_Modem)) {
-        while (lstrlenA(name) != 0) {
+    if (memcmp(&guidDataType, &DPAID_Modem, sizeof(GUID)) == 0) {
+        while (strlen(name) != 0) {
             strcpy(NameSlot(g_modemInfo), name);
             g_modemCount++;
-            name += lstrlenA(name) + 1;
+            name += strlen(name) + 1;
         }
     }
     return TRUE;
@@ -1750,7 +1748,7 @@ void __stdcall HandleReportClick(Gui* obj)
     if (IsCurrentGadgetNamed(obj, "OK")) {
         acc = 0;
         for (i = 0; i < 16u; i++) {
-            wsprintfA(buf, "CHK%d", i);
+            sprintf(buf, "CHK%d", i);
             handle = FindGadgetIndex(entries, buf, 1);
             if (!GetGadgetActiveByName(obj, buf))
                 break;
@@ -1788,9 +1786,9 @@ void __stdcall OpenReportDialog(unsigned int* count, char** names)
     gadget->cb1c = ReportDialogFrame;
     LoadPictureCached("scorebg", 0, 1, 0);
     for (unsigned int i = 0; i < *count; i++) {
-        wsprintfA(name, "CHK%d", i);
+        sprintf(name, "CHK%d", i);
         SetGadgetActiveByName(&g_game->gui, name, 1);
-        wsprintfA(name, "SERVICE%d", i);
+        sprintf(name, "SERVICE%d", i);
         SetGadgetActiveByName(&g_game->gui, name, 1);
         SetTranslatedTextByName(&g_game->gui, name, names[i], 0x80);
     }
@@ -1909,9 +1907,11 @@ void __stdcall HandleSelectGameClick(Gui* param_1)
                 return;
             }
             pass = (char*)FindGadgetChecked_B(entries, "PASSWORD");
-            lstrcpynA(g_game->password, pass + 0xb6, 0xb);
+            g_game->password[0] = 0;
+            strncat(g_game->password, pass + 0xb6, 0xa);
             cur = g_game->localPlayer;
-            lstrcpynA(g_game->players[cur].info->password, pass + 0xb6, 0xb);
+            g_game->players[cur].info->password[0] = 0;
+            strncat(g_game->players[cur].info->password, pass + 0xb6, 0xa);
             b = FindHostSlot();
             if (b != 0xa &&
                 (g_game->players[b].info->flags & 0x10) == 0x10)
@@ -2996,10 +2996,10 @@ void RefreshTeamIcons()
             && (!(g_game->flags_2a44 & 4) || IsCounted(p))
             && (!(g_game->flags_2a44 & 4) || p->info->color != 0xff)) {
             if (g_game->bits_2a44_1.bit2) {
-                wsprintfA(buffer, "TEAMICONS%d", teamIcon);
+                sprintf(buffer, "TEAMICONS%d", teamIcon);
                 teamIcon++;
             } else {
-                wsprintfA(buffer, "TEAMICONS%d", i);
+                sprintf(buffer, "TEAMICONS%d", i);
             }
 
             int alliance = p->alliance;
@@ -3299,7 +3299,8 @@ void __stdcall RefreshAlliesScreen(int param_1)
             sprintf(logo, "LOGO%d", n);
             sprintf(ally, "ALLY%d", n);
             sprintf(teamicons, "TEAMICONS%d", n);
-            lstrcpynA(name, p->name, 0x80);
+            name[0] = 0;
+            strncat(name, p->name, 0x7f);
 
             int idx = FindGadgetIndex(entries, player, 0xe);
             if (entries[idx].state == 1) {

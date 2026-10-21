@@ -40,6 +40,40 @@ extern "C" void HOST_CALL host_log(const char* text)
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), text, (DWORD)strlen(text), &written, NULL);
 }
 
+extern "C" int HOST_CALL host_instance_running(const char* name)
+{
+    HANDLE existing = OpenSemaphoreA(0x1f0003, FALSE, name);
+    if (existing != NULL) {
+        CloseHandle(existing);
+        return 1;
+    }
+    CreateSemaphoreA(NULL, 1, 1, name);
+    return 0;
+}
+
+extern "C" unsigned int HOST_CALL host_user_name(char* buf, unsigned int size)
+{
+    DWORD length = size;
+    if (!GetUserNameA(buf, &length)) {
+        return 0;
+    }
+    return length;
+}
+
+extern "C" void HOST_CALL host_debug_break(void)
+{
+    DebugBreak();
+}
+
+extern "C" void HOST_CALL host_memory_status(struct host_memory* status)
+{
+    MEMORYSTATUS mem;
+    mem.dwLength = sizeof(mem);
+    GlobalMemoryStatus(&mem);
+    status->total = mem.dwTotalPhys;
+    status->available = mem.dwAvailPhys;
+}
+
 extern "C" const char* HOST_CALL host_command_line(void)
 {
     return GetCommandLineA();

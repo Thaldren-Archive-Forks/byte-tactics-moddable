@@ -884,7 +884,7 @@ void LoadingScreenFrame(void)
             if (GetPreferredLanguage() != 0 && _strcmpi((const char*)GetPreferredLanguage(), "english") != 0) {
                 _strlwr(namebuf);
             }
-            wsprintfA(buf, "%s: %s", (char*)Translate("Map"), (char*)Translate(namebuf));
+            sprintf(buf, "%s: %s", (char*)Translate("Map"), (char*)Translate(namebuf));
             textWidth = GetTextPixelWidth(buf);
             {
                 int x = gadget.width / 2 - textWidth / 2;

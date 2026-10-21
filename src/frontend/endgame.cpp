@@ -6,7 +6,8 @@
 // files gathered in address order; 0x41dc20 (a gap region) stays in
 // endgame_41dc20.cpp, and 41e260's raw offset view is folded into the Game
 // type below.
-#include <windows.h>
+#include "win_types.h"
+#include <stdio.h>
 #include <string.h>
 #include <new>
 #include <new.h>
@@ -425,7 +426,7 @@ void StepPaletteFade(void)
     bar.value = g_game->slots_38dd9[i].stats[n];                                  \
     bar.max = g_game->maxStats[n];                                          \
     bar.scale = max(bar.value * 0.06666667f, 1.0f);                         \
-    wsprintfA(bar.h.name, fmt, i);                                          \
+    sprintf(bar.h.name, fmt, i);                                          \
     AddBarGadget(&g_game->gui, &bar);
 
 // FUNCTION: 0x41e420
@@ -455,7 +456,7 @@ void FillEndGameStatistics(void)
     g_game->field_3906b = 0;
     for (int i = 0; i < 10; i++) {
         if (g_game->slots_38dd9[i].active) {
-            wsprintfA(name, "PlayerColor%d", i);
+            sprintf(name, "PlayerColor%d", i);
             strcpy(button.h.name, name);
             button.h.x = 0x10;
             button.h.y = bar.h.y;
@@ -797,7 +798,7 @@ void __stdcall ActivatePlayerGadgets(char* prefix)
     char name[64];
     for (int i = 0; i < 10; i++) {
         if (g_game->slots_38dd9[i].active) {
-            wsprintfA(name, "%s%d", prefix, i);
+            sprintf(name, "%s%d", prefix, i);
             SetGadgetActiveByName(&g_game->gui, name, 1);
         }
     }
@@ -861,7 +862,7 @@ int DrawEndGameFrame()
 #define ENABLE_BARS(label) \
     for(int i=0;i<10;++i) { \
         if(g_game->slots_38dd9[i].active) { \
-            wsprintfA(text,"%s%d",label,i); \
+            sprintf(text,"%s%d",label,i); \
             SetGadgetActiveByName(&g_game->gui,text,1); \
         } \
     }

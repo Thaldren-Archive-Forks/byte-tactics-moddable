@@ -2,8 +2,7 @@
 
 // Full <windows.h> pulls in <rpc.h>/<ole2.h>, whose declarations flip the
 // base/index order of a SIB address in 0x431740.
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <string.h>
 #include "../map/mission.h"
@@ -405,17 +404,17 @@ void LoadSettings()
         SettingSetString((void*)"Total Annihilation", (void*)"SkirmishMap", ((Options*)g_game->options)->skirmishMap);
     }
     for (i = 0; i < g_game->playerCount; i++) {
-        wsprintfA(name, "Player%dController", i);
+        sprintf(name, "Player%dController", i);
         ReadPlayerSetting(name, &SkirmishPlayer::controller, 0, value, i);
-        wsprintfA(name, "Player%dSide", i);
+        sprintf(name, "Player%dSide", i);
         ReadPlayerSetting(name, &SkirmishPlayer::side, i % 2, value, i);
-        wsprintfA(name, "Player%dColor", i);
+        sprintf(name, "Player%dColor", i);
         ReadPlayerSetting(name, &SkirmishPlayer::color, i, value, i);
-        wsprintfA(name, "Player%dAllyGroup", i);
+        sprintf(name, "Player%dAllyGroup", i);
         ReadPlayerSetting(name, &SkirmishPlayer::allyGroup, 5, value, i);
-        wsprintfA(name, "Player%dMetal", i);
+        sprintf(name, "Player%dMetal", i);
         ReadPlayerSetting(name, &SkirmishPlayer::metal, 1000, value, i);
-        wsprintfA(name, "Player%dEnergy", i);
+        sprintf(name, "Player%dEnergy", i);
         ReadPlayerSetting(name, &SkirmishPlayer::energy, 1000, value, i);
     }
     int ok26 = SettingGetInt((void*)"Total Annihilation", (void*)"PlayMovie", &value);
@@ -528,19 +527,19 @@ void SaveSettings()
                  ((Options*)g_game->options)->skirmishDifficulty);
     SettingSetString((void*)"Total Annihilation", (void*)"SkirmishMap", ((Options*)g_game->options)->skirmishMap);
     for (i = 0; i < g_game->playerCount; i++) {
-        wsprintfA(name, "Player%dController", i);
+        sprintf(name, "Player%dController", i);
         SettingSetInt((void*)"Total Annihilation\\Skirmish", name,
                      ((Options*)g_game->options)->players[i].controller);
-        wsprintfA(name, "Player%dSide", i);
+        sprintf(name, "Player%dSide", i);
         SettingSetInt((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].side);
-        wsprintfA(name, "Player%dColor", i);
+        sprintf(name, "Player%dColor", i);
         SettingSetInt((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].color);
-        wsprintfA(name, "Player%dAllyGroup", i);
+        sprintf(name, "Player%dAllyGroup", i);
         SettingSetInt((void*)"Total Annihilation\\Skirmish", name,
                      ((Options*)g_game->options)->players[i].allyGroup);
-        wsprintfA(name, "Player%dMetal", i);
+        sprintf(name, "Player%dMetal", i);
         SettingSetInt((void*)"Total Annihilation\\Skirmish", name, ((Options*)g_game->options)->players[i].metal);
-        wsprintfA(name, "Player%dEnergy", i);
+        sprintf(name, "Player%dEnergy", i);
         SettingSetInt((void*)"Total Annihilation\\Skirmish", name,
                      ((Options*)g_game->options)->players[i].energy);
     }

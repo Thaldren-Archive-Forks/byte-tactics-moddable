@@ -6,7 +6,9 @@
 // MSGBOX.GUI, NOTEXIST.GUI, CHOICE3.GUI, INPUT.GUI), the word-wrap and
 // text-fit helpers, and the 16x16 "COLS" colour grid of the palette editor.
 #include <string.h>
-#include <windows.h>
+#include <ctype.h>
+#include "win_types.h"
+#include "../../interfaces/host.h"
 
 #pragma pack(push, 1)
 
@@ -799,25 +801,17 @@ int __stdcall HandleTextEditKey(Gui* control, int index, int key)
             case 0xbf:
             case 0xee: {
                 HWND hwnd = *(HWND*)((char*)GetDisplay() + 0x40);
-                if (OpenClipboard(hwnd)) {
-                    HANDLE hMem = GetClipboardData(1);
-                    if (hMem != 0) {
-                        DWORD size = GlobalSize(hMem);
-                        if (size != 0) {
-                            char* src = (char*)GlobalLock(hMem);
-                            memset(text, 0, 0x80);
-                            memcpy(text, src, (int)size < entry->status - 1 ? (int)size : entry->status - 1);
-                            int width = GetTextPixelWidth((unsigned char*)text);
-                            while (width > entry->width) {
-                                if (strlen(text) == 0)
-                                    break;
-                                text[strlen(text) - 1] = 0;
-                                width = GetTextPixelWidth((unsigned char*)text);
-                            }
-                            GlobalUnlock(hMem);
-                        }
+                unsigned int copied = host_clipboard_text_get(hwnd, text, entry->status - 1);
+                if (copied != 0) {
+                    if (copied < 0x80)
+                        memset(text + copied, 0, 0x80 - copied);
+                    int width = GetTextPixelWidth((unsigned char*)text);
+                    while (width > entry->width) {
+                        if (strlen(text) == 0)
+                            break;
+                        text[strlen(text) - 1] = 0;
+                        width = GetTextPixelWidth((unsigned char*)text);
                     }
-                    CloseClipboard();
                 }
                 break;
             }
