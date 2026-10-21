@@ -1227,6 +1227,7 @@ LoadWeaponType,0x5,SmokeParticles::Emit,3,110,0x20,outside,"WeaponDef damage tab
 LoadWeaponType,0x5,Sound::CreateSampleFromFile: Digital Audio Sample,25,262800,0x10,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd): the buffer is loaded with the weapon types; target names change with the heap layout"
 LoadWeaponType,0x5+0x4*k,vector::insert #6,27,277800,0x0-0x800,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd): the buffer is loaded with the weapon types; target names change with the heap layout"
 LoadWeaponType,0x5,vector::insert #7,4,19200,0x20,outside,"WeaponDef damage table vector (first 0x5, last 0x9, end 0xd): the buffer is loaded with the weapon types; target names change with the heap layout"
+Mission::LoadMissionData: MISSIONFEATURE DATA,*,*,0,0,-,not-a-pointer,"MissionFeature table: a 0x80-byte name and two ints, no pointers; words in the name only look like addresses"
 Mission::LoadMissionData: MISSIONRULE DATA,*,*,0,0,-,not-a-pointer,"MissionRule table: numbers and strings, no pointers"
 Mission::LoadMissionData: MISSIONRULE DATA,0x5a 0x68,AllocDepthFrame: CompositeBuffer,5,14700,0x30c40-0x7ffe0,not-a-pointer,"MissionRule table: numbers and strings, no pointers"
 Mission::LoadMissionData: MISSIONRULE DATA,0x66 0x72,CMemoryCache::InitCache: CMemoryCache CCH,2,9600,0x33ffe0-0x37ffe0,not-a-pointer,"MissionRule table: numbers and strings, no pointers"
