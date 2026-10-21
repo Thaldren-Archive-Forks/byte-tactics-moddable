@@ -13,7 +13,7 @@
 // ids the (CommandArgs*) casts of the commands above 0x4181d0 used to, which
 // its window needs. The commands with a void* parameter keep their casts.
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1141,7 +1141,7 @@ void __stdcall CmdDebugBreak(CommandArgs* args)
                 ToggleFullScreen();
                 host_sleep_ms(500);
             }
-            DebugBreak();
+            host_debug_break();
         }
     }
 }

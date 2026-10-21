@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,7 +54,7 @@ unsigned g_scanned;
 __declspec(thread) unsigned g_depth;
 __declspec(thread) unsigned g_curSite;
 __declspec(thread) const char* g_curTag;
-CRITICAL_SECTION g_scanLock;
+void* g_scanLock;
 unsigned g_imageLo;
 unsigned g_imageHi;
 unsigned long long g_scanTotal;
@@ -73,7 +72,9 @@ void Die(const char* text)
 
 void* AllocZeroed(unsigned bytes)
 {
-    void* p = VirtualAlloc(0, bytes, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    void* p = host_mem_reserve(bytes);
+    if (p != 0)
+        p = host_mem_commit(p, bytes);
     if (p == 0)
         Die("blockscan: cannot allocate the scan tables\n");
     return p;
@@ -111,7 +112,7 @@ bool Inside(unsigned addr)
 void __cdecl OnAdded(void* p, unsigned size)
 {
     unsigned addr = (unsigned)p;
-    EnterCriticalSection(&g_scanLock);
+    host_mutex_lock(g_scanLock);
     unsigned i = Slot(addr);
     while (g_registry[i].addr != 0 && g_registry[i].addr != addr)
         i = (i + 1) & (kRegistrySize - 1);
@@ -127,18 +128,18 @@ void __cdecl OnAdded(void* p, unsigned size)
     g_registry[i].tag = live ? g_curTag : 0;
     if (!Inside(addr))
         g_dirty = true;
-    LeaveCriticalSection(&g_scanLock);
+    host_mutex_unlock(g_scanLock);
 }
 
 void __cdecl OnRemoved(void* p)
 {
     unsigned addr = (unsigned)p;
-    EnterCriticalSection(&g_scanLock);
+    host_mutex_lock(g_scanLock);
     unsigned i = Slot(addr);
     while (g_registry[i].addr != 0 && g_registry[i].addr != addr)
         i = (i + 1) & (kRegistrySize - 1);
     if (g_registry[i].addr == 0) {
-        LeaveCriticalSection(&g_scanLock);
+        host_mutex_unlock(g_scanLock);
         return;
     }
     if (!Inside(addr))
@@ -158,7 +159,7 @@ void __cdecl OnRemoved(void* p)
     }
     g_registry[hole].addr = 0;
     g_registryCount--;
-    LeaveCriticalSection(&g_scanLock);
+    host_mutex_unlock(g_scanLock);
 }
 
 const AllocHooks g_hooks = { OnEnter, OnLeave, OnAdded, OnRemoved };
@@ -312,7 +313,7 @@ struct WalkCtx {
 void __cdecl Visit(void* payload, unsigned size, void* ctx)
 {
     unsigned tick = ((WalkCtx*)ctx)->tick;
-    EnterCriticalSection(&g_scanLock);
+    host_mutex_lock(g_scanLock);
     if (g_dirty)
         BuildSpans();
     const Entry* holder = Find((unsigned)payload);
@@ -347,17 +348,17 @@ void __cdecl Visit(void* payload, unsigned size, void* ctx)
         key.targetTag = t.tag;
         Note(key, targetOffset, tick);
     }
-    LeaveCriticalSection(&g_scanLock);
+    host_mutex_unlock(g_scanLock);
 }
 
 void CleanTag(const char* tag, char* out)
 {
-    if (tag == 0 || IsBadReadPtr(tag, 1)) {
+    if (tag == 0 || !host_mem_readable(tag, 1)) {
         strcpy(out, "-");
         return;
     }
     unsigned n = 0;
-    while (n < 80 && !IsBadReadPtr(tag + n, 1) && tag[n] != '\0') {
+    while (n < 80 && host_mem_readable(tag + n, 1) && tag[n] != '\0') {
         unsigned char c = (unsigned char)tag[n];
         out[n] = c < 32 || c > 126 ? ' ' : (char)c;
         n++;
@@ -403,12 +404,12 @@ void BlockScanEnable(unsigned every)
     g_spans = (Span*)AllocZeroed(sizeof(Span) * kRegistrySize);
     g_rows = (Row*)AllocZeroed(sizeof(Row) * kRowSize);
     g_pages = (unsigned*)AllocZeroed(kPageWords * sizeof(unsigned));
-    InitializeCriticalSection(&g_scanLock);
-    const char* base = (const char*)GetModuleHandle(0);
-    const IMAGE_DOS_HEADER* dos = (const IMAGE_DOS_HEADER*)base;
-    const IMAGE_NT_HEADERS* nt = (const IMAGE_NT_HEADERS*)(base + dos->e_lfanew);
+    g_scanLock = host_mutex_create();
+    const void* base = 0;
+    unsigned int size = 0;
+    host_image_range(&base, &size);
     g_imageLo = (unsigned)base;
-    g_imageHi = (unsigned)base + nt->OptionalHeader.SizeOfImage;
+    g_imageHi = (unsigned)base + size;
     g_allocHooks = &g_hooks;
 }
 

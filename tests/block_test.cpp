@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -194,7 +193,7 @@ static void RunStreamTests()
     *SimRandStream(1) = 0x1234567u;
     Check(Stream(1) == 0x1234567u && Stream(0) == 2531011u + 214013u, "seeding load leaves main alone");
 
-    void* copy = VirtualAlloc(0, kSimBlockBytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    void* copy = host_mem_commit(host_mem_reserve(kSimBlockBytes), kSimBlockBytes);
     void* base = SimBlockBase();
     memcpy(copy, base, kSimBlockBytes);
     *SimRandStream(0) = 77;
@@ -203,7 +202,7 @@ static void RunStreamTests()
     Check(Stream(0) == 2531011u + 214013u && Stream(1) == 0x1234567u, "an attached copy carries its stream values");
     SimBlockAttach(base);
     Check(Stream(0) == 77 && Stream(1) == 88, "the first block keeps its own stream values");
-    VirtualFree(copy, 0, MEM_RELEASE);
+    host_mem_release(copy);
 
     SimBlockReset();
     Check(Stream(0) == 1 && Stream(1) == 1, "both streams are 1 again after SimBlockReset");
@@ -221,7 +220,7 @@ static void RunTrackTests()
     memset(g_tracked, 0x5a, 64);
     unsigned int off = (unsigned int)((char*)g_tracked - (char*)SimBlockBase());
 
-    void* copy = VirtualAlloc(0, kSimBlockBytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    void* copy = host_mem_commit(host_mem_reserve(kSimBlockBytes), kSimBlockBytes);
     void* base = SimBlockBase();
     memcpy(copy, base, kSimBlockBytes);
     SimBlockAttach(copy);
@@ -240,7 +239,7 @@ static void RunTrackTests()
     SimBlockAttach(copy);
     Check(g_tracked == 0, "a null tracked pointer stays null");
     SimBlockAttach(base);
-    VirtualFree(copy, 0, MEM_RELEASE);
+    host_mem_release(copy);
 
     g_tracked = SimAlloc(16);
     SimBlockReset();
@@ -294,7 +293,7 @@ int main()
     RunSequence(150, &zeroOk);
     void* keep = SimAlloc(100);
     memset(keep, 7, 100);
-    void* copy = VirtualAlloc(0, kSimBlockBytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    void* copy = host_mem_commit(host_mem_reserve(kSimBlockBytes), kSimBlockBytes);
     memcpy(copy, SimBlockBase(), kSimBlockBytes);
     void* base = SimBlockBase();
     g_count = 0;

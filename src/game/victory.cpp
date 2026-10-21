@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include <windows.h>
+#include "win_types.h"
+#include "../../interfaces/host.h"
 #include "../util/hapi_bank.h"
 #include "../harness/condition_class.h"
 #include "victory_conditions.h"
@@ -1445,9 +1446,8 @@ void PackedPosGoal::DeserializeNetUnitState(BitReader* reader)
 // FUNCTION: 0x490aa0
 void QueryGlobalMemoryStatus(void)
 {
-    MEMORYSTATUS mem;
-    mem.dwLength = 0x20;
-    GlobalMemoryStatus(&mem);
+    host_memory mem;
+    host_memory_status(&mem);
 }
 
 #define CONDITION_PROBE(cls, probe)                 \
