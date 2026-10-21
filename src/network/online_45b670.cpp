@@ -3,6 +3,7 @@
 // helpers).
 #include <windows.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 
 extern int DAT_00512c80[0x54];      // the online configuration, 0x150 bytes
 // GLOBAL: 0x512dd0
@@ -17,7 +18,7 @@ typedef int (__stdcall* OnlLoadConfigFile)(char* file, void* config, int size);
 static BOOL LoadOnline(void)
 {
     if (g_onlineDllPath[0] == 0) {
-        int len = GetModuleFileNameA(0, g_onlineDllPath, MAX_PATH);
+        int len = host_file_exe_path(g_onlineDllPath, MAX_PATH);
         g_onlineDllPath[MAX_PATH] = 0;
         char* p = g_onlineDllPath;
         if (len > 0) {

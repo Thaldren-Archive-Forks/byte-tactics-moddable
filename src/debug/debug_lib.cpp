@@ -35,6 +35,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include "../state/block.h"
+#include "../../interfaces/host.h"
 
 extern char g_memFussyQueried;
 extern char g_memFussyDefault;
@@ -816,7 +817,7 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     // Each sprintf site keeps its destination form (`d`, `L` or inline strlen): it sets push order.
     // find the executable's directory and open the log there
     char* slash;
-    if (0 == GetModuleFileNameA(0, path, 1000) || !(((slash = strrchr(path, '\\')) != 0) != 0)) { strcpy(path, "C:\\"); } else { slash[1] = 0; }
+    if (0 == host_file_exe_path(path, 1000) || !(((slash = strrchr(path, '\\')) != 0) != 0)) { strcpy(path, "C:\\"); } else { slash[1] = 0; }
     strcat(path, "ErrorLog.txt");
     file = CreateFileA(path, GENERIC_WRITE, 0, 0, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
     if (file) { SetFilePointer(file, 0, 0, FILE_END); } else {
@@ -825,7 +826,7 @@ int __cdecl ReportException(EXCEPTION_POINTERS* ep, char* handlerName)
     reason = GetExceptionName(rec->ExceptionCode);
 
     // the "what crashed" header, written out early
-    if (((0 < GetModuleFileNameA(0, exe, 1000)) != 0)) {
+    if (((0 < host_file_exe_path(exe, 1000)) != 0)) {
         base = strrchr(exe, '\\');
         base = base != 0 ? 1 + base : exe;
         strcpy(name, base);
@@ -3773,7 +3774,7 @@ LoadedImage::LoadedImage(HMODULE m) : MappedFile(0)
     module = m;
     imageBase = (unsigned int)m;
     dosHeader = (IMAGE_DOS_HEADER*)m;
-    if (GetModuleFileNameA(m, path, sizeof(path)))
+    if (host_file_exe_path(path, sizeof(path)))
         path[sizeof(path) - 1] = 0;
     else
         path[0] = 0;
@@ -3920,7 +3921,7 @@ char __cdecl LoadImageHelp(char param)
                                    "-disableimagehlp", 0, 0);
     char path[0x100];
     char symPath[0x3e8];
-    // Declared bare and assigned 0 as a statement just before GetModuleFileNameA.
+    // Declared bare and assigned 0 as a statement just before host_file_exe_path.
     char* searchPath;
     char* windir;
     char* slash;
@@ -3955,7 +3956,7 @@ char __cdecl LoadImageHelp(char param)
         symOpts = 0x14;
     g_pfnSymSetOptions(symOpts);
     searchPath = 0;
-    if (GetModuleFileNameA((HMODULE)searchPath, path, sizeof(path))) {
+    if (host_file_exe_path(path, sizeof(path))) {
         windir = getenv("windir");
         if (windir) {
             if (strlen(path) + strlen(windir) < 0x3e8) {
@@ -4337,7 +4338,7 @@ void __cdecl FormatSystemInfo(char* dest, int destLen)
         machine = "unknown machine";
     }
 
-    if (GetModuleFileNameA(NULL, exeName, 1000) == 0) {
+    if (host_file_exe_path(exeName, 1000) == 0) {
         strcpy(exeName, "Unknown");
     }
 

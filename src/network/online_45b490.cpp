@@ -2,6 +2,7 @@
 // Built without /GX; see 0x45b670.cpp for the online.dll helpers.
 #include <windows.h>
 #include <string.h>
+#include "../../interfaces/host.h"
 
 // GLOBAL: 0x512dd0
 extern char g_onlineDllPath[MAX_PATH + 1];
@@ -18,7 +19,7 @@ typedef unsigned int (__stdcall* OnlGetLinkInfo)(LinkInfo* links);
 static BOOL LoadOnline(void)
 {
     if (g_onlineDllPath[0] == 0) {
-        int len = GetModuleFileNameA(0, g_onlineDllPath, MAX_PATH);
+        int len = host_file_exe_path(g_onlineDllPath, MAX_PATH);
         g_onlineDllPath[MAX_PATH] = 0;
         char* p = g_onlineDllPath;
         if (len > 0) {
