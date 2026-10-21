@@ -54,6 +54,7 @@ waitfor ingame 60
 sleep 2
 alive
 shot sk_start
+expect commander
 chat +nowisee
 chat +atm
 # the commander builds a Kbot lab
