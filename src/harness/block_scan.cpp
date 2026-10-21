@@ -331,7 +331,7 @@ void __cdecl Visit(void* payload, unsigned size, void* ctx)
     for (unsigned off = 0; off + 4 <= size; off++) {
         unsigned v;
         memcpy(&v, bytes + off, 4);
-        if (v <= spanMin || v > spanMax)
+        if (v < spanMin || v > spanMax)
             continue;
         unsigned before = (v - 1) >> kPageShift;
         unsigned pg = v >> kPageShift;
