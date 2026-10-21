@@ -6,7 +6,6 @@
 #include <malloc.h>
 #include "../quirks/quirks.h"
 #include "../../interfaces/host.h"
-#include "../state/block.h"
 #include "../state/sim_globals.h"
 
 #pragma pack(push, 1)
@@ -60,7 +59,6 @@ void SetUseWindowsSound();
 extern "C" int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                                  LPSTR lpCmdLine, int nCmdShow)
 {
-    SimBlockInit();
     __try {
         return GameMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
     } __except (ExceptionFilter(GetExceptionInformation(), "Main Thread")) {
