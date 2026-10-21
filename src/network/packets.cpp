@@ -1902,7 +1902,7 @@ Player::Player() : active(0), type(0)
     exploredSize = 0;
     explored = 0;
     index = 10;
-    info = (PlayerInfo*)operator new(0xb9);
+    info = (PlayerInfo*)SimAllocTagged("Player Info", 0xb9);
     AllocNotifyNop((int)info);
     memset(info, 0, 0xb9);
 }

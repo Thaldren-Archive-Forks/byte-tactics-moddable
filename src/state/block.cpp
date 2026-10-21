@@ -10,6 +10,7 @@
 extern void (*g_outOfMemoryHandler)();
 
 const SimHeap kSim = SimHeap();
+const AllocHooks* g_allocHooks;
 
 namespace {
 
@@ -275,16 +276,28 @@ void* ReallocLocked(void* p, unsigned int size)
 
 }
 
-void* __cdecl SimAlloc(unsigned int size)
+__declspec(noinline) void* __cdecl SimAlloc(unsigned int size)
 {
+    AllocSite site(_ReturnAddress(), 0);
     Guard guard;
-    return AllocLocked(size);
+    void* p = AllocLocked(size);
+    if (g_allocHooks != 0)
+        g_allocHooks->added(p, size);
+    return p;
 }
 
-void* __cdecl SimRealloc(void* p, unsigned int size)
+__declspec(noinline) void* __cdecl SimRealloc(void* p, unsigned int size)
 {
+    AllocSite site(_ReturnAddress(), 0);
     Guard guard;
-    return ReallocLocked(p, size);
+    void* q = ReallocLocked(p, size);
+    if (g_allocHooks != 0) {
+        if (p != 0)
+            g_allocHooks->removed(p);
+        if (q != 0)
+            g_allocHooks->added(q, size);
+    }
+    return q;
 }
 
 void __cdecl SimFree(void* p)
@@ -292,7 +305,24 @@ void __cdecl SimFree(void* p)
     if (p == 0)
         return;
     Guard guard;
+    if (g_allocHooks != 0)
+        g_allocHooks->removed(p);
     FreeLocked(p);
+}
+
+void __cdecl SimBlockForEach(void(__cdecl* fn)(void* payload, unsigned int size, void* ctx), void* ctx)
+{
+    Guard guard;
+    unsigned int off = kFirstChunk;
+    while (off + kMinChunk <= kSimBlockBytes) {
+        Chunk* c = At(off);
+        unsigned int sz = c->size & ~kFreeBit;
+        if (sz < kMinChunk || (sz & 7) != 0 || sz > kSimBlockBytes - off)
+            break;
+        if ((c->size & kFreeBit) == 0 && c->aux <= sz - kChunkHeader)
+            fn((char*)c + kChunkHeader, c->aux, ctx);
+        off += sz;
+    }
 }
 
 bool __cdecl SimOwns(const void* p)
@@ -353,13 +383,15 @@ void __cdecl SimBlockTrack(void** slot)
     g_tracked[g_trackedCount++] = slot;
 }
 
-void* __cdecl operator new(size_t size, const SimHeap&)
+__declspec(noinline) void* __cdecl operator new(size_t size, const SimHeap&)
 {
+    AllocSite site(_ReturnAddress(), 0);
     return SimAlloc(size);
 }
 
-void* __cdecl operator new[](size_t size, const SimHeap&)
+__declspec(noinline) void* __cdecl operator new[](size_t size, const SimHeap&)
 {
+    AllocSite site(_ReturnAddress(), 0);
     return SimAlloc(size);
 }
 

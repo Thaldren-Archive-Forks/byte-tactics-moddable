@@ -380,8 +380,8 @@ void __stdcall AllocateUnitMemory(void)
     memset(pool, 0, g_game->poolCount * 0x118);
 
     unsigned int ten = g_game->field_37ee6 * 10;
-    (*(void **)&g_game->list_1435f) = GameAllocIgnoreTag("HOT UNITS", ten * 2);
-    g_game->hotRadar = GameAllocIgnoreTag("HOT RADAR UNITS", ten * 10);
+    (*(void **)&g_game->list_1435f) = SimAllocTagged("HOT UNITS", ten * 2);
+    g_game->hotRadar = SimAllocTagged("HOT RADAR UNITS", ten * 10);
     (*(unsigned char **)&g_game->unitsEnd) = (unsigned char *)g_game->units + g_game->poolCount * 0x118 - 0x118;
 
     unsigned short n;

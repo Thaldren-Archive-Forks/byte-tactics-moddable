@@ -306,7 +306,7 @@ void InitExplosions()
             (*(Face (*)[300][6])&g_game->frames)[i][j].nverts = 4;
             (*(Face (*)[300][6])&g_game->frames)[i][j].vindex = g_faceVertexIndices[j];
         }
-    g_debrisMemCache.InitCache(100000);
+    g_debrisMemCache.InitSimCache(100000);
     memset(g_explodedPieces, 0, sizeof(g_explodedPieces));
 }
 

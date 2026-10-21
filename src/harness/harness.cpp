@@ -13,6 +13,7 @@
 #include "../../interfaces/seams.h"
 #include "../quirks/quirks.h"
 #include "../state/sim_globals.h"
+#include "block_scan.h"
 
 extern Game* g_game;
 
@@ -57,6 +58,8 @@ static unsigned s_ticks = 0;
 static unsigned s_stepsPerFrame = 1;
 static int s_started = 0;
 static int s_dumpEnabled = 0;
+static int s_blockScan = 0;
+static char s_commit[64] = "-";
 static char s_scenarioPath[512];
 static FILE* s_trace = NULL;
 static FILE* s_dump = NULL;
@@ -567,6 +570,29 @@ static void ParseTestDump(char* cmdLine)
     }
 }
 
+static void ParseBlockScan(char* cmdLine)
+{
+    for (char* p = cmdLine; *p != '\0'; p++) {
+        if ((p[0] == '-' || p[0] == '/') && _strnicmp(p + 1, "blockscan", 9) == 0 && (p == cmdLine || isspace((unsigned char)p[-1]))) {
+            char* q = p + 10;
+            unsigned every = 1;
+            if (*q == '=') {
+                char* digits = ++q;
+                every = 0;
+                while (isdigit((unsigned char)*q) && every < 100000000)
+                    every = every * 10 + (unsigned)(*q++ - '0');
+                if (q == digits || every == 0)
+                    continue;
+            }
+            if (*q != '\0' && !isspace((unsigned char)*q))
+                continue;
+            s_blockScan = (int)every;
+            memset(p, ' ', (size_t)(q - p));
+            return;
+        }
+    }
+}
+
 static void ParseQuirksSwitch(char* cmdLine)
 {
     for (char* p = cmdLine; *p != '\0'; p++) {
@@ -617,6 +643,9 @@ static void ResolveQuirks()
 
 void HarnessInit(char* cmdLine)
 {
+    ParseBlockScan(cmdLine);
+    if (s_blockScan)
+        BlockScanEnable((unsigned)s_blockScan);
     InstallNativeSeams();
     ParseQuirksSwitch(cmdLine);
     char* p = cmdLine;
@@ -720,6 +749,8 @@ void HarnessStartSkirmish()
 
 void HarnessAfterStep()
 {
+    if (s_testMode && s_blockScan)
+        BlockScanTick((unsigned)g_game->ticks, s_ticks);
     if (!s_testMode || (unsigned)g_game->ticks < s_ticks)
         return;
     char msg[64];
@@ -729,6 +760,8 @@ void HarnessAfterStep()
         fclose(s_dump);
     s_trace = NULL;
     s_dump = NULL;
+    if (s_blockScan)
+        BlockScanWrite(strcmp(s_commit, "unknown") == 0 ? "-" : s_commit);
     sprintf(msg, "testmode: reached tick %u\n", s_ticks);
     host_log(msg);
     host_exit(0);
@@ -2837,6 +2870,7 @@ static void OpenTrace(unsigned controlWord)
         fclose(c);
     }
 
+    strcpy(s_commit, commit);
     s_trace = fopen("trace.txt", "wb");
     if (s_trace == NULL)
         Fail("testmode: cannot write trace.txt\n");

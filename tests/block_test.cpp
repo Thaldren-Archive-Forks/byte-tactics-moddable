@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "../src/state/block.h"
+#include "../src/harness/block_spans.h"
 
 class CritSec_004da780 {
 public:
@@ -35,6 +36,43 @@ static bool AllZero(const void* p, unsigned int n)
         if (b[i] != 0)
             return false;
     return true;
+}
+
+struct Seen {
+    void* payload[16];
+    unsigned int size[16];
+    int count;
+};
+
+static void __cdecl Collect(void* payload, unsigned int size, void* ctx)
+{
+    Seen* seen = (Seen*)ctx;
+    if (seen->count < 16) {
+        seen->payload[seen->count] = payload;
+        seen->size[seen->count] = size;
+    }
+    seen->count++;
+}
+
+static int HookAdds;
+static int HookRemoves;
+static void* HookLast;
+static void* HookSite;
+
+static void __cdecl HookEnter(void* site, const char*)
+{
+    if (HookSite == 0)
+        HookSite = site;
+}
+static void __cdecl HookLeave() {}
+static void __cdecl HookAdded(void* p, unsigned int)
+{
+    HookAdds++;
+    HookLast = p;
+}
+static void __cdecl HookRemoved(void*)
+{
+    HookRemoves++;
 }
 
 static const int kSlots = 24;
@@ -215,8 +253,33 @@ static void RunTrackTests()
     SimBlockReset();
 }
 
+static void RunSpanTests()
+{
+    const Span spans[3] = { { 0x1000, 0x1100, 0 }, { 0x1100, 0x1180, 1 }, { 0x3000, 0x3040, 2 } };
+    unsigned off = 99;
+    const Span* s = LocateSpan(spans, 3, 0x1000, &off);
+    Check(s == &spans[0] && off == 0, "a word at the start of the first span is at offset 0");
+    s = LocateSpan(spans, 3, 0x1080, &off);
+    Check(s == &spans[0] && off == 0x80, "a word inside a span is at its offset");
+    s = LocateSpan(spans, 3, 0x1100, &off);
+    Check(s == &spans[0] && off == 0x100, "a word at the end of a span belongs to that span, not the next");
+    s = LocateSpan(spans, 3, 0x1101, &off);
+    Check(s == &spans[1] && off == 1, "a word past the start of the next span is inside it");
+    s = LocateSpan(spans, 3, 0x1180, &off);
+    Check(s == &spans[1] && off == 0x80, "a word at the end of the second span belongs to it");
+    s = LocateSpan(spans, 3, 0x3040, &off);
+    Check(s == &spans[2] && off == 0x40, "a word at the end of the last span belongs to it");
+    s = LocateSpan(spans, 3, 0x3000, &off);
+    Check(s == &spans[2] && off == 0, "a word at the start of a span after a gap is at offset 0");
+    Check(LocateSpan(spans, 3, 0x0fff, &off) == 0, "a word before the first span has no span");
+    Check(LocateSpan(spans, 3, 0x1181, &off) == 0, "a word past a span and before the next has no span");
+    Check(LocateSpan(spans, 3, 0x3041, &off) == 0, "a word past the last span has no span");
+    Check(LocateSpan(spans, 0, 0x1000, &off) == 0, "no spans, no match");
+}
+
 int main()
 {
+    RunSpanTests();
     RunStreamTests();
     RunTrackTests();
     Run a, b;
@@ -262,6 +325,47 @@ int main()
     Check(x != 0, "SimAlloc(0) returns a block");
     Check(SimRealloc(x, 0) == 0, "SimRealloc(p, 0) frees");
     Check(((unsigned int)SimAlloc(3) & 7) == 0, "payloads are 8-aligned");
+
+    SimBlockReset();
+    SimBlockInit();
+    Seen seen;
+    memset(&seen, 0, sizeof(seen));
+    SimBlockForEach(Collect, &seen);
+    Check(seen.count == 0, "SimBlockForEach sees nothing in a fresh block");
+    void* pa = SimAlloc(10);
+    void* pb = SimAlloc(100);
+    void* pc = SimAlloc(0);
+    void* pd = SimAlloc(33);
+    SimFree(pb);
+    void* pe = SimAlloc(8);
+    memset(&seen, 0, sizeof(seen));
+    SimBlockForEach(Collect, &seen);
+    Check(seen.count == 4, "SimBlockForEach visits each live allocation once");
+    bool found[4] = { false, false, false, false };
+    void* want[4] = { pa, pc, pd, pe };
+    unsigned int wantSize[4] = { 10, 0, 33, 8 };
+    for (int i = 0; i < seen.count && i < 16; i++)
+        for (int k = 0; k < 4; k++)
+            if (seen.payload[i] == want[k] && seen.size[i] == wantSize[k])
+                found[k] = true;
+    Check(found[0] && found[1] && found[2] && found[3], "SimBlockForEach reports payloads and requested sizes");
+    SimFree(pe);
+    SimFree(pd);
+    SimFree(pc);
+    SimFree(pa);
+    memset(&seen, 0, sizeof(seen));
+    SimBlockForEach(Collect, &seen);
+    Check(seen.count == 0, "SimBlockForEach skips freed allocations");
+
+    static const AllocHooks hooks = { HookEnter, HookLeave, HookAdded, HookRemoved };
+    g_allocHooks = &hooks;
+    void* h = SimAlloc(16);
+    Check(HookAdds == 1 && HookLast == h && HookSite != 0, "the allocation hook sees SimAlloc");
+    h = SimRealloc(h, 64);
+    Check(HookAdds == 2 && HookRemoves == 1 && HookLast == h, "SimRealloc removes the old block and adds the new");
+    SimFree(h);
+    Check(HookRemoves == 2, "SimFree calls the removal hook");
+    g_allocHooks = 0;
 
     printf(g_failures ? "FAILED\n" : "block_test: all passed\n");
     return g_failures != 0;
