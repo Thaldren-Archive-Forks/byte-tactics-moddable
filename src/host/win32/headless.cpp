@@ -9,27 +9,27 @@ namespace {
 
 bool ScanCommandLine()
 {
-    const char* cmd = GetCommandLineA();
+    const wchar_t* cmd = GetCommandLineW();
     if (cmd == NULL) {
         return false;
     }
-    const char* p = cmd;
-    if (*p == '"') {
+    const wchar_t* p = cmd;
+    if (*p == L'"') {
         p++;
-        while (*p != '\0' && *p != '"') {
+        while (*p != L'\0' && *p != L'"') {
             p++;
         }
-        if (*p == '"') {
+        if (*p == L'"') {
             p++;
         }
     } else {
-        while (*p != '\0' && !isspace((unsigned char)*p)) {
+        while (*p != L'\0' && *p != L' ' && *p != L'\t') {
             p++;
         }
     }
-    while (*p != '\0') {
-        if ((p[0] == '-' || p[0] == '/') && _strnicmp(p + 1, "testmode", 8) == 0
-            && (p[9] == '\0' || isspace((unsigned char)p[9])) && (p == cmd || isspace((unsigned char)p[-1]))) {
+    while (*p != L'\0') {
+        if ((p[0] == L'-' || p[0] == L'/') && _wcsnicmp(p + 1, L"testmode", 8) == 0
+            && (p[9] == L'\0' || p[9] == L' ' || p[9] == L'\t') && (p == cmd || p[-1] == L' ' || p[-1] == L'\t')) {
             return true;
         }
         p++;
@@ -212,6 +212,7 @@ void* HeadlessWindowOpen(const char* title, int width, int height, int fullscree
     (void)fullscreen;
     g_windowThread = GetCurrentThreadId();
     g_windowOpen = true;
+    PushEvent(HOST_EVENT_FOCUS, 1, 0, 0, 0, 0, 0);
     return kWindow;
 }
 
