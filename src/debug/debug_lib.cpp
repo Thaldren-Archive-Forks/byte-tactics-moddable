@@ -216,8 +216,7 @@ void* __cdecl GameAllocIgnoreTag(const char* name, unsigned int size)
     return GameAlloc(size);
 }
 
-class CritSec_004da780;
-CritSec_004da780* GetAllocLock();
+void* GetAllocLock();
 void* __cdecl AllocDebugBlock(unsigned int size, int flags);
 void __cdecl CountAlloc(unsigned int size);
 extern void (*g_outOfMemoryHandler)();
@@ -229,8 +228,8 @@ extern void (*g_outOfMemoryHandler)();
 void* __cdecl GameAlloc(unsigned int size)
 {
     AllocSite site(_ReturnAddress(), 0);
-    CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
-    EnterCriticalSection(cs);
+    void* cs = GetAllocLock();
+    host_mutex_lock(cs);
     void* p;
     do {
         if (IsMemFussy()) {
@@ -249,7 +248,7 @@ void* __cdecl GameAlloc(unsigned int size)
     }
     if (p != 0 && g_allocHooks != 0)
         g_allocHooks->added(p, size);
-    LeaveCriticalSection(cs);
+    host_mutex_unlock(cs);
     return p;
 }
 #pragma auto_inline(on)
@@ -298,8 +297,8 @@ void* __cdecl GameRealloc(void* block, unsigned int size)
     AllocSite site(_ReturnAddress(), 0);
     if (SimOwns(block))
         return SimRealloc(block, size);
-    CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
-    EnterCriticalSection(cs);
+    void* cs = GetAllocLock();
+    host_mutex_lock(cs);
     size_t grownFrom = 0;
     if (HarnessTestMode())
         grownFrom = GetBlockSize(block);
@@ -331,7 +330,7 @@ void* __cdecl GameRealloc(void* block, unsigned int size)
         if (p != 0)
             g_allocHooks->added(p, size);
     }
-    LeaveCriticalSection(cs);
+    host_mutex_unlock(cs);
     return p;
 }
 #pragma auto_inline(on)
@@ -368,8 +367,8 @@ void __cdecl GameFree(void* p)
         return;
     }
     if (p) {
-        CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
-        EnterCriticalSection(cs);
+        void* cs = GetAllocLock();
+        host_mutex_lock(cs);
         if (g_allocHooks != 0)
             g_allocHooks->removed(p);
         if (IsMemFussy()) {
@@ -378,7 +377,7 @@ void __cdecl GameFree(void* p)
             CountFree(GetBlockSize(p));
             free(p);
         }
-        LeaveCriticalSection(cs);
+        host_mutex_unlock(cs);
     }
 }
 #pragma auto_inline(on)
@@ -423,7 +422,7 @@ void __cdecl ProtectPages(int addr, int size, int protect);
 // FUNCTION: 0x4d8690
 void __cdecl ProtectPagesReadOnly(int addr, int size)
 {
-    ProtectPages(addr, size, 2);
+    ProtectPages(addr, size, HOST_MEM_READONLY);
 }
 
 // Changes the protection of the whole pages inside [addr, addr + size),
@@ -433,12 +432,11 @@ void __cdecl ProtectPagesReadOnly(int addr, int size)
 // FUNCTION: 0x4d86b0
 void __cdecl ProtectPages(int addr, int size, int protect)
 {
-    DWORD old;
     if (IsGonzo()) {
         unsigned int start = (addr + 0xfff) & 0xfffff000;
         unsigned int end = (addr + size) & 0xfffff000;
         if (start < end)
-            VirtualProtect((void*)start, end - start, protect, &old);
+            host_mem_protect((void*)start, end - start, protect);
     }
 }
 #pragma auto_inline(on)
@@ -446,7 +444,7 @@ void __cdecl ProtectPages(int addr, int size, int protect)
 // FUNCTION: 0x4d86f0
 void __cdecl ProtectPagesReadWrite(int addr, int size)
 {
-    ProtectPages(addr, size, 4);
+    ProtectPages(addr, size, HOST_MEM_READWRITE);
 }
 
 void __cdecl ProtectBlock(void* p, int protect);
@@ -454,7 +452,7 @@ void __cdecl ProtectBlock(void* p, int protect);
 // FUNCTION: 0x4d8710
 void __cdecl ProtectBlockReadOnly(void* p)
 {
-    ProtectBlock(p, 2);
+    ProtectBlock(p, HOST_MEM_READONLY);
 }
 
 void __cdecl RoundRangeToPages(unsigned int* start, unsigned int* end);
@@ -479,7 +477,7 @@ void __cdecl ProtectBlock(void* p, int protect)
 // FUNCTION: 0x4d8780
 void __cdecl ProtectBlockReadWrite(void* p)
 {
-    ProtectBlock(p, 4);
+    ProtectBlock(p, HOST_MEM_READWRITE);
 }
 
 // Memory block description, 0x30 bytes, passed by value to FormatBlockInfo.
@@ -542,7 +540,10 @@ BlockInfo::BlockInfo(int p1, int p2, int p3, int p4, const char* p5)
 void BlockInfo::SetName(char* newName)
 {
     if (newName != 0) {
-        lstrcpynA(name, newName, 0x20);
+        int i = 0;
+        for (; i < 0x1f && newName[i] != 0; i++)
+            name[i] = newName[i];
+        name[i] = 0;
     } else {
         name[0] = 0;
     }
@@ -1118,7 +1119,7 @@ int GetDebugLibInstance(void)
 char* __cdecl FindCommandLineSwitch(char* name)
 {
     if (!name) return 0;
-    char* cmd = GetCommandLineA();
+    char* cmd = (char*)host_command_line();
     if (!cmd) return 0;
     size_t len = strlen(name);
     if (len == 0) return 0;
@@ -1382,25 +1383,15 @@ failed:
     MessageBoxA(hwnd, sub, "Cavedog", 0);
 }
 
-// Returns a function-local static critical section, initialised on first
-// use. The empty inline destructor makes MSVC register the empty atexit
-// thunk AllocLockAtexitHandler.
-
-class CritSec_004da780 {
-public:
-    CRITICAL_SECTION cs;
-
-    CritSec_004da780() { InitializeCriticalSection(&cs); }
-    ~CritSec_004da780() {}
-};
-
 // The original calls this out of line from the allocator, the block map and the trees.
 #pragma auto_inline(off)
 // FUNCTION: 0x4da780
-CritSec_004da780* GetAllocLock()
+void* GetAllocLock()
 {
-    static CritSec_004da780 lock;
-    return &lock;
+    static void* lock;
+    if (lock == 0)
+        lock = host_mutex_create();
+    return lock;
 }
 #pragma auto_inline(on)
 
@@ -1510,7 +1501,7 @@ public:
     Node_004da8d0* head;               // +0x4
     unsigned char multi;               // +0x8
     int size;                          // +0xc
-    void* operator new(unsigned int n) { return GlobalAlloc(0, n); }
+    void* operator new(unsigned int n) { return host_mem_alloc(n); }
     Tree_004da8d0(const char& a, const char& b);
     void Init();
 };
@@ -1520,7 +1511,7 @@ static inline Node_004da8d0* AllocNode()
     if (g_blockMapFreeList == 0) {
         Node_004da8d0* block;
         do {
-            block = (Node_004da8d0*)GlobalAlloc(0, 0x2000);
+            block = (Node_004da8d0*)host_mem_alloc(0x2000);
             if (block == 0 && g_outOfMemoryHandler != 0) {
                 g_outOfMemoryHandler();
             }
@@ -1596,7 +1587,7 @@ class Container_004da9f0 {
 public:
     explicit Container_004da9f0(const A& al = A())
         : allocator(al), field_4(0), field_8(0), field_c(0), field_10(0) {}
-    static void* operator new(size_t size) { return GlobalAlloc(0, size); }
+    static void* operator new(size_t size) { return host_mem_alloc(size); }
 
     A allocator;       // +0x0
     int field_4;       // +0x4
@@ -2184,18 +2175,16 @@ public:
             len = ((size + 0x1fff) & 0xffffe000) * 2;
         if (size > len)
             len = (size + 0x1fff) & 0xffffe000;
-        base = (unsigned int)VirtualAlloc(0, len + 0x2000, 0x2000,
-                                          PAGE_READWRITE);
+        base = (unsigned int)host_mem_reserve(len + 0x2000);
         for (;;) {
             if (base != 0 && base + len <= 0x80000000u)
                 break;
             if (base != 0)
-                VirtualFree((void*)base, len + 0x2000, MEM_RELEASE);
+                host_mem_release((void*)base);
             len = (len >> 1) & 0x7fffe000;
             if (len < 0x10000 || len < size)
                 return false;
-            base = (unsigned int)VirtualAlloc(0, len + 0x2000, 0x2000,
-                                              PAGE_READWRITE);
+            base = (unsigned int)host_mem_reserve(len + 0x2000);
         }
         total += len;
         AddFreeBlock(Pair_004db000(base, len));
@@ -2248,7 +2237,7 @@ public:
     {
         pointer _P;
         do {
-            _P = (pointer)GlobalAlloc(0, _N * sizeof(value_type));
+            _P = (pointer)host_mem_alloc(_N * sizeof(value_type));
             if (_P == 0 && g_outOfMemoryHandler != 0)
                 g_outOfMemoryHandler();
         } while (_P == 0 && g_outOfMemoryHandler != 0);
@@ -2258,7 +2247,7 @@ public:
     {
         // Must test the pointer before freeing.
         if (_P != 0)
-            GlobalFree(_P);
+            host_mem_free(_P);
     }
     void construct(pointer _P, const value_type& _V)
     {
@@ -2282,7 +2271,7 @@ typedef void (Vec_004dd8c0::*InsertFn_004dd8c0)(
 char IsMemFussy();
 char IsBackAlign();
 int GetDebugFillPattern();
-CritSec_004da780* GetAllocLock();
+void* GetAllocLock();
 void* GetBlockMap();
 Container_004da9f0<int>* GetFreedBlockRing();
 unsigned int __cdecl RoundUpToPage(unsigned int size);
@@ -2304,8 +2293,8 @@ size_t __cdecl GetBlockSize(void* p);
 // FUNCTION: 0x4daa30
 void __cdecl FindBlocksAroundAddress(unsigned int key, BlockInfo* prev, BlockInfo* next)
 {
-    LPCRITICAL_SECTION cs = (LPCRITICAL_SECTION)GetAllocLock();
-    EnterCriticalSection(cs);
+    void* cs = GetAllocLock();
+    host_mutex_lock(cs);
     BlockInfo rec(key, 0, 0, 0, 0);
     // Named local: chaining the call changes the register allocation.
     BlockMap* tree = (BlockMap*)GetBlockMap();
@@ -2325,7 +2314,7 @@ void __cdecl FindBlocksAroundAddress(unsigned int key, BlockInfo* prev, BlockInf
         it.PrevNode();
         *prev = it.ptr->value;
     }
-    LeaveCriticalSection(cs);
+    host_mutex_unlock(cs);
 }
 
 // ---- from src/debug/debug_lib_4dab10.cpp --------------------
@@ -2352,8 +2341,8 @@ void __cdecl DescribeAddress(unsigned int address, char* buf, int unused)
 // FUNCTION: 0x4dabb0
 char __cdecl DescribeFreedBlocks(unsigned int address, char* buf, unsigned int n)
 {
-    CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
-    EnterCriticalSection(cs);
+    void* cs = GetAllocLock();
+    host_mutex_lock(cs);
     *buf = 0;
     if (IsMemFussy()) {
         BlockInfo* p = (BlockInfo*)GetFreedBlockRing()->field_8;
@@ -2374,10 +2363,10 @@ char __cdecl DescribeFreedBlocks(unsigned int address, char* buf, unsigned int n
                 n -= len;
             }
         }
-        LeaveCriticalSection(cs);
+        host_mutex_unlock(cs);
         return found;
     }
-    LeaveCriticalSection(cs);
+    host_mutex_unlock(cs);
     return 0;
 }
 
@@ -2475,18 +2464,16 @@ bool FreeBlockMap::GrowReservation(unsigned int size)
         len = ((size + 0x1fff) & 0xffffe000) * 2;
     if (size > len)
         len = (size + 0x1fff) & 0xffffe000;
-    base = (unsigned int)VirtualAlloc(0, len + 0x2000, 0x2000,
-                                      PAGE_READWRITE);
+    base = (unsigned int)host_mem_reserve(len + 0x2000);
     for (;;) {
         if (base != 0 && base + len <= 0x80000000u)
             break;
         if (base != 0)
-            VirtualFree((void*)base, len + 0x2000, MEM_RELEASE);
+            host_mem_release((void*)base);
         len = (len >> 1) & 0x7fffe000;
         if (len < 0x10000 || len < size)
             return false;
-        base = (unsigned int)VirtualAlloc(0, len + 0x2000, 0x2000,
-                                          PAGE_READWRITE);
+        base = (unsigned int)host_mem_reserve(len + 0x2000);
     }
     Tail(base, len, *(FreeBlockIter*)&size);
     return true;
@@ -2522,8 +2509,8 @@ int GetDebugFillPattern(void)
 // FUNCTION: 0x4dba40
 void* __cdecl ReallocDebugBlock(void* p, unsigned int size, int flags)
 {
-    CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
-    EnterCriticalSection(cs);
+    void* cs = GetAllocLock();
+    host_mutex_lock(cs);
     void* q = 0;
     size_t old = 0;
     if (p)
@@ -2531,7 +2518,7 @@ void* __cdecl ReallocDebugBlock(void* p, unsigned int size, int flags)
     if (size > 0) {
         q = AllocDebugBlock(size, flags);
         if (!q) {
-            LeaveCriticalSection(cs);
+            host_mutex_unlock(cs);
             return 0;
         }
         unsigned int n = old >= size ? size : old;
@@ -2540,7 +2527,7 @@ void* __cdecl ReallocDebugBlock(void* p, unsigned int size, int flags)
     }
     if (p)
         FreeDebugBlock(p, flags);
-    LeaveCriticalSection(cs);
+    host_mutex_unlock(cs);
     return q;
 }
 #pragma auto_inline(on)
@@ -2552,18 +2539,18 @@ void* __cdecl ReallocDebugBlock(void* p, unsigned int size, int flags)
 // FUNCTION: 0x4dbae0
 unsigned int __cdecl LookupBlockSize(unsigned int key)
 {
-    LPCRITICAL_SECTION cs = (LPCRITICAL_SECTION)GetAllocLock();
-    EnterCriticalSection(cs);
+    void* cs = GetAllocLock();
+    host_mutex_lock(cs);
     // Named local fetched before rec is built: GetBlockMap must be called first.
     BlockMap* tree = (BlockMap*)GetBlockMap();
     BlockInfo rec(key, 0, 0, 0, 0);
     BlockMapIter it = tree->find(rec.address);
     if (it == ((BlockMap*)GetBlockMap())->End()) {
-        LeaveCriticalSection(cs);
+        host_mutex_unlock(cs);
         return 0;
     }
     unsigned int value = it.ptr->value.size;
-    LeaveCriticalSection(cs);
+    host_mutex_unlock(cs);
     return value;
 }
 #pragma auto_inline(on)
@@ -3534,7 +3521,7 @@ static inline Node_004db000* AllocNode_004db000()
     if (g_freeBlockFreeList == 0) {
         Node_004db000* block;
         do {
-            block = (Node_004db000*)GlobalAlloc(0, 0x2000);
+            block = (Node_004db000*)host_mem_alloc(0x2000);
             if (block == 0 && g_outOfMemoryHandler != 0) {
                 g_outOfMemoryHandler();
             }
@@ -3603,7 +3590,7 @@ static inline Node_004daa30* AllocNode_004daa30()
     if (g_blockMapFreeList == 0) {
         Node_004daa30* block;
         do {
-            block = (Node_004daa30*)GlobalAlloc(0, 0x2000);
+            block = (Node_004daa30*)host_mem_alloc(0x2000);
             if (block == 0 && g_outOfMemoryHandler != 0) {
                 g_outOfMemoryHandler();
             }
@@ -3657,7 +3644,7 @@ void* FreeBlockAllocator::Allocate(unsigned int n)
         unsigned int rem = 0x2000;
         char* block;
         do {
-            block = (char*)GlobalAlloc(0, 0x2000);
+            block = (char*)host_mem_alloc(0x2000);
             if (block == 0 && g_outOfMemoryHandler != 0) {
                 g_outOfMemoryHandler();
             }
@@ -3694,7 +3681,7 @@ void* BlockMapAllocator::Allocate(unsigned int n)
         unsigned int rem = 0x2000;
         char* block;
         do {
-            block = (char*)GlobalAlloc(0, 0x2000);
+            block = (char*)host_mem_alloc(0x2000);
             if (block == 0 && g_outOfMemoryHandler != 0) {
                 g_outOfMemoryHandler();
             }
@@ -6202,7 +6189,7 @@ bool NameKey::LessThan(const NameKey& other) const
 // FUNCTION: 0x4e1a80
 void* __cdecl GlobalAllocFixed(unsigned int size)
 {
-    return GlobalAlloc(0, size);
+    return host_mem_alloc(size);
 }
 #pragma auto_inline(on)
 
@@ -6592,7 +6579,7 @@ static inline void* PoolAlloc(unsigned int n)
     if (g_nameMapFreeList == 0) {
         char* block;
         do {
-            block = (char*)GlobalAlloc(0, 0x2000);
+            block = (char*)host_mem_alloc(0x2000);
             if (block == 0 && g_outOfMemoryHandler != 0) {
                 g_outOfMemoryHandler();
             }
@@ -6645,7 +6632,7 @@ void* NameMapAllocator::Allocate(unsigned int n)
         unsigned int rem = 0x2000;
         char* block;
         do {
-            block = (char*)GlobalAlloc(0, 0x2000);
+            block = (char*)host_mem_alloc(0x2000);
             if (block == 0 && g_outOfMemoryHandler != 0) {
                 g_outOfMemoryHandler();
             }

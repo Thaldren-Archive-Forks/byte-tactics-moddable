@@ -9,8 +9,7 @@
 #include "../state/block.h"
 #include "../state/sim_globals.h"
 
-class CritSec_004da780;
-CritSec_004da780* GetAllocLock();
+void* GetAllocLock();
 
 namespace {
 
@@ -420,12 +419,12 @@ void BlockScanTick(unsigned tick, unsigned endTick)
     if (tick % g_every != 0 && tick + kLastTicks <= endTick)
         return;
     unsigned long long t0 = host_time_counter();
-    CRITICAL_SECTION* cs = (CRITICAL_SECTION*)GetAllocLock();
-    EnterCriticalSection(cs);
+    void* cs = GetAllocLock();
+    host_mutex_lock(cs);
     WalkCtx ctx;
     ctx.tick = tick;
     SimBlockForEach(Visit, &ctx);
-    LeaveCriticalSection(cs);
+    host_mutex_unlock(cs);
     unsigned long long dt = host_time_counter() - t0;
     g_scanTotal += dt;
     if (dt > g_scanMax)
