@@ -1,5 +1,6 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
-#include <windows.h>
+#include <excpt.h>
+#include "win_types.h"
 
 void __cdecl ReportException(EXCEPTION_POINTERS* exception, const char* message);
 

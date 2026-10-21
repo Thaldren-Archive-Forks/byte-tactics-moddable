@@ -7,7 +7,7 @@
 //
 // Nothing here uses <windows.h>: its symbols put RefreshPassMap and
 // SetPassMapCell in the symbol-id windows they match in (docs/c2-regalloc.md).
-#include <windows.h>
+#include "win_types.h"
 #include "../state/block.h"
 #include <string.h>
 // Unused by the code, but it puts the pointer first in v[n] in BuildPassMap.

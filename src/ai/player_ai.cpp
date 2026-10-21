@@ -3,7 +3,7 @@
 // addressing mode of its weight load follows this file's symbol ids. The rest
 // of the class, its constructor and its other methods are in
 // ai_player.cpp.
-#include <windows.h>
+#include "win_types.h"
 #include <vector>
 #include <math.h>
 // Only for its symbol ids: RefreshUnitLists matches only in a window of the

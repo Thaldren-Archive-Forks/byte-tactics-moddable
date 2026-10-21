@@ -6,7 +6,7 @@
 
 // Unused, but <windows.h> and <string> must stay: they change register use
 // in GetUnitValue and ExplodePiece.
-#include <windows.h>
+#include "win_types.h"
 #include <string>
 #include <math.h>
 #include <string.h>

@@ -9,7 +9,7 @@
 // (docs/c2-regalloc.md), and 0x424c00 also matches only with include/ta_types.h
 // at its exact size.
 // FLAGS: /Gi
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

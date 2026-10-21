@@ -2,7 +2,7 @@
 // The full windows.h stays: its declaration count decides how the cell index
 // multiply folds.
 
-#include <windows.h>
+#include "win_types.h"
 
 #pragma pack(push, 1)
 

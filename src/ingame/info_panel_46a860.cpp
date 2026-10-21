@@ -3,7 +3,7 @@
 // Kept its own file: it matches only under /Gi, which the other functions do
 // not use.
 // Draws the selected unit / feature info panel (and the PFSTATE debug overlay).
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 
 struct Game;

@@ -10,7 +10,7 @@
 // mapping/los/losType/commander and the options' fixedloc are ints read for
 // their low bit. f97 (host) and the word at +0x9d are unsigned short
 // bitfields, as in 0x44a680.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

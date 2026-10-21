@@ -7,7 +7,7 @@
 // 6 hands the unit (or its cargo) to the pad and starts a "SELFREPAIR" order
 // when the pad repairs and the unit is damaged.
 // Kept: some header set is needed here or the state 6 health compare changes.
-#include <windows.h>
+#include "win_types.h"
 #include <math.h>
 
 struct Point { short x, y; };

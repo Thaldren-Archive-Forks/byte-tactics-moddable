@@ -32,7 +32,7 @@
 #include <minmax.h>
 #include <math.h>
 #include <vector>
-#include <windows.h>
+#include "win_types.h"
 
 
 #pragma pack(push, 1)

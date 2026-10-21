@@ -9,7 +9,7 @@
 // DownsampleFrame (0x4b95a0) are joined at the end, out of address order.
 // <windows.h> is needed even though no function here calls it: its
 // declaration count sets the register windows of 0x4b9360 and 0x4b9740.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 #include <math.h>
 

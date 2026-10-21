@@ -14,11 +14,9 @@
 // The list object is the header's ParticleLists (ten vectors at +0x0), whose
 // destructor the header declares; the listener type is the header's
 // Listener_00470fb0, whose virtual destructor the delete calls.
-#include <windows.h>
+#include "win_types.h"
 // This header set fixes the file's symbol total, which decides one store's
 // operand order.
-#include <shlobj.h>
-#include <imagehlp.h>
 #include "ta_types.h"
 
 inline ParticleLists::~ParticleLists()

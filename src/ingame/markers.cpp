@@ -1,6 +1,6 @@
 // Decompiled by DeepSeek V4.1 Flash, Space Bunny Free, GPT-6.1-sol, deepseek-v4.1, deepseek-v4.1-flash, mimo-v2.6-pro, Claude Sonnet 5.5 and Claude Opus 5.5. Names are provisional.
 // The include set is load-bearing for 0x4399f0: it changes how the compiler reassociates.
-#include <windows.h>
+#include "win_types.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>

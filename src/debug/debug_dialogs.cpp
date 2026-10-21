@@ -4,7 +4,7 @@
 // its title, its font and one DLGITEMTEMPLATE per control, every control on
 // a four-byte boundary, as a resource compiler lays them out.
 
-#include <windows.h>
+#include "win_types.h"
 
 #pragma pack(push, 2)
 

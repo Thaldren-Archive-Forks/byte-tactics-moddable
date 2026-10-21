@@ -3,7 +3,7 @@
 // the other operand order.
 // Unused by the code but needed: it flips the operand order of `i * frame->width`.
 #include <math.h>
-#include <windows.h>
+#include "win_types.h"
 
 #include <memory>
 #include "los_tables.h"

@@ -1,5 +1,5 @@
 // Decompiled by DeepSeek V4.1 Flash. Names are provisional.
-#include <windows.h>
+#include "win_types.h"
 #include <vector>
 
 #pragma pack(push, 1)

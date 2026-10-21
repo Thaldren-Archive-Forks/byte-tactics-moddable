@@ -1,7 +1,7 @@
 // Decompiled by Opus, Sonnet, Haiku, space-bunny-free, GPT-6.1-sol, DeepSeek V4.1 Flash. Names are provisional.
 // The GUI library's key ring buffer, the virtual-key translation and the
 // cursor helpers.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 #include "../../interfaces/host.h"
 

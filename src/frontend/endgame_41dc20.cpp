@@ -1,7 +1,7 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
 // <windows.h> is needed for the operand order of the player address
 // ([eax + ebp + 0x1b63], g_game as the base); without it MSVC swaps them.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 
 // The aligned frame (`and esp, -8`) comes from the default flags, no /Op: the

@@ -20,7 +20,7 @@
 // the end and out of address order: their own bodies' symbol ids would
 // otherwise move other functions' register windows (docs/c2-regalloc.md), and
 // GetLosTable's body before SortUnitTypes puts SortUnitTypes on its window.
-#include <windows.h>
+#include "win_types.h"
 #include <algorithm>
 #include <memory>
 #include <stdio.h>

@@ -5,7 +5,7 @@
 // are in cd_audio.cpp; the Sound class below is the view the gathered files
 // shared.
 
-#include <windows.h>
+#include "win_types.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../../interfaces/host.h"

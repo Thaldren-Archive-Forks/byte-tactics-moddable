@@ -4,7 +4,7 @@
 // inlines the base constructor into the two smoke constructors and the
 // zeroing loop into the emission entry points, where the original calls
 // them out of line.
-#include <windows.h>
+#include "win_types.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>

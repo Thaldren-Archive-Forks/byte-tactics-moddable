@@ -3,7 +3,7 @@
 // Headers and declaration count are load-bearing: windows.h sets the base/index
 // order of address operands, memory.h the form of the case 35 allies store.
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

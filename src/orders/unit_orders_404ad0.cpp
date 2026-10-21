@@ -4,7 +4,7 @@
 // into esi instead of being added up in eax and copied. The whole-struct
 // copy `box.hi = box.lo` gives the early store of hi.x and puts order in
 // edi and the feature in esi.
-#include <windows.h>
+#include "win_types.h"
 
 #include "box.h"
 

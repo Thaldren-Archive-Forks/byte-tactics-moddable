@@ -5,7 +5,7 @@
 // mission briefing page, animates the solar-system and taskbar gadgets, and
 // keeps the player slots the skirmish setup uses. The module's files gathered
 // in address order.
-#include <windows.h>
+#include "win_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
