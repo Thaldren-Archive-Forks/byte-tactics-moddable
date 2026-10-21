@@ -1,6 +1,7 @@
 // Decompiled by Opus, Haiku, space-bunny-free, deepseek-v4.1-flash, deepseek-v4.1 and Sonnet 5.5. Names are provisional.
 // WinMain of Total Annihilation.
-#include <windows.h>
+#include "win_types.h"
+#include <excpt.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -221,10 +222,8 @@ int __stdcall GameMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         atexit((void (__cdecl *)(void))AtexitNoOp);
     }
     CreateGameObject();
-    HANDLE hSem = OpenSemaphoreA(0x1f0003, lzero, g_appName);
-    if (hSem != (HANDLE)lzero)
+    if (host_instance_running(g_appName))
         return -1;
-    CreateSemaphoreA(NULL, 1, 1, g_appName);
     GameSrand(RAND_STREAM_MAIN, HarnessCrtSeed(time(0)));
     if (ParseCommandLine(lpCmdLine, g_appName) == 0)
         return 1;
@@ -378,5 +377,5 @@ UINT __stdcall GetPreferenceInt(char* key, int defaultValue)
     host_file_exe_path(exePath, 256);
     StripFileName(exePath);
     sprintf(iniPath, "%s\\totala.ini", exePath);
-    return GetPrivateProfileIntA("Preferences", key, defaultValue, iniPath);
+    return host_file_config_int(iniPath, "Preferences", key, defaultValue);
 }

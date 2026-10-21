@@ -111,3 +111,32 @@ extern "C" int HOST_CALL host_dir_set_current(const char* path)
 {
     return SetCurrentDirectoryA(path) != 0;
 }
+
+extern "C" int HOST_CALL host_file_config_int(const char* path, const char* section, const char* key, int fallback)
+{
+    return (int)GetPrivateProfileIntA(section, key, fallback, path);
+}
+
+extern "C" unsigned int HOST_CALL host_file_config_string(const char* path, const char* section, const char* key, const char* fallback, char* buf, unsigned int size)
+{
+    return GetPrivateProfileStringA(section, key, fallback, buf, size, path);
+}
+
+extern "C" unsigned int HOST_CALL host_clipboard_text_get(void* owner, char* buf, unsigned int size)
+{
+    unsigned int copied = 0;
+    if (OpenClipboard((HWND)owner)) {
+        HANDLE mem = GetClipboardData(CF_TEXT);
+        if (mem != NULL) {
+            unsigned int length = (unsigned int)GlobalSize(mem);
+            if (length != 0) {
+                const char* src = (const char*)GlobalLock(mem);
+                copied = length < size ? length : size;
+                memcpy(buf, src, copied);
+                GlobalUnlock(mem);
+            }
+        }
+        CloseClipboard();
+    }
+    return copied;
+}

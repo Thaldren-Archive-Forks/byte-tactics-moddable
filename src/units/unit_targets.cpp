@@ -2,7 +2,7 @@
 // The unit target and link code: the PropList debug string, the unit's
 // weapon target entries (set, clear, query), the links in a unit's owner list
 // (head at +0xa2), and the damage and paralyze events.
-#include <windows.h>
+#include "win_types.h"
 #include "../state/block.h"
 #include <stdio.h>
 #include <string.h>
@@ -108,19 +108,19 @@ char* __stdcall MakePropList(UnitType* obj)
     char* p = buf;
 
     // Every append advances with `p += strlen(p) + 1`, not by wsprintfA's result.
-    wsprintfA(p, "\n");
+    sprintf(p, "\n");
     p += strlen(p) + 1;
 
-    wsprintfA(p, "%d", (int)obj->energyCost);
+    sprintf(p, "%d", (int)obj->energyCost);
     p += strlen(p) + 1;
 
-    wsprintfA(p, "%d", (int)obj->metalCost);
+    sprintf(p, "%d", (int)obj->metalCost);
     p += strlen(p) + 1;
 
-    wsprintfA(p, "%d", obj->field_1ea);
+    sprintf(p, "%d", obj->field_1ea);
     p += strlen(p) + 1;
 
-    wsprintfA(p, "\n");
+    sprintf(p, "\n");
     p += strlen(p) + 1;
 
     if (obj->mobile) {

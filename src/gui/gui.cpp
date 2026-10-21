@@ -15,7 +15,7 @@
 //
 // <windows.h> and <math.h> are only for their symbol ids: DrawButton,
 // RenderLayer and the list steps match only at this symbol count.
-#include <windows.h>
+#include "win_types.h"
 #include "../../interfaces/host.h"
 
 int DispatchHostEvents();
@@ -184,7 +184,14 @@ void __stdcall SetGadgetName(Dialog* obj, char* name, char* text)
         Entry_0049f8c0* entries = obj->holder->entries;
         int index = FindEntry(entries, name);
         if (index != -1)
-            lstrcpynA(entries[index].name, text, 0x11);
+        {
+            int i = 0;
+            while (i < 0x10 && text[i]) {
+                entries[index].name[i] = text[i];
+                i++;
+            }
+            entries[index].name[i] = 0;
+        }
     }
 }
 

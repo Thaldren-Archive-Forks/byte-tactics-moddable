@@ -292,7 +292,7 @@ int HeadlessPumpEvents(int wait)
         g_posted.head = (g_posted.head + 1) % kQueueSize;
         g_posted.count--;
         UnlockPosts();
-        if (type == 0x12) {
+        if (type == WM_QUIT) {
             return 0;
         }
         DispatchPosted(type);

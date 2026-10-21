@@ -1,8 +1,10 @@
 // Decompiled by Opus, Haiku, Space Bunny Free, GPT-6.1-sol, mimo-v2.6-pro and Sonnet. Names are provisional.
 // The game's values under Software\Cavedog Entertainment, with the rectangle
 // tests and the thread, sleep and display helpers that share this unit.
-#include <windows.h>
+#include "win_types.h"
 #include <string.h>
+
+#include "../../interfaces/host.h"
 
 #include "../graphics/rect.h"
 
@@ -72,10 +74,8 @@ void __stdcall SetBytes1To3(unsigned char* buf, unsigned char b2, unsigned char 
 // FUNCTION: 0x4b6a80
 int __stdcall GetWindowsUserName(char* out)
 {
-    DWORD size;
     char name[256];
-    size = 256;
-    if (GetUserNameA(name, &size) && name[0] != 0) {
+    if (host_user_name(name, 256) && name[0] != 0) {
         strcpy(out, name);
         return 1;
     }

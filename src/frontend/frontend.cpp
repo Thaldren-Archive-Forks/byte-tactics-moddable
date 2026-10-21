@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
+#include "win_types.h"
 
 #include "../util/tdf.h"
 
@@ -807,10 +807,10 @@ void __stdcall LoadWarpLevel(int param_1)
 
     GetStartDirectory(path);
     strcat(path, "\\Warp.ini");
-    wsprintfA(key, "warp%dcampaign", param_1);
-    GetPrivateProfileStringA("WARPLEVELS", key, "default", value, 0x100, path);
-    wsprintfA(key, "warp%dmission", param_1);
-    int n = GetPrivateProfileIntA("WARPLEVELS", key, 0, path);
+    sprintf(key, "warp%dcampaign", param_1);
+    host_file_config_string(path, "WARPLEVELS", key, "default", value, 0x100);
+    sprintf(key, "warp%dmission", param_1);
+    int n = host_file_config_int(path, "WARPLEVELS", key, 0);
     SetMissionType(1);
     g_game->net->LoadCampaign(value);
     if (g_game->net->SelectMission(n)) {
@@ -852,11 +852,11 @@ void HandleFrontendDebugKey(void)
     case '5': case '6': case '7': case '8': case '9':
         GetStartDirectory(path);
         strcat(path, "\\Warp.ini");
-        wsprintfA(key, "warp%dcampaign", event - 0x30);
-        GetPrivateProfileStringA("WARPLEVELS", key, "default", buf, 0x100, path);
-        wsprintfA(key, "warp%dmission", event - 0x30);
+        sprintf(key, "warp%dcampaign", event - 0x30);
+        host_file_config_string(path, "WARPLEVELS", key, "default", buf, 0x100);
+        sprintf(key, "warp%dmission", event - 0x30);
         {
-            int n = GetPrivateProfileIntA("WARPLEVELS", key, 0, path);
+            int n = host_file_config_int(path, "WARPLEVELS", key, 0);
             SetMissionType(1);
             g_game->net->LoadCampaign(buf);
             if (g_game->net->SelectMission(n)) {

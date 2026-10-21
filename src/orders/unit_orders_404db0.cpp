@@ -1,6 +1,7 @@
 // Decompiled by Claude Opus 5.5. Names are provisional.
 // Stays in its own file: in unit_orders.cpp the feature pointer is added up in the other operand order and lstrcpynA is called directly instead of through the import.
-#include <windows.h>
+#include "win_types.h"
+#include <string.h>
 
 #include "../state/block.h"
 #include "box.h"
@@ -106,7 +107,14 @@ int __stdcall ResurrectOrder(Unit* unit, Order* order, int flags)
         return WaitIfNotInBuildStance(unit, order, 0);
     case 3: {
         char name[0x40];
-        lstrcpynA(name, f->name, 0x40);
+        {
+            int n = 0;
+            while (n < 0x3f && f->name[n]) {
+                name[n] = f->name[n];
+                n++;
+            }
+            name[n] = 0;
+        }
         for (int i = 0; i < 0x40; i++) {
             if (name[i] == '_') {
                 name[i] = 0;
