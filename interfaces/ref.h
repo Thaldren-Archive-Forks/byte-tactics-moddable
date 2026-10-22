@@ -34,10 +34,12 @@ inline void RefOutsideBlock(const char* signature)
 #else
 #define REF_SIGNATURE "Ref<T>"
 #endif
+#endif
 
 // A reference to a T in the state block: a 4-byte offset from the block base (0 is null) natively, a plain pointer on wasm32.
 template <class T>
 struct Ref {
+#if !defined(__wasm32__)
     unsigned int offset;
 
     Ref() = default;
@@ -49,45 +51,33 @@ struct Ref {
     }
 
     T* get() const { return offset == 0 ? (T*)0 : (T*)((char*)SimBlockBase() + offset); }
-    operator T*() const { return get(); }
-    T* operator->() const { return get(); }
-    T& operator*() const { return *get(); }
     explicit operator bool() const { return offset != 0; }
-
     friend bool operator==(const Ref& a, const Ref& b) { return a.offset == b.offset; }
     friend bool operator!=(const Ref& a, const Ref& b) { return a.offset != b.offset; }
-    friend bool operator==(const Ref& a, T* b) { return a.get() == b; }
-    friend bool operator!=(const Ref& a, T* b) { return a.get() != b; }
-    friend bool operator==(T* a, const Ref& b) { return a == b.get(); }
-    friend bool operator!=(T* a, const Ref& b) { return a != b.get(); }
-};
-
-static_assert(sizeof(Ref<int>) == 4, "a Ref is one 4-byte offset");
-
 #else
-
-// A reference to a T in the state block: a plain pointer on wasm32.
-template <class T>
-struct Ref {
     T* ptr;
 
     Ref() = default;
     Ref(T* p) : ptr(p) {}
 
     T* get() const { return ptr; }
-    operator T*() const { return ptr; }
-    T* operator->() const { return ptr; }
-    T& operator*() const { return *ptr; }
     explicit operator bool() const { return ptr != 0; }
-
     friend bool operator==(const Ref& a, const Ref& b) { return a.ptr == b.ptr; }
     friend bool operator!=(const Ref& a, const Ref& b) { return a.ptr != b.ptr; }
-    friend bool operator==(const Ref& a, T* b) { return a.ptr == b; }
-    friend bool operator!=(const Ref& a, T* b) { return a.ptr != b; }
-    friend bool operator==(T* a, const Ref& b) { return a == b.ptr; }
-    friend bool operator!=(T* a, const Ref& b) { return a != b.ptr; }
+#endif
+
+    operator T*() const { return get(); }
+    T* operator->() const { return get(); }
+    T& operator*() const { return *get(); }
+
+    friend bool operator==(const Ref& a, T* b) { return a.get() == b; }
+    friend bool operator!=(const Ref& a, T* b) { return a.get() != b; }
+    friend bool operator==(T* a, const Ref& b) { return a == b.get(); }
+    friend bool operator!=(T* a, const Ref& b) { return a != b.get(); }
 };
 
+#if !defined(__wasm32__)
+static_assert(sizeof(Ref<int>) == 4, "a Ref is one 4-byte offset");
 #endif
 
 #endif
