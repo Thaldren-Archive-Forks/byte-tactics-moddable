@@ -14,6 +14,7 @@
 #include "../quirks/quirks.h"
 #include "../state/sim_globals.h"
 #include "block_scan.h"
+#include "../state/block.h"
 
 extern Game* g_game;
 
@@ -1088,7 +1089,7 @@ static void HashByte(unsigned char v)
     HashBuf(&v, 1);
 }
 
-static void Resolve(unsigned p, int target, unsigned* tag, unsigned* index)
+static void Resolve(unsigned blockBase, unsigned p, bool isRef, int target, unsigned* tag, unsigned* index)
 {
     unsigned base = 0;
     unsigned stride = 1;
@@ -1097,6 +1098,8 @@ static void Resolve(unsigned p, int target, unsigned* tag, unsigned* index)
     *index = 0;
     if (p == 0)
         return;
+    if (isRef)
+        p += blockBase;
     *tag = TT_HEAP;
     switch (target) {
     case TT_UNIT:
@@ -1181,7 +1184,7 @@ static void HashPointer(unsigned p, int target)
 {
     unsigned tag;
     unsigned index;
-    Resolve(p, target, &tag, &index);
+    Resolve((unsigned)SimBlockBase(), p, false, target, &tag, &index);
     HashByte((unsigned char)tag);
     HashU32(index);
 }
@@ -1220,7 +1223,7 @@ static void DumpValue(const unsigned char* p, const TraceField* f)
     if (f->kind == TF_POINTER) {
         unsigned tag;
         unsigned index;
-        Resolve(*(const unsigned*)p, f->target, &tag, &index);
+        Resolve((unsigned)SimBlockBase(), *(const unsigned*)p, false, f->target, &tag, &index);
         if (tag == 0)
             fputs("null", s_dump);
         else if (tag == TT_HEAP)
