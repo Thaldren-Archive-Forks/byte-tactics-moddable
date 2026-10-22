@@ -42,7 +42,9 @@ struct Ref {
 #if !defined(__wasm32__)
     unsigned int offset;
 
+    // Leaves the offset unset, so a Ref in zeroed or aggregate-initialised memory stays trivial.
     Ref() = default;
+    // Stores p as an offset; in test mode a non-null p outside the block is fatal.
     Ref(T* p)
     {
         if (p != 0 && !SimOwns(p) && HarnessTestMode())
@@ -50,29 +52,46 @@ struct Ref {
         offset = p == 0 ? 0u : (unsigned int)((const char*)p - (const char*)SimBlockBase());
     }
 
+    // The referenced object, or null.
     T* get() const { return offset == 0 ? (T*)0 : (T*)((char*)SimBlockBase() + offset); }
+    // True unless null.
     explicit operator bool() const { return offset != 0; }
+    // True when both refer to the same object.
     friend bool operator==(const Ref& a, const Ref& b) { return a.offset == b.offset; }
+    // True when they refer to different objects.
     friend bool operator!=(const Ref& a, const Ref& b) { return a.offset != b.offset; }
 #else
     T* ptr;
 
+    // Leaves the pointer unset, so a Ref in zeroed or aggregate-initialised memory stays trivial.
     Ref() = default;
+    // Stores p.
     Ref(T* p) : ptr(p) {}
 
+    // The referenced object, or null.
     T* get() const { return ptr; }
+    // True unless null.
     explicit operator bool() const { return ptr != 0; }
+    // True when both refer to the same object.
     friend bool operator==(const Ref& a, const Ref& b) { return a.ptr == b.ptr; }
+    // True when they refer to different objects.
     friend bool operator!=(const Ref& a, const Ref& b) { return a.ptr != b.ptr; }
 #endif
 
+    // The referenced object as a plain pointer, or null.
     operator T*() const { return get(); }
+    // Member access on the referenced object.
     T* operator->() const { return get(); }
+    // The referenced object.
     T& operator*() const { return *get(); }
 
+    // True when a refers to b.
     friend bool operator==(const Ref& a, T* b) { return a.get() == b; }
+    // True when a does not refer to b.
     friend bool operator!=(const Ref& a, T* b) { return a.get() != b; }
+    // True when b refers to a.
     friend bool operator==(T* a, const Ref& b) { return a == b.get(); }
+    // True when b does not refer to a.
     friend bool operator!=(T* a, const Ref& b) { return a != b.get(); }
 };
 
