@@ -237,15 +237,6 @@ extern "C" void HOST_CALL host_window_client_origin(int* x, int* y)
     *y = point.y;
 }
 
-extern "C" void HOST_CALL host_window_paint_black(int width, int height)
-{
-    if (HostHeadless() || g_hwnd == NULL) return;
-    PAINTSTRUCT ps;
-    HDC dc = BeginPaint(g_hwnd, &ps);
-    PatBlt(dc, 0, 0, width, height, BLACKNESS);
-    EndPaint(g_hwnd, &ps);
-}
-
 extern "C" void HOST_CALL host_window_set_topmost(int on)
 {
     if (HostHeadless() || g_hwnd == NULL) return;

@@ -9907,7 +9907,6 @@ public:
     char unknown_0[12];
     void* hwnd;  // +0xc
     tagPALETTEENTRY entries[256];  // +0x10
-    void ReadSystemPalette(int);
 };
 
 class Class_0047c2a0 {  // 0x548 bytes, 1 view
@@ -9946,7 +9945,6 @@ class Class_0047c330 {  // 0x8 bytes, 1 view
 public:
     Smack_0047c330* smack;  // +0x0
     unsigned int frame;  // +0x4
-    void OnPaint(void*);
 };
 
 struct Smack_0047c330 {  // 0xc bytes, 1 view

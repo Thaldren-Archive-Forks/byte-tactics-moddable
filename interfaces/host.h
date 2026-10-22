@@ -241,8 +241,6 @@ void HOST_CALL host_window_set_topmost(int on);
 void HOST_CALL host_window_post(unsigned int type);
 // Stores the screen position of the top left of the game window's client area in *x and *y.
 void HOST_CALL host_window_client_origin(int* x, int* y);
-// Handles the game window's waiting paint request by filling width by height from the top left of the client area with black and marking it drawn.
-void HOST_CALL host_window_paint_black(int width, int height);
 // Handles the calling thread's waiting platform messages, first waiting for one when wait is set, and returns 0 when the quit request was among them.
 int HOST_CALL host_pump_events(int wait);
 // Asks the calling thread's next host_pump_events to return 0.

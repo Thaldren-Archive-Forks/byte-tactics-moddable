@@ -147,10 +147,8 @@ public:
     char unknown_418[0x5b4 - 0x418];
 
     MoviePlayer(char* path, int a, int b, int c, int d, int e);
-    void ReadSystemPalette(int unused);
     void UpdatePalette(void);
     void ClearScreen();
-    void OnPaint(HWND hwnd);
     void PlayFrame(HWND hwnd);
     void WriteSmackStats();
     void Play();
@@ -260,21 +258,6 @@ int MoviePlayer::GetBlitMode(SmackerSurface* unused)
     return 0;
 }
 
-// Reads the system palette into entries[], marking the 20 static colours
-// (10 at each end) as plain and the 236 in between as PC_NOCOLLAPSE.
-// FUNCTION: 0x47c230
-void MoviePlayer::ReadSystemPalette(int unused)
-{
-    host_palette_system((unsigned char*)entries);
-    int i;
-    for (i = 0; i < 10; i++)
-        entries[i].peFlags = 0;
-    for (i = 10; i < 246; i++)
-        entries[i].peFlags = PC_NOCOLLAPSE;
-    for (i = 246; i < 256; i++)
-        entries[i].peFlags = 0;
-}
-
 // Copies the movie's palette into entries[] and the display palette.
 // FUNCTION: 0x47c2a0
 void MoviePlayer::UpdatePalette(void)
@@ -292,20 +275,6 @@ void MoviePlayer::UpdatePalette(void)
 void MoviePlayer::ClearScreen()
 {
     host_frame_fill(HOST_FRAME_FRONT, 0);
-}
-
-// The WM_PAINT handler: clears the video area to black, then, when a full
-// frame has been seen, seeks back to it with the sound muted so the picture
-// is redrawn.
-// FUNCTION: 0x47c330
-void MoviePlayer::OnPaint(HWND hwnd)
-{
-    host_window_paint_black(smack->width, smack->height);
-    if (frame) {
-        SmackSoundOnOff(smack, 0);
-        SmackGoto(smack, frame);
-        SmackSoundOnOff(smack, 1);
-    }
 }
 
 // FUNCTION: 0x47c3a0
