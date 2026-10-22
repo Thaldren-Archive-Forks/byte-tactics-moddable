@@ -545,24 +545,6 @@ int HeadlessFrameRead(unsigned char* pixels, int pitch, unsigned char* palette)
     return 1;
 }
 
-void* HeadlessFrameContextGet(void* window)
-{
-    (void)window;
-    return NULL;
-}
-
-void HeadlessFrameContextRelease(void* window, void* context)
-{
-    (void)window;
-    (void)context;
-}
-
-void HeadlessFrameContextPalette(void* context, void* palette)
-{
-    (void)context;
-    (void)palette;
-}
-
 int HeadlessPaletteCreate(const unsigned char* entries)
 {
     (void)entries;

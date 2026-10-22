@@ -512,25 +512,6 @@ extern "C" int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsig
     return host_palette_get(palette);
 }
 
-extern "C" void* HOST_CALL host_frame_context_get(void* window)
-{
-    if (HostHeadless()) return HeadlessFrameContextGet(window);
-    return GetDC((HWND)window);
-}
-
-extern "C" void HOST_CALL host_frame_context_release(void* window, void* context)
-{
-    if (HostHeadless()) { HeadlessFrameContextRelease(window, context); return; }
-    ReleaseDC((HWND)window, (HDC)context);
-}
-
-extern "C" void HOST_CALL host_frame_context_palette(void* context, void* palette)
-{
-    if (HostHeadless()) { HeadlessFrameContextPalette(context, palette); return; }
-    SelectPalette((HDC)context, (HPALETTE)palette, FALSE);
-    RealizePalette((HDC)context);
-}
-
 extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)
 {
     if (HostHeadless()) return HeadlessPaletteCreate(entries);
@@ -568,6 +549,17 @@ extern "C" int HOST_CALL host_palette_get(unsigned char* entries)
         return g_windowedPalette && GetPaletteEntries(g_windowedPalette, 0, 256, (LPPALETTEENTRY)entries) == 256;
     }
     return g_palette && g_palette->GetEntries(0, 0, 0x100, (LPPALETTEENTRY)entries) == 0;
+}
+
+extern "C" int HOST_CALL host_palette_system(unsigned char* entries)
+{
+    if (HostHeadless()) return 0;
+    HWND hwnd = host_win32_window();
+    HDC dc = GetDC(hwnd);
+    if (dc == NULL) return 0;
+    UINT count = GetSystemPaletteEntries(dc, 0, 256, (LPPALETTEENTRY)entries);
+    ReleaseDC(hwnd, dc);
+    return count == 256;
 }
 
 extern "C" int HOST_CALL host_palette_apply(void)

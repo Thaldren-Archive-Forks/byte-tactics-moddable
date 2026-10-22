@@ -147,10 +147,8 @@ public:
     char unknown_418[0x5b4 - 0x418];
 
     MoviePlayer(char* path, int a, int b, int c, int d, int e);
-    void ReadSystemPalette(int unused);
     void UpdatePalette(void);
     void ClearScreen();
-    void OnPaint(HWND hwnd);
     void PlayFrame(HWND hwnd);
     void WriteSmackStats();
     void Play();
@@ -209,26 +207,24 @@ int MoviePlayer::SetupDirectDraw()
 {
     POINT point;
     int i;
-    HDC hdc;
 
     point.x = 0;
     point.y = 0;
-    ClientToScreen(hwnd, &point);
+    host_window_client_origin((int*)&point.x, (int*)&point.y);
     int shown = host_display_mode_set(0, 0, HOST_DISPLAY_PRIMARY_ONLY, 0);
     if (shown == HOST_DISPLAY_FAILED)
         goto fail;
     if (shown == HOST_DISPLAY_OK) {
         paletteResult = GetBlitMode(0);
         if (paletteResult == 0) {
-            hdc = (HDC)host_frame_context_get(hwnd);
-            GetSystemPaletteEntries(hdc, 0, 0x100, entries);
+            host_palette_system((unsigned char*)entries);
             for (i = 0; i < 10; ++i) entries[i].peFlags = 0;
             for (i = 10; i < 246; ++i) entries[i].peFlags = 4;
             for (i = 246; i < 256; ++i) entries[i].peFlags = 0;
-            host_frame_context_release(hwnd, hdc);
             host_palette_create((unsigned char*)entries);
         }
-        SetWindowPos(hwnd, 0, 0, 0, smack->width, smack->height, 2);
+        host_window_resize(smack->width, smack->height);
+        host_window_raise();
     }
     if (smack->newPalette) {
         Smk_0047bf70_b *smk = SmackBufferOpen(hwnd, 0, 0x280, 0x1e0, 0, 0);
@@ -262,23 +258,6 @@ int MoviePlayer::GetBlitMode(SmackerSurface* unused)
     return 0;
 }
 
-// Reads the system palette into entries[], marking the 20 static colours
-// (10 at each end) as plain and the 236 in between as PC_NOCOLLAPSE.
-// FUNCTION: 0x47c230
-void MoviePlayer::ReadSystemPalette(int unused)
-{
-    HDC hdc = (HDC)host_frame_context_get(hwnd);
-    GetSystemPaletteEntries(hdc, 0, 256, entries);
-    int i;
-    for (i = 0; i < 10; i++)
-        entries[i].peFlags = 0;
-    for (i = 10; i < 246; i++)
-        entries[i].peFlags = PC_NOCOLLAPSE;
-    for (i = 246; i < 256; i++)
-        entries[i].peFlags = 0;
-    host_frame_context_release(hwnd, hdc);
-}
-
 // Copies the movie's palette into entries[] and the display palette.
 // FUNCTION: 0x47c2a0
 void MoviePlayer::UpdatePalette(void)
@@ -296,23 +275,6 @@ void MoviePlayer::UpdatePalette(void)
 void MoviePlayer::ClearScreen()
 {
     host_frame_fill(HOST_FRAME_FRONT, 0);
-}
-
-// The WM_PAINT handler: clears the video area to black, then, when a full
-// frame has been seen, seeks back to it with the sound muted so the picture
-// is redrawn.
-// FUNCTION: 0x47c330
-void MoviePlayer::OnPaint(HWND hwnd)
-{
-    PAINTSTRUCT ps;
-    HDC dc = BeginPaint(hwnd, &ps);
-    PatBlt(dc, 0, 0, smack->width, smack->height, BLACKNESS);
-    EndPaint(hwnd, &ps);
-    if (frame) {
-        SmackSoundOnOff(smack, 0);
-        SmackGoto(smack, frame);
-        SmackSoundOnOff(smack, 1);
-    }
 }
 
 // FUNCTION: 0x47c3a0

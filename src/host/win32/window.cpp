@@ -223,6 +223,20 @@ extern "C" void HOST_CALL host_window_resize(int width, int height)
     SetWindowPos(g_hwnd, NULL, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
 }
 
+extern "C" void HOST_CALL host_window_raise(void)
+{
+    if (HostHeadless() || g_hwnd == NULL) return;
+    SetWindowPos(g_hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+}
+
+extern "C" void HOST_CALL host_window_client_origin(int* x, int* y)
+{
+    POINT point = {0, 0};
+    if (!HostHeadless() && g_hwnd != NULL) ClientToScreen(g_hwnd, &point);
+    *x = point.x;
+    *y = point.y;
+}
+
 extern "C" void HOST_CALL host_window_set_topmost(int on)
 {
     if (HostHeadless() || g_hwnd == NULL) return;

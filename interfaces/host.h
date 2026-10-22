@@ -12,9 +12,9 @@ extern "C" {
 #endif
 
 // Major version of the host interface, changed when a function is removed or its signature changes.
-#define HOST_VERSION_MAJOR 1
+#define HOST_VERSION_MAJOR 2
 // Minor version of the host interface, changed when a function is added.
-#define HOST_VERSION_MINOR 12
+#define HOST_VERSION_MINOR 0
 
 // Timeout for host_event_wait that never expires.
 #define HOST_WAIT_FOREVER 0xffffffffu
@@ -233,10 +233,14 @@ int HOST_CALL host_window_has_focus(void);
 void HOST_CALL host_window_place(int x, int y, int width, int height);
 // Sizes the game window to width by height, keeping its position and place in the z-order.
 void HOST_CALL host_window_resize(int width, int height);
+// Puts the game window at the top of the z-order and activates it, without moving or sizing it.
+void HOST_CALL host_window_raise(void);
 // Makes the game window stay above all other windows when on is nonzero, or an ordinary window when it is 0, without moving, sizing or activating it.
 void HOST_CALL host_window_set_topmost(int on);
 // Queues an event of the given type for the game window, to arrive after the platform messages already waiting, with a and b as 0 (for types such as HOST_EVENT_CLOSE).
 void HOST_CALL host_window_post(unsigned int type);
+// Stores the screen position of the top left of the game window's client area in *x and *y.
+void HOST_CALL host_window_client_origin(int* x, int* y);
 // Handles the calling thread's waiting platform messages, first waiting for one when wait is set, and returns 0 when the quit request was among them.
 int HOST_CALL host_pump_events(int wait);
 // Asks the calling thread's next host_pump_events to return 0.
@@ -352,19 +356,14 @@ int HOST_CALL host_frame_text(int which, void* font, int x, int y, const char* t
 // Copies the back frame to pixels (rows pitch bytes apart) and its 256 four-byte palette entries to palette, and returns 1, or returns 0 on failure.
 int HOST_CALL host_frame_read(unsigned char* pixels, int pitch, unsigned char* palette);
 
-// Returns a drawing context for the window (the native handle of host_window_open), or NULL on failure; end it with host_frame_context_release.
-void* HOST_CALL host_frame_context_get(void* window);
-// Ends a context from host_frame_context_get on the same window.
-void HOST_CALL host_frame_context_release(void* window, void* context);
-// Selects the display palette (a native palette handle) into the context, without forcing it to the background, and realises it.
-void HOST_CALL host_frame_context_palette(void* context, void* palette);
-
 // Makes the display palette from 256 four-byte entries and attaches it to the frame on the screen (a HOST_DISPLAY_PRIMARY_ONLY display's frame while one is set up, else the windowed frame's bitmap colours), and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_create(const unsigned char* entries);
 // Sets count four-byte entries from index start of the display palette (a HOST_DISPLAY_PRIMARY_ONLY display's while one is set up, else the windowed frame's) and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_set(int start, int count, const unsigned char* entries);
 // Stores the display palette's 256 four-byte entries in entries and returns 1, or returns 0 on failure.
 int HOST_CALL host_palette_get(unsigned char* entries);
+// Stores the system palette's 256 four-byte entries in entries and returns 1, or returns 0 on failure.
+int HOST_CALL host_palette_system(unsigned char* entries);
 // Attaches the display palette to the frame on the screen again (realises it in the window for the windowed frame) and returns 1, or returns 0 when there is none or it failed.
 int HOST_CALL host_palette_apply(void);
 

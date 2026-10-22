@@ -1631,10 +1631,8 @@ address,name
 0x47bf20,MoviePlayer::Close
 0x47bf70,MoviePlayer::SetupDirectDraw
 0x47c150,MoviePlayer::GetBlitMode
-0x47c230,MoviePlayer::ReadSystemPalette
 0x47c2a0,MoviePlayer::UpdatePalette
 0x47c2f0,MoviePlayer::ClearScreen
-0x47c330,MoviePlayer::OnPaint
 0x47c3a0,MoviePlayer::PlayFrame
 0x47c4d0,ShowStatsSummary
 0x47c530,MoviePlayer::WriteSmackStats
