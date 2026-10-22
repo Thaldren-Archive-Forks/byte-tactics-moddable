@@ -26,6 +26,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import refcheck
 import rwsets
 import stateclasses
 import typedupes
@@ -46,6 +47,7 @@ DIAGNOSTIC = re.compile(r"^(?P<file>.*?):(?P<line>\d+):\d+: error: (?P<text>.*)$
 SYSTEM_INCLUDES = ["<stddef.h>", "<stdio.h>", "<string.h>", "<stdlib.h>", "<math.h>", "<vector>", "<memory>",
                    '"../state/block.h"', '"../state/sim_allocator.h"', '"win_types.h"']
 FIRST_HEADERS = ["src/util/vec3.h"]
+SELF_ASSERTED = {"SimGlobals"}
 PRELUDE = ['#pragma clang diagnostic ignored "-Winvalid-offsetof"', "#pragma pack(push, 1)"]
 
 
@@ -117,16 +119,14 @@ def is_template(files: dict, d: dict) -> bool:
 
 
 def block_types(files=None, by_name=None) -> tuple[list[str], dict[str, str], list[str]]:
-    """(header names, name -> defining header, cpp-only names) for Game and the block-held types."""
+    """(header names, name -> defining header, cpp-only names) for the types refcheck says the block holds."""
     sys.setrecursionlimit(100000)
     files = files if files is not None else typedupes.collect()
     by_name = by_name if by_name is not None else typedupes.definitions(files)
-    scope = typedupes.Scope(files, by_name)
-    rows = [r for r in stateclasses.read_rows() if r["class"] in ("sim", "mixed")]
-    names = scope.closure(rows, {g["name"]: g for g in stateclasses.read_globals()}) | {"Game"}
+    names = refcheck.block_structs(files, by_name, stateclasses.read_rows(), stateclasses.read_globals())
     homes: dict[str, str] = {}
     cpp_only: list[str] = []
-    for name in sorted(names):
+    for name in sorted(names - SELF_ASSERTED):
         ds = [d for d in by_name.get(name, []) if not d.get("local") and not is_template(files, d)]
         if not ds:
             continue
