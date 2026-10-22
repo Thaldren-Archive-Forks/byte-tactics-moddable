@@ -1,0 +1,5 @@
+struct,field,kind,file,issue
+Holder,callback,function-pointer,src/units/sample.h,#349
+Holder,fixed,pointer,src/units/sample.h,#349
+Holder,kept,pointer,src/units/sample.h,#350
+Holder,viaMacro,pointer,src/units/sample.h,#349

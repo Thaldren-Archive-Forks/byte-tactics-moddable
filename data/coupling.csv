@@ -1036,6 +1036,7 @@ harness,game,call,QuirksFlipFirstSim,1
 harness,game,call,QuirksHash,2
 harness,game,call,QuirksNormalise,2
 harness,game,call,QuirksParse,2
+harness,game,call,SimBlockBase,2
 harness,game,call,SimBlockForEach,1
 harness,game,call,SimOwns,1
 harness,game,shared_write,Game::difficulty,4

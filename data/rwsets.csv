@@ -43082,6 +43082,7 @@ address,function,file,kind,target
 ,DumpPrefix,src/harness/harness.cpp,global_read,s_traceTick@src/harness/harness.cpp
 ,DumpValue,src/harness/harness.cpp,call,ReadMasked
 ,DumpValue,src/harness/harness.cpp,call,Resolve
+,DumpValue,src/harness/harness.cpp,call,SimBlockBase
 ,DumpValue,src/harness/harness.cpp,call,fprintf
 ,DumpValue,src/harness/harness.cpp,call,fputc
 ,DumpValue,src/harness/harness.cpp,call,fputs
@@ -44657,6 +44658,7 @@ address,function,file,kind,target
 ,HashPointer,src/harness/harness.cpp,call,HashByte
 ,HashPointer,src/harness/harness.cpp,call,HashU32
 ,HashPointer,src/harness/harness.cpp,call,Resolve
+,HashPointer,src/harness/harness.cpp,call,SimBlockBase
 ,HashPointer,src/harness/harness.cpp,function,
 ,HashRow,src/harness/block_scan.cpp,field_read,Row::holder
 ,HashRow,src/harness/block_scan.cpp,field_read,Row::holderTag

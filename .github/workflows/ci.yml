@@ -73,7 +73,7 @@ jobs:
           if [ "$EVENT" != pull_request ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           elif git diff --name-only "origin/$BASE_REF...HEAD" |
-              grep -qE '^(src/|tests/|include/|interfaces/|link/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$|tools/sources\.py$|tools/rwsets\.py$|tools/test_rwsets\.py$|data/rwsets\.csv$|tools/hazards\.py$|tools/test_hazards\.py$|data/hazards\.csv$|tools/stateclasses\.py$|tools/test_stateclasses\.py$|tools/blockpointers\.py$|tools/test_blockpointers\.py$|data/block_pointers\.csv$|tools/simalloc\.py$|tools/test_simalloc\.py$|data/simalloc_allow\.csv$|tools/test_trace_coverage\.py$|tools/playtest\.py$|tools/test_playtest_dialogs\.py$|tools/tracediff\.py$|tools/test_tracediff\.py$|data/trace_coverage\.csv$|data/state_classes\.csv$|tools/typedupes\.py$|tools/test_typedupes\.py$|data/type_dupes\.csv$|tools/layoutrefs\.py$|tools/test_layoutrefs\.py$|data/layout_refs\.csv$|\.github/workflows/ci\.yml$|tools/coupling\.py$|tools/abidiff\.py$|tools/test_abidiff\.py$|tools/aliases\.py$|tools/test_aliases\.py$|data/initialiser_allow\.csv$|tools/test_coupling\.py$|data/subsystems\.csv$|data/coupling\.csv$|data/hazard_edges\.csv$|data/globals\.csv$|data/game_logic\.csv$|pyproject\.toml$|uv\.lock$)'; then
+              grep -qE '^(src/|tests/|include/|interfaces/|link/|lib/|cmake/|CMakeLists\.txt$|tools/setup_toolchain\.sh$|tools/sources\.py$|tools/rwsets\.py$|tools/test_rwsets\.py$|data/rwsets\.csv$|tools/hazards\.py$|tools/test_hazards\.py$|data/hazards\.csv$|tools/stateclasses\.py$|tools/test_stateclasses\.py$|tools/blockpointers\.py$|tools/test_blockpointers\.py$|data/block_pointers\.csv$|tools/simalloc\.py$|tools/test_simalloc\.py$|data/simalloc_allow\.csv$|tools/test_trace_coverage\.py$|tools/playtest\.py$|tools/test_playtest_dialogs\.py$|tools/tracediff\.py$|tools/test_tracediff\.py$|data/trace_coverage\.csv$|data/state_classes\.csv$|tools/typedupes\.py$|tools/test_typedupes\.py$|data/type_dupes\.csv$|tools/refcheck\.py$|tools/layoutasserts\.py$|tools/test_layoutasserts\.py$|tools/refrewrite\.py$|tools/test_refrewrite\.py$|tools/testdata/refrewrite/|tools/test_refcheck\.py$|data/ref_exceptions\.csv$|data/outside_pointers\.csv$|tools/layoutrefs\.py$|tools/test_layoutrefs\.py$|data/layout_refs\.csv$|\.github/workflows/ci\.yml$|tools/coupling\.py$|tools/abidiff\.py$|tools/test_abidiff\.py$|tools/aliases\.py$|tools/test_aliases\.py$|data/initialiser_allow\.csv$|tools/test_coupling\.py$|data/subsystems\.csv$|data/coupling\.csv$|data/hazard_edges\.csv$|data/globals\.csv$|data/game_logic\.csv$|pyproject\.toml$|uv\.lock$)'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -115,9 +115,9 @@ jobs:
         if: steps.changed.outputs.run == 'true'
         run: cmake -S . -B build/modern -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-i686.cmake -DBT_COMPILE_ONLY=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
-      - name: Compile the game, data, bitexact and block_test
+      - name: Compile the game, data, bitexact, block_test and ref_test
         if: steps.changed.outputs.run == 'true'
-        run: cmake --build build/modern --target game data bitexact block_test
+        run: cmake --build build/modern --target game data bitexact block_test ref_test
 
       - name: Check data/rwsets.csv is current
         if: steps.changed.outputs.run == 'true'
@@ -149,6 +149,15 @@ jobs:
         run: |
           uv run tools/test_typedupes.py
           uv run tools/typedupes.py --check --build-dir build/modern
+
+      - name: Check no block struct gains a raw pointer
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          uv run tools/test_refcheck.py
+          uv run tools/refcheck.py --check --build-dir build/modern
+          uv run tools/test_layoutasserts.py
+          uv run tools/layoutasserts.py --check
+          uv run tools/test_refrewrite.py
 
       - name: Check data/layout_refs.csv is current
         if: steps.changed.outputs.run == 'true'
