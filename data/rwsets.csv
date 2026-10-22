@@ -17081,7 +17081,6 @@ address,function,file,kind,target
 0x459200,CMemoryCache::DrawObjectPicture,src/graphics/model_render_4589c0.cpp,call,operator=
 0x459200,CMemoryCache::DrawObjectPicture,src/graphics/model_render_4589c0.cpp,call,shade_bias
 0x459200,CMemoryCache::DrawObjectPicture,src/graphics/model_render_4589c0.cpp,deref_read,*GameFlags_459200
-0x459200,CMemoryCache::DrawObjectPicture,src/graphics/model_render_4589c0.cpp,deref_read,*Vec3_459200
 0x459200,CMemoryCache::DrawObjectPicture,src/graphics/model_render_4589c0.cpp,deref_read,*int
 0x459200,CMemoryCache::DrawObjectPicture,src/graphics/model_render_4589c0.cpp,field_escape,Game::flags_37f06
 0x459200,CMemoryCache::DrawObjectPicture,src/graphics/model_render_4589c0.cpp,field_escape,Model_459200::pieces
