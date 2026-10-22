@@ -1,0 +1,33 @@
+#pragma once
+#include <stddef.h>
+#include "../../interfaces/ref.h"
+
+#define PTR(T) T*
+
+struct Target {
+    int value;
+};
+
+struct Holder {
+    Ref<Target> a;
+    Ref<Target> b;
+    Ref<struct Target> c;
+    Ref<const Target> d;
+    Ref<Target*> e;
+    Ref<Target> f[4];
+    Ref<Target> g;
+    Ref<Target> h;
+    Ref<Target>   spaced;
+    int (*callback)(int);
+    PTR(Target) viaMacro;
+    Target* const fixed;
+    Target* kept;
+    int plain;
+    Ref<Target> m;
+    Ref<Target> n;
+    Target plainTarget;
+    union {
+        Ref<Target> inUnion;
+        int tag;
+    };
+};

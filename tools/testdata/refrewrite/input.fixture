@@ -1,0 +1,29 @@
+#pragma once
+#include <stddef.h>
+
+#define PTR(T) T*
+
+struct Target {
+    int value;
+};
+
+struct Holder {
+    Target *a;
+    Target* b;
+    struct Target* c;
+    const Target* d;
+    Target** e;
+    Target* f[4];
+    Target *g, *h;
+    Target     *   spaced;
+    int (*callback)(int);
+    PTR(Target) viaMacro;
+    Target* const fixed;
+    Target* kept;
+    int plain;
+    Target *m, *n, plainTarget;
+    union {
+        Target* inUnion;
+        int tag;
+    };
+};

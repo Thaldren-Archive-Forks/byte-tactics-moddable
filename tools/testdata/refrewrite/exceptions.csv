@@ -1,0 +1,17 @@
+struct,field,kind,file,issue
+Holder,a,pointer,src/units/sample.h,#349
+Holder,b,pointer,src/units/sample.h,#349
+Holder,c,pointer,src/units/sample.h,#349
+Holder,callback,function-pointer,src/units/sample.h,#349
+Holder,d,pointer,src/units/sample.h,#349
+Holder,e,pointer,src/units/sample.h,#349
+Holder,f,pointer,src/units/sample.h,#349
+Holder,fixed,pointer,src/units/sample.h,#349
+Holder,g,pointer,src/units/sample.h,#349
+Holder,h,pointer,src/units/sample.h,#349
+Holder,inUnion,pointer,src/units/sample.h,#349
+Holder,kept,pointer,src/units/sample.h,#350
+Holder,m,pointer,src/units/sample.h,#349
+Holder,n,pointer,src/units/sample.h,#349
+Holder,spaced,pointer,src/units/sample.h,#349
+Holder,viaMacro,pointer,src/units/sample.h,#349
