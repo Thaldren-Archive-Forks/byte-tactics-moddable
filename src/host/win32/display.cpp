@@ -19,6 +19,13 @@ IDirectDrawClipper* g_clipper;
 IDirectDrawPalette* g_palette;
 int g_width;
 int g_height;
+HDC g_windowedDC;
+HBITMAP g_windowedDib;
+HPALETTE g_windowedPalette;
+void* g_windowedBits;
+int g_windowedWidth;
+int g_windowedHeight;
+unsigned char g_windowedEntries[256 * 4];
 
 IDirectDrawSurface* Frame(int which)
 {
@@ -31,6 +38,152 @@ int Result(HRESULT hr)
         return HOST_FRAME_OK;
     }
     return hr == kSurfaceLost ? HOST_FRAME_LOST : HOST_FRAME_FAILED;
+}
+
+void FreeWindowed()
+{
+    if (g_windowedDC) {
+        DeleteDC(g_windowedDC);
+        g_windowedDC = 0;
+    }
+    if (g_windowedPalette) {
+        DeleteObject(g_windowedPalette);
+        g_windowedPalette = 0;
+    }
+    if (g_windowedDib) {
+        DeleteObject(g_windowedDib);
+        g_windowedDib = 0;
+    }
+    g_windowedBits = 0;
+}
+
+void ReleaseDirectDraw()
+{
+    if (g_ddraw) {
+        if (g_palette) {
+            g_palette->Release();
+            g_palette = 0;
+        }
+        if (g_back) {
+            g_back->Release();
+            g_back = 0;
+        }
+        if (g_primary) {
+            g_primary->Release();
+            g_primary = 0;
+        }
+        if (g_clipper) {
+            g_clipper->Release();
+            g_clipper = 0;
+        }
+        g_ddraw->Release();
+        g_ddraw = 0;
+    }
+}
+
+bool WindowedPaletteActive()
+{
+    return g_windowedDC && !g_ddraw;
+}
+
+bool WindowedBackActive()
+{
+    return g_windowedDC && !g_back;
+}
+
+int WindowedPaletteCreate(const unsigned char* entries)
+{
+    struct {
+        WORD version;
+        WORD count;
+        PALETTEENTRY entries[256];
+    } logical;
+    unsigned char quads[256 * 4];
+
+    if (g_windowedPalette) {
+        DeleteObject(g_windowedPalette);
+        g_windowedPalette = 0;
+    }
+    logical.version = 0x300;
+    logical.count = 0x100;
+    for (int i = 0; i < 256; i++) {
+        logical.entries[i].peRed = entries[i * 4];
+        logical.entries[i].peGreen = entries[i * 4 + 1];
+        logical.entries[i].peBlue = entries[i * 4 + 2];
+        logical.entries[i].peFlags = entries[i * 4 + 3];
+        quads[i * 4 + 2] = entries[i * 4];
+        quads[i * 4 + 1] = entries[i * 4 + 1];
+        quads[i * 4 + 0] = entries[i * 4 + 2];
+        quads[i * 4 + 3] = 0;
+    }
+    if (entries != g_windowedEntries) {
+        memcpy(g_windowedEntries, entries, sizeof(g_windowedEntries));
+    }
+    g_windowedPalette = CreatePalette((LOGPALETTE*)&logical);
+    if (!g_windowedPalette) {
+        return 0;
+    }
+    SetDIBColorTable(g_windowedDC, 0, 0x100, (RGBQUAD*)quads);
+    return 1;
+}
+
+int WindowedPresent(int x, int y, int width, int height)
+{
+    HWND hwnd = host_win32_window();
+    HDC dc;
+    BOOL copied;
+
+    if (!g_windowedDC) {
+        return HOST_FRAME_FAILED;
+    }
+    dc = GetDC(hwnd);
+    if (!dc) {
+        return HOST_FRAME_FAILED;
+    }
+    if (g_windowedPalette) {
+        SelectPalette(dc, g_windowedPalette, FALSE);
+        RealizePalette(dc);
+    }
+    copied = BitBlt(dc, x, y, width, height, g_windowedDC, x, y, SRCCOPY);
+    ReleaseDC(hwnd, dc);
+    return copied ? HOST_FRAME_OK : HOST_FRAME_FAILED;
+}
+
+int WindowedSetUp(int width, int height, const unsigned char* palette)
+{
+    struct {
+        BITMAPINFOHEADER header;
+        RGBQUAD colours[256];
+    } bmi;
+    HDC window = GetDC(host_win32_window());
+
+    if (!window) {
+        return HOST_DISPLAY_FAILED;
+    }
+    g_windowedDC = CreateCompatibleDC(window);
+    ReleaseDC(host_win32_window(), window);
+    if (!g_windowedDC) {
+        return HOST_DISPLAY_FAILED;
+    }
+    memset(&bmi, 0, sizeof(bmi));
+    bmi.header.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.header.biWidth = width;
+    bmi.header.biHeight = -height;
+    bmi.header.biPlanes = 1;
+    bmi.header.biBitCount = 8;
+    bmi.header.biCompression = BI_RGB;
+    g_windowedDib = CreateDIBSection(g_windowedDC, (BITMAPINFO*)&bmi, DIB_RGB_COLORS, &g_windowedBits, NULL, 0);
+    if (!g_windowedDib) {
+        FreeWindowed();
+        return HOST_DISPLAY_FAILED;
+    }
+    SelectObject(g_windowedDC, g_windowedDib);
+    g_windowedWidth = width;
+    g_windowedHeight = height;
+    if (palette) {
+        WindowedPaletteCreate(palette);
+    }
+    return HOST_DISPLAY_OK;
 }
 
 struct ModeCollector {
@@ -60,6 +213,17 @@ extern "C" int HOST_CALL host_display_mode_set(int width, int height, int flags,
     HWND hwnd = host_win32_window();
     DDSURFACEDESC ddsd;
     HRESULT hr;
+
+    if (!(flags & HOST_DISPLAY_PRIMARY_ONLY)) {
+        FreeWindowed();
+    }
+    if (flags & HOST_DISPLAY_WINDOWED) {
+        ReleaseDirectDraw();
+        if (width <= 0 || height <= 0) {
+            return HOST_DISPLAY_FAILED;
+        }
+        return WindowedSetUp(width, height, palette);
+    }
 
     g_width = width;
     g_height = height;
@@ -141,25 +305,12 @@ extern "C" void HOST_CALL host_display_close(void)
 {
     if (HostHeadless()) { HeadlessDisplayClose(); return; }
     if (g_ddraw) {
-        if (g_palette) {
-            g_palette->Release();
-            g_palette = 0;
+        ReleaseDirectDraw();
+        if (g_windowedDC) {
+            return;
         }
-        if (g_back) {
-            g_back->Release();
-            g_back = 0;
-        }
-        if (g_primary) {
-            g_primary->Release();
-            g_primary = 0;
-        }
-        if (g_clipper) {
-            g_clipper->Release();
-            g_clipper = 0;
-        }
-        g_ddraw->Release();
-        g_ddraw = 0;
     }
+    FreeWindowed();
 }
 
 extern "C" int HOST_CALL host_display_is_open(void)
@@ -205,9 +356,23 @@ extern "C" int HOST_CALL host_display_mode_list(host_display_mode* modes, int ma
     return result;
 }
 
+extern "C" void HOST_CALL host_display_screen_size(int* width, int* height)
+{
+    if (HostHeadless()) { HeadlessDisplayScreenSize(width, height); return; }
+    *width = GetSystemMetrics(SM_CXSCREEN);
+    *height = GetSystemMetrics(SM_CYSCREEN);
+}
+
 extern "C" int HOST_CALL host_frame_lock(int which, host_frame* frame)
 {
     if (HostHeadless()) return HeadlessFrameLock(which, frame);
+    if (which == HOST_FRAME_BACK && WindowedBackActive()) {
+        frame->pixels = (unsigned char*)g_windowedBits;
+        frame->pitch = (g_windowedWidth + 3) & ~3;
+        frame->width = g_windowedWidth;
+        frame->height = g_windowedHeight;
+        return HOST_FRAME_OK;
+    }
     IDirectDrawSurface* surface = Frame(which);
     DDSURFACEDESC desc;
     int result;
@@ -230,6 +395,9 @@ extern "C" int HOST_CALL host_frame_lock(int which, host_frame* frame)
 extern "C" int HOST_CALL host_frame_unlock(int which)
 {
     if (HostHeadless()) return HeadlessFrameUnlock(which);
+    if (which == HOST_FRAME_BACK && WindowedBackActive()) {
+        return 1;
+    }
     IDirectDrawSurface* surface = Frame(which);
     if (!surface) {
         return 0;
@@ -241,6 +409,9 @@ extern "C" int HOST_CALL host_frame_unlock(int which)
 extern "C" int HOST_CALL host_frame_present(int flip)
 {
     if (HostHeadless()) return HeadlessFramePresent(flip);
+    if (WindowedBackActive()) {
+        return WindowedPresent(0, 0, g_windowedWidth, g_windowedHeight);
+    }
     if (flip) {
         return Result(g_primary->Flip(0, 1));
     }
@@ -254,6 +425,12 @@ extern "C" int HOST_CALL host_frame_present(int flip)
     ClientToScreen(hwnd, &pt);
     OffsetRect(&rect, pt.x, pt.y);
     return Result(g_primary->Blt(&rect, g_back, &src, 0x1000000, 0));
+}
+
+extern "C" int HOST_CALL host_frame_present_rect(int x, int y, int width, int height)
+{
+    if (HostHeadless()) return HeadlessFramePresentRect(x, y, width, height);
+    return WindowedPresent(x, y, width, height);
 }
 
 extern "C" int HOST_CALL host_frame_is_lost(void)
@@ -357,6 +534,9 @@ extern "C" void HOST_CALL host_frame_context_palette(void* context, void* palett
 extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)
 {
     if (HostHeadless()) return HeadlessPaletteCreate(entries);
+    if (WindowedPaletteActive()) {
+        return WindowedPaletteCreate(entries);
+    }
     if (!g_ddraw || !g_primary) {
         return 0;
     }
@@ -369,18 +549,45 @@ extern "C" int HOST_CALL host_palette_create(const unsigned char* entries)
 extern "C" int HOST_CALL host_palette_set(int start, int count, const unsigned char* entries)
 {
     if (HostHeadless()) return HeadlessPaletteSet(start, count, entries);
+    if (WindowedPaletteActive()) {
+        unsigned char merged[256 * 4];
+        if (start < 0 || count < 0 || start + count > 256) {
+            return 0;
+        }
+        memcpy(merged, g_windowedEntries, sizeof(merged));
+        memcpy(merged + start * 4, entries, count * 4);
+        return WindowedPaletteCreate(merged);
+    }
     return g_palette && g_palette->SetEntries(0, start, count, (LPPALETTEENTRY)entries) == 0;
 }
 
 extern "C" int HOST_CALL host_palette_get(unsigned char* entries)
 {
     if (HostHeadless()) return HeadlessPaletteGet(entries);
+    if (WindowedPaletteActive()) {
+        return g_windowedPalette && GetPaletteEntries(g_windowedPalette, 0, 256, (LPPALETTEENTRY)entries) == 256;
+    }
     return g_palette && g_palette->GetEntries(0, 0, 0x100, (LPPALETTEENTRY)entries) == 0;
 }
 
 extern "C" int HOST_CALL host_palette_apply(void)
 {
     if (HostHeadless()) return HeadlessPaletteApply();
+    if (WindowedPaletteActive()) {
+        HWND hwnd = host_win32_window();
+        HDC dc;
+        if (!g_windowedPalette) {
+            return 0;
+        }
+        dc = GetDC(hwnd);
+        if (!dc) {
+            return 0;
+        }
+        SelectPalette(dc, g_windowedPalette, FALSE);
+        RealizePalette(dc);
+        ReleaseDC(hwnd, dc);
+        return 1;
+    }
     return g_primary && g_palette && g_primary->SetPalette(g_palette) == DD_OK;
 }
 

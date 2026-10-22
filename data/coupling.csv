@@ -3146,14 +3146,14 @@ presentation,platform,call,host_file_open_read,1
 presentation,platform,call,host_file_read,1
 presentation,platform,call,host_file_seek,3
 presentation,platform,call,host_file_write,4
-presentation,platform,call,host_frame_context_get,5
-presentation,platform,call,host_frame_context_palette,3
-presentation,platform,call,host_frame_context_release,5
+presentation,platform,call,host_frame_context_get,2
+presentation,platform,call,host_frame_context_release,2
 presentation,platform,call,host_frame_fill,3
 presentation,platform,call,host_frame_is_lost,1
 presentation,platform,call,host_frame_lock,3
 presentation,platform,call,host_frame_pixel_format,1
 presentation,platform,call,host_frame_present,1
+presentation,platform,call,host_frame_present_rect,2
 presentation,platform,call,host_frame_restore,3
 presentation,platform,call,host_frame_text,1
 presentation,platform,call,host_frame_unlock,5
@@ -3192,7 +3192,7 @@ presentation,platform,call,host_net_quit_game,1
 presentation,platform,call,host_net_release_play_interface,1
 presentation,platform,call,host_net_uninit,1
 presentation,platform,call,host_palette_apply,1
-presentation,platform,call,host_palette_create,1
+presentation,platform,call,host_palette_create,2
 presentation,platform,call,host_palette_get,1
 presentation,platform,call,host_palette_set,3
 presentation,platform,call,host_post_quit,1

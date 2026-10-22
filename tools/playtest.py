@@ -20,7 +20,8 @@ audio sink, screenshots or dialog checks, and only wine needs to be installed. T
 with `--testdump <tick>`) is copied to the run's directory. Every `--testmode` run passes the game's
 own `-memset=0` switch, which makes GameAlloc (and so operator new) zero new memory. `--poison` passes
 `-memset=0xcdcdcdcd` instead, which fills it with 0xCD. `--blockscan` adds `-blockscan` (every tick) and copies
-blockptrs.txt too; `--blockscan-every N` adds `-blockscan=N`.
+blockptrs.txt too; `--blockscan-every N` adds `-blockscan=N`. `--windowed` passes the game's own `-d`
+switch, which starts each game in a window instead of full screen (not with `--testmode`).
 
 Each run has its own (except that a `--testmode` run has no X server or audio sink):
 
@@ -469,6 +470,8 @@ class Instance:
             args += ["-testdump", str(self.run.testdump)]
         if self.run.testmode:
             args += [POISON_SWITCH if self.run.poison else ZERO_FILL_SWITCH]
+        if self.run.windowed:
+            args += ["-d"]
         if self.run.testmode and self.run.blockscan:
             args += ["-blockscan" if self.run.blockscan == 1 else f"-blockscan={self.run.blockscan}"]
         self.wine = subprocess.Popen(["wine", exe, *args], cwd=self.game, env=env, start_new_session=True,
@@ -854,7 +857,8 @@ class GotoLabel(Exception):
 class Run:
     def __init__(self, number: int, name: str, scenario: Scenario, exes: list[Path], exe_tag: str, session: Path,
                  screens: dict[str, Screen], debug: str, window: bool = False, testmode: Path | None = None,
-                 testdump: int | None = None, poison: bool = False, blockscan: int = 0):
+                 testdump: int | None = None, poison: bool = False, blockscan: int = 0,
+                 windowed: bool = False):
         self.number = number
         self.name = name
         self.scenario = scenario
@@ -869,6 +873,7 @@ class Run:
         self.testdump = testdump     # the tick to dump the state of, with testmode
         self.poison = poison
         self.blockscan = blockscan
+        self.windowed = windowed
         self.instances = [Instance(self, i + 1) for i in range(scenario.instances)]
         self.t0 = time.time()
         self.log = None
@@ -1347,6 +1352,8 @@ def main() -> None:
                     help="--testmode: run with -blockscan, which writes blockptrs.txt (the pointers out of the block)")
     ap.add_argument("--blockscan-every", type=int, metavar="N", default=0,
                     help="--testmode: --blockscan on every Nth tick and each tick of the last 64 (-blockscan=N)")
+    ap.add_argument("--windowed", action="store_true",
+                    help="start each game in windowed mode (the game's -d switch; default full screen)")
     ap.add_argument("--list", action="store_true", help="list the scenarios")
     ap.add_argument("--signature", nargs="+", metavar="NAME GEOMETRY IMAGE",
                     help="print a screens.txt line for an area of screenshots of one screen")
@@ -1386,6 +1393,8 @@ def main() -> None:
     scan_every = args.blockscan_every or int(args.blockscan)
     if args.poison and not args.testmode:
         ap.error("--poison needs --testmode")
+    if args.windowed and args.testmode:
+        ap.error("--windowed does not apply to --testmode (the headless host has no window)")
     if args.testdump is not None and args.testdump < 0:
         ap.error("--testdump takes a tick of 0 or more")
     if args.testmode and not Path(args.testmode).is_file():
@@ -1436,7 +1445,8 @@ def main() -> None:
                                 args.debug, args.window,
                                 Path(args.testmode).resolve() if sc is testmode else None,
                                 args.testdump if sc is testmode else None,
-                                args.poison and sc is testmode, scan_every if sc is testmode else 0))
+                                args.poison and sc is testmode, scan_every if sc is testmode else 0,
+                                args.windowed))
     parallel = args.parallel or min(3, len(runs))
     template = template_prefix()
     dplay = directplay_prefix() if any(sc.directplay for sc in scenarios) else None

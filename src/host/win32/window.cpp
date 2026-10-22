@@ -13,6 +13,16 @@ DWORD g_thread;
 host_event g_queue[kQueueSize];
 unsigned int g_head;
 unsigned int g_count;
+UINT g_savedMouseTrails;
+bool g_mouseTrailsSaved;
+
+void RestoreMouseTrails()
+{
+    if (g_mouseTrailsSaved) {
+        SystemParametersInfoA(SPI_SETMOUSETRAILS, g_savedMouseTrails, 0, TRUE);
+        g_mouseTrailsSaved = false;
+    }
+}
 
 bool Droppable(unsigned int type, int level)
 {
@@ -87,6 +97,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     case WM_CREATE:
         return 0;
     case WM_DESTROY:
+        RestoreMouseTrails();
         Queue(HOST_EVENT_DESTROY, 0, 0);
         return 0;
     case WM_ACTIVATE:
@@ -161,6 +172,9 @@ extern "C" void* HOST_CALL host_window_open(const char* title, int width, int he
         return NULL;
     }
     g_thread = GetCurrentThreadId();
+    SystemParametersInfoA(SPI_GETMOUSETRAILS, 0, &g_savedMouseTrails, TRUE);
+    g_mouseTrailsSaved = true;
+    SystemParametersInfoA(SPI_SETMOUSETRAILS, 0, 0, TRUE);
     g_hwnd = CreateWindowExA(WS_EX_APPWINDOW, wc.lpszClassName, title,
                              WS_POPUP | WS_VISIBLE | WS_SYSMENU,
                              fullscreen ? 0 : CW_USEDEFAULT, fullscreen ? 0 : CW_USEDEFAULT, width, height,
@@ -182,6 +196,7 @@ extern "C" void HOST_CALL host_window_close(void)
 {
     if (HostHeadless()) { HeadlessWindowClose(); return; }
     DestroyWindow(g_hwnd);
+    RestoreMouseTrails();
 }
 
 extern "C" int HOST_CALL host_window_has_focus(void)
