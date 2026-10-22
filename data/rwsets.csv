@@ -23709,10 +23709,6 @@ address,function,file,kind,target
 0x47c150,MoviePlayer::GetBlitMode,src/graphics/movies.cpp,field_read,host_pixel_format::green
 0x47c150,MoviePlayer::GetBlitMode,src/graphics/movies.cpp,field_read,host_pixel_format::red
 0x47c150,MoviePlayer::GetBlitMode,src/graphics/movies.cpp,function,
-0x47c230,MoviePlayer::ReadSystemPalette,src/graphics/movies.cpp,call,host_palette_system
-0x47c230,MoviePlayer::ReadSystemPalette,src/graphics/movies.cpp,field_escape,MoviePlayer::entries
-0x47c230,MoviePlayer::ReadSystemPalette,src/graphics/movies.cpp,field_write,tagPALETTEENTRY::peFlags
-0x47c230,MoviePlayer::ReadSystemPalette,src/graphics/movies.cpp,function,
 0x47c2a0,MoviePlayer::UpdatePalette,src/graphics/movies.cpp,call,host_palette_set
 0x47c2a0,MoviePlayer::UpdatePalette,src/graphics/movies.cpp,deref_read,*unsigned char
 0x47c2a0,MoviePlayer::UpdatePalette,src/graphics/movies.cpp,field_escape,MoviePlayer::entries
@@ -23724,14 +23720,6 @@ address,function,file,kind,target
 0x47c2a0,MoviePlayer::UpdatePalette,src/graphics/movies.cpp,function,
 0x47c2f0,MoviePlayer::ClearScreen,src/graphics/movies.cpp,call,host_frame_fill
 0x47c2f0,MoviePlayer::ClearScreen,src/graphics/movies.cpp,function,
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,call,SmackGoto
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,call,SmackSoundOnOff
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,call,host_window_paint_black
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,field_read,MoviePlayer::frame
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,field_read,MoviePlayer::smack
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,field_read,Smk_0047c3a0::height
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,field_read,Smk_0047c3a0::width
-0x47c330,MoviePlayer::OnPaint,src/graphics/movies.cpp,function,
 0x47c3a0,MoviePlayer::PlayFrame,src/graphics/movies.cpp,call,FlipScreen
 0x47c3a0,MoviePlayer::PlayFrame,src/graphics/movies.cpp,call,SetOffscreenSurface
 0x47c3a0,MoviePlayer::PlayFrame,src/graphics/movies.cpp,call,SmackDoFrame
@@ -51506,12 +51494,6 @@ address,function,file,kind,target
 ,host_window_open,src/host/win32/window.cpp,global_write,g_hwnd
 ,host_window_open,src/host/win32/window.cpp,global_write,g_mouseTrailsSaved
 ,host_window_open,src/host/win32/window.cpp,global_write,g_thread
-,host_window_paint_black,src/host/win32/window.cpp,call,BeginPaint
-,host_window_paint_black,src/host/win32/window.cpp,call,EndPaint
-,host_window_paint_black,src/host/win32/window.cpp,call,HostHeadless
-,host_window_paint_black,src/host/win32/window.cpp,call,PatBlt
-,host_window_paint_black,src/host/win32/window.cpp,function,
-,host_window_paint_black,src/host/win32/window.cpp,global_read,g_hwnd
 ,host_window_place,src/host/win32/window.cpp,call,HostHeadless
 ,host_window_place,src/host/win32/window.cpp,call,SetWindowPos
 ,host_window_place,src/host/win32/window.cpp,function,

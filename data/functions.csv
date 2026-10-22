@@ -1653,10 +1653,8 @@ address,size,kind,name,params,locals,seh,frame_pointer,calls,game_calls,callers
 0x47bf20,80,game,,0,0,0,0,0,0,1
 0x47bf70,472,game,,0,2,0,1,1,1,1
 0x47c150,214,game,,1,8,0,0,0,0,1
-0x47c230,104,game,,1,0,0,0,0,0,0
 0x47c2a0,72,game,,0,0,0,0,0,0,0
 0x47c2f0,54,game,,0,25,0,0,0,0,0
-0x47c330,106,game,,1,16,0,0,0,0,0
 0x47c3a0,294,game,,1,0,0,0,2,2,1
 0x47c530,398,game,,0,21,0,0,3,0,0
 0x47c6c0,176,game,,0,7,0,1,1,1,1

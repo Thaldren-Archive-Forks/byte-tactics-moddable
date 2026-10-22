@@ -3193,7 +3193,7 @@ presentation,platform,call,host_palette_apply,1
 presentation,platform,call,host_palette_create,2
 presentation,platform,call,host_palette_get,1
 presentation,platform,call,host_palette_set,3
-presentation,platform,call,host_palette_system,2
+presentation,platform,call,host_palette_system,1
 presentation,platform,call,host_post_quit,1
 presentation,platform,call,host_pump_events,2
 presentation,platform,call,host_sleep_ms,3
@@ -3220,7 +3220,6 @@ presentation,platform,call,host_time_ms,4
 presentation,platform,call,host_user_name,1
 presentation,platform,call,host_window_client_origin,1
 presentation,platform,call,host_window_has_focus,2
-presentation,platform,call,host_window_paint_black,1
 presentation,platform,call,host_window_raise,1
 presentation,platform,call,host_window_resize,1
 presentation,platform,call,host_window_set_topmost,1
