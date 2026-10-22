@@ -3146,8 +3146,6 @@ presentation,platform,call,host_file_open_read,1
 presentation,platform,call,host_file_read,1
 presentation,platform,call,host_file_seek,3
 presentation,platform,call,host_file_write,4
-presentation,platform,call,host_frame_context_get,2
-presentation,platform,call,host_frame_context_release,2
 presentation,platform,call,host_frame_fill,3
 presentation,platform,call,host_frame_is_lost,1
 presentation,platform,call,host_frame_lock,3
@@ -3195,6 +3193,7 @@ presentation,platform,call,host_palette_apply,1
 presentation,platform,call,host_palette_create,2
 presentation,platform,call,host_palette_get,1
 presentation,platform,call,host_palette_set,3
+presentation,platform,call,host_palette_system,2
 presentation,platform,call,host_post_quit,1
 presentation,platform,call,host_pump_events,2
 presentation,platform,call,host_sleep_ms,3
@@ -3219,7 +3218,11 @@ presentation,platform,call,host_thread_set_priority,1
 presentation,platform,call,host_thread_start,2
 presentation,platform,call,host_time_ms,4
 presentation,platform,call,host_user_name,1
+presentation,platform,call,host_window_client_origin,1
 presentation,platform,call,host_window_has_focus,2
+presentation,platform,call,host_window_paint_black,1
+presentation,platform,call,host_window_raise,1
+presentation,platform,call,host_window_resize,1
 presentation,platform,call,host_window_set_topmost,1
 presentation,platform,call,operator delete,16
 presentation,platform,call,operator new,23
